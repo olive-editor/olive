@@ -47,8 +47,10 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_new_menu_ = new Menu(file_menu_);
   MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), &Core::OpenProject, "Ctrl+O");
-  file_open_recent_menu_ = new Menu(file_menu_);
-  file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", this, &MainMenu::ClearOpenRecentTriggered);
+  file_open_recent_menu_ = new Menu(file_menu_, this, &MainMenu::PopulateOpenRecent);
+  connect(file_open_recent_menu_, &Menu::aboutToHide, this, &MainMenu::CloseOpenRecentMenu);
+  file_open_recent_separator_ = file_open_recent_menu_->addSeparator();
+  file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
   file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
   file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, "Ctrl+Shift+S");
   file_menu_->addSeparator();
@@ -356,6 +358,35 @@ void MainMenu::WindowMenuAboutToHide()
   }
 }
 
+void MainMenu::PopulateOpenRecent()
+{
+  if (Core::instance()->GetRecentProjects().isEmpty()) {
+
+    // Insert dummy/disabled action to show there's nothing
+    QAction* a = new QAction(tr("(None)"));
+    a->setEnabled(false);
+    file_open_recent_menu_->insertAction(file_open_recent_separator_, a);
+
+  } else {
+
+    // Populate menu with recently opened projects
+    for (int i=0;i<Core::instance()->GetRecentProjects().size();i++) {
+      QAction* a = new QAction(Core::instance()->GetRecentProjects().at(i));
+      a->setData(i);
+      connect(a, &QAction::triggered, this, &MainMenu::OpenRecentItemTriggered);
+      file_open_recent_menu_->insertAction(file_open_recent_separator_, a);
+    }
+
+  }
+}
+
+void MainMenu::CloseOpenRecentMenu()
+{
+  while (file_open_recent_menu_->actions().first() != file_open_recent_separator_) {
+    file_open_recent_menu_->removeAction(file_open_recent_menu_->actions().first());
+  }
+}
+
 void MainMenu::ZoomInTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->ZoomIn();
@@ -498,11 +529,6 @@ void MainMenu::ToggleShowAllTriggered()
   PanelManager::instance()->CurrentlyFocused()->ToggleShowAll();
 }
 
-void MainMenu::ClearOpenRecentTriggered()
-{
-  qDebug() << "FIXME: Stub";
-}
-
 void MainMenu::DeleteInOutTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->DeleteInToOut();
@@ -526,6 +552,11 @@ void MainMenu::GoToOutTriggered()
 void MainMenu::DebugLogTriggered()
 {
   qDebug() << "FIXME: Stub";
+}
+
+void MainMenu::OpenRecentItemTriggered()
+{
+  Core::instance()->OpenProjectFromRecentList(static_cast<QAction*>(sender())->data().toInt());
 }
 
 void MainMenu::Retranslate()

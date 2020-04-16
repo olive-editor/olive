@@ -120,6 +120,11 @@ public:
   const bool& snapping() const;
 
   /**
+   * @brief Returns a list of the most recently opened/saved projects
+   */
+  const QStringList& GetRecentProjects() const;
+
+  /**
    * @brief Get the currently active project
    *
    * Uses the UI/Panel system to determine which Project was the last focused on and assumes this is the active Project
@@ -206,6 +211,11 @@ public:
    */
   SequencePtr CreateNewSequenceForProject(Project *project) const;
 
+  /**
+   * @brief Opens a project from the recently opened list
+   */
+  void OpenProjectFromRecentList(int index);
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file
@@ -276,6 +286,11 @@ public slots:
    */
   void SetSelectedAddableObject(const Tool::AddableObject& obj);
 
+  /**
+   * @brief Clears the list of recently opened/saved projects
+   */
+  void ClearOpenRecentList();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -306,6 +321,16 @@ private:
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
    */
   static QString GetProjectFilter();
+
+  /**
+   * @brief Returns the filename where the recently opened/saved projects should be stored
+   */
+  static QString GetRecentProjectsFilePath();
+
+  /**
+   * @brief Adds a filename to the top of the recently opened projects list (or moves it if it already exists)
+   */
+  void PushRecentlyOpenedProject(const QString &s);
 
   /**
    * @brief Internal project open
@@ -383,6 +408,11 @@ private:
    * @brief Application-wide undo stack instance
    */
   UndoStack undo_stack_;
+
+  /**
+   * @brief List of most recently opened/saved projects
+   */
+  QStringList recent_projects_;
 
   /**
    * @brief Static singleton core instance

@@ -31,6 +31,7 @@
 #include <QStyleFactory>
 
 #include "audio/audiomanager.h"
+#include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "dialog/about/about.h"
@@ -123,6 +124,20 @@ void Core::Start()
   // Load application config
   Config::Load();
 
+  // Load recently opened projects list
+  {
+    QFile recent_projects_file(GetRecentProjectsFilePath());
+    if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
+      QTextStream ts(&recent_projects_file);
+
+      while (!ts.atEnd()) {
+        recent_projects_.append(ts.readLine());
+      }
+
+      recent_projects_file.close();
+    }
+  }
+
 
   //
   // Start GUI (FIXME CLI mode)
@@ -131,11 +146,20 @@ void Core::Start()
   StartGUI(parser.isSet(fullscreen_option));
 
   // Load startup project
+  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+    QMessageBox::warning(main_window(),
+                         tr("Failed to open startup file"),
+                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                         QMessageBox::Ok);
+
+    startup_project_.clear();
+  }
+
   if (startup_project_.isEmpty()) {
     // If no load project is set, create a new one on open
     AddOpenProject(std::make_shared<Project>());
   } else {
-
+    OpenProjectInternal(startup_project_);
   }
 }
 
@@ -143,6 +167,20 @@ void Core::Stop()
 {
   // Save Config
   //Config::Save();
+
+  // Save recently opened projects
+  {
+    QFile recent_projects_file(GetRecentProjectsFilePath());
+    if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
+      QTextStream ts(&recent_projects_file);
+
+      foreach (const QString& s, recent_projects_) {
+        ts << s << "\n";
+      }
+
+      recent_projects_file.close();
+    }
+  }
 
   MenuShared::DestroyInstance();
 
@@ -209,9 +247,19 @@ void Core::SetSelectedAddableObject(const Tool::AddableObject &obj)
   addable_object_ = obj;
 }
 
+void Core::ClearOpenRecentList()
+{
+  recent_projects_.clear();
+}
+
 const bool &Core::snapping() const
 {
   return snapping_;
+}
+
+const QStringList &Core::GetRecentProjects() const
+{
+  return recent_projects_;
 }
 
 void Core::SetTool(const Tool::Item &tool)
@@ -360,6 +408,8 @@ void Core::AddOpenProject(ProjectPtr p)
 {
   open_projects_.append(p);
 
+  PushRecentlyOpenedProject(p->filename());
+
   emit ProjectOpened(p.get());
 }
 
@@ -468,6 +518,8 @@ void Core::SaveAutorecovery()
 
 void Core::ProjectSaveSucceeded()
 {
+  PushRecentlyOpenedProject(GetActiveProject()->filename());
+
   SetProjectModified(false);
 }
 
@@ -665,6 +717,26 @@ QString Core::GetProjectFilter()
   return QStringLiteral("%1 (*.ove)").arg(tr("Olive Project"));
 }
 
+QString Core::GetRecentProjectsFilePath()
+{
+  return QDir(GetConfigurationLocation()).filePath(QStringLiteral("recent"));
+}
+
+void Core::PushRecentlyOpenedProject(const QString& s)
+{
+  if (s.isEmpty()) {
+    return;
+  }
+
+  int existing_index = recent_projects_.indexOf(s);
+
+  if (existing_index >= 0) {
+    recent_projects_.move(existing_index, 0);
+  } else {
+    recent_projects_.prepend(s);
+  }
+}
+
 void Core::OpenProjectInternal(const QString &filename)
 {
   ProjectLoadManager* plm = new ProjectLoadManager(filename);
@@ -730,6 +802,20 @@ SequencePtr Core::CreateNewSequenceForProject(Project* project) const
   new_sequence->set_name(sequence_name);
 
   return new_sequence;
+}
+
+void Core::OpenProjectFromRecentList(int index)
+{
+  const QString& open_fn = recent_projects_.at(index);
+
+  if (QFileInfo::exists(open_fn)) {
+    OpenProjectInternal(open_fn);
+  } else if (QMessageBox::information(main_window(),
+                                      tr("Cannot open recent project"),
+                                      tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
+                                      QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    recent_projects_.removeAt(index);
+  }
 }
 
 void Core::OpenProject()

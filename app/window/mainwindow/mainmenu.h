@@ -95,6 +95,16 @@ private slots:
   void WindowMenuAboutToHide();
 
   /**
+   * @brief Adds items to open recent menu
+   */
+  void PopulateOpenRecent();
+
+  /**
+   * @brief Clears open recent items when menu closes
+   */
+  void CloseOpenRecentMenu();
+
+  /**
    * @brief Slot for zooming in
    *
    * Finds the currently focused panel and sends it a "zoom in" signal
@@ -154,8 +164,6 @@ private slots:
 
   void ToggleShowAllTriggered();
 
-  void ClearOpenRecentTriggered();
-
   void DeleteInOutTriggered();
   void RippleDeleteInOutTriggered();
 
@@ -163,6 +171,8 @@ private slots:
   void GoToOutTriggered();
 
   void DebugLogTriggered();
+
+  void OpenRecentItemTriggered();
 
 private:
   /**
@@ -174,6 +184,7 @@ private:
   Menu* file_new_menu_;
   QAction* file_open_item_;
   Menu* file_open_recent_menu_;
+  QAction* file_open_recent_separator_;
   QAction* file_open_recent_clear_item_;
   QAction* file_save_item_;
   QAction* file_save_as_item_;
