@@ -21,8 +21,9 @@
     <param id="opacity_in" type="float">
         <name lang="en_US">Opacity</name>
         <min>0</min>
-        <max>100</max>
-        <default>100</default>
+        <max>1</max>
+        <view>percent</view>
+        <default>1</default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->

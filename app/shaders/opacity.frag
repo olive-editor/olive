@@ -6,5 +6,5 @@ uniform sampler2D tex_in;
 uniform float opacity_in;
 
 void main(void) {
-  gl_FragColor = texture2D(tex_in, ove_texcoord) * (opacity_in * 0.01);
+  gl_FragColor = texture2D(tex_in, ove_texcoord) * (opacity_in);
 }
