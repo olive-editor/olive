@@ -66,27 +66,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
   // Create standard panels
   node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, node_panel_);
   footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, footage_viewer_panel_);
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
-  tabifyDockWidget(footage_viewer_panel_, param_panel_);
-  footage_viewer_panel_->raise();
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);
   pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
   project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
   tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
   task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel_);
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
   AppendTimelinePanel();
   audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
 
   // Make connections to sequence viewer
   connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
@@ -321,9 +310,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
 {
   TimelinePanel* panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);;
 
-  if (timeline_panels_.isEmpty()) {
-    addDockWidget(Qt::BottomDockWidgetArea, panel);
-  } else {
+  if (!timeline_panels_.isEmpty()) {
     tabifyDockWidget(timeline_panels_.last(), panel);
 
     // For some reason raise() on its own doesn't do anything, we need both
@@ -390,12 +377,42 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
 void MainWindow::SetDefaultLayout()
 {
-  task_man_panel_->close();
-  task_man_panel_->setFloating(true);
-  curve_panel_->close();
-  curve_panel_->setFloating(true);
-  pixel_sampler_panel_->close();
+  node_panel_->show();
+  addDockWidget(Qt::TopDockWidgetArea, node_panel_);
+
+  footage_viewer_panel_->show();
+  addDockWidget(Qt::TopDockWidgetArea, footage_viewer_panel_);
+
+  param_panel_->show();
+  tabifyDockWidget(footage_viewer_panel_, param_panel_);
+  footage_viewer_panel_->raise();
+
+  sequence_viewer_panel_->show();
+  addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);
+
+  pixel_sampler_panel_->hide();
   pixel_sampler_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
+
+  project_panel_->show();
+  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
+
+  tool_panel_->show();
+  addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
+
+  timeline_panels_.first()->show();
+  addDockWidget(Qt::BottomDockWidgetArea, timeline_panels_.first());
+
+  curve_panel_->hide();
+  curve_panel_->setFloating(true);
+  addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
+
+  task_man_panel_->hide();
+  task_man_panel_->setFloating(true);
+  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel_);
+
+  audio_monitor_panel_->show();
+  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
 
   resizeDocks({node_panel_, param_panel_, sequence_viewer_panel_},
   {width()/3, width()/3, width()/3},

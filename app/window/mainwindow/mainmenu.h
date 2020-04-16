@@ -29,6 +29,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+class MainWindow;
+
 /**
  * @brief Olive's main menubar attached to its main window.
  *
@@ -38,7 +40,7 @@ class MainMenu : public QMenuBar
 {
   Q_OBJECT
 public:
-  MainMenu(QMainWindow* parent);
+  MainMenu(MainWindow *parent);
 
 protected:
   /**
@@ -119,6 +121,10 @@ private slots:
    */
   void PlayPauseTriggered();
 
+  void PlayInToOutTriggered();
+
+  void LoopTriggered();
+
   void NextFrameTriggered();
   void GoToEndTriggered();
 
@@ -147,6 +153,16 @@ private slots:
   void FullScreenViewerTriggered();
 
   void ToggleShowAllTriggered();
+
+  void ClearOpenRecentTriggered();
+
+  void DeleteInOutTriggered();
+  void RippleDeleteInOutTriggered();
+
+  void GoToInTriggered();
+  void GoToOutTriggered();
+
+  void DebugLogTriggered();
 
 private:
   /**
@@ -193,12 +209,6 @@ private:
   QAction* view_timecode_view_seconds_item_;
   QAction* view_timecode_view_frames_item_;
   QAction* view_timecode_view_milliseconds_item_;
-  Menu* view_title_safe_area_menu_;
-  QAction* title_safe_off_item_;
-  QAction* title_safe_default_item_;
-  QAction* title_safe_43_item_;
-  QAction* title_safe_169_item_;
-  QAction* title_safe_custom_item_;
   QAction* view_full_screen_item_;
   QAction* view_full_screen_viewer_item_;
 
@@ -237,7 +247,6 @@ private:
   QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
   QAction* tools_snapping_item_;
-  QAction* tools_autocut_silence_item_;
   QAction* tools_preferences_item_;
 
   Menu* help_menu_;

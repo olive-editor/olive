@@ -77,6 +77,8 @@ private:
   static MenuShared* instance_;
 
 private slots:
+  void NewProjectTriggered();
+
   void SplitAtPlayheadTriggered();
 
   void DeleteSelectedTriggered();
@@ -102,6 +104,14 @@ private slots:
   void PasteTriggered();
 
   void PasteInsertTriggered();
+
+  void DuplicateTriggered();
+
+  void EnableDisableTriggered();
+
+  void NestTriggered();
+
+  void DefaultTransitionTriggered();
 
 };
 

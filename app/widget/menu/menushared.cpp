@@ -31,32 +31,32 @@ MenuShared* MenuShared::instance_ = nullptr;
 MenuShared::MenuShared()
 {
   // "New" menu shared items
-  new_project_item_ = Menu::CreateItem(this, "newproj", nullptr, nullptr, "Ctrl+N");
-  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), SLOT(CreateNewSequence()), "Ctrl+Shift+N");
-  new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), SLOT(CreateNewFolder()));
+  new_project_item_ = Menu::CreateItem(this, "newproj", this, &MenuShared::NewProjectTriggered, "Ctrl+N");
+  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), &Core::CreateNewSequence, "Ctrl+Shift+N");
+  new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), &Core::CreateNewFolder);
 
   // "Edit" menu shared items
-  edit_cut_item_ = Menu::CreateItem(this, "cut", this, SLOT(CutTriggered()), "Ctrl+X");
-  edit_copy_item_ = Menu::CreateItem(this, "copy", this, SLOT(CopyTriggered()), "Ctrl+C");
-  edit_paste_item_ = Menu::CreateItem(this, "paste", this, SLOT(PasteTriggered()), "Ctrl+V");
-  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, SLOT(PasteInsertTriggered()), "Ctrl+Shift+V");
-  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
-  edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelectedTriggered()), "Del");
-  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, SLOT(RippleDeleteTriggered()), "Shift+Del");
-  edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayheadTriggered()), "Ctrl+K");
+  edit_cut_item_ = Menu::CreateItem(this, "cut", this, &MenuShared::CutTriggered, "Ctrl+X");
+  edit_copy_item_ = Menu::CreateItem(this, "copy", this, &MenuShared::CopyTriggered, "Ctrl+C");
+  edit_paste_item_ = Menu::CreateItem(this, "paste", this, &MenuShared::PasteTriggered, "Ctrl+V");
+  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, &MenuShared::PasteInsertTriggered, "Ctrl+Shift+V");
+  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", this, &MenuShared::DuplicateTriggered, "Ctrl+D");
+  edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, "Del");
+  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, "Shift+Del");
+  edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, "Ctrl+K");
 
   // "In/Out" menu shared items
-  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, SLOT(SetInTriggered()), "I");
-  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, SLOT(SetOutTriggered()), "O");
-  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", this, SLOT(ResetInTriggered()));
-  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", this, SLOT(ResetOutTriggered()));
-  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, SLOT(ClearInOutTriggered()), "G");
+  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, "I");
+  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, &MenuShared::SetOutTriggered, "O");
+  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", this, &MenuShared::ResetInTriggered);
+  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", this, &MenuShared::ResetOutTriggered);
+  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, &MenuShared::ClearInOutTriggered, "G");
 
   // "Clip Edit" menu shared items
-  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", nullptr, nullptr, "Ctrl+Shift+D");
-  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, SLOT(ToggleLinksTriggered()), "Ctrl+L");
-  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", nullptr, nullptr, "Shift+E");
-  clip_nest_item_ = Menu::CreateItem(this, "nest", nullptr, nullptr);
+  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", this, &MenuShared::DefaultTransitionTriggered, "Ctrl+Shift+D");
+  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, &MenuShared::ToggleLinksTriggered, "Ctrl+L");
+  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", this, &MenuShared::EnableDisableTriggered, "Shift+E");
+  clip_nest_item_ = Menu::CreateItem(this, "nest", this, &MenuShared::NestTriggered);
 
   Retranslate();
 }
@@ -112,6 +112,11 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
 MenuShared *MenuShared::instance()
 {
   return instance_;
+}
+
+void MenuShared::NewProjectTriggered()
+{
+  qDebug() << "FIXME: Stub";
 }
 
 void MenuShared::SplitAtPlayheadTriggered()
@@ -181,6 +186,26 @@ void MenuShared::PasteTriggered()
 void MenuShared::PasteInsertTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->PasteInsert();
+}
+
+void MenuShared::DuplicateTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MenuShared::EnableDisableTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MenuShared::NestTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MenuShared::DefaultTransitionTriggered()
+{
+  qDebug() << "FIXME: Stub";
 }
 
 void MenuShared::Retranslate()

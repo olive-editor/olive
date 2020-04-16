@@ -35,7 +35,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-MainMenu::MainMenu(QMainWindow *parent) :
+MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
 {
   StyleManager::UseNativeWindowsStyling(this);
@@ -43,22 +43,22 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   // FILE MENU
   //
-  file_menu_ = new Menu(this, this, SLOT(FileMenuAboutToShow()));
+  file_menu_ = new Menu(this, this, &MainMenu::FileMenuAboutToShow);
   file_new_menu_ = new Menu(file_menu_);
   MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
-  file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), SLOT(OpenProject()), "Ctrl+O");
+  file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), &Core::OpenProject, "Ctrl+O");
   file_open_recent_menu_ = new Menu(file_menu_);
-  file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", nullptr, nullptr);
-  file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), SLOT(SaveActiveProject()), "Ctrl+S");
-  file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), SLOT(SaveActiveProjectAs()), "Ctrl+Shift+S");
+  file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", this, &MainMenu::ClearOpenRecentTriggered);
+  file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
+  file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, "Ctrl+Shift+S");
   file_menu_->addSeparator();
-  file_import_item_ = file_menu_->AddItem("import", Core::instance(), SLOT(DialogImportShow()), "Ctrl+I");
+  file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, "Ctrl+I");
   file_menu_->addSeparator();
-  file_export_item_ = file_menu_->AddItem("export", Core::instance(), SLOT(DialogExportShow()), "Ctrl+M");
+  file_export_item_ = file_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
-  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), SLOT(DialogProjectPropertiesShow()));
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow);
   file_menu_->addSeparator();
-  file_exit_item_ = file_menu_->AddItem("exit", parent, SLOT(close()), "Ctrl+Q");
+  file_exit_item_ = file_menu_->AddItem("exit", parent, &MainWindow::close, "Ctrl+Q");
 
   //
   // EDIT MENU
@@ -66,236 +66,200 @@ MainMenu::MainMenu(QMainWindow *parent) :
   edit_menu_ = new Menu(this);
 
   edit_undo_item_ = Core::instance()->undo_stack()->createUndoAction(this);
-  Menu::ConformItem(edit_undo_item_, "undo", nullptr, nullptr, "Ctrl+Z");
+  Menu::ConformItem(edit_undo_item_, "undo", "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
   edit_redo_item_ = Core::instance()->undo_stack()->createRedoAction(this);
-  Menu::ConformItem(edit_redo_item_, "redo", nullptr, nullptr, "Ctrl+Shift+Z");
+  Menu::ConformItem(edit_redo_item_, "redo", "Ctrl+Shift+Z");
   edit_menu_->addAction(edit_redo_item_);
 
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForEditMenu(edit_menu_);
   edit_menu_->addSeparator();
-  edit_select_all_item_ = edit_menu_->AddItem("selectall", this, SLOT(SelectAllTriggered()), "Ctrl+A");
-  edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, SLOT(DeselectAllTriggered()), "Ctrl+Shift+A");
+  edit_select_all_item_ = edit_menu_->AddItem("selectall", this, &MainMenu::SelectAllTriggered, "Ctrl+A");
+  edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, &MainMenu::DeselectAllTriggered, "Ctrl+Shift+A");
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForClipEditMenu(edit_menu_);
   edit_menu_->addSeparator();
-  edit_insert_item_ = edit_menu_->AddItem("insert", this, SLOT(InsertTriggered()), ",");
-  edit_overwrite_item_ = edit_menu_->AddItem("overwrite", this, SLOT(OverwriteTriggered()), ".");
+  edit_insert_item_ = edit_menu_->AddItem("insert", this, &MainMenu::InsertTriggered, ",");
+  edit_overwrite_item_ = edit_menu_->AddItem("overwrite", this, &MainMenu::OverwriteTriggered, ".");
   edit_menu_->addSeparator();
-  edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", this, SLOT(RippleToInTriggered()), "Q");
-  edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", this, SLOT(RippleToOutTriggered()), "W");
-  edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, SLOT(EditToInTriggered()), "Ctrl+Alt+Q");
-  edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", this, SLOT(EditToOutTriggered()), "Ctrl+Alt+W");
+  edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", this, &MainMenu::RippleToInTriggered, "Q");
+  edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", this, &MainMenu::RippleToOutTriggered, "W");
+  edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, &MainMenu::EditToInTriggered, "Ctrl+Alt+Q");
+  edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", this, &MainMenu::EditToOutTriggered, "Ctrl+Alt+W");
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForInOutMenu(edit_menu_);
-  edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", nullptr, nullptr, ";");
-  edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", nullptr, nullptr, "'");
+  edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", this, &MainMenu::DeleteInOutTriggered, ";");
+  edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", this, &MainMenu::RippleDeleteInOutTriggered, "'");
   edit_menu_->addSeparator();
-  edit_set_marker_item_ = edit_menu_->AddItem("marker", this, SLOT(SetMarkerTriggered()), "M");
+  edit_set_marker_item_ = edit_menu_->AddItem("marker", this, &MainMenu::SetMarkerTriggered, "M");
 
   //
   // VIEW MENU
   //
-  view_menu_ = new Menu(this, this, SLOT(ViewMenuAboutToShow()));
-  view_zoom_in_item_ = view_menu_->AddItem("zoomin", this, SLOT(ZoomInTriggered()), "=");
-  view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, SLOT(ZoomOutTriggered()), "-");
-  view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", this, SLOT(IncreaseTrackHeightTriggered()), "Ctrl+=");
-  view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, SLOT(DecreaseTrackHeightTriggered()), "Ctrl+-");
-  view_show_all_item_ = view_menu_->AddItem("showall", this, SLOT(ToggleShowAllTriggered()), "\\");
+  view_menu_ = new Menu(this, this, &MainMenu::ViewMenuAboutToShow);
+  view_zoom_in_item_ = view_menu_->AddItem("zoomin", this, &MainMenu::ZoomInTriggered, "=");
+  view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, &MainMenu::ZoomOutTriggered, "-");
+  view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", this, &MainMenu::IncreaseTrackHeightTriggered, "Ctrl+=");
+  view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, &MainMenu::DecreaseTrackHeightTriggered, "Ctrl+-");
+  view_show_all_item_ = view_menu_->AddItem("showall", this, &MainMenu::ToggleShowAllTriggered, "\\");
   view_show_all_item_->setCheckable(true);
   view_menu_->addSeparator();
 
   frame_view_mode_group_ = new QActionGroup(this);
 
-  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", this, &MainMenu::TimecodeDisplayTriggered);
   view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
   view_timecode_view_dropframe_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
 
-  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", this, &MainMenu::TimecodeDisplayTriggered);
   view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
   view_timecode_view_nondropframe_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
 
-  view_timecode_view_seconds_item_ = view_menu_->AddItem("modeseconds", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_seconds_item_ = view_menu_->AddItem("modeseconds", this, &MainMenu::TimecodeDisplayTriggered);
   view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
   view_timecode_view_seconds_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
 
-  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", this, &MainMenu::TimecodeDisplayTriggered);
   view_timecode_view_frames_item_->setData(Timecode::kFrames);
   view_timecode_view_frames_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
 
-  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", this, &MainMenu::TimecodeDisplayTriggered);
   view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
   view_timecode_view_milliseconds_item_->setCheckable(true);
   frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
 
   view_menu_->addSeparator();
 
-  view_title_safe_area_menu_ = new Menu(view_menu_);
-
-  QActionGroup* title_safe_group = new QActionGroup(this);
-
-  title_safe_off_item_ = view_title_safe_area_menu_->AddItem("titlesafeoff", nullptr, nullptr);
-  title_safe_off_item_->setCheckable(true);
-  title_safe_off_item_->setData(qSNaN());
-  title_safe_group->addAction(title_safe_off_item_);
-
-  title_safe_default_item_ = view_title_safe_area_menu_->AddItem("titlesafedefault", nullptr, nullptr);
-  title_safe_default_item_->setCheckable(true);
-  title_safe_default_item_->setData(0.0);
-  title_safe_group->addAction(title_safe_default_item_);
-
-  title_safe_43_item_ = view_title_safe_area_menu_->AddItem("titlesafe43", nullptr, nullptr);
-  title_safe_43_item_->setCheckable(true);
-  title_safe_43_item_->setData(4.0/3.0);
-  title_safe_group->addAction(title_safe_43_item_);
-
-  title_safe_169_item_ = view_title_safe_area_menu_->AddItem("titlesafe169", nullptr, nullptr);
-  title_safe_169_item_->setCheckable(true);
-  title_safe_169_item_->setData(16.0/9.0);
-  title_safe_group->addAction(title_safe_169_item_);
-
-  title_safe_custom_item_ = view_title_safe_area_menu_->AddItem("titlesafecustom", nullptr, nullptr);
-  title_safe_custom_item_->setCheckable(true);
-  title_safe_custom_item_->setData(-1.0);
-  title_safe_group->addAction(title_safe_custom_item_);
-
-  view_menu_->addSeparator();
-
-  view_full_screen_item_ = view_menu_->AddItem("fullscreen", parent, SLOT(SetFullscreen(bool)), "F11");
+  view_full_screen_item_ = view_menu_->AddItem("fullscreen", parent, &MainWindow::SetFullscreen, "F11");
   view_full_screen_item_->setCheckable(true);
 
-  view_full_screen_viewer_item_ = view_menu_->AddItem("fullscreenviewer", this, SLOT(FullScreenViewerTriggered()));
+  view_full_screen_viewer_item_ = view_menu_->AddItem("fullscreenviewer", this, &MainMenu::FullScreenViewerTriggered);
 
   //
   // PLAYBACK MENU
   //
   playback_menu_ = new Menu(this);
-  playback_gotostart_item_ = playback_menu_->AddItem("gotostart", this, SLOT(GoToStartTriggered()), "Home");
-  playback_prevframe_item_ = playback_menu_->AddItem("prevframe", this, SLOT(PrevFrameTriggered()), "Left");
-  playback_playpause_item_ = playback_menu_->AddItem("playpause", this, SLOT(PlayPauseTriggered()), "Space");
-  playback_playinout_item_ = playback_menu_->AddItem("playintoout", nullptr, nullptr, "Shift+Space");
-  playback_nextframe_item_ = playback_menu_->AddItem("nextframe", this, SLOT(NextFrameTriggered()), "Right");
-  playback_gotoend_item_ = playback_menu_->AddItem("gotoend", this, SLOT(GoToEndTriggered()), "End");
+  playback_gotostart_item_ = playback_menu_->AddItem("gotostart", this, &MainMenu::GoToStartTriggered, "Home");
+  playback_prevframe_item_ = playback_menu_->AddItem("prevframe", this, &MainMenu::PrevFrameTriggered, "Left");
+  playback_playpause_item_ = playback_menu_->AddItem("playpause", this, &MainMenu::PlayPauseTriggered, "Space");
+  playback_playinout_item_ = playback_menu_->AddItem("playintoout", this, &MainMenu::PlayInToOutTriggered, "Shift+Space");
+  playback_nextframe_item_ = playback_menu_->AddItem("nextframe", this, &MainMenu::NextFrameTriggered, "Right");
+  playback_gotoend_item_ = playback_menu_->AddItem("gotoend", this, &MainMenu::GoToEndTriggered, "End");
 
   playback_menu_->addSeparator();
 
-  playback_prevcut_item_ = playback_menu_->AddItem("prevcut", this, SLOT(GoToPrevCutTriggered()), "Up");
-  playback_nextcut_item_ = playback_menu_->AddItem("nextcut", this, SLOT(GoToNextCutTriggered()), "Down");
+  playback_prevcut_item_ = playback_menu_->AddItem("prevcut", this, &MainMenu::GoToPrevCutTriggered, "Up");
+  playback_nextcut_item_ = playback_menu_->AddItem("nextcut", this, &MainMenu::GoToNextCutTriggered, "Down");
 
   playback_menu_->addSeparator();
 
-  playback_gotoin_item_ = playback_menu_->AddItem("gotoin", nullptr, nullptr, "Shift+I");
-  playback_gotoout_item_ = playback_menu_->AddItem("gotoout", nullptr, nullptr, "Shift+O");
+  playback_gotoin_item_ = playback_menu_->AddItem("gotoin", this, &MainMenu::GoToInTriggered, "Shift+I");
+  playback_gotoout_item_ = playback_menu_->AddItem("gotoout", this, &MainMenu::GoToOutTriggered, "Shift+O");
 
   playback_menu_->addSeparator();
 
-  playback_shuttleleft_item_ = playback_menu_->AddItem("decspeed", this, SLOT(ShuttleLeftTriggered()), "J");
-  playback_shuttlestop_item_ = playback_menu_->AddItem("pause", this, SLOT(ShuttleStopTriggered()), "K");
-  playback_shuttleright_item_ = playback_menu_->AddItem("incspeed", this, SLOT(ShuttleRightTriggered()), "L");
+  playback_shuttleleft_item_ = playback_menu_->AddItem("decspeed", this, &MainMenu::ShuttleLeftTriggered, "J");
+  playback_shuttlestop_item_ = playback_menu_->AddItem("pause", this, &MainMenu::ShuttleStopTriggered, "K");
+  playback_shuttleright_item_ = playback_menu_->AddItem("incspeed", this, &MainMenu::ShuttleRightTriggered, "L");
 
   playback_menu_->addSeparator();
 
-  playback_loop_item_ = playback_menu_->AddItem("loop", nullptr, nullptr);
+  playback_loop_item_ = playback_menu_->AddItem("loop", this, &MainMenu::LoopTriggered);
   //Menu::SetBooleanAction(playback_loop_item_, &olive::config.loop);
 
   //
   // WINDOW MENU
   //
-  window_menu_ = new Menu(this, this, SLOT(WindowMenuAboutToShow()));
-  connect(window_menu_, SIGNAL(aboutToHide()), this, SLOT(WindowMenuAboutToHide()));
+  window_menu_ = new Menu(this, this, &MainMenu::WindowMenuAboutToShow);
+  connect(window_menu_, &Menu::aboutToHide, this, &MainMenu::WindowMenuAboutToHide);
   window_menu_separator_ = window_menu_->addSeparator();
-  window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, SLOT(ToggleMaximizedPanel()), "`");
-  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), SLOT(SetPanelsLocked(bool)));
+  window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, &MainWindow::ToggleMaximizedPanel, "`");
+  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), &PanelManager::SetPanelsLocked);
   window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
-  window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", Core::instance()->main_window(), SLOT(SetDefaultLayout()));
+  window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", parent, &MainWindow::SetDefaultLayout);
 
   //
   // TOOLS MENU
   //
-  tools_menu_ = new Menu(this, this, SLOT(ToolsMenuAboutToShow()));
+  tools_menu_ = new Menu(this, this, &MainMenu::ToolsMenuAboutToShow);
   tools_menu_->setToolTipsVisible(true);
 
   tools_group_ = new QActionGroup(this);
 
-  tools_pointer_item_ = tools_menu_->AddItem("pointertool", this, SLOT(ToolItemTriggered()), "V");
+  tools_pointer_item_ = tools_menu_->AddItem("pointertool", this, &MainMenu::ToolItemTriggered, "V");
   tools_pointer_item_->setCheckable(true);
   tools_pointer_item_->setData(Tool::kPointer);
   tools_group_->addAction(tools_pointer_item_);
 
-  tools_edit_item_ = tools_menu_->AddItem("edittool", this, SLOT(ToolItemTriggered()), "X");
+  tools_edit_item_ = tools_menu_->AddItem("edittool", this, &MainMenu::ToolItemTriggered, "X");
   tools_edit_item_->setCheckable(true);
   tools_edit_item_->setData(Tool::kEdit);
   tools_group_->addAction(tools_edit_item_);
 
-  tools_ripple_item_ = tools_menu_->AddItem("rippletool", this, SLOT(ToolItemTriggered()), "B");
+  tools_ripple_item_ = tools_menu_->AddItem("rippletool", this, &MainMenu::ToolItemTriggered, "B");
   tools_ripple_item_->setCheckable(true);
   tools_ripple_item_->setData(Tool::kRipple);
   tools_group_->addAction(tools_ripple_item_);
 
-  tools_rolling_item_ = tools_menu_->AddItem("rollingtool", this, SLOT(ToolItemTriggered()), "N");
+  tools_rolling_item_ = tools_menu_->AddItem("rollingtool", this, &MainMenu::ToolItemTriggered, "N");
   tools_rolling_item_->setCheckable(true);
   tools_rolling_item_->setData(Tool::kRolling);
   tools_group_->addAction(tools_rolling_item_);
 
-  tools_razor_item_ = tools_menu_->AddItem("razortool", this, SLOT(ToolItemTriggered()), "C");
+  tools_razor_item_ = tools_menu_->AddItem("razortool", this, &MainMenu::ToolItemTriggered, "C");
   tools_razor_item_->setCheckable(true);
   tools_razor_item_->setData(Tool::kRazor);
   tools_group_->addAction(tools_razor_item_);
 
-  tools_slip_item_ = tools_menu_->AddItem("sliptool", this, SLOT(ToolItemTriggered()), "Y");
+  tools_slip_item_ = tools_menu_->AddItem("sliptool", this, &MainMenu::ToolItemTriggered, "Y");
   tools_slip_item_->setCheckable(true);
   tools_slip_item_->setData(Tool::kSlip);
   tools_group_->addAction(tools_slip_item_);
 
-  tools_slide_item_ = tools_menu_->AddItem("slidetool", this, SLOT(ToolItemTriggered()), "U");
+  tools_slide_item_ = tools_menu_->AddItem("slidetool", this, &MainMenu::ToolItemTriggered, "U");
   tools_slide_item_->setCheckable(true);
   tools_slide_item_->setData(Tool::kSlide);
   tools_group_->addAction(tools_slide_item_);
 
-  tools_hand_item_ = tools_menu_->AddItem("handtool", this, SLOT(ToolItemTriggered()), "H");
+  tools_hand_item_ = tools_menu_->AddItem("handtool", this, &MainMenu::ToolItemTriggered, "H");
   tools_hand_item_->setCheckable(true);
   tools_hand_item_->setData(Tool::kHand);
   tools_group_->addAction(tools_hand_item_);
 
-  tools_zoom_item_ = tools_menu_->AddItem("zoomtool", this, SLOT(ToolItemTriggered()), "Z");
+  tools_zoom_item_ = tools_menu_->AddItem("zoomtool", this, &MainMenu::ToolItemTriggered, "Z");
   tools_zoom_item_->setCheckable(true);
   tools_zoom_item_->setData(Tool::kZoom);
   tools_group_->addAction(tools_zoom_item_);
 
-  tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, SLOT(ToolItemTriggered()), "T");
+  tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, &MainMenu::ToolItemTriggered, "T");
   tools_transition_item_->setCheckable(true);
   tools_transition_item_->setData(Tool::kTransition);
   tools_group_->addAction(tools_transition_item_);
 
   tools_menu_->addSeparator();
 
-  tools_snapping_item_ = tools_menu_->AddItem("snapping", nullptr, nullptr, "S");
+  tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, "S");
   tools_snapping_item_->setCheckable(true);
-  connect(tools_snapping_item_, SIGNAL(triggered(bool)), Core::instance(), SLOT(SetSnapping(bool)));
 
   tools_menu_->addSeparator();
 
-  tools_autocut_silence_item_ = tools_menu_->AddItem("autocutsilence", nullptr, nullptr);
-
-  tools_menu_->addSeparator();
-
-  tools_preferences_item_ = tools_menu_->AddItem("prefs", Core::instance(), SLOT(DialogPreferencesShow()), "Ctrl+,");
+  tools_preferences_item_ = tools_menu_->AddItem("prefs", Core::instance(), &Core::DialogPreferencesShow, "Ctrl+,");
 
   //
   // HELP MENU
   //
   help_menu_ = new Menu(this);
-  help_action_search_item_ = help_menu_->AddItem("actionsearch", this, SLOT(ActionSearchTriggered()), "/");
+  help_action_search_item_ = help_menu_->AddItem("actionsearch", this, &MainMenu::ActionSearchTriggered, "/");
   help_menu_->addSeparator();
-  help_debug_log_item_ = help_menu_->AddItem("debuglog", nullptr, nullptr);
+  help_debug_log_item_ = help_menu_->AddItem("debuglog", this, &MainMenu::DebugLogTriggered);
   help_menu_->addSeparator();
-  help_about_item_ = help_menu_->AddItem("about", Core::instance(), SLOT(DialogAboutShow()));
+  help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
 
   Retranslate();
 }
@@ -427,6 +391,16 @@ void MainMenu::PlayPauseTriggered()
   PanelManager::instance()->CurrentlyFocused()->PlayPause();
 }
 
+void MainMenu::PlayInToOutTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MainMenu::LoopTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
 void MainMenu::NextFrameTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->NextFrame();
@@ -524,6 +498,36 @@ void MainMenu::ToggleShowAllTriggered()
   PanelManager::instance()->CurrentlyFocused()->ToggleShowAll();
 }
 
+void MainMenu::ClearOpenRecentTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MainMenu::DeleteInOutTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MainMenu::RippleDeleteInOutTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MainMenu::GoToInTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->GoToIn();
+}
+
+void MainMenu::GoToOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->GoToOut();
+}
+
+void MainMenu::DebugLogTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -571,14 +575,6 @@ void MainMenu::Retranslate()
   view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
   view_timecode_view_seconds_item_->setText(tr("Seconds"));
 
-  // View->Title/Action Safe Area Menu
-  view_title_safe_area_menu_->setTitle(tr("Title/Action Safe Area"));
-  title_safe_off_item_->setText(tr("Off"));
-  title_safe_default_item_->setText(tr("Default"));
-  title_safe_43_item_->setText(tr("4:3"));
-  title_safe_169_item_->setText(tr("16:9"));
-  title_safe_custom_item_->setText(tr("Custom"));
-
   // View menu (cont'd)
   view_full_screen_item_->setText(tr("Full Screen"));
   view_full_screen_viewer_item_->setText(tr("Full Screen Viewer"));
@@ -619,7 +615,6 @@ void MainMenu::Retranslate()
   tools_zoom_item_->setText(tr("Zoom Tool"));
   tools_transition_item_->setText(tr("Transition Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
-  tools_autocut_silence_item_->setText(tr("Auto-Cut Silence"));
   tools_preferences_item_->setText(tr("Preferences"));
 
   // Help menu

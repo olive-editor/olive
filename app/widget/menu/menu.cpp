@@ -24,28 +24,18 @@
 
 OLIVE_NAMESPACE_ENTER
 
-Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
-  QMenu(bar)
+Menu::Menu(QMenuBar *bar)
 {
-  StyleManager::UseNativeWindowsStyling(this);
-
   bar->addMenu(this);
 
-  if (receiver != nullptr) {
-    connect(this, SIGNAL(aboutToShow()), receiver, member);
-  }
+  Init();
 }
 
-Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
-  QMenu(menu)
+Menu::Menu(Menu *menu)
 {
-  StyleManager::UseNativeWindowsStyling(this);
-
   menu->addMenu(this);
 
-  if (receiver != nullptr) {
-    connect(this, SIGNAL(aboutToShow()), receiver, member);
-  }
+  Init();
 }
 
 Menu::Menu(QWidget *parent) :
@@ -58,18 +48,6 @@ Menu::Menu(const QString &s, QWidget *parent) :
   QMenu(s, parent)
 {
   StyleManager::UseNativeWindowsStyling(this);
-}
-
-QAction *Menu::AddItem(const QString &id,
-                       const QObject *receiver,
-                       const char *member,
-                       const QString &key)
-{
-  QAction* a = CreateItem(this, id, receiver, member, key);
-
-  addAction(a);
-
-  return a;
 }
 
 QAction* Menu::InsertAlphabetically(const QString &s)
@@ -100,24 +78,7 @@ void Menu::InsertAlphabetically(Menu *menu)
   InsertAlphabetically(action);
 }
 
-QAction *Menu::CreateItem(QObject* parent,
-                          const QString &id,
-                          const QObject *receiver,
-                          const char *member,
-                          const QString &key)
-{
-  QAction* a = new QAction(parent);
-
-  ConformItem(a,
-              id,
-              receiver,
-              member,
-              key);
-
-  return a;
-}
-
-void Menu::ConformItem(QAction* a, const QString &id, const QObject *receiver, const char *member, const QString &key)
+void Menu::ConformItem(QAction *a, const QString &id, const QString &key)
 {
   a->setProperty("id", id);
 
@@ -128,10 +89,6 @@ void Menu::ConformItem(QAction* a, const QString &id, const QObject *receiver, c
     // Set to application context so that ViewerWindows still trigger shortcuts
     a->setShortcutContext(Qt::ApplicationShortcut);
   }
-
-  if (receiver != nullptr) {
-    connect(a, SIGNAL(triggered(bool)), receiver, member);
-  }
 }
 
 void Menu::SetBooleanAction(QAction *a, bool* boolean)
@@ -140,6 +97,11 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
   a->setCheckable(true);
   a->setChecked(*boolean);
   a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
+}
+
+void Menu::Init()
+{
+  StyleManager::UseNativeWindowsStyling(this);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -23,6 +23,7 @@
 
 #include <QMenuBar>
 #include <QMenu>
+#include <QMetaMethod>
 
 #include "common/define.h"
 
@@ -46,21 +47,43 @@ OLIVE_NAMESPACE_ENTER
 class Menu : public QMenu
 {
 public:
+  Menu(QMenuBar* bar);
+
+  template <typename Func>
   /**
    * @brief Construct a Menu and add it to a QMenuBar
    *
    * This Menu can be connected to a slot that's triggered when the Menu is "about to show". Use `receiver` and
    * `member` to connect this (same syntax as QObject::connect) or leave as nullptr to not.
    */
-  Menu(QMenuBar* bar, const QObject* receiver = nullptr, const char* member = nullptr);
+  Menu(QMenuBar* bar,
+       const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
+       Func member)
+  {
+    bar->addMenu(this);
 
+    Init();
+    ConnectAboutToShow(receiver, member);
+  }
+
+  Menu(Menu* menu);
+
+  template <typename Func>
   /**
    * @brief Construct a Menu and add it as a submenu to another Menu
    *
    * This Menu can be connected to a slot that's triggered when the Menu is "about to show". Use `receiver` and
    * `member` to connect this (same syntax as QObject::connect) or leave as nullptr to not.
    */
-  Menu(Menu* bar, const QObject* receiver = nullptr, const char* member = nullptr);
+  Menu(Menu* menu,
+       const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
+       Func member)
+  {
+    menu->addMenu(this);
+
+    Init();
+    ConnectAboutToShow(receiver, member);
+  }
 
   /**
    * @brief Construct a popup menu
@@ -72,6 +95,7 @@ public:
    */
   Menu(const QString& s, QWidget* parent = nullptr);
 
+  template <typename Func>
   /**
    * @brief Create a menu item and add it to this menu
    *
@@ -96,14 +120,22 @@ public:
    * The QAction that was created and added to this Menu
    */
   QAction* AddItem(const QString& id,
-                   const QObject* receiver,
-                   const char* member,
-                   const QString &key = QString());
+                   const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
+                   Func member,
+                   const QString &key = QString())
+  {
+    QAction* a = CreateItem(this, id, receiver, member, key);
+
+    addAction(a);
+
+    return a;
+  }
 
   QAction *InsertAlphabetically(const QString& s);
   void InsertAlphabetically(QAction* entry);
   void InsertAlphabetically(Menu* menu);
 
+  template <typename Func>
   /**
    * @brief Create a menu item
    *
@@ -133,10 +165,22 @@ public:
    */
   static QAction* CreateItem(QObject* parent,
                              const QString& id,
-                             const QObject* receiver,
-                             const char* member,
-                             const QString& key = QString());
+                             const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
+                             Func member,
+                             const QString& key = QString())
+  {
+    QAction* a = new QAction(parent);
 
+    ConformItem(a,
+                id,
+                receiver,
+                member,
+                key);
+
+    return a;
+  }
+
+  template <typename Func>
   /**
    * @brief Conform a QAction to Olive's ID/keydefault system
    *
@@ -165,13 +209,29 @@ public:
    */
   static void ConformItem(QAction *a,
                           const QString& id,
-                          const QObject* receiver,
-                          const char* member,
+                          const typename QtPrivate::FunctionPointer<Func>::Object *receiver,
+                          Func member,
+                          const QString& key = QString())
+  {
+    ConformItem(a, id, key);
+
+    connect(a, &QAction::triggered, receiver, member);
+  }
+
+  static void ConformItem(QAction *a,
+                          const QString& id,
                           const QString& key = QString());
 
   static void SetBooleanAction(QAction* a, bool *boolean);
 
 private:
+  void Init();
+
+  template <typename Func>
+  void ConnectAboutToShow(const typename QtPrivate::FunctionPointer<Func>::Object *receiver, Func member)
+  {
+    connect(this, &Menu::aboutToShow, receiver, member);
+  }
 
 };
 
