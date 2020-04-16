@@ -20,6 +20,8 @@
 
 #include "color.h"
 
+#include "common/clamp.h"
+
 OLIVE_NAMESPACE_ENTER
 
 Color Color::fromHsv(const float &h, const float &s, const float &v)
@@ -196,10 +198,11 @@ QColor Color::toQColor() const
 {
   QColor c;
 
-  c.setRedF(red());
-  c.setGreenF(green());
-  c.setBlueF(blue());
-  c.setAlphaF(alpha());
+  // QColor only supports values from 0.0 to 1.0 and are only used for UI representations
+  c.setRedF(clamp(red(), 0.0f, 1.0f));
+  c.setGreenF(clamp(green(), 0.0f, 1.0f));
+  c.setBlueF(clamp(blue(), 0.0f, 1.0f));
+  c.setAlphaF(clamp(alpha(), 0.0f, 1.0f));
 
   return c;
 }
