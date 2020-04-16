@@ -44,7 +44,7 @@ Config::Config()
 
 QString Config::GetConfigFilePath()
 {
-  return QDir(GetConfigurationLocation()).filePath("config.xml");
+  return QDir(GetConfigurationLocation()).filePath(QStringLiteral("config.xml"));
 }
 
 Config &Config::Current()
