@@ -195,7 +195,7 @@ void MenuShared::DuplicateTriggered()
 
 void MenuShared::EnableDisableTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->ToggleSelectedEnabled();
 }
 
 void MenuShared::NestTriggered()

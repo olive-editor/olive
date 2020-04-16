@@ -799,4 +799,22 @@ BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool lin
   }
 }
 
+BlockEnableDisableCommand::BlockEnableDisableCommand(Block *block, bool enabled, QUndoCommand *parent) :
+  UndoCommand(parent),
+  block_(block),
+  old_enabled_(block_->is_enabled()),
+  new_enabled_(enabled)
+{
+}
+
+void BlockEnableDisableCommand::redo_internal()
+{
+  block_->set_enabled(new_enabled_);
+}
+
+void BlockEnableDisableCommand::undo_internal()
+{
+  block_->set_enabled(old_enabled_);
+}
+
 OLIVE_NAMESPACE_EXIT

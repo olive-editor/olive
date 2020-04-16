@@ -47,6 +47,12 @@ Block::Block() :
   media_in_input_->set_is_keyframable(false);
   AddInput(media_in_input_);
 
+  enabled_input_ = new NodeInput("enabled_in", NodeParam::kBoolean);
+  enabled_input_->SetConnectable(false);
+  enabled_input_->set_is_keyframable(false);
+  enabled_input_->set_standard_value(true);
+  AddInput(enabled_input_);
+
   speed_input_ = new NodeInput("speed_in", NodeParam::kRational);
   speed_input_->set_standard_value(QVariant::fromValue(rational(1)));
   speed_input_->SetConnectable(false);
@@ -168,6 +174,18 @@ bool Block::is_reversed() const
   return speed() < 0;
 }
 
+bool Block::is_enabled() const
+{
+  return enabled_input_->get_standard_value().toBool();
+}
+
+void Block::set_enabled(bool e)
+{
+  enabled_input_->set_standard_value(e);
+
+  emit EnabledChanged();
+}
+
 QString Block::block_name() const
 {
   return name_input_->get_standard_value().toString();
@@ -177,7 +195,7 @@ void Block::set_block_name(const QString &name)
 {
   name_input_->set_standard_value(name);
 
-  // FIXME: Signal the name has changed to update UI objects
+  emit NameChanged();
 }
 
 rational Block::SequenceToMediaTime(const rational &sequence_time) const

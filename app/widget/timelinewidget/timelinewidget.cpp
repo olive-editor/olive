@@ -730,6 +730,25 @@ void TimelineWidget::DeleteInToOut(bool ripple)
   Core::instance()->undo_stack()->push(command);
 }
 
+void TimelineWidget::ToggleSelectedEnabled()
+{
+  QList<TimelineViewBlockItem*> items = GetSelectedBlocks();
+
+  if (items.isEmpty()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (TimelineViewBlockItem* i, items) {
+    new BlockEnableDisableCommand(i->block(),
+                                  !i->block()->is_enabled(),
+                                  command);
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;
@@ -988,6 +1007,8 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 
     connect(block, &Block::Refreshed, this, &TimelineWidget::BlockChanged);
     connect(block, &Block::LinksChanged, this, &TimelineWidget::PreviewUpdated);
+    connect(block, &Block::NameChanged, this, &TimelineWidget::PreviewUpdated);
+    connect(block, &Block::EnabledChanged, this, &TimelineWidget::PreviewUpdated);
 
     if (block->type() == Block::kClip) {
       connect(static_cast<ClipBlock*>(block), &ClipBlock::PreviewUpdated, this, &TimelineWidget::PreviewUpdated);

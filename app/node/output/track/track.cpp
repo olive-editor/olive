@@ -198,7 +198,11 @@ Block *TrackOutput::BlockAtTime(const rational &time) const
     if (block
         && block->in() <= time
         && block->out() > time) {
-      return block;
+      if (block->is_enabled()) {
+        return block;
+      } else {
+        break;
+      }
     }
   }
 

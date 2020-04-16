@@ -154,6 +154,8 @@ public:
 
   virtual void RippleDeleteInToOut(){}
 
+  virtual void ToggleSelectedEnabled(){}
+
 protected:
   /**
    * @brief paintEvent

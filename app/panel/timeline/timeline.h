@@ -77,6 +77,8 @@ public:
 
   virtual void RippleDeleteInToOut() override;
 
+  virtual void ToggleSelectedEnabled() override;
+
   void InsertFootageAtPlayhead(const QList<Footage *> &footage);
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);

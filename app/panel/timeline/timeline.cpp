@@ -153,6 +153,11 @@ void TimelinePanel::RippleDeleteInToOut()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteInToOut(true);
 }
 
+void TimelinePanel::ToggleSelectedEnabled()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->ToggleSelectedEnabled();
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);

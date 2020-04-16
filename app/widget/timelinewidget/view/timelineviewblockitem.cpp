@@ -80,8 +80,15 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     QLinearGradient grad;
     grad.setStart(0, rect().top());
     grad.setFinalStop(0, rect().bottom());
-    grad.setColorAt(0.0, QColor(160, 160, 240));
-    grad.setColorAt(1.0, QColor(128, 128, 192));
+
+    if (block_->is_enabled()) {
+      grad.setColorAt(0.0, QColor(160, 160, 240));
+      grad.setColorAt(1.0, QColor(128, 128, 192));
+    } else {
+      grad.setColorAt(0.0, QColor(160, 160, 160));
+      grad.setColorAt(1.0, QColor(128, 128, 128));
+    }
+
     painter->fillRect(rect(), grad);
 
     if (option->state & QStyle::State_Selected) {
@@ -121,7 +128,12 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
     painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
 
-    painter->setPen(Qt::white);
+    // Draw text
+    if (block_->is_enabled()) {
+      painter->setPen(Qt::white);
+    } else {
+      painter->setPen(Qt::lightGray);
+    }
     painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
 
     // Linked clips are underlined

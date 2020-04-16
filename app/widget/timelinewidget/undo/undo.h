@@ -375,6 +375,23 @@ private:
 
 };
 
+class BlockEnableDisableCommand : public UndoCommand {
+public:
+  BlockEnableDisableCommand(Block* block, bool enabled, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  Block* block_;
+
+  bool old_enabled_;
+
+  bool new_enabled_;
+
+};
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEUNDOABLE_H

@@ -75,6 +75,9 @@ public:
   bool is_still() const;
   bool is_reversed() const;
 
+  bool is_enabled() const;
+  void set_enabled(bool e);
+
   QString block_name() const;
   void set_block_name(const QString& name);
 
@@ -110,6 +113,10 @@ signals:
 
   void LinksChanged();
 
+  void NameChanged();
+
+  void EnabledChanged();
+
 protected:
   rational SequenceToMediaTime(const rational& sequence_time) const;
 
@@ -127,6 +134,7 @@ private:
   NodeInput* length_input_;
   NodeInput* media_in_input_;
   NodeInput* speed_input_;
+  NodeInput* enabled_input_;
 
   rational in_point_;
   rational out_point_;

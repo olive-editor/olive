@@ -88,6 +88,8 @@ public:
 
   void DeleteInToOut(bool ripple);
 
+  void ToggleSelectedEnabled();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:
