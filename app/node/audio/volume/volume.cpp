@@ -63,7 +63,7 @@ Node::Capabilities VolumeNode::GetCapabilities(const NodeValueDatabase &) const
   return kSampleProcessor;
 }
 
-NodeInput *VolumeNode::ProcessesSamplesFrom(const NodeValueDatabase &value) const
+NodeInput *VolumeNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
 {
   return samples_input_;
 }

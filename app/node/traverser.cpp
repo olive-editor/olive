@@ -72,7 +72,7 @@ NodeValueTable NodeTraverser::ProcessNode(const NodeDependency& dep)
   // By this point, the node should have all the inputs it needs to render correctly
   NodeValueTable table = node->Value(database);
 
-  ProcessNodeEvent(node, dep.range(), database, &table);
+  ProcessNodeEvent(node, dep.range(), database, table);
 
   return table;
 }

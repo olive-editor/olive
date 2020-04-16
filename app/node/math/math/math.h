@@ -43,9 +43,9 @@ public:
   virtual QString ShaderID(const NodeValueDatabase&) const override;
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
-  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueDatabase &db) const override;
+  virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
   virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const override;
   virtual void ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
@@ -87,26 +87,26 @@ private:
 
   class PairingCalculator {
   public:
-    PairingCalculator(const NodeValueTable& table_a, const NodeValueTable& table_b);
+    PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b);
 
     bool FoundMostLikelyPairing() const;
     Pairing GetMostLikelyPairing() const;
 
-    NodeValue GetMostLikelyValueA() const;
-    NodeValue GetMostLikelyValueB() const;
+    const NodeValue& GetMostLikelyValueA() const;
+    const NodeValue& GetMostLikelyValueB() const;
 
   private:
-    static Pairing GetMostLikelyPairingInternal(const QVector<int> &a, const QVector<int> &b);
+    static Pairing GetMostLikelyPairingInternal(const QVector<int> &a, const QVector<int> &b, const int &weight_a, const int &weight_b);
 
     static QVector<int> GetPairLikelihood(const NodeValueTable& table);
 
-    NodeValue GetMostLikelyValue(const NodeValueTable& table, const QVector<int>& likelihood) const;
+    const NodeValue &GetMostLikelyValue(const NodeValueTable& table, const QVector<int>& likelihood) const;
 
     Pairing most_likely_pairing_;
 
-    NodeValueTable table_a_;
+    const NodeValueTable& table_a_;
 
-    NodeValueTable table_b_;
+    const NodeValueTable& table_b_;
 
     QVector<int> pair_likelihood_a_;
 

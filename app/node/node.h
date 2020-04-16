@@ -332,7 +332,7 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const;
+  virtual NodeValueTable Value(NodeValueDatabase& value) const;
 
   /**
    * @brief Return whether a parameter with ID `id` has already been added to this Node
@@ -341,7 +341,7 @@ public:
 
   NodeOutput* output() const;
 
-  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueDatabase& db) const;
+  virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const;
 
   const QPointF& GetPosition();
 

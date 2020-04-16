@@ -22,14 +22,24 @@
 
 OLIVE_NAMESPACE_ENTER
 
-NodeValueTable NodeValueDatabase::operator[](const QString &input_id) const
+NodeValueTable& NodeValueDatabase::operator[](const QString &input_id)
 {
-  return tables_.value(input_id);
+  return tables_[input_id];
 }
 
-NodeValueTable NodeValueDatabase::operator[](const NodeInput *input) const
+NodeValueTable& NodeValueDatabase::operator[](const NodeInput *input)
 {
-  return tables_.value(input->id());
+  return tables_[input->id()];
+}
+
+const NodeValueTable NodeValueDatabase::operator[](const QString &input_id) const
+{
+  return tables_[input_id];
+}
+
+const NodeValueTable NodeValueDatabase::operator[](const NodeInput *input) const
+{
+  return tables_[input->id()];
 }
 
 void NodeValueDatabase::Insert(const QString &key, const NodeValueTable &value)
@@ -64,6 +74,11 @@ const QString &NodeValue::tag() const
   return tag_;
 }
 
+bool NodeValue::operator==(const NodeValue &rhs) const
+{
+  return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
+}
+
 const QVariant &NodeValue::data() const
 {
   return data_;
@@ -71,9 +86,7 @@ const QVariant &NodeValue::data() const
 
 QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag) const
 {
-  NodeValue v = GetWithMeta(type, tag);
-
-  return v.data();
+  return GetWithMeta(type, tag).data();
 }
 
 NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QString &tag) const
@@ -89,15 +102,18 @@ NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QSt
 
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
 {
+  return TakeWithMeta(type, tag).data();
+}
+
+NodeValue NodeValueTable::TakeWithMeta(const NodeParam::DataType &type, const QString &tag)
+{
   int value_index = GetInternal(type, tag);
 
   if (value_index >= 0) {
-    QVariant val = values_.at(value_index).data();
-    values_.removeAt(value_index);
-    return val;
+    return values_.takeAt(value_index);
   }
 
-  return QVariant();
+  return NodeValue(NodeParam::kNone, QVariant());
 }
 
 void NodeValueTable::Push(const NodeValue &value)
@@ -125,6 +141,11 @@ const NodeValue &NodeValueTable::At(int index) const
   return values_.at(index);
 }
 
+NodeValue NodeValueTable::TakeAt(int index)
+{
+  return values_.takeAt(index);
+}
+
 int NodeValueTable::Count() const
 {
   return values_.size();
@@ -141,6 +162,18 @@ bool NodeValueTable::Has(const NodeParam::DataType &type) const
   }
 
   return false;
+}
+
+void NodeValueTable::Remove(const NodeValue &v)
+{
+  for (int i=values_.size() - 1;i>=0;i--) {
+    const NodeValue& compare = values_.at(i);
+
+    if (compare == v) {
+      values_.removeAt(i);
+      return;
+    }
+  }
 }
 
 bool NodeValueTable::isEmpty() const

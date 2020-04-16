@@ -68,7 +68,7 @@ NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path, const qi
   return ProcessNode(path);
 }
 
-void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params)
+void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params)
 {
   Q_UNUSED(node)
   Q_UNUSED(range)
@@ -136,7 +136,7 @@ void RenderWorker::InputProcessingEvent(NodeInput* input, const TimeRange& input
   }
 }
 
-void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params)
+void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
 {
   // Check if we have a shader for this output
   RunNodeAccelerated(node, range, input_params, output_params);

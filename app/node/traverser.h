@@ -46,7 +46,7 @@ protected:
 
   virtual void InputProcessingEvent(NodeInput*, const TimeRange&, NodeValueTable*){}
 
-  virtual void ProcessNodeEvent(const Node*, const TimeRange&, const NodeValueDatabase&, NodeValueTable*){}
+  virtual void ProcessNodeEvent(const Node*, const TimeRange&, NodeValueDatabase&, NodeValueTable&){}
 
 };
 

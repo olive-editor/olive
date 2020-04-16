@@ -83,7 +83,7 @@ void TransformDistort::Retranslate()
   anchor_input_->set_name(tr("Anchor Point"));
 }
 
-NodeValueTable TransformDistort::Value(const NodeValueDatabase &value) const
+NodeValueTable TransformDistort::Value(NodeValueDatabase &value) const
 {
   QMatrix4x4 mat;
 

@@ -50,7 +50,7 @@ public:
 
   virtual TimeRange OutputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
   virtual void Retranslate() override;
 

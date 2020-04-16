@@ -45,7 +45,7 @@ void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const Time
   }
 }
 
-void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
+void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
 {
   emit RequestRunNodeAccelerated(node, range, input_params, output_params);
 }

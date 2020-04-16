@@ -23,6 +23,7 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
+#include "common/tohex.h"
 #include "render/color.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -169,35 +170,47 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
                                    operation);
 }
 
-NodeValue MathNode::InputValueFromTable(NodeInput *input, const NodeValueDatabase &db) const
+NodeValue MathNode::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
 {
   if (input == param_a_in_ || input == param_b_in_) {
     PairingCalculator calc(db[param_a_in_], db[param_b_in_]);
 
-    if (input == param_a_in_) {
-      return calc.GetMostLikelyValueA();
-    } else {
-      return calc.GetMostLikelyValueB();
+    NodeValue v = (input == param_a_in_)
+        ? calc.GetMostLikelyValueA()
+        : calc.GetMostLikelyValueB();
+
+    if (take) {
+      db[input].Remove(v);
     }
+
+    return v;
   }
 
-  return Node::InputValueFromTable(input, db);
+  return Node::InputValueFromTable(input, db, take);
 }
 
-NodeValueTable MathNode::Value(const NodeValueDatabase &value) const
+NodeValueTable MathNode::Value(NodeValueDatabase &value) const
 {
-  NodeValueTable output = value.Merge();
-
   // Auto-detect what values to operate with
   // FIXME: Add manual override for this
   PairingCalculator calc(value[param_a_in_], value[param_b_in_]);
 
-  if (!calc.FoundMostLikelyPairing()) {
-    return output;
+  if (!calc.FoundMostLikelyPairing()
+      || calc.GetMostLikelyPairing() == kPairSampleNumber
+      || calc.GetMostLikelyPairing() == kPairTextureTexture
+      || calc.GetMostLikelyPairing() == kPairTextureNumber
+      || calc.GetMostLikelyPairing() == kPairTextureColor
+      || calc.GetMostLikelyPairing() == kPairTextureMatrix) {
+    return value.Merge();
   }
 
   NodeValue val_a = calc.GetMostLikelyValueA();
+  value[param_a_in_].Remove(val_a);
+
   NodeValue val_b = calc.GetMostLikelyValueB();
+  value[param_b_in_].Remove(val_b);
+
+  NodeValueTable output = value.Merge();
 
   switch (calc.GetMostLikelyPairing()) {
 
@@ -395,39 +408,44 @@ QVector<int> MathNode::PairingCalculator::GetPairLikelihood(const NodeValueTable
   for (int i=0;i<table.Count();i++) {
     NodeParam::DataType type = table.At(i).type();
 
+    int weight = i;
+
     if (type & NodeParam::kVector) {
-      likelihood.replace(kPairVecVec, i);
-      likelihood.replace(kPairVecNumber, i);
-      likelihood.replace(kPairMatrixVec, i);
+      likelihood.replace(kPairVecVec, weight);
+      likelihood.replace(kPairVecNumber, weight);
+      likelihood.replace(kPairMatrixVec, weight);
     } else if (type & NodeParam::kMatrix) {
-      likelihood.replace(kPairMatrixMatrix, i);
-      likelihood.replace(kPairMatrixVec, i);
-      likelihood.replace(kPairTextureMatrix, i);
+      likelihood.replace(kPairMatrixMatrix, weight);
+      likelihood.replace(kPairMatrixVec, weight);
+      likelihood.replace(kPairTextureMatrix, weight);
     } else if (type & NodeParam::kColor) {
-      likelihood.replace(kPairColorColor, i);
-      likelihood.replace(kPairNumberColor, i);
-      likelihood.replace(kPairTextureColor, i);
+      likelihood.replace(kPairColorColor, weight);
+      likelihood.replace(kPairNumberColor, weight);
+      likelihood.replace(kPairTextureColor, weight);
     } else if (type & NodeParam::kNumber) {
-      likelihood.replace(kPairNumberNumber, i);
-      likelihood.replace(kPairVecNumber, i);
-      likelihood.replace(kPairNumberColor, i);
-      likelihood.replace(kPairTextureNumber, i);
-      likelihood.replace(kPairSampleNumber, i);
+      likelihood.replace(kPairNumberNumber, weight);
+      likelihood.replace(kPairVecNumber, weight);
+      likelihood.replace(kPairNumberColor, weight);
+      likelihood.replace(kPairTextureNumber, weight);
+      likelihood.replace(kPairSampleNumber, weight);
     } else if (type & NodeParam::kSamples) {
-      likelihood.replace(kPairSampleSample, i);
-      likelihood.replace(kPairSampleNumber, i);
+      likelihood.replace(kPairSampleSample, weight);
+      likelihood.replace(kPairSampleNumber, weight);
     } else if (type & NodeParam::kTexture) {
-      likelihood.replace(kPairTextureTexture, i);
-      likelihood.replace(kPairTextureNumber, i);
-      likelihood.replace(kPairTextureColor, i);
-      likelihood.replace(kPairTextureMatrix, i);
+      likelihood.replace(kPairTextureTexture, weight);
+      likelihood.replace(kPairTextureNumber, weight);
+      likelihood.replace(kPairTextureColor, weight);
+      likelihood.replace(kPairTextureMatrix, weight);
     }
   }
 
   return likelihood;
 }
 
-MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairingInternal(const QVector<int> &a, const QVector<int> &b)
+MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairingInternal(const QVector<int> &a,
+                                                                            const QVector<int> &b,
+                                                                            const int& weight_a,
+                                                                            const int& weight_b)
 {
   QVector<int> likelihoods(kPairCount);
 
@@ -435,15 +453,13 @@ MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairingInternal(cons
     if (a.at(i) == -1 || b.at(i) == -1) {
       likelihoods.replace(i, -1);
     } else {
-      likelihoods.replace(i, a.at(i) + b.at(i));
+      likelihoods.replace(i, a.at(i) + weight_a + b.at(i) + weight_b);
     }
   }
 
   Pairing pairing = kPairNone;
 
   for (int i=0;i<likelihoods.size();i++) {
-    //qDebug() << "Likelihood" << i << "is" << likelihoods.at(i);
-
     if (likelihoods.at(i) > -1) {
       if (pairing == kPairNone
           || likelihoods.at(i) > likelihoods.at(pairing)) {
@@ -495,18 +511,22 @@ float MathNode::RetrieveNumber(const NodeValue &val)
   }
 }
 
-MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b)
+MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b) :
+  table_a_(table_a),
+  table_b_(table_b)
 {
-  table_a_ = table_a;
-  table_b_ = table_b;
   pair_likelihood_a_ = GetPairLikelihood(table_a_);
   pair_likelihood_b_ = GetPairLikelihood(table_b_);
-  most_likely_pairing_ = GetMostLikelyPairingInternal(pair_likelihood_a_, pair_likelihood_b_);
+
+  most_likely_pairing_ = GetMostLikelyPairingInternal(pair_likelihood_a_,
+                                                      pair_likelihood_b_,
+                                                      qMax(0, table_b_.Count() - table_a_.Count()),
+                                                      qMax(0, table_a_.Count() - table_b_.Count()));
 }
 
 bool MathNode::PairingCalculator::FoundMostLikelyPairing() const
 {
-  return (most_likely_pairing_ >= 0 && most_likely_pairing_ < kPairCount);
+  return (most_likely_pairing_ > kPairNone && most_likely_pairing_ < kPairCount);
 }
 
 MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairing() const
@@ -514,17 +534,17 @@ MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairing() const
   return most_likely_pairing_;
 }
 
-NodeValue MathNode::PairingCalculator::GetMostLikelyValueA() const
+const NodeValue &MathNode::PairingCalculator::GetMostLikelyValueA() const
 {
   return GetMostLikelyValue(table_a_, pair_likelihood_a_);
 }
 
-NodeValue MathNode::PairingCalculator::GetMostLikelyValueB() const
+const NodeValue &MathNode::PairingCalculator::GetMostLikelyValueB() const
 {
   return GetMostLikelyValue(table_b_, pair_likelihood_b_);
 }
 
-NodeValue MathNode::PairingCalculator::GetMostLikelyValue(const NodeValueTable &table, const QVector<int> &likelihood) const
+const NodeValue& MathNode::PairingCalculator::GetMostLikelyValue(const NodeValueTable &table, const QVector<int> &likelihood) const
 {
   return table.At(likelihood.at(most_likely_pairing_));
 }

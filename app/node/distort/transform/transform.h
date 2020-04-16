@@ -40,7 +40,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
 private:
   NodeInput* position_input_;

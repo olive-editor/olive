@@ -44,7 +44,7 @@ void AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
   }
 }
 
-void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params_in, NodeValueTable *output_params)
+void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)
 {
   // Check if node processes samples
   if (!(node->GetCapabilities(input_params_in) & Node::kSampleProcessor)) {
@@ -101,7 +101,7 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
                          i);
   }
 
-  output_params->Push(NodeParam::kSamples, QVariant::fromValue(output_buffer));
+  output_params.Push(NodeParam::kSamples, QVariant::fromValue(output_buffer));
 }
 
 OLIVE_NAMESPACE_EXIT

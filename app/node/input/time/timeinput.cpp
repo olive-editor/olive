@@ -51,7 +51,7 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame");
 }
 
-NodeValueTable TimeInput::Value(const NodeValueDatabase &value) const
+NodeValueTable TimeInput::Value(NodeValueDatabase &value) const
 {
   NodeValueTable table = value.Merge();
 

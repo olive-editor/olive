@@ -33,7 +33,7 @@ public:
 protected:
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;
 
-  virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, const NodeValueDatabase& input_params, NodeValueTable* output_params) override;
+  virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase& input_params, NodeValueTable& output_params) override;
 
 private:
 

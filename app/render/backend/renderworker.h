@@ -57,7 +57,7 @@ protected:
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time);
 
-  virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
+  virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase &input_params, NodeValueTable &output_params);
 
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
 
@@ -65,7 +65,7 @@ protected:
 
   virtual void InputProcessingEvent(NodeInput *input, const TimeRange &input_time, NodeValueTable* table) override;
 
-  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params) override;
+  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) override;
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
 

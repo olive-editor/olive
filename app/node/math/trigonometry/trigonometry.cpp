@@ -77,7 +77,7 @@ void TrigonometryNode::Retranslate()
   method_in_->set_name(tr("Method"));
 }
 
-NodeValueTable TrigonometryNode::Value(const NodeValueDatabase &value) const
+NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
 {
   float x = value[x_in_].Take(NodeParam::kFloat).toFloat();
 

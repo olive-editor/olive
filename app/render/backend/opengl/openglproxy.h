@@ -65,7 +65,7 @@ public:
 
   void FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable* table);
 
-  void RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
+  void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params);
 
   void TextureToBuffer(const QVariant& texture, void *buffer);
 

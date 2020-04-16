@@ -27,6 +27,7 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
+#include "common/tohex.h"
 #include "common/xmlutils.h"
 #include "node.h"
 #include "output.h"
@@ -306,7 +307,7 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
     }
 
     if (!value.isNull()) {
-      qWarning() << "Failed to convert type" << QStringLiteral("%1").arg(data_type, 0, 16) << "to string";
+      qWarning() << "Failed to convert type" << ToHex(data_type) << "to string";
     }
 
     /* fall through */

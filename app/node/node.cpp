@@ -148,7 +148,7 @@ void Node::AddParameter(NodeParam *param)
   }
 }
 
-NodeValueTable Node::Value(const NodeValueDatabase &value) const
+NodeValueTable Node::Value(NodeValueDatabase &value) const
 {
   return value.Merge();
 }
@@ -616,7 +616,7 @@ NodeOutput *Node::output() const
   return output_;
 }
 
-NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueDatabase &db) const
+NodeValue Node::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
 {
   NodeParam::DataType find_data_type = input->data_type();
 
@@ -626,7 +626,11 @@ NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueDatabase &d
   }
 
   // Try to get a value from it
-  return db[input].GetWithMeta(find_data_type);
+  if (take) {
+    return db[input].TakeWithMeta(find_data_type);
+  } else {
+    return db[input].GetWithMeta(find_data_type);
+  }
 }
 
 const QPointF &Node::GetPosition()

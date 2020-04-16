@@ -390,6 +390,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OpenGLTexturePtr>();
   qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValueTable>();
+  qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<SampleBufferPtr>();
   qRegisterMetaType<AudioRenderingParams>();

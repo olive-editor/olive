@@ -200,7 +200,7 @@ void OpenGLProxy::Close()
   ctx_ = nullptr;
 }
 
-void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
+void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
 {
   if (!(node->GetCapabilities(input_params) & Node::kShader)) {
     return;
@@ -257,7 +257,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // Get value from database at this input
-        NodeValue meta_value = node->InputValueFromTable(input, input_params);
+        NodeValue meta_value = node->InputValueFromTable(input, input_params, true);
         const QVariant& value = meta_value.data();
 
         NodeParam::DataType data_type;
@@ -423,7 +423,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
 
   shader->release();
 
-  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
+  output_params.Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
 void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)

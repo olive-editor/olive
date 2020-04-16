@@ -38,7 +38,7 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
 };
 

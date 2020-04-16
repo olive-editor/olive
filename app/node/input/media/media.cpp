@@ -21,6 +21,7 @@
 #include "media.h"
 
 #include "common/timecodefunctions.h"
+#include "common/tohex.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -54,15 +55,21 @@ void MediaInput::Retranslate()
   footage_input_->set_name(tr("Footage"));
 }
 
-NodeValueTable MediaInput::Value(const NodeValueDatabase &value) const
+NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
 {
-  NodeValueTable table = value.Merge();
+  NodeValueTable table;
 
   if (connected_footage_) {
     rational media_duration = Timecode::timestamp_to_time(connected_footage_->duration(),
                                                           connected_footage_->timebase());
 
     table.Push(NodeInput::kRational, QVariant::fromValue(media_duration), "length");
+  }
+
+  // Push buffer to the top of the stack
+  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kSamples);
+  if (buffer.type() != NodeParam::kNone) {
+    table.Push(buffer);
   }
 
   return table;
