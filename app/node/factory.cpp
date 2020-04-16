@@ -47,8 +47,7 @@ void NodeFactory::Initialize()
     library_.append(CreateInternal(static_cast<InternalID>(i)));
   }
 
-  library_.append(new ExternalNode(":/shaders/gaussianblur.xml"));
-  library_.append(new ExternalNode(":/shaders/boxblur.xml"));
+  library_.append(new ExternalNode(":/shaders/blur.xml"));
   library_.append(new ExternalNode(":/shaders/opacity.xml"));
   library_.append(new ExternalNode(":/shaders/solid.xml"));
   library_.append(new ExternalNode(":/shaders/stroke.xml"));
@@ -60,9 +59,7 @@ void NodeFactory::Initialize()
 
 void NodeFactory::Destroy()
 {
-  foreach (Node* n, library_) {
-    delete n;
-  }
+  qDeleteAll(library_);
   library_.clear();
 }
 

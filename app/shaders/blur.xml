@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<effect id="org.olivevideoeditor.Olive.gaussianblur">
+<effect id="org.olivevideoeditor.Olive.blur">
     <!-- Effect Name -->
-    <name lang="en_US">Gaussian Blur</name>
-    
+    <name lang="en_US">Blur</name>
+
     <!-- Effect Category -->
     <category lang="en_US">Blur</category>
 
     <!-- Effect Description -->
     <description lang="en_US">
-        A smooth blur using the gaussian function. Slower than box blur but also prettier.
+        Blurs an image.
     </description>
 
     <!-- Parameter: Texture Input -->
@@ -16,13 +16,26 @@
         <name lang="en_US">Input</name>
     </param>
 
-    <!-- Parameter: Sigma Value -->
-    <param id="sigma_in" type="float">
-        <name lang="en_US">Sigma</name>
-        <min>0</min>
-        <default>5.5</default>
+    <!-- Parameter: Method Input -->
+    <param id="method_in" type="combo">
+        <name lang="en_US">Method</name>
+        <option>
+            <name lang="en_US">Box</name>
+            <description lang="en_US">A fast blur calculated by averaging a square of pixels around each pixel. Fast, but can have a "striated" look to it.</description>
+        </option>
+        <option>
+            <name lang="en_US">Gaussian</name>
+            <description lang="en_US">A smooth blur using the gaussian function. Slower than box blur but much prettier.</description>
+        </option>
     </param>
-    
+
+    <!-- Parameter: Radius Input -->
+    <param id="radius_in" type="float">
+        <name lang="en_US">Radius</name>
+        <min>0</min>
+        <default>10</default>
+    </param>
+
     <!-- Parameter: Horizontal Enable -->
     <param id="horiz_in" type="bool">
         <name lang="en_US">Horizontal</name>
@@ -42,7 +55,7 @@
     </param>
 
     <!-- Qt Resource path to fragment shader -->
-    <fragment url=":/shaders/gaussianblur.frag" />
+    <fragment url=":/shaders/blur.frag"/>
 
     <!-- Blur uses two iterations for horizontal and vertical since calculating 2*radius is faster than radius^2 -->
     <iterations>2</iterations>

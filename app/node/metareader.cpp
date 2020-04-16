@@ -22,6 +22,7 @@
 
 #include <QFile>
 
+#include "common/xmlutils.h"
 #include "config/config.h"
 #include "node.h"
 
@@ -37,11 +38,11 @@ NodeMetaReader::NodeMetaReader(const QString &xml_meta_filename) :
   if (metadata_file.open(QFile::ReadOnly)) {
     QXmlStreamReader reader(&metadata_file);
 
-    while (!reader.atEnd()) {
-      reader.readNext();
-
-      if (reader.isStartElement() && reader.name() == "effect") {
+    while (XMLReadNextStartElement(&reader)) {
+      if (reader.name() == QStringLiteral("effect")) {
         XMLReadEffect(&reader);
+      } else {
+        reader.skipCurrentElement();
       }
     }
 
@@ -103,23 +104,42 @@ const QList<NodeInput *> &NodeMetaReader::inputs() const
 
 void NodeMetaReader::Retranslate()
 {
-  QMap<QString, QMap<QString, QString> >::const_iterator iterator;
+  {
+    // Re-translate every parameter name
+    QMap<QString, LanguageMap>::const_iterator iterator;
 
-  // Iterate through parameter language tables that we have
-  for (iterator=param_names_.begin();iterator!=param_names_.end();iterator++) {
-    NodeInput* this_input = GetInputWithID(iterator.key());
-    this_input->set_name(GetStringForCurrentLanguage(&iterator.value()));
+    // Iterate through parameter language tables that we have
+    for (iterator=param_names_.begin();iterator!=param_names_.end();iterator++) {
+      NodeInput* this_input = GetInputWithID(iterator.key());
+      this_input->set_name(GetStringForCurrentLanguage(&iterator.value()));
+    }
+  }
+
+  {
+    // Re-translate any combobox items
+    QMap<QString, QList<LanguageMap> >::const_iterator param_it;
+
+    for (param_it=combo_names_.begin(); param_it!=combo_names_.end(); param_it++) {
+      NodeInput* input = GetInputWithID(param_it.key());
+
+      QStringList combo_items;
+
+      foreach (const LanguageMap& lang_map, param_it.value()) {
+        combo_items.append(GetStringForCurrentLanguage(&lang_map));
+      }
+
+      input->set_combobox_strings(combo_items);
+    }
   }
 }
 
-void NodeMetaReader::XMLReadLanguageString(QXmlStreamReader* reader, QMap<QString, QString>* map)
+void NodeMetaReader::XMLReadLanguageString(QXmlStreamReader* reader, LanguageMap* map)
 {
   QString lang;
 
   // Traverse through name attributes for its language
-  QXmlStreamAttributes attrs = reader->attributes();
-  foreach (const QXmlStreamAttribute& attr, attrs) {
-    if (attr.name() == "lang") {
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("lang")) {
       lang = attr.value().toString();
 
       // We don't recognize any other "name" attributes at this time
@@ -134,9 +154,8 @@ void NodeMetaReader::XMLReadLanguageString(QXmlStreamReader* reader, QMap<QStrin
 void NodeMetaReader::XMLReadEffect(QXmlStreamReader* reader)
 {
   // Traverse through effect attributes for an ID
-  QXmlStreamAttributes attrs = reader->attributes();
-  foreach (const QXmlStreamAttribute& attr, attrs) {
-    if (attr.name() == "id") {
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("id")) {
       id_ = attr.value().toString();
 
       // We don't recognize any other "effect" attributes at this time
@@ -150,32 +169,30 @@ void NodeMetaReader::XMLReadEffect(QXmlStreamReader* reader)
   }
 
   // Continue reading for other metadata
-  while (!reader->atEnd() && !(reader->isEndElement() && reader->name() == "effect")) {
-    reader->readNext();
-
-    if (reader->isStartElement()) {
-      if (reader->name() == "name") {
-        // Pick up name
-        XMLReadLanguageString(reader, &names_);
-      } else if (reader->name() == "category") {
-        // Pick up category
-        XMLReadLanguageString(reader, &categories_);
-      } else if (reader->name() == "description") {
-        // Pick up description
-        XMLReadLanguageString(reader, &descriptions_);
-      } else if (reader->name() == "iterations") {
-        // Pick up iterations
-        XMLReadIterations(reader);
-      } else if (reader->name() == "fragment") {
-        // Pick up fragment shader code
-        XMLReadShader(reader, frag_code_);
-      } else if (reader->name() == "vertex") {
-        // Pick up vertex shader code
-        XMLReadShader(reader, vert_code_);
-      } else if (reader->name() == "param") {
-        // Pick up a parameter
-        XMLReadParam(reader);
-      }
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("name")) {
+      // Pick up name
+      XMLReadLanguageString(reader, &names_);
+    } else if (reader->name() == QStringLiteral("category")) {
+      // Pick up category
+      XMLReadLanguageString(reader, &categories_);
+    } else if (reader->name() == QStringLiteral("description")) {
+      // Pick up description
+      XMLReadLanguageString(reader, &descriptions_);
+    } else if (reader->name() == QStringLiteral("iterations")) {
+      // Pick up iterations
+      XMLReadIterations(reader);
+    } else if (reader->name() == QStringLiteral("fragment")) {
+      // Pick up fragment shader code
+      XMLReadShader(reader, frag_code_);
+    } else if (reader->name() == QStringLiteral("vertex")) {
+      // Pick up vertex shader code
+      XMLReadShader(reader, vert_code_);
+    } else if (reader->name() == QStringLiteral("param")) {
+      // Pick up a parameter
+      XMLReadParam(reader);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
@@ -199,13 +216,12 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
   bool is_iterative = false;
 
   // Traverse through parameter attributes for an ID
-  QXmlStreamAttributes attrs = reader->attributes();
-  foreach (const QXmlStreamAttribute& attr, attrs) {
-    if (attr.name() == "id") {
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("id")) {
       param_id = attr.value().toString();
-    } else if (attr.name() == "type") {
+    } else if (attr.name() == QStringLiteral("type")) {
       param_type = NodeParam::StringToDataType(attr.value().toString());
-    } else if (attr.name() == "iterative_input") {
+    } else if (attr.name() == QStringLiteral("iterative_input")) {
       is_iterative = true;
     }
   }
@@ -217,30 +233,54 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
 
   QVariant default_val;
   QHash<QString, QVariant> properties;
+  LanguageMap param_names;
+  QList<LanguageMap> combo_names;
+  QList<LanguageMap> combo_descriptions;
 
   // Traverse through param contents for more data
-  while (!reader->atEnd() && !(reader->isEndElement() && reader->name() == "param")) {
-    reader->readNext();
+  while (XMLReadNextStartElement(reader)) {
+    // NOTE: readElementText() returns a string, but for number types (which min and max apply to), QVariant will
+    // convert them automatically
+    if (reader->name() == QStringLiteral("name")) {
 
-    if (reader->isStartElement()) {
-      // NOTE: readElementText() returns a string, but for number types (which min and max apply to), QVariant will
-      // convert them automatically
-      if (reader->name() == "name") {
+      // Insert language into map
+      XMLReadLanguageString(reader, &param_names);
 
-        // See if we've already made a table for this param before
-        if (!param_names_.contains(param_id)) {
-          param_names_.insert(param_id, QMap<QString, QString>());
+    } else if (reader->name() == QStringLiteral("default")) {
+
+      // Reads the default value
+      default_val = NodeInput::StringToValue(param_type, reader->readElementText());
+
+    } else if (reader->name() == QStringLiteral("option")) {
+
+      // Read names and descriptions
+      LanguageMap names;
+      LanguageMap descriptions;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("name")) {
+          XMLReadLanguageString(reader, &names);
+        } else if (reader->name() == QStringLiteral("description")) {
+          XMLReadLanguageString(reader, &descriptions);
+        } else {
+          reader->skipCurrentElement();
         }
-
-        // Insert language into table
-        XMLReadLanguageString(reader, &param_names_[param_id]);
-
-      } else if (reader->name() == "default") {
-        default_val = NodeInput::StringToValue(param_type, reader->readElementText());
-      } else {
-        properties.insert(reader->name().toString(), reader->readElementText());
       }
+
+      combo_names.append(names);
+      combo_descriptions.append(descriptions);
+
+    } else {
+      properties.insert(reader->name().toString(), reader->readElementText());
     }
+  }
+
+  param_names_.insert(param_id, param_names);
+
+  // Insert combo options if they exist
+  if (!combo_names.isEmpty()) {
+    combo_names_.insert(param_id, combo_names);
+    combo_descriptions_.insert(param_id, combo_descriptions);
   }
 
   NodeInput* input = new NodeInput(param_id, param_type, default_val);
@@ -263,9 +303,8 @@ void NodeMetaReader::XMLReadShader(QXmlStreamReader *reader, QString &destinatio
   QString code_url;
 
   // Traverse through parameter attributes for an ID
-  QXmlStreamAttributes attrs = reader->attributes();
-  foreach (const QXmlStreamAttribute& attr, attrs) {
-    if (attr.name() == "url") {
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("url")) {
       code_url = attr.value().toString();
 
       // We don't recognize any other "shader" attributes at this time
@@ -285,7 +324,7 @@ void NodeMetaReader::XMLReadShader(QXmlStreamReader *reader, QString &destinatio
   }
 }
 
-QString NodeMetaReader::GetStringForCurrentLanguage(const QMap<QString, QString> *language_map)
+QString NodeMetaReader::GetStringForCurrentLanguage(const LanguageMap *language_map)
 {
   if (language_map->isEmpty()) {
     // There are no entries for this map, this must be an empty string
@@ -293,7 +332,7 @@ QString NodeMetaReader::GetStringForCurrentLanguage(const QMap<QString, QString>
   }
 
   // Get current language config
-  QString language = Config::Current()["Language"].toString();
+  QString language = Config::Current()[QStringLiteral("Language")].toString();
 
   // See if our map has an exact language match
   QString str_for_lang = language_map->value(language);

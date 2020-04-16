@@ -52,22 +52,26 @@ public:
   void Retranslate();
 
 private:
-  void XMLReadLanguageString(QXmlStreamReader* reader, QMap<QString, QString>* map);
+  using LanguageMap = QMap<QString, QString>;
+
+  void XMLReadLanguageString(QXmlStreamReader* reader, LanguageMap *map);
   void XMLReadEffect(QXmlStreamReader *reader);
   void XMLReadIterations(QXmlStreamReader* reader);
   void XMLReadParam(QXmlStreamReader* reader);
   void XMLReadShader(QXmlStreamReader* reader, QString& destination);
 
-  static QString GetStringForCurrentLanguage(const QMap<QString, QString> *language_map);
+  static QString GetStringForCurrentLanguage(const LanguageMap *language_map);
 
   NodeInput* GetInputWithID(const QString& id) const;
 
   QString xml_filename_;
 
-  QMap<QString, QString> names_;
-  QMap<QString, QString> descriptions_;
-  QMap<QString, QString> categories_;
-  QMap<QString, QMap<QString, QString> > param_names_;
+  LanguageMap names_;
+  LanguageMap descriptions_;
+  LanguageMap categories_;
+  QMap<QString, LanguageMap > param_names_;
+  QMap<QString, QList<LanguageMap> > combo_names_;
+  QMap<QString, QList<LanguageMap> > combo_descriptions_;
 
   QString id_;
 

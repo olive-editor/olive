@@ -2,8 +2,8 @@
     <qresource prefix="/shaders">
         <file>alphaover.frag</file>
         <file>alphaover.xml</file>
-        <file>boxblur.frag</file>
-        <file>boxblur.xml</file>
+        <file>blur.frag</file>
+        <file>blur.xml</file>
         <file>colorgradient.frag</file>
         <file>colorwheel.frag</file>
         <file>crossdissolve.frag</file>
@@ -12,8 +12,6 @@
         <file>dropshadow.xml</file>
         <file>diptoblack.frag</file>
         <file>diptoblack.xml</file>
-        <file>gaussianblur.frag</file>
-        <file>gaussianblur.xml</file>
         <file>opacity.frag</file>
         <file>opacity.xml</file>
         <file>solid.frag</file>
