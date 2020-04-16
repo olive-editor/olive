@@ -86,6 +86,10 @@ public slots:
 
   void ToggleShowAll();
 
+  void GoToIn();
+
+  void GoToOut();
+
   TimeRuler* ruler() const;
 
 protected slots:

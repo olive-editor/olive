@@ -195,4 +195,14 @@ void TimeBasedPanel::ToggleShowAll()
   GetTimeBasedWidget()->ToggleShowAll();
 }
 
+void TimeBasedPanel::GoToIn()
+{
+  GetTimeBasedWidget()->GoToIn();
+}
+
+void TimeBasedPanel::GoToOut()
+{
+  GetTimeBasedWidget()->GoToOut();
+}
+
 OLIVE_NAMESPACE_EXIT

@@ -462,4 +462,26 @@ void TimeBasedWidget::ToggleShowAll()
   }
 }
 
+void TimeBasedWidget::GoToIn()
+{
+  if (viewer_node_) {
+    if (points_ && points_->workarea()->enabled()) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(points_->workarea()->in(), timebase()));
+    } else {
+      GoToStart();
+    }
+  }
+}
+
+void TimeBasedWidget::GoToOut()
+{
+  if (viewer_node_) {
+    if (points_ && points_->workarea()->enabled()) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(points_->workarea()->out(), timebase()));
+    } else {
+      GoToEnd();
+    }
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

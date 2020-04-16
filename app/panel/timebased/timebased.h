@@ -80,6 +80,10 @@ public:
 
   virtual void ToggleShowAll() override;
 
+  virtual void GoToIn() override;
+
+  virtual void GoToOut() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

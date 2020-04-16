@@ -146,6 +146,10 @@ public:
 
   virtual void ToggleShowAll(){}
 
+  virtual void GoToIn(){}
+
+  virtual void GoToOut(){}
+
 protected:
   /**
    * @brief paintEvent
