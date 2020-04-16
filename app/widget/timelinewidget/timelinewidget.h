@@ -86,6 +86,8 @@ public:
 
   void Paste(bool insert);
 
+  void DeleteInToOut(bool ripple);
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:

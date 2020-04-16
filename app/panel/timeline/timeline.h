@@ -73,6 +73,10 @@ public:
 
   virtual void PasteInsert() override;
 
+  virtual void DeleteInToOut() override;
+
+  virtual void RippleDeleteInToOut() override;
+
   void InsertFootageAtPlayhead(const QList<Footage *> &footage);
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);

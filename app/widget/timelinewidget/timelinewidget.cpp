@@ -689,6 +689,47 @@ void TimelineWidget::Paste(bool insert)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::DeleteInToOut(bool ripple)
+{
+  if (!GetConnectedNode()
+      || !GetConnectedTimelinePoints()
+      || !GetConnectedTimelinePoints()->workarea()->enabled()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+    if (!track->IsLocked()) {
+      if (ripple) {
+        new TrackRippleRemoveAreaCommand(track,
+                                         GetConnectedTimelinePoints()->workarea()->in(),
+                                         GetConnectedTimelinePoints()->workarea()->out(),
+                                         command);
+      } else {
+        GapBlock* gap = new GapBlock();
+
+        gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
+
+        new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+                           gap,
+                           command);
+
+        new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->track_type()),
+                                   track->Index(),
+                                   gap,
+                                   GetConnectedTimelinePoints()->workarea()->in(),
+                                   command);
+      }
+    }
+  }
+
+  // Clear workarea after this
+  new WorkareaSetEnabledCommand(GetConnectedTimelinePoints(), false, command);
+
+  Core::instance()->undo_stack()->push(command);
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;

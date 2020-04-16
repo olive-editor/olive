@@ -143,6 +143,16 @@ void TimelinePanel::PasteInsert()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->Paste(true);
 }
 
+void TimelinePanel::DeleteInToOut()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteInToOut(false);
+}
+
+void TimelinePanel::RippleDeleteInToOut()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteInToOut(true);
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);

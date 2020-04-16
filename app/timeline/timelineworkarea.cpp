@@ -99,4 +99,9 @@ const rational &TimelineWorkArea::out() const
   return workarea_range_.out();
 }
 
+const rational &TimelineWorkArea::length() const
+{
+  return workarea_range_.length();
+}
+
 OLIVE_NAMESPACE_EXIT

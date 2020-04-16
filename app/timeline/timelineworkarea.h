@@ -40,6 +40,7 @@ public:
 
   const rational& in() const;
   const rational& out() const;
+  const rational& length() const;
   const TimeRange& range() const;
   void set_range(const TimeRange& range);
 

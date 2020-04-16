@@ -505,12 +505,12 @@ void MainMenu::ClearOpenRecentTriggered()
 
 void MainMenu::DeleteInOutTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->DeleteInToOut();
 }
 
 void MainMenu::RippleDeleteInOutTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->RippleDeleteInToOut();
 }
 
 void MainMenu::GoToInTriggered()

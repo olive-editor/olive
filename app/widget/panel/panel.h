@@ -150,6 +150,10 @@ public:
 
   virtual void GoToOut(){}
 
+  virtual void DeleteInToOut(){}
+
+  virtual void RippleDeleteInToOut(){}
+
 protected:
   /**
    * @brief paintEvent
