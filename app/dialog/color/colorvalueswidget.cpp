@@ -201,10 +201,8 @@ void ColorValuesTab::SetColor(const Color &c)
 FloatSlider *ColorValuesTab::CreateColorSlider()
 {
   FloatSlider* fs = new FloatSlider();
-  fs->SetMinimum(0);
   fs->SetDragMultiplier(0.01);
-  fs->SetMaximum(1);
-  fs->SetDecimalPlaces(3);
+  fs->SetDecimalPlaces(5);
   connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesTab::SliderChanged);
   return fs;
 }
