@@ -18,35 +18,32 @@
 
 ***/
 
-#ifndef PARAM_H
-#define PARAM_H
+#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
+#define NODEPARAMVIEWCONNECTEDLABEL_H
 
-#include "panel/timebased/timebased.h"
-#include "widget/nodeparamview/nodeparamview.h"
+#include "node/input.h"
+#include "widget/clickablelabel/clickablelabel.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ParamPanel : public TimeBasedPanel
-{
+class NodeParamViewConnectedLabel : public QWidget {
   Q_OBJECT
 public:
-  ParamPanel(QWidget* parent);
-
-public slots:
-  void SetNodes(QList<Node*> nodes);
+  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
 
 signals:
-  void SelectedInputChanged(NodeInput* input);
+  void ConnectionClicked();
 
-  void TimeTargetChanged(Node* node);
+private slots:
+  void UpdateConnected();
 
-  void RequestSelectNode(const QList<Node*>& target);
+private:
+  ClickableLabel* connected_to_lbl_;
 
-protected:
-  virtual void Retranslate() override;
+  NodeInput* input_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PARAM_H
+#endif // NODEPARAMVIEWCONNECTEDLABEL_H

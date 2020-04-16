@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::SelectedInputChanged, curve_panel_, &CurvePanel::SetInput);
   connect(param_panel_, &ParamPanel::TimebaseChanged, curve_panel_, &CurvePanel::SetTimebase);
   connect(param_panel_, &ParamPanel::TimeTargetChanged, curve_panel_, &CurvePanel::SetTimeTarget);
+  connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);

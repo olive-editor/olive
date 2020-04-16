@@ -150,6 +150,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
       connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
       connect(item, &NodeParamViewItem::InputClicked, this, &NodeParamView::SelectedInputChanged);
+      connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
 
       items_.append(item);
 

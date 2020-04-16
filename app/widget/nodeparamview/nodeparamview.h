@@ -45,6 +45,8 @@ signals:
 
   void TimeTargetChanged(Node* target);
 
+  void RequestSelectNode(const QList<Node*>& target);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 

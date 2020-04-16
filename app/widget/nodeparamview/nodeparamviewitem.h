@@ -28,6 +28,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewconnectedlabel.h"
 #include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
 #include "widget/clickablelabel/clickablelabel.h"
@@ -64,6 +65,8 @@ signals:
 
   void InputClicked(NodeInput* input);
 
+  void RequestSelectNode(const QList<Node*>& node);
+
 protected:
   virtual void changeEvent(QEvent *e) override;
 
@@ -74,6 +77,8 @@ private:
 
   void Retranslate();
 
+  void UpdateUIForEdgeConnection(NodeInput* input);
+
   NodeParamViewKeyframeControl* KeyframeControlFromInput(NodeInput* input) const;
 
   bool expanded_;
@@ -81,8 +86,6 @@ private:
   NodeParamViewItemTitleBar* title_bar_;
 
   QLabel* title_bar_lbl_;
-
-  QVector<ClickableLabel*> param_lbls_;
 
   QPushButton* title_bar_collapse_btn_;
 
@@ -92,9 +95,13 @@ private:
 
   Node* node_;
 
-  QList<NodeParamViewWidgetBridge*> bridges_;
-
   rational time_;
+
+  QMap<NodeInput*, ClickableLabel*> param_lbls_;
+
+  QMap<NodeInput*, NodeParamViewWidgetBridge*> bridges_;
+
+  QMap<NodeInput*, NodeParamViewConnectedLabel*> connected_;
 
   QMap<NodeInput*, QLabel*> label_map_;
 
@@ -108,6 +115,10 @@ private slots:
   void InputAddedKeyframe(NodeKeyframePtr key);
 
   void LabelClicked();
+
+  void EdgeChanged();
+
+  void ConnectionClicked();
 
 };
 

@@ -102,14 +102,10 @@ void NodeParamViewItem::SetTime(const rational &time)
 
 void NodeParamViewItem::SignalAllKeyframes()
 {
-  foreach (NodeParam* param, node_->parameters()) {
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
-        foreach (NodeKeyframePtr key, track) {
-          InputAddedKeyframeInternal(input, key);
-        }
+  foreach (NodeInput* input, node_->GetInputsIncludingArrays()) {
+    foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+      foreach (NodeKeyframePtr key, track) {
+        InputAddedKeyframeInternal(input, key);
       }
     }
   }
@@ -150,7 +146,7 @@ void NodeParamViewItem::SetupUI()
       // Add descriptor label
       ClickableLabel* param_label = new ClickableLabel();
       connect(param_label, &ClickableLabel::MouseClicked, this, &NodeParamViewItem::LabelClicked);
-      param_lbls_.append(param_label);
+      param_lbls_.insert(input, param_label);
 
       label_map_.insert(input, param_label);
 
@@ -158,12 +154,25 @@ void NodeParamViewItem::SetupUI()
 
       // Create a widget/input bridge for this input
       NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(input, this);
-      bridges_.append(bridge);
+      bridges_.insert(input, bridge);
 
       // Add widgets for this parameter to the layout
       const QList<QWidget*>& widgets_for_param = bridge->widgets();
       for (int i=0;i<widgets_for_param.size();i++) {
         content_layout_->addWidget(widgets_for_param.at(i), row_count, i + 1);
+      }
+
+      if (input->IsConnectable()) {
+        // Create clickable label used when an input is connected
+        NodeParamViewConnectedLabel* connected_lbl = new NodeParamViewConnectedLabel(input);
+        connected_.insert(input, connected_lbl);
+        connect(connected_lbl, &NodeParamViewConnectedLabel::ConnectionClicked, this, &NodeParamViewItem::ConnectionClicked);
+        content_layout_->addWidget(connected_lbl, row_count, 1);
+
+        UpdateUIForEdgeConnection(input);
+
+        connect(input, &NodeInput::EdgeAdded, this, &NodeParamViewItem::EdgeChanged);
+        connect(input, &NodeInput::EdgeRemoved, this, &NodeParamViewItem::EdgeChanged);
       }
 
       // Add keyframe control to this layout if parameter is keyframable
@@ -182,6 +191,8 @@ void NodeParamViewItem::SetupUI()
         connect(input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
       }
 
+
+
       row_count++;
     }
   }
@@ -195,16 +206,23 @@ void NodeParamViewItem::Retranslate()
 
   title_bar_lbl_->setText(node_->Name());
 
-  int row_count = 0;
 
-  foreach (NodeParam* param, node_->parameters()) {
-    // This widget only needs to show input parameters
-    if (param->type() == NodeParam::kInput) {
-      param_lbls_.at(row_count)->setText(tr("%1:").arg(param->name()));
+  QMap<NodeInput*, ClickableLabel*>::const_iterator i;
 
-      row_count++;
-    }
+  for (i=param_lbls_.begin(); i!=param_lbls_.end(); i++) {
+    i.value()->setText(tr("%1:").arg(i.key()->name()));
   }
+}
+
+void NodeParamViewItem::UpdateUIForEdgeConnection(NodeInput *input)
+{
+  // Show/hide bridge widgets
+  foreach (QWidget* w, bridges_.value(input)->widgets()) {
+    w->setVisible(!input->IsConnected());
+  }
+
+  // Show/hide connection label
+  connected_.value(input)->setVisible(input->IsConnected());
 }
 
 NodeParamViewKeyframeControl *NodeParamViewItem::KeyframeControlFromInput(NodeInput *input) const
@@ -264,6 +282,24 @@ void NodeParamViewItem::LabelClicked()
 
   if (input) {
     emit InputClicked(input);
+  }
+}
+
+void NodeParamViewItem::EdgeChanged()
+{
+  UpdateUIForEdgeConnection(static_cast<NodeInput*>(sender()));
+}
+
+void NodeParamViewItem::ConnectionClicked()
+{
+  NodeParamViewConnectedLabel* src = static_cast<NodeParamViewConnectedLabel*>(sender());
+
+  NodeInput* input = connected_.key(src);
+
+  Node* connected = input->get_connected_node();
+
+  if (connected) {
+    emit RequestSelectNode({connected});
   }
 }
 

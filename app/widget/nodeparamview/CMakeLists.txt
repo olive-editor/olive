@@ -18,6 +18,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/nodeparamview/nodeparamview.h
   widget/nodeparamview/nodeparamview.cpp
+  widget/nodeparamview/nodeparamviewconnectedlabel.h
+  widget/nodeparamview/nodeparamviewconnectedlabel.cpp
   widget/nodeparamview/nodeparamviewitem.h
   widget/nodeparamview/nodeparamviewitem.cpp
   widget/nodeparamview/nodeparamviewkeyframecontrol.h
