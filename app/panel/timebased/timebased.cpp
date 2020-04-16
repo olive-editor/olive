@@ -122,15 +122,16 @@ void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
   if (widget_->GetConnectedNode()) {
     disconnect(widget_->GetConnectedNode(), &ViewerOutput::MediaNameChanged, this, &TimeBasedPanel::SetSubtitle);
-    Retranslate();
   }
 
   widget_->ConnectViewerNode(node);
 
   if (node) {
     connect(node, &ViewerOutput::MediaNameChanged, this, &TimeBasedPanel::SetSubtitle);
-    SetSubtitle(node->media_name());
   }
+
+  // Update strings
+  Retranslate();
 }
 
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
@@ -152,7 +153,9 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
 
 void TimeBasedPanel::Retranslate()
 {
-  if (!GetTimeBasedWidget()->GetConnectedNode()) {
+  if (GetTimeBasedWidget()->GetConnectedNode()) {
+    SetSubtitle(GetTimeBasedWidget()->GetConnectedNode()->media_name());
+  } else {
     SetSubtitle(tr("(none)"));
   }
 }

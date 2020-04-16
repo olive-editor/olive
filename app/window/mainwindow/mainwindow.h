@@ -57,6 +57,8 @@ public:
 
   void CloseSequence(Sequence* sequence);
 
+  bool IsSequenceOpen(Sequence* sequence) const;
+
 #ifdef Q_OS_WINDOWS
   void SetTaskbarButtonState(TBPFLAG flags);
 
@@ -80,7 +82,9 @@ protected:
 private:
   TimelinePanel* AppendTimelinePanel();
 
-  void TimelineFocused(TimelinePanel *panel);
+  void RemoveTimelinePanel(TimelinePanel *panel);
+
+  void TimelineFocused(ViewerOutput *viewer);
 
   QByteArray premaximized_state_;
 
@@ -107,6 +111,8 @@ private slots:
   void FocusedPanelChanged(PanelWidget* panel);
 
   void UpdateTitle();
+
+  void TimelineCloseRequested();
 
 };
 

@@ -450,8 +450,13 @@ void TrackOutput::UpdateInOutFrom(int index)
 
   // Update track length
   if (new_track_length != track_length_) {
+    rational old_track_length = track_length_;
+
     track_length_ = new_track_length;
     emit TrackLengthChanged();
+
+    InvalidateCache(qMin(old_track_length, new_track_length),
+                    qMax(old_track_length, new_track_length));
   }
 }
 
