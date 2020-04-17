@@ -158,6 +158,11 @@ VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageS
 {
 }
 
+Project *VideoStreamProperties::VideoStreamChangeCommand::GetRelevantProject() const
+{
+  return stream_->footage()->project();
+}
+
 void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
 {
   old_premultiplied_ = stream_->premultiplied_alpha();
@@ -179,6 +184,11 @@ VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(Vi
   new_start_index_(start_index),
   new_duration_(duration)
 {
+}
+
+Project *VideoStreamProperties::ImageSequenceChangeCommand::GetRelevantProject() const
+{
+  return video_stream_->footage()->project();
 }
 
 void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal()

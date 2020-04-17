@@ -33,7 +33,7 @@ class ProjectPropertiesDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ProjectPropertiesDialog(QWidget* parent);
+  ProjectPropertiesDialog(Project *p, QWidget* parent);
 
 public slots:
   virtual void accept() override;

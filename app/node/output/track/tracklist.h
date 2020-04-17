@@ -50,6 +50,8 @@ public:
 
   int TrackCount() const;
 
+  NodeGraph* GetParentGraph() const;
+
 signals:
   void BlockAdded(Block* block, int index);
 
@@ -66,8 +68,6 @@ signals:
   void TrackHeightChanged(int index, int height);
 
 private:
-  NodeGraph* GetParentGraph() const;
-
   /**
    * @brief A cache of connected Tracks
    */

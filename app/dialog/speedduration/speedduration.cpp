@@ -360,6 +360,11 @@ BlockReverseCommand::BlockReverseCommand(Block *block, QUndoCommand *parent) :
 {
 }
 
+Project *BlockReverseCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockReverseCommand::redo_internal()
 {
   block_->set_media_in(block_->media_out());

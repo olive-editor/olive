@@ -33,15 +33,15 @@ void UndoCommand::redo()
 {
   redo_internal();
 
-  modified_ = Core::instance()->IsProjectModified();
-  Core::instance()->SetProjectModified(true);
+  modified_ = GetRelevantProject()->is_modified();
+  GetRelevantProject()->set_modified(true);
 }
 
 void UndoCommand::undo()
 {
   undo_internal();
 
-  Core::instance()->SetProjectModified(modified_);
+  GetRelevantProject()->set_modified(modified_);
 }
 
 void UndoCommand::redo_internal()

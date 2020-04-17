@@ -20,6 +20,9 @@
 
 #include "nodeparamviewundo.h"
 
+#include "node/node.h"
+#include "project/item/sequence/sequence.h"
+
 OLIVE_NAMESPACE_ENTER
 
 NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, bool setting, QUndoCommand *parent) :
@@ -28,6 +31,11 @@ NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, b
   setting_(setting)
 {
   Q_ASSERT(setting != input_->is_keyframing());
+}
+
+Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(input_->parentNode()->parent())->project();
 }
 
 void NodeParamSetKeyframingCommand::redo_internal()
@@ -57,6 +65,11 @@ NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframeP
 
 }
 
+Project *NodeParamSetKeyframeValueCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
+}
+
 void NodeParamSetKeyframeValueCommand::redo_internal()
 {
   key_->set_value(new_value_);
@@ -83,6 +96,11 @@ NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input,
 {
 }
 
+Project *NodeParamInsertKeyframeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(input_->parentNode()->parent())->project();
+}
+
 void NodeParamInsertKeyframeCommand::redo_internal()
 {
   if (!done_) {
@@ -101,6 +119,11 @@ NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeInput *input,
   input_(input),
   keyframe_(keyframe)
 {
+}
+
+Project *NodeParamRemoveKeyframeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(input_->parentNode()->parent())->project();
 }
 
 void NodeParamRemoveKeyframeCommand::redo_internal()
@@ -129,6 +152,11 @@ NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframePtr
 {
 }
 
+Project *NodeParamSetKeyframeTimeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
+}
+
 void NodeParamSetKeyframeTimeCommand::redo_internal()
 {
   key_->set_time(new_time_);
@@ -155,6 +183,11 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
   old_value_(old_value),
   new_value_(new_value)
 {
+}
+
+Project *NodeParamSetStandardValueCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(input_->parentNode()->parent())->project();
 }
 
 void NodeParamSetStandardValueCommand::redo_internal()

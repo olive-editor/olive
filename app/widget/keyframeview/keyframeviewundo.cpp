@@ -20,6 +20,10 @@
 
 #include "keyframeviewundo.h"
 
+#include "node/input.h"
+#include "node/node.h"
+#include "project/item/sequence/sequence.h"
+
 OLIVE_NAMESPACE_ENTER
 
 KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand *parent) :
@@ -28,6 +32,11 @@ KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe
   old_type_(key->type()),
   new_type_(type)
 {
+}
+
+Project *KeyframeSetTypeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
 }
 
 void KeyframeSetTypeCommand::redo_internal()
@@ -56,6 +65,11 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key
   old_point_(old_point),
   new_point_(new_point)
 {
+}
+
+Project *KeyframeSetBezierControlPoint::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
 }
 
 void KeyframeSetBezierControlPoint::redo_internal()

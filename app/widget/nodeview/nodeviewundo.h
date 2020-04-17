@@ -39,6 +39,8 @@ class NodeEdgeAddCommand : public UndoCommand {
 public:
   NodeEdgeAddCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
@@ -62,6 +64,8 @@ public:
   NodeEdgeRemoveCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
   NodeEdgeRemoveCommand(NodeEdgePtr edge, QUndoCommand* parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
@@ -76,6 +80,8 @@ private:
 class NodeAddCommand : public UndoCommand {
 public:
   NodeAddCommand(NodeGraph* graph, Node* node, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;
@@ -93,6 +99,8 @@ public:
   NodeRemoveCommand(NodeGraph* graph,
                     const QList<Node*>& nodes,
                     QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;
@@ -112,11 +120,13 @@ public:
                               Node* node,
                               QUndoCommand* parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 private:
   NodeRemoveCommand* remove_command_;
 };
 
-class NodeCopyInputsCommand : public UndoCommand {
+class NodeCopyInputsCommand : public QUndoCommand {
 public:
   NodeCopyInputsCommand(Node* src,
                         Node* dest,
@@ -128,7 +138,7 @@ public:
                         QUndoCommand* parent = nullptr);
 
 protected:
-  virtual void redo_internal() override;
+  virtual void redo() override;
 
 private:
   Node* src_;

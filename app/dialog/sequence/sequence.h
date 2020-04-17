@@ -122,6 +122,8 @@ private:
                          const QString& name,
                          QUndoCommand* parent = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
     virtual void undo_internal() override;

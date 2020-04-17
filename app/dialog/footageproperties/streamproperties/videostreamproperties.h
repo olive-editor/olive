@@ -75,6 +75,8 @@ private:
                              QString colorspace,
                              QUndoCommand* parent = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
     virtual void undo_internal() override;
@@ -96,6 +98,8 @@ private:
                                int64_t start_index,
                                int64_t duration,
                                QUndoCommand* parent = nullptr);
+
+    virtual Project* GetRelevantProject() const override;
 
   protected:
     virtual void redo_internal() override;

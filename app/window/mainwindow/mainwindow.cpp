@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
   pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
-  project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
+  AppendProjectPanel();
   tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
   task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
@@ -98,8 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
   footage_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
   sequence_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
 
-  connect(project_panel_, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
   UpdateTitle();
+
+  QMetaObject::invokeMethod(this, "SetDefaultLayout", Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -114,9 +115,7 @@ MainWindow::~MainWindow()
 void MainWindow::OpenSequence(Sequence *sequence)
 {
   // See if this sequence is already open, and switch to it if so
-  for (int i=0;i<timeline_panels_.size();i++) {
-    TimelinePanel* tl = timeline_panels_.at(i);
-
+  foreach (TimelinePanel* tl, timeline_panels_) {
     if (tl->GetConnectedViewer() == sequence->viewer_output()) {
       tl->raise();
       return;
@@ -222,42 +221,54 @@ void MainWindow::ToggleMaximizedPanel()
 
 void MainWindow::ProjectOpen(Project* p)
 {
-  // FIXME Use settings data to create panels and restore state if they exist
-  project_panel_->set_project(p);
-
-  UpdateTitle();
-
-  SetDefaultLayout();
-}
-
-void MainWindow::closeEvent(QCloseEvent *e)
-{
-  if (isWindowModified()) {
-    QMessageBox mb(this);
-
-    mb.setIcon(QMessageBox::Question);
-    mb.setWindowTitle(tr("Unsaved Changes"));
-    mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
-               .arg(Core::instance()->GetActiveProject()->name()));
-
-    QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
-    mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
-    QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
-
-    mb.exec();
-
-    if (mb.clickedButton() == cancel_btn
-        || (mb.clickedButton() == yes_btn && !Core::instance()->SaveActiveProject())) {
-      // Don't close if the user clicked cancel on this messagebox OR they cancelled a save as operation
-      e->ignore();
+  // See if this project is already open, and switch to it if so
+  foreach (ProjectPanel* pl, project_panels_) {
+    if (pl->project() == p) {
+      pl->raise();
       return;
     }
   }
 
-  // Close viewers first since we don't want to delete any nodes while they might be mid-render
-  QList<ViewerPanelBase*> viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanelBase>();
-  foreach (ViewerPanelBase* viewer, viewers) {
-    viewer->ConnectViewerNode(nullptr);
+  ProjectPanel* panel;
+
+  if (!project_panels_.first()->project()) {
+    panel = project_panels_.first();
+  } else {
+    panel = AppendProjectPanel();
+  }
+
+  panel->set_project(p);
+
+  // FIXME Use settings data to create panels and restore state if they exist
+}
+
+void MainWindow::ProjectClose(Project *p)
+{
+  // Close project from project panel
+  foreach (ProjectPanel* panel, project_panels_) {
+    if (panel->project() == p) {
+      RemoveProjectPanel(panel);
+    }
+  }
+
+  // Close any open sequences from project
+  QList<ItemPtr> open_sequences = p->get_items_of_type(Item::kSequence);
+
+  foreach (ItemPtr item, open_sequences) {
+    Sequence* seq = static_cast<Sequence*>(item.get());
+
+    if (IsSequenceOpen(seq)) {
+      CloseSequence(seq);
+    }
+  }
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+  // Try to close all projects (this will return false if the user chooses not to close)
+  if (!Core::instance()->CloseAllProjects(false)) {
+    e->ignore();
+    return;
   }
 
   PanelManager::instance()->DeleteAllPanels();
@@ -292,10 +303,10 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 
 void MainWindow::UpdateTitle()
 {
-  if (project_panel_->project()) {
+  if (Core::instance()->GetActiveProject()) {
     setWindowTitle(QStringLiteral("%1 %2 - [*]%3").arg(QApplication::applicationName(),
                                                        QApplication::applicationVersion(),
-                                                       project_panel_->project()->pretty_filename()));
+                                                       Core::instance()->GetActiveProject()->pretty_filename()));
   } else {
     setWindowTitle(QStringLiteral("%1 %2").arg(QApplication::applicationName(),
                                                QApplication::applicationVersion()));
@@ -307,24 +318,19 @@ void MainWindow::TimelineCloseRequested()
   RemoveTimelinePanel(static_cast<TimelinePanel*>(sender()));
 }
 
+void MainWindow::ProjectCloseRequested()
+{
+  ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
+  Project* p = panel->project();
+
+  Core::instance()->CloseProject(p, true);
+}
+
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
-  TimelinePanel* panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);;
+  TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
 
-  if (!timeline_panels_.isEmpty()) {
-    tabifyDockWidget(timeline_panels_.last(), panel);
-
-    // For some reason raise() on its own doesn't do anything, we need both
-    panel->show();
-    panel->raise();
-  }
-
-  timeline_panels_.append(panel);
-
-  // Let us handle the panel closing rather than the panel itself
-  panel->SetSignalInsteadOfClose(true);
-  connect(panel, &TimelinePanel::CloseRequested, this, &MainWindow::TimelineCloseRequested);
-
+  connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
@@ -340,6 +346,16 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   return panel;
 }
 
+ProjectPanel *MainWindow::AppendProjectPanel()
+{
+  ProjectPanel* panel = AppendPanelInternal<ProjectPanel>(project_panels_);
+
+  connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::ProjectCloseRequested);
+  connect(panel, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
+
+  return panel;
+}
+
 void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
@@ -350,6 +366,16 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
     panel->ConnectViewerNode(nullptr);
   } else {
     timeline_panels_.removeOne(panel);
+    panel->deleteLater();
+  }
+}
+
+void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
+{
+  if (project_panels_.size() == 1) {
+    panel->set_project(nullptr);
+  } else {
+    project_panels_.removeOne(panel);
     panel->deleteLater();
   }
 }
@@ -373,6 +399,14 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
   if (timeline) {
     TimelineFocused(timeline->GetConnectedViewer());
+    return;
+  }
+
+  ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel);
+
+  if (project) {
+    UpdateTitle();
+    return;
   }
 }
 
@@ -395,8 +429,8 @@ void MainWindow::SetDefaultLayout()
   pixel_sampler_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
 
-  project_panel_->show();
-  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
+  project_panels_.first()->show();
+  addDockWidget(Qt::BottomDockWidgetArea, project_panels_.first());
 
   tool_panel_->show();
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
@@ -419,13 +453,34 @@ void MainWindow::SetDefaultLayout()
   {width()/3, width()/3, width()/3},
               Qt::Horizontal);
 
-  resizeDocks({project_panel_, tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
+  resizeDocks({project_panels_.first(), tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
   {width()/4, 1, width(), 1},
               Qt::Horizontal);
 
-  resizeDocks({node_panel_, project_panel_},
+  resizeDocks({node_panel_, project_panels_.first()},
   {height()/2, height()/2},
               Qt::Vertical);
+}
+
+template<typename T>
+T *MainWindow::AppendPanelInternal(QList<T*>& list)
+{
+  T* panel = PanelManager::instance()->CreatePanel<T>(this);
+
+  if (!list.isEmpty()) {
+    tabifyDockWidget(list.last(), panel);
+  }
+
+  // For some reason raise() on its own doesn't do anything, we need both
+  panel->show();
+  panel->raise();
+
+  list.append(panel);
+
+  // Let us handle the panel closing rather than the panel itself
+  panel->SetSignalInsteadOfClose(true);
+
+  return panel;
 }
 
 OLIVE_NAMESPACE_EXIT

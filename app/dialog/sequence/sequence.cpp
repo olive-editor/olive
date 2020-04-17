@@ -211,6 +211,11 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
 {
 }
 
+Project *SequenceDialog::SequenceParamCommand::GetRelevantProject() const
+{
+  return sequence_->project();
+}
+
 void SequenceDialog::SequenceParamCommand::redo_internal()
 {
   sequence_->set_video_params(new_video_params_);

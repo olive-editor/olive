@@ -511,6 +511,11 @@ ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
   setText(tr("Move Item"));
 }
 
+Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
+{
+  return model_->project();
+}
+
 void ProjectViewModel::MoveItemCommand::redo_internal()
 {
   model_->MoveItemInternal(item_, destination_);
@@ -532,6 +537,11 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
   setText(tr("Rename Item"));
 }
 
+Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const
+{
+  return model_->project();
+}
+
 void ProjectViewModel::RenameItemCommand::redo_internal()
 {
   model_->RenameChild(item_, new_name_);
@@ -549,6 +559,11 @@ ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* 
   child_(child),
   done_(false)
 {
+}
+
+Project *ProjectViewModel::AddItemCommand::GetRelevantProject() const
+{
+  return model_->project();
 }
 
 void ProjectViewModel::AddItemCommand::redo_internal()
@@ -570,6 +585,11 @@ ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, 
   model_(model),
   item_(item)
 {
+}
+
+Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
+{
+  return model_->project();
 }
 
 void ProjectViewModel::RemoveItemCommand::redo_internal()

@@ -67,8 +67,7 @@ Core::Core() :
   main_window_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
-  snapping_(true),
-  queue_autorecovery_(false)
+  snapping_(true)
 {
 }
 
@@ -157,7 +156,7 @@ void Core::Start()
 
   if (startup_project_.isEmpty()) {
     // If no load project is set, create a new one on open
-    AddOpenProject(std::make_shared<Project>());
+    CreateNewProject();
   } else {
     OpenProjectInternal(startup_project_);
   }
@@ -252,6 +251,19 @@ void Core::ClearOpenRecentList()
   recent_projects_.clear();
 }
 
+void Core::CreateNewProject()
+{
+  // If we already have an empty/new project, switch to it
+  foreach (ProjectPtr already_open, open_projects_) {
+    if (already_open->is_new()) {
+      AddOpenProject(already_open);
+      return;
+    }
+  }
+
+  AddOpenProject(std::make_shared<Project>());
+}
+
 const bool &Core::snapping() const
 {
   return snapping_;
@@ -316,7 +328,7 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogProjectPropertiesShow()
 {
-  ProjectPropertiesDialog ppd(main_window_);
+  ProjectPropertiesDialog ppd(GetActiveProject(), main_window_);
   ppd.exec();
 }
 
@@ -406,6 +418,21 @@ void Core::CreateNewSequence()
 
 void Core::AddOpenProject(ProjectPtr p)
 {
+  // Ensure project is not open at the moment
+  foreach (ProjectPtr already_open, open_projects_) {
+    if (already_open == p) {
+      // Signal UI to switch to this project
+      emit ProjectOpened(p.get());
+      return;
+    }
+  }
+
+  // If we currently have an empty project, close it first
+  if (!open_projects_.isEmpty() && open_projects_.last()->is_new()) {
+    CloseProject(open_projects_.last().get(), false);
+  }
+
+  connect(p.get(), &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_projects_.append(p);
 
   PushRecentlyOpenedProject(p->filename());
@@ -431,6 +458,27 @@ bool Core::ConfirmImageSequence(const QString& filename)
   mb.addButton(QMessageBox::No);
 
   return (mb.exec() == QMessageBox::Yes);
+}
+
+void Core::ProjectWasModified(bool e)
+{
+  //Project* p = static_cast<Project*>(sender());
+
+  if (e) {
+    // If this project is modified, we know for sure the window should show a "modified" flag (the * in the titlebar)
+    main_window_->setWindowModified(true);
+  } else {
+    // If we just set this project to "not modified", see if all projects are not modified in which case we can hide
+    // the modified flag
+    foreach (ProjectPtr open, open_projects_) {
+      if (open->is_modified()) {
+        main_window_->setWindowModified(true);
+        return;
+      }
+    }
+
+    main_window_->setWindowModified(false);
+  }
 }
 
 void Core::DeclareTypesForQt()
@@ -490,6 +538,7 @@ void Core::StartGUI(bool full_screen)
 
   // When a new project is opened, update the mainwindow
   connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
+  connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
@@ -501,7 +550,7 @@ void Core::SaveProjectInternal(Project *project)
   // Create save manager
   ProjectSaveManager* psm = new ProjectSaveManager(project);
 
-  connect(psm, &Task::Succeeded, this, &Core::ProjectSaveSucceeded);
+  connect(psm, &ProjectSaveManager::ProjectSaveSucceeded, this, &Core::ProjectSaveSucceeded);
 
   TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window());
   task_dialog->open();
@@ -509,21 +558,22 @@ void Core::SaveProjectInternal(Project *project)
 
 void Core::SaveAutorecovery()
 {
-  if (queue_autorecovery_) {
-    // FIXME: Save autorecovery of projects open
-
-    queue_autorecovery_ = false;
+  foreach (ProjectPtr p, open_projects_) {
+    if (!p->has_autorecovery_been_saved()) {
+      // FIXME: SAVE AN AUTORECOVERY PROJECT
+      p->set_autorecovery_saved(true);
+    }
   }
 }
 
-void Core::ProjectSaveSucceeded()
+void Core::ProjectSaveSucceeded(Project* p)
 {
-  PushRecentlyOpenedProject(GetActiveProject()->filename());
+  PushRecentlyOpenedProject(p->filename());
 
-  SetProjectModified(false);
+  p->set_modified(false);
 }
 
-Project *Core::GetActiveProject()
+Project *Core::GetActiveProject() const
 {
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
@@ -534,7 +584,7 @@ Project *Core::GetActiveProject()
   }
 }
 
-ProjectViewModel *Core::GetActiveProjectModel()
+ProjectViewModel *Core::GetActiveProjectModel() const
 {
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
@@ -545,7 +595,7 @@ ProjectViewModel *Core::GetActiveProjectModel()
   }
 }
 
-Folder *Core::GetSelectedFolderInActiveProject()
+Folder *Core::GetSelectedFolderInActiveProject() const
 {
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
@@ -568,17 +618,6 @@ void Core::SetTimecodeDisplay(Timecode::Display d)
   emit TimecodeDisplayChanged(d);
 }
 
-void Core::SetProjectModified(bool e)
-{
-  main_window()->setWindowModified(e);
-  queue_autorecovery_ = e;
-}
-
-bool Core::IsProjectModified() const
-{
-  return main_window_->isWindowModified();
-}
-
 void Core::SetAutorecoveryInterval(int minutes)
 {
   // Convert minutes to milliseconds
@@ -599,38 +638,19 @@ bool Core::SaveActiveProject()
 {
   Project* active_project = GetActiveProject();
 
-  if (!active_project) {
-    return false;
+  if (active_project) {
+    return SaveProject(active_project);
   }
 
-  if (active_project->filename().isEmpty()) {
-    return SaveActiveProjectAs();
-  } else {
-    SaveProjectInternal(active_project);
-
-    return true;
-  }
+  return false;
 }
 
 bool Core::SaveActiveProjectAs()
 {
   Project* active_project = GetActiveProject();
 
-  if (!active_project) {
-    return false;
-  }
-
-  QString fn = QFileDialog::getSaveFileName(main_window_,
-                                            tr("Save Project As"),
-                                            QString(),
-                                            GetProjectFilter());
-
-  if (!fn.isEmpty()) {
-    active_project->set_filename(fn);
-
-    SaveProjectInternal(active_project);
-
-    return true;
+  if (active_project) {
+    return SaveProjectAs(active_project);
   }
 
   return false;
@@ -722,6 +742,35 @@ QString Core::GetRecentProjectsFilePath()
   return QDir(GetConfigurationLocation()).filePath(QStringLiteral("recent"));
 }
 
+bool Core::SaveProject(Project *p)
+{
+  if (p->filename().isEmpty()) {
+    return SaveProjectAs(p);
+  } else {
+    SaveProjectInternal(p);
+
+    return true;
+  }
+}
+
+bool Core::SaveProjectAs(Project *p)
+{
+  QString fn = QFileDialog::getSaveFileName(main_window_,
+                                            tr("Save Project As"),
+                                            QString(),
+                                            GetProjectFilter());
+
+  if (!fn.isEmpty()) {
+    p->set_filename(fn);
+
+    SaveProjectInternal(p);
+
+    return true;
+  }
+
+  return false;
+}
+
 void Core::PushRecentlyOpenedProject(const QString& s)
 {
   if (s.isEmpty()) {
@@ -739,6 +788,15 @@ void Core::PushRecentlyOpenedProject(const QString& s)
 
 void Core::OpenProjectInternal(const QString &filename)
 {
+  // See if this project is open already
+  foreach (ProjectPtr p, open_projects_) {
+    if (p->filename() == filename) {
+      // This project is already open
+      AddOpenProject(p);
+      return;
+    }
+  }
+
   ProjectLoadManager* plm = new ProjectLoadManager(filename);
 
   // We use a blocking queued connection here because we want to ensure we have this project instance before the
@@ -816,6 +874,60 @@ void Core::OpenProjectFromRecentList(int index)
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
   }
+}
+
+bool Core::CloseProject(Project *p, bool auto_open_new)
+{
+  for (int i=0;i<open_projects_.size();i++) {
+    if (open_projects_.at(i).get() == p) {
+
+      if (p->is_modified()) {
+        QMessageBox mb(main_window_);
+
+        mb.setIcon(QMessageBox::Question);
+        mb.setWindowTitle(tr("Unsaved Changes"));
+        mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
+                   .arg(p->name()));
+
+        QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
+        mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
+        QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
+
+        mb.exec();
+
+        if (mb.clickedButton() == cancel_btn
+            || (mb.clickedButton() == yes_btn && !SaveActiveProject())) {
+          // Don't close if the user clicked cancel on this messagebox OR they cancelled a save as operation
+          return false;
+        }
+      }
+
+      disconnect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+      emit ProjectClosed(p);
+      open_projects_.removeAt(i);
+      break;
+    }
+  }
+
+  // Ensure a project is always active
+  if (auto_open_new && open_projects_.isEmpty()) {
+    CreateNewProject();
+  }
+
+  return true;
+}
+
+bool Core::CloseAllProjects(bool auto_open_new)
+{
+  QList<ProjectPtr> copy = open_projects_;
+
+  foreach (ProjectPtr p, copy) {
+    if (!CloseProject(p.get(), auto_open_new)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void Core::OpenProject()

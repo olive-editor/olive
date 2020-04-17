@@ -30,7 +30,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-Project::Project()
+Project::Project() :
+  is_modified_(false),
+  autorecovery_saved_(true)
 {
   root_.set_project(this);
 }
@@ -154,6 +156,34 @@ ColorManager *Project::color_manager()
 QList<ItemPtr> Project::get_items_of_type(Item::Type type) const
 {
   return root_.get_children_of_type(type, true);
+}
+
+bool Project::is_modified() const
+{
+  return is_modified_;
+}
+
+void Project::set_modified(bool e)
+{
+  is_modified_ = e;
+  autorecovery_saved_ = !e;
+
+  emit ModifiedChanged(is_modified_);
+}
+
+bool Project::has_autorecovery_been_saved() const
+{
+  return autorecovery_saved_;
+}
+
+void Project::set_autorecovery_saved(bool e)
+{
+  autorecovery_saved_ = e;
+}
+
+bool Project::is_new() const
+{
+  return !is_modified_ && filename_.isEmpty();
 }
 
 OLIVE_NAMESPACE_EXIT

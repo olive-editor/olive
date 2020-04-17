@@ -40,6 +40,8 @@ public:
 protected:
   virtual TimelinePoints* ConnectTimelinePoints() override;
 
+  virtual Project* GetTimelinePointsProject() override;
+
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 

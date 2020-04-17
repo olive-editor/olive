@@ -41,13 +41,13 @@ Menu::Menu(Menu *menu)
 Menu::Menu(QWidget *parent) :
   QMenu(parent)
 {
-  StyleManager::UseNativeWindowsStyling(this);
+  Init();
 }
 
 Menu::Menu(const QString &s, QWidget *parent) :
   QMenu(s, parent)
 {
-  StyleManager::UseNativeWindowsStyling(this);
+  Init();
 }
 
 QAction* Menu::InsertAlphabetically(const QString &s)
@@ -101,7 +101,9 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
 
 void Menu::Init()
 {
+#ifdef Q_OS_WINDOWS
   StyleManager::UseNativeWindowsStyling(this);
+#endif
 }
 
 OLIVE_NAMESPACE_EXIT

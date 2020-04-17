@@ -68,8 +68,18 @@ public:
 
   QList<ItemPtr> get_items_of_type(Item::Type type) const;
 
+  bool is_modified() const;
+  void set_modified(bool e);
+
+  bool has_autorecovery_been_saved() const;
+  void set_autorecovery_saved(bool e);
+
+  bool is_new() const;
+
 signals:
   void NameChanged();
+
+  void ModifiedChanged(bool e);
 
 private:
   Folder root_;
@@ -79,6 +89,10 @@ private:
   QString ocio_config_;
 
   ColorManager color_manager_;
+
+  bool is_modified_;
+
+  bool autorecovery_saved_;
 
 };
 

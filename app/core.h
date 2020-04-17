@@ -134,9 +134,9 @@ public:
    *
    * The active Project file, or nullptr if the heuristic couldn't find one.
    */
-  Project* GetActiveProject();
-  ProjectViewModel* GetActiveProjectModel();
-  Folder* GetSelectedFolderInActiveProject();
+  Project* GetActiveProject() const;
+  ProjectViewModel* GetActiveProjectModel() const;
+  Folder* GetSelectedFolderInActiveProject() const;
 
   /**
    * @brief Gets current timecode display mode
@@ -147,16 +147,6 @@ public:
    * @brief Sets current timecode display mode
    */
   void SetTimecodeDisplay(Timecode::Display d);
-
-  /**
-   * @brief Sets state to "modified" so that the GUI will prompt the user to save before closing
-   *
-   * Call this function whenever a change is made to a currently active project. Saving the project will automatically
-   * unset this.
-   */
-  void SetProjectModified(bool e);
-
-  bool IsProjectModified() const;
 
   /**
    * @brief Set how frequently an autorecovery should be saved (if the project has changed, see SetProjectModified())
@@ -215,6 +205,16 @@ public:
    * @brief Opens a project from the recently opened list
    */
   void OpenProjectFromRecentList(int index);
+
+  /**
+   * @brief Closes a project
+   */
+  bool CloseProject(Project* p, bool auto_open_new);
+
+  /**
+   * @brief Closes all open projects
+   */
+  bool CloseAllProjects(bool auto_open_new);
 
 public slots:
   /**
@@ -291,6 +291,11 @@ public slots:
    */
   void ClearOpenRecentList();
 
+  /**
+   * @brief Creates a new empty project and opens it
+   */
+  void CreateNewProject();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -300,6 +305,11 @@ signals:
    * @param p
    */
   void ProjectOpened(Project* p);
+
+  /**
+   * @brief Signal emitted when a project is closed
+   */
+  void ProjectClosed(Project* p);
 
   /**
    * @brief Signal emitted when the tool is changed from somewhere
@@ -326,6 +336,16 @@ private:
    * @brief Returns the filename where the recently opened/saved projects should be stored
    */
   static QString GetRecentProjectsFilePath();
+
+  /**
+   * @brief Saves a specific project
+   */
+  bool SaveProject(Project* p);
+
+  /**
+   * @brief Performs a "save as" on a specific project
+   */
+  bool SaveProjectAs(Project* p);
 
   /**
    * @brief Adds a filename to the top of the recently opened projects list (or moves it if it already exists)
@@ -392,14 +412,6 @@ private:
   bool snapping_;
 
   /**
-   * @brief Internal value for whether to make an autorecovery next interval
-   *
-   * True if the project has changed since the last autorecovery and we should save next time. False if the project has
-   * not changed and saving another autorecovery would be a waste.
-   */
-  bool queue_autorecovery_;
-
-  /**
    * @brief Internal timer for saving autorecovery files
    */
   QTimer autorecovery_timer_;
@@ -422,7 +434,7 @@ private:
 private slots:
   void SaveAutorecovery();
 
-  void ProjectSaveSucceeded();
+  void ProjectSaveSucceeded(Project *p);
 
   /**
    * @brief Adds a project to the "open projects" list
@@ -432,6 +444,8 @@ private slots:
   void ImportTaskComplete(QUndoCommand* command);
 
   bool ConfirmImageSequence(const QString &filename);
+
+  void ProjectWasModified(bool e);
 
 };
 

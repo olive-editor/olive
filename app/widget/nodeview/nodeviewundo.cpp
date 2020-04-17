@@ -20,6 +20,8 @@
 
 #include "nodeviewundo.h"
 
+#include "project/item/sequence/sequence.h"
+
 OLIVE_NAMESPACE_ENTER
 
 NodeEdgeAddCommand::NodeEdgeAddCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
@@ -59,6 +61,11 @@ void NodeEdgeAddCommand::undo_internal()
   done_ = false;
 }
 
+Project *NodeEdgeAddCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(output_->parentNode()->parent())->project();
+}
+
 NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
   UndoCommand(parent),
   output_(output),
@@ -95,6 +102,11 @@ void NodeEdgeRemoveCommand::undo_internal()
   done_ = false;
 }
 
+Project *NodeEdgeRemoveCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(output_->parentNode()->parent())->project();
+}
+
 NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node, QUndoCommand *parent) :
   UndoCommand(parent),
   graph_(graph),
@@ -112,6 +124,11 @@ void NodeAddCommand::redo_internal()
 void NodeAddCommand::undo_internal()
 {
   graph_->TakeNode(node_, &memory_manager_);
+}
+
+Project *NodeAddCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(graph_)->project();
 }
 
 NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QList<Node *> &nodes, QUndoCommand *parent) :
@@ -156,6 +173,11 @@ void NodeRemoveCommand::undo_internal()
   edges_.clear();
 }
 
+Project *NodeRemoveCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(graph_)->project();
+}
+
 NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent) :
   UndoCommand(parent)
 {
@@ -166,8 +188,13 @@ NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node 
   remove_command_ = new NodeRemoveCommand(graph, node_and_its_deps, this);
 }
 
+Project *NodeRemoveWithExclusiveDeps::GetRelevantProject() const
+{
+  return remove_command_->GetRelevantProject();
+}
+
 NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections, QUndoCommand *parent) :
-  UndoCommand(parent),
+  QUndoCommand(parent),
   src_(src),
   dest_(dest),
   include_connections_(include_connections)
@@ -175,14 +202,14 @@ NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include
 }
 
 NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, QUndoCommand *parent) :
-  UndoCommand(parent),
+  QUndoCommand(parent),
   src_(src),
   dest_(dest),
   include_connections_(true)
 {
 }
 
-void NodeCopyInputsCommand::redo_internal()
+void NodeCopyInputsCommand::redo()
 {
   Node::CopyInputs(src_, dest_, include_connections_);
 }

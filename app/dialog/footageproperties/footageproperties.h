@@ -62,6 +62,8 @@ private:
                          const QString& name,
                          QUndoCommand *command = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
     virtual void undo_internal() override;
@@ -78,6 +80,8 @@ private:
     StreamEnableChangeCommand(StreamPtr stream,
                               bool enabled,
                               QUndoCommand* command = nullptr);
+
+    virtual Project* GetRelevantProject() const override;
 
   protected:
     virtual void redo_internal() override;

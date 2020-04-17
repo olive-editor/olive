@@ -132,7 +132,7 @@ const Item *Item::root() const
 {
   const Item* item = this;
 
-  while (item->parent() != nullptr) {
+  while (item->parent()) {
     item = item->parent();
   }
 

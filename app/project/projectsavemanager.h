@@ -32,6 +32,9 @@ class ProjectSaveManager : public Task
 public:
   ProjectSaveManager(Project* project);
 
+signals:
+  void ProjectSaveSucceeded(Project* p);
+
 protected:
   virtual void Action() override;
 

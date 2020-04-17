@@ -30,6 +30,8 @@ class NodeParamSetKeyframingCommand : public UndoCommand {
 public:
   NodeParamSetKeyframingCommand(NodeInput* input, bool setting, QUndoCommand* parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
@@ -43,6 +45,8 @@ class NodeParamInsertKeyframeCommand : public UndoCommand {
 public:
   NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
   NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, bool already_done, QUndoCommand *parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;
@@ -61,6 +65,8 @@ class NodeParamRemoveKeyframeCommand : public UndoCommand {
 public:
   NodeParamRemoveKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
@@ -76,6 +82,8 @@ class NodeParamSetKeyframeTimeCommand : public UndoCommand {
 public:
   NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& time, QUndoCommand* parent = nullptr);
   NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& new_time, const rational& old_time, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;
@@ -94,6 +102,8 @@ public:
   NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& value, QUndoCommand* parent = nullptr);
   NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
+  virtual Project* GetRelevantProject() const override;
+
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
@@ -110,6 +120,8 @@ class NodeParamSetStandardValueCommand : public UndoCommand {
 public:
   NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& value, QUndoCommand* parent = nullptr);
   NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;

@@ -31,7 +31,7 @@ MenuShared* MenuShared::instance_ = nullptr;
 MenuShared::MenuShared()
 {
   // "New" menu shared items
-  new_project_item_ = Menu::CreateItem(this, "newproj", this, &MenuShared::NewProjectTriggered, "Ctrl+N");
+  new_project_item_ = Menu::CreateItem(this, "newproj", Core::instance(), &Core::CreateNewProject, "Ctrl+N");
   new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), &Core::CreateNewSequence, "Ctrl+Shift+N");
   new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), &Core::CreateNewFolder);
 
@@ -112,11 +112,6 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
 MenuShared *MenuShared::instance()
 {
   return instance_;
-}
-
-void MenuShared::NewProjectTriggered()
-{
-  qDebug() << "FIXME: Stub";
 }
 
 void MenuShared::SplitAtPlayheadTriggered()

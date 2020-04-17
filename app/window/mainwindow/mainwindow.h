@@ -67,7 +67,11 @@ public:
 
 public slots:
   void ProjectOpen(Project *p);
+
+  void ProjectClose(Project* p);
+
   void SetFullscreen(bool fullscreen);
+
   void ToggleMaximizedPanel();
 
   void SetDefaultLayout();
@@ -82,7 +86,14 @@ protected:
 private:
   TimelinePanel* AppendTimelinePanel();
 
+  ProjectPanel* AppendProjectPanel();
+
+  template <typename T>
+  T* AppendPanelInternal(QList<T*>& list);
+
   void RemoveTimelinePanel(TimelinePanel *panel);
+
+  void RemoveProjectPanel(ProjectPanel* panel);
 
   void TimelineFocused(ViewerOutput *viewer);
 
@@ -93,7 +104,7 @@ private:
   ParamPanel* param_panel_;
   SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
-  ProjectPanel* project_panel_;
+  QList<ProjectPanel*> project_panels_;
   ToolPanel* tool_panel_;
   QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
@@ -113,6 +124,8 @@ private slots:
   void UpdateTitle();
 
   void TimelineCloseRequested();
+
+  void ProjectCloseRequested();
 
 };
 

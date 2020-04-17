@@ -189,6 +189,11 @@ TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
   return static_cast<Sequence*>(viewer_node_->parent());
 }
 
+Project *TimeBasedWidget::GetTimelinePointsProject()
+{
+  return static_cast<Sequence*>(viewer_node_->parent())->project();
+}
+
 TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
 {
   return points_;
@@ -339,7 +344,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
 
   // Enable workarea if it isn't already enabled
   if (!points_->workarea()->enabled()) {
-    new WorkareaSetEnabledCommand(points_, true, command);
+    new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true, command);
   }
 
   // Determine our new range
@@ -364,7 +369,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   }
 
   // Set workarea
-  new WorkareaSetRangeCommand(points_, TimeRange(in_point, out_point), command);
+  new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point), command);
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -383,7 +388,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points_, r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, r));
 }
 
 void TimeBasedWidget::SetInAtPlayhead()
@@ -413,7 +418,7 @@ void TimeBasedWidget::ClearInOutPoints()
   }
 
 
-  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(points_, false));
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, false));
 }
 
 void TimeBasedWidget::SetMarker()

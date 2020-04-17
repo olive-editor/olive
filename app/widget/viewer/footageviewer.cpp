@@ -98,6 +98,11 @@ TimelinePoints *FootageViewerWidget::ConnectTimelinePoints()
   return footage_;
 }
 
+Project *FootageViewerWidget::GetTimelinePointsProject()
+{
+  return footage_->project();
+}
+
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
 {
   if (!GetFootage()) {

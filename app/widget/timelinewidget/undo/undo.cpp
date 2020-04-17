@@ -42,6 +42,11 @@ BlockResizeCommand::BlockResizeCommand(Block *block, rational new_length, QUndoC
 {
 }
 
+Project *BlockResizeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockResizeCommand::redo_internal()
 {
   block_->set_length_and_media_out(new_length_);
@@ -58,6 +63,11 @@ BlockResizeWithMediaInCommand::BlockResizeWithMediaInCommand(Block *block, ratio
   old_length_(block->length()),
   new_length_(new_length)
 {
+}
+
+Project *BlockResizeWithMediaInCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
 }
 
 void BlockResizeWithMediaInCommand::redo_internal()
@@ -78,6 +88,11 @@ BlockSetMediaInCommand::BlockSetMediaInCommand(Block *block, rational new_media_
 {
 }
 
+Project *BlockSetMediaInCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockSetMediaInCommand::redo_internal()
 {
   block_->set_media_in(new_media_in_);
@@ -93,6 +108,11 @@ TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track,
   track_(track),
   block_(block)
 {
+}
+
+Project *TrackRippleRemoveBlockCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
 }
 
 void TrackRippleRemoveBlockCommand::redo_internal()
@@ -111,14 +131,19 @@ void TrackRippleRemoveBlockCommand::undo_internal()
 }
 
 TrackInsertBlockAfterCommand::TrackInsertBlockAfterCommand(TrackOutput *track,
-                                                                           Block *block,
-                                                                           Block *before,
-                                                                           QUndoCommand *parent) :
+                                                           Block *block,
+                                                           Block *before,
+                                                           QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   block_(block),
   before_(before)
 {
+}
+
+Project *TrackInsertBlockAfterCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
 }
 
 void TrackInsertBlockAfterCommand::redo_internal()
@@ -141,6 +166,11 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
   trim_in_(nullptr),
   insert_(nullptr)
 {
+}
+
+Project *TrackRippleRemoveAreaCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 void TrackRippleRemoveAreaCommand::SetInsert(Block *insert)
@@ -386,10 +416,15 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   }
 }
 
+Project *BlockSplitCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockSplitCommand::redo_internal()
 {
   // FIXME: Reintroduce this optimization when block waveforms update automatically
-//  track_->BlockInvalidateCache();
+  //  track_->BlockInvalidateCache();
 
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
@@ -407,12 +442,12 @@ void BlockSplitCommand::redo_internal()
     NodeParam::ConnectEdge(new_block_->output(), transition);
   }
 
-//  track_->UnblockInvalidateCache();
+  //  track_->UnblockInvalidateCache();
 }
 
 void BlockSplitCommand::undo_internal()
 {
-//  track_->BlockInvalidateCache();
+  //  track_->BlockInvalidateCache();
 
   block_->set_length_and_media_out(old_length_);
   track_->RippleRemoveBlock(new_block_);
@@ -424,7 +459,7 @@ void BlockSplitCommand::undo_internal()
     NodeParam::ConnectEdge(block_->output(), transition);
   }
 
-//  track_->UnblockInvalidateCache();
+  //  track_->UnblockInvalidateCache();
 }
 
 Block *BlockSplitCommand::new_block()
@@ -433,7 +468,8 @@ Block *BlockSplitCommand::new_block()
 }
 
 TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational point, QUndoCommand *parent) :
-  UndoCommand(parent)
+  UndoCommand(parent),
+  track_(track)
 {
   // Find Block that contains this time
   foreach (Block* b, track->Blocks()) {
@@ -442,10 +478,15 @@ TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational po
       return;
     } else if (b->in() < point && b->out() > point) {
       // We found the Block, split it
-      new BlockSplitCommand(track, b, point, this);
+      new BlockSplitCommand(track_, b, point, this);
       return;
     }
   }
+}
+
+Project *TrackSplitAtTimeCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 TrackReplaceBlockCommand::TrackReplaceBlockCommand(TrackOutput* track, Block *old, Block *replace, QUndoCommand *parent) :
@@ -454,6 +495,11 @@ TrackReplaceBlockCommand::TrackReplaceBlockCommand(TrackOutput* track, Block *ol
   old_(old),
   replace_(replace)
 {
+}
+
+Project *TrackReplaceBlockCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 void TrackReplaceBlockCommand::redo_internal()
@@ -471,6 +517,11 @@ TrackPrependBlockCommand::TrackPrependBlockCommand(TrackOutput *track, Block *bl
   track_(track),
   block_(block)
 {
+}
+
+Project *TrackPrependBlockCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 void TrackPrependBlockCommand::redo_internal()
@@ -535,11 +586,21 @@ BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector
   }
 }
 
+Project *BlockSplitPreservingLinksCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(blocks_.first()->parent())->project();
+}
+
 TrackCleanGapsCommand::TrackCleanGapsCommand(TrackList *track_list, int index, QUndoCommand *parent) :
   UndoCommand(parent),
   track_list_(track_list),
   track_index_(index)
 {
+}
+
+Project *TrackCleanGapsCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_list_->GetParentGraph())->project();
 }
 
 void TrackCleanGapsCommand::redo_internal()
@@ -632,6 +693,11 @@ BlockSetSpeedCommand::BlockSetSpeedCommand(Block *block, const rational &new_spe
 {
 }
 
+Project *BlockSetSpeedCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockSetSpeedCommand::redo_internal()
 {
   block_->set_speed(new_speed_);
@@ -647,6 +713,11 @@ TimelineRippleDeleteGapsAtRegionsCommand::TimelineRippleDeleteGapsAtRegionsComma
   timeline_(vo),
   regions_(regions)
 {
+}
+
+Project *TimelineRippleDeleteGapsAtRegionsCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(timeline_->parent())->project();
 }
 
 void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal()
@@ -699,12 +770,18 @@ void TimelineRippleDeleteGapsAtRegionsCommand::undo_internal()
   commands_.empty();
 }
 
-WorkareaSetEnabledCommand::WorkareaSetEnabledCommand(TimelinePoints *points, bool enabled, QUndoCommand *parent) :
+WorkareaSetEnabledCommand::WorkareaSetEnabledCommand(Project* project, TimelinePoints *points, bool enabled, QUndoCommand *parent) :
   UndoCommand(parent),
+  project_(project),
   points_(points),
   old_enabled_(points_->workarea()->enabled()),
   new_enabled_(enabled)
 {
+}
+
+Project *WorkareaSetEnabledCommand::GetRelevantProject() const
+{
+  return project_;
 }
 
 void WorkareaSetEnabledCommand::redo_internal()
@@ -717,12 +794,18 @@ void WorkareaSetEnabledCommand::undo_internal()
   points_->workarea()->set_enabled(old_enabled_);
 }
 
-WorkareaSetRangeCommand::WorkareaSetRangeCommand(TimelinePoints *points, const TimeRange &range, QUndoCommand *parent) :
+WorkareaSetRangeCommand::WorkareaSetRangeCommand(Project* project, TimelinePoints *points, const TimeRange &range, QUndoCommand *parent) :
   UndoCommand(parent),
+  project_(project),
   points_(points),
   old_range_(points_->workarea()->range()),
   new_range_(range)
 {
+}
+
+Project *WorkareaSetRangeCommand::GetRelevantProject() const
+{
+  return project_;
 }
 
 void WorkareaSetRangeCommand::redo_internal()
@@ -741,6 +824,11 @@ BlockLinkCommand::BlockLinkCommand(Block *a, Block *b, bool link, QUndoCommand *
   b_(b),
   link_(link)
 {
+}
+
+Project *BlockLinkCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(a_->parent())->project();
 }
 
 void BlockLinkCommand::redo_internal()
@@ -769,6 +857,11 @@ BlockUnlinkAllCommand::BlockUnlinkAllCommand(Block *block, QUndoCommand *parent)
 {
 }
 
+Project *BlockUnlinkAllCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
+}
+
 void BlockUnlinkAllCommand::redo_internal()
 {
   unlinked_ = block_->linked_clips();
@@ -788,15 +881,21 @@ void BlockUnlinkAllCommand::undo_internal()
 }
 
 BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool link, QUndoCommand *parent) :
-  UndoCommand(parent)
+  UndoCommand(parent),
+  blocks_(blocks)
 {
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
+  foreach (Block* a, blocks_) {
+    foreach (Block* b, blocks_) {
       if (a != b) {
         new BlockLinkCommand(a, b, link, this);
       }
     }
   }
+}
+
+Project *BlockLinkManyCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(blocks_.first()->parent())->project();
 }
 
 BlockEnableDisableCommand::BlockEnableDisableCommand(Block *block, bool enabled, QUndoCommand *parent) :
@@ -805,6 +904,11 @@ BlockEnableDisableCommand::BlockEnableDisableCommand(Block *block, bool enabled,
   old_enabled_(block_->is_enabled()),
   new_enabled_(enabled)
 {
+}
+
+Project *BlockEnableDisableCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(block_->parent())->project();
 }
 
 void BlockEnableDisableCommand::redo_internal()

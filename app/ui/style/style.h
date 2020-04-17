@@ -52,7 +52,9 @@ public:
 
   static QList<StyleDescriptor> ListInternal();
 
+#ifdef Q_OS_WINDOWS
   static void UseNativeWindowsStyling(QWidget* widget);
+#endif
 
 private:
   static QPalette ParsePalette(const QString& ini_path);

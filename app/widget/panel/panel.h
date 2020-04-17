@@ -57,6 +57,13 @@ public:
   void SetBorderVisible(bool enabled);
 
   /**
+   * @brief If enabled, sends signal CloseRequested() when the user closes instead of closing
+   *
+   * Defaults to FALSE. Use this to override default panel closing functionality.
+   */
+  void SetSignalInsteadOfClose(bool e);
+
+  /**
    * @brief Called whenever this panel is focused and user uses "Zoom In" (either in menus or as a keyboard shortcut)
    *
    * This function is up to the Panel's interpretation of what the user intends to zoom into. Default behavior is a
@@ -156,6 +163,9 @@ public:
 
   virtual void ToggleSelectedEnabled(){}
 
+signals:
+  void CloseRequested();
+
 protected:
   /**
    * @brief paintEvent
@@ -164,6 +174,8 @@ protected:
   void paintEvent(QPaintEvent *event) override;
 
   virtual void changeEvent(QEvent* e) override;
+
+  virtual void closeEvent(QCloseEvent* event) override;
 
   virtual void Retranslate();
 
@@ -204,20 +216,17 @@ private:
    */
   void UpdateTitle();
 
-  /**
-   * @brief Internal title string
-   */
   QString title_;
 
-  /**
-   * @brief Internal subtitle string
-   */
   QString subtitle_;
 
-  /**
-   * @brief Internal border visibility value
-   */
   bool border_visible_;
+
+  bool signal_instead_of_close_;
+
+private slots:
+  void PanelVisibilityChanged(bool e);
+
 };
 
 OLIVE_NAMESPACE_EXIT

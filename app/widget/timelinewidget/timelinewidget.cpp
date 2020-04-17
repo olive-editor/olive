@@ -156,16 +156,13 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::Clear()
 {
-  SetTimebase(0);
-
-  QMap<Block*, TimelineViewBlockItem*>::iterator iterator = block_items_.begin();
-
-  while (iterator != block_items_.end()) {
+  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
+  for (iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
     delete iterator.value();
-    iterator = block_items_.erase(iterator);
   }
-
   block_items_.clear();
+
+  SetTimebase(0);
 }
 
 void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
@@ -725,7 +722,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
   }
 
   // Clear workarea after this
-  new WorkareaSetEnabledCommand(GetConnectedTimelinePoints(), false, command);
+  new WorkareaSetEnabledCommand(GetTimelinePointsProject(), GetConnectedTimelinePoints(), false, command);
 
   Core::instance()->undo_stack()->push(command);
 }

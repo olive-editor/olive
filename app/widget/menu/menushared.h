@@ -77,8 +77,6 @@ private:
   static MenuShared* instance_;
 
 private slots:
-  void NewProjectTriggered();
-
   void SplitAtPlayheadTriggered();
 
   void DeleteSelectedTriggered();

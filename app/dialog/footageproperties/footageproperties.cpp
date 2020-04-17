@@ -143,6 +143,11 @@ FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *foo
 {
 }
 
+Project *FootagePropertiesDialog::FootageChangeCommand::GetRelevantProject() const
+{
+  return footage_->project();
+}
+
 void FootagePropertiesDialog::FootageChangeCommand::redo_internal()
 {
   old_name_ = footage_->name();
@@ -161,6 +166,11 @@ FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(St
   old_enabled_(stream->enabled()),
   new_enabled_(enabled)
 {
+}
+
+Project *FootagePropertiesDialog::StreamEnableChangeCommand::GetRelevantProject() const
+{
+  return stream_->footage()->project();
 }
 
 void FootagePropertiesDialog::StreamEnableChangeCommand::redo_internal()

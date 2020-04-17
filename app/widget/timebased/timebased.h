@@ -116,6 +116,8 @@ protected:
 
   virtual TimelinePoints* ConnectTimelinePoints();
 
+  virtual Project* GetTimelinePointsProject();
+
   TimelinePoints* GetConnectedTimelinePoints() const;
 
   void ConnectTimelineView(TimelineViewBase* base);

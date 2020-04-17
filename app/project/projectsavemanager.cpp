@@ -55,6 +55,7 @@ void ProjectSaveManager::Action()
   }
 
   emit Succeeded();
+  emit ProjectSaveSucceeded(project_);
 }
 
 OLIVE_NAMESPACE_EXIT

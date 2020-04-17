@@ -24,6 +24,7 @@
 #include <QUndoCommand>
 
 #include "common/define.h"
+#include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -34,6 +35,8 @@ public:
 
   virtual void redo() override;
   virtual void undo() override;
+
+  virtual Project* GetRelevantProject() const = 0;
 
 protected:
   virtual void redo_internal();

@@ -114,6 +114,8 @@ public:
   public:
     MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
 
@@ -134,6 +136,8 @@ public:
   public:
     RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
 
@@ -153,6 +157,8 @@ public:
   public:
     AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent = nullptr);
 
+    virtual Project* GetRelevantProject() const override;
+
   protected:
     virtual void redo_internal() override;
 
@@ -171,6 +177,8 @@ public:
   class RemoveItemCommand : public UndoCommand {
   public:
     RemoveItemCommand(ProjectViewModel* model, ItemPtr item, QUndoCommand* parent = nullptr);
+
+    virtual Project* GetRelevantProject() const override;
 
   protected:
     virtual void redo_internal() override;

@@ -38,7 +38,9 @@ OLIVE_NAMESPACE_ENTER
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
 {
+#ifdef Q_OS_WINDOWS
   StyleManager::UseNativeWindowsStyling(this);
+#endif
 
   //
   // FILE MENU
@@ -300,7 +302,7 @@ void MainMenu::TimecodeDisplayTriggered()
 
 void MainMenu::FileMenuAboutToShow()
 {
-  file_project_properties_item_->setEnabled(Core::instance()->GetActiveProject() != nullptr);
+  file_project_properties_item_->setEnabled(Core::instance()->GetActiveProject());
 }
 
 void MainMenu::ViewMenuAboutToShow()

@@ -20,6 +20,8 @@
 
 #include "panel.h"
 
+#include <QCloseEvent>
+#include <QDebug>
 #include <QPainter>
 #include <QStyle>
 #include <QStyleOption>
@@ -29,9 +31,12 @@ OLIVE_NAMESPACE_ENTER
 
 PanelWidget::PanelWidget(QWidget *parent) :
   QDockWidget(parent),
-  border_visible_(false)
+  border_visible_(false),
+  signal_instead_of_close_(false)
 {
   setFocusPolicy(Qt::ClickFocus);
+
+  connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);
 }
 
 void PanelWidget::SetMovementLocked(bool locked)
@@ -101,6 +106,28 @@ void PanelWidget::UpdateTitle()
     setWindowTitle(title_);
   } else {
     setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
+  }
+}
+
+void PanelWidget::PanelVisibilityChanged(bool e)
+{
+  if (e) {
+    setFocus();
+  }
+}
+
+void PanelWidget::SetSignalInsteadOfClose(bool e)
+{
+  signal_instead_of_close_ = e;
+}
+
+void PanelWidget::closeEvent(QCloseEvent *event)
+{
+  if (signal_instead_of_close_) {
+    event->ignore();
+    emit CloseRequested();
+  } else {
+    QDockWidget::closeEvent(event);
   }
 }
 
