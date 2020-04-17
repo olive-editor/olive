@@ -26,6 +26,7 @@ set(OLIVE_SOURCES
   widget/viewer/viewer.cpp
   widget/viewer/viewerglwidget.h
   widget/viewer/viewerglwidget.cpp
+  widget/viewer/viewersafemargininfo.h
   widget/viewer/viewersizer.h
   widget/viewer/viewersizer.cpp
   widget/viewer/viewerwindow.h

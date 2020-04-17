@@ -232,6 +232,12 @@ private slots:
 
   void ContextMenuSetFullScreen(QAction* action);
 
+  void ContextMenuDisableSafeMargins();
+
+  void ContextMenuSetSafeMargins();
+
+  void ContextMenuSetCustomSafeMargins();
+
   void WindowAboutToClose();
 
 };

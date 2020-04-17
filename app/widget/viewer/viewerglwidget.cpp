@@ -27,6 +27,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
+#include <QPainter>
 
 #include "common/define.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
@@ -223,6 +224,18 @@ void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
   sibling->SetImageFromLoadBuffer(&load_buffer_);
 }
 
+const ViewerSafeMarginInfo &ViewerGLWidget::GetSafeMargin() const
+{
+  return safe_margin_;
+}
+
+void ViewerGLWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
+{
+  safe_margin_ = safe_margin;
+
+  update();
+}
+
 void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mousePressEvent(event);
@@ -296,18 +309,48 @@ void ViewerGLWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (!has_image_ || !color_service_ || !texture_.IsCreated()) {
-    return;
+  if (has_image_ && color_service_ && texture_.IsCreated()) {
+    // Bind retrieved texture
+    f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
+
+    // Blit using the color service
+    color_service_->ProcessOpenGL(true, matrix_);
+
+    // Release retrieved texture
+    f->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
-  // Bind retrieved texture
-  f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
+  // Draw action/title safe areas
+  if (safe_margin_.is_enabled()) {
+    QPainter p(this);
+    p.setPen(Qt::lightGray);
+    p.setBrush(Qt::NoBrush);
 
-  // Blit using the color service
-  color_service_->ProcessOpenGL(true, matrix_);
+    int x = 0, y = 0, w = width(), h = height();
 
-  // Release retrieved texture
-  f->glBindTexture(GL_TEXTURE_2D, 0);
+    if (safe_margin_.custom_ratio()) {
+      double widget_ar = static_cast<double>(width()) / static_cast<double>(height());
+
+      if (widget_ar > safe_margin_.ratio()) {
+        // Widget is wider than margins
+        w = h * safe_margin_.ratio();
+        x = width() / 2 - w / 2;
+      } else {
+        h = w / safe_margin_.ratio();
+        y = height() / 2 - h / 2;
+      }
+    }
+
+    p.drawRect(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
+    p.drawRect(w / 10 + x, h / 10 + y, w / 10 * 8, h / 10 * 8);
+
+    int cross = qMin(w, h) / 32;
+
+    QLine lines[] = {QLine(rect().center().x() - cross, rect().center().y(), rect().center().x() + cross, rect().center().y()),
+                    QLine(rect().center().x(), rect().center().y() - cross, rect().center().x(), rect().center().y() + cross)};
+
+    p.drawLines(lines, 2);
+  }
 }
 
 void ViewerGLWidget::RefreshColorPipeline()

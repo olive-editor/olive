@@ -29,6 +29,7 @@
 #include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
+#include "viewersafemargininfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -86,6 +87,9 @@ public:
   const QMatrix4x4& GetMatrix();
 
   void ConnectSibling(ViewerGLWidget* sibling);
+
+  const ViewerSafeMarginInfo& GetSafeMargin() const;
+  void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
 public slots:
   /**
@@ -243,6 +247,8 @@ private:
   bool has_image_;
 
   bool signal_cursor_color_;
+
+  ViewerSafeMarginInfo safe_margin_;
 
 private slots:
   /**

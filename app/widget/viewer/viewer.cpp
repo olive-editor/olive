@@ -22,7 +22,9 @@
 
 #include <QDateTime>
 #include <QGuiApplication>
+#include <QInputDialog>
 #include <QLabel>
+#include <QMessageBox>
 #include <QResizeEvent>
 #include <QScreen>
 #include <QtMath>
@@ -421,6 +423,60 @@ void ViewerWidget::ContextMenuSetFullScreen(QAction *action)
   SetFullScreen(QGuiApplication::screens().at(action->data().toInt()));
 }
 
+void ViewerWidget::ContextMenuDisableSafeMargins()
+{
+  context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(false));
+}
+
+void ViewerWidget::ContextMenuSetSafeMargins()
+{
+  context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true));
+}
+
+void ViewerWidget::ContextMenuSetCustomSafeMargins()
+{
+  QString s;
+
+  forever {
+    bool ok;
+
+    s = QInputDialog::getText(this,
+                              tr("Safe Margins"),
+                              tr("Enter custom ratio (e.g. \"4:3\", \"16/9\", etc.):"),
+                              QLineEdit::Normal,
+                              s,
+                              &ok);
+
+    if (!ok) {
+      // User cancelled dialog, do nothing
+      return;
+    }
+
+    QStringList ratio_components = s.split(QRegExp(QStringLiteral(":|;|\\/")));
+
+    if (ratio_components.size() == 2) {
+      bool numer_ok, denom_ok;
+
+      // FIXME: Won't accept decimals like 2.39:1
+      double num = ratio_components.at(0).toDouble(&numer_ok);
+      double den = ratio_components.at(1).toDouble(&denom_ok);
+
+      if (numer_ok
+          && denom_ok
+          && num > 0) {
+        // Exit loop and set this ratio
+        context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true, num / den));
+        return;
+      }
+    }
+
+    QMessageBox::warning(this,
+                         tr("Invalid custom ratio"),
+                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a rational fraction with a ':' or a '/' separator.").arg(s),
+                         QMessageBox::Ok);
+  }
+}
+
 void ViewerWidget::WindowAboutToClose()
 {
   ViewerWindow* vw = static_cast<ViewerWindow*>(sender());
@@ -543,6 +599,29 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     a->setData(i);
   }
   connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
+
+  menu.addSeparator();
+
+  {
+    // Safe Margins
+    Menu* safe_margin_menu = new Menu(tr("Safe Margins"));
+    menu.addMenu(safe_margin_menu);
+
+    QAction* safe_margin_off = safe_margin_menu->addAction(tr("Off"));
+    safe_margin_off->setCheckable(true);
+    safe_margin_off->setChecked(!context_menu_widget_->GetSafeMargin().is_enabled());
+    connect(safe_margin_off, &QAction::triggered, this, &ViewerWidget::ContextMenuDisableSafeMargins);
+
+    QAction* safe_margin_on = safe_margin_menu->addAction(tr("On"));
+    safe_margin_on->setCheckable(true);
+    safe_margin_on->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && !context_menu_widget_->GetSafeMargin().custom_ratio());
+    connect(safe_margin_on, &QAction::triggered, this, &ViewerWidget::ContextMenuSetSafeMargins);
+
+    QAction* safe_margin_custom = safe_margin_menu->addAction(tr("Custom Aspect"));
+    safe_margin_custom->setCheckable(true);
+    safe_margin_custom->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && context_menu_widget_->GetSafeMargin().custom_ratio());
+    connect(safe_margin_custom, &QAction::triggered, this, &ViewerWidget::ContextMenuSetCustomSafeMargins);
+  }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }
