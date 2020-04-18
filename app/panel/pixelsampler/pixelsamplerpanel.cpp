@@ -23,11 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("ProjectPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ProjectPanel");
-
   sampler_widget_ = new ManagedPixelSamplerWidget();
   setWidget(sampler_widget_);
 

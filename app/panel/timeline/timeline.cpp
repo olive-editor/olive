@@ -26,11 +26,8 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelinePanel::TimelinePanel(QWidget *parent) :
-  TimeBasedPanel(parent)
+  TimeBasedPanel(QStringLiteral("TimelinePanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("TimelinePanel");
-
   TimelineWidget* tw = new TimelineWidget();
   SetTimeBasedWidget(tw);
 

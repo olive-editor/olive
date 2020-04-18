@@ -23,11 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 CurvePanel::CurvePanel(QWidget *parent) :
-  TimeBasedPanel(parent)
+  TimeBasedPanel(QStringLiteral("CurvePanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("CurvePanel");
-
   // Create main widget and set it
   SetTimeBasedWidget(new CurveWidget());
 

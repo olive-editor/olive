@@ -25,11 +25,8 @@
 OLIVE_NAMESPACE_ENTER
 
 FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
-  ViewerPanelBase(parent)
+  ViewerPanelBase(QStringLiteral("FootageViewerPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("FootageViewerPanel");
-
   // Set ViewerWidget as the central widget
   SetTimeBasedWidget(new FootageViewerWidget());
 

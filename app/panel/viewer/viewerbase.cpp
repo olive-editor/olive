@@ -22,8 +22,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerPanelBase::ViewerPanelBase(QWidget *parent) :
-  TimeBasedPanel(parent)
+ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
+  TimeBasedPanel(object_name, parent)
 {
 }
 

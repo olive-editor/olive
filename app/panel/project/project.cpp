@@ -35,11 +35,8 @@
 OLIVE_NAMESPACE_ENTER
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("ProjectPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ProjectPanel");
-
   // Create main widget and its layout
   QWidget* central_widget = new QWidget(this);
   QVBoxLayout* layout = new QVBoxLayout(central_widget);

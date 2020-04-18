@@ -29,11 +29,12 @@
 
 OLIVE_NAMESPACE_ENTER
 
-PanelWidget::PanelWidget(QWidget *parent) :
+PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
   QDockWidget(parent),
   border_visible_(false),
   signal_instead_of_close_(false)
 {
+  setObjectName(object_name);
   setFocusPolicy(Qt::ClickFocus);
 
   connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);

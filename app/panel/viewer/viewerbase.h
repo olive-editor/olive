@@ -31,7 +31,7 @@ class ViewerPanelBase : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  ViewerPanelBase(QWidget* parent = nullptr);
+  ViewerPanelBase(const QString& object_name, QWidget* parent = nullptr);
 
   virtual void PlayPause() override;
 

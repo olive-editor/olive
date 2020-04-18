@@ -23,11 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("AudioMonitor"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("AudioMonitor");
-
   audio_monitor_ = new AudioMonitor(this);
 
   setWidget(audio_monitor_);

@@ -33,7 +33,7 @@ OLIVE_NAMESPACE_ENTER
 class ViewerPanel : public ViewerPanelBase {
   Q_OBJECT
 public:
-  ViewerPanel(QWidget* parent);
+  ViewerPanel(const QString& object_name, QWidget* parent);
 
 protected:
   virtual void Retranslate() override;

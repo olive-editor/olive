@@ -23,11 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 ParamPanel::ParamPanel(QWidget* parent) :
-  TimeBasedPanel(parent)
+  TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ParamPanel");
-
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::SelectedInputChanged, this, &ParamPanel::SelectedInputChanged);
   connect(view, &NodeParamView::TimeTargetChanged, this, &ParamPanel::TimeTargetChanged);

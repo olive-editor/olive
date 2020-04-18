@@ -23,11 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 SequenceViewerPanel::SequenceViewerPanel(QWidget *parent) :
-  ViewerPanel(parent)
+  ViewerPanel(QStringLiteral("SequenceViewerPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("SequenceViewerPanel");
-
   // Set strings
   Retranslate();
 }

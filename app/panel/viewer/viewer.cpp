@@ -22,12 +22,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerPanel::ViewerPanel(QWidget *parent) :
-  ViewerPanelBase(parent)
+ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
+  ViewerPanelBase(object_name, parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ViewerPanel");
-
   // Set ViewerWidget as the central widget
   SetTimeBasedWidget(new ViewerWidget());
 

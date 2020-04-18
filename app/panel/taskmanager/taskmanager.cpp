@@ -25,11 +25,8 @@
 OLIVE_NAMESPACE_ENTER
 
 TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("TaskManagerPanel");
-
   // Create task view
   view_ = new TaskView(this);
 

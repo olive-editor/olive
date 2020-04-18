@@ -26,11 +26,8 @@
 OLIVE_NAMESPACE_ENTER
 
 ToolPanel::ToolPanel(QWidget *parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("ToolPanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ToolPanel");
-
   Toolbar* t = new Toolbar(this);
 
   t->SetTool(Core::instance()->tool());

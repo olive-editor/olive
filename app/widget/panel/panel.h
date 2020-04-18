@@ -42,7 +42,7 @@ public:
    * The PanelWidget's parent, enforced to help with memory handling. Most of the time this will be an instance of
    * MainWindow.
    */
-  PanelWidget(QWidget* parent);
+  PanelWidget(const QString& object_name, QWidget* parent);
 
   /**
    * @brief Set whether panel movement is locked or not
