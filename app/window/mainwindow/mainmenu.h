@@ -188,9 +188,13 @@ private:
   QAction* file_open_recent_clear_item_;
   QAction* file_save_item_;
   QAction* file_save_as_item_;
+  QAction* file_save_all_item_;
   QAction* file_import_item_;
   QAction* file_export_item_;
   QAction* file_project_properties_item_;
+  QAction* file_close_project_item_;
+  QAction* file_close_all_projects_item_;
+  QAction* file_close_all_except_item_;
   QAction* file_exit_item_;
 
   Menu* edit_menu_;

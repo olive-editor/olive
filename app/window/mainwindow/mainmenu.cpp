@@ -55,12 +55,17 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
   file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
   file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, "Ctrl+Shift+S");
+  file_save_all_item_ = file_menu_->AddItem("saveallproj", Core::instance(), &Core::SaveAllProjects);
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, "Ctrl+I");
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow);
+  file_menu_->addSeparator();
+  file_close_project_item_ = file_menu_->AddItem("closeproj", Core::instance(), &Core::CloseActiveProject);
+  file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
+  file_close_all_except_item_ = file_menu_->AddItem("closeallexcept", Core::instance(), &Core::CloseAllExceptActiveProject);
   file_menu_->addSeparator();
   file_exit_item_ = file_menu_->AddItem("exit", parent, &MainWindow::close, "Ctrl+Q");
 
@@ -302,7 +307,26 @@ void MainMenu::TimecodeDisplayTriggered()
 
 void MainMenu::FileMenuAboutToShow()
 {
-  file_project_properties_item_->setEnabled(Core::instance()->GetActiveProject());
+  Project* active_project = Core::instance()->GetActiveProject();
+
+  file_project_properties_item_->setEnabled(active_project);
+  file_save_item_->setEnabled(active_project);
+  file_save_as_item_->setEnabled(active_project);
+  file_close_project_item_->setEnabled(active_project);
+  file_close_all_projects_item_->setEnabled(active_project);
+  file_close_all_except_item_->setEnabled(active_project);
+
+  if (active_project) {
+    file_save_item_->setText(tr("&Save '%1'").arg(active_project->pretty_filename()));
+    file_save_as_item_->setText(tr("Save '%1' &As").arg(active_project->pretty_filename()));
+    file_close_project_item_->setText(tr("Close '%1'").arg(active_project->pretty_filename()));
+    file_close_all_except_item_->setText(tr("Close All Except '%1'").arg(active_project->pretty_filename()));
+  } else {
+    file_save_item_->setText(tr("&Save Project"));
+    file_save_as_item_->setText(tr("Save Project &As"));
+    file_close_project_item_->setText(tr("Close Project"));
+    file_close_all_except_item_->setText(tr("Close All Except Current Project"));
+  }
 }
 
 void MainMenu::ViewMenuAboutToShow()
@@ -572,11 +596,11 @@ void MainMenu::Retranslate()
   file_open_item_->setText(tr("&Open Project"));
   file_open_recent_menu_->setTitle(tr("Open &Recent"));
   file_open_recent_clear_item_->setText(tr("&Clear Recent List"));
-  file_save_item_->setText(tr("&Save Project"));
-  file_save_as_item_->setText(tr("Save Project &As"));
+  file_save_all_item_->setText(tr("Sa&ve All Projects"));
   file_import_item_->setText(tr("&Import..."));
   file_export_item_->setText(tr("&Export..."));
   file_project_properties_item_->setText(tr("&Project Properties..."));
+  file_close_all_projects_item_->setText(tr("Close All Projects"));
   file_exit_item_->setText(tr("E&xit"));
 
   // Edit menu

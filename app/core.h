@@ -235,6 +235,31 @@ public slots:
   bool SaveActiveProjectAs();
 
   /**
+   * @brief Save all currently open projects
+   */
+  bool SaveAllProjects();
+
+  /**
+   * @brief Closes the active project
+   *
+   * If no other projects are open, a new one is created automatically.
+   */
+  bool CloseActiveProject();
+
+  /**
+   * @brief Closes all projects except the active project
+   */
+  bool CloseAllExceptActiveProject();
+
+  /**
+   * @brief Closes all open projects
+   *
+   * Equivalent to `CloseAllProjects(true)`, but useful for the signal/slot system where you may not be able to specify
+   * parameters.
+   */
+  bool CloseAllProjects();
+
+  /**
    * @brief Set the current application-wide tool
    *
    * @param tool

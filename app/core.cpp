@@ -656,6 +656,38 @@ bool Core::SaveActiveProjectAs()
   return false;
 }
 
+bool Core::SaveAllProjects()
+{
+  foreach (ProjectPtr p, open_projects_) {
+    if (!SaveProject(p.get())) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool Core::CloseActiveProject()
+{
+  return CloseProject(GetActiveProject(), true);
+}
+
+bool Core::CloseAllExceptActiveProject()
+{
+  Project* active_proj = GetActiveProject();
+  QList<ProjectPtr> copy = open_projects_;
+
+  foreach (ProjectPtr p, copy) {
+    if (p.get() != active_proj) {
+      if (!CloseProject(p.get(), true)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 QList<rational> Core::SupportedFrameRates()
 {
   QList<rational> frame_rates;
@@ -928,6 +960,11 @@ bool Core::CloseAllProjects(bool auto_open_new)
   }
 
   return true;
+}
+
+bool Core::CloseAllProjects()
+{
+  return CloseAllProjects(true);
 }
 
 void Core::OpenProject()
