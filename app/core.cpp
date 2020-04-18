@@ -274,6 +274,17 @@ const QStringList &Core::GetRecentProjects() const
   return recent_projects_;
 }
 
+ProjectPtr Core::GetSharedPtrFromProject(Project *project) const
+{
+  foreach (ProjectPtr p, open_projects_) {
+    if (p.get() == project) {
+      return p;
+    }
+  }
+
+  return nullptr;
+}
+
 void Core::SetTool(const Tool::Item &tool)
 {
   tool_ = tool;
@@ -328,7 +339,7 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogProjectPropertiesShow()
 {
-  ProjectPropertiesDialog ppd(GetActiveProject(), main_window_);
+  ProjectPropertiesDialog ppd(GetActiveProject().get(), main_window_);
   ppd.exec();
 }
 
@@ -357,7 +368,7 @@ void Core::CreateNewFolder()
 
   if (active_project_panel == nullptr // Check that we found a Project panel
       || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
-    QMessageBox::critical(main_window_, tr("Failed to create new folder"), tr("Failed to find active Project panel"));
+    QMessageBox::critical(main_window_, tr("Failed to create new folder"), tr("Failed to find active project"));
     return;
   }
 
@@ -383,15 +394,15 @@ void Core::CreateNewFolder()
 
 void Core::CreateNewSequence()
 {
-  Project* active_project = GetActiveProject();
+  ProjectPtr active_project = GetActiveProject();
 
   if (!active_project) {
-    QMessageBox::critical(main_window_, tr("Failed to create new sequence"), tr("Failed to find active Project panel"));
+    QMessageBox::critical(main_window_, tr("Failed to create new sequence"), tr("Failed to find active project"));
     return;
   }
 
   // Create new sequence
-  SequencePtr new_sequence = CreateNewSequenceForProject(active_project);
+  SequencePtr new_sequence = CreateNewSequenceForProject(active_project.get());
 
   // Set all defaults for the sequence
   new_sequence->set_default_parameters();
@@ -429,7 +440,7 @@ void Core::AddOpenProject(ProjectPtr p)
 
   // If we currently have an empty project, close it first
   if (!open_projects_.isEmpty() && open_projects_.last()->is_new()) {
-    CloseProject(open_projects_.last().get(), false);
+    CloseProject(open_projects_.last(), false);
   }
 
   connect(p.get(), &Project::ModifiedChanged, this, &Core::ProjectWasModified);
@@ -496,6 +507,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<TimeRange>();
   qRegisterMetaType<Color>();
+  qRegisterMetaType<ProjectPtr>();
 }
 
 void Core::StartGUI(bool full_screen)
@@ -545,7 +557,7 @@ void Core::StartGUI(bool full_screen)
   autorecovery_timer_.start();
 }
 
-void Core::SaveProjectInternal(Project *project)
+void Core::SaveProjectInternal(ProjectPtr project)
 {
   // Create save manager
   ProjectSaveManager* psm = new ProjectSaveManager(project);
@@ -566,22 +578,22 @@ void Core::SaveAutorecovery()
   }
 }
 
-void Core::ProjectSaveSucceeded(Project* p)
+void Core::ProjectSaveSucceeded(ProjectPtr p)
 {
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
 }
 
-Project *Core::GetActiveProject() const
+ProjectPtr Core::GetActiveProject() const
 {
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
-  if (active_project_panel) {
-    return active_project_panel->project();
-  } else {
-    return nullptr;
+  if (active_project_panel && active_project_panel->project()) {
+    return GetSharedPtrFromProject(active_project_panel->project());
   }
+
+  return nullptr;
 }
 
 ProjectViewModel *Core::GetActiveProjectModel() const
@@ -636,7 +648,7 @@ QString Core::PasteStringFromClipboard()
 
 bool Core::SaveActiveProject()
 {
-  Project* active_project = GetActiveProject();
+  ProjectPtr active_project = GetActiveProject();
 
   if (active_project) {
     return SaveProject(active_project);
@@ -647,7 +659,7 @@ bool Core::SaveActiveProject()
 
 bool Core::SaveActiveProjectAs()
 {
-  Project* active_project = GetActiveProject();
+  ProjectPtr active_project = GetActiveProject();
 
   if (active_project) {
     return SaveProjectAs(active_project);
@@ -659,7 +671,7 @@ bool Core::SaveActiveProjectAs()
 bool Core::SaveAllProjects()
 {
   foreach (ProjectPtr p, open_projects_) {
-    if (!SaveProject(p.get())) {
+    if (!SaveProject(p)) {
       return false;
     }
   }
@@ -674,12 +686,12 @@ bool Core::CloseActiveProject()
 
 bool Core::CloseAllExceptActiveProject()
 {
-  Project* active_proj = GetActiveProject();
+  ProjectPtr active_proj = GetActiveProject();
   QList<ProjectPtr> copy = open_projects_;
 
   foreach (ProjectPtr p, copy) {
-    if (p.get() != active_proj) {
-      if (!CloseProject(p.get(), true)) {
+    if (p != active_proj) {
+      if (!CloseProject(p, true)) {
         return false;
       }
     }
@@ -774,7 +786,7 @@ QString Core::GetRecentProjectsFilePath()
   return QDir(GetConfigurationLocation()).filePath(QStringLiteral("recent"));
 }
 
-bool Core::SaveProject(Project *p)
+bool Core::SaveProject(ProjectPtr p)
 {
   if (p->filename().isEmpty()) {
     return SaveProjectAs(p);
@@ -785,7 +797,7 @@ bool Core::SaveProject(Project *p)
   }
 }
 
-bool Core::SaveProjectAs(Project *p)
+bool Core::SaveProjectAs(ProjectPtr p)
 {
   QString fn = QFileDialog::getSaveFileName(main_window_,
                                             tr("Save Project As"),
@@ -908,34 +920,81 @@ void Core::OpenProjectFromRecentList(int index)
   }
 }
 
-bool Core::CloseProject(Project *p, bool auto_open_new)
+bool Core::CloseProject(ProjectPtr p, bool auto_open_new)
+{
+  CloseProjectBehavior b = kCloseProjectOnlyOne;
+  return CloseProject(p, auto_open_new, b);
+}
+
+bool Core::CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &confirm_behavior)
 {
   for (int i=0;i<open_projects_.size();i++) {
-    if (open_projects_.at(i).get() == p) {
+    if (open_projects_.at(i) == p) {
 
-      if (p->is_modified()) {
-        QMessageBox mb(main_window_);
+      if (p->is_modified() && confirm_behavior != kCloseProjectDontSave) {
 
-        mb.setIcon(QMessageBox::Question);
-        mb.setWindowTitle(tr("Unsaved Changes"));
-        mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
-                   .arg(p->name()));
+        bool save_this_project;
 
-        QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
-        mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
-        QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
+        if (confirm_behavior == kCloseProjectAsk || confirm_behavior == kCloseProjectOnlyOne) {
+          QMessageBox mb(main_window_);
 
-        mb.exec();
+          mb.setIcon(QMessageBox::Question);
+          mb.setWindowTitle(tr("Unsaved Changes"));
+          mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
+                     .arg(p->name()));
 
-        if (mb.clickedButton() == cancel_btn
-            || (mb.clickedButton() == yes_btn && !SaveActiveProject())) {
-          // Don't close if the user clicked cancel on this messagebox OR they cancelled a save as operation
+          QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
+
+          QPushButton* yes_to_all_btn;
+          if (confirm_behavior == kCloseProjectOnlyOne) {
+            yes_to_all_btn = nullptr;
+          } else {
+            yes_to_all_btn = mb.addButton(tr("Save All"), QMessageBox::YesRole);
+          }
+
+          mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
+
+          QPushButton* no_to_all_btn;
+          if (confirm_behavior == kCloseProjectOnlyOne) {
+            no_to_all_btn = nullptr;
+          } else {
+            no_to_all_btn = mb.addButton(tr("Don't Save All"), QMessageBox::NoRole);
+          }
+
+          QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
+
+          mb.exec();
+
+          if (mb.clickedButton() == cancel_btn) {
+            // Stop closing projects if the user clicked cancel
+            return false;
+          } else if (mb.clickedButton() == yes_to_all_btn) {
+            // Set flag that other CloseProject commands are going to use
+            confirm_behavior = kCloseProjectSave;
+          } else if (mb.clickedButton() == no_to_all_btn) {
+            // Set flag that other CloseProject commands are going to use
+            confirm_behavior = kCloseProjectDontSave;
+          }
+
+          save_this_project = (mb.clickedButton() == yes_btn || mb.clickedButton() == yes_to_all_btn);
+
+        } else {
+          // We must be saving this project
+          save_this_project = true;
+        }
+
+        if (save_this_project && !SaveProject(p)) {
+          // The save failed, stop closing projects
           return false;
         }
+
       }
 
-      disconnect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-      emit ProjectClosed(p);
+      // For safety, the undo stack is cleared so no commands try to affect a freed project
+      undo_stack_.clear();
+
+      disconnect(p.get(), &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+      emit ProjectClosed(p.get());
       open_projects_.removeAt(i);
       break;
     }
@@ -953,10 +1012,34 @@ bool Core::CloseAllProjects(bool auto_open_new)
 {
   QList<ProjectPtr> copy = open_projects_;
 
+  // See how many projects are modified so we can set "behavior" correctly
+  // (i.e. whether to show "Yes/No To All" buttons or not)
+  int modified_count = 0;
   foreach (ProjectPtr p, copy) {
-    if (!CloseProject(p.get(), auto_open_new)) {
+    if (p->is_modified()) {
+      modified_count++;
+    }
+  }
+
+  CloseProjectBehavior behavior;
+
+  if (modified_count > 1) {
+    behavior = kCloseProjectAsk;
+  } else {
+    behavior = kCloseProjectOnlyOne;
+  }
+
+  foreach (ProjectPtr p, copy) {
+    // If this is the only remaining project and the user hasn't chose "yes/no to all", hide those buttons
+    if (modified_count == 1 && behavior == kCloseProjectAsk) {
+      behavior = kCloseProjectOnlyOne;
+    }
+
+    if (!CloseProject(p, auto_open_new, behavior)) {
       return false;
     }
+
+    modified_count--;
   }
 
   return true;

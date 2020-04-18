@@ -125,6 +125,11 @@ public:
   const QStringList& GetRecentProjects() const;
 
   /**
+   * @brief Convenience function to retrieve a Project's shared pointer
+   */
+  ProjectPtr GetSharedPtrFromProject(Project* project) const;
+
+  /**
    * @brief Get the currently active project
    *
    * Uses the UI/Panel system to determine which Project was the last focused on and assumes this is the active Project
@@ -134,7 +139,7 @@ public:
    *
    * The active Project file, or nullptr if the heuristic couldn't find one.
    */
-  Project* GetActiveProject() const;
+  ProjectPtr GetActiveProject() const;
   ProjectViewModel* GetActiveProjectModel() const;
   Folder* GetSelectedFolderInActiveProject() const;
 
@@ -206,10 +211,18 @@ public:
    */
   void OpenProjectFromRecentList(int index);
 
+  enum CloseProjectBehavior {
+    kCloseProjectOnlyOne,
+    kCloseProjectAsk,
+    kCloseProjectSave,
+    kCloseProjectDontSave
+  };
+
   /**
    * @brief Closes a project
    */
-  bool CloseProject(Project* p, bool auto_open_new);
+  bool CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior& confirm_behavior);
+  bool CloseProject(ProjectPtr p, bool auto_open_new);
 
   /**
    * @brief Closes all open projects
@@ -365,12 +378,12 @@ private:
   /**
    * @brief Saves a specific project
    */
-  bool SaveProject(Project* p);
+  bool SaveProject(ProjectPtr p);
 
   /**
    * @brief Performs a "save as" on a specific project
    */
-  bool SaveProjectAs(Project* p);
+  bool SaveProjectAs(ProjectPtr p);
 
   /**
    * @brief Adds a filename to the top of the recently opened projects list (or moves it if it already exists)
@@ -401,7 +414,7 @@ private:
   /**
    * @brief Internal function for saving a project to a file
    */
-  void SaveProjectInternal(Project* project);
+  void SaveProjectInternal(ProjectPtr project);
 
   /**
    * @brief Internal main window object
@@ -459,7 +472,7 @@ private:
 private slots:
   void SaveAutorecovery();
 
-  void ProjectSaveSucceeded(Project *p);
+  void ProjectSaveSucceeded(ProjectPtr p);
 
   /**
    * @brief Adds a project to the "open projects" list

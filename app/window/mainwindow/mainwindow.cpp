@@ -212,7 +212,7 @@ void MainWindow::SetTaskbarButtonProgress(int value, int max)
 }
 #endif
 
-void MainWindow::FolderOpen(Project *p, Item *i, bool floating)
+void MainWindow::FolderOpen(Project* p, Item *i, bool floating)
 {
   ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
 
@@ -287,7 +287,7 @@ void MainWindow::ToggleMaximizedPanel()
   }
 }
 
-void MainWindow::ProjectOpen(Project* p)
+void MainWindow::ProjectOpen(Project *p)
 {
   // See if this project is already open, and switch to it if so
   foreach (ProjectPanel* pl, project_panels_) {
@@ -397,7 +397,7 @@ void MainWindow::ProjectCloseRequested()
   ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
   Project* p = panel->project();
 
-  Core::instance()->CloseProject(p, true);
+  Core::instance()->CloseProject(Core::instance()->GetSharedPtrFromProject(p), true);
 }
 
 void MainWindow::FolderCloseRequested()

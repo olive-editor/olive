@@ -69,12 +69,12 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   Retranslate();
 }
 
-Project *ProjectPanel::project() const
+Project* ProjectPanel::project() const
 {
   return explorer_->project();
 }
 
-void ProjectPanel::set_project(Project *p)
+void ProjectPanel::set_project(Project* p)
 {
   if (project()) {
     disconnect(project(), &Project::NameChanged, this, &ProjectPanel::UpdateSubtitle);
@@ -91,6 +91,8 @@ void ProjectPanel::set_project(Project *p)
   }
 
   UpdateSubtitle();
+
+  emit ProjectNameChanged();
 
   if (p) {
     setWindowModified(p->is_modified());

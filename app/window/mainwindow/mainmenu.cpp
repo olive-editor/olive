@@ -307,7 +307,7 @@ void MainMenu::TimecodeDisplayTriggered()
 
 void MainMenu::FileMenuAboutToShow()
 {
-  Project* active_project = Core::instance()->GetActiveProject();
+  Project* active_project = Core::instance()->GetActiveProject().get();
 
   file_project_properties_item_->setEnabled(active_project);
   file_save_item_->setEnabled(active_project);

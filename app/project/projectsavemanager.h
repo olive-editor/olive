@@ -30,16 +30,16 @@ class ProjectSaveManager : public Task
 {
   Q_OBJECT
 public:
-  ProjectSaveManager(Project* project);
+  ProjectSaveManager(ProjectPtr project);
 
 signals:
-  void ProjectSaveSucceeded(Project* p);
+  void ProjectSaveSucceeded(ProjectPtr p);
 
 protected:
   virtual void Action() override;
 
 private:
-  Project* project_;
+  ProjectPtr project_;
 
 };
 

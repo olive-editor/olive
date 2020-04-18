@@ -321,10 +321,10 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
     }
 
     if (behavior != kDWSDisable) {
-      Project* active_project = Core::instance()->GetActiveProject();
+      ProjectPtr active_project = Core::instance()->GetActiveProject();
 
       if (active_project) {
-        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project.get());
 
         new_sequence->set_default_parameters();
 

@@ -25,7 +25,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ProjectSaveManager::ProjectSaveManager(Project *project) :
+ProjectSaveManager::ProjectSaveManager(ProjectPtr project) :
   project_(project)
 {
   SetTitle(tr("Saving '%1'").arg(project->filename()));
