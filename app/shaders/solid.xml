@@ -18,7 +18,7 @@
     <param id="color_in" type="color">
         <name lang="en_US">Color</name>
         <name lang="en_GB">Colour</name>
-        <default>1.0, 0.0, 0.0, 1.0</default>
+        <default>1.0:0.0:0.0:1.0</default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->
