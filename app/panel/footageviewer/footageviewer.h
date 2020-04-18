@@ -36,7 +36,7 @@ class FootageViewerPanel : public ViewerPanelBase, public FootageManagementPanel
 public:
   FootageViewerPanel(QWidget* parent);
 
-  virtual QList<Footage*> GetSelectedFootage() override;
+  virtual QList<Footage*> GetSelectedFootage() const override;
 
   void SetFootage(Footage* f);
 

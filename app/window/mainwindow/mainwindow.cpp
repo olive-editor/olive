@@ -176,6 +176,33 @@ void MainWindow::SetTaskbarButtonProgress(int value, int max)
 }
 #endif
 
+void MainWindow::FolderOpen(Project *p, Item *i, bool floating)
+{
+  ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
+
+  panel->set_project(p);
+  panel->set_root(i);
+
+  // Tabify with source project panel
+  foreach (ProjectPanel* proj_panel, project_panels_) {
+    if (proj_panel->project() == p) {
+      tabifyDockWidget(proj_panel, panel);
+      break;
+    }
+  }
+
+  panel->setFloating(floating);
+
+  panel->show();
+  panel->raise();
+
+  // If the panel is closed, just destroy it
+  panel->SetSignalInsteadOfClose(true);
+  connect(panel, &ProjectPanel::CloseRequested, this, &MainWindow::FolderCloseRequested);
+
+  folder_panels_.append(panel);
+}
+
 void MainWindow::SetFullscreen(bool fullscreen)
 {
   if (fullscreen) {
@@ -248,6 +275,12 @@ void MainWindow::ProjectClose(Project *p)
   foreach (ProjectPanel* panel, project_panels_) {
     if (panel->project() == p) {
       RemoveProjectPanel(panel);
+    }
+  }
+
+  foreach (ProjectPanel* panel, folder_panels_) {
+    if (panel->project() == p) {
+      panel->close();
     }
   }
 
@@ -324,6 +357,14 @@ void MainWindow::ProjectCloseRequested()
   Project* p = panel->project();
 
   Core::instance()->CloseProject(p, true);
+}
+
+void MainWindow::FolderCloseRequested()
+{
+  ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
+
+  folder_panels_.removeOne(panel);
+  panel->deleteLater();
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()

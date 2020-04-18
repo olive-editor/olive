@@ -37,16 +37,18 @@ class ProjectPanel : public PanelWidget, public FootageManagementPanel
 public:
   ProjectPanel(QWidget* parent);
 
-  Project* project();
+  Project* project() const;
   void set_project(Project* p);
 
-  QList<Item*> SelectedItems();
+  void set_root(Item* item);
 
-  Folder* GetSelectedFolder();
+  QList<Item*> SelectedItems() const;
 
-  virtual QList<Footage*> GetSelectedFootage() override;
+  Folder* GetSelectedFolder() const;
 
-  ProjectViewModel* model();
+  virtual QList<Footage*> GetSelectedFootage() const override;
+
+  ProjectViewModel* model() const;
 
   virtual void SelectAll() override;
   virtual void DeselectAll() override;

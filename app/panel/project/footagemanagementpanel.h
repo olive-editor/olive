@@ -29,7 +29,7 @@ OLIVE_NAMESPACE_ENTER
 
 class FootageManagementPanel {
 public:
-  virtual QList<Footage*> GetSelectedFootage() = 0;
+  virtual QList<Footage*> GetSelectedFootage() const = 0;
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -49,12 +49,16 @@ class ProjectExplorer : public QWidget
 public:
   ProjectExplorer(QWidget* parent);
 
-  const ProjectToolbar::ViewType& view_type();
+  const ProjectToolbar::ViewType& view_type() const;
 
-  Project* project();
+  Project* project() const;
   void set_project(Project* p);
 
-  QList<Item*> SelectedItems();
+  QModelIndex root_index() const;
+
+  void set_root(Item* item);
+
+  QList<Item*> SelectedItems() const;
 
   /**
    * @brief Use a heuristic to determine which (if any) folder is selected
@@ -68,7 +72,7 @@ public:
    * A folder that's heuristically been determined as "selected", or the root directory if none, or nullptr if no
    * project is open.
    */
-  Folder* GetSelectedFolder();
+  Folder* GetSelectedFolder() const;
 
   /**
    * @brief Access the ViewModel model of the project
@@ -122,7 +126,7 @@ private:
   /**
    * @brief Get the currently active QAbstractItemView
    */
-  QAbstractItemView* CurrentView();
+  QAbstractItemView* CurrentView() const;
 
   QStackedWidget* stacked_widget_;
 
@@ -162,6 +166,10 @@ private slots:
   void ShowSequencePropertiesDialog();
 
   void RevealSelectedFootage();
+
+  void OpenContextMenuItemInNewTab();
+
+  void OpenContextMenuItemInNewWindow();
 
 };
 

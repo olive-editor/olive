@@ -72,7 +72,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   Retranslate();
 }
 
-Project *ProjectPanel::project()
+Project *ProjectPanel::project() const
 {
   return explorer_->project();
 }
@@ -102,17 +102,24 @@ void ProjectPanel::set_project(Project *p)
   }
 }
 
-QList<Item *> ProjectPanel::SelectedItems()
+void ProjectPanel::set_root(Item *item)
+{
+  explorer_->set_root(item);
+
+  Retranslate();
+}
+
+QList<Item *> ProjectPanel::SelectedItems() const
 {
   return explorer_->SelectedItems();
 }
 
-Folder *ProjectPanel::GetSelectedFolder()
+Folder *ProjectPanel::GetSelectedFolder() const
 {
   return explorer_->GetSelectedFolder();
 }
 
-ProjectViewModel *ProjectPanel::model()
+ProjectViewModel *ProjectPanel::model() const
 {
   return explorer_->model();
 }
@@ -157,7 +164,11 @@ void ProjectPanel::Edit(Item* item)
 
 void ProjectPanel::Retranslate()
 {
-  SetTitle(tr("Project"));
+  if (explorer_->root_index().isValid()) {
+    SetTitle(tr("Folder"));
+  } else {
+    SetTitle(tr("Project"));
+  }
 
   UpdateSubtitle();
 }
@@ -187,14 +198,30 @@ void ProjectPanel::ShowNewMenu()
 
 void ProjectPanel::UpdateSubtitle()
 {
-  if (project() == nullptr) {
-    SetSubtitle(tr("(none)"));
+  if (project()) {
+    QString project_title = QStringLiteral("[*]%1").arg(project()->name());
+
+    if (explorer_->root_index().isValid()) {
+      QString folder_path;
+
+      Item* item = static_cast<Item*>(explorer_->root_index().internalPointer());
+
+      do {
+        folder_path.prepend(QStringLiteral("/%1").arg(item->name()));
+
+        item = item->parent();
+      } while (item != project()->root());
+
+      project_title.append(folder_path);
+    }
+
+    SetSubtitle(project_title);
   } else {
-    SetSubtitle(QStringLiteral("[*]%1").arg(project()->name()));
+    SetSubtitle(tr("(none)"));
   }
 }
 
-QList<Footage *> ProjectPanel::GetSelectedFootage()
+QList<Footage *> ProjectPanel::GetSelectedFootage() const
 {
   QList<Item*> items = SelectedItems();
   QList<Footage*> footage;

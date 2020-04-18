@@ -65,7 +65,7 @@ public:
    *
    * Currently active project or nullptr if there is none
    */
-  Project* project();
+  Project* project() const;
 
   /**
    * @brief Set the project to adapt

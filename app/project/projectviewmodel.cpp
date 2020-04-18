@@ -38,7 +38,7 @@ ProjectViewModel::ProjectViewModel(QObject *parent) :
   columns_.append(kRate);
 }
 
-Project *ProjectViewModel::project()
+Project *ProjectViewModel::project() const
 {
   return project_;
 }

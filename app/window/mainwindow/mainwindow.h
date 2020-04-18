@@ -65,6 +65,8 @@ public:
   void SetTaskbarButtonProgress(int value, int max);
 #endif
 
+  void FolderOpen(Project* p, Item* i, bool floating);
+
 public slots:
   void ProjectOpen(Project *p);
 
@@ -105,6 +107,7 @@ private:
   SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
   QList<ProjectPanel*> project_panels_;
+  QList<ProjectPanel*> folder_panels_;
   ToolPanel* tool_panel_;
   QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
@@ -126,6 +129,8 @@ private slots:
   void TimelineCloseRequested();
 
   void ProjectCloseRequested();
+
+  void FolderCloseRequested();
 
 };
 

@@ -85,7 +85,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
 }
 
-const ProjectToolbar::ViewType &ProjectExplorer::view_type()
+const ProjectToolbar::ViewType &ProjectExplorer::view_type() const
 {
   return view_type_;
 }
@@ -148,7 +148,7 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
   nav_bar_->set_dir_up_enabled(index.isValid());
 }
 
-QAbstractItemView *ProjectExplorer::CurrentView()
+QAbstractItemView *ProjectExplorer::CurrentView() const
 {
   return static_cast<QAbstractItemView*>(stacked_widget_->currentWidget());
 }
@@ -251,7 +251,17 @@ void ProjectExplorer::ShowContextMenu()
   } else {
     context_menu_item_ = selected_items.first();
 
-    if (context_menu_item_->type() == Item::kFootage) {
+    if (context_menu_item_->type() == Item::kFolder) {
+
+      QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
+      connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
+
+      QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
+      connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
+
+      menu.addSeparator();
+
+    } else if (context_menu_item_->type() == Item::kFootage) {
       QString reveal_text;
 
 #if defined(Q_OS_WINDOWS)
@@ -319,7 +329,17 @@ void ProjectExplorer::RevealSelectedFootage()
 #endif
 }
 
-Project *ProjectExplorer::project()
+void ProjectExplorer::OpenContextMenuItemInNewTab()
+{
+  Core::instance()->main_window()->FolderOpen(project(), context_menu_item_, false);
+}
+
+void ProjectExplorer::OpenContextMenuItemInNewWindow()
+{
+  Core::instance()->main_window()->FolderOpen(project(), context_menu_item_, true);
+}
+
+Project *ProjectExplorer::project() const
 {
   return model_.project();
 }
@@ -329,7 +349,20 @@ void ProjectExplorer::set_project(Project *p)
   model_.set_project(p);
 }
 
-QList<Item *> ProjectExplorer::SelectedItems()
+QModelIndex ProjectExplorer::root_index() const
+{
+  return tree_view_->rootIndex();
+}
+
+void ProjectExplorer::set_root(Item *item)
+{
+  QModelIndex index = model_.CreateIndexFromItem(item);
+
+  BrowseToFolder(index);
+  tree_view_->setRootIndex(index);
+}
+
+QList<Item *> ProjectExplorer::SelectedItems() const
 {
   // Determine which view is active and get its selected indexes
   QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
@@ -348,7 +381,7 @@ QList<Item *> ProjectExplorer::SelectedItems()
   return selected_items;
 }
 
-Folder *ProjectExplorer::GetSelectedFolder()
+Folder *ProjectExplorer::GetSelectedFolder() const
 {
   if (project() == nullptr) {
     return nullptr;
