@@ -135,6 +135,8 @@ const QString &Project::ocio_config() const
 
 void Project::set_ocio_config(const QString &ocio_config)
 {
+  color_manager_.SetConfig(ocio_config);
+
   ocio_config_ = ocio_config;
 }
 

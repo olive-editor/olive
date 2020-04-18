@@ -44,7 +44,15 @@ OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
 
 void ColorManager::SetConfig(const QString &filename)
 {
-  SetConfig(OCIO::Config::CreateFromFile(filename.toUtf8()));
+  OCIO::ConstConfigRcPtr cfg;
+
+  if (filename.isEmpty()) {
+    cfg = OCIO::Config::CreateFromEnv();
+  } else {
+    cfg = OCIO::Config::CreateFromFile(filename.toUtf8());
+  }
+
+  SetConfig(cfg);
 }
 
 void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
