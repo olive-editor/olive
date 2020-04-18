@@ -16,6 +16,7 @@
 
 add_subdirectory(audiomonitor)
 add_subdirectory(clickablelabel)
+add_subdirectory(collapsebutton)
 add_subdirectory(colorbutton)
 add_subdirectory(colorwheel)
 add_subdirectory(columnedgridlayout)

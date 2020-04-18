@@ -32,6 +32,7 @@
 #include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
 #include "widget/clickablelabel/clickablelabel.h"
+#include "widget/collapsebutton/collapsebutton.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -41,6 +42,61 @@ public:
 
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
+};
+
+class NodeParamViewItemBody : public QWidget {
+  Q_OBJECT
+public:
+  NodeParamViewItemBody(const QList<NodeInput*>& inputs, QWidget* parent = nullptr);
+
+  void SetTimeTarget(Node* target);
+
+  void SetTime(const rational& time);
+
+  void Retranslate();
+
+  void SignalAllKeyframes();
+
+signals:
+  void KeyframeAdded(NodeKeyframePtr key, int y);
+
+  void KeyframeRemoved(NodeKeyframePtr key);
+
+  void RequestSetTime(const rational& time);
+
+  void InputClicked(NodeInput* input);
+
+  void RequestSelectNode(const QList<Node*>& node);
+
+private:
+  void UpdateUIForEdgeConnection(NodeInput* input);
+
+  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframePtr keyframe);
+
+  struct InputUI {
+    InputUI();
+
+    ClickableLabel* main_label;
+    NodeParamViewWidgetBridge* widget_bridge;
+    NodeParamViewConnectedLabel* connected_label;
+    NodeParamViewKeyframeControl* key_control;
+  };
+
+  QMap<NodeInput*, InputUI> input_ui_map_;
+
+  QList<NodeParamViewItemBody*> sub_bodies_;
+
+private slots:
+  void EdgeChanged();
+
+  void InputKeyframeEnableChanged(bool e);
+
+  void InputAddedKeyframe(NodeKeyframePtr key);
+
+  void LabelClicked();
+
+  void ConnectionClicked();
+
 };
 
 class NodeParamViewItem : public QWidget
@@ -71,15 +127,7 @@ protected:
   virtual void changeEvent(QEvent *e) override;
 
 private:
-  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframePtr keyframe);
-
-  void SetupUI();
-
   void Retranslate();
-
-  void UpdateUIForEdgeConnection(NodeInput* input);
-
-  NodeParamViewKeyframeControl* KeyframeControlFromInput(NodeInput* input) const;
 
   bool expanded_;
 
@@ -87,38 +135,16 @@ private:
 
   QLabel* title_bar_lbl_;
 
-  QPushButton* title_bar_collapse_btn_;
+  CollapseButton* title_bar_collapse_btn_;
 
-  QWidget* contents_;
-
-  QGridLayout* content_layout_;
+  NodeParamViewItemBody* body_;
 
   Node* node_;
 
   rational time_;
 
-  QMap<NodeInput*, ClickableLabel*> param_lbls_;
-
-  QMap<NodeInput*, NodeParamViewWidgetBridge*> bridges_;
-
-  QMap<NodeInput*, NodeParamViewConnectedLabel*> connected_;
-
-  QMap<NodeInput*, QLabel*> label_map_;
-
-  QList<NodeParamViewKeyframeControl*> key_control_list_;
-
 private slots:
   void SetExpanded(bool e);
-
-  void InputKeyframeEnableChanged(bool e);
-
-  void InputAddedKeyframe(NodeKeyframePtr key);
-
-  void LabelClicked();
-
-  void EdgeChanged();
-
-  void ConnectionClicked();
 
 };
 

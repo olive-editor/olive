@@ -217,6 +217,12 @@ void ViewerOutput::UpdateLength(const rational &length)
 
 void ViewerOutput::Retranslate()
 {
+  Node::Retranslate();
+
+  texture_input_->set_name(tr("Texture"));
+
+  samples_input_->set_name(tr("Samples"));
+
   for (int i=0;i<track_inputs_.size();i++) {
     QString input_name;
 

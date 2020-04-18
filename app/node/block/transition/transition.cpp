@@ -58,6 +58,8 @@ NodeInput *TransitionBlock::in_block_input() const
 
 void TransitionBlock::Retranslate()
 {
+  Block::Retranslate();
+
   out_block_input_->set_name(tr("From"));
   in_block_input_->set_name(tr("To"));
 }

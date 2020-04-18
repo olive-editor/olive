@@ -321,8 +321,11 @@ void Block::Retranslate()
 {
   Node::Retranslate();
 
+  name_input_->set_name(tr("Name"));
   length_input_->set_name(tr("Length"));
   media_in_input_->set_name(tr("Media In"));
+  enabled_input_->set_name(tr("Enabled"));
+  speed_input_->set_name(tr("Speed"));
 }
 
 NodeInput *Block::length_input() const

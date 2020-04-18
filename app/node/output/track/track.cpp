@@ -113,6 +113,8 @@ void TrackOutput::SetTrackHeight(const int &height)
 
 void TrackOutput::Retranslate()
 {
+  Block::Retranslate();
+
   block_input_->set_name(tr("Blocks"));
   muted_input_->set_name(tr("Muted"));
 }
