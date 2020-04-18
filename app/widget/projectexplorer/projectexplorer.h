@@ -54,7 +54,7 @@ public:
   Project* project() const;
   void set_project(Project* p);
 
-  QModelIndex root_index() const;
+  QModelIndex get_root_index() const;
 
   void set_root(Item* item);
 

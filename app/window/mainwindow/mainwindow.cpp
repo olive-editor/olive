@@ -112,6 +112,42 @@ MainWindow::~MainWindow()
 #endif
 }
 
+void MainWindow::LoadLayout(QXmlStreamReader *reader, XMLNodeData &xml_data)
+{
+  QMetaObject::invokeMethod(this,
+                            "LoadLayoutInternal",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(QXmlStreamReader*, reader),
+                            Q_ARG(XMLNodeData*, &xml_data));
+}
+
+void MainWindow::SaveLayout(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement(QStringLiteral("layout"));
+
+  writer->writeStartElement(QStringLiteral("folders"));
+
+  foreach (ProjectPanel* panel, folder_panels_) {
+    writer->writeTextElement(QStringLiteral("folder"),
+                             QString::number(reinterpret_cast<quintptr>(panel->get_root_index().internalPointer())));
+  }
+
+  writer->writeEndElement(); // folders
+
+  writer->writeStartElement(QStringLiteral("timeline"));
+
+  foreach (TimelinePanel* panel, timeline_panels_) {
+    writer->writeTextElement(QStringLiteral("sequence"),
+                             QString::number(reinterpret_cast<quintptr>(panel->GetConnectedViewer())));
+  }
+
+  writer->writeEndElement(); // timeline
+
+  writer->writeTextElement(QStringLiteral("state"), QString(saveState().toBase64()));
+
+  writer->writeEndElement(); // layout
+}
+
 void MainWindow::OpenSequence(Sequence *sequence)
 {
   // See if this sequence is already open, and switch to it if so
@@ -370,6 +406,53 @@ void MainWindow::FolderCloseRequested()
 
   folder_panels_.removeOne(panel);
   panel->deleteLater();
+}
+
+void MainWindow::LoadLayoutInternal(QXmlStreamReader *reader, XMLNodeData *xml_data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("folders")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("folder")) {
+          quintptr item_id = reader->readElementText().toULongLong();
+
+          Item* open_item = xml_data->item_ptrs.value(item_id);
+
+          if (open_item) {
+            FolderOpen(open_item->project(), open_item, true);
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("timeline")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("sequence")) {
+          quintptr item_id = reader->readElementText().toULongLong();
+
+          Sequence* open_seq = dynamic_cast<Sequence*>(xml_data->item_ptrs.value(item_id));
+
+          if (open_seq) {
+            OpenSequence(open_seq);
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("state")) {
+
+      QByteArray state = QByteArray::fromBase64(reader->readElementText().toLatin1());
+
+      restoreState(state);
+
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()

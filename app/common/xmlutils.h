@@ -33,6 +33,7 @@ class Node;
 class NodeParam;
 class NodeInput;
 class NodeOutput;
+class Item;
 
 #define XMLAttributeLoop(reader, item) \
   QXmlStreamAttributes __attributes = reader->attributes(); \
@@ -61,6 +62,7 @@ struct XMLNodeData {
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
+  QHash<quintptr, Item*> item_ptrs;
 
 };
 

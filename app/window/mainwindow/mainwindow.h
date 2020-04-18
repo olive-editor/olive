@@ -53,6 +53,10 @@ public:
 
   virtual ~MainWindow() override;
 
+  void LoadLayout(QXmlStreamReader* reader, XMLNodeData& xml_data);
+
+  void SaveLayout(QXmlStreamWriter* writer) const;
+
   void OpenSequence(Sequence* sequence);
 
   void CloseSequence(Sequence* sequence);
@@ -134,6 +138,8 @@ private slots:
   void ProjectCloseRequested();
 
   void FolderCloseRequested();
+
+  void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 
 };
 

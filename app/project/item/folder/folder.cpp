@@ -51,6 +51,8 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QA
 
     if (attr.name() == QStringLiteral("name")) {
       set_name(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("ptr")) {
+      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
     }
   }
 
@@ -79,9 +81,11 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QA
 
 void Folder::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("folder");
+  writer->writeStartElement(QStringLiteral("folder"));
 
-  writer->writeAttribute("name", name());
+  writer->writeAttribute(QStringLiteral("name"), name());
+
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
   foreach (ItemPtr child, children()) {
     child->Save(writer);

@@ -60,6 +60,10 @@ void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
         }
       }
 
+    } else if (reader->name() == QStringLiteral("layout")) {
+
+      Core::instance()->main_window()->LoadLayout(reader, xml_node_data);
+
     } else {
       reader->skipCurrentElement();
     }
@@ -87,6 +91,9 @@ void Project::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement("default", default_input_colorspace());
 
   writer->writeEndElement(); // colormanagement
+
+  // Save main window project layout
+  Core::instance()->main_window()->SaveLayout(writer);
 
   writer->writeEndElement(); // project
 }

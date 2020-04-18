@@ -357,7 +357,7 @@ void ProjectExplorer::set_project(Project *p)
   model_.set_project(p);
 }
 
-QModelIndex ProjectExplorer::root_index() const
+QModelIndex ProjectExplorer::get_root_index() const
 {
   return tree_view_->rootIndex();
 }

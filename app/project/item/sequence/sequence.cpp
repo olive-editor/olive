@@ -51,10 +51,10 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       return;
     }
 
-    if (attr.name() == "name") {
+    if (attr.name() == QStringLiteral("name")) {
       set_name(attr.value().toString());
-
-      // Currently the only thing we care about
+    } else if (attr.name() == QStringLiteral("ptr")) {
+      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
     }
   }
 
@@ -137,22 +137,24 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
 
 void Sequence::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("sequence");
+  writer->writeStartElement(QStringLiteral("sequence"));
 
-  writer->writeAttribute("name", name());
+  writer->writeAttribute(QStringLiteral("name"), name());
 
-  writer->writeStartElement("video");
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(viewer_output_)));
 
-  writer->writeTextElement("width", QString::number(video_params().width()));
-  writer->writeTextElement("height", QString::number(video_params().height()));
-  writer->writeTextElement("timebase", video_params().time_base().toString());
+  writer->writeStartElement(QStringLiteral("video"));
+
+  writer->writeTextElement(QStringLiteral("width"), QString::number(video_params().width()));
+  writer->writeTextElement(QStringLiteral("height"), QString::number(video_params().height()));
+  writer->writeTextElement(QStringLiteral("timebase"), video_params().time_base().toString());
 
   writer->writeEndElement(); // video
 
-  writer->writeStartElement("audio");
+  writer->writeStartElement(QStringLiteral("audio"));
 
-  writer->writeTextElement("rate", QString::number(audio_params().sample_rate()));
-  writer->writeTextElement("layout", QString::number(audio_params().channel_layout()));
+  writer->writeTextElement(QStringLiteral("rate"), QString::number(audio_params().sample_rate()));
+  writer->writeTextElement(QStringLiteral("layout"), QString::number(audio_params().channel_layout()));
 
   writer->writeEndElement(); // audio
 
@@ -165,7 +167,7 @@ void Sequence::Save(QXmlStreamWriter *writer) const
     }
   }
 
-  viewer_output_->Save(writer, "viewer");
+  viewer_output_->Save(writer, QStringLiteral("viewer"));
 
   writer->writeEndElement(); // sequence
 }

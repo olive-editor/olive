@@ -40,6 +40,8 @@ public:
   Project* project() const;
   void set_project(Project* p);
 
+  QModelIndex get_root_index() const;
+
   void set_root(Item* item);
 
   QList<Item*> SelectedItems() const;
