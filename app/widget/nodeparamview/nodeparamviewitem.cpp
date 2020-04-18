@@ -46,7 +46,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
 
   title_bar_collapse_btn_ = new CollapseButton();
-  connect(title_bar_collapse_btn_, &QPushButton::toggled, this, &NodeParamViewItem::SetExpanded);
+  connect(title_bar_collapse_btn_, &QPushButton::toggled, this, &NodeParamViewItemBody::setVisible);
   title_bar_layout->addWidget(title_bar_collapse_btn_);
 
   title_bar_lbl_ = new QLabel(title_bar_);
@@ -56,7 +56,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   main_layout->addWidget(title_bar_);
 
   // Create and add contents widget
-  QList<NodeInput*> inputs;
+  QVector<NodeInput*> inputs;
 
   // Filter out inputs
   foreach (NodeParam* p, node->parameters()) {
@@ -72,9 +72,6 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
   main_layout->addWidget(body_);
-
-  // Set correct widget state
-  SetExpanded(title_bar_collapse_btn_->isChecked());
 
   Retranslate();
 }
@@ -114,13 +111,6 @@ void NodeParamViewItem::Retranslate()
   body_->Retranslate();
 }
 
-void NodeParamViewItem::SetExpanded(bool e)
-{
-  expanded_ = e;
-
-  body_->setVisible(e);
-}
-
 NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
   QWidget(parent)
 {
@@ -138,10 +128,12 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   p.drawLine(0, bottom, width(), bottom);
 }
 
-NodeParamViewItemBody::NodeParamViewItemBody(const QList<NodeInput *> &inputs, QWidget *parent) :
+NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :
   QWidget(parent)
 {
   int row_count = 0;
+
+  const int max_col = 10;
 
   QGridLayout* content_layout = new QGridLayout(this);
 
@@ -162,6 +154,18 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QList<NodeInput *> &inputs, Q
       array_label_layout->addWidget(ui_objects.main_label);
 
       content_layout->addLayout(array_label_layout, row_count, 0);
+
+      NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(static_cast<NodeInputArray*>(input)->sub_params());
+      sub_body->layout()->setMargin(0);
+      content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col);
+
+      connect(array_collapse_btn, &CollapseButton::toggled, sub_body, &NodeParamViewItemBody::setVisible);
+
+      connect(sub_body, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItemBody::KeyframeAdded);
+      connect(sub_body, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
+      connect(sub_body, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
+      connect(sub_body, &NodeParamViewItemBody::InputClicked, this, &NodeParamViewItemBody::InputClicked);
+      connect(sub_body, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     } else {
       content_layout->addWidget(ui_objects.main_label, row_count, 0);
     }
@@ -191,7 +195,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QList<NodeInput *> &inputs, Q
     // Add keyframe control to this layout if parameter is keyframable
     if (input->is_keyframable()) {
       // Hacky but effective way to make sure this widget is always as far right as possible
-      int control_column = 10;
+      int control_column = max_col;
 
       ui_objects.key_control = new NodeParamViewKeyframeControl();
       ui_objects.key_control->SetInput(input);
@@ -211,6 +215,11 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QList<NodeInput *> &inputs, Q
     }
 
     row_count++;
+
+    // If the row count is an array, we put an extra body widget in the next row so we skip over it here
+    if (input->IsArray()) {
+      row_count++;
+    }
   }
 }
 

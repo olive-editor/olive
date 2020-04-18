@@ -47,7 +47,7 @@ protected:
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItemBody(const QList<NodeInput*>& inputs, QWidget* parent = nullptr);
+  NodeParamViewItemBody(const QVector<NodeInput*>& inputs, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -84,7 +84,7 @@ private:
 
   QMap<NodeInput*, InputUI> input_ui_map_;
 
-  QList<NodeParamViewItemBody*> sub_bodies_;
+  QVector<NodeParamViewItemBody*> sub_bodies_;
 
 private slots:
   void EdgeChanged();
@@ -129,8 +129,6 @@ protected:
 private:
   void Retranslate();
 
-  bool expanded_;
-
   NodeParamViewItemTitleBar* title_bar_;
 
   QLabel* title_bar_lbl_;
@@ -142,9 +140,6 @@ private:
   Node* node_;
 
   rational time_;
-
-private slots:
-  void SetExpanded(bool e);
 
 };
 
