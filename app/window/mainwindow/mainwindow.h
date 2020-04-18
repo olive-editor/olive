@@ -93,6 +93,9 @@ private:
   template <typename T>
   T* AppendPanelInternal(QList<T*>& list);
 
+  template<typename T>
+  void SetUniquePanelID(T* panel, const QList<T*>& list);
+
   void RemoveTimelinePanel(TimelinePanel *panel);
 
   void RemoveProjectPanel(ProjectPanel* panel);

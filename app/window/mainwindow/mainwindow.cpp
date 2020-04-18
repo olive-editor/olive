@@ -180,6 +180,11 @@ void MainWindow::FolderOpen(Project *p, Item *i, bool floating)
 {
   ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
 
+  // Set custom name to distinguish it from regular ProjectPanels
+  panel->setObjectName(QStringLiteral("FolderPanel"));
+
+  SetUniquePanelID<ProjectPanel>(panel, folder_panels_);
+
   panel->set_project(p);
   panel->set_root(i);
 
@@ -508,6 +513,8 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
 {
   T* panel = PanelManager::instance()->CreatePanel<T>(this);
 
+  SetUniquePanelID(panel, list);
+
   if (!list.isEmpty()) {
     tabifyDockWidget(list.last(), panel);
   }
@@ -522,6 +529,13 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
   panel->SetSignalInsteadOfClose(true);
 
   return panel;
+}
+
+template<typename T>
+void MainWindow::SetUniquePanelID(T *panel, const QList<T *> &list)
+{
+  // Set unique object name so it can be identified by QMainWindow's save and restore state functions
+  panel->setObjectName(panel->objectName().append(QString::number(list.size())));
 }
 
 OLIVE_NAMESPACE_EXIT
