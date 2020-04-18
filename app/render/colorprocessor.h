@@ -29,6 +29,8 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 
 OLIVE_NAMESPACE_ENTER
 
+class ColorManager;
+
 class ColorProcessor;
 using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
 
@@ -40,9 +42,10 @@ public:
     kInverse
   };
 
-  ColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space);
+  ColorProcessor(ColorManager* config, const QString &source_space, const QString &dest_space);
 
-  ColorProcessor(OCIO::ConstConfigRcPtr config, const QString& source_space,
+  ColorProcessor(ColorManager* config,
+                 QString source_space,
                  QString display,
                  QString view,
                  const QString& look,
@@ -50,9 +53,9 @@ public:
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space);
+  static ColorProcessorPtr Create(ColorManager* config, const QString& source_space, const QString& dest_space);
 
-  static ColorProcessorPtr Create(OCIO::ConstConfigRcPtr config,
+  static ColorProcessorPtr Create(ColorManager* config,
                                   const QString& source_space,
                                   const QString& display,
                                   const QString& view,
@@ -66,7 +69,7 @@ public:
   Color ConvertColor(Color in);
 
 private:
-  OCIO::ConstProcessorRcPtr processor;
+  OCIO::ConstProcessorRcPtr processor_;
 
 };
 

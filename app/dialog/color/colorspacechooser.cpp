@@ -135,16 +135,49 @@ QString ColorSpaceChooser::look() const
 
 void ColorSpaceChooser::set_input(const QString &s)
 {
-  input_combobox_->setCurrentText(s);
+  if (s.isEmpty()) {
+    input_combobox_->setCurrentText(color_manager_->GetDefaultInputColorSpace());
+  } else {
+    input_combobox_->setCurrentText(s);
+  }
 }
 
-void ColorSpaceChooser::UpdateViews(const QString& s)
+void ColorSpaceChooser::set_display(const QString &s)
+{
+  if (s.isEmpty()) {
+    display_combobox_->setCurrentText(color_manager_->GetDefaultDisplay());
+  } else {
+    display_combobox_->setCurrentText(s);
+  }
+
+  UpdateViews(display_combobox_->currentText());
+}
+
+void ColorSpaceChooser::set_view(const QString &s)
+{
+  if (s.isEmpty()) {
+    view_combobox_->setCurrentText(color_manager_->GetDefaultView(display_combobox_->currentText()));
+  } else {
+    view_combobox_->setCurrentText(s);
+  }
+}
+
+void ColorSpaceChooser::set_look(const QString &s)
+{
+  if (s.isEmpty()) {
+    look_combobox_->setCurrentIndex(0);
+  } else {
+    look_combobox_->setCurrentText(s);
+  }
+}
+
+void ColorSpaceChooser::UpdateViews(const QString& display)
 {
   QString v = view_combobox_->currentText();
 
   view_combobox_->clear();
 
-  QStringList views = color_manager_->ListAvailableViews(s);
+  QStringList views = color_manager_->ListAvailableViews(display);
 
   foreach (const QString& s, views) {
     view_combobox_->addItem(s);
@@ -155,7 +188,7 @@ void ColorSpaceChooser::UpdateViews(const QString& s)
     view_combobox_->setCurrentText(v);
   } else {
     // Otherwise reset to default view for this display
-    view_combobox_->setCurrentText(color_manager_->GetDefaultView(s));
+    view_combobox_->setCurrentText(color_manager_->GetDefaultView(display));
   }
 }
 

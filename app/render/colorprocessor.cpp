@@ -21,28 +21,33 @@
 #include "colorprocessor.h"
 
 #include "common/define.h"
+#include "colormanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space)
+ColorProcessor::ColorProcessor(ColorManager *config, const QString& source_space, const QString& dest_space)
 {
-  processor = config->getProcessor(source_space.toUtf8(),
-                                   dest_space.toUtf8());
+  processor_ = config->GetConfig()->getProcessor(source_space.toUtf8(),
+                                                dest_space.toUtf8());
 }
 
-ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config,
-                               const QString& source_space,
+ColorProcessor::ColorProcessor(ColorManager *config,
+                               QString source_space,
                                QString display,
                                QString view,
                                const QString& look,
                                Direction direction)
 {
+  if (source_space.isEmpty()) {
+    source_space = config->GetDefaultInputColorSpace();
+  }
+
   if (display.isEmpty()) {
-    display = config->getDefaultDisplay();
+    display = config->GetDefaultDisplay();
   }
 
   if (view.isEmpty()) {
-    view = config->getDefaultView(display.toUtf8());
+    view = config->GetDefaultView(display);
   }
 
   // Get current display stats
@@ -58,35 +63,35 @@ ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config,
 
   OCIO::TransformDirection dir = (direction == kInverse) ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD;
 
-  processor = config->getProcessor(transform, dir);
+  processor_ = config->GetConfig()->getProcessor(transform, dir);
 }
 
 void ColorProcessor::ConvertFrame(FramePtr f)
 {
   OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()), f->width(), f->height(), PixelFormat::ChannelCount(f->format()));
 
-  processor->apply(img);
+  processor_->apply(img);
 }
 
 Color ColorProcessor::ConvertColor(Color in)
 {
-  processor->applyRGBA(in.data());
+  processor_->applyRGBA(in.data());
   return in;
 }
 
-ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space)
+ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& source_space, const QString& dest_space)
 {
   return std::make_shared<ColorProcessor>(config, source_space, dest_space);
 }
 
-ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction direction)
+ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction direction)
 {
   return std::make_shared<ColorProcessor>(config, source_space, display, view, look, direction);
 }
 
 OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()
 {
-  return processor;
+  return processor_;
 }
 
 OLIVE_NAMESPACE_EXIT

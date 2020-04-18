@@ -200,6 +200,14 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
           reader->skipCurrentElement();
         }
       }
+    } else if (reader->name() == QStringLiteral("csinput")) {
+      set_property(QStringLiteral("col_input"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csdisplay")) {
+      set_property(QStringLiteral("col_display"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csview")) {
+      set_property(QStringLiteral("col_view"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("cslook")) {
+      set_property(QStringLiteral("col_look"), reader->readElementText());
     } else {
       LoadInternal(reader, xml_node_data, cancelled);
     }
@@ -249,6 +257,14 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
   writer->writeEndElement(); // keyframes
 
+  if (data_type_ == NodeParam::kColor) {
+    // Save color management information
+    writer->writeTextElement(QStringLiteral("csinput"), get_property(QStringLiteral("col_input")).toString());
+    writer->writeTextElement(QStringLiteral("csdisplay"), get_property(QStringLiteral("col_display")).toString());
+    writer->writeTextElement(QStringLiteral("csview"), get_property(QStringLiteral("col_view")).toString());
+    writer->writeTextElement(QStringLiteral("cslook"), get_property(QStringLiteral("col_look")).toString());
+  }
+
   SaveConnections(writer);
 
   SaveInternal(writer);
@@ -295,12 +311,6 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
     return value.value<rational>().toString();
   case kFootage:
     return QString::number(reinterpret_cast<quintptr>(value.value<StreamPtr>().get()));
-  case kColor:
-  {
-    Color c = value.value<Color>();
-
-    return QStringLiteral("%1,%2,%3,%4").arg(c.red(), c.green(), c.blue(), c.alpha());
-  }
   default:
     if (value.canConvert<QString>()) {
       return value.toString();
@@ -323,20 +333,6 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
 QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string)
 {
   switch (data_type) {
-  case kColor:
-  {
-    Color c;
-
-    QStringList s = string.split(',');
-
-    int ele_count = qMin(kRGBAChannels, s.size());
-
-    for (int i=0;i<ele_count;i++) {
-      c.data()[i] = s.at(i).toFloat();
-    }
-
-    return QVariant::fromValue(c);
-  }
   case kRational:
     return QVariant::fromValue(rational::fromString(string));
   default:

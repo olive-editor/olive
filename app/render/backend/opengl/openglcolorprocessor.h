@@ -33,9 +33,9 @@ class OpenGLColorProcessor : public QObject, public ColorProcessor
 {
   Q_OBJECT
 public:
-  OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space);
+  OpenGLColorProcessor(ColorManager *config, const QString &source_space, const QString &dest_space);
 
-  OpenGLColorProcessor(OCIO::ConstConfigRcPtr config,
+  OpenGLColorProcessor(ColorManager *config,
                        const QString& source_space,
                        QString display,
                        QString view,
@@ -44,9 +44,9 @@ public:
 
   ~OpenGLColorProcessor();
 
-  static OpenGLColorProcessorPtr Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space);
+  static OpenGLColorProcessorPtr Create(ColorManager* config, const QString& source_space, const QString& dest_space);
 
-  static OpenGLColorProcessorPtr Create(OCIO::ConstConfigRcPtr config,
+  static OpenGLColorProcessorPtr Create(ColorManager* config,
                                         const QString& source_space,
                                         const QString& display,
                                         const QString& view,

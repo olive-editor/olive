@@ -27,6 +27,7 @@
 #include "colorvalueswidget.h"
 #include "render/color.h"
 #include "render/colormanager.h"
+#include "render/managedcolor.h"
 #include "widget/colorwheel/colorwheelwidget.h"
 #include "widget/colorwheel/colorgradientwidget.h"
 
@@ -55,14 +56,14 @@ public:
    *
    * QWidget parent.
    */
-  ColorDialog(ColorManager* color_manager, Color start = Color(1.0f, 1.0f, 1.0f), QString input_cs = QString(), QWidget* parent = nullptr);
+  ColorDialog(ColorManager* color_manager, const ManagedColor &start = Color(1.0f, 1.0f, 1.0f), QWidget* parent = nullptr);
 
   /**
    * @brief Retrieves the color selected by the user
    *
    * The color is always returned in the ColorManager's reference space (usually scene linear).
    */
-  Color GetSelectedColor() const;
+  ManagedColor GetSelectedColor() const;
 
   QString GetColorSpaceInput() const;
 

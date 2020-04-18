@@ -18,44 +18,44 @@
 
 ***/
 
-#ifndef COLORBUTTON_H
-#define COLORBUTTON_H
+#ifndef MANAGEDCOLOR_H
+#define MANAGEDCOLOR_H
 
-#include <QPushButton>
-
-#include "render/colormanager.h"
-#include "render/managedcolor.h"
+#include "color.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ColorButton : public QPushButton
+class ManagedColor : public Color
 {
-  Q_OBJECT
 public:
-  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr);
+  ManagedColor();
+  ManagedColor(const float& r, const float& g, const float& b, const float& a = 1.0f);
+  ManagedColor(const char *data, const PixelFormat::Format &format);
+  ManagedColor(const Color& c);
 
-  const ManagedColor& GetColor() const;
+  const QString& color_input() const;
+  void set_color_input(const QString &color_input);
 
-public slots:
-  void SetColor(const ManagedColor& c);
+  const QString& color_display() const;
+  void set_color_display(const QString &color_display);
 
-signals:
-  void ColorChanged(const ManagedColor& c);
+  const QString& color_view() const;
+  void set_color_view(const QString &color_view);
 
-private slots:
-  void ShowColorDialog();
+  const QString& color_look() const;
+  void set_color_look(const QString &color_look);
 
 private:
-  void UpdateColor();
+  QString color_input_;
 
-  ColorManager* color_manager_;
+  QString color_display_;
 
-  ManagedColor color_;
+  QString color_view_;
 
-  ColorProcessorPtr color_processor_;
+  QString color_look_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // COLORBUTTON_H
+#endif // MANAGEDCOLOR_H

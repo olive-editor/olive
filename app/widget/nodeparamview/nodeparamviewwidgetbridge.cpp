@@ -350,7 +350,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kColor:
   {
     // Sender is a ColorButton
-    Color c = static_cast<ColorButton*>(sender())->GetColor();
+    ManagedColor c = static_cast<ColorButton*>(sender())->GetColor();
 
     QUndoCommand* command = new QUndoCommand();
 
@@ -358,6 +358,13 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValueInternal(c.green(), 1, command);
     SetInputValueInternal(c.blue(), 2, command);
     SetInputValueInternal(c.alpha(), 3, command);
+
+    input_->blockSignals(true);
+    input_->set_property(QStringLiteral("col_input"), c.color_input());
+    input_->set_property(QStringLiteral("col_display"), c.color_display());
+    input_->set_property(QStringLiteral("col_view"), c.color_view());
+    input_->set_property(QStringLiteral("col_look"), c.color_look());
+    input_->blockSignals(false);
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
     break;
@@ -461,7 +468,14 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeParam::kColor:
   {
-    static_cast<ColorButton*>(widgets_.first())->SetColor(input_->get_value_at_time(node_time).value<Color>());
+    ManagedColor mc = input_->get_value_at_time(node_time).value<Color>();
+
+    mc.set_color_input(input_->get_property(QStringLiteral("col_input")).toString());
+    mc.set_color_display(input_->get_property(QStringLiteral("col_display")).toString());
+    mc.set_color_view(input_->get_property(QStringLiteral("col_view")).toString());
+    mc.set_color_look(input_->get_property(QStringLiteral("col_look")).toString());
+
+    static_cast<ColorButton*>(widgets_.first())->SetColor(mc);
     break;
   }
   case NodeParam::kText:

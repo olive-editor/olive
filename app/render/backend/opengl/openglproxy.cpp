@@ -97,7 +97,7 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
     OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
 
     if (!color_processor) {
-      color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager()->GetConfig(),
+      color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager(),
                                                      video_stream->colorspace(),
                                                      video_stream->footage()->project()->color_manager()->GetReferenceColorSpace());
       color_cache_.Add(colorspace_match, color_processor);

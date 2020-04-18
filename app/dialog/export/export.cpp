@@ -310,7 +310,7 @@ void ExportDialog::accept()
                                            audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
                                            SampleFormat::GetConfiguredFormatForMode(render_mode));
 
-  ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
+  ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_,
                                                              color_manager_->GetReferenceColorSpace(),
                                                              video_tab_->CurrentOCIODisplay(),
                                                              video_tab_->CurrentOCIOView(),

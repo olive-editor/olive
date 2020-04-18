@@ -50,14 +50,14 @@ public:
     data_[3] = a;
   }
 
+  Color(const char *data, const PixelFormat::Format &format);
+
   /**
    * @brief Creates a Color struct from hue/saturation/value
    *
    * Hue expects a value between 0.0 and 360.0. Saturation and Value expect a value between 0.0 and 1.0.
    */
   static Color fromHsv(const float& h, const float& s, const float &v);
-
-  Color(const char *data, const PixelFormat::Format &format);
 
   const float& red() const {return data_[0];}
   const float& green() const {return data_[1];}

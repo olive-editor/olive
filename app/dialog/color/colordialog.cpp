@@ -28,15 +28,11 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input_cs, QWidget *parent) :
+ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start, QWidget *parent) :
   QDialog(parent),
   color_manager_(color_manager)
 {
   setWindowTitle(tr("Select Color"));
-
-  if (input_cs.isEmpty()) {
-    input_cs = color_manager_->GetDefaultInputColorSpace();
-  }
 
   QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -64,7 +60,11 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input
   value_layout->addWidget(color_values_widget_);
 
   chooser_ = new ColorSpaceChooser(color_manager_);
-  chooser_->set_input(input_cs);
+  chooser_->set_input(start.color_input());
+  chooser_->set_display(start.color_display());
+  chooser_->set_view(start.color_view());
+  chooser_->set_look(start.color_look());
+
   value_layout->addWidget(chooser_);
 
   // Split window 50/50
@@ -84,18 +84,26 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
   layout->addWidget(buttons);
 
-  {
+  Color managed_start;
+
+  if (start.color_input().isEmpty()) {
+
+    managed_start = start;
+
+  } else {
+
     // Convert reference color to the input space
-    ColorProcessorPtr linear_to_input = ColorProcessor::Create(color_manager_->GetConfig(),
+    ColorProcessorPtr linear_to_input = ColorProcessor::Create(color_manager_,
                                                                color_manager_->GetReferenceColorSpace(),
-                                                               input_cs);
+                                                               start.color_input());
 
-    Color managed_start = linear_to_input->ConvertColor(start);
+    managed_start = linear_to_input->ConvertColor(start);
 
-    color_wheel_->SetSelectedColor(managed_start);
-    hsv_value_gradient_->SetSelectedColor(managed_start);
-    color_values_widget_->SetColor(managed_start);
   }
+
+  color_wheel_->SetSelectedColor(managed_start);
+  hsv_value_gradient_->SetSelectedColor(managed_start);
+  color_values_widget_->SetColor(managed_start);
 
   connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
   ColorSpaceChanged(chooser_->input(), chooser_->display(), chooser_->view(), chooser_->look());
@@ -104,16 +112,20 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input
   resize(sizeHint().height() * 2, sizeHint().height());
 }
 
-Color ColorDialog::GetSelectedColor() const
+ManagedColor ColorDialog::GetSelectedColor() const
 {
-  Color selected = color_wheel_->GetSelectedColor();
+  ManagedColor selected = color_wheel_->GetSelectedColor();
 
   // Convert to linear and return a linear color
   if (input_to_ref_processor_) {
-    return input_to_ref_processor_->ConvertColor(selected);
+    selected = input_to_ref_processor_->ConvertColor(selected);
   }
 
-  // Fallback if no processor is available
+  selected.set_color_input(GetColorSpaceInput());
+  selected.set_color_display(GetColorSpaceDisplay());
+  selected.set_color_view(GetColorSpaceView());
+  selected.set_color_look(GetColorSpaceLook());
+
   return selected;
 }
 
@@ -139,15 +151,15 @@ QString ColorDialog::GetColorSpaceLook() const
 
 void ColorDialog::ColorSpaceChanged(const QString &input, const QString &display, const QString &view, const QString &look)
 {
-  input_to_ref_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
+  input_to_ref_processor_ = ColorProcessor::Create(color_manager_, input, color_manager_->GetReferenceColorSpace());
 
-  ColorProcessorPtr ref_to_display = ColorProcessor::Create(color_manager_->GetConfig(),
+  ColorProcessorPtr ref_to_display = ColorProcessor::Create(color_manager_,
                                                             color_manager_->GetReferenceColorSpace(),
                                                             display,
                                                             view,
                                                             look);
 
-  ColorProcessorPtr ref_to_input = ColorProcessor::Create(color_manager_->GetConfig(), color_manager_->GetReferenceColorSpace(), input);
+  ColorProcessorPtr ref_to_input = ColorProcessor::Create(color_manager_, color_manager_->GetReferenceColorSpace(), input);
 
   // FIXME: For some reason, using OCIO::TRANSFORM_DIR_INVERSE (wrapped by ColorProcessor::kInverse) causes OCIO to
   //        crash. We've disabled that functionality for now (also disabling display_tab_ in ColorValuesWidget)

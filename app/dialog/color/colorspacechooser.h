@@ -40,6 +40,9 @@ public:
   QString look() const;
 
   void set_input(const QString& s);
+  void set_display(const QString& s);
+  void set_view(const QString& s);
+  void set_look(const QString& s);
 
 signals:
   void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
@@ -47,7 +50,7 @@ signals:
   void DisplayColorSpaceChanged(const QString& display, const QString& view, const QString& look);
 
 private slots:
-  void UpdateViews(const QString &s);
+  void UpdateViews(const QString &display);
 
 private:
   ColorManager* color_manager_;

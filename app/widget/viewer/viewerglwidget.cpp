@@ -404,7 +404,7 @@ void ViewerGLWidget::SetupColorProcessor()
 
     try {
 
-      color_service_ = OpenGLColorProcessor::Create(color_manager_->GetConfig(),
+      color_service_ = OpenGLColorProcessor::Create(color_manager_,
                                                     color_manager_->GetReferenceColorSpace(),
                                                     ocio_display_,
                                                     ocio_view_,
