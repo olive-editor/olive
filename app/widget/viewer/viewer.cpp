@@ -520,85 +520,114 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
   // Color options
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
-    QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
-    Menu* ocio_display_menu = new Menu(tr("Display"));
-    menu.addMenu(ocio_display_menu);
-    connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
-    foreach (const QString& d, displays) {
-      QAction* action = ocio_display_menu->addAction(d);
-      action->setCheckable(true);
-      action->setChecked(context_menu_widget_->ocio_display() == d);
-      action->setData(d);
+    {
+      QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
+
+      Menu* ocio_display_menu = new Menu(tr("Display"));
+      menu.addMenu(ocio_display_menu);
+      ocio_display_menu->setParent(&menu);
+
+      connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
+      foreach (const QString& d, displays) {
+        QAction* action = ocio_display_menu->addAction(d);
+        action->setCheckable(true);
+        action->setChecked(context_menu_widget_->ocio_display() == d);
+        action->setData(d);
+      }
     }
 
-    QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(context_menu_widget_->ocio_display());
-    Menu* ocio_view_menu = new Menu(tr("View"));
-    menu.addMenu(ocio_view_menu);
-    connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
-    foreach (const QString& v, views) {
-      QAction* action = ocio_view_menu->addAction(v);
-      action->setCheckable(true);
-      action->setChecked(context_menu_widget_->ocio_view() == v);
-      action->setData(v);
+    {
+      QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(context_menu_widget_->ocio_display());
+
+      Menu* ocio_view_menu = new Menu(tr("View"));
+      menu.addMenu(ocio_view_menu);
+      ocio_view_menu->setParent(&menu);
+
+      connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
+      foreach (const QString& v, views) {
+        QAction* action = ocio_view_menu->addAction(v);
+        action->setCheckable(true);
+        action->setChecked(context_menu_widget_->ocio_view() == v);
+        action->setData(v);
+      }
     }
 
-    QStringList looks = context_menu_widget_->color_manager()->ListAvailableLooks();
-    Menu* ocio_look_menu = new Menu(tr("Look"));
-    menu.addMenu(ocio_look_menu);
-    connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
-    QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
-    no_look_action->setCheckable(true);
-    no_look_action->setChecked(context_menu_widget_->ocio_look().isEmpty());
-    foreach (const QString& l, looks) {
-      QAction* action = ocio_look_menu->addAction(l);
-      action->setCheckable(true);
-      action->setChecked(context_menu_widget_->ocio_look() == l);
-      action->setData(l);
+    {
+      QStringList looks = context_menu_widget_->color_manager()->ListAvailableLooks();
+
+      Menu* ocio_look_menu = new Menu(tr("Look"));
+      menu.addMenu(ocio_look_menu);
+      ocio_look_menu->setParent(&menu);
+
+      connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
+      QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
+      no_look_action->setCheckable(true);
+      no_look_action->setChecked(context_menu_widget_->ocio_look().isEmpty());
+      foreach (const QString& l, looks) {
+        QAction* action = ocio_look_menu->addAction(l);
+        action->setCheckable(true);
+        action->setChecked(context_menu_widget_->ocio_look() == l);
+        action->setData(l);
+      }
     }
 
     menu.addSeparator();
   }
 
-  // Playback resolution
-  Menu* playback_resolution_menu = new Menu(tr("Resolution"));
-  menu.addMenu(playback_resolution_menu);
-  playback_resolution_menu->addAction(tr("Full"))->setData(1);
-  int dividers[] = {2, 4, 8, 16};
-  for (int i=0;i<4;i++) {
-    playback_resolution_menu->addAction(tr("1/%1").arg(dividers[i]))->setData(dividers[i]);
-  }
-  connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
+  {
+    // Playback resolution
+    Menu* playback_resolution_menu = new Menu(tr("Resolution"));
+    menu.addMenu(playback_resolution_menu);
+    playback_resolution_menu->setParent(&menu);
 
-  foreach (QAction* a, playback_resolution_menu->actions()) {
-    a->setCheckable(true);
-    if (a->data() == divider_) {
-      a->setChecked(true);
+    playback_resolution_menu->addAction(tr("Full"))->setData(1);
+    int dividers[] = {2, 4, 8, 16};
+    for (int i=0;i<4;i++) {
+      playback_resolution_menu->addAction(tr("1/%1").arg(dividers[i]))->setData(dividers[i]);
+    }
+    connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
+
+    foreach (QAction* a, playback_resolution_menu->actions()) {
+      a->setCheckable(true);
+      if (a->data() == divider_) {
+        a->setChecked(true);
+      }
     }
   }
 
-  // Viewer Zoom Level
-  Menu* zoom_menu = new Menu(tr("Zoom"));
-  menu.addMenu(zoom_menu);
-  int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
-  zoom_menu->addAction(tr("Fit"))->setData(0);
-  for (int i=0;i<8;i++) {
-    zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+  {
+    // Viewer Zoom Level
+    Menu* zoom_menu = new Menu(tr("Zoom"));
+    menu.addMenu(zoom_menu);
+    zoom_menu->setParent(&menu);
+
+    int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
+    zoom_menu->addAction(tr("Fit"))->setData(0);
+    for (int i=0;i<8;i++) {
+      zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+    }
+
+    connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
   }
-  connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
 
-  // Full Screen Menu
-  Menu* full_screen_menu = new Menu(tr("Full Screen"));
-  menu.addMenu(full_screen_menu);
-  for (int i=0;i<QGuiApplication::screens().size();i++) {
-    QScreen* s = QGuiApplication::screens().at(i);
+  {
+    // Full Screen Menu
+    Menu* full_screen_menu = new Menu(tr("Full Screen"));
+    menu.addMenu(full_screen_menu);
+    full_screen_menu->setParent(&menu);
 
-    QAction* a = full_screen_menu->addAction(tr("Screen %1: %2x%3").arg(QString::number(i),
-                                                                        QString::number(s->size().width()),
-                                                                        QString::number(s->size().height())));
+    for (int i=0;i<QGuiApplication::screens().size();i++) {
+      QScreen* s = QGuiApplication::screens().at(i);
 
-    a->setData(i);
+      QAction* a = full_screen_menu->addAction(tr("Screen %1: %2x%3").arg(QString::number(i),
+                                                                          QString::number(s->size().width()),
+                                                                          QString::number(s->size().height())));
+
+      a->setData(i);
+    }
+
+    connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
   }
-  connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
 
   menu.addSeparator();
 
@@ -606,6 +635,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     // Safe Margins
     Menu* safe_margin_menu = new Menu(tr("Safe Margins"));
     menu.addMenu(safe_margin_menu);
+    safe_margin_menu->setParent(&menu);
 
     QAction* safe_margin_off = safe_margin_menu->addAction(tr("Off"));
     safe_margin_off->setCheckable(true);

@@ -99,6 +99,7 @@ Menu *NodeFactory::CreateMenu()
       // Create menu here if it doesn't exist
       if (!found_cat) {
         Menu* new_category = new Menu(dir_name);
+        new_category->setParent(destination);
         destination->InsertAlphabetically(new_category);
         destination = new_category;
       }
