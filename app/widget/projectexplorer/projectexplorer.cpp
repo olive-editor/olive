@@ -32,6 +32,7 @@
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -235,11 +236,18 @@ void ProjectExplorer::RenameTimerSlot()
 void ProjectExplorer::ShowContextMenu()
 {
   Menu menu;
+  Menu new_menu;
 
   // FIXME: Support for multiple items and items other than Footage
   QList<Item*> selected_items = SelectedItems();
 
   if (selected_items.isEmpty()) {
+    new_menu.setTitle(tr("&New"));
+    MenuShared::instance()->AddItemsForNewMenu(&new_menu);
+    menu.addMenu(&new_menu);
+
+    menu.addSeparator();
+
     // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
     QAction* import_action = menu.addAction(tr("&Import..."));
     connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
