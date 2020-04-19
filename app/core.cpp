@@ -31,6 +31,7 @@
 #include <QStyleFactory>
 
 #include "audio/audiomanager.h"
+#include "cli/clitask/clitaskdialog.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
@@ -67,7 +68,8 @@ Core::Core() :
   main_window_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
-  snapping_(true)
+  snapping_(true),
+  gui_active_(false)
 {
 }
 
@@ -76,7 +78,7 @@ Core *Core::instance()
   return &instance_;
 }
 
-void Core::Start()
+bool Core::Start()
 {
   //
   // Parse command line arguments
@@ -97,6 +99,10 @@ void Core::Start()
   QCommandLineOption fullscreen_option({"f", "fullscreen"}, tr("Start in full screen mode"));
   parser.addOption(fullscreen_option);
 
+  // Create headless export option
+  QCommandLineOption headless_export_option({"x", "export"}, tr("Export project from command line"));
+  parser.addOption(headless_export_option);
+
   // Parse options
   parser.process(*app);
 
@@ -115,6 +121,12 @@ void Core::Start()
 
   // Set up the index manager for renderers
   IndexManager::CreateInstance();
+
+  // Initialize disk service
+  DiskManager::CreateInstance();
+
+  // Initialize task manager
+  TaskManager::CreateInstance();
 
   // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
   //               the fact that some of the config paths set by default rely on the app name having been set (in main())
@@ -139,26 +151,56 @@ void Core::Start()
 
 
   //
-  // Start GUI (FIXME CLI mode)
+  // Start application
   //
 
-  StartGUI(parser.isSet(fullscreen_option));
+  qInfo() << "Using Qt version:" << qVersion();
 
-  // Load startup project
-  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
-    QMessageBox::warning(main_window(),
-                         tr("Failed to open startup file"),
-                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
-                         QMessageBox::Ok);
+  gui_active_ = !parser.isSet(headless_export_option);
 
-    startup_project_.clear();
-  }
+  if (gui_active_) {
 
-  if (startup_project_.isEmpty()) {
-    // If no load project is set, create a new one on open
-    CreateNewProject();
+    // Start GUI
+    StartGUI(parser.isSet(fullscreen_option));
+
+    // Load startup project
+    if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+      QMessageBox::warning(main_window(),
+                           tr("Failed to open startup file"),
+                           tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                           QMessageBox::Ok);
+
+      startup_project_.clear();
+    }
+
+    if (startup_project_.isEmpty()) {
+      // If no load project is set, create a new one on open
+      CreateNewProject();
+    } else {
+      OpenProjectInternal(startup_project_);
+    }
+
+    return true;
+
   } else {
-    OpenProjectInternal(startup_project_);
+
+    if (parser.isSet(headless_export_option)) {
+
+      if (startup_project_.isEmpty()) {
+        qCritical().noquote() << tr("You must specify a project file to export");
+      } else {
+        OpenProjectInternal(startup_project_);
+
+        qDebug() << "Ready for exporting!";
+
+        return true;
+      }
+
+    }
+
+    // Error fallback
+    return false;
+
   }
 }
 
@@ -525,12 +567,6 @@ void Core::StartGUI(bool full_screen)
   // Initialize audio service
   AudioManager::CreateInstance();
 
-  // Initialize disk service
-  DiskManager::CreateInstance();
-
-  // Initialize task manager
-  TaskManager::CreateInstance();
-
   // Initialize pixel service
   PixelFormat::CreateInstance();
 
@@ -843,12 +879,22 @@ void Core::OpenProjectInternal(const QString &filename)
 
   ProjectLoadManager* plm = new ProjectLoadManager(filename);
 
-  // We use a blocking queued connection here because we want to ensure we have this project instance before the
-  // ProjectLoadManager is destroyed
-  connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
+  if (gui_active_) {
 
-  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
-  task_dialog->open();
+    // We use a blocking queued connection here because we want to ensure we have this project instance before the
+    // ProjectLoadManager is destroyed
+    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
+
+    TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+    task_dialog->open();
+
+  } else {
+
+    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
+
+    CLITaskDialog task_dialog(plm);
+
+  }
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)

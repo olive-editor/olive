@@ -66,8 +66,6 @@ int main(int argc, char *argv[]) {
   app_version.append(GITHASH);
 #endif
 
-  qInfo() << "Using Qt version:" << qVersion();
-
   QCoreApplication::setApplicationVersion(app_version);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
@@ -85,11 +83,20 @@ int main(int argc, char *argv[]) {
   avfilter_register_all();
 #endif
 
-  // Start core
-  OLIVE_NAMESPACE::Core::instance()->Start();
+  int exit_code;
 
-  // Run application loop and receive exit code
-  int exit_code = a.exec();
+  // Start core
+  if (OLIVE_NAMESPACE::Core::instance()->Start()) {
+
+    // Run application loop and receive exit code
+    exit_code = a.exec();
+
+  } else {
+
+    // Core failed to start, exit now
+    exit_code = 1;
+
+  }
 
   // Clear core memory
   OLIVE_NAMESPACE::Core::instance()->Stop();
