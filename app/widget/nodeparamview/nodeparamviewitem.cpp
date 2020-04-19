@@ -157,7 +157,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
 
       NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(static_cast<NodeInputArray*>(input)->sub_params());
       sub_body->layout()->setMargin(0);
-      content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col);
+      content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col + 1);
 
       connect(array_collapse_btn, &CollapseButton::toggled, sub_body, &NodeParamViewItemBody::setVisible);
 
