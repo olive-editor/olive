@@ -24,6 +24,7 @@
 #include <QStyleFactory>
 
 #include "common/timecodefunctions.h"
+#include "config/config.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"
 #include "panel/panelmanager.h"
@@ -152,7 +153,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   //
   // PLAYBACK MENU
   //
-  playback_menu_ = new Menu(this);
+  playback_menu_ = new Menu(this, this, &MainMenu::PlaybackMenuAboutToShow);
   playback_gotostart_item_ = playback_menu_->AddItem("gotostart", this, &MainMenu::GoToStartTriggered, "Home");
   playback_prevframe_item_ = playback_menu_->AddItem("prevframe", this, &MainMenu::PrevFrameTriggered, "Left");
   playback_playpause_item_ = playback_menu_->AddItem("playpause", this, &MainMenu::PlayPauseTriggered, "Space");
@@ -179,7 +180,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   playback_menu_->addSeparator();
 
   playback_loop_item_ = playback_menu_->AddItem("loop", this, &MainMenu::LoopTriggered);
-  //Menu::SetBooleanAction(playback_loop_item_, &olive::config.loop);
+  playback_loop_item_->setCheckable(true);
 
   //
   // WINDOW MENU
@@ -359,6 +360,11 @@ void MainMenu::ToolsMenuAboutToShow()
   tools_snapping_item_->setChecked(Core::instance()->snapping());
 }
 
+void MainMenu::PlaybackMenuAboutToShow()
+{
+  playback_loop_item_->setChecked(Config::Current()["Loop"].toBool());
+}
+
 void MainMenu::WindowMenuAboutToShow()
 {
   // QMainWindow generates a perfectly usable menu for this purpose, we just need to copy it to the window menu
@@ -450,12 +456,12 @@ void MainMenu::PlayPauseTriggered()
 
 void MainMenu::PlayInToOutTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->PlayInToOut();
 }
 
-void MainMenu::LoopTriggered()
+void MainMenu::LoopTriggered(bool enabled)
 {
-  qDebug() << "FIXME: Stub";
+  Config::Current()["Loop"] = enabled;
 }
 
 void MainMenu::NextFrameTriggered()

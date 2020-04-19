@@ -60,6 +60,8 @@ public:
 
   virtual void PlayPause() override;
 
+  virtual void PlayInToOut() override;
+
   virtual void ShuttleLeft() override;
 
   virtual void ShuttleStop() override;
@@ -95,6 +97,8 @@ signals:
   void TimebaseChanged(const rational& timebase);
 
   void PlayPauseRequested();
+
+  void PlayInToOutRequested();
 
   void ShuttleLeftRequested();
 

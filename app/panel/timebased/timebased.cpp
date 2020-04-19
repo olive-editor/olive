@@ -88,6 +88,11 @@ void TimeBasedPanel::PlayPause()
   emit PlayPauseRequested();
 }
 
+void TimeBasedPanel::PlayInToOut()
+{
+  emit PlayInToOutRequested();
+}
+
 void TimeBasedPanel::ShuttleLeft()
 {
   emit ShuttleLeftRequested();

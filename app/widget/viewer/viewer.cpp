@@ -84,7 +84,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   controls_ = new PlaybackControls();
   controls_->SetTimecodeEnabled(true);
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  connect(controls_, &PlaybackControls::PlayClicked, this, &ViewerWidget::Play);
+  connect(controls_, &PlaybackControls::PlayClicked, this, static_cast<void(ViewerWidget::*)()>(&ViewerWidget::Play));
   connect(controls_, &PlaybackControls::PauseClicked, this, &ViewerWidget::Pause);
   connect(controls_, &PlaybackControls::PrevFrameClicked, this, &ViewerWidget::PrevFrame);
   connect(controls_, &PlaybackControls::NextFrameClicked, this, &ViewerWidget::NextFrame);
@@ -332,7 +332,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   }
 }
 
-void ViewerWidget::PlayInternal(int speed)
+void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 {
   Q_ASSERT(speed != 0);
 
@@ -342,6 +342,7 @@ void ViewerWidget::PlayInternal(int speed)
   }
 
   playback_speed_ = speed;
+  play_in_to_out_only_ = in_to_out_only;
 
   QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
   if (audio_src != nullptr && audio_src->open(QIODevice::ReadOnly)) {
@@ -649,9 +650,21 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }
 
+void ViewerWidget::Play(bool in_to_out_only)
+{
+  if (in_to_out_only
+      && GetConnectedTimelinePoints()
+      && GetConnectedTimelinePoints()->workarea()->enabled()) {
+    // Jump to in point
+    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase()));
+  }
+
+  PlayInternal(1, in_to_out_only);
+}
+
 void ViewerWidget::Play()
 {
-  PlayInternal(1);
+  Play(false);
 }
 
 void ViewerWidget::Pause()
@@ -683,7 +696,7 @@ void ViewerWidget::ShuttleLeft()
     current_speed--;
   }
 
-  PlayInternal(current_speed);
+  PlayInternal(current_speed, false);
 }
 
 void ViewerWidget::ShuttleStop()
@@ -705,7 +718,7 @@ void ViewerWidget::ShuttleRight()
     current_speed++;
   }
 
-  PlayInternal(current_speed);
+  PlayInternal(current_speed, false);
 }
 
 void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
@@ -773,12 +786,64 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   int64_t current_time = start_timestamp_ + frames_since_start * playback_speed_;
 
-  if (current_time < 0) {
-    SetTimeAndSignal(0);
+  int64_t min_time, max_time;
+
+  {
+    if ((play_in_to_out_only_ || Config::Current()["Loop"].toBool())
+        && GetConnectedTimelinePoints()
+        && GetConnectedTimelinePoints()->workarea()->enabled()) {
+
+      // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
+      min_time = Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase());
+      max_time = Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->out(), timebase());
+
+    } else {
+
+      // Otherwise set the bounds to the range of the sequence
+      min_time = 0;
+      max_time = Timecode::time_to_timestamp(GetConnectedNode()->Length(), timebase());
+
+    }
+  }
+
+  if ((playback_speed_ < 0 && current_time <= min_time)
+      || (playback_speed_ > 0 && current_time >= max_time)) {
+
+    // Determine which timestamp we tripped
+    int64_t tripped_time;
+
+    if (current_time <= min_time) {
+      tripped_time = min_time;
+    } else {
+      tripped_time = max_time;
+    }
+
+    if (Config::Current()["Loop"].toBool()) {
+
+      // If we're looping, jump to the other side of the workarea and continue
+      int64_t opposing_time = (tripped_time == min_time) ? max_time : min_time;
+
+      // Cache the current speed
+      int current_speed = playback_speed_;
+
+      // Jump to the other side and keep playing at the same speed
+      SetTimeAndSignal(opposing_time);
+      PlayInternal(current_speed, play_in_to_out_only_);
+
+    } else {
+
+      // Pause at the boundary
+      SetTimeAndSignal(tripped_time);
+
+    }
+
   } else {
+
+    // Sets time, wrapping in this bool ensures we don't pause from setting the time
     time_changed_from_timer_ = true;
     SetTimeAndSignal(current_time);
     time_changed_from_timer_ = false;
+
   }
 }
 

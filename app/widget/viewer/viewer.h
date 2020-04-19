@@ -83,6 +83,8 @@ public:
   VideoRenderBackend* video_renderer() const;
 
 public slots:
+  void Play(bool in_to_out_only);
+
   void Play();
 
   void Pause();
@@ -152,7 +154,7 @@ private:
 
   void UpdateTextureFromNode(const rational &time);
 
-  void PlayInternal(int speed);
+  void PlayInternal(int speed, bool in_to_out_only);
 
   void PushScrubbedAudio();
 
@@ -185,6 +187,8 @@ private:
   ColorManager* override_color_manager_;
 
   bool time_changed_from_timer_;
+
+  bool play_in_to_out_only_;
 
   AudioWaveformView* waveform_view_;
 

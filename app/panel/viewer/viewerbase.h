@@ -35,6 +35,8 @@ public:
 
   virtual void PlayPause() override;
 
+  virtual void PlayInToOut() override;
+
   virtual void ShuttleLeft() override;
 
   virtual void ShuttleStop() override;

@@ -81,6 +81,7 @@ void Config::SetDefaults()
   config_map_["SetNameWithMarker"] = false;
   config_map_["RectifiedWaveforms"] = false;
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
+  config_map_["Loop"] = false;
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   config_map_["DiskCacheSize"] = 20.0;

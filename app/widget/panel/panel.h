@@ -91,6 +91,8 @@ public:
    */
   virtual void PlayPause(){}
 
+  virtual void PlayInToOut(){}
+
   virtual void NextFrame(){}
 
   virtual void GoToEnd(){}

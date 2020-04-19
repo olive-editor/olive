@@ -85,6 +85,11 @@ private slots:
   void ToolsMenuAboutToShow();
 
   /**
+   * @brief PlaybackMenuAboutToShow
+   */
+  void PlaybackMenuAboutToShow();
+
+  /**
    * @brief Slot triggered just before the Window menu shows
    */
   void WindowMenuAboutToShow();
@@ -133,7 +138,7 @@ private slots:
 
   void PlayInToOutTriggered();
 
-  void LoopTriggered();
+  void LoopTriggered(bool enabled);
 
   void NextFrameTriggered();
   void GoToEndTriggered();
