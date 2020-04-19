@@ -242,7 +242,11 @@ void NodeParamViewItemBody::SetTimeTarget(Node *target)
 void NodeParamViewItemBody::SetTime(const rational &time)
 {
   foreach (const InputUI& ui_obj, input_ui_map_) {
-    ui_obj.key_control->SetTime(time);
+    // Only keyframable inputs have a key control widget
+    if (ui_obj.key_control) {
+      ui_obj.key_control->SetTime(time);
+    }
+
     ui_obj.widget_bridge->SetTime(time);
   }
 
