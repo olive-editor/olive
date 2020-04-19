@@ -175,8 +175,6 @@ private slots:
   void GoToInTriggered();
   void GoToOutTriggered();
 
-  void DebugLogTriggered();
-
   void OpenRecentItemTriggered();
 
 private:
@@ -271,7 +269,6 @@ private:
 
   Menu* help_menu_;
   QAction* help_action_search_item_;
-  QAction* help_debug_log_item_;
   QAction* help_about_item_;
 
 };

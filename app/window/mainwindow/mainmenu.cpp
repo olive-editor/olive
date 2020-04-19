@@ -267,8 +267,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   help_menu_ = new Menu(this);
   help_action_search_item_ = help_menu_->AddItem("actionsearch", this, &MainMenu::ActionSearchTriggered, "/");
   help_menu_->addSeparator();
-  help_debug_log_item_ = help_menu_->AddItem("debuglog", this, &MainMenu::DebugLogTriggered);
-  help_menu_->addSeparator();
   help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
 
   Retranslate();
@@ -581,11 +579,6 @@ void MainMenu::GoToOutTriggered()
   PanelManager::instance()->CurrentlyFocused()->GoToOut();
 }
 
-void MainMenu::DebugLogTriggered()
-{
-  qDebug() << "FIXME: Stub";
-}
-
 void MainMenu::OpenRecentItemTriggered()
 {
   Core::instance()->OpenProjectFromRecentList(static_cast<QAction*>(sender())->data().toInt());
@@ -683,7 +676,6 @@ void MainMenu::Retranslate()
   // Help menu
   help_menu_->setTitle(tr("&Help"));
   help_action_search_item_->setText(tr("A&ction Search"));
-  help_debug_log_item_->setText(tr("Debug Log"));
   help_about_item_->setText(tr("&About..."));
 }
 
