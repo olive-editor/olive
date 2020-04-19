@@ -52,7 +52,7 @@ Menu::Menu(const QString &s, QWidget *parent) :
 
 QAction* Menu::InsertAlphabetically(const QString &s)
 {
-  QAction* action = new QAction(s);
+  QAction* action = new QAction(s, this);
   InsertAlphabetically(action);
   return action;
 }
@@ -73,9 +73,7 @@ void Menu::InsertAlphabetically(QAction *entry)
 
 void Menu::InsertAlphabetically(Menu *menu)
 {
-  QAction* action = new QAction(menu->title());
-  action->setMenu(menu);
-  InsertAlphabetically(action);
+  InsertAlphabetically(menu->menuAction());
 }
 
 void Menu::ConformItem(QAction *a, const QString &id, const QString &key)

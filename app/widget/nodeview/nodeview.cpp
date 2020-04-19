@@ -305,11 +305,10 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   Menu m;
 
-  Menu* add_menu = NodeFactory::CreateMenu();
+  Menu* add_menu = NodeFactory::CreateMenu(&m);
   add_menu->setTitle(tr("Add"));
   connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
   m.addMenu(add_menu);
-  add_menu->setParent(&m);
 
   m.exec(mapToGlobal(pos));
 }

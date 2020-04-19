@@ -63,9 +63,9 @@ void NodeFactory::Destroy()
   library_.clear();
 }
 
-Menu *NodeFactory::CreateMenu()
+Menu *NodeFactory::CreateMenu(QWidget* parent)
 {
-  Menu* menu = new Menu();
+  Menu* menu = new Menu(parent);
   menu->setToolTipsVisible(true);
 
   for (int i=0;i<library_.size();i++) {
@@ -98,8 +98,7 @@ Menu *NodeFactory::CreateMenu()
 
       // Create menu here if it doesn't exist
       if (!found_cat) {
-        Menu* new_category = new Menu(dir_name);
-        new_category->setParent(destination);
+        Menu* new_category = new Menu(dir_name, destination);
         destination->InsertAlphabetically(new_category);
         destination = new_category;
       }

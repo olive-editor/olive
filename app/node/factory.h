@@ -55,7 +55,7 @@ public:
 
   static void Destroy();
 
-  static Menu* CreateMenu();
+  static Menu* CreateMenu(QWidget *parent);
 
   static Node* CreateFromMenuAction(QAction* action);
 
