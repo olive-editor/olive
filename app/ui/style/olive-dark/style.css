@@ -23,14 +23,49 @@ QPushButton:checked {
   background: #191919;
 }
 
-/* Node styling */
-NodeViewItemWidget {
-  qproperty-titlebarColor: #4040a0;
-  qproperty-borderColor: #000000;
+/* Node styling - Follow Directory Convetion */
+NodeDefaultStyleWidget {
+  qproperty-titlebarColor: rgb(25%, 25%, 65%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeBlockClipStyle {
+  qproperty-titlebarColor: rgb(60%, 60%, 85%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeDistortTransformStyle {
+  qproperty-titlebarColor: rgb(75%, 75%, 45%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeInputMediaVideoStyle {
+  qproperty-titlebarColor: rgb(60%, 60%, 25%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeInputMediaAudioStyle {
+  qproperty-titlebarColor: rgb(25%, 50%, 25%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeAudioVolumeStyle {
+  qproperty-titlebarColor: rgb(25%, 65%, 25%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeOutputTrackStyle {
+  qproperty-titlebarColor: rgb(35%, 35%, 35%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeOutputViewerStyle {
+  qproperty-titlebarColor: rgb(45%, 45%, 45%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
 }
 
 /* Timeline playhead styling */
 TimelinePlayhead {
-  qproperty-playheadColor: #ff0000;
-  qproperty-playheadHighlightColor: rgba(255, 255, 255, 0.2);
+  qproperty-playheadColor: rgb(100%, 0%, 0%);
+  qproperty-playheadHighlightColor: rgba(100%, 100%, 100%, 20%);
 }

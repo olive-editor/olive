@@ -22,6 +22,9 @@
 #define NODEVIEWITEMWIDGETPROXY_H
 
 #include <QWidget>
+#include <QMap>
+
+class NodeStylesRegistry;
 
 /**
  * @brief A proxy object to allow NodeViewItem access to CSS functions
@@ -29,21 +32,85 @@
  * QGraphicsItems can't take Q_PROPERTYs for CSS stylesheet input, but QWidgets can. This is a hack to allow CSS
  * properties to be set from CSS and then read by NodeViewItem.
  */
-class NodeViewItemWidget : public QWidget {
+class NodeDefaultStyleWidget : public QWidget {
   Q_OBJECT
   Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
   Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
 public:
-  NodeViewItemWidget() = default;
+  // NodeDefaultStyleWidget(QWidget* parent = nullptr);
+  NodeDefaultStyleWidget() = default;
 
   QColor TitleBarColor();
   void SetTitleBarColor(QColor color);
 
   QColor BorderColor();
   void SetBorderColor(QColor color);
+
 private:
   QColor title_bar_color_;
   QColor border_color_;
+};
+
+// Follow directory structure, prefix with Node.
+class NodeInputMediaAudioStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeInputMediaVideoStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeAudioVolumeStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeDistortTransformStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeOutputTrackStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeOutputViewerStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeBlockClipStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeStylesRegistry : public QWidget {
+public:
+  NodeStylesRegistry(QWidget* parent = nullptr);
+
+  static NodeStylesRegistry* GetRegistry(void);
+  NodeDefaultStyleWidget* GetStyle(QString id);
+private:
+  NodeDefaultStyleWidget default_style_;
+  NodeDistortTransformStyle distort_transform_style_;
+  NodeInputMediaAudioStyle input_media_audio_style_;
+  NodeInputMediaVideoStyle input_media_video_style_;
+  NodeOutputTrackStyle output_track_style_;
+  NodeOutputViewerStyle output_viewer_style_;
+  NodeAudioVolumeStyle audio_volume_style_;
+  NodeBlockClipStyle block_clip_style_;
+
+  QMap<QString, NodeDefaultStyleWidget*> registry_;
 };
 
 #endif // NODEVIEWITEMWIDGETPROXY_H

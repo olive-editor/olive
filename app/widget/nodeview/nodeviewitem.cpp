@@ -40,6 +40,7 @@ OLIVE_NAMESPACE_ENTER
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
+  css_proxy_(nullptr),
   dragging_edge_(nullptr),
   cached_drop_item_(nullptr),
   cached_drop_item_expanded_(false),
@@ -69,6 +70,9 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
   int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHH");
 
+  // Set the css_proxy_ to the non-null default style
+  css_proxy_ = NodeStylesRegistry::GetRegistry()->GetStyle(0);
+
   // Use the current default font height to size this widget
   // Set default "collapsed" size
   int widget_height = font_metrics.height() + node_text_padding * 2;
@@ -85,6 +89,8 @@ void NodeViewItem::SetNode(Node *n)
 
   if (node_) {
     node_->Retranslate();
+
+    css_proxy_ = NodeStylesRegistry::GetRegistry()->GetStyle(node_->id());
 
     foreach (NodeParam* p, node_->parameters()) {
       if (p->type() == NodeParam::kInput) {
@@ -152,13 +158,13 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     if (option->state & QStyle::State_Selected) {
       border_pen.setColor(app_pal.color(QPalette::Highlight));
     } else {
-      border_pen.setColor(css_proxy_.BorderColor());
+      border_pen.setColor(css_proxy_->BorderColor());
     }
 
     if (IsExpanded()) {
       bkg_color = app_pal.color(QPalette::Window);
     } else {
-      bkg_color = css_proxy_.TitleBarColor();
+      bkg_color = css_proxy_->TitleBarColor();
     }
 
     painter->setPen(border_pen);
