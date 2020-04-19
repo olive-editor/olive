@@ -111,7 +111,7 @@ private:
    *
    * \see NodeViewItemWidget
    */
-  NodeViewItemWidget css_proxy_;
+  NodeDefaultStyleWidget* css_proxy_;
 
   /**
    * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)
