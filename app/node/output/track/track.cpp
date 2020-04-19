@@ -44,6 +44,7 @@ TrackOutput::TrackOutput() :
 
   muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
   muted_input_->set_is_keyframable(false);
+  connect(muted_input_, &NodeInput::ValueChanged, this, &TrackOutput::MutedInputValueChanged);
   AddInput(muted_input_);
 
   // Set default height
@@ -572,6 +573,11 @@ void TrackOutput::BlockLengthChanged()
   Q_ASSERT(index >= 0);
 
   UpdateInOutFrom(index);
+}
+
+void TrackOutput::MutedInputValueChanged()
+{
+  emit MutedChanged(IsMuted());
 }
 
 OLIVE_NAMESPACE_EXIT

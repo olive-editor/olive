@@ -178,6 +178,11 @@ signals:
    */
   void TrackHeightChanged(int height);
 
+  /**
+   * @brief Signal emitted when the muted setting changes
+   */
+  void MutedChanged(bool e);
+
 protected:
 
 private:
@@ -213,6 +218,8 @@ private slots:
   void BlockListSizeChanged(int size);
 
   void BlockLengthChanged();
+
+  void MutedInputValueChanged();
 
 };
 

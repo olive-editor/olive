@@ -60,6 +60,8 @@ TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());
+
+  connect(track, &TrackOutput::MutedChanged, mute_button_, &QPushButton::setChecked);
 }
 
 QPushButton *TrackViewItem::CreateMSLButton(const QString& text, const QColor& checked_color) const
