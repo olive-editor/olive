@@ -57,7 +57,8 @@ ScopePanel::ScopePanel(QWidget* parent) :
   stack_->addWidget(waveform_view_);
 
   // Create histogram
-  stack_->addWidget(new QWidget());
+  histogram_ = new HistogramScope();
+  stack_->addWidget(histogram_);
 
   connect(scope_type_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), stack_, &QStackedWidget::setCurrentIndex);
 
@@ -86,6 +87,11 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
 void ScopePanel::DrewManagedTexture(OpenGLTexture *texture)
 {
   waveform_view_->SetTexture(texture);
+}
+
+void ScopePanel::SetBuffer(Frame *frame)
+{
+  histogram_->SetBuffer(frame);
 }
 
 void ScopePanel::Retranslate()

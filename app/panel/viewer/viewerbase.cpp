@@ -106,6 +106,7 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 
   // Connect viewer widget texture drawing to scope panel
   connect(vw, &ViewerWidget::DrewManagedTexture, p, &ScopePanel::DrewManagedTexture);
+  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetBuffer);
 
   if (!scope_panel_count_) {
     vw->SetEmitDrewManagedTextureEnabled(true);

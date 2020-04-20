@@ -25,6 +25,7 @@
 #include <QStackedWidget>
 
 #include "widget/panel/panel.h"
+#include "widget/scope/histogram/histogram.h"
 #include "widget/scope/waveform/waveform.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -51,6 +52,8 @@ public:
 public slots:
   void DrewManagedTexture(OpenGLTexture* texture);
 
+  void SetBuffer(Frame* frame);
+
 protected:
   virtual void Retranslate() override;
 
@@ -62,6 +65,8 @@ private:
   QComboBox* scope_type_combobox_;
 
   WaveformScope* waveform_view_;
+
+  HistogramScope* histogram_;
 
 };
 

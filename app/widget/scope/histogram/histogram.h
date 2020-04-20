@@ -21,11 +21,40 @@
 #ifndef HISTOGRAMSCOPE_H
 #define HISTOGRAMSCOPE_H
 
+#include <QMutex>
 #include <QOpenGLWidget>
+#include <QThread>
+#include <QWaitCondition>
 
 #include "codec/frame.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class HistogramScopeWorker : public QThread
+{
+  Q_OBJECT
+public:
+  HistogramScopeWorker();
+
+  virtual void run() override;
+
+  // Thread-safe
+  void QueueNext(const Frame& f, int width);
+
+  void Cancel();
+
+signals:
+  void Finished(QVector<double> red, QVector<double> green, QVector<double> blue);
+
+private:
+  QAtomicInt cancelled_;
+
+  QMutex next_lock_;
+  QWaitCondition next_wait_;
+  Frame next_;
+  int next_width_;
+
+};
 
 class HistogramScope : public QOpenGLWidget
 {
@@ -33,14 +62,32 @@ class HistogramScope : public QOpenGLWidget
 public:
   HistogramScope(QWidget* parent = nullptr);
 
+  virtual ~HistogramScope() override;
+
 public slots:
   void SetBuffer(Frame* frame);
 
 protected:
+//  virtual void paintEvent(QPaintEvent* e) override;
   virtual void paintGL() override;
 
+  virtual void resizeEvent(QResizeEvent* e) override;
+
 private:
+  void StartUpdate();
+
   Frame* buffer_;
+
+  QVector<double> red_val_;
+
+  QVector<double> green_val_;
+
+  QVector<double> blue_val_;
+
+  HistogramScopeWorker worker_;
+
+private slots:
+  void FinishedProcessing(QVector<double> red, QVector<double> green, QVector<double> blue);
 
 };
 
