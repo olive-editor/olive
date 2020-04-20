@@ -53,8 +53,7 @@ public:
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
 public slots:
-  // FIXME: Rename this to SetTimestamp to reduce confusion
-  void SetTime(int64_t timestamp);
+  void SetTimestamp(int64_t timestamp);
 
   void SetTimebase(const rational& timebase);
 

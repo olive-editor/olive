@@ -29,6 +29,7 @@
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
+#include "panel/scope/scope.h"
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
@@ -63,13 +64,15 @@ public:
 
   bool IsSequenceOpen(Sequence* sequence) const;
 
+  void FolderOpen(Project* p, Item* i, bool floating);
+
+  ScopePanel* AppendScopePanel();
+
 #ifdef Q_OS_WINDOWS
   void SetTaskbarButtonState(TBPFLAG flags);
 
   void SetTaskbarButtonProgress(int value, int max);
 #endif
-
-  void FolderOpen(Project* p, Item* i, bool floating);
 
 public slots:
   void ProjectOpen(Project *p);
@@ -121,6 +124,7 @@ private:
   TaskManagerPanel* task_man_panel_;
   CurvePanel* curve_panel_;
   PixelSamplerPanel* pixel_sampler_panel_;
+  QList<ScopePanel*> scope_panels_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -138,6 +142,8 @@ private slots:
   void ProjectCloseRequested();
 
   void FolderCloseRequested();
+
+  void ScopeCloseRequested();
 
   void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 

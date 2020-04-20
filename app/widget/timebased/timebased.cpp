@@ -204,7 +204,7 @@ void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
   timeline_views_.append(base);
 }
 
-void TimeBasedWidget::SetTime(int64_t timestamp)
+void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
   ruler_->SetTime(timestamp);
 
@@ -325,7 +325,7 @@ void TimeBasedWidget::GoToEnd()
 
 void TimeBasedWidget::SetTimeAndSignal(const int64_t &t)
 {
-  SetTime(t);
+  SetTimestamp(t);
   emit TimeChanged(t);
 }
 

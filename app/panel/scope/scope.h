@@ -18,27 +18,53 @@
 
 ***/
 
-#include "viewer.h"
+#ifndef SCOPE_PANEL_H
+#define SCOPE_PANEL_H
+
+#include <QComboBox>
+#include <QStackedWidget>
+
+#include "widget/panel/panel.h"
+#include "widget/scope/waveform/waveform.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
-  ViewerPanelBase(object_name, parent)
+class ViewerPanel;
+
+class ScopePanel : public PanelWidget
 {
-  // Set ViewerWidget as the central widget
-  ViewerWidget* vw = new ViewerWidget();
-  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(vw);
+  Q_OBJECT
+public:
+  enum Type {
+    kTypeWaveform,
+    kTypeHistogram,
 
-  // Set strings
-  Retranslate();
-}
+    kTypeCount
+  };
 
-void ViewerPanel::Retranslate()
-{
-  ViewerPanelBase::Retranslate();
+  ScopePanel(QWidget* parent = nullptr);
 
-  SetTitle(tr("Viewer"));
-}
+  void SetType(Type t);
+
+  static QString TypeToName(Type t);
+
+public slots:
+  void DrewManagedTexture(OpenGLTexture* texture);
+
+protected:
+  virtual void Retranslate() override;
+
+private:
+  Type type_;
+
+  QStackedWidget* stack_;
+
+  QComboBox* scope_type_combobox_;
+
+  WaveformScope* waveform_view_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // SCOPE_PANEL_H

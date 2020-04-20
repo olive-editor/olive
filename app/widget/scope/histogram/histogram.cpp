@@ -18,27 +18,25 @@
 
 ***/
 
-#include "viewer.h"
+#include "histogram.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
-  ViewerPanelBase(object_name, parent)
+HistogramScope::HistogramScope(QWidget* parent) :
+  QOpenGLWidget(parent)
 {
-  // Set ViewerWidget as the central widget
-  ViewerWidget* vw = new ViewerWidget();
-  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(vw);
-
-  // Set strings
-  Retranslate();
 }
 
-void ViewerPanel::Retranslate()
+void HistogramScope::SetBuffer(Frame* frame)
 {
-  ViewerPanelBase::Retranslate();
+  buffer_ = frame;
 
-  SetTitle(tr("Viewer"));
+  update();
+}
+
+void HistogramScope::paintGL()
+{
+  //QPainter p(this);
 }
 
 OLIVE_NAMESPACE_EXIT

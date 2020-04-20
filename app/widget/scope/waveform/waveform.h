@@ -18,27 +18,42 @@
 
 ***/
 
-#include "viewer.h"
+#ifndef WAVEFORMSCOPE_H
+#define WAVEFORMSCOPE_H
+
+#include <QOpenGLWidget>
+
+#include "codec/frame.h"
+#include "render/backend/opengl/openglcolorprocessor.h"
+#include "render/backend/opengl/openglshader.h"
+#include "render/backend/opengl/opengltexture.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
-  ViewerPanelBase(object_name, parent)
+class WaveformScope : public QOpenGLWidget
 {
-  // Set ViewerWidget as the central widget
-  ViewerWidget* vw = new ViewerWidget();
-  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(vw);
+  Q_OBJECT
+public:
+  WaveformScope(QWidget* parent = nullptr);
 
-  // Set strings
-  Retranslate();
-}
+public slots:
+  void SetTexture(OpenGLTexture* texture);
 
-void ViewerPanel::Retranslate()
-{
-  ViewerPanelBase::Retranslate();
+protected:
+  virtual void initializeGL() override;
 
-  SetTitle(tr("Viewer"));
-}
+  virtual void paintGL() override;
+
+private:
+  OpenGLShaderPtr pipeline_;
+
+  OpenGLTexture* texture_;
+
+private slots:
+  void CleanUp();
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // WAVEFORMSCOPE_H

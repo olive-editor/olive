@@ -31,6 +31,7 @@
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
+#include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "render/backend/audio/audiobackend.h"
@@ -80,6 +81,8 @@ public:
    */
   void SetFullScreen(QScreen* screen = nullptr);
 
+  void ForceUpdate();
+
   VideoRenderBackend* video_renderer() const;
 
 public slots:
@@ -123,11 +126,38 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
+  /**
+   * @brief Wrapper for ViewerGLWidget::SetEmitDrewManagedTextureEnabled()
+   */
+  void SetEmitDrewManagedTextureEnabled(bool e);
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
    */
   void CursorColor(const Color& reference, const Color& display);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::LoadedBuffer()
+   */
+  void LoadedBuffer(Frame* load_buffer);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::LoadedTexture()
+   */
+  void LoadedTexture(OpenGLTexture* texture);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::DrewManagedTexture()
+   */
+  void DrewManagedTexture(OpenGLTexture* texture);
+
+  /**
+   * @brief Request a scope panel
+   *
+   * As a widget, we don't handle panels, but a parent panel may pick this signal up.
+   */
+  void RequestScopePanel(ScopePanel::Type type);
 
 protected:
   virtual void TimebaseChangedEvent(const rational &) override;
@@ -243,6 +273,8 @@ private slots:
   void ContextMenuSetCustomSafeMargins();
 
   void WindowAboutToClose();
+
+  void ContextMenuScopeTriggered(QAction* action);
 
 };
 

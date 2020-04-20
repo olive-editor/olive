@@ -79,7 +79,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Connect ruler and keyframe view together
   connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTimestamp);
 
   // Connect keyframe view scaling to this
   connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);

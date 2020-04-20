@@ -40,7 +40,9 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   // Create main widget and its layout
   QWidget* central_widget = new QWidget(this);
   QVBoxLayout* layout = new QVBoxLayout(central_widget);
-  setWidget(central_widget);
+  layout->setMargin(0);
+
+  SetWidgetWithPadding(central_widget);
 
   // Set up project toolbar
   ProjectToolbar* toolbar = new ProjectToolbar(this);

@@ -37,6 +37,7 @@
 #include "project/project.h"
 #include "render/pixelformat.h"
 #include "widget/menu/menu.h"
+#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -64,6 +65,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   ViewerGLWidget* main_widget = new ViewerGLWidget();
   connect(main_widget, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   connect(main_widget, &ViewerGLWidget::CursorColor, this, &ViewerWidget::CursorColor);
+  connect(main_widget, &ViewerGLWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
+  connect(main_widget, &ViewerGLWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
+  connect(main_widget, &ViewerGLWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
   connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(main_widget);
   gl_widgets_.append(main_widget);
@@ -259,7 +263,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
   TimeBasedWidget::ConnectViewerNode(node);
 
   // Set texture to new texture (or null if no viewer node is available)
-  UpdateTextureFromNode(GetTime());
+  ForceUpdate();
 }
 
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
@@ -311,6 +315,12 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   windows_.append(vw);
   gl_widgets_.append(vw->gl_widget());
+}
+
+void ViewerWidget::ForceUpdate()
+{
+  // Hack that forces the viewer to update
+  UpdateTextureFromNode(GetTime());
 }
 
 VideoRenderBackend *ViewerWidget::video_renderer() const
@@ -458,7 +468,6 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
     if (ratio_components.size() == 2) {
       bool numer_ok, denom_ok;
 
-      // FIXME: Won't accept decimals like 2.39:1
       double num = ratio_components.at(0).toDouble(&numer_ok);
       double den = ratio_components.at(1).toDouble(&denom_ok);
 
@@ -484,6 +493,11 @@ void ViewerWidget::WindowAboutToClose()
 
   windows_.removeAll(vw);
   gl_widgets_.removeAll(vw->gl_widget());
+}
+
+void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
+{
+  emit RequestScopePanel(static_cast<ScopePanel::Type>(action->data().toInt()));
 }
 
 void ViewerWidget::UpdateRendererParameters()
@@ -622,6 +636,21 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
+  }
+
+  menu.addSeparator();
+
+  {
+    // Scopes
+    Menu* scopes_menu = new Menu(tr("Scopes"), &menu);
+    menu.addMenu(scopes_menu);
+
+    for (int i=0;i<ScopePanel::kTypeCount;i++) {
+      QAction* scope_action = scopes_menu->addAction(ScopePanel::TypeToName(static_cast<ScopePanel::Type>(i)));
+      scope_action->setData(i);
+    }
+
+    connect(scopes_menu, &Menu::triggered, this, &ViewerWidget::ContextMenuScopeTriggered);
   }
 
   menu.addSeparator();
@@ -768,6 +797,11 @@ void ViewerWidget::SetSignalCursorColorEnabled(bool e)
   }
 }
 
+void ViewerWidget::SetEmitDrewManagedTextureEnabled(bool e)
+{
+  main_gl_widget()->SetEmitDrewManagedTextureEnabled(e);
+}
+
 void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 {
   TimeBasedWidget::TimebaseChangedEvent(timebase);
@@ -852,7 +886,7 @@ void ViewerWidget::RendererCachedTime(const rational &time, qint64 job_time)
   if (GetTime() == time && job_time > frame_cache_job_time_) {
     frame_cache_job_time_ = job_time;
 
-    UpdateTextureFromNode(GetTime());
+    ForceUpdate();
   }
 }
 

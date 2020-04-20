@@ -244,6 +244,21 @@ void MainWindow::FolderOpen(Project* p, Item *i, bool floating)
   folder_panels_.append(panel);
 }
 
+ScopePanel *MainWindow::AppendScopePanel()
+{
+  ScopePanel* panel = PanelManager::instance()->CreatePanel<ScopePanel>(this);
+
+  SetUniquePanelID(panel, scope_panels_);
+
+  panel->setFloating(true);
+  panel->show();
+
+  panel->SetSignalInsteadOfClose(true);
+  connect(panel, &ScopePanel::CloseRequested, this, &MainWindow::ScopeCloseRequested);
+
+  return panel;
+}
+
 void MainWindow::SetFullscreen(bool fullscreen)
 {
   if (fullscreen) {
@@ -405,6 +420,14 @@ void MainWindow::FolderCloseRequested()
   ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
 
   folder_panels_.removeOne(panel);
+  panel->deleteLater();
+}
+
+void MainWindow::ScopeCloseRequested()
+{
+  ScopePanel* panel = static_cast<ScopePanel*>(sender());
+
+  scope_panels_.removeOne(panel);
   panel->deleteLater();
 }
 
