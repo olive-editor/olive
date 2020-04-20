@@ -158,13 +158,15 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     if (option->state & QStyle::State_Selected) {
       border_pen.setColor(app_pal.color(QPalette::Highlight));
     } else {
-      border_pen.setColor(css_proxy_->BorderColor());
+      if (css_proxy_)
+        border_pen.setColor(css_proxy_->BorderColor());
     }
 
     if (IsExpanded()) {
       bkg_color = app_pal.color(QPalette::Window);
     } else {
-      bkg_color = css_proxy_->TitleBarColor();
+      if (css_proxy_)
+        bkg_color = css_proxy_->TitleBarColor();
     }
 
     painter->setPen(border_pen);

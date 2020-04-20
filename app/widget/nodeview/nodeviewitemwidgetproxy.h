@@ -51,7 +51,35 @@ private:
   QColor border_color_;
 };
 
-// Follow directory structure, prefix with Node.
+/*
+ * Node Styles
+ *
+ * To add a style for a given node, it involves several steps.
+ *
+ * 1. Introduce a Node Style class. This must inherit from the
+ *    NodeDefaultStyleWidget class.
+ * 2. Name the Node such that it matches the layout of the
+ *    Olive directory structure in which it is found. That is,
+ *    it should be Node[SubDirectory][Subdirectory][Etc]Style.
+ *    For example, if the node directory is node - block - gap,
+ *    the class should be NodeBlockGapStyle.
+ * 3. Copy the relevant stanzas that follow, and hook up any
+ *    relevant Q_PROPERTY values to their respective functions.
+ * 4. In the NodeStylesRegistry class that follows, add a single
+ *    instance of the relevant newly created class. It should follow
+ *    the Olive naming convention of underscores and lowercase,
+ *    and match the class definition without the Node prefix. For
+ *    example, NodeInputMediaVideoStyle becomes input_media_video_style_.
+ *    Note the trailing underscore convention.
+ * 5. Register the key and value pair in nodeviewitemwidgetproxy.cpp.
+ *    The string must be identical to the Node class identifier given
+ *    in the relevant source code file.
+ * 6. Add the relevant stylings to the Olive light and dark themes
+ *    located in style.css for each. The name must match the node
+ *    style class, such as NodeInputMediaVideoStyle class.
+ *
+ */
+
 class NodeInputMediaAudioStyle : public NodeDefaultStyleWidget {
   Q_OBJECT
   Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
@@ -65,6 +93,12 @@ class NodeInputMediaVideoStyle : public NodeDefaultStyleWidget {
 };
 
 class NodeAudioVolumeStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeAudioPanStyle : public NodeDefaultStyleWidget {
   Q_OBJECT
   Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
   Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
@@ -94,6 +128,42 @@ class NodeBlockClipStyle : public NodeDefaultStyleWidget {
   Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
 };
 
+class NodeBlockGapStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeMathMathStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeMathTrigonometryStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeGeneratorSolidStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeManipulationMergeStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
+class NodeConvolutionBlurStyle : public NodeDefaultStyleWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
+};
+
 class NodeStylesRegistry : public QWidget {
 public:
   NodeStylesRegistry(QWidget* parent = nullptr);
@@ -108,7 +178,14 @@ private:
   NodeOutputTrackStyle output_track_style_;
   NodeOutputViewerStyle output_viewer_style_;
   NodeAudioVolumeStyle audio_volume_style_;
+  NodeAudioPanStyle audio_pan_style_;
   NodeBlockClipStyle block_clip_style_;
+  NodeBlockGapStyle block_gap_style_;
+  NodeMathMathStyle math_math_style_;
+  NodeMathTrigonometryStyle math_trigonometry_style_;
+  NodeGeneratorSolidStyle generator_solid_style_;
+  NodeManipulationMergeStyle manipulation_merge_style_;
+  NodeConvolutionBlurStyle convolution_blur_style_;
 
   QMap<QString, NodeDefaultStyleWidget*> registry_;
 };

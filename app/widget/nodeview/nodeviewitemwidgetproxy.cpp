@@ -86,6 +86,34 @@ NodeStylesRegistry::NodeStylesRegistry(QWidget* parent)
     "org.olivevideoeditor.Olive.transform",
     &distort_transform_style_
   );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.pan",
+    &audio_pan_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.gap",
+    &block_gap_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.math",
+    &math_math_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.trigonometry",
+    &math_trigonometry_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.solidgenerator",
+    &generator_solid_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.alphaoverblend",
+    &manipulation_merge_style_
+  );
+  registry_.insert(
+    "org.olivevideoeditor.Olive.blur",
+    &convolution_blur_style_
+  );
 }
 
 NodeDefaultStyleWidget* NodeStylesRegistry::GetStyle(QString id)

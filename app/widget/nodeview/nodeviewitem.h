@@ -26,6 +26,7 @@
 #include <QLinearGradient>
 #include <QUndoCommand>
 #include <QWidget>
+#include <QPointer>
 
 #include "node/node.h"
 #include "nodeviewedge.h"
@@ -111,7 +112,7 @@ private:
    *
    * \see NodeViewItemWidget
    */
-  NodeDefaultStyleWidget* css_proxy_;
+  QPointer<NodeDefaultStyleWidget> css_proxy_;
 
   /**
    * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)

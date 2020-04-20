@@ -62,6 +62,41 @@ NodeOutputViewerStyle {
   qproperty-borderColor: rgb(0%, 0%, 0%);
 }
 
+NodeMathMathStyle {
+  qproperty-titlebarColor: rgb(80%, 40%, 80%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeMathTrigonometryStyle {
+  qproperty-titlebarColor: rgb(65%, 40%, 65%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeBlockGapStyle {
+  qproperty-titlebarColor: rgb(60%, 60%, 80%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeAudioPanStyle {
+  qproperty-titlebarColor: rgb(45%, 75%, 45%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeGeneratorSolidStyle {
+  qproperty-titlebarColor: rgb(90%, 70%, 45%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeManipulationMergeStyle {
+  qproperty-titlebarColor: rgb(80%, 60%, 40%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
+NodeConvolutionBlurStyle {
+  qproperty-titlebarColor: rgb(75%, 55%, 30%);
+  qproperty-borderColor: rgb(0%, 0%, 0%);
+}
+
 /* Playhead styling */
 TimelinePlayhead {
   qproperty-playheadColor: rgb(100%, 0%, 0%);
