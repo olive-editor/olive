@@ -33,7 +33,7 @@ ToolPanel::ToolPanel(QWidget *parent) :
   t->SetTool(Core::instance()->tool());
   t->SetSnapping(Core::instance()->snapping());
 
-  setWidget(t);
+  SetWidgetWithPadding(t);
 
   connect(t, &Toolbar::ToolChanged, Core::instance(), &Core::SetTool);
   connect(Core::instance(), &Core::ToolChanged, t, &Toolbar::SetTool);

@@ -22,6 +22,7 @@
 
 #include <QCloseEvent>
 #include <QDebug>
+#include <QHBoxLayout>
 #include <QPainter>
 #include <QStyle>
 #include <QStyleOption>
@@ -142,6 +143,15 @@ void PanelWidget::changeEvent(QEvent *e)
 
 void PanelWidget::Retranslate()
 {
+}
+
+void PanelWidget::SetWidgetWithPadding(QWidget *widget)
+{
+  QWidget* wrapper = new QWidget();
+  QHBoxLayout* layout = new QHBoxLayout(wrapper);
+  layout->setMargin(layout->margin() / 2);
+  layout->addWidget(widget);
+  setWidget(wrapper);
 }
 
 OLIVE_NAMESPACE_EXIT

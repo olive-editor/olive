@@ -26,7 +26,7 @@ PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("ProjectPanel"), parent)
 {
   sampler_widget_ = new ManagedPixelSamplerWidget();
-  setWidget(sampler_widget_);
+  SetWidgetWithPadding(sampler_widget_);
 
   Retranslate();
 }

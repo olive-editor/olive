@@ -32,7 +32,7 @@ NodePanel::NodePanel(QWidget *parent) :
   connect(node_view_, SIGNAL(SelectionChanged(QList<Node*>)), this, SIGNAL(SelectionChanged(QList<Node*>)));
 
   // Set it as the main widget of this panel
-  setWidget(node_view_);
+  SetWidgetWithPadding(node_view_);
 
   // Set strings
   Retranslate();

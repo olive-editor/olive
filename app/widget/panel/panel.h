@@ -181,6 +181,8 @@ protected:
 
   virtual void Retranslate();
 
+  void SetWidgetWithPadding(QWidget* widget);
+
 protected slots:
   /**
    * @brief Set panel's title

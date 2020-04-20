@@ -39,6 +39,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   bridge_(nullptr)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
+  layout->setMargin(0);
 
   QHBoxLayout* top_controls = new QHBoxLayout();
 

@@ -153,7 +153,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
     connect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
   }
 
-  setWidget(widget_);
+  SetWidgetWithPadding(widget_);
 }
 
 void TimeBasedPanel::Retranslate()
