@@ -48,7 +48,6 @@ void NodeFactory::Initialize()
   }
 
   library_.append(new ExternalNode(":/shaders/blur.xml"));
-  library_.append(new ExternalNode(":/shaders/opacity.xml"));
   library_.append(new ExternalNode(":/shaders/solid.xml"));
   library_.append(new ExternalNode(":/shaders/stroke.xml"));
   library_.append(new ExternalNode(":/shaders/alphaover.xml"));

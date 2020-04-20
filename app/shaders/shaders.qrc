@@ -12,8 +12,6 @@
         <file>dropshadow.xml</file>
         <file>diptoblack.frag</file>
         <file>diptoblack.xml</file>
-        <file>opacity.frag</file>
-        <file>opacity.xml</file>
         <file>solid.frag</file>
         <file>solid.xml</file>
         <file>stroke.frag</file>
