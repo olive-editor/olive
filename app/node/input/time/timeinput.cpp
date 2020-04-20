@@ -38,7 +38,7 @@ QString TimeInput::Name() const
 
 QString TimeInput::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.videoinput");
+  return QStringLiteral("org.olivevideoeditor.Olive.time");
 }
 
 QString TimeInput::Category() const
