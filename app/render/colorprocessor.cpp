@@ -66,7 +66,7 @@ ColorProcessor::ColorProcessor(ColorManager *config,
   processor_ = config->GetConfig()->getProcessor(transform, dir);
 }
 
-void ColorProcessor::ConvertFrame(FramePtr f)
+void ColorProcessor::ConvertFrame(Frame *f)
 {
   OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()), f->width(), f->height(), PixelFormat::ChannelCount(f->format()));
 
@@ -92,6 +92,11 @@ ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString &so
 OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()
 {
   return processor_;
+}
+
+void ColorProcessor::ConvertFrame(FramePtr f)
+{
+  ConvertFrame(f.get());
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -68,6 +68,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(main_widget, &ViewerGLWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
   connect(main_widget, &ViewerGLWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
   connect(main_widget, &ViewerGLWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
+  connect(main_widget, &ViewerGLWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(main_widget);
   gl_widgets_.append(main_widget);

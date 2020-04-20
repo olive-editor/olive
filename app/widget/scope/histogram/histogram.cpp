@@ -30,7 +30,8 @@ OLIVE_NAMESPACE_ENTER
 
 HistogramScope::HistogramScope(QWidget* parent) :
   QOpenGLWidget(parent),
-  buffer_(nullptr)
+  buffer_(nullptr),
+  processor_(nullptr)
 {
   connect(&worker_, &HistogramScopeWorker::Finished, this, &HistogramScope::FinishedProcessing, Qt::QueuedConnection);
   worker_.start(QThread::IdlePriority);
@@ -45,8 +46,14 @@ HistogramScope::~HistogramScope()
 
 void HistogramScope::SetBuffer(Frame* frame)
 {
-  // We'll be multithreading this, so we make a copy to prevent collisions
   buffer_ = frame;
+
+  StartUpdate();
+}
+
+void HistogramScope::SetColorProcessor(ColorProcessorPtr processor)
+{
+  processor_ = processor;
 
   StartUpdate();
 }
@@ -89,14 +96,20 @@ void HistogramScope::resizeEvent(QResizeEvent *e)
 {
   QOpenGLWidget::resizeEvent(e);
 
-  if (buffer_){
-    StartUpdate();
-  }
+  StartUpdate();
 }
 
 void HistogramScope::StartUpdate()
 {
-  worker_.QueueNext(*buffer_, width());
+  if (buffer_) {
+    worker_.QueueNext(*buffer_, processor_, width());
+  } else {
+    // Update with nothing
+    red_val_.clear();
+    green_val_.clear();
+    blue_val_.clear();
+    update();
+  }
 }
 
 HistogramScopeWorker::HistogramScopeWorker() :
@@ -120,9 +133,12 @@ void HistogramScopeWorker::run()
     // Copy values
     Frame f = next_;
     int w = next_width_;
+    ColorProcessorPtr processor = next_processor_;
     next_.destroy();
 
     next_lock_.unlock();
+
+    // Color manage frame
 
     QVector<int> data(w * kRGBChannels, 0);
 
@@ -131,6 +147,10 @@ void HistogramScopeWorker::run()
     for (int x=0;x<f.width();x++) {
       for (int y=0;y<f.height();y++) {
         Color c = f.get_pixel(x, y);
+
+        if (processor) {
+          c = processor->ConvertColor(c);
+        }
 
         data[qFloor(clamp(c.red(), 0.0f, 1.0f) * max_w)]++;
         data[qFloor(clamp(c.green(), 0.0f, 1.0f) * max_w) + w]++;
@@ -165,12 +185,13 @@ void HistogramScopeWorker::run()
   }
 }
 
-void HistogramScopeWorker::QueueNext(const Frame &f, int width)
+void HistogramScopeWorker::QueueNext(const Frame &f, ColorProcessorPtr processor, int width)
 {
   next_lock_.lock();
 
   next_ = f;
   next_width_ = width;
+  next_processor_ = processor;
 
   next_wait_.wakeOne();
 

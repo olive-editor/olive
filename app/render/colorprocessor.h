@@ -65,6 +65,7 @@ public:
   OCIO::ConstProcessorRcPtr GetProcessor();
 
   void ConvertFrame(FramePtr f);
+  void ConvertFrame(Frame* f);
 
   Color ConvertColor(Color in);
 

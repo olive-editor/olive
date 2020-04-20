@@ -27,6 +27,7 @@
 #include <QWaitCondition>
 
 #include "codec/frame.h"
+#include "render/colorprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,12 +37,14 @@ class HistogramScopeWorker : public QThread
 public:
   HistogramScopeWorker();
 
-  virtual void run() override;
+  // Thread-safe
+  void QueueNext(const Frame& f, ColorProcessorPtr processor, int width);
 
   // Thread-safe
-  void QueueNext(const Frame& f, int width);
-
   void Cancel();
+
+protected:
+  virtual void run() override;
 
 signals:
   void Finished(QVector<double> red, QVector<double> green, QVector<double> blue);
@@ -53,6 +56,7 @@ private:
   QWaitCondition next_wait_;
   Frame next_;
   int next_width_;
+  ColorProcessorPtr next_processor_;
 
 };
 
@@ -67,6 +71,8 @@ public:
 public slots:
   void SetBuffer(Frame* frame);
 
+  void SetColorProcessor(ColorProcessorPtr processor);
+
 protected:
 //  virtual void paintEvent(QPaintEvent* e) override;
   virtual void paintGL() override;
@@ -77,6 +83,8 @@ private:
   void StartUpdate();
 
   Frame* buffer_;
+
+  ColorProcessorPtr processor_;
 
   QVector<double> red_val_;
 

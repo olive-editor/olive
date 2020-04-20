@@ -159,6 +159,11 @@ signals:
    */
   void RequestScopePanel(ScopePanel::Type type);
 
+  /**
+   * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
+   */
+  void ColorProcessorChanged(ColorProcessorPtr processor);
+
 protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;

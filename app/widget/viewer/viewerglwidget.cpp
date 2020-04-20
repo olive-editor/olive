@@ -489,6 +489,9 @@ void ViewerGLWidget::SetupColorProcessor()
   } else {
     color_service_ = nullptr;
   }
+
+  qDebug() << "Emitting" << std::static_pointer_cast<ColorProcessor>(color_service_).get();
+  emit ColorProcessorChanged(std::static_pointer_cast<ColorProcessor>(color_service_));
 }
 
 void ViewerGLWidget::ContextCleanup()

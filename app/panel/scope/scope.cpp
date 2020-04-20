@@ -94,6 +94,11 @@ void ScopePanel::SetBuffer(Frame *frame)
   histogram_->SetBuffer(frame);
 }
 
+void ScopePanel::SetColorProcessor(ColorProcessorPtr processor)
+{
+  histogram_->SetColorProcessor(processor);
+}
+
 void ScopePanel::Retranslate()
 {
   SetTitle(tr("Scope"));

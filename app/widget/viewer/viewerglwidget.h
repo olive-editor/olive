@@ -189,6 +189,11 @@ signals:
    */
   void DrewManagedTexture(OpenGLTexture* texture);
 
+  /**
+   * @brief Emitted when the color processor changes
+   */
+  void ColorProcessorChanged(ColorProcessorPtr processor);
+
 protected:
   /**
    * @brief Override the mouse press event simply to emit the DragStarted() signal

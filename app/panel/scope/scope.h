@@ -54,6 +54,8 @@ public slots:
 
   void SetBuffer(Frame* frame);
 
+  void SetColorProcessor(ColorProcessorPtr processor);
+
 protected:
   virtual void Retranslate() override;
 
