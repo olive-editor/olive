@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   QSurfaceFormat format;
   format.setVersion(3, 2);
   format.setDepthBufferSize(24);
-  format.setProfile(QSurfaceFormat::CoreProfile);
+  format.setProfile(QSurfaceFormat::CompatibilityProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
   // Try to share OpenGL contexts
