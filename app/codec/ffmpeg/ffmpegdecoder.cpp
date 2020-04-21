@@ -75,16 +75,16 @@ bool FFmpegDecoder::Open()
   // Convert QString to a C string
   QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
 
-  FFmpegDecoderInstance* our_instance_ = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
+  FFmpegDecoderInstance* our_instance = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
 
-  if (!our_instance_->IsValid()) {
-    delete our_instance_;
+  if (!our_instance->IsValid()) {
+    delete our_instance;
     return false;
   }
 
   if (stream()->type() == Stream::kVideo) {
     // Get an Olive compatible AVPixelFormat
-    src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format);
+    src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
 
     {
@@ -95,13 +95,13 @@ bool FFmpegDecoder::Open()
 
       if (!frame_pool) {
         frame_pool = new FFmpegFramePool(256,
-                                         our_instance_->stream()->codecpar->width,
-                                         our_instance_->stream()->codecpar->height,
-                                         static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format));
+                                         our_instance->stream()->codecpar->width,
+                                         our_instance->stream()->codecpar->height,
+                                         static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
         frame_pool_map_.insert(stream().get(), frame_pool);
       }
 
-      our_instance_->SetFramePool(frame_pool);
+      our_instance->SetFramePool(frame_pool);
       // End test code
     }
 
@@ -125,11 +125,11 @@ bool FFmpegDecoder::Open()
       qFatal("Invalid output format");
     }
 
-    aspect_ratio_ = our_instance_->sample_aspect_ratio();
+    aspect_ratio_ = our_instance->sample_aspect_ratio();
   }
 
-  time_base_ = our_instance_->stream()->time_base;
-  start_time_ = our_instance_->stream()->start_time;
+  time_base_ = our_instance->stream()->time_base;
+  start_time_ = our_instance->stream()->start_time;
 
   // All allocation succeeded so we set the state to open
   open_ = true;
@@ -138,7 +138,7 @@ bool FFmpegDecoder::Open()
     QMutexLocker l(&instance_map_lock_);
 
     QList<FFmpegDecoderInstance*> list = instance_map_.value(stream().get());
-    list.append(our_instance_);
+    list.append(our_instance);
     instance_map_.insert(stream().get(), list);
   }
 
@@ -216,28 +216,36 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
         // Found our instance, allow others to enter the list
         list_locker.unlock();
 
+        // If the instance is currently in use, enter into a loop of seeing from frames come up next in case one is ours
         if (i->IsWorking()) {
+
           do {
             // Allow instance to continue to the next frame
             i->cache_wait_cond()->wait(i->cache_lock());
 
             // See if the cache now contains this frame, if so we'll exit this loop
             if (i->CacheContainsTime(target_ts)) {
+
+              // Grab the frame
               return_frame = i->GetFrameFromCache(target_ts);
+
+              // We can release this worker now since we don't need it anymore
+              i->cache_lock()->unlock();
+
             } else if (!i->IsWorking()) {
-              // Grab this instance and continue it
+
+              // This instance finished and we didn't get our frame, we'll take it and continue it
               working_instance = i;
               break;
+
             }
           } while (!return_frame);
 
-          if (working_instance != i) {
-            // We don't unlock if we're continuing this instance ourselves
-            i->cache_lock()->unlock();
-          }
         } else {
+          // Otherwise, we'll grab this instance and continue it ourselves
           working_instance = i;
         }
+
         break;
 
       } else if (i->IsWorking()) {
@@ -398,19 +406,26 @@ void FFmpegDecoder::Close()
       }
 
       // Remove the least useful from the list and re-insert it into the map
-      list.removeOne(least_useful.takeFirst());
+      FFmpegDecoderInstance* least_useful_instance = least_useful.first();
+      list.removeOne(least_useful_instance);
       instance_map_.insert(stream().get(), list);
-
-      // Unlock all the instances we locked
-      foreach (FFmpegDecoderInstance* i, least_useful) {
-        i->cache_lock()->unlock();
-      }
 
       // If there are no more instances, destroy frame pool
       if (list.isEmpty()) {
         FFmpegFramePool* frame_pool = frame_pool_map_.take(stream().get());
         delete frame_pool;
       }
+
+      // We're done with the list now, we can unlock it and allow others to use it
+      l.unlock();
+
+      // Unlock all the instances we locked
+      foreach (FFmpegDecoderInstance* i, least_useful) {
+        i->cache_lock()->unlock();
+      }
+
+      // Delete this least useful instance now that we've definitely taken ownership of it
+      least_useful_instance->deleteLater();
     }
   }
 
@@ -943,6 +958,8 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
   // Allocate a new frame
   AVFrameWrapper working_frame;
 
+  bool unlocked = false;
+
   while (true) {
 
     // Pull from the decoder
@@ -976,7 +993,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
 
     if (cache_is_locked) {
       cache_is_locked = false;
-    } else {
+    } else if (unlocked) {
       cache_lock_.lock();
     }
 
@@ -985,10 +1002,10 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       // Handle an "expected" EOF by using the last frame of our cache
       cache_at_eof_ = true;
 
+      return_frame = cached_frames_.last();
+
       cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
-
-      return_frame = cached_frames_.last();
       break;
 
     } else {
@@ -996,6 +1013,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       // Whatever it is, keep this frame in memory for the time being just in case
       if (!frame_pool_) {
         qCritical() << "Cannot retrieve video without a valid frame pool";
+        cache_lock_.unlock();
         break;
       }
 
@@ -1003,6 +1021,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
 
       if (!cached) {
         qCritical() << "Frame pool failed to return a valid frame - out of memory?";
+        cache_lock_.unlock();
         break;
       }
 
@@ -1026,6 +1045,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
 
       cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
+      unlocked = true;
 
       // If this is a valid frame, see if this or the frame before it are the one we need
       if (cached->timestamp() == target_ts) {
