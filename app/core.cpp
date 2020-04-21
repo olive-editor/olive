@@ -938,6 +938,7 @@ bool Core::CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &
         if (confirm_behavior == kCloseProjectAsk || confirm_behavior == kCloseProjectOnlyOne) {
           QMessageBox mb(main_window_);
 
+          mb.setWindowModality(Qt::WindowModal);
           mb.setIcon(QMessageBox::Question);
           mb.setWindowTitle(tr("Unsaved Changes"));
           mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
