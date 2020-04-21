@@ -28,9 +28,12 @@
 #include <QStyleFactory>
 #include <QTextStream>
 
+#include "config/config.h"
 #include "ui/icons/icons.h"
 
 OLIVE_NAMESPACE_ENTER
+
+QString StyleManager::current_style_;
 
 QList<StyleDescriptor> StyleManager::ListInternal()
 {
@@ -143,6 +146,22 @@ StyleDescriptor StyleManager::DefaultStyle()
   return ListInternal().first();
 }
 
+const QString &StyleManager::GetStyle()
+{
+  return current_style_;
+}
+
+void StyleManager::SetStyleFromConfig()
+{
+  QString config_style = Config::Current()["Style"].toString();
+
+  if (config_style.isEmpty()) {
+    SetStyle(DefaultStyle());
+  } else {
+    SetStyle(config_style);
+  }
+}
+
 void StyleManager::SetStyle(const StyleDescriptor &style)
 {
   SetStyle(style.path());
@@ -150,6 +169,8 @@ void StyleManager::SetStyle(const StyleDescriptor &style)
 
 void StyleManager::SetStyle(const QString &style_path)
 {
+  current_style_ = style_path;
+
   // Load all icons for this style (icons must be loaded first because the style change below triggers the icon change)
   icon::LoadAll(style_path);
 

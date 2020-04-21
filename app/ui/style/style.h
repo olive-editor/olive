@@ -42,9 +42,11 @@ private:
 
 class StyleManager : public QObject {
 public:
-  StyleManager();
-
   static StyleDescriptor DefaultStyle();
+
+  static const QString& GetStyle();
+
+  static void SetStyleFromConfig();
 
   static void SetStyle(const StyleDescriptor& style);
 
@@ -62,6 +64,9 @@ private:
   static void ParsePaletteGroup(QSettings* ini, QPalette* palette, QPalette::ColorGroup group);
 
   static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
+
+  static QString current_style_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

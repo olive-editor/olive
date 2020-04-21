@@ -47,7 +47,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
   foreach (StyleDescriptor s, style_list_) {
     style_->addItem(s.name(), s.path());
 
-    if (s.path() == Config::Current()["Style"]) {
+    if (s.path() == StyleManager::GetStyle()) {
       style_->setCurrentIndex(style_->count()-1);
     }
   }
@@ -62,14 +62,10 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 void PreferencesAppearanceTab::Accept()
 {
   QString style_path = style_->currentData().toString();
-  StyleManager::SetStyle(style_path);
-  Config::Current()["Style"] = style_path;
 
-  if (style_->currentIndex() < style_list_.size()) {
-    // This is an internal style, set accordingly
-
-  } else {
-    StyleManager::SetStyle(style_->currentData().toString());
+  if (style_path != StyleManager::GetStyle()) {
+    StyleManager::SetStyle(style_path);
+    Config::Current()["Style"] = style_path;
   }
 }
 
