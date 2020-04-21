@@ -38,6 +38,8 @@ public:
 
   const QString& GetConfigFilename() const;
 
+  static void SetUpDefaultConfig();
+
   void SetConfig(const QString& filename);
 
   void SetConfigAndDefaultInput(const QString& filename, const QString& s);
@@ -107,6 +109,8 @@ private:
   QString default_input_color_space_;
 
   QString reference_space_;
+
+  static QString default_config_;
 
 };
 

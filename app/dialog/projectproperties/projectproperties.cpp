@@ -54,6 +54,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   color_layout->addWidget(new QLabel(tr("OpenColorIO Configuration:")), row, 0);
 
   ocio_filename_ = new QLineEdit();
+  ocio_filename_->setPlaceholderText(tr("(default)"));
   color_layout->addWidget(ocio_filename_, row, 1);
 
   row++;
@@ -86,7 +87,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   }
 
   ocio_filename_->setText(working_project_->color_manager()->GetConfigFilename());
-  ListPossibleInputSpaces(working_project_->color_manager()->GetConfigFilename());
+  ListPossibleInputSpaces(working_project_->color_manager()->GetConfig());
 }
 
 void ProjectPropertiesDialog::accept()
@@ -120,12 +121,12 @@ bool ProjectPropertiesDialog::VerifyOCIOConfig(const QString &fn)
   }
 }
 
-void ProjectPropertiesDialog::ListPossibleInputSpaces(const QString& fn)
+void ProjectPropertiesDialog::ListPossibleInputSpaces(OCIO::ConstConfigRcPtr config)
 {
   try {
     default_input_colorspace_->clear();
 
-    QStringList input_cs = ColorManager::ListAvailableInputColorspaces(OCIO::Config::CreateFromFile(fn.toUtf8()));
+    QStringList input_cs = ColorManager::ListAvailableInputColorspaces(config);
 
     foreach (QString cs, input_cs) {
       default_input_colorspace_->addItem(cs);
@@ -145,7 +146,7 @@ void ProjectPropertiesDialog::BrowseForOCIOConfig()
     if (VerifyOCIOConfig(fn)) {
       ocio_filename_->setText(fn);
 
-      ListPossibleInputSpaces(fn);
+      ListPossibleInputSpaces(OCIO::Config::CreateFromFile(fn.toUtf8()));
     }
   }
 }

@@ -25,8 +25,6 @@
 
 #include <QFile>
 
-#include "bufferaverage.h"
-
 OLIVE_NAMESPACE_ENTER
 
 AudioOutputManager::AudioOutputManager(QObject *parent) :

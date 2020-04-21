@@ -18,8 +18,6 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   audio/audiomanager.h
   audio/audiomanager.cpp
-  audio/bufferaverage.h
-  audio/bufferaverage.cpp
   audio/outputdeviceproxy.h
   audio/outputdeviceproxy.cpp
   audio/outputmanager.h

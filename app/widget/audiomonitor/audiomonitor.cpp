@@ -112,23 +112,6 @@ void AudioMonitor::SetUpdateLoop(bool e)
   }
 }
 
-/*
-void AudioMonitor::SetValues(QVector<double> values)
-{
-  values_ = values;
-
-  if (values_.size() != peaked_.size()) {
-    peaked_.resize(values_.size());
-    peaked_.fill(false);
-  }
-
-  clear_timer_.stop();
-  clear_timer_.start();
-
-  update();
-}
-*/
-
 void AudioMonitor::paintGL()
 {
   QPainter p(this);

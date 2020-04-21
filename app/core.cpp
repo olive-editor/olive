@@ -116,26 +116,15 @@ void Core::Start()
   // Set up the index manager for renderers
   IndexManager::CreateInstance();
 
+  // Set up color manager's default config
+  ColorManager::SetUpDefaultConfig();
+
   // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
   //               the fact that some of the config paths set by default rely on the app name having been set (in main())
   Config::Current().SetDefaults();
 
   // Load application config
   Config::Load();
-
-  // Load recently opened projects list
-  {
-    QFile recent_projects_file(GetRecentProjectsFilePath());
-    if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      while (!ts.atEnd()) {
-        recent_projects_.append(ts.readLine());
-      }
-
-      recent_projects_file.close();
-    }
-  }
 
 
   //
@@ -555,6 +544,20 @@ void Core::StartGUI(bool full_screen)
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
   autorecovery_timer_.start();
+
+  // Load recently opened projects list
+  {
+    QFile recent_projects_file(GetRecentProjectsFilePath());
+    if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
+      QTextStream ts(&recent_projects_file);
+
+      while (!ts.atEnd()) {
+        recent_projects_.append(ts.readLine());
+      }
+
+      recent_projects_file.close();
+    }
+  }
 }
 
 void Core::SaveProjectInternal(ProjectPtr project)
@@ -783,7 +786,7 @@ QString Core::GetProjectFilter()
 
 QString Core::GetRecentProjectsFilePath()
 {
-  return QDir(GetConfigurationLocation()).filePath(QStringLiteral("recent"));
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("recent"));
 }
 
 bool Core::SaveProject(ProjectPtr p)

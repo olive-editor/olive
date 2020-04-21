@@ -171,7 +171,7 @@ bool DiskManager::ClearDiskCache(bool quick_delete)
   lock_.lock();
 
   if (quick_delete) {
-    deleted_files = QDir(GetMediaCacheLocation()).removeRecursively();
+    deleted_files = QDir(FileFunctions::GetMediaCacheLocation()).removeRecursively();
 
     disk_data_.clear();
   } else {

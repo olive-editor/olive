@@ -111,7 +111,7 @@ QString AudioRenderBackend::CachePathName() const
 {
   QString cache_fn = cache_id();
   cache_fn.append(".pcm");
-  return QDir(GetMediaCacheLocation()).filePath(cache_fn);
+  return QDir(FileFunctions::GetMediaCacheLocation()).filePath(cache_fn);
 }
 
 bool AudioRenderBackend::CanRender()

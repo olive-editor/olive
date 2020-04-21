@@ -37,10 +37,12 @@
 #include <execinfo.h>
 #endif
 
+#include "common/filefunctions.h"
+
 OLIVE_NAMESPACE_ENTER
 
 void crash_handler(int sig) {
-  QString log_path = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(QStringLiteral("olive_crash"));
+  QString log_path = QDir(FileFunctions::GetTempPath()).filePath(QStringLiteral("olive_crash"));
   QFile output(log_path);
 
   output.open(QFile::WriteOnly);

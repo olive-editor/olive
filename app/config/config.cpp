@@ -44,7 +44,7 @@ Config::Config()
 
 QString Config::GetConfigFilePath()
 {
-  return QDir(GetConfigurationLocation()).filePath(QStringLiteral("config.xml"));
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("config.xml"));
 }
 
 Config &Config::Current()
@@ -101,8 +101,6 @@ void Config::SetDefaults()
   // Online/offline settings
   config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
   config_map_["OfflinePixelFormat"] = PixelFormat::PIX_FMT_RGBA16F;
-  config_map_["OnlineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
-  config_map_["OfflineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
   config_map_["OnlineOCIOMethod"] = ColorManager::kOCIOAccurate;
   config_map_["OfflineOCIOMethod"] = ColorManager::kOCIOFast;
 }

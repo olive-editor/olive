@@ -520,7 +520,7 @@ void ViewerWidget::UpdateRendererParameters()
   }
 
   AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
-                              SampleFormat::GetConfiguredFormatForMode(render_mode));
+                              SampleFormat::kInternalFormat);
 
   if (audio_renderer_->params() != aparam) {
     audio_renderer_->SetParameters(aparam);

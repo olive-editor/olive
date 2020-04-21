@@ -41,7 +41,7 @@ public slots:
 private:
   bool VerifyOCIOConfig(const QString& fn);
 
-  void ListPossibleInputSpaces(const QString &fn);
+  void ListPossibleInputSpaces(OpenColorIO::v1::ConstConfigRcPtr config);
 
   Project* working_project_;
 

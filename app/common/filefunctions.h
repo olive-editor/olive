@@ -27,19 +27,37 @@
 
 OLIVE_NAMESPACE_ENTER
 
-bool IsPortable();
+/**
+ * @brief A collection of static file and directory functions
+ */
+class FileFunctions {
+public:
+  /**
+   * @brief Returns true if the application is running in portable mode
+   *
+   * In portable mode, any persistent configuration files should be made in a path relative to the application rather
+   * than in the user's home folder.
+   */
+  static bool IsPortable();
 
-QString GetUniqueFileIdentifier(const QString& filename);
+  static QString GetUniqueFileIdentifier(const QString& filename);
 
-QString GetMediaIndexLocation();
+  static QString GetMediaIndexLocation();
 
-QString GetMediaIndexFilename(const QString& filename);
+  static QString GetMediaIndexFilename(const QString& filename);
 
-QString GetMediaCacheLocation();
+  static QString GetMediaCacheLocation();
 
-QString GetConfigurationLocation();
+  static QString GetConfigurationLocation();
 
-QString GetApplicationPath();
+  static QString GetApplicationPath();
+
+  static QString GetTempPath();
+
+  static void CopyDirectory(const QString& source, const QString& dest);
+};
+
+
 
 OLIVE_NAMESPACE_EXIT
 

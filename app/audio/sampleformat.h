@@ -47,10 +47,9 @@ public:
     SAMPLE_FMT_COUNT
   };
 
-  static QString GetSampleFormatName(const Format& f);
+  static const Format kInternalFormat;
 
-  static Format GetConfiguredFormatForMode(RenderMode::Mode mode);
-  static void SetConfiguredFormatForMode(RenderMode::Mode mode, Format format);
+  static QString GetSampleFormatName(const Format& f);
 
 };
 

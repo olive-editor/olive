@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(backend)
+add_subdirectory(ocioconf)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
@@ -35,5 +36,10 @@ set(OLIVE_SOURCES
   render/rendermodes.h
   render/videoparams.h
   render/videoparams.cpp
+  PARENT_SCOPE
+)
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
   PARENT_SCOPE
 )

@@ -40,14 +40,10 @@ public:
 
   QComboBox* ocio_method();
 
-  QComboBox* sample_fmt_combobox();
-
 private:
   QComboBox* bit_depth_combobox_;
 
   QComboBox* ocio_method_;
-
-  QComboBox* sample_fmt_combobox_;
 
 };
 

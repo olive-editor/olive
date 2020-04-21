@@ -20,18 +20,25 @@
 
 #include "colormanager.h"
 
+#include <QDir>
 #include <QFloat16>
 
 #include "common/define.h"
+#include "common/filefunctions.h"
 #include "config/config.h"
 #include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
+QString ColorManager::default_config_;
+
 ColorManager::ColorManager()
 {
   // Ensures config is set to something
   config_ = OCIO::GetCurrentConfig();
+
+  // Default input space is first in config
+  default_input_color_space_ = ListAvailableInputColorspaces().first();
 
   // Default reference space is scene linear
   reference_space_ = OCIO::ROLE_SCENE_LINEAR;
@@ -45,6 +52,19 @@ OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
 const QString &ColorManager::GetConfigFilename() const
 {
   return config_filename_;
+}
+
+void ColorManager::SetUpDefaultConfig()
+{
+  // Kind of hacky, but it'll work
+  QString dir = QDir(FileFunctions::GetTempPath()).filePath(QStringLiteral("ocioconf"));
+
+  FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
+                               dir);
+
+  default_config_ = QDir(dir).filePath(QStringLiteral("config.ocio"));
+
+  OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(default_config_.toUtf8()));
 }
 
 void ColorManager::SetConfig(const QString &filename)
@@ -63,7 +83,7 @@ void ColorManager::SetConfigInternal(const QString &filename)
   OCIO::ConstConfigRcPtr cfg;
 
   if (config_filename_.isEmpty()) {
-    cfg = OCIO::Config::CreateFromEnv();
+    cfg = OCIO::GetCurrentConfig();
   } else {
     cfg = OCIO::Config::CreateFromFile(filename.toUtf8());
   }

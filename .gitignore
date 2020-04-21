@@ -6,6 +6,7 @@ ts/*.qm
 docs
 history
 build/
+.DS_Store
 
 .vscode
 

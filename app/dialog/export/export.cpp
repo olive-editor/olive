@@ -308,7 +308,7 @@ void ExportDialog::accept()
 
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
                                            audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SampleFormat::GetConfiguredFormatForMode(render_mode));
+                                           SampleFormat::kInternalFormat);
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_,
                                                              color_manager_->GetReferenceColorSpace(),

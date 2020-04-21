@@ -21,7 +21,6 @@
 #include "outputdeviceproxy.h"
 
 #include "audiomanager.h"
-#include "bufferaverage.h"
 
 OLIVE_NAMESPACE_ENTER
 

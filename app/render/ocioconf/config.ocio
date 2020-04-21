@@ -1,0 +1,346 @@
+# Film Emulsion-like configuration for
+# Blender. Crafted by Troy James Sobotka with
+# special thanks, feedback, and knowledge from Guillermo
+# Espertino, Claudio Rocha, Bassam Kurdali, Eugenio
+# Pignataro, Henri Hebeisen, Jason Clarke,
+# Haarm-Peter Duiker, Thomas Mansencal, Andrew
+# Price, Nick Shaw, and Timothy
+# Lottes.
+
+ocio_profile_version: 1
+
+search_path: "luts:looks"
+strictparsing: true
+luma: [0.2126, 0.7152, 0.0722]
+
+description: A filmlike dynamic range encoding set for Blender
+
+roles:
+  default: Linear
+  reference: Linear
+  scene_linear: Linear
+  data: Non-Colour Data
+  compositing_log: Filmic Log Encoding
+  color_timing: Filmic Log Encoding
+  default_byte: sRGB OETF
+  default_float: Linear
+  default_sequencer: sRGB OETF
+  color_picking: sRGB OETF
+  texture_paint: sRGB OETF
+  matte_paint: Filmic Log Encoding
+
+displays:
+  sRGB:
+    - !<View> {name: sRGB OETF, colorspace: sRGB OETF}
+    - !<View> {name: Non-Colour Data, colorspace: Non-Colour Data}
+    - !<View> {name: Linear Raw, colorspace: Linear}
+    - !<View> {name: Filmic Log Encoding Base, colorspace: Filmic Log Encoding}
+  BT.1886:
+    - !<View> {name: BT.1886 EOTF, colorspace: BT.1886 EOTF}
+    - !<View> {name: Non-Colour Data, colorspace: Non-Colour Data}
+    - !<View> {name: Linear Raw, colorspace: Linear}
+    - !<View> {name: Filmic Log Encoding Base, colorspace: BT.1886 Filmic Log Encoding}
+  Apple Display P3:
+    - !<View> {name: sRGB OETF, colorspace: AppleP3 sRGB OETF}
+    - !<View> {name: Non-Colour Data, colorspace: Non-Colour Data}
+    - !<View> {name: Linear Raw, colorspace: Linear}
+    - !<View> {name: Filmic Log Encoding Base, colorspace: AppleP3 Filmic Log Encoding}
+# VRay users should uncomment the Filmic views below as VRay doesn't permit Looks
+#    - !<View> {name: Filmic Very High Contrast, colorspace: Filmic Log Encoding, look: +Very High Contrast}
+#    - !<View> {name: Filmic High Contrast, colorspace: Filmic Log Encoding, look: +High Contrast}
+#    - !<View> {name: Filmic Medium High Contrast, colorspace: Filmic Log Encoding, look: +Medium High Contrast}
+#    - !<View> {name: Filmic Very Low Contrast, colorspace: Filmic Log Encoding, look: +Very Low Contrast}
+#    - !<View> {name: Filmic Medium Low Contrast, colorspace: Filmic Log Encoding, look: +Medium Low Contrast}
+#    - !<View> {name: Filmic Low Contrast, colorspace: Filmic Log Encoding, look: +Low Contrast}
+#    - !<View> {name: Filmic Base Contrast, colorspace: Filmic Log Encoding, look: +Base Contrast}
+#    - !<View> {name: Filmic False Colour, colorspace: Filmic Log Encoding, look: +False Colour}
+#    - !<View> {name: Debug, colorspace: Debug}
+
+active_displays: [sRGB, BT.1886, Apple Display P3, None]
+#active_views: [Filmic Log Encoding Base, sRGB OETF, Non-Colour Data, Linear Raw, No View]
+
+colorspaces:
+  - !<ColorSpace>
+    name: Linear
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      ITU BT.709 primaries based scene referred linear space.
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.473931188, 12.526068812]
+
+#  - !<ColorSpace>
+#    name: Debug
+#    family:
+#    equalitygroup:
+#    bitdepth: 32f
+#    description: |
+#      Debug purposes only. Do not use.
+#    isdata: false
+#    allocation: lg2
+#    allocationvars: [-12.473931188, 12.526068812]
+#    from_reference: !<GroupTransform>
+#          children:
+#            - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812]} #[-12.473931188, 7.526068812]}
+#            - !<AllocationTransform> {allocation: uniform, vars: [0, 0.66]} #0.825
+
+  - !<ColorSpace>
+    name: Filmic Log Encoding
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range.
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.473931188, 12.526068812]
+    from_reference: !<GroupTransform>
+        children:
+          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812]}
+          - !<FileTransform> {src: desat65cube.spi3d, interpolation: best}
+          - !<AllocationTransform> {allocation: uniform, vars: [0, 0.66]}
+    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+
+#  - !<ColorSpace>
+#    name: Desat Log Encoding
+#    family:
+#    equalitygroup:
+#    bitdepth: 32f
+#    description: |
+#        Desaturation transform for proper crosstalk. Not intended for use.
+#    isdata: false
+#    allocation: lg2
+#    allocationvars: [-12.473931188, 12.526068812]
+#    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812], direction: inverse}
+
+  - !<ColorSpace>
+    name: sRGB OETF
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      sRGB specification display referred Optical-Electro Transfer Function.
+    isdata: false
+    allocation: uniform
+    allocationvars: [0.0, 1.0]
+    to_reference: !<FileTransform> {src: sRGB_OETF_to_Linear.spi1d, interpolation: linear}
+
+  - !<ColorSpace>
+    name: Apple DCI-P3 D65
+    family: display
+    equalitygroup: ""
+    bitdepth: 32f
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.4739, 12.5261]
+    to_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [0.515121, 0.291977, 0.157104, 0, 0.241196, 0.692245, 0.0665741, 0, -0.00105286, 0.0418854, 0.784073, 0, 0, 0, 0, 1]}
+        - !<MatrixTransform> {matrix: [1.04788, 0.0229187, -0.0502014, 0, 0.0295868, 0.990479, -0.0170593, 0, -0.00923157, 0.0150757, 0.751678, 0, 0, 0, 0, 1], direction: inverse}
+        - !<MatrixTransform> {matrix: [0.412391, 0.357584, 0.180481, 0, 0.212639, 0.715169, 0.0721923, 0, 0.0193308, 0.119195, 0.950532, 0, 0, 0, 0, 1], direction: inverse}
+
+  - !<ColorSpace>
+    name: AppleP3 sRGB OETF
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      sRGB specification display referred Optical-Electro Transfer Function with Apple DCI-P3 primaries.
+    isdata: false
+    allocation: uniform
+    allocationvars: [0.0, 1.0]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: sRGB_OETF_to_Linear.spi1d, interpolation: linear}
+        - !<ColorSpaceTransform> {src: Apple DCI-P3 D65, dst: Linear}
+
+  - !<ColorSpace>
+    name: BT.1886 EOTF
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      BT.1886 specification display referred Electro-Optical Transfer Function with REC.709 primaries.
+    isdata: false
+    allocation: uniform
+    allocationvars: [0.0, 1.0]
+    to_reference: !<ExponentTransform> {value: [2.4, 2.4, 2.4, 1.0]}
+
+  - !<ColorSpace>
+    name: AppleP3 Filmic Log Encoding
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range with Apple P3 primaries.
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.473931188, 12.526068812]
+    from_reference: !<GroupTransform>
+        children:
+          - !<ColorSpaceTransform> {src: Linear, dst: Filmic Log Encoding}
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0]}
+          - !<ColorSpaceTransform> {src: Linear, dst: Apple DCI-P3 D65}
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0], direction: inverse}
+    to_reference: !<GroupTransform>
+        children:
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0]}
+          - !<ColorSpaceTransform> {src: Apple DCI-P3 D65, dst: Linear}
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0], direction: inverse}
+          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+
+  - !<ColorSpace>
+    name: BT.1886 Filmic Log Encoding
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range with REC.709 primaries.
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.473931188, 12.526068812]
+    from_reference: !<GroupTransform>
+        children:
+          - !<ColorSpaceTransform> {src: Linear, dst: Filmic Log Encoding}
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0]}
+          - !<ExponentTransform> {value: [2.4, 2.4, 2.4, 1.0], direction: inverse}
+    to_reference: !<GroupTransform>
+        children:
+          - !<ExponentTransform> {value: [2.4, 2.4, 2.4, 1.0]}
+          - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0], direction: inverse}
+          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+
+  - !<ColorSpace>
+    name: Fuji F-Log OETF
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Fuji F-Log transfer function
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<FileTransform> {src: F-Log_to_Linear.spi1d, interpolation: linear}
+
+  - !<ColorSpace>
+    name: Fuji F-Log F-Gamut
+    family: ""
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Fuji F-Log / F-Gamut
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<ColorSpaceTransform> {src: Fuji F-Log OETF, dst: Linear}
+        - !<MatrixTransform> {matrix: [0.636958048000, 0.144616904000, 0.168880975000, 0.000000000000, 0.262700212000, 0.677998072000, 0.059301716500, 0.000000000000, 4.994106570E-17, 0.028072693000, 1.060985060000, 0.000000000000, 0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000]}
+        - !<MatrixTransform> {matrix: [0.412390800000, 0.357584340000, 0.180480790000, 0.000000000000, 0.212639010000, 0.715168680000, 0.072192320000, 0.000000000000, 0.019330820000, 0.119194780000, 0.950532150000, 0.000000000000, 0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000], direction: inverse}
+
+  - !<ColorSpace>
+    name: Panasonic V-Log V-Gamut
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Panasonic V-Log / V-Gamut
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: V-Log_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [1.806576, -0.695697, -0.110879, 0, -0.170090 , 1.305955, -0.135865, 0, -0.025206, -0.154468, 1.179674, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Arri Wide Gamut / LogC EI 800
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Panasonic V-Log / V-Gamut
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: V3_LogC_800_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [1.617523, -0.537287, -0.080237, 0, -0.070573, 1.334613, -0.26404, 0, -0.021102, -0.226954, 1.248056, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Arri Wide Gamut / LogC EI 400
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Panasonic V-Log / V-Gamut
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: V3_LogC_400_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [1.617523, -0.537287, -0.080237, 0, -0.070573, 1.334613, -0.26404, 0, -0.021102, -0.226954, 1.248056, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Non-Colour Data
+    family:
+    description: |
+        Transform to flag data as non-colour, strictly data, and avoid OCIO colour specific transforms.
+    equalitygroup:
+    bitdepth: 32f
+    isdata: true
+    allocation: uniform
+    allocationvars: [0, 1]
+
+looks:
+  - !<Look>
+    name: Greyscale
+    process_space: Filmic Log Encoding
+    transform: !<MatrixTransform> {matrix: [0.2126729, 0.7151521, 0.0721750, 0, 0.2126729, 0.7151521, 0.0721750, 0, 0.2126729, 0.7151521, 0.0721750, 0, 0, 0, 0, 1]}
+
+  - !<Look>
+    name: False Colour
+    process_space: Filmic Log Encoding
+    transform: !<GroupTransform>
+        children:
+          - !<MatrixTransform> {matrix: [0.2126729, 0.7151521, 0.0721750, 0, 0.2126729, 0.7151521, 0.0721750, 0, 0.2126729, 0.7151521, 0.0721750, 0, 0, 0, 0, 1]}
+          - !<FileTransform> {src: Filmic_False_Colour.spi3d, interpolation: best}
+
+  - !<Look>
+    name: Very High Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_1.20_1-00.spi1d, interpolation: linear}
+
+  - !<Look>
+    name: High Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0.99_1-0075.spi1d, interpolation: linear}
+
+  - !<Look>
+    name: Medium High Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0-85_1-011.spi1d, interpolation: best}
+
+  - !<Look>
+    name: Base Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0-70_1-03.spi1d, interpolation: linear}
+
+  - !<Look>
+    name: Medium Low Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0-60_1-04.spi1d, interpolation: linear}
+
+  - !<Look>
+    name: Low Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0-48_1-09.spi1d, interpolation: linear}
+
+  - !<Look>
+    name: Very Low Contrast
+    process_space: Filmic Log Encoding
+    transform: !<FileTransform> {src: Filmic_to_0-35_1-30.spi1d, interpolation: linear}

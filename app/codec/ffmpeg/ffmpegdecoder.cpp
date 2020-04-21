@@ -645,7 +645,7 @@ void FFmpegDecoder::Index(const QAtomicInt* cancelled)
 
 QString FFmpegDecoder::GetIndexFilename()
 {
-  return GetMediaIndexFilename(GetUniqueFileIdentifier(stream()->footage()->filename()))
+  return FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()))
       .append(QString::number(stream()->index()));
 }
 

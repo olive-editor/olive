@@ -152,7 +152,7 @@ QString VideoRenderFrameCache::CachePathName(const QByteArray& hash, const Pixel
     ext = QStringLiteral("exr");
   }
 
-  QDir cache_dir(QDir(GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
+  QDir cache_dir(QDir(FileFunctions::GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
   cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1.%2").arg(QString(hash.mid(1).toHex()), ext);

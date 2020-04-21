@@ -55,7 +55,7 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
     video_color_space_->addItem(colorspace);
   }
 
-  video_color_space_->setCurrentText(stream_->colorspace());
+  video_color_space_->setCurrentText(stream_->colorspace(false));
 
   video_layout->addWidget(video_color_space_, row, 1);
 
