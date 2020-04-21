@@ -65,6 +65,8 @@ bool AudioManager::IsRefreshingInputs()
 void AudioManager::PushToOutput(const QByteArray &samples)
 {
   output_manager_.Push(samples);
+
+  emit OutputPushed(samples);
 }
 
 void AudioManager::StartOutput(const QString &filename, qint64 offset, int playback_speed)

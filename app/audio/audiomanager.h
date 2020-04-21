@@ -90,6 +90,8 @@ signals:
 
   void AudioParamsChanged(const AudioRenderingParams& params);
 
+  void OutputPushed(const QByteArray& data);
+
   void Stopped();
 
 private:

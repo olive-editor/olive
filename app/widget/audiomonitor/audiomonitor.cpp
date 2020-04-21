@@ -31,19 +31,16 @@ OLIVE_NAMESPACE_ENTER
 
 const int kDecibelStep = 6;
 const int kDecibelMinimum = -200;
-const int kMaximumSmoothness = 4;
+const int kMaximumSmoothness = 8;
 
 AudioMonitor::AudioMonitor(QWidget *parent) :
-  QWidget(parent),
+  QOpenGLWidget(parent),
   cached_channels_(0)
 {
-  update_timer_.setInterval(1000 / 60); // Hardcoded to 60 FPS
-  connect(&update_timer_, &QTimer::timeout, this, static_cast<void(AudioMonitor::*)()>(&AudioMonitor::update));
-  update_timer_.start();
-
   values_.resize(kMaximumSmoothness);
 
   connect(AudioManager::instance(), &AudioManager::OutputDeviceStarted, this, &AudioMonitor::OutputDeviceSet);
+  connect(AudioManager::instance(), &AudioManager::OutputPushed, this, &AudioMonitor::OutputPushed);
   connect(AudioManager::instance(), &AudioManager::AudioParamsChanged, this, &AudioMonitor::SetParams);
   connect(AudioManager::instance(), &AudioManager::Stopped, this, &AudioMonitor::Stop);
 }
@@ -81,16 +78,37 @@ void AudioMonitor::OutputDeviceSet(const QString &filename, qint64 offset, int p
 
   playback_speed_ = playback_speed;
 
-  update_timer_.start();
   last_time_ = QDateTime::currentMSecsSinceEpoch();
 
-  update();
+  SetUpdateLoop(true);
 }
 
 void AudioMonitor::Stop()
 {
   if (file_.isOpen()) {
     file_.close();
+  }
+}
+
+void AudioMonitor::OutputPushed(const QByteArray &data)
+{
+  QVector<double> v(params_.channel_count(), 0);
+
+  BytesToSampleSummary(data, v);
+
+  PushValue(v);
+
+  SetUpdateLoop(true);
+}
+
+void AudioMonitor::SetUpdateLoop(bool e)
+{
+  if (e) {
+    connect(this, &AudioMonitor::frameSwapped, this, static_cast<void(AudioMonitor::*)()>(&AudioMonitor::update));
+
+    update();
+  } else {
+    disconnect(this, &AudioMonitor::frameSwapped, this, static_cast<void(AudioMonitor::*)()>(&AudioMonitor::update));
   }
 }
 
@@ -111,13 +129,15 @@ void AudioMonitor::SetValues(QVector<double> values)
 }
 */
 
-void AudioMonitor::paintEvent(QPaintEvent *)
+void AudioMonitor::paintGL()
 {
+  QPainter p(this);
+  p.fillRect(rect(), palette().window().color());
+
   if (!params_.channel_count()) {
     return;
   }
 
-  QPainter p(this);
   QFontMetrics fm = p.fontMetrics();
 
   int peaks_y = 0;
@@ -223,6 +243,8 @@ void AudioMonitor::paintEvent(QPaintEvent *)
   p.setBrush(QColor(0, 0, 0, 128));
   p.setPen(Qt::NoPen);
 
+  bool all_zeroes = true;
+
   for (int i=0;i<params_.channel_count();i++) {
     int channel_x = full_meter_rect.x() + channel_width * i;
 
@@ -238,6 +260,10 @@ void AudioMonitor::paintEvent(QPaintEvent *)
       peaked_[i] = true;
     }
 
+    if (all_zeroes && !qIsNull(vol)) {
+      all_zeroes = false;
+    }
+
     // Convert val to logarithmic scale
     vol = QAudio::convertVolume(vol, QAudio::LinearVolumeScale, QAudio::LogarithmicVolumeScale);
 
@@ -247,6 +273,11 @@ void AudioMonitor::paintEvent(QPaintEvent *)
     if (!peaked_.at(i)) {
       p.drawRect(peaks_rect);
     }
+  }
+
+  if (all_zeroes && !file_.isOpen()) {
+    // Optimize by disabling the update loop
+    SetUpdateLoop(false);
   }
 }
 
@@ -265,8 +296,21 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
   // Determine how many bytes this is
   int bytes_to_read = params_.time_to_bytes(static_cast<double>(time_passed) * 0.001);
 
-  QByteArray b = file_.read(bytes_to_read);
+  QByteArray b = file_.read(bytes_to_read);;
 
+  BytesToSampleSummary(b, v);
+
+  last_time_ = current_time;
+}
+
+void AudioMonitor::PushValue(const QVector<double> &v)
+{
+  values_.removeFirst();
+  values_.append(v);
+}
+
+void AudioMonitor::BytesToSampleSummary(const QByteArray &b, QVector<double> &v)
+{
   const float* samples = reinterpret_cast<const float*>(b.constData());
   int nb_samples = b.size() / sizeof(float);
 
@@ -279,14 +323,6 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
       v.replace(channel, abs_sample);
     }
   }
-
-  last_time_ = current_time;
-}
-
-void AudioMonitor::PushValue(const QVector<double> &v)
-{
-  values_.removeFirst();
-  values_.append(v);
 }
 
 QVector<double> AudioMonitor::GetAverages() const

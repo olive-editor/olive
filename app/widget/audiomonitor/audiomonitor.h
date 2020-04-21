@@ -22,15 +22,15 @@
 #define AUDIOMONITORWIDGET_H
 
 #include <QFile>
+#include <QOpenGLWidget>
 #include <QTimer>
-#include <QWidget>
 
 #include "common/define.h"
 #include "render/audioparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class AudioMonitor : public QWidget
+class AudioMonitor : public QOpenGLWidget
 {
   Q_OBJECT
 public:
@@ -45,14 +45,22 @@ public slots:
 
   void Stop();
 
+  void OutputPushed(const QByteArray& data);
+
 protected:
-  virtual void paintEvent(QPaintEvent* event) override;
+  //virtual void paintEvent(QPaintEvent* event) override;
+  virtual void paintGL() override;
+
   virtual void mousePressEvent(QMouseEvent* event) override;
 
 private:
+  void SetUpdateLoop(bool e);
+
   void UpdateValuesFromFile(QVector<double> &v);
 
   void PushValue(const QVector<double>& v);
+
+  void BytesToSampleSummary(const QByteArray& bytes, QVector<double>& v);
 
   QVector<double> GetAverages() const;
 
@@ -68,8 +76,6 @@ private:
 
   QPixmap cached_background_;
   int cached_channels_;
-
-  QTimer update_timer_;
 
 };
 
