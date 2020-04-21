@@ -83,6 +83,9 @@ void Config::SetDefaults()
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
   config_map_["Loop"] = false;
 
+  config_map_["AudioOutput"] = QString();
+  config_map_["AudioInput"] = QString();
+
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   config_map_["DiskCacheSize"] = 20.0;
   config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(2));
