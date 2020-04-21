@@ -52,9 +52,9 @@ void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
       // Read color management info
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("config")) {
-          set_ocio_config(reader->readElementText());
+          color_manager_.SetConfig(reader->readElementText());
         } else if (reader->name() == QStringLiteral("default")) {
-          set_default_input_colorspace(reader->readElementText());
+          color_manager_.SetDefaultInputColorSpace(reader->readElementText());
         } else {
           reader->skipCurrentElement();
         }
@@ -86,9 +86,9 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   writer->writeStartElement("colormanagement");
 
-  writer->writeTextElement("config", ocio_config_);
+  writer->writeTextElement("config", color_manager_.GetConfigFilename());
 
-  writer->writeTextElement("default", default_input_colorspace());
+  writer->writeTextElement("default", color_manager_.GetDefaultInputColorSpace());
 
   writer->writeEndElement(); // colormanagement
 
@@ -133,28 +133,6 @@ void Project::set_filename(const QString &s)
   filename_ = s;
 
   emit NameChanged();
-}
-
-const QString &Project::ocio_config() const
-{
-  return ocio_config_;
-}
-
-void Project::set_ocio_config(const QString &ocio_config)
-{
-  color_manager_.SetConfig(ocio_config);
-
-  ocio_config_ = ocio_config;
-}
-
-const QString &Project::default_input_colorspace() const
-{
-  return color_manager_.GetDefaultInputColorSpace();
-}
-
-void Project::set_default_input_colorspace(const QString &colorspace)
-{
-  color_manager_.SetDefaultInputColorSpace(colorspace);
 }
 
 ColorManager *Project::color_manager()

@@ -42,24 +42,62 @@ OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
   return config_;
 }
 
+const QString &ColorManager::GetConfigFilename() const
+{
+  return config_filename_;
+}
+
 void ColorManager::SetConfig(const QString &filename)
 {
+  if (filename != config_filename_) {
+    SetConfigInternal(filename);
+
+    emit ConfigChanged();
+  }
+}
+
+void ColorManager::SetConfigInternal(const QString &filename)
+{
+  config_filename_ = filename;
+
   OCIO::ConstConfigRcPtr cfg;
 
-  if (filename.isEmpty()) {
+  if (config_filename_.isEmpty()) {
     cfg = OCIO::Config::CreateFromEnv();
   } else {
     cfg = OCIO::Config::CreateFromFile(filename.toUtf8());
   }
 
-  SetConfig(cfg);
+  config_ = cfg;
 }
 
-void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
+void ColorManager::SetDefaultInputColorSpaceInternal(const QString &s)
 {
-  config_ = config;
+  default_input_color_space_ = s;
+}
 
-  emit ConfigChanged();
+void ColorManager::SetConfigAndDefaultInput(const QString &filename, const QString &s)
+{
+  bool config_changed = false;
+  bool default_input_changed = false;
+
+  if (filename != config_filename_) {
+    SetConfigInternal(filename);
+    config_changed = true;
+  }
+
+  if (default_input_color_space_ != s) {
+    SetDefaultInputColorSpaceInternal(s);
+    default_input_changed = true;
+  }
+
+  if (config_changed) {
+    emit ConfigChanged();
+  }
+
+  if (default_input_changed) {
+    emit DefaultInputColorSpaceChanged();
+  }
 }
 
 void ColorManager::DisassociateAlpha(FramePtr f)
@@ -138,7 +176,11 @@ const QString &ColorManager::GetDefaultInputColorSpace() const
 
 void ColorManager::SetDefaultInputColorSpace(const QString &s)
 {
-  default_input_color_space_ = s;
+  if (default_input_color_space_ != s) {
+    SetDefaultInputColorSpaceInternal(s);
+
+    emit DefaultInputColorSpaceChanged();
+  }
 }
 
 const QString &ColorManager::GetReferenceColorSpace() const
@@ -149,6 +191,8 @@ const QString &ColorManager::GetReferenceColorSpace() const
 void ColorManager::SetReferenceColorSpace(const QString &s)
 {
   reference_space_ = s;
+
+  emit ConfigChanged();
 }
 
 QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)

@@ -77,7 +77,7 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
   // Set up OCIO context
-  QString colorspace_match = QStringLiteral("%1:%2").arg(video_stream->footage()->project()->ocio_config(), video_stream->colorspace());
+  QString colorspace_match = QStringLiteral("%1:%2").arg(video_stream->footage()->project()->color_manager()->GetConfigFilename(), video_stream->colorspace());
 
   OpenGLTextureCache::ReferencePtr footage_tex_ref = nullptr;
 

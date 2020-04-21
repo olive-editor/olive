@@ -85,17 +85,15 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     return;
   }
 
-  ocio_filename_->setText(working_project_->ocio_config());
-  ListPossibleInputSpaces(working_project_->ocio_config());
+  ocio_filename_->setText(working_project_->color_manager()->GetConfigFilename());
+  ListPossibleInputSpaces(working_project_->color_manager()->GetConfigFilename());
 }
 
 void ProjectPropertiesDialog::accept()
 {
   try {
     // This should ripple changes throughout the program that the color config has changed, therefore must be done last
-    working_project_->set_ocio_config(ocio_filename_->text());
-
-    working_project_->set_default_input_colorspace(default_input_colorspace_->currentText());
+    working_project_->color_manager()->SetConfigAndDefaultInput(ocio_filename_->text(), default_input_colorspace_->currentText());
 
     QDialog::accept();
   } catch (OCIO::Exception& e) {
@@ -132,7 +130,7 @@ void ProjectPropertiesDialog::ListPossibleInputSpaces(const QString& fn)
     foreach (QString cs, input_cs) {
       default_input_colorspace_->addItem(cs);
 
-      if (cs == working_project_->default_input_colorspace()) {
+      if (cs == working_project_->color_manager()->GetDefaultInputColorSpace()) {
         default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
       }
     }

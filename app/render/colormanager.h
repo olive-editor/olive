@@ -36,9 +36,11 @@ public:
 
   OCIO::ConstConfigRcPtr GetConfig() const;
 
+  const QString& GetConfigFilename() const;
+
   void SetConfig(const QString& filename);
 
-  void SetConfig(OCIO::ConstConfigRcPtr config);
+  void SetConfigAndDefaultInput(const QString& filename, const QString& s);
 
   static void DisassociateAlpha(FramePtr f);
 
@@ -80,7 +82,13 @@ public:
 signals:
   void ConfigChanged();
 
+  void DefaultInputColorSpaceChanged();
+
 private:
+  void SetConfigInternal(const QString& filename);
+
+  void SetDefaultInputColorSpaceInternal(const QString& s);
+
   OCIO::ConstConfigRcPtr config_;
 
   enum AlphaAction {
@@ -93,6 +101,8 @@ private:
 
   template<typename T>
   static void AssociateAlphaInternal(AlphaAction action, T* data, int pix_count);
+
+  QString config_filename_;
 
   QString default_input_color_space_;
 

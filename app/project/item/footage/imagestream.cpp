@@ -41,6 +41,12 @@ void ImageStream::FootageSetEvent(Footage *f)
           this,
           &ImageStream::ColorConfigChanged,
           Qt::DirectConnection);
+
+  connect(f->project()->color_manager(),
+          &ColorManager::DefaultInputColorSpaceChanged,
+          this,
+          &ImageStream::DefaultColorSpaceChanged,
+          Qt::DirectConnection);
 }
 
 void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
@@ -101,7 +107,7 @@ void ImageStream::set_premultiplied_alpha(bool e)
 const QString &ImageStream::colorspace(bool default_if_empty) const
 {
   if (colorspace_.isEmpty() && default_if_empty) {
-    return footage()->project()->default_input_colorspace();
+    return footage()->project()->color_manager()->GetDefaultInputColorSpace();
   } else {
     return colorspace_;
   }

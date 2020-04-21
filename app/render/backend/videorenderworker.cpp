@@ -190,7 +190,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
               ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
 
               // Current color config and space
-              hash->addData(image_stream->footage()->project()->ocio_config().toUtf8());
+              hash->addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
               hash->addData(image_stream->colorspace().toUtf8());
 
               // Alpha associated setting

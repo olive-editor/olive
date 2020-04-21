@@ -47,7 +47,7 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
   OCIO::ConstConfigRcPtr config = stream->footage()->project()->color_manager()->GetConfig();
   int number_of_colorspaces = config->getNumColorSpaces();
 
-  video_color_space_->addItem(tr("Default (%1)").arg(stream->footage()->project()->default_input_colorspace()));
+  video_color_space_->addItem(tr("Default (%1)").arg(stream->footage()->project()->color_manager()->GetDefaultInputColorSpace()));
 
   for (int i=0;i<number_of_colorspaces;i++) {
     QString colorspace = config->getColorSpaceNameByIndex(i);

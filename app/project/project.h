@@ -58,12 +58,6 @@ public:
   QString pretty_filename() const;
   void set_filename(const QString& s);
 
-  const QString& ocio_config() const;
-  void set_ocio_config(const QString& ocio_config);
-
-  const QString& default_input_colorspace() const;
-  void set_default_input_colorspace(const QString& colorspace);
-
   ColorManager* color_manager();
 
   QList<ItemPtr> get_items_of_type(Item::Type type) const;
@@ -85,8 +79,6 @@ private:
   Folder root_;
 
   QString filename_;
-
-  QString ocio_config_;
 
   ColorManager color_manager_;
 
