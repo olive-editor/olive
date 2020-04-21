@@ -355,11 +355,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
-  if (audio_src != nullptr && audio_src->open(QIODevice::ReadOnly)) {
-    audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
+  QString audio_fn = audio_renderer_->CachePathName();
+  if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(audio_renderer_->params());
-    AudioManager::instance()->StartOutput(audio_src, playback_speed_);
+    AudioManager::instance()->StartOutput(audio_fn, audio_renderer_->params().time_to_bytes(GetTime()), playback_speed_);
   }
 
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
@@ -378,19 +377,20 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
+    QString audio_fn = audio_renderer_->CachePathName();
+    QFile audio_src(audio_fn);
 
-    if (audio_src && audio_src->open(QFile::ReadOnly)) {
+    if (audio_src.open(QFile::ReadOnly)) {
       // FIXME: Hardcoded scrubbing interval (20ms)
       int size_of_sample = audio_renderer_->params().time_to_bytes(rational(20, 1000));
 
       // Push audio
-      audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
-      QByteArray frame_audio = audio_src->read(size_of_sample);
+      audio_src.seek(audio_renderer_->params().time_to_bytes(GetTime()));
+      QByteArray frame_audio = audio_src.read(size_of_sample);
       AudioManager::instance()->SetOutputParams(audio_renderer_->params());
       AudioManager::instance()->PushToOutput(frame_audio);
 
-      audio_src->close();
+      audio_src.close();
     }
   }
 }

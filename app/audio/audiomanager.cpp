@@ -80,9 +80,9 @@ void AudioManager::PushToOutput(const QByteArray &samples)
   output_manager_.Push(samples);
 }
 
-void AudioManager::StartOutput(QIODevice *device, int playback_speed)
+void AudioManager::StartOutput(const QString &filename, qint64 offset, int playback_speed)
 {
-  output_manager_.PullFromDevice(device, playback_speed);
+  output_manager_.PullFromDevice(filename, offset, playback_speed);
 }
 
 void AudioManager::StopOutput()

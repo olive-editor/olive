@@ -40,8 +40,6 @@ public:
    */
   void SetParameters(const AudioRenderingParams &params);
 
-  virtual QIODevice* GetAudioPullDevice() = 0;
-
   const AudioRenderingParams& params() const;
 
   QString CachePathName() const;

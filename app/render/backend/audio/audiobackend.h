@@ -35,8 +35,6 @@ public:
 
   virtual ~AudioBackend() override;
 
-  virtual QIODevice* GetAudioPullDevice() override;
-
 protected:
   virtual bool InitInternal() override;
 
@@ -50,9 +48,6 @@ protected:
 
 private slots:
   void ThreadCompletedCache(NodeDependency dep, NodeValueTable data, qint64 job_time);
-
-private:
-  QFile pull_device_;
 
 };
 

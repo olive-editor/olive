@@ -82,7 +82,7 @@ public:
    *
    * This takes ownership of the QIODevice and will delete it when StopOutput() is called
    */
-  void StartOutput(QIODevice* device, int playback_speed);
+  void StartOutput(const QString& filename, qint64 offset, int playback_speed);
 
   /**
    * @brief Stop audio output immediately

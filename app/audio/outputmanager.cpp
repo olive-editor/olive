@@ -82,9 +82,9 @@ void AudioOutputManager::SetParameters(const AudioRenderingParams &params)
   device_proxy_.SetParameters(params);
 }
 
-void AudioOutputManager::PullFromDevice(QIODevice *device, int playback_speed)
+void AudioOutputManager::PullFromDevice(const QString &filename, qint64 offset, int playback_speed)
 {
-  if (!output_ || !device) {
+  if (!output_) {
     return;
   }
 
@@ -94,7 +94,7 @@ void AudioOutputManager::PullFromDevice(QIODevice *device, int playback_speed)
   pushed_samples_.clear();
 
   // Pull from the device
-  device_proxy_.SetDevice(device, playback_speed);
+  device_proxy_.SetDevice(filename, offset, playback_speed);
   device_proxy_.open(QIODevice::ReadOnly);
   output_->start(&device_proxy_);
 }

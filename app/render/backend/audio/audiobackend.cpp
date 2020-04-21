@@ -34,13 +34,6 @@ AudioBackend::~AudioBackend()
   Close();
 }
 
-QIODevice *AudioBackend::GetAudioPullDevice()
-{
-  pull_device_.setFileName(CachePathName());
-
-  return &pull_device_;
-}
-
 bool AudioBackend::InitInternal()
 {
   // Initiate one thread per CPU core

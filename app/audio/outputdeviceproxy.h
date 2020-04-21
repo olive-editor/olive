@@ -21,22 +21,27 @@
 #ifndef AUDIOOUTPUTDEVICEPROXY_H
 #define AUDIOOUTPUTDEVICEPROXY_H
 
-#include <QIODevice>
+#include <QFile>
 
 #include "common/define.h"
 #include "tempoprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
 
+/**
+ * @brief QIODevice wrapper that can adjust speed/reverse an audio file
+ */
 class AudioOutputDeviceProxy : public QIODevice
 {
   Q_OBJECT
 public:
   AudioOutputDeviceProxy();
 
+  virtual ~AudioOutputDeviceProxy() override;
+
   void SetParameters(const AudioRenderingParams& params);
 
-  void SetDevice(QIODevice* device, int playback_speed);
+  void SetDevice(const QString &filename, qint64 offset, int playback_speed);
 
   virtual void close() override;
 
@@ -48,7 +53,7 @@ protected:
 private:
   qint64 ReverseAwareRead(char* data, qint64 maxlen);
 
-  QIODevice* device_;
+  QFile file_;
 
   TempoProcessor tempo_processor_;
 
