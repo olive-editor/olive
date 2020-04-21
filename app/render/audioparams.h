@@ -51,7 +51,9 @@ public:
   AudioRenderingParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format);
   AudioRenderingParams(const AudioParams& params, const SampleFormat::Format& format);
 
+  int time_to_bytes(const double& time) const;
   int time_to_bytes(const rational& time) const;
+  int time_to_samples(const double& time) const;
   int time_to_samples(const rational& time) const;
   int samples_to_bytes(const int& samples) const;
   rational samples_to_time(const int& samples) const;

@@ -70,6 +70,13 @@ AudioRenderingParams::AudioRenderingParams(const AudioParams &params, const Samp
 {
 }
 
+int AudioRenderingParams::time_to_bytes(const double &time) const
+{
+  Q_ASSERT(is_valid());
+
+  return time_to_samples(time) * channel_count() * bytes_per_sample_per_channel();
+}
+
 const SampleFormat::Format &AudioRenderingParams::format() const
 {
   return format_;
@@ -91,16 +98,19 @@ bool AudioRenderingParams::operator!=(const AudioRenderingParams &other) const
 
 int AudioRenderingParams::time_to_bytes(const rational &time) const
 {
+  return time_to_bytes(time.toDouble());
+}
+
+int AudioRenderingParams::time_to_samples(const double &time) const
+{
   Q_ASSERT(is_valid());
 
-  return time_to_samples(time) * channel_count() * bytes_per_sample_per_channel();
+  return qFloor(time * sample_rate());
 }
 
 int AudioRenderingParams::time_to_samples(const rational &time) const
 {
-  Q_ASSERT(is_valid());
-
-  return qFloor(time.toDouble() * sample_rate());
+  return time_to_samples(time.toDouble());
 }
 
 int AudioRenderingParams::samples_to_bytes(const int &samples) const

@@ -75,6 +75,8 @@ void AudioManager::StartOutput(const QString &filename, qint64 offset, int playb
                             Q_ARG(const QString&, filename),
                             Q_ARG(qint64, offset),
                             Q_ARG(int, playback_speed));
+
+  emit OutputDeviceStarted(filename, offset, playback_speed);
 }
 
 void AudioManager::StopOutput()
@@ -82,6 +84,8 @@ void AudioManager::StopOutput()
   QMetaObject::invokeMethod(&output_manager_,
                             "ResetToPushMode",
                             Qt::QueuedConnection);
+
+  emit Stopped();
 }
 
 void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
@@ -154,6 +158,8 @@ void AudioManager::SetOutputParams(const AudioRenderingParams &params)
 
     // Refresh output device
     SetOutputDevice(output_device_info_);
+
+    emit AudioParamsChanged(output_params_);
   }
 }
 

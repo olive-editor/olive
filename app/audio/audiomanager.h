@@ -86,6 +86,12 @@ signals:
 
   void OutputNotified();
 
+  void OutputDeviceStarted(const QString& filename, qint64 offset, int playback_speed);
+
+  void AudioParamsChanged(const AudioRenderingParams& params);
+
+  void Stopped();
+
 private:
   AudioManager();
 

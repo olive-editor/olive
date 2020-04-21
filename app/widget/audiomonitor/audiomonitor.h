@@ -21,10 +21,12 @@
 #ifndef AUDIOMONITORWIDGET_H
 #define AUDIOMONITORWIDGET_H
 
+#include <QFile>
 #include <QTimer>
 #include <QWidget>
 
 #include "common/define.h"
+#include "render/audioparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -34,19 +36,41 @@ class AudioMonitor : public QWidget
 public:
   AudioMonitor(QWidget* parent = nullptr);
 
+  virtual ~AudioMonitor() override;
+
 public slots:
-  void SetValues(QVector<double> values);
-  void Clear();
+  void SetParams(const AudioRenderingParams& params);
+
+  void OutputDeviceSet(const QString& filename, qint64 offset, int playback_speed);
+
+  void Stop();
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
 
 private:
-  QVector<double> values_;
+  void UpdateValuesFromFile(QVector<double> &v);
+
+  void PushValue(const QVector<double>& v);
+
+  QVector<double> GetAverages() const;
+
+  AudioRenderingParams params_;
+
+  QFile file_;
+  qint64 last_time_;
+
+  int playback_speed_;
+
+  QVector< QVector<double> > values_;
   QVector<bool> peaked_;
 
-  QTimer clear_timer_;
+  QPixmap cached_background_;
+  int cached_channels_;
+
+  QTimer update_timer_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
