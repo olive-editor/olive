@@ -20,7 +20,6 @@
 
 #include "preferencesaudiotab.h"
 
-#include <QAudioDeviceInfo>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -30,8 +29,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-PreferencesAudioTab::PreferencesAudioTab() :
-  has_devices_(false)
+PreferencesAudioTab::PreferencesAudioTab()
 {
   QGridLayout* audio_tab_layout = new QGridLayout(this);
   audio_tab_layout->setMargin(0);
@@ -41,16 +39,16 @@ PreferencesAudioTab::PreferencesAudioTab() :
   // Audio -> Output Device
   audio_tab_layout->addWidget(new QLabel(tr("Output Device:")), row, 0);
 
-  audio_output_devices = new QComboBox();
-  audio_tab_layout->addWidget(audio_output_devices, row, 1);
+  audio_output_devices_ = new QComboBox();
+  audio_tab_layout->addWidget(audio_output_devices_, row, 1);
 
   row++;
 
   // Audio -> Input Device
   audio_tab_layout->addWidget(new QLabel(tr("Input Device:")), row, 0);
 
-  audio_input_devices = new QComboBox();
-  audio_tab_layout->addWidget(audio_input_devices, row, 1);
+  audio_input_devices_ = new QComboBox();
+  audio_tab_layout->addWidget(audio_input_devices_, row, 1);
 
   row++;
 
@@ -58,7 +56,7 @@ PreferencesAudioTab::PreferencesAudioTab() :
 
   audio_tab_layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
 
-  audio_sample_rate = new QComboBox();
+  audio_sample_rate_ = new QComboBox();
   /*combobox_audio_sample_rates(audio_sample_rate);
   for (int i=0;i<audio_sample_rate->count();i++) {
     if (audio_sample_rate->itemData(i).toInt() == olive::config.audio_rate) {
@@ -67,18 +65,18 @@ PreferencesAudioTab::PreferencesAudioTab() :
     }
   }*/
 
-  audio_tab_layout->addWidget(audio_sample_rate, row, 1);
+  audio_tab_layout->addWidget(audio_sample_rate_, row, 1);
 
   row++;
 
   // Audio -> Audio Recording
   audio_tab_layout->addWidget(new QLabel(tr("Audio Recording:"), this), row, 0);
 
-  recordingComboBox = new QComboBox();
-  recordingComboBox->addItem(tr("Mono"));
-  recordingComboBox->addItem(tr("Stereo"));
+  recording_combobox_ = new QComboBox();
+  recording_combobox_->addItem(tr("Mono"));
+  recording_combobox_->addItem(tr("Stereo"));
 //  recordingComboBox->setCurrentIndex(olive::config.recording_mode - 1);
-  audio_tab_layout->addWidget(recordingComboBox, row, 1);
+  audio_tab_layout->addWidget(recording_combobox_, row, 1);
 
   row++;
 
@@ -89,52 +87,54 @@ PreferencesAudioTab::PreferencesAudioTab() :
 
   RetrieveDeviceLists();
 
-  connect(refresh_devices, SIGNAL(clicked(bool)), this, SLOT(RefreshDevices()));
-  connect(AudioManager::instance(), SIGNAL(DeviceListReady()), this, SLOT(RetrieveDeviceLists()));
+  connect(refresh_devices, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
+  connect(AudioManager::instance(), &AudioManager::OutputListReady, this, &PreferencesAudioTab::RetrieveOutputList);
+  connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
 }
 
 void PreferencesAudioTab::Accept()
 {
-  // If we don't have the device list, we can't set it
-  if (!has_devices_) {
-    return;
-  }
-
-  // Get device info
-  QAudioDeviceInfo selected_output;
-  QAudioDeviceInfo selected_input;
-
-  QString selected_output_name;
-  QString selected_input_name;
-
-  // Index 0 is always the default device
-  if (audio_output_devices->currentIndex() == 0) {
-    selected_output = QAudioDeviceInfo::defaultOutputDevice();
-  } else {
-    selected_output = AudioManager::instance()->ListOutputDevices().at(audio_output_devices->currentData().toInt());
-    selected_output_name = selected_output.deviceName();
-  }
-
-  // Index 0 is always the default device
-  if (audio_input_devices->currentIndex() == 0) {
-    selected_input = QAudioDeviceInfo::defaultInputDevice();
-  } else {
-    selected_input = AudioManager::instance()->ListInputDevices().at(audio_input_devices->currentData().toInt());
-    selected_input_name = selected_input.deviceName();
-  }
-
-  // Save it in the global application preferences
   // FIXME: Qt documentation states that QAudioDeviceInfo::deviceName() is a "unique identifiers", which would make them
   //        ideal for saving in preferences, but in practice they don't actually appear to be unique.
   //        See: https://bugreports.qt.io/browse/QTBUG-16841
-  if (Config::Current()["AudioOutput"] != selected_output_name) {
-    Config::Current()["AudioOutput"] = selected_output_name;
-    AudioManager::instance()->SetOutputDevice(selected_output);
+
+  // If we don't have the device list, we can't set it
+  if (audio_output_devices_->isEnabled()) {
+    // Get device info
+    QAudioDeviceInfo selected_output;
+    QString selected_output_name;
+
+    // Index 0 is always the default device
+    if (audio_output_devices_->currentIndex() == 0) {
+      selected_output = QAudioDeviceInfo::defaultOutputDevice();
+    } else {
+      selected_output = AudioManager::instance()->ListOutputDevices().at(audio_output_devices_->currentData().toInt());
+      selected_output_name = selected_output.deviceName();
+    }
+
+    // Save it in the global application preferences
+    if (Config::Current()["AudioOutput"] != selected_output_name) {
+      Config::Current()["AudioOutput"] = selected_output_name;
+      AudioManager::instance()->SetOutputDevice(selected_output);
+    }
   }
 
-  if (Config::Current()["AudioInput"] != selected_input_name) {
-    Config::Current()["AudioInput"] = selected_input_name;
-    AudioManager::instance()->SetInputDevice(selected_input);
+  if (audio_input_devices_->isEnabled()) {
+    QAudioDeviceInfo selected_input;
+    QString selected_input_name;
+
+    // Index 0 is always the default device
+    if (audio_input_devices_->currentIndex() == 0) {
+      selected_input = QAudioDeviceInfo::defaultInputDevice();
+    } else {
+      selected_input = AudioManager::instance()->ListInputDevices().at(audio_input_devices_->currentData().toInt());
+      selected_input_name = selected_input.deviceName();
+    }
+
+    if (Config::Current()["AudioInput"] != selected_input_name) {
+      Config::Current()["AudioInput"] = selected_input_name;
+      AudioManager::instance()->SetInputDevice(selected_input);
+    }
   }
 }
 
@@ -145,51 +145,57 @@ void PreferencesAudioTab::RefreshDevices()
   RetrieveDeviceLists();
 }
 
+void PreferencesAudioTab::RetrieveOutputList()
+{
+  PopulateComboBox(audio_output_devices_,
+                   AudioManager::instance()->IsRefreshingOutputs(),
+                   AudioManager::instance()->ListOutputDevices(),
+                   Config::Current()["AudioOutput"].toString());
+}
+
+void PreferencesAudioTab::RetrieveInputList()
+{
+  PopulateComboBox(audio_input_devices_,
+                   AudioManager::instance()->IsRefreshingInputs(),
+                   AudioManager::instance()->ListInputDevices(),
+                   Config::Current()["AudioInput"].toString());
+}
+
 void PreferencesAudioTab::RetrieveDeviceLists()
 {
-  has_devices_ = false;
+  RetrieveOutputList();
+  RetrieveInputList();
+}
 
-  audio_input_devices->clear();
-  audio_output_devices->clear();
+void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing, const QList<QAudioDeviceInfo> &list, const QString& preferred)
+{
+  cb->clear();
 
-  if (AudioManager::instance()->IsRefreshing()) {
-    audio_output_devices->addItem(tr("Please wait..."));
-    audio_input_devices->addItem(tr("Please wait..."));
-    audio_output_devices->setEnabled(false);
-    audio_input_devices->setEnabled(false);
-    return;
-  }
+  cb->setEnabled(still_refreshing);
 
-  audio_output_devices->setEnabled(true);
-  audio_input_devices->setEnabled(true);
+  if (still_refreshing) {
+    cb->addItem(tr("Please wait..."));
+  } else {
+    bool found_preferred_device = false;
+    cb->setEnabled(true);
 
-  // list all available audio output devices
-  bool found_preferred_device = false;
-  audio_output_devices->addItem(tr("Default"), "");
-  for (int i=0;i<AudioManager::instance()->ListOutputDevices().size();i++) {
-    audio_output_devices->addItem(AudioManager::instance()->ListOutputDevices().at(i).deviceName(),
-                                  i);
-    if (!found_preferred_device
-        && AudioManager::instance()->ListOutputDevices().at(i).deviceName() == Config::Current()["AudioOutput"]) {
-      audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
-      found_preferred_device = true;
+    // Add null default item
+    cb->addItem(tr("Default"), QVariant());
+
+    // For each entry, add it to the combobox
+    for (int i=0;i<list.size();i++) {
+
+      cb->addItem(list.at(i).deviceName(), i);
+
+      if (!found_preferred_device
+          && list.at(i).deviceName() == preferred) {
+        cb->setCurrentIndex(cb->count()-1);
+        found_preferred_device = true;
+      }
+
     }
-  }
 
-  // list all available audio input devices
-  found_preferred_device = false;
-  audio_input_devices->addItem(tr("Default"), "");
-  for (int i=0;i<AudioManager::instance()->ListInputDevices().size();i++) {
-    audio_input_devices->addItem(AudioManager::instance()->ListInputDevices().at(i).deviceName(),
-                                 i);
-    if (!found_preferred_device
-        && AudioManager::instance()->ListInputDevices().at(i).deviceName() == Config::Current()["AudioInput"]) {
-      audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
-      found_preferred_device = true;
-    }
   }
-
-  has_devices_ = true;
 }
 
 OLIVE_NAMESPACE_EXIT

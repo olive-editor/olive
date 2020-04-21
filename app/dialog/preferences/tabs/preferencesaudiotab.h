@@ -21,6 +21,7 @@
 #ifndef PREFERENCESAUDIOTAB_H
 #define PREFERENCESAUDIOTAB_H
 
+#include <QAudioDeviceInfo>
 #include <QComboBox>
 
 #include "preferencestab.h"
@@ -39,30 +40,34 @@ private:
   /**
    * @brief UI widget for selecting the output audio device
    */
-  QComboBox* audio_output_devices;
+  QComboBox* audio_output_devices_;
 
   /**
    * @brief UI widget for selecting the input audio device
    */
-  QComboBox* audio_input_devices;
+  QComboBox* audio_input_devices_;
 
   /**
    * @brief UI widget for selecting the audio sampling rates
    */
-  QComboBox* audio_sample_rate;
+  QComboBox* audio_sample_rate_;
 
   /**
    * @brief UI widget for editing the recording channels
    */
-  QComboBox* recordingComboBox;
+  QComboBox* recording_combobox_;
 
 private slots:
   void RefreshDevices();
 
-  void RetrieveDeviceLists();
+  void RetrieveOutputList();
+
+  void RetrieveInputList();
 
 private:
-  bool has_devices_;
+  void RetrieveDeviceLists();
+
+  static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
 
 };
 
