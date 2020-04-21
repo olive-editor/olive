@@ -39,7 +39,6 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
   clear_timer_.setInterval(kClearTimerInterval);
   clear_timer_.setSingleShot(true);
 
-  connect(AudioManager::instance(), &AudioManager::SentSamples, this, &AudioMonitor::SetValues);
   connect(&clear_timer_, &QTimer::timeout, this, &AudioMonitor::Clear);
 }
 

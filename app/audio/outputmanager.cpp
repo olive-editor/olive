@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QtMath>
 
+#include <QFile>
+
 #include "bufferaverage.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -30,15 +32,18 @@ OLIVE_NAMESPACE_ENTER
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
-  push_device_(nullptr),
-  enable_sending_samples_(false)
+  push_device_(nullptr)
 {
-  connect(&device_proxy_, &AudioOutputDeviceProxy::ProcessedAverages, this, &AudioOutputManager::SentSamples);
+}
+
+AudioOutputManager::~AudioOutputManager()
+{
+  delete output_;
 }
 
 bool AudioOutputManager::OutputIsSet()
 {
-  return (output_.get());
+  return output_;
 }
 
 void AudioOutputManager::Push(const QByteArray& samples)
@@ -107,9 +112,6 @@ void AudioOutputManager::PushMoreSamples()
   qint64 write_count = push_device_->write(read_ptr,
                                            pushed_samples_.size() - pushed_sample_index_);
 
-  // Emit the samples we just sent
-  ProcessAverages(read_ptr, static_cast<int>(write_count));
-
   // Increment sample buffer index (faster than shift the bytes up)
   pushed_sample_index_ += static_cast<int>(write_count);
 
@@ -117,13 +119,6 @@ void AudioOutputManager::PushMoreSamples()
   if (pushed_sample_index_ == pushed_samples_.size()) {
     pushed_samples_.clear();
   }
-}
-
-void AudioOutputManager::SetEnableSendingSamples(bool e)
-{
-  enable_sending_samples_ = e;
-
-  device_proxy_.SetSendAverages(e);
 }
 
 void AudioOutputManager::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format)
@@ -135,23 +130,24 @@ void AudioOutputManager::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat for
     if (device_proxy_.isOpen()) {
       device_proxy_.close();
     }
+
+    delete output_;
   }
 
   // Create a new output device and start it in push mode
-  output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
+  output_ = new QAudioOutput(info, format, this);
   output_->setNotifyInterval(1);
   push_device_ = output_->start();
-  connect(output_.get(), &QAudioOutput::notify, this, &AudioOutputManager::PushMoreSamples);
-  connect(output_.get(), &QAudioOutput::notify, this, &AudioOutputManager::OutputNotified);
+  connect(output_, &QAudioOutput::notify, this, &AudioOutputManager::PushMoreSamples);
+  connect(output_, &QAudioOutput::notify, this, &AudioOutputManager::OutputNotified);
+
+  // Un-comment this to get debug information about what the audio output is doing
+  //connect(output_, &QAudioOutput::stateChanged, this, &AudioOutputManager::OutputStateChanged);
 }
 
-void AudioOutputManager::ProcessAverages(const char *data, int length)
+void AudioOutputManager::OutputStateChanged(QAudio::State state)
 {
-  if (!enable_sending_samples_ || length == 0) {
-    return;
-  }
-
-  emit SentSamples(AudioBufferAverage::ProcessAverages(data, length, output_.get()->format().channelCount()));
+  qDebug() << state << output_->error();
 }
 
 OLIVE_NAMESPACE_EXIT

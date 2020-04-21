@@ -135,11 +135,12 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
       abort();
     }
 
-    output_manager_.SetOutputDevice(info, format);
+    if (info.isFormatSupported(format)) {
+      output_manager_.SetOutputDevice(info, format);
+    } else {
+      qWarning() << "Output format not supported by device";
+    }
   }
-
-  // Un-comment this to get debug information about what the audio output is doing
-  //connect(output_.get(), &QAudioOutput::stateChanged, this, &AudioManager::OutputStateChanged);
 }
 
 void AudioManager::SetOutputParams(const AudioRenderingParams &params)
@@ -195,10 +196,7 @@ AudioManager::AudioManager() :
 {
   RefreshDevices();
 
-  connect(&output_manager_, &AudioOutputManager::SentSamples, this, &AudioManager::SentSamples);
   connect(&output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
-
-  output_manager_.SetEnableSendingSamples(true);
 }
 
 AudioManager::~AudioManager()
@@ -256,11 +254,6 @@ void AudioManager::RefreshThreadDone()
   refresher->deleteLater();
 
   emit DeviceListReady();
-}
-
-void AudioManager::OutputStateChanged(QAudio::State state)
-{
-  qDebug() << state;
 }
 
 AudioRefreshDevicesObject::AudioRefreshDevicesObject()

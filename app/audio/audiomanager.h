@@ -103,8 +103,6 @@ public:
 signals:
   void DeviceListReady();
 
-  void SentSamples(QVector<double> averages);
-
   void OutputNotified();
 
 private:
@@ -131,8 +129,6 @@ private:
 
 private slots:
   void RefreshThreadDone();
-
-  void OutputStateChanged(QAudio::State state);
 
 };
 

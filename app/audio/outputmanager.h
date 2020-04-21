@@ -26,6 +26,7 @@
 #include <QBuffer>
 #include <QIODevice>
 #include <QMutex>
+#include <QThread>
 
 #include "outputdeviceproxy.h"
 
@@ -37,12 +38,9 @@ class AudioOutputManager : public QObject
 public:
   AudioOutputManager(QObject* parent = nullptr);
 
-  bool OutputIsSet();
+  virtual ~AudioOutputManager() override;
 
-  /**
-   * @brief If enabled, this will emit the SentSamples() signal whenever samples are sent to the output device
-   */
-  void SetEnableSendingSamples(bool e);
+  bool OutputIsSet();
 
   void SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format);
 
@@ -60,34 +58,26 @@ public:
 
   void SetParameters(const AudioRenderingParams& params);
 
-signals:
-  /**
-   * @brief Signal emitted when samples are sent to the output device
-   *
-   * This sends an array of values corresponding to the channel count. Each value is an average of all the samples just
-   * sent to that channel. Useful for connecting to AudioMonitor.
-   *
-   * Can be disabled with SetEnableSendingSamples() to save CPU usage.
-   */
-  void SentSamples(QVector<double> averages);
+public slots:
 
+
+signals:
   void OutputNotified();
 
 private:
-  void ProcessAverages(const char* data, int length);
-
-  std::unique_ptr<QAudioOutput> output_;
+  QAudioOutput* output_;
   QIODevice* push_device_;
 
   QByteArray pushed_samples_;
   int pushed_sample_index_;
 
-  bool enable_sending_samples_;
-
   AudioOutputDeviceProxy device_proxy_;
 
 private slots:
   void PushMoreSamples();
+
+  void OutputStateChanged(QAudio::State state);
+
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -38,12 +38,7 @@ public:
 
   void SetDevice(QIODevice* device, int playback_speed);
 
-  void SetSendAverages(bool send);
-
   virtual void close() override;
-
-signals:
-  void ProcessedAverages(QVector<double> averages);
 
 protected:
   virtual qint64 readData(char *data, qint64 maxlen) override;
@@ -56,8 +51,6 @@ private:
   QIODevice* device_;
 
   TempoProcessor tempo_processor_;
-
-  bool send_averages_;
 
   AudioRenderingParams params_;
 

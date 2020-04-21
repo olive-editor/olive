@@ -26,8 +26,7 @@
 OLIVE_NAMESPACE_ENTER
 
 AudioOutputDeviceProxy::AudioOutputDeviceProxy() :
-  device_(nullptr),
-  send_averages_(false)
+  device_(nullptr)
 {
 }
 
@@ -41,7 +40,9 @@ void AudioOutputDeviceProxy::SetDevice(QIODevice *device, int playback_speed)
   device_ = device;
 
   if (!device_->isOpen()) {
-    device_->open(QIODevice::ReadOnly);
+    if (!device_->open(QIODevice::ReadOnly)) {
+      qWarning() << "Failed to open sub-device";
+    }
   }
 
   playback_speed_ = playback_speed;
@@ -49,11 +50,6 @@ void AudioOutputDeviceProxy::SetDevice(QIODevice *device, int playback_speed)
   if (qAbs(playback_speed_) != 1) {
     tempo_processor_.Open(params_, qAbs(playback_speed_));
   }
-}
-
-void AudioOutputDeviceProxy::SetSendAverages(bool send)
-{
-  send_averages_ = send;
 }
 
 void AudioOutputDeviceProxy::close()
@@ -73,8 +69,6 @@ qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 
     qint64 read_count;
 
-
-
     if (tempo_processor_.IsOpen()) {
 
       while ((read_count = tempo_processor_.Pull(data, static_cast<int>(maxlen))) == 0) {
@@ -92,11 +86,6 @@ qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
       read_count = ReverseAwareRead(data, maxlen);
     }
 
-    // If we read any
-    if (read_count > 0 && send_averages_) {
-      emit ProcessedAverages(AudioBufferAverage::ProcessAverages(data, static_cast<int>(read_count), params_.channel_count()));
-    }
-
     return read_count;
   }
 
@@ -108,7 +97,7 @@ qint64 AudioOutputDeviceProxy::writeData(const char *data, qint64 maxSize)
   Q_UNUSED(data)
   Q_UNUSED(maxSize)
 
-  return -1;
+  return 0;
 }
 
 qint64 AudioOutputDeviceProxy::ReverseAwareRead(char *data, qint64 maxlen)

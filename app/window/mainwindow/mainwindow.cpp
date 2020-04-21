@@ -321,8 +321,6 @@ void MainWindow::ProjectOpen(Project *p)
   }
 
   panel->set_project(p);
-
-  // FIXME Use settings data to create panels and restore state if they exist
 }
 
 void MainWindow::ProjectClose(Project *p)
