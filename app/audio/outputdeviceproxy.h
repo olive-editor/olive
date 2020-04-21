@@ -35,7 +35,7 @@ class AudioOutputDeviceProxy : public QIODevice
 {
   Q_OBJECT
 public:
-  AudioOutputDeviceProxy();
+  AudioOutputDeviceProxy() = default;
 
   virtual ~AudioOutputDeviceProxy() override;
 

@@ -25,10 +25,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioOutputDeviceProxy::AudioOutputDeviceProxy()
-{
-}
-
 AudioOutputDeviceProxy::~AudioOutputDeviceProxy()
 {
   if (file_.isOpen()) {
@@ -76,31 +72,30 @@ void AudioOutputDeviceProxy::close()
 
 qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 {
-  if (file_.isOpen()) {
-
-    qint64 read_count;
-
-    if (tempo_processor_.IsOpen()) {
-
-      while ((read_count = tempo_processor_.Pull(data, static_cast<int>(maxlen))) == 0) {
-        int dev_read = static_cast<int>(ReverseAwareRead(data, maxlen));
-
-        if (!dev_read) {
-          break;
-        }
-
-        tempo_processor_.Push(data, dev_read);
-      }
-
-    } else {
-      // If we aren't doing any tempo processing, simply passthrough the read signal
-      read_count = ReverseAwareRead(data, maxlen);
-    }
-
-    return read_count;
+  if (!file_.isOpen()) {
+    return 0;
   }
 
-  return 0;
+  qint64 read_count;
+
+  if (tempo_processor_.IsOpen()) {
+
+    while ((read_count = tempo_processor_.Pull(data, static_cast<int>(maxlen))) == 0) {
+      int dev_read = static_cast<int>(ReverseAwareRead(data, maxlen));
+
+      if (!dev_read) {
+        break;
+      }
+
+      tempo_processor_.Push(data, dev_read);
+    }
+
+  } else {
+    // If we aren't doing any tempo processing, simply passthrough the read signal
+    read_count = ReverseAwareRead(data, maxlen);
+  }
+
+  return read_count;
 }
 
 qint64 AudioOutputDeviceProxy::writeData(const char *data, qint64 maxSize)

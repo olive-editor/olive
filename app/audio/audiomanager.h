@@ -24,6 +24,7 @@
 #include <memory>
 #include <QAudioInput>
 #include <QAudioOutput>
+#include <QtConcurrent/QtConcurrent>
 #include <QThread>
 
 #include "common/define.h"
@@ -31,30 +32,6 @@
 #include "render/audioparams.h"
 
 OLIVE_NAMESPACE_ENTER
-
-/**
- * @brief A thread for refreshing the total list of devices on the system
- *
- * Refreshing devices causes a noticeable pause in execution. Doing it another thread is intended to avoid this.
- */
-class AudioRefreshDevicesObject : public QObject {
-  Q_OBJECT
-public:
-  AudioRefreshDevicesObject();
-
-  const QList<QAudioDeviceInfo>& input_devices();
-  const QList<QAudioDeviceInfo>& output_devices();
-
-public slots:
-  void Refresh();
-
-signals:
-  void ListsReady();
-
-private:
-  QList<QAudioDeviceInfo> input_devices_;
-  QList<QAudioDeviceInfo> output_devices_;
-};
 
 /**
  * @brief Audio input and output management class
@@ -73,7 +50,9 @@ public:
 
   void RefreshDevices();
 
-  bool IsRefreshing();
+  bool IsRefreshingOutputs();
+
+  bool IsRefreshingInputs();
 
   void PushToOutput(const QByteArray& samples);
 
@@ -101,7 +80,9 @@ public:
   static void ReverseBuffer(char* buffer, int size, int resolution);
 
 signals:
-  void DeviceListReady();
+  void OutputListReady();
+
+  void InputListReady();
 
   void OutputNotified();
 
@@ -111,12 +92,16 @@ private:
   virtual ~AudioManager() override;
 
   QList<QAudioDeviceInfo> input_devices_;
-
   QList<QAudioDeviceInfo> output_devices_;
+
+  QFutureWatcher< QList<QAudioDeviceInfo> > input_watcher_;
+  QFutureWatcher< QList<QAudioDeviceInfo> > output_watcher_;
 
   static AudioManager* instance_;
 
+  QThread output_thread_;
   AudioOutputManager output_manager_;
+  bool output_is_set_;
 
   QAudioDeviceInfo output_device_info_;
   AudioRenderingParams output_params_;
@@ -125,10 +110,10 @@ private:
   QAudioDeviceInfo input_device_info_;
   QIODevice* input_file_;
 
-  QThread* refresh_thread_;
-
 private slots:
-  void RefreshThreadDone();
+  void OutputDevicesRefreshed();
+
+  void InputDevicesRefreshed();
 
 };
 

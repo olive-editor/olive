@@ -40,11 +40,12 @@ public:
 
   virtual ~AudioOutputManager() override;
 
-  bool OutputIsSet();
-
-  void SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format);
-
+  // Thread-safe
   void Push(const QByteArray &samples);
+
+public slots:
+  // Queued
+  void SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format);
 
   /**
    * @brief Connect a QIODevice (e.g. QFile) to start sending to the audio output
@@ -54,12 +55,14 @@ public:
    */
   void PullFromDevice(const QString &filename, qint64 offset, int playback_speed);
 
+  // Queued
   void ResetToPushMode();
 
-  void SetParameters(const AudioRenderingParams& params);
+  // Queued
+  void SetParameters(OLIVE_NAMESPACE::AudioRenderingParams params);
 
-public slots:
-
+  // Queued
+  void Close();
 
 signals:
   void OutputNotified();
@@ -68,8 +71,9 @@ private:
   QAudioOutput* output_;
   QIODevice* push_device_;
 
-  QByteArray pushed_samples_;
-  int pushed_sample_index_;
+  QMutex push_sample_lock_;
+  QByteArray push_samples_;
+  int push_sample_index_;
 
   AudioOutputDeviceProxy device_proxy_;
 
