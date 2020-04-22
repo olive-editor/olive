@@ -30,12 +30,12 @@
 
 OLIVE_NAMESPACE_ENTER
 
-QString ColorManager::default_config_;
+OCIO::ConstConfigRcPtr ColorManager::default_config_;
 
 ColorManager::ColorManager()
 {
   // Ensures config is set to something
-  config_ = OCIO::GetCurrentConfig();
+  config_ = GetDefaultConfig();
 
   // Default input space
   default_input_color_space_ = QStringLiteral("sRGB OETF");
@@ -54,6 +54,11 @@ const QString &ColorManager::GetConfigFilename() const
   return config_filename_;
 }
 
+OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
+{
+  return default_config_;
+}
+
 void ColorManager::SetUpDefaultConfig()
 {
   // Kind of hacky, but it'll work
@@ -62,9 +67,7 @@ void ColorManager::SetUpDefaultConfig()
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
                                dir);
 
-  default_config_ = QDir(dir).filePath(QStringLiteral("config.ocio"));
-
-  OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(default_config_.toUtf8()));
+  default_config_ = OCIO::Config::CreateFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")).toUtf8());
 }
 
 void ColorManager::SetConfig(const QString &filename)

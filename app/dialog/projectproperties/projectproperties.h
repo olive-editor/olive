@@ -39,18 +39,20 @@ public slots:
   virtual void accept() override;
 
 private:
-  bool VerifyOCIOConfig(const QString& fn);
-
-  void ListPossibleInputSpaces(OpenColorIO::v1::ConstConfigRcPtr config);
-
   Project* working_project_;
 
   QLineEdit* ocio_filename_;
 
   QComboBox* default_input_colorspace_;
 
+  bool ocio_config_is_valid_;
+
+  QString ocio_config_error_;
+
 private slots:
   void BrowseForOCIOConfig();
+
+  void FilenameUpdated();
 
 };
 

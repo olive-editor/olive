@@ -38,6 +38,8 @@ public:
 
   const QString& GetConfigFilename() const;
 
+  static OCIO::ConstConfigRcPtr GetDefaultConfig();
+
   static void SetUpDefaultConfig();
 
   void SetConfig(const QString& filename);
@@ -110,7 +112,7 @@ private:
 
   QString reference_space_;
 
-  static QString default_config_;
+  static OCIO::ConstConfigRcPtr default_config_;
 
 };
 

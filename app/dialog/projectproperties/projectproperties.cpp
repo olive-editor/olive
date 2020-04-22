@@ -38,7 +38,8 @@ OLIVE_NAMESPACE_ENTER
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   QDialog(parent),
-  working_project_(p)
+  working_project_(p),
+  ocio_config_is_valid_(true)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -87,46 +88,52 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   }
 
   ocio_filename_->setText(working_project_->color_manager()->GetConfigFilename());
-  ListPossibleInputSpaces(working_project_->color_manager()->GetConfig());
+
+  connect(ocio_filename_, &QLineEdit::textChanged, this, &ProjectPropertiesDialog::FilenameUpdated);
+  FilenameUpdated();
 }
 
 void ProjectPropertiesDialog::accept()
 {
-  try {
+  if (ocio_config_is_valid_) {
     // This should ripple changes throughout the program that the color config has changed, therefore must be done last
     working_project_->color_manager()->SetConfigAndDefaultInput(ocio_filename_->text(), default_input_colorspace_->currentText());
 
     QDialog::accept();
-  } catch (OCIO::Exception& e) {
+  } else {
     QMessageBox::critical(this,
                           tr("OpenColorIO Config Error"),
-                          tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                          tr("Failed to set OpenColorIO configuration: %1").arg(ocio_config_error_),
                           QMessageBox::Ok);
   }
 }
 
-bool ProjectPropertiesDialog::VerifyOCIOConfig(const QString &fn)
+void ProjectPropertiesDialog::BrowseForOCIOConfig()
 {
-  try {
-    OCIO::Config::CreateFromFile(fn.toUtf8());
-
-    return true;
-  } catch (OCIO::Exception& e) {
-    QMessageBox::critical(this,
-                          tr("OpenColorIO Config Error"),
-                          tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
-                          QMessageBox::Ok);
-
-    return false;
+  QString fn = QFileDialog::getOpenFileName(this, tr("Browse for OpenColorIO configuration"));
+  if (!fn.isEmpty()) {
+    ocio_filename_->setText(fn);
   }
 }
 
-void ProjectPropertiesDialog::ListPossibleInputSpaces(OCIO::ConstConfigRcPtr config)
+void ProjectPropertiesDialog::FilenameUpdated()
 {
-  try {
-    default_input_colorspace_->clear();
+  default_input_colorspace_->clear();
 
-    QStringList input_cs = ColorManager::ListAvailableInputColorspaces(config);
+  try {
+    OCIO::ConstConfigRcPtr c;
+
+    if (ocio_filename_->text().isEmpty()) {
+      c = ColorManager::GetDefaultConfig();
+    } else {
+      c = OCIO::Config::CreateFromFile(ocio_filename_->text().toUtf8());
+    }
+
+    ocio_filename_->setStyleSheet(QString());
+    ocio_config_is_valid_ = true;
+
+    // List input color spaces
+    QStringList input_cs = ColorManager::ListAvailableInputColorspaces(c);
 
     foreach (QString cs, input_cs) {
       default_input_colorspace_->addItem(cs);
@@ -135,19 +142,11 @@ void ProjectPropertiesDialog::ListPossibleInputSpaces(OCIO::ConstConfigRcPtr con
         default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
       }
     }
-  } catch (OCIO::Exception&) {
-  }
-}
 
-void ProjectPropertiesDialog::BrowseForOCIOConfig()
-{
-  QString fn = QFileDialog::getOpenFileName(this, tr("Browse for OpenColorIO configuration"));
-  if (!fn.isEmpty()) {
-    if (VerifyOCIOConfig(fn)) {
-      ocio_filename_->setText(fn);
-
-      ListPossibleInputSpaces(OCIO::Config::CreateFromFile(fn.toUtf8()));
-    }
+  } catch (OCIO::Exception& e) {
+    ocio_config_is_valid_ = false;
+    ocio_filename_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
+    ocio_config_error_ = e.what();
   }
 }
 
