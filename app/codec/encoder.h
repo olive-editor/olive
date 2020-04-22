@@ -103,7 +103,7 @@ public:
 
 public slots:
   void Open();
-  void WriteFrame(OLIVE_NAMESPACE::FramePtr frame);
+  void WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time);
   virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info, const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) = 0;
   void Close();
 
@@ -117,7 +117,7 @@ signals:
 
 protected:
   virtual bool OpenInternal() = 0;
-  virtual void WriteInternal(FramePtr frame) = 0;
+  virtual void WriteInternal(FramePtr frame, rational time) = 0;
   virtual void CloseInternal() = 0;
 
   bool IsOpen() const;

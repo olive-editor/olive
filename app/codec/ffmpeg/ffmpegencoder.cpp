@@ -228,7 +228,7 @@ bool FFmpegEncoder::OpenInternal()
   return true;
 }
 
-void FFmpegEncoder::WriteInternal(FramePtr frame)
+void FFmpegEncoder::WriteInternal(FramePtr frame, rational time)
 {
   AVFrame* encoded_frame = av_frame_alloc();
 
@@ -267,7 +267,7 @@ void FFmpegEncoder::WriteInternal(FramePtr frame)
     goto fail;
   }
 
-  encoded_frame->pts = qRound(frame->timestamp().toDouble() / av_q2d(video_codec_ctx_->time_base));
+  encoded_frame->pts = qRound64(time.toDouble() / av_q2d(video_codec_ctx_->time_base));
 
   WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
 

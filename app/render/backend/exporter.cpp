@@ -87,12 +87,14 @@ void Exporter::Cancel()
 {
   if (video_backend_) {
     video_backend_->CancelQueue();
+    video_backend_->Close();
     video_backend_->deleteLater();
     video_backend_ = nullptr;
   }
 
   if (audio_backend_) {
     audio_backend_->CancelQueue();
+    audio_backend_->Close();
     audio_backend_->deleteLater();
     audio_backend_ = nullptr;
   }
@@ -150,6 +152,7 @@ void Exporter::ExportSucceeded()
   }
 
   if (video_backend_) {
+    video_backend_->Close();
     video_backend_->deleteLater();
     video_backend_ = nullptr;
   }
@@ -185,14 +188,12 @@ void Exporter::EncodeFrame()
     // Convert color space
     color_processor_->ConvertFrame(frame);
 
-    // Set frame timestamp
-    frame->set_timestamp(waiting_for_frame_);
-
     // Encode (may require re-associating alpha?)
     QMetaObject::invokeMethod(encoder_,
                               "WriteFrame",
                               Qt::QueuedConnection,
-                              OLIVE_NS_ARG(FramePtr, frame));
+                              OLIVE_NS_ARG(FramePtr, frame),
+                              OLIVE_NS_ARG(rational, waiting_for_frame_));
 
     waiting_for_frame_ += params_.video_params().time_base();
 
@@ -269,7 +270,8 @@ void Exporter::AudioRendered()
                             Q_ARG(const QString&, cache_fn),
                             OLIVE_NS_ARG(TimeRange, export_range_));
 
-  // We don't need the audio backend anymore
+  // We don't need the audio backend anymorea
+  audio_backend_->Close();
   audio_backend_->deleteLater();
   audio_backend_ = nullptr;
 }
@@ -327,6 +329,19 @@ void Exporter::VideoHashesComplete()
   video_backend_->SetFrameGenerationParams(params_.video_params().width(), params_.video_params().height(), transform_);
 
   connect(video_backend_, &VideoRenderBackend::GeneratedFrame, this, &Exporter::FrameRendered);
+
+  // Remove duplicate frames from cache invalidation
+  const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
+  QList<QByteArray> hashes_already_seen;
+  QMap<rational, QByteArray>::const_iterator i;
+
+  for (i=time_hash_map.begin(); i!=time_hash_map.end(); i++) {
+    if (hashes_already_seen.contains(i.value())) {
+      ranges.RemoveTimeRange(TimeRange(i.key(), i.key() + params_.video_params().time_base()));
+    } else {
+      hashes_already_seen.append(i.value());
+    }
+  }
 
   foreach (const TimeRange& range, ranges) {
     video_backend_->InvalidateCache(range);

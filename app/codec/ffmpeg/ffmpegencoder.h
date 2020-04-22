@@ -43,7 +43,7 @@ public slots:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual void WriteInternal(FramePtr frame) override;
+  virtual void WriteInternal(FramePtr frame, rational time) override;
   virtual void CloseInternal() override;
 
 private:

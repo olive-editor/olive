@@ -100,7 +100,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     QVariant texture = value.Get(NodeParam::kTexture);
 
     // If we actually have a texture, download it into the disk cache
-    if (!texture.isNull()) {
+    if (!texture.isNull() || (!(operating_mode_ & kDownloadOnly))) {
       Download(path.in(), texture, frame_cache_->CachePathName(hash, video_params_.format()));
     }
 
@@ -371,7 +371,11 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
 
     frame->allocate();
 
-    TextureToBuffer(texture, frame->width(), frame->height(), frame_gen_mat_, frame->data(), frame->linesize_pixels());
+    if (texture.isNull()) {
+      memset(frame->data(), 0, frame->allocated_size());
+    } else {
+      TextureToBuffer(texture, frame->width(), frame->height(), frame_gen_mat_, frame->data(), frame->linesize_pixels());
+    }
 
     emit GeneratedFrame(time, frame);
 

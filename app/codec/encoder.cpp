@@ -173,10 +173,10 @@ void Encoder::Open()
   }
 }
 
-void Encoder::WriteFrame(FramePtr frame)
+void Encoder::WriteFrame(FramePtr frame, rational time)
 {
   if (open_) {
-    WriteInternal(frame);
+    WriteInternal(frame, time);
   }
 }
 
