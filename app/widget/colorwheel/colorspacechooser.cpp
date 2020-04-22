@@ -31,7 +31,7 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
 {
   QGridLayout* layout = new QGridLayout(this);
 
-  setWindowTitle(tr("Color Management"));
+  setTitle(tr("Color Management"));
 
   int row = 0;
 
