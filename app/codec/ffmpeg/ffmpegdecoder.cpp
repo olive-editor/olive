@@ -32,6 +32,7 @@ extern "C" {
 #include <QFileInfo>
 #include <QString>
 #include <QtMath>
+#include <QThread>
 
 #include "codec/waveinput.h"
 #include "common/define.h"
@@ -1322,7 +1323,9 @@ void FFmpegDecoderInstance::ClearResources()
   ClearFrameCache();
 
   // Stop timer
-  if (clear_timer_.isActive()) {
+  if (QThread::currentThread() == clear_timer_.thread()) {
+    clear_timer_.stop();
+  } else {
     QMetaObject::invokeMethod(&clear_timer_, "stop", Qt::BlockingQueuedConnection);
   }
 
