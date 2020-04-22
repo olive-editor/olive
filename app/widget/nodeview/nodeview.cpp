@@ -114,6 +114,10 @@ void NodeView::DeselectAll()
 
 void NodeView::Select(const QList<Node *> &nodes)
 {
+  if (!graph_) {
+    return;
+  }
+
   DeselectAll();
 
   foreach (Node* n, nodes) {
@@ -125,6 +129,10 @@ void NodeView::Select(const QList<Node *> &nodes)
 
 void NodeView::SelectWithDependencies(QList<Node *> nodes)
 {
+  if (!graph_) {
+    return;
+  }
+
   int original_length = nodes.size();
   for (int i=0;i<original_length;i++) {
     nodes.append(nodes.at(i)->GetDependencies());
