@@ -57,7 +57,7 @@ const QString &ColorManager::GetConfigFilename() const
 void ColorManager::SetUpDefaultConfig()
 {
   // Kind of hacky, but it'll work
-  QString dir = QDir(FileFunctions::GetTempPath()).filePath(QStringLiteral("ocioconf"));
+  QString dir = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("ocioconf"));
 
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
                                dir);

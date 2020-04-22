@@ -24,7 +24,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-const SampleFormat::Format SampleFormat::kInternalFormat = SAMPLE_FMT_S32;
+const SampleFormat::Format SampleFormat::kInternalFormat = SAMPLE_FMT_FLT;
 
 QString SampleFormat::GetSampleFormatName(const SampleFormat::Format &f)
 {

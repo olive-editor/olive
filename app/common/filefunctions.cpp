@@ -98,7 +98,7 @@ QString FileFunctions::GetApplicationPath()
   return QCoreApplication::applicationDirPath();
 }
 
-QString FileFunctions::GetTempPath()
+QString FileFunctions::GetTempFilePath()
 {
   QString temp_path = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
                            .filePath(QCoreApplication::organizationName()))

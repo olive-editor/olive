@@ -52,7 +52,7 @@ public:
 
   static QString GetApplicationPath();
 
-  static QString GetTempPath();
+  static QString GetTempFilePath();
 
   static void CopyDirectory(const QString& source, const QString& dest);
 };
