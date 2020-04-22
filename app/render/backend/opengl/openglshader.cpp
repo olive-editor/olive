@@ -152,7 +152,7 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
 
 QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QString &shader_code)
 {
-  QString frag_code = QStringLiteral("#version 110\n"
+  QString frag_code = QStringLiteral("#version 150\n"
                                      "\n"
                                      "#ifdef GL_ES\n"
                                      "precision highp int;\n"
@@ -162,7 +162,10 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
                                      "uniform sampler2D ove_maintex;\n"
                                      "uniform bool color_only;\n"
                                      "uniform vec4 color_only_color;\n"
-                                     "varying vec2 ove_texcoord;\n"
+                                     "\n"
+                                     "in vec2 ove_texcoord;\n"
+                                     "\n"
+                                     "out vec4 fragColor;\n"
                                      "\n");
 
   // Finish the function with the main function
@@ -174,12 +177,12 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
 
     frag_code.append(QStringLiteral("\n"
                                     "void main() {\n"
-                                    "  if (color_only) {\n"
-                                    "    gl_FragColor = color_only_color;"
-                                    "  } else {\n"
-                                    "    vec4 color = texture2D(ove_maintex, ove_texcoord);\n"
-                                    "    gl_FragColor = color;\n"
-                                    "  }\n"
+                                    "    if (color_only) {\n"
+                                    "        fragColor = color_only_color;"
+                                    "    } else {\n"
+                                    "        vec4 color = texture(ove_maintex, ove_texcoord);\n"
+                                    "        fragColor = color;\n"
+                                    "    }\n"
                                     "}\n"));
 
   } else {
@@ -193,8 +196,8 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
 
     frag_code.append(QStringLiteral("\n"
                                     "void main() {\n"
-                                    "  vec4 color = %1(texture2D(ove_maintex, ove_texcoord));\n"
-                                    "  gl_FragColor = color;\n"
+                                    "    vec4 color = %1(texture(ove_maintex, ove_texcoord));\n"
+                                    "    fragColor = color;\n"
                                     "}\n").arg(function_name));
 
   }
@@ -205,7 +208,7 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
 QString OpenGLShader::CodeDefaultVertex()
 {
   // Generate vertex shader
-  return QStringLiteral("#version 110\n"
+  return QStringLiteral("#version 150\n"
                         "\n"
                         "#ifdef GL_ES\n"
                         "precision highp int;\n"
@@ -214,41 +217,41 @@ QString OpenGLShader::CodeDefaultVertex()
                         "\n"
                         "uniform mat4 ove_mvpmat;\n"
                         "\n"
-                        "attribute vec4 a_position;\n"
-                        "attribute vec2 a_texcoord;\n"
+                        "in vec4 a_position;\n"
+                        "in vec2 a_texcoord;\n"
                         "\n"
-                        "varying vec2 ove_texcoord;\n"
+                        "out vec2 ove_texcoord;\n"
                         "\n"
                         "void main() {\n"
-                        "  gl_Position = ove_mvpmat * a_position;\n"
-                        "  ove_texcoord = a_texcoord;\n"
+                        "    gl_Position = ove_mvpmat * a_position;\n"
+                        "    ove_texcoord = a_texcoord;\n"
                         "}\n");
 }
 
 QString OpenGLShader::CodeAlphaDisassociate(const QString &function_name)
 {
   return QStringLiteral("vec4 %1(vec4 col) {\n"
-                        "  if (col.a > 0.0) {\n"
-                        "    return vec4(col.rgb / col.a, col.a);"
-                        "  }\n"
-                        "  return col;\n"
+                        "    if (col.a > 0.0) {\n"
+                        "        return vec4(col.rgb / col.a, col.a);"
+                        "    }\n"
+                        "    return col;\n"
                         "}\n").arg(function_name);
 }
 
 QString OpenGLShader::CodeAlphaReassociate(const QString &function_name)
 {
   return QStringLiteral("vec4 %1(vec4 col) {\n"
-                        "  if (col.a > 0.0) {\n"
-                        "    return vec4(col.rgb * col.a, col.a);"
-                        "  }\n"
-                        "  return col;\n"
+                        "    if (col.a > 0.0) {\n"
+                        "        return vec4(col.rgb * col.a, col.a);"
+                        "    }\n"
+                        "    return col;\n"
                         "}\n").arg(function_name);
 }
 
 QString OpenGLShader::CodeAlphaAssociate(const QString &function_name)
 {
   return QStringLiteral("vec4 %1(vec4 col) {\n"
-                        "  return vec4(col.rgb * col.a, col.a);\n"
+                        "    return vec4(col.rgb * col.a, col.a);\n"
                         "}\n").arg(function_name);
 }
 

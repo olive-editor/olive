@@ -1,9 +1,4 @@
-#version 110
-
-// Standard inputs
-uniform vec2 ove_resolution;
-varying vec2 ove_texcoord;
-uniform int ove_iteration;
+#version 150
 
 // Node parameter inputs
 uniform sampler2D tex_in;
@@ -12,8 +7,16 @@ uniform float radius_in;
 uniform float opacity_in;
 uniform bool inner_in;
 
+// Standard inputs
+uniform vec2 ove_resolution;
+uniform int ove_iteration;
+
+in vec2 ove_texcoord;
+
+out vec4 fragColor;
+
 void main(void) {
-    vec4 pixel_here = texture2D(tex_in, ove_texcoord);
+    vec4 pixel_here = texture(tex_in, ove_texcoord);
 
     // Detect no-op situations
     if (radius_in == 0.0
@@ -21,7 +24,7 @@ void main(void) {
         || (inner_in && pixel_here.a == 0.0)
         || (!inner_in && pixel_here.a == 1.0)) {
         // No-op, do nothing
-        gl_FragColor = pixel_here;
+        fragColor = pixel_here;
         return;
     }
 
@@ -38,7 +41,7 @@ void main(void) {
 
             if (abs(length(vec2(i, j))) < radius) {
                 // Get pixel here
-                float alpha = texture2D(tex_in, ove_texcoord + vec2(x_coord, y_coord)).a;
+                float alpha = texture(tex_in, ove_texcoord + vec2(x_coord, y_coord)).a;
 
                 if (inner_in) {
                     alpha = 1.0 - alpha;
@@ -76,5 +79,5 @@ void main(void) {
         stroke_col = stroke_col * (1.0 - pixel_here.a) + pixel_here;
     }
 
-    gl_FragColor = stroke_col;
+    fragColor = stroke_col;
 }

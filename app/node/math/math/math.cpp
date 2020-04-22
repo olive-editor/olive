@@ -133,7 +133,7 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
     NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
     NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
 
-    operation = QStringLiteral("texture2D(%1, (vec4(ove_texcoord, 0.0, 1.0) * %2).xy)").arg(tex_in->id(), mat_in->id());
+    operation = QStringLiteral("texture(%1, (vec4(ove_texcoord, 0.0, 1.0) * %2).xy)").arg(tex_in->id(), mat_in->id());
 
   } else {
     switch (GetOperation()) {
@@ -158,15 +158,17 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
                               GetShaderVariableCall(param_b_in_->id(), type_b));
   }
 
-  return QStringLiteral("#version 110\n"
-                        "\n"
-                        "varying vec2 ove_texcoord;\n"
+  return QStringLiteral("#version 150\n"
                         "\n"
                         "uniform %1 %3;\n"
                         "uniform %2 %4;\n"
                         "\n"
+                        "in vec2 ove_texcoord;\n"
+                        "\n"
+                        "out vec4 fragColor;\n"
+                        "\n"
                         "void main(void) {\n"
-                        "  gl_FragColor = %5;\n"
+                        "    fragColor = %5;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
                                    param_a_in_->id(),
@@ -397,7 +399,7 @@ QString MathNode::GetShaderUniformType(const NodeParam::DataType &type)
 QString MathNode::GetShaderVariableCall(const QString &input_id, const NodeParam::DataType &type, const QString& coord_op)
 {
   if (type == NodeParam::kTexture) {
-    return QStringLiteral("texture2D(%1, ove_texcoord%2)").arg(input_id, coord_op);
+    return QStringLiteral("texture(%1, ove_texcoord%2)").arg(input_id, coord_op);
   }
 
   return input_id;
