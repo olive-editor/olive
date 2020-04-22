@@ -516,7 +516,7 @@ ExportParams ExportDialog::GenerateParams() const
 
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
                                            audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SampleFormat::GetConfiguredFormatForMode(render_mode));
+                                           SampleFormat::kInternalFormat);
 
   ExportParams params;
   params.SetFilename(filename_edit_->text());
@@ -533,9 +533,7 @@ ExportParams ExportDialog::GenerateParams() const
 
     video_tab_->GetCodecSection()->AddOpts(&params);
 
-    params.set_ocio_output(video_tab_->CurrentOCIODisplay(),
-                           video_tab_->CurrentOCIOView(),
-                           video_tab_->CurrentOCIOLook());
+    params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
   }
 
   if (audio_enabled_->isChecked()) {

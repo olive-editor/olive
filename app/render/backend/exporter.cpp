@@ -69,9 +69,7 @@ Exporter::Exporter(ViewerOutput *viewer_node,
     // Create color processor
     color_processor_ = ColorProcessor::Create(color_manager,
                                               color_manager->GetReferenceColorSpace(),
-                                              params.ocio_display(),
-                                              params.ocio_view(),
-                                              params.ocio_look());
+                                              params.color_transform());
   }
 }
 
@@ -326,6 +324,7 @@ void Exporter::VideoHashesComplete()
   // Set video backend to render mode but NOT hash or download
   video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
   video_backend_->SetOnlySignalLastFrameRequested(false);
+  video_backend_->SetFrameGenerationParams(params_.video_params().width(), params_.video_params().height(), transform_);
 
   connect(video_backend_, &VideoRenderBackend::GeneratedFrame, this, &Exporter::FrameRendered);
 

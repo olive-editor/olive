@@ -450,6 +450,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height,
 
     texture->texture()->Bind();
 
+    f->glViewport(0, 0, width, height);
+
     // Blit to this new texture
     OpenGLRenderFunctions::Blit(copy_pipeline_, false, matrix);
 
@@ -473,8 +475,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height,
 
   f->glReadPixels(0,
                   0,
-                  video_params_.effective_width(),
-                  video_params_.effective_height(),
+                  width,
+                  height,
                   OpenGLRenderFunctions::GetPixelFormat(video_params_.format()),
                   OpenGLRenderFunctions::GetPixelType(video_params_.format()),
                   buffer);

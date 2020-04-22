@@ -64,26 +64,14 @@ void ExportParams::set_video_scaling_method(const ExportParams::VideoScalingMeth
   video_scaling_method_ = video_scaling_method;
 }
 
-void ExportParams::set_ocio_output(const QString &display, const QString &view, const QString &look)
+const ColorTransform &ExportParams::color_transform() const
 {
-  ocio_display_ = display;
-  ocio_view_ = view;
-  ocio_look_ = look;
+  return color_transform_;
 }
 
-const QString &ExportParams::ocio_display() const
+void ExportParams::set_color_transform(const ColorTransform &color_transform)
 {
-  return ocio_display_;
-}
-
-const QString &ExportParams::ocio_view() const
-{
-  return ocio_view_;
-}
-
-const QString &ExportParams::ocio_look() const
-{
-  return ocio_look_;
+  color_transform_ = color_transform;
 }
 
 OLIVE_NAMESPACE_EXIT

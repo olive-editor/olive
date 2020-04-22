@@ -23,6 +23,7 @@
 
 #include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
+#include "render/colortransform.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -46,10 +47,8 @@ public:
   const VideoScalingMethod& video_scaling_method() const;
   void set_video_scaling_method(const VideoScalingMethod& video_scaling_method);
 
-  const QString& ocio_display() const;
-  const QString& ocio_view() const;
-  const QString& ocio_look() const;
-  void set_ocio_output(const QString& display, const QString& view, const QString& look);
+  const ColorTransform& color_transform() const;
+  void set_color_transform(const ColorTransform& color_transform);
 
 private:
   QString encoder_id_;
@@ -59,9 +58,7 @@ private:
   bool has_custom_range_;
   TimeRange custom_range_;
 
-  QString ocio_display_;
-  QString ocio_view_;
-  QString ocio_look_;
+  ColorTransform color_transform_;
 
 };
 
