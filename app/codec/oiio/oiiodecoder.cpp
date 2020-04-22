@@ -334,7 +334,7 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
   OIIO::TypeDesc type = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
 
 #if OIIO_VERSION < 20100
-  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_));
+  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type));
 #else
   buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type), OIIO::InitializePixels::No);
 #endif
