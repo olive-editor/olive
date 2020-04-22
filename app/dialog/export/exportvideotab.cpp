@@ -80,19 +80,9 @@ void ExportVideoTab::set_frame_rate(const rational &frame_rate)
   frame_rate_combobox_->setCurrentIndex(frame_rates_.indexOf(frame_rate));
 }
 
-QString ExportVideoTab::CurrentOCIODisplay()
+QString ExportVideoTab::CurrentOCIOColorSpace()
 {
-  return color_space_chooser_->display();
-}
-
-QString ExportVideoTab::CurrentOCIOView()
-{
-  return color_space_chooser_->view();
-}
-
-QString ExportVideoTab::CurrentOCIOLook()
-{
-  return color_space_chooser_->look();
+  return color_space_chooser_->input();
 }
 
 CodecSection *ExportVideoTab::GetCodecSection() const
@@ -175,8 +165,8 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
 QWidget* ExportVideoTab::SetupColorSection()
 {
-  color_space_chooser_ = new ColorSpaceChooser(color_manager_, false);
-  connect(color_space_chooser_, &ColorSpaceChooser::DisplayColorSpaceChanged, this, &ExportVideoTab::DisplayColorSpaceChanged);
+  color_space_chooser_ = new ColorSpaceChooser(color_manager_, true, false);
+  connect(color_space_chooser_, &ColorSpaceChooser::InputColorSpaceChanged, this, &ExportVideoTab::ColorSpaceChanged);
   return color_space_chooser_;
 }
 

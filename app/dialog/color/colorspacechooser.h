@@ -32,7 +32,7 @@ class ColorSpaceChooser : public QGroupBox
 {
   Q_OBJECT
 public:
-  ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field = true, QWidget* parent = nullptr);
+  ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field = true, bool enable_display_fields = true, QWidget* parent = nullptr);
 
   QString input() const;
   QString display() const;
@@ -45,6 +45,8 @@ public:
   void set_look(const QString& s);
 
 signals:
+  void InputColorSpaceChanged(const QString& input);
+
   void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
 
   void DisplayColorSpaceChanged(const QString& display, const QString& view, const QString& look);

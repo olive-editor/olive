@@ -56,9 +56,7 @@ public:
   const rational& frame_rate() const;
   void set_frame_rate(const rational& frame_rate);
 
-  QString CurrentOCIODisplay();
-  QString CurrentOCIOView();
-  QString CurrentOCIOLook();
+  QString CurrentOCIOColorSpace();
 
   CodecSection* GetCodecSection() const;
   void SetCodecSection(CodecSection* section);
@@ -66,7 +64,7 @@ public:
   H264Section* h264_section() const;
 
 signals:
-  void DisplayColorSpaceChanged(const QString& display, const QString& view, const QString& look);
+  void ColorSpaceChanged(const QString& colorspace);
 
 private:
   QWidget* SetupResolutionSection();

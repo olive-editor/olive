@@ -216,14 +216,14 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
   connect(video_tab_,
-          &ExportVideoTab::DisplayColorSpaceChanged,
+          &ExportVideoTab::ColorSpaceChanged,
           preview_viewer_,
-          static_cast<void (ViewerWidget::*)(const QString&, const QString&, const QString&)>(&ViewerWidget::SetOCIOParameters));
+          static_cast<void(ViewerWidget::*)(const QString&)>(&ViewerWidget::SetOCIODisplay));
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
-  preview_viewer_->SetOCIOParameters(video_tab_->CurrentOCIODisplay(), video_tab_->CurrentOCIOView(), video_tab_->CurrentOCIOLook());
+  preview_viewer_->SetOCIODisplay(video_tab_->CurrentOCIOColorSpace());
 
   // Update renderer
   // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
@@ -312,9 +312,7 @@ void ExportDialog::accept()
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_,
                                                              color_manager_->GetReferenceColorSpace(),
-                                                             video_tab_->CurrentOCIODisplay(),
-                                                             video_tab_->CurrentOCIOView(),
-                                                             video_tab_->CurrentOCIOLook());
+                                                             video_tab_->CurrentOCIOColorSpace());
 
   // Set up encoder
   EncodingParams encoding_params;

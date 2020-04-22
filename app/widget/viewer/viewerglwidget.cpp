@@ -467,11 +467,17 @@ void ViewerGLWidget::SetupColorProcessor()
 
     try {
 
-      color_service_ = OpenGLColorProcessor::Create(color_manager_,
-                                                    color_manager_->GetReferenceColorSpace(),
-                                                    ocio_display_,
-                                                    ocio_view_,
-                                                    ocio_look_);
+      if (ocio_view_.isEmpty()) {
+        color_service_ = OpenGLColorProcessor::Create(color_manager_,
+                                                      color_manager_->GetReferenceColorSpace(),
+                                                      ocio_display_);
+      } else {
+        color_service_ = OpenGLColorProcessor::Create(color_manager_,
+                                                      color_manager_->GetReferenceColorSpace(),
+                                                      ocio_display_,
+                                                      ocio_view_,
+                                                      ocio_look_);
+      }
 
       makeCurrent();
       color_service_->Enable(context(), true);
