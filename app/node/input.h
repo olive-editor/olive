@@ -45,7 +45,9 @@ public:
    * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
    * older version. This of course assumes that parameters don't change their ID.
    */
-  NodeInput(const QString &id, const DataType& type, const QVariant& default_value = QVariant());
+  NodeInput(const QString &id, const DataType& type, const QVector<QVariant>& default_value);
+  NodeInput(const QString &id, const DataType& type, const QVariant& default_value);
+  NodeInput(const QString &id, const DataType& type);
 
   virtual bool IsArray();
 
@@ -285,6 +287,10 @@ protected:
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:
+  void Init(NodeParam::DataType type);
+
+  void SetDefaultValue(const QVector<QVariant> &default_value);
+
   QString ValueToString(const QVariant& value) const;
 
   QVariant StringToValue(const QString &string, QList<XMLNodeData::FootageConnection> &footage_connections);

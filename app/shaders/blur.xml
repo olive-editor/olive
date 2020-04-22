@@ -33,25 +33,33 @@
     <param id="radius_in" type="float">
         <name lang="en_US">Radius</name>
         <min>0</min>
-        <default>10</default>
+        <default>
+            <value>10</value>
+        </default>
     </param>
 
     <!-- Parameter: Horizontal Enable -->
     <param id="horiz_in" type="bool">
         <name lang="en_US">Horizontal</name>
-        <default>1</default>
+        <default>
+            <value>1</value>
+        </default>
     </param>
 
     <!-- Parameter: Vertical Enable -->
     <param id="vert_in" type="bool">
         <name lang="en_US">Vertical</name>
-        <default>1</default>
+        <default>
+            <value>1</value>
+        </default>
     </param>
 
     <!-- Parameter: Repeat Edge Pixels -->
     <param id="repeat_edge_pixels_in" type="bool">
         <name lang="en_US">Repeat Edge Pixels</name>
-        <default>0</default>
+        <default>
+            <value>0</value>
+        </default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->

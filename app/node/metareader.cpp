@@ -231,7 +231,7 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
     return;
   }
 
-  QVariant default_val;
+  QVector<QVariant> default_val;
   QHash<QString, QVariant> properties;
   LanguageMap param_names;
   QList<LanguageMap> combo_names;
@@ -249,7 +249,13 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("default")) {
 
       // Reads the default value
-      default_val = NodeInput::StringToValue(param_type, reader->readElementText());
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("value")) {
+          default_val.append(NodeInput::StringToValue(param_type, reader->readElementText()));
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
 
     } else if (reader->name() == QStringLiteral("option")) {
 

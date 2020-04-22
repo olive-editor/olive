@@ -27,21 +27,27 @@
     <param id="radius_in" type="float">
         <name lang="en_US">Radius</name>
         <min>0</min>
-        <default>10</default>
+        <default>
+            <value>10</value>
+        </default>
     </param>
 
     <!-- Parameter: Opacity Value -->
     <param id="opacity_in" type="float">
         <name lang="en_US">Opacity</name>
         <min>0</min>
-        <default>100</default>
+        <default>
+            <value>100</value>
+        </default>
         <max>100</max>
     </param>
 
     <!-- Parameter: Inner Value -->
     <param id="inner_in" type="bool">
         <name lang="en_US">Inner</name>
-        <default>false</default>
+        <default>
+            <value>false</value>
+        </default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->

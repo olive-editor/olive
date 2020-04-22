@@ -37,38 +37,27 @@
 
 OLIVE_NAMESPACE_ENTER
 
-NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &default_value) :
-  NodeParam(id),
-  data_type_(type),
-  keyframable_(true),
-  keyframing_(false)
+NodeInput::NodeInput(const QString& id, const DataType &type, const QVector<QVariant> &default_value) :
+  NodeParam(id)
 {
-  int track_size;
+  Init(type);
 
-  switch (data_type_) {
-  case kVec2:
-    track_size = 2;
-    break;
-  case kVec3:
-    track_size = 3;
-    break;
-  case kVec4:
-  case kColor:
-    track_size = 4;
-    break;
-  default:
-    track_size = 1;
+  if (!default_value.isEmpty()) {
+    SetDefaultValue(default_value);
   }
+}
 
-  keyframe_tracks_.resize(track_size);
+NodeInput::NodeInput(const QString &id, const NodeParam::DataType &type, const QVariant &default_value) :
+  NodeParam(id)
+{
+  Init(type);
+  SetDefaultValue(split_normal_value_into_track_values(default_value));
+}
 
-  if (!default_value.isNull()) {
-    standard_value_ = split_normal_value_into_track_values(default_value);
-
-    Q_ASSERT(standard_value_.size() == track_size);
-  } else {
-    standard_value_.resize(track_size);
-  }
+NodeInput::NodeInput(const QString &id, const NodeParam::DataType &type) :
+  NodeParam(id)
+{
+  Init(type);
 }
 
 bool NodeInput::IsArray()
@@ -297,6 +286,40 @@ void NodeInput::LoadInternal(QXmlStreamReader* reader, XMLNodeData &, const QAto
 
 void NodeInput::SaveInternal(QXmlStreamWriter*) const
 {
+}
+
+void NodeInput::Init(DataType type)
+{
+  keyframable_ = true;
+  keyframing_ = false;
+  data_type_ = type;
+
+  int track_size;
+
+  switch (data_type_) {
+  case kVec2:
+    track_size = 2;
+    break;
+  case kVec3:
+    track_size = 3;
+    break;
+  case kVec4:
+  case kColor:
+    track_size = 4;
+    break;
+  default:
+    track_size = 1;
+  }
+
+  keyframe_tracks_.resize(track_size);
+  standard_value_.resize(track_size);
+}
+
+void NodeInput::SetDefaultValue(const QVector<QVariant> &default_value)
+{
+  for (int i=0;i<standard_value_.size();i++) {
+    standard_value_.replace(i, default_value.at(i));
+  }
 }
 
 QString NodeInput::ValueToString(const QVariant &value) const

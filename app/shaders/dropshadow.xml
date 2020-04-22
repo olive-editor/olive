@@ -27,14 +27,18 @@
     <param id="softness_in" type="float">
         <name lang="en_US">Softness</name>
         <min>0</min>
-        <default>10</default>
+        <default>
+            <value>10</value>
+        </default>
     </param>
 
     <!-- Parameter: Opacity Input -->
     <param id="opacity_in" type="float">
         <name lang="en_US">Opacity</name>
         <min>0</min>
-        <default>80</default>
+        <default>
+            <value>80</value>
+        </default>
         <max>100</max>
     </param>
 
@@ -42,13 +46,17 @@
     <param id="distance_in" type="float">
         <name lang="en_US">Distance</name>
         <min>0</min>
-        <default>10</default>
+        <default>
+            <value>10</value>
+        </default>
     </param>
 
     <!-- Parameter: Direction Input -->
     <param id="direction_in" type="float">
         <name lang="en_US">Direction</name>
-        <default>45</default>
+        <default>
+            <value>45</value>
+        </default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->
