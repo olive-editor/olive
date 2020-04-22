@@ -49,6 +49,8 @@ public:
 
   void SetDisplayType(const DisplayType& type);
 
+  void SetAutoTrimDecimalPlaces(bool e);
+
 protected:
   virtual QString ValueToString(const QVariant& v) override;
 
@@ -64,6 +66,11 @@ private slots:
 
 private:
   DisplayType display_type_;
+
+  int decimal_places_;
+
+  bool autotrim_decimal_places_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

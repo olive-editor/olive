@@ -58,7 +58,7 @@ PreferencesDiskTab::PreferencesDiskTab()
   disk_management_layout->addWidget(new QLabel(tr("Maximum Disk Cache:")), row, 0);
 
   maximum_cache_slider_ = new FloatSlider();
-  maximum_cache_slider_->SetSuffix(QStringLiteral(" GB"));
+  maximum_cache_slider_->SetFormat(tr("%1 GB"));
   maximum_cache_slider_->SetMinimum(1.0);
   maximum_cache_slider_->SetValue(Config::Current()["DiskCacheSize"].toDouble());
   disk_management_layout->addWidget(maximum_cache_slider_, row, 1, 1, 2);
@@ -84,14 +84,14 @@ PreferencesDiskTab::PreferencesDiskTab()
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Ahead:")), row, 0);
 
   cache_ahead_slider_ = new FloatSlider();
-  cache_ahead_slider_->SetSuffix(QStringLiteral(" seconds"));
+  cache_ahead_slider_->SetFormat(tr("%1 seconds"));
   cache_ahead_slider_->SetValue(Config::Current()["DiskCacheAhead"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_ahead_slider_, row, 1);
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Behind:")), row, 2);
 
   cache_behind_slider_ = new FloatSlider();
-  cache_behind_slider_->SetSuffix(QStringLiteral(" seconds"));
+  cache_behind_slider_->SetFormat(tr("%1 seconds"));
   cache_behind_slider_->SetValue(Config::Current()["DiskCacheBehind"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_behind_slider_, row, 3);
 

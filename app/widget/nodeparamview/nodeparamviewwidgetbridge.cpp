@@ -662,6 +662,18 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
       foreach (QWidget* w, widgets_) {
         static_cast<FloatSlider*>(w)->SetDisplayType(display_type);
       }
+    } else if (key == QStringLiteral("decimalplaces")) {
+      int dec_places = value.toInt();
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<FloatSlider*>(w)->SetDecimalPlaces(dec_places);
+      }
+    } else if (key == QStringLiteral("autotrim")) {
+      bool autotrim = value.toBool();
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<FloatSlider*>(w)->SetAutoTrimDecimalPlaces(autotrim);
+      }
     }
   }
 }

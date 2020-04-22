@@ -28,7 +28,6 @@ OLIVE_NAMESPACE_ENTER
 
 SliderBase::SliderBase(Mode mode, QWidget *parent) :
   QStackedWidget(parent),
-  decimal_places_(1),
   drag_multiplier_(1.0),
   has_min_(false),
   has_max_(false),
@@ -98,16 +97,21 @@ bool SliderBase::IsDragging() const
   return dragged_;
 }
 
-void SliderBase::SetPrefix(const QString &s)
+void SliderBase::SetFormat(const QString &s)
 {
-  prefix_ = s;
-  UpdateLabel(value_);
+  custom_format_ = s;
+  ForceLabelUpdate();
 }
 
-void SliderBase::SetSuffix(const QString &s)
+void SliderBase::ClearFormat()
 {
-  suffix_ = s;
-  UpdateLabel(value_);
+  custom_format_.clear();
+  ForceLabelUpdate();
+}
+
+void SliderBase::ForceLabelUpdate()
+{
+  UpdateLabel(Value());
 }
 
 const QVariant &SliderBase::Value()
@@ -176,16 +180,21 @@ const QVariant &SliderBase::ClampValue(const QVariant &v)
   return v;
 }
 
+QString SliderBase::GetFormat() const
+{
+  if (custom_format_.isEmpty()) {
+    return QStringLiteral("%1");
+  } else {
+    return custom_format_;
+  }
+}
+
 void SliderBase::UpdateLabel(const QVariant &v)
 {
   if (tristate_) {
     label_->setText("---");
   } else {
-    QString comp = prefix_;
-    comp.append(ValueToString(v));
-    comp.append(suffix_);
-
-    label_->setText(comp);
+    label_->setText(GetFormat().arg(ValueToString(v)));
   }
 }
 

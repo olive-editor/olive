@@ -26,7 +26,9 @@ OLIVE_NAMESPACE_ENTER
 
 FloatSlider::FloatSlider(QWidget *parent) :
   SliderBase(kFloat, parent),
-  display_type_(kNormal)
+  display_type_(kNormal),
+  decimal_places_(1),
+  autotrim_decimal_places_(false)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
@@ -55,14 +57,31 @@ void FloatSlider::SetDecimalPlaces(int i)
 {
   decimal_places_ = i;
 
-  UpdateLabel(Value());
+  ForceLabelUpdate();
 }
 
 void FloatSlider::SetDisplayType(const FloatSlider::DisplayType &type)
 {
   display_type_ = type;
 
-  UpdateLabel(Value());
+  switch (display_type_) {
+  case kNormal:
+    ClearFormat();
+    break;
+  case kDecibel:
+    SetFormat(tr("%1 dB"));
+    break;
+  case kPercentage:
+    SetFormat(tr("%1%"));
+    break;
+  }
+}
+
+void FloatSlider::SetAutoTrimDecimalPlaces(bool e)
+{
+  autotrim_decimal_places_ = e;
+
+  ForceLabelUpdate();
 }
 
 QString FloatSlider::ValueToString(const QVariant &v)
@@ -74,18 +93,25 @@ QString FloatSlider::ValueToString(const QVariant &v)
     // Do nothing, skip to the return string at the end
     break;
   case kDecibel:
-  {
     // Convert to decibels and return dB formatted string
-    qreal decibels = QAudio::convertVolume(val, QAudio::LinearVolumeScale, QAudio::DecibelVolumeScale);
-    return QStringLiteral("%1 dB").arg(QString::number(decibels, 'f', decimal_places_));
-  }
+    val = QAudio::convertVolume(val, QAudio::LinearVolumeScale, QAudio::DecibelVolumeScale);
+    break;
   case kPercentage:
     // Multiply value by 100 for user-friendly percentage
     val *= 100.0;
-    return QStringLiteral("%1%").arg(QString::number(val, 'f', decimal_places_));
+    break;
   }
 
-  return QString::number(val, 'f', decimal_places_);
+  QString s = QString::number(val, 'f', decimal_places_);
+
+  if (autotrim_decimal_places_) {
+    while (s.endsWith('0')
+           && s.at(s.size() - 2).isDigit()) {
+      s = s.left(s.size() - 1);
+    }
+  }
+
+  return s;
 }
 
 QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
@@ -98,12 +124,8 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
   {
     bool valid;
 
-    // Remove any instance of "dB" in the string
-    QString decibel_number = s;
-    decibel_number.replace("dB", "", Qt::CaseInsensitive);
-
     // See if we can get a decimal number out of this
-    qreal decibels = decibel_number.toDouble(&valid);
+    qreal decibels = s.toDouble(&valid);
 
     if (ok) *ok = valid;
 
@@ -118,11 +140,8 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
   {
     bool valid;
 
-    QString percent_number = s;
-    percent_number.replace("%", "", Qt::CaseInsensitive);
-
     // Try to get double value
-    double val = percent_number.toDouble(&valid);
+    double val = s.toDouble(&valid);
 
     if (ok) *ok = valid;
 

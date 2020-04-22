@@ -50,8 +50,8 @@ public:
 
   bool IsDragging() const;
 
-  void SetPrefix(const QString& s);
-  void SetSuffix(const QString& s);
+  void SetFormat(const QString& s);
+  void ClearFormat();
 
 signals:
   void ValueChanged(QVariant v);
@@ -75,12 +75,14 @@ protected:
 
   virtual void changeEvent(QEvent* e) override;
 
-  int decimal_places_;
+  void ForceLabelUpdate();
 
   double drag_multiplier_;
 
 private:
   const QVariant& ClampValue(const QVariant& v);
+
+  QString GetFormat() const;
 
   SliderLabel* label_;
 
@@ -106,9 +108,7 @@ private:
 
   bool tristate_;
 
-  QString prefix_;
-
-  QString suffix_;
+  QString custom_format_;
 
 private slots:
   void LabelPressed();

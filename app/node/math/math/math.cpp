@@ -36,9 +36,13 @@ MathNode::MathNode()
   AddInput(method_in_);
 
   param_a_in_ = new NodeInput(QStringLiteral("param_a_in"), NodeParam::kFloat);
+  param_a_in_->set_property(QStringLiteral("decimalplaces"), 8);
+  param_a_in_->set_property(QStringLiteral("autotrim"), true);
   AddInput(param_a_in_);
 
   param_b_in_ = new NodeInput(QStringLiteral("param_b_in"), NodeParam::kFloat);
+  param_b_in_->set_property(QStringLiteral("decimalplaces"), 8);
+  param_b_in_->set_property(QStringLiteral("autotrim"), true);
   AddInput(param_b_in_);
 }
 
