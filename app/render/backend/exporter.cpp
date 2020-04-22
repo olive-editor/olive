@@ -27,46 +27,52 @@
 
 OLIVE_NAMESPACE_ENTER
 
-Exporter::Exporter(ViewerOutput* viewer,
-                   Encoder *encoder,
+Exporter::Exporter(ViewerOutput *viewer_node,
+                   ColorManager *color_manager,
+                   const ExportParams& params,
                    QObject* parent) :
   QObject(parent),
+  viewer_node_(viewer_node),
+  params_(params),
   video_backend_(nullptr),
   audio_backend_(nullptr),
-  viewer_node_(viewer),
-  video_done_(true),
-  audio_done_(true),
-  encoder_(encoder),
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
+  encoder_ = Encoder::CreateFromID(params_.encoder(), params_);
+
+  video_done_ = !params_.video_enabled();
+  audio_done_ = !params_.audio_enabled();
+
   debug_timer_.setInterval(5000);
   connect(&debug_timer_, &QTimer::timeout, this, &Exporter::DebugTimerMessage);
 
   connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
 
-  export_range_ = TimeRange(0, viewer_node_->Length());
-}
+  if (params_.has_custom_range()) {
+    export_range_ = params_.custom_range();
+  } else {
+    export_range_ = TimeRange(0, viewer_node_->Length());
+  }
 
-void Exporter::EnableVideo(const VideoRenderingParams &video_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor)
-{
-  video_params_ = video_params;
-  transform_ = transform;
-  color_processor_ = color_processor;
+  if (params_.video_enabled()) {
 
-  video_done_ = false;
-}
+    // If a transformation matrix is applied to this video, create it here
+    if (params_.video_scaling_method() != ExportParams::kStretch) {
+      transform_ = GenerateMatrix(params_.video_scaling_method(),
+                                  viewer_node_->video_params().width(),
+                                  viewer_node_->video_params().height(),
+                                  params_.video_params().width(),
+                                  params_.video_params().height());
+    }
 
-void Exporter::EnableAudio(const AudioRenderingParams &audio_params)
-{
-  audio_params_ = audio_params;
-
-  audio_done_ = false;
-}
-
-void Exporter::OverrideExportRange(const TimeRange &range)
-{
-  export_range_ = range;
+    // Create color processor
+    color_processor_ = ColorProcessor::Create(color_manager,
+                                              color_manager->GetReferenceColorSpace(),
+                                              params.ocio_display(),
+                                              params.ocio_view(),
+                                              params.ocio_look());
+  }
 }
 
 bool Exporter::GetExportStatus() const
@@ -110,9 +116,9 @@ void Exporter::StartExporting()
     video_backend_->SetViewerNode(viewer_node_);
     video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
                                                        viewer_node_->video_params().height(),
-                                                       video_params_.time_base(),
-                                                       video_params_.format(),
-                                                       video_params_.mode()));
+                                                       params_.video_params().time_base(),
+                                                       params_.video_params().format(),
+                                                       params_.video_params().mode()));
 
     waiting_for_frame_ = 0;
   }
@@ -121,7 +127,7 @@ void Exporter::StartExporting()
     audio_backend_ = new AudioBackend();
 
     audio_backend_->SetViewerNode(viewer_node_);
-    audio_backend_->SetParameters(audio_params_);
+    audio_backend_->SetParameters(params_.audio_params());
   }
 
   // Open encoder and wait for result
@@ -190,7 +196,7 @@ void Exporter::EncodeFrame()
                               Qt::QueuedConnection,
                               OLIVE_NS_ARG(FramePtr, frame));
 
-    waiting_for_frame_ += video_params_.time_base();
+    waiting_for_frame_ += params_.video_params().time_base();
 
     // Calculate progress
     emit ProgressChanged(waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble());
@@ -202,6 +208,30 @@ void Exporter::EncodeFrame()
 
     ExportSucceeded();
   }
+}
+
+QMatrix4x4 Exporter::GenerateMatrix(ExportParams::VideoScalingMethod method, int source_width, int source_height, int dest_width, int dest_height)
+{
+  QMatrix4x4 preview_matrix;
+
+  if (method == ExportParams::kStretch) {
+    return preview_matrix;
+  }
+
+  float export_ar = static_cast<float>(dest_width) / static_cast<float>(dest_height);
+  float source_ar = static_cast<float>(source_width) / static_cast<float>(source_height);
+
+  if (qFuzzyCompare(export_ar, source_ar)) {
+    return preview_matrix;
+  }
+
+  if ((export_ar > source_ar) == (method == ExportParams::kFit)) {
+    preview_matrix.scale(source_ar / export_ar, 1.0F);
+  } else {
+    preview_matrix.scale(1.0F, export_ar / source_ar);
+  }
+
+  return preview_matrix;
 }
 
 void Exporter::FrameRendered(const rational &time, FramePtr value)
@@ -261,14 +291,14 @@ void Exporter::EncoderOpenedSuccessfully()
     video_backend_->SetOperatingMode(VideoRenderWorker::kHashOnly);
     connect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
 
-    video_backend_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
+    video_backend_->InvalidateCache(export_range_);
   }
 
   if (!audio_done_) {
     // We set the audio backend to render the full sequence to the disk
     connect(audio_backend_, &AudioRenderBackend::AudioComplete, this, &Exporter::AudioRendered);
 
-    audio_backend_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
+    audio_backend_->InvalidateCache(export_range_);
   }
 }
 
@@ -297,7 +327,6 @@ void Exporter::VideoHashesComplete()
   video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
   video_backend_->SetOnlySignalLastFrameRequested(false);
 
-  // FIXME: Exporting is now broken because of this
   connect(video_backend_, &VideoRenderBackend::GeneratedFrame, this, &Exporter::FrameRendered);
 
   foreach (const TimeRange& range, ranges) {

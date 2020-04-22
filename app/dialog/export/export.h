@@ -53,9 +53,9 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
-  QMatrix4x4 GenerateMatrix(ExportVideoTab::ScalingMethod method, int source_width, int source_height, int dest_width, int height);
-
   void SetUIElementsEnabled(bool enabled);
+
+  ExportParams GenerateParams() const;
 
   static QString TimeToString(int64_t ms);
 

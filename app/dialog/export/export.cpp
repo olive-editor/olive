@@ -33,6 +33,7 @@
 #include "core.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
+#include "render/backend/exportparams.h"
 #include "render/pixelformat.h"
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
@@ -238,9 +239,9 @@ void ExportDialog::accept()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
     QMessageBox::critical(this,
-                         tr("Invalid parameters"),
-                         tr("Both video and audio are disabled. There's nothing to export."),
-                         QMessageBox::Ok);
+                          tr("Invalid parameters"),
+                          tr("Both video and audio are disabled. There's nothing to export."),
+                          QMessageBox::Ok);
     return;
   }
 
@@ -282,68 +283,8 @@ void ExportDialog::accept()
     return;
   }
 
-  QMatrix4x4 transform;
-
-  int dest_width = static_cast<int>(video_tab_->width_slider()->GetValue());
-  int dest_height = static_cast<int>(video_tab_->height_slider()->GetValue());
-
-  if (video_tab_->scaling_method_combobox()->isEnabled()) {
-    int source_width = viewer_node_->video_params().width();
-    int source_height = viewer_node_->video_params().height();
-
-    transform = GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                               source_width,
-                               source_height,
-                               dest_width,
-                               dest_height);
-  }
-
-  RenderMode::Mode render_mode = RenderMode::kOnline;
-
-  VideoRenderingParams video_render_params(dest_width,
-                                           dest_height,
-                                           video_tab_->frame_rate().flipped(),
-                                           PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
-                                           render_mode);
-
-  AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
-                                           audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SampleFormat::kInternalFormat);
-
-  ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_,
-                                                             color_manager_->GetReferenceColorSpace(),
-                                                             video_tab_->CurrentOCIOColorSpace());
-
-  // Set up encoder
-  EncodingParams encoding_params;
-  encoding_params.SetFilename(filename_edit_->text());
-  encoding_params.SetExportLength(viewer_node_->Length());
-
-  if (video_enabled_->isChecked()) {
-    const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
-    encoding_params.EnableVideo(video_render_params,
-                                video_codec.id());
-
-    video_tab_->GetCodecSection()->AddOpts(&encoding_params);
-  }
-
-  if (audio_enabled_->isChecked()) {
-    const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
-    encoding_params.EnableAudio(audio_render_params,
-                                audio_codec.id());
-  }
-
-  Encoder* encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
-
-  exporter_ = new Exporter(viewer_node_, encoder);
-
-  if (video_enabled_->isChecked()) {
-    exporter_->EnableVideo(video_render_params, transform, color_processor);
-  }
-
-  if (audio_enabled_->isChecked()) {
-    exporter_->EnableAudio(audio_render_params);
-  }
+  // Set up export parameters
+  exporter_ = new Exporter(viewer_node_, color_manager_, GenerateParams());
 
   connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
   connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::ProgressUpdated);
@@ -554,30 +495,6 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
-QMatrix4x4 ExportDialog::GenerateMatrix(ExportVideoTab::ScalingMethod method, int source_width, int source_height, int dest_width, int dest_height)
-{
-  QMatrix4x4 preview_matrix;
-
-  if (method == ExportVideoTab::kStretch) {
-    return preview_matrix;
-  }
-
-  float export_ar = static_cast<float>(dest_width) / static_cast<float>(dest_height);
-  float source_ar = static_cast<float>(source_width) / static_cast<float>(source_height);
-
-  if (qFuzzyCompare(export_ar, source_ar)) {
-    return preview_matrix;
-  }
-
-  if ((export_ar > source_ar) == (method == ExportVideoTab::kFit)) {
-    preview_matrix.scale(source_ar / export_ar, 1.0F);
-  } else {
-    preview_matrix.scale(1.0F, export_ar / source_ar);
-  }
-
-  return preview_matrix;
-}
-
 void ExportDialog::SetUIElementsEnabled(bool enabled)
 {
   preferences_area_->setEnabled(enabled);
@@ -585,6 +502,49 @@ void ExportDialog::SetUIElementsEnabled(bool enabled)
 
   export_cancel_btn_->setEnabled(!enabled);
   elapsed_label_->setEnabled(!enabled);
+}
+
+ExportParams ExportDialog::GenerateParams() const
+{
+  RenderMode::Mode render_mode = RenderMode::kOnline;
+
+  VideoRenderingParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                           static_cast<int>(video_tab_->height_slider()->GetValue()),
+                                           video_tab_->frame_rate().flipped(),
+                                           PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
+                                           render_mode);
+
+  AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
+                                           audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
+                                           SampleFormat::GetConfiguredFormatForMode(render_mode));
+
+  ExportParams params;
+  params.SetFilename(filename_edit_->text());
+  params.SetExportLength(viewer_node_->Length());
+
+  if (video_tab_->scaling_method_combobox()->isEnabled()) {
+    params.set_video_scaling_method(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));
+  }
+
+  if (video_enabled_->isChecked()) {
+    const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+    params.EnableVideo(video_render_params,
+                       video_codec.id());
+
+    video_tab_->GetCodecSection()->AddOpts(&params);
+
+    params.set_ocio_output(video_tab_->CurrentOCIODisplay(),
+                           video_tab_->CurrentOCIOView(),
+                           video_tab_->CurrentOCIOLook());
+  }
+
+  if (audio_enabled_->isChecked()) {
+    const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
+    params.EnableAudio(audio_render_params,
+                       audio_codec.id());
+  }
+
+  return params;
 }
 
 void ExportDialog::UpdateTimeLabels()
@@ -639,11 +599,11 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                    static_cast<int>(video_tab_->height_slider()->GetValue()));
 
-  preview_viewer_->SetMatrix(GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                            viewer_node_->video_params().width(),
-                                            viewer_node_->video_params().height(),
-                                            static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                            static_cast<int>(video_tab_->height_slider()->GetValue())));
+  preview_viewer_->SetMatrix(Exporter::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                                                      viewer_node_->video_params().width(),
+                                                      viewer_node_->video_params().height(),
+                                                      static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                                      static_cast<int>(video_tab_->height_slider()->GetValue())));
 }
 
 void ExportDialog::ExporterIsDone()

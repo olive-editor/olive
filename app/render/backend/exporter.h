@@ -29,6 +29,7 @@
 #include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
 #include "render/backend/audiorenderbackend.h"
+#include "render/backend/exportparams.h"
 #include "render/backend/videorenderbackend.h"
 #include "render/colorprocessor.h"
 
@@ -38,19 +39,17 @@ class Exporter : public QObject
 {
   Q_OBJECT
 public:
-  Exporter(ViewerOutput* viewer,
-           Encoder* encoder,
+  Exporter(ViewerOutput* viewer_node,
+           ColorManager* color_manager,
+           const ExportParams& params,
            QObject* parent = nullptr);
-
-  void EnableVideo(const VideoRenderingParams& video_params, const QMatrix4x4& transform, ColorProcessorPtr color_processor);
-  void EnableAudio(const AudioRenderingParams& audio_params);
-
-  void OverrideExportRange(const TimeRange& range);
 
   bool GetExportStatus() const;
   const QString& GetExportError() const;
 
   void Cancel();
+
+  static QMatrix4x4 GenerateMatrix(ExportParams::VideoScalingMethod method, int source_width, int source_height, int dest_width, int dest_height);
 
 public slots:
   void StartExporting();
@@ -63,16 +62,22 @@ signals:
 protected:
   void SetExportMessage(const QString& s);
 
+private:
+  void ExportSucceeded();
+
+  void ExportStopped();
+
+  void EncodeFrame();
+
+  ViewerOutput* viewer_node_;
+
+  ColorProcessorPtr color_processor_;
+
+  ExportParams params_;
+
   // Renderers
   VideoRenderBackend* video_backend_;
   AudioRenderBackend* audio_backend_;
-
-  // Viewer node
-  ViewerOutput* viewer_node_;
-
-  // Export parameters
-  VideoRenderingParams video_params_;
-  AudioRenderingParams audio_params_;
 
   // Export transform
   QMatrix4x4 transform_;
@@ -81,22 +86,13 @@ protected:
 
   bool audio_done_;
 
-  TimeRange export_range_;
-
-private:
-  void ExportSucceeded();
-
-  void ExportStopped();
-
-  void EncodeFrame();
-
-  ColorProcessorPtr color_processor_;
-
   Encoder* encoder_;
 
   bool export_status_;
 
   QString export_msg_;
+
+  TimeRange export_range_;
 
   rational waiting_for_frame_;
 

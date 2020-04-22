@@ -26,6 +26,7 @@
 #include <QLabel>
 
 #include "core.h"
+#include "render/backend/exportparams.h"
 #include "render/colormanager.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -140,9 +141,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   scaling_method_combobox_ = new QComboBox();
   scaling_method_combobox_->setEnabled(false);
-  scaling_method_combobox_->addItem(tr("Fit"), kFit);
-  scaling_method_combobox_->addItem(tr("Stretch"), kStretch);
-  scaling_method_combobox_->addItem(tr("Crop"), kCrop);
+  scaling_method_combobox_->addItem(tr("Fit"), ExportParams::kFit);
+  scaling_method_combobox_->addItem(tr("Stretch"), ExportParams::kStretch);
+  scaling_method_combobox_->addItem(tr("Crop"), ExportParams::kCrop);
   layout->addWidget(scaling_method_combobox_, row, 1);
 
   // Automatically enable/disable the scaling method depending on maintain aspect ratio

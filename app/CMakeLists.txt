@@ -30,6 +30,7 @@ if (WIN32)
 endif()
 
 add_subdirectory(audio)
+add_subdirectory(cli)
 add_subdirectory(codec)
 add_subdirectory(common)
 add_subdirectory(config)

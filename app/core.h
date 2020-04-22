@@ -71,7 +71,7 @@ public:
    *
    * Main application launcher. Parses command line arguments and constructs main window (if entering a GUI mode).
    */
-  void Start();
+  bool Start();
 
   /**
    * @brief Stop Olive Core
@@ -463,6 +463,11 @@ private:
    * @brief List of most recently opened/saved projects
    */
   QStringList recent_projects_;
+
+  /**
+   * @brief Internal variable for whether the GUI is active
+   */
+  bool gui_active_;
 
   /**
    * @brief Static singleton core instance
