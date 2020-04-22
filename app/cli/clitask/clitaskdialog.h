@@ -31,9 +31,6 @@ class CLITaskDialog : public CLIProgressDialog
 public:
   CLITaskDialog(Task *task, QObject* parent = nullptr);
 
-private:
-  Task* task_;
-
 };
 
 OLIVE_NAMESPACE_EXIT

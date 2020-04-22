@@ -25,8 +25,7 @@ OLIVE_NAMESPACE_ENTER
 CLITaskDialog::CLITaskDialog(Task *task, QObject* parent) :
   CLIProgressDialog(task->GetTitle(), parent)
 {
-  //connect(task, &Task::ProgressChanged, this, &CLITaskDialog::SetProgress);
-
+  // FIXME: Still developing this, don't try to use
   task->Start();
 }
 
