@@ -191,13 +191,22 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
   frame->allocate();
 
   if (divider == 1) {
-    memcpy(frame->data(), buffer_->localpixels(), frame->allocated_size());
+
+    // Just a simple copy
+    buffer_->get_pixels(OIIO::ROI(), buffer_->spec().format, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
+
   } else {
-    OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
+
+    // Will need to resize the image
+    OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format));
 
     if (!OIIO::ImageBufAlgo::resample(dst, *buffer_)) {
       qWarning() << "OIIO resize failed";
     }
+
+    // Just a simple copy
+    dst.get_pixels(OIIO::ROI(), dst.spec().format, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
+
   }
 
   if (stream()->type() == Stream::kVideo) {
@@ -322,14 +331,14 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
   }
 
   // FIXME: Many OIIO pixel formats are not handled here
-  type_ = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
+  OIIO::TypeDesc type = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
 
 #if OIIO_VERSION < 20100
   buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_));
 #else
-  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_), OIIO::InitializePixels::No);
+  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type), OIIO::InitializePixels::No);
 #endif
-  image_->read_image(type_, buffer_->localpixels());
+  image_->read_image(type, buffer_->localpixels());
 
   return true;
 }

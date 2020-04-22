@@ -68,8 +68,6 @@ private:
 
   PixelFormat::Format pix_fmt_;
 
-  OIIO::TypeDesc type_;
-
   bool is_rgba_;
 
   bool is_sequence_;
