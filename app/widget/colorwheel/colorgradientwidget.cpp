@@ -76,10 +76,12 @@ void ColorGradientWidget::paintEvent(QPaintEvent *e)
   p.setPen(QPen(GetUISelectorColor(), qMax(1, selector_radius / 2)));
   p.setBrush(Qt::NoBrush);
 
+  float clamped_val = clamp(val_, 0.0f, 1.0f);
+
   if (orientation_ == Qt::Horizontal) {
-    p.drawRect(qRound(width() * (1.0 - val_)) - selector_radius, 0, selector_radius * 2, height() - 1);
+    p.drawRect(qRound(width() * (1.0 - clamped_val)) - selector_radius, 0, selector_radius * 2, height() - 1);
   } else {
-    p.drawRect(0, qRound(height() * (1.0 - val_)) - selector_radius, width() - 1, selector_radius * 2);
+    p.drawRect(0, qRound(height() * (1.0 - clamped_val)) - selector_radius, width() - 1, selector_radius * 2);
   }
 }
 
