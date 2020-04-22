@@ -41,7 +41,8 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
-  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format, const void *data = nullptr);
+  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format, const void *data, int linesize);
+  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format);
   void Create(QOpenGLContext* ctx, FramePtr frame);
 
   bool IsCreated() const;
@@ -58,13 +59,13 @@ public:
 
   const GLuint& texture() const;
 
-  void Upload(const void *data);
+  void Upload(const void *data, int linesize);
 
 public slots:
   void Destroy();
 
 private:
-  void CreateInternal(QOpenGLContext *create_ctx, GLuint *tex, const void *data = nullptr);
+  void CreateInternal(QOpenGLContext *create_ctx, GLuint *tex, const void *data, int linesize);
 
   QOpenGLContext* created_ctx_;
 

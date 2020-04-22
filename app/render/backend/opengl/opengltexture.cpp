@@ -48,7 +48,7 @@ bool OpenGLTexture::IsCreated() const
   return (texture_);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format, const void* data)
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format, const void* data, int linesize)
 {
   if (!ctx) {
     qWarning() << "OpenGLTexture::Create was passed an invalid context";
@@ -65,12 +65,17 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
   connect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()), Qt::DirectConnection);
 
   // Create main texture
-  CreateInternal(created_ctx_, &texture_, data);
+  CreateInternal(created_ctx_, &texture_, data, linesize);
+}
+
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format)
+{
+  Create(ctx, width, height, format, nullptr, 0);
 }
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 {
-  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data());
+  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data(), frame->linesize());
 }
 
 void OpenGLTexture::Destroy()
@@ -115,7 +120,7 @@ const GLuint &OpenGLTexture::texture() const
   return texture_;
 }
 
-void OpenGLTexture::Upload(const void *data)
+void OpenGLTexture::Upload(const void *data, int linesize)
 {
   if (!IsCreated()) {
     qWarning() << "OpenGLTexture::Upload() called while it wasn't created";
@@ -124,56 +129,24 @@ void OpenGLTexture::Upload(const void *data)
 
   Bind();
 
-  if (width_ % 16 != 0) {
-    // Align to a multiple of 16
+  created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
-    // FIXME: We should probably fold linesizes into the Frame class proper for optimization
+  created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                             0,
+                                             0,
+                                             0,
+                                             width_,
+                                             height_,
+                                             OpenGLRenderFunctions::GetPixelFormat(format_),
+                                             OpenGLRenderFunctions::GetPixelType(format_),
+                                             data);
 
-    int new_width = qCeil(static_cast<double>(width_) / 16.0) * 16;
-
-    Frame f;
-    f.set_video_params(VideoRenderingParams(new_width, height_, format_));
-    f.allocate();
-
-    int src_linesize = PixelFormat::GetBufferSize(format_, width_, 1);
-    int dst_linesize = PixelFormat::GetBufferSize(format_, new_width, 1);
-
-    for (int i=0;i<height_;i++) {
-      memcpy(f.data() + (i*dst_linesize),
-             reinterpret_cast<const char*>(data) + i*src_linesize,
-             src_linesize);
-    }
-
-    created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, new_width);
-
-    created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
-                                               0,
-                                               0,
-                                               0,
-                                               width_,
-                                               height_,
-                                               OpenGLRenderFunctions::GetPixelFormat(format_),
-                                               OpenGLRenderFunctions::GetPixelType(format_),
-                                               f.data());
-
-    created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-  } else {
-    created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
-                                               0,
-                                               0,
-                                               0,
-                                               width_,
-                                               height_,
-                                               OpenGLRenderFunctions::GetPixelFormat(format_),
-                                               OpenGLRenderFunctions::GetPixelType(format_),
-                                               data);
-  }
+  created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
   Release();
 }
 
-void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, const void *data)
+void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, const void *data, int linesize)
 {
   QOpenGLFunctions* f = create_ctx->functions();
 
@@ -189,6 +162,9 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   // Bind texture
   f->glBindTexture(GL_TEXTURE_2D, *tex);
 
+  // Set linesize
+  f->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
+
   // Allocate storage for texture
   f->glTexImage2D(GL_TEXTURE_2D,
                   0,
@@ -199,6 +175,9 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
                   OpenGLRenderFunctions::GetPixelFormat(format_),
                   OpenGLRenderFunctions::GetPixelType(format_),
                   data);
+
+  // Return linesize to default
+  f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
   // Set texture filtering to bilinear
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
