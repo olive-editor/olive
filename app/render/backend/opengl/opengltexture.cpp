@@ -75,7 +75,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 {
-  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data(), frame->linesize());
+  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data(), frame->linesize_pixels());
 }
 
 void OpenGLTexture::Destroy()

@@ -114,12 +114,12 @@ void ViewerGLWidget::SetImage(const QString &fn)
         texture_.Create(context(), input->spec().width, input->spec().height, image_format);
       }
 
-      input->read_image(input->spec().format, load_buffer_.data());
+      input->read_image(input->spec().format, load_buffer_.data(), OIIO::AutoStride, load_buffer_.linesize_bytes());
       input->close();
 
       emit LoadedBuffer(&load_buffer_);
 
-      texture_.Upload(load_buffer_.data());
+      texture_.Upload(load_buffer_.data(), load_buffer_.linesize_pixels());
 
       emit LoadedTexture(&texture_);
 
@@ -162,9 +162,9 @@ void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
         || texture_.width() != in_buffer->width()
         || texture_.height() != in_buffer->height()
         || texture_.format() != in_buffer->format()) {
-      texture_.Create(context(), in_buffer->width(), in_buffer->height(), in_buffer->format(), in_buffer->data());
+      texture_.Create(context(), in_buffer->width(), in_buffer->height(), in_buffer->format(), in_buffer->data(), load_buffer_.linesize_pixels());
     } else {
-      texture_.Upload(in_buffer->data());
+      texture_.Upload(in_buffer->data(), load_buffer_.linesize_pixels());
     }
 
     doneCurrent();

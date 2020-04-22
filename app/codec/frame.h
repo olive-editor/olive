@@ -47,7 +47,8 @@ public:
   const VideoRenderingParams& video_params() const;
   void set_video_params(const VideoRenderingParams& params);
 
-  int linesize() const;
+  int linesize_pixels() const;
+  int linesize_bytes() const;
   const int& width() const;
   const int& height() const;
   const PixelFormat::Format& format() const;
@@ -68,13 +69,6 @@ public:
 
   const int64_t& native_timestamp();
   void set_native_timestamp(const int64_t& timestamp);
-
-  /**
-   * @brief Returns a copy of the data in this frame as a QByteArray
-   *
-   * Will always do a deep copy. If you want to affect the data directly, use data() instead.
-   */
-  QByteArray ToByteArray() const;
 
   /**
    * @brief Get the data buffer of this frame

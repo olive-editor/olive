@@ -68,7 +68,13 @@ ColorProcessor::ColorProcessor(ColorManager *config,
 
 void ColorProcessor::ConvertFrame(Frame *f)
 {
-  OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()), f->width(), f->height(), PixelFormat::ChannelCount(f->format()));
+  OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()),
+                            f->width(),
+                            f->height(),
+                            PixelFormat::ChannelCount(f->format()),
+                            OCIO::AutoStride,
+                            OCIO::AutoStride,
+                            f->linesize_bytes());
 
   processor_->apply(img);
 }

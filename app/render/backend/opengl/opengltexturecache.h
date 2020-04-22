@@ -57,7 +57,8 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTextureCache)
 
-  ReferencePtr Get(QOpenGLContext *ctx, const VideoRenderingParams& params, const void *data = nullptr);
+  ReferencePtr Get(QOpenGLContext *ctx, const VideoRenderingParams& params, const void *data, int linesize);
+  ReferencePtr Get(QOpenGLContext *ctx, const VideoRenderingParams& params);
 
 private:
   void Relinquish(Reference* ref);

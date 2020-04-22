@@ -324,7 +324,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     // Convert frame to RGB/A for the rest of the pipeline
     uint8_t* output_data = reinterpret_cast<uint8_t*>(copy->data());
-    int output_linesize = copy->width() * PixelFormat::BytesPerPixel(native_pix_fmt_);
+    int output_linesize = copy->linesize_bytes();
 
     sws_scale(scale_ctx_,
               input_data,

@@ -89,7 +89,7 @@ protected:
 
   virtual void ParametersChangedEvent(){}
 
-  virtual void TextureToBuffer(const QVariant& texture, void *buffer) = 0;
+  virtual void TextureToBuffer(const QVariant& texture, void *buffer, int linesize) = 0;
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 

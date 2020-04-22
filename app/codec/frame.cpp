@@ -50,9 +50,14 @@ void Frame::set_video_params(const VideoRenderingParams &params)
   linesize_ = qCeil(static_cast<double>(params.width()) / 16.0) * 16;
 }
 
-int Frame::linesize() const
+int Frame::linesize_pixels() const
 {
   return linesize_;
+}
+
+int Frame::linesize_bytes() const
+{
+  return linesize_pixels() * PixelFormat::BytesPerPixel(params_.format());
 }
 
 const int &Frame::width() const
@@ -76,7 +81,7 @@ Color Frame::get_pixel(int x, int y) const
     return Color();
   }
 
-  int pixel_index = y * width() + x;
+  int pixel_index = y * linesize_pixels() + x;
 
   int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
 
@@ -116,11 +121,6 @@ const int64_t &Frame::native_timestamp()
 void Frame::set_native_timestamp(const int64_t &timestamp)
 {
   native_timestamp_ = timestamp;
-}
-
-QByteArray Frame::ToByteArray() const
-{
-  return data_;
 }
 
 char *Frame::data()

@@ -29,7 +29,7 @@ OpenGLTextureCache::~OpenGLTextureCache()
   }
 }
 
-OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, const VideoRenderingParams &params, const void *data)
+OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, const VideoRenderingParams &params, const void *data, int linesize)
 {
   OpenGLTexturePtr texture = nullptr;
 
@@ -60,10 +60,15 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, co
   lock_.unlock();
 
   if (data) {
-    texture->Upload(data);
+    texture->Upload(data, linesize);
   }
 
   return ref;
+}
+
+OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext *ctx, const VideoRenderingParams &params)
+{
+  return Get(ctx, params, nullptr, 0);
 }
 
 void OpenGLTextureCache::Relinquish(OpenGLTextureCache::Reference *ref)

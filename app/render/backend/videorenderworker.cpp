@@ -253,7 +253,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
 {
   if (operating_mode_ & kDownloadOnly) {
 
-    TextureToBuffer(texture, download_buffer_.data());
+    TextureToBuffer(texture, download_buffer_.data(), 0);
 
     switch (video_params().format()) {
     case PixelFormat::PIX_FMT_RGB8:
@@ -342,7 +342,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
     frame->set_video_params(video_params());
     frame->allocate();
 
-    TextureToBuffer(texture, frame->data());
+    TextureToBuffer(texture, frame->data(), frame->linesize_pixels());
 
     emit GeneratedFrame(time, frame);
 

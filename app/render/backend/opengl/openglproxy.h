@@ -67,7 +67,7 @@ public:
 
   void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params);
 
-  void TextureToBuffer(const QVariant& texture, void *buffer);
+  void TextureToBuffer(const QVariant& texture, void *buffer, int linesize);
 
   void SetParameters(const VideoRenderingParams& params);
 

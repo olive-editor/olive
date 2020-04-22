@@ -254,7 +254,7 @@ void FFmpegEncoder::WriteInternal(FramePtr frame)
 
   // Use swscale context to convert formats/linesizes
   input_data = frame->const_data();
-  input_linesize = frame->width() * PixelFormat::BytesPerPixel(video_conversion_fmt_);
+  input_linesize = frame->linesize_bytes();
   error_code = sws_scale(video_scale_ctx_,
                          reinterpret_cast<const uint8_t**>(&input_data),
                          &input_linesize,

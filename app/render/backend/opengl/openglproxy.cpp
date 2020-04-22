@@ -132,7 +132,7 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
 
     VideoRenderingParams footage_params(frame->width(), frame->height(), frame->format());
 
-    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data());
+    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data(), frame->linesize_pixels());
 
     if (ocio_method == ColorManager::kOCIOFast) {
       if (!color_processor->IsEnabled()) {
@@ -426,7 +426,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
   output_params.Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
-void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
+void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer, int linesize)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
@@ -438,6 +438,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
   buffer_.Attach(texture->texture());
   buffer_.Bind();
 
+  f->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
+
   f->glReadPixels(0,
                   0,
                   video_params_.effective_width(),
@@ -445,6 +447,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
                   OpenGLRenderFunctions::GetPixelFormat(video_params_.format()),
                   OpenGLRenderFunctions::GetPixelType(video_params_.format()),
                   buffer);
+
+  f->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 
   buffer_.Release();
   buffer_.Detach();
