@@ -260,9 +260,9 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   Clear();
 
-  for (int i=0;i<views_.size();i++) {
-    TrackView* track_view = views_.at(i)->track_view();
-    track_view->DisconnectTrackList();
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->track_view()->DisconnectTrackList();
+    tview->view()->ConnectTrackList(nullptr);
   }
 }
 

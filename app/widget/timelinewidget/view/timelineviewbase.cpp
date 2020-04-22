@@ -311,9 +311,9 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
     // If CTRL is held (or a preference is set to swap CTRL behavior), we zoom instead of scrolling
     if (event->delta() != 0) {
       if (event->delta() > 0) {
-        emit ScaleChanged(GetScale() * 2.0);
+        emit ScaleChanged(GetScale() * 1.1);
       } else {
-        emit ScaleChanged(GetScale() * 0.5);
+        emit ScaleChanged(GetScale() * 0.9);
       }
     }
 
