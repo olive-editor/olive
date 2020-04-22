@@ -18,11 +18,5 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   dialog/color/colordialog.h
   dialog/color/colordialog.cpp
-  dialog/color/colorpreviewbox.h
-  dialog/color/colorpreviewbox.cpp
-  dialog/color/colorspacechooser.h
-  dialog/color/colorspacechooser.cpp
-  dialog/color/colorvalueswidget.h
-  dialog/color/colorvalueswidget.cpp
   PARENT_SCOPE
 )
