@@ -34,7 +34,7 @@ OCIO::ConstConfigRcPtr ColorManager::default_config_;
 
 ColorManager::ColorManager()
 {
-  // Ensures config is set to something
+  // Set config to our built-in default
   config_ = GetDefaultConfig();
 
   // Default input space
