@@ -95,6 +95,14 @@ void NodeView::DeleteSelected()
 
   QList<Node*> selected_nodes = scene_.GetSelectedNodes();
 
+  // Ensure no nodes are "undeletable"
+  for (int i=0;i<selected_nodes.size();i++) {
+    if (!selected_nodes.at(i)->CanBeDeleted()) {
+      selected_nodes.removeAt(i);
+      i--;
+    }
+  }
+
   if (selected_nodes.isEmpty()) {
     return;
   }
