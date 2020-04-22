@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QtGlobal>
+#include <QtMath>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -44,6 +45,14 @@ const VideoRenderingParams &Frame::video_params() const
 void Frame::set_video_params(const VideoRenderingParams &params)
 {
   params_ = params;
+
+  // Align linesize to 16
+  linesize_ = qCeil(static_cast<double>(params.width()) / 16.0) * 16;
+}
+
+int Frame::linesize() const
+{
+  return linesize_;
 }
 
 const int &Frame::width() const
@@ -132,7 +141,7 @@ void Frame::allocate()
     return;
   }
 
-  data_.resize(PixelFormat::GetBufferSize(params_.format(), params_.width(), params_.height()));
+  data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, params_.height()));
 }
 
 bool Frame::is_allocated() const

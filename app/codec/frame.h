@@ -47,6 +47,7 @@ public:
   const VideoRenderingParams& video_params() const;
   void set_video_params(const VideoRenderingParams& params);
 
+  int linesize() const;
   const int& width() const;
   const int& height() const;
   const PixelFormat::Format& format() const;
@@ -121,6 +122,8 @@ private:
   int64_t native_timestamp_;
 
   rational sample_aspect_ratio_;
+
+  int linesize_;
 
 };
 
