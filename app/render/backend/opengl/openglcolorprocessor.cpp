@@ -71,14 +71,8 @@ void OpenGLColorProcessor::ClearTexture()
   }
 }
 
-OpenGLColorProcessor::OpenGLColorProcessor(ColorManager* config, const QString &source_space, const QString &dest_space) :
+OpenGLColorProcessor::OpenGLColorProcessor(ColorManager* config, const QString &source_space, const ColorTransform &dest_space) :
   ColorProcessor(config, source_space, dest_space),
-  ocio_lut_(0)
-{
-}
-
-OpenGLColorProcessor::OpenGLColorProcessor(ColorManager* config, const QString &source_space, QString display, QString view, const QString &look, Direction dir) :
-  ColorProcessor(config, source_space, display, view, look, dir),
   ocio_lut_(0)
 {
 }
@@ -88,14 +82,9 @@ OpenGLColorProcessor::~OpenGLColorProcessor()
   ClearTexture();
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::Create(ColorManager *config, const QString &source_space, const QString &dest_space)
+OpenGLColorProcessorPtr OpenGLColorProcessor::Create(ColorManager *config, const QString &source_space, const ColorTransform &dest_space)
 {
   return std::make_shared<OpenGLColorProcessor>(config, source_space, dest_space);
-}
-
-OpenGLColorProcessorPtr OpenGLColorProcessor::Create(ColorManager *config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction dir)
-{
-  return std::make_shared<OpenGLColorProcessor>(config, source_space, display, view, look, dir);
 }
 
 OLIVE_NAMESPACE_EXIT

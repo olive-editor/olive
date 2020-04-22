@@ -22,6 +22,7 @@
 #define MANAGEDCOLOR_H
 
 #include "color.h"
+#include "colortransform.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,23 +37,13 @@ public:
   const QString& color_input() const;
   void set_color_input(const QString &color_input);
 
-  const QString& color_display() const;
-  void set_color_display(const QString &color_display);
-
-  const QString& color_view() const;
-  void set_color_view(const QString &color_view);
-
-  const QString& color_look() const;
-  void set_color_look(const QString &color_look);
+  const ColorTransform& color_output() const;
+  void set_color_output(const ColorTransform &color_output);
 
 private:
   QString color_input_;
 
-  QString color_display_;
-
-  QString color_view_;
-
-  QString color_look_;
+  ColorTransform color_transform_;
 
 };
 

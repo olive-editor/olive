@@ -33,25 +33,15 @@ class OpenGLColorProcessor : public QObject, public ColorProcessor
 {
   Q_OBJECT
 public:
-  OpenGLColorProcessor(ColorManager *config, const QString &source_space, const QString &dest_space);
-
   OpenGLColorProcessor(ColorManager *config,
-                       const QString& source_space,
-                       QString display,
-                       QString view,
-                       const QString& look,
-                       Direction dir);
+                       const QString& input,
+                       const ColorTransform& dest);
 
-  ~OpenGLColorProcessor();
-
-  static OpenGLColorProcessorPtr Create(ColorManager* config, const QString& source_space, const QString& dest_space);
+  virtual ~OpenGLColorProcessor() override;
 
   static OpenGLColorProcessorPtr Create(ColorManager* config,
-                                        const QString& source_space,
-                                        const QString& display,
-                                        const QString& view,
-                                        const QString& look,
-                                        Direction dir = kNormal);
+                                        const QString& input,
+                                        const ColorTransform& dest);
 
   void Enable(QOpenGLContext* context, bool alpha_is_associated);
   bool IsEnabled() const;

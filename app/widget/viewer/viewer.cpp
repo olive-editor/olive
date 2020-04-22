@@ -421,6 +421,11 @@ void ViewerWidget::UpdateMinimumScale()
   }
 }
 
+void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerGLWidget *sender)
+{
+  sender->SetColorTransform(transform);
+}
+
 void ViewerWidget::UpdateStack()
 {
   if (!GetConnectedNode() || GetConnectedNode()->texture_input()->IsConnected()) {
@@ -536,6 +541,10 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
   // Color options
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
+    const ColorTransform& transform = context_menu_widget_->GetColorTransform();
+
+    qDebug() << "CMW transform" << transform.display() << transform.view() << transform.look();
+
     {
       QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
 
@@ -546,13 +555,13 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       foreach (const QString& d, displays) {
         QAction* action = ocio_display_menu->addAction(d);
         action->setCheckable(true);
-        action->setChecked(context_menu_widget_->ocio_display() == d);
+        action->setChecked(transform.display() == d);
         action->setData(d);
       }
     }
 
     {
-      QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(context_menu_widget_->ocio_display());
+      QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(transform.display());
 
       Menu* ocio_view_menu = new Menu(tr("View"), &menu);
       menu.addMenu(ocio_view_menu);
@@ -561,7 +570,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       foreach (const QString& v, views) {
         QAction* action = ocio_view_menu->addAction(v);
         action->setCheckable(true);
-        action->setChecked(context_menu_widget_->ocio_view() == v);
+        action->setChecked(transform.view() == v);
         action->setData(v);
       }
     }
@@ -575,11 +584,11 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
       QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
       no_look_action->setCheckable(true);
-      no_look_action->setChecked(context_menu_widget_->ocio_look().isEmpty());
+      no_look_action->setChecked(transform.look().isEmpty());
       foreach (const QString& l, looks) {
         QAction* action = ocio_look_menu->addAction(l);
         action->setCheckable(true);
-        action->setChecked(context_menu_widget_->ocio_look() == l);
+        action->setChecked(transform.look() == l);
         action->setData(l);
       }
     }
@@ -751,44 +760,9 @@ void ViewerWidget::ShuttleRight()
   PlayInternal(current_speed, false);
 }
 
-void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
+void ViewerWidget::SetColorTransform(const ColorTransform &transform)
 {
-  SetOCIOParameters(display, view, look, main_gl_widget());
-}
-
-void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look, ViewerGLWidget* sender)
-{
-  sender->SetOCIOParameters(display, view, look);
-}
-
-void ViewerWidget::SetOCIODisplay(const QString &display)
-{
-  SetOCIODisplay(display, main_gl_widget());
-}
-
-void ViewerWidget::SetOCIODisplay(const QString &display, ViewerGLWidget* sender)
-{
-  sender->SetOCIODisplay(display);
-}
-
-void ViewerWidget::SetOCIOView(const QString &view)
-{
-  SetOCIOView(view, main_gl_widget());
-}
-
-void ViewerWidget::SetOCIOLook(const QString &look)
-{
-  SetOCIOLook(look, main_gl_widget());
-}
-
-void ViewerWidget::SetOCIOView(const QString &view, ViewerGLWidget* sender)
-{
-  sender->SetOCIOView(view);
-}
-
-void ViewerWidget::SetOCIOLook(const QString &look, ViewerGLWidget* sender)
-{
-  sender->SetOCIOLook(look);
+  SetColorTransform(transform, main_gl_widget());
 }
 
 void ViewerWidget::SetSignalCursorColorEnabled(bool e)
@@ -909,17 +883,35 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 
 void ViewerWidget::ContextMenuOCIODisplay(QAction* action)
 {
-  SetOCIODisplay(action->data().toString(), context_menu_widget_);
+  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
+
+  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(action->data().toString(),
+                                                                                                              old_transform.view(),
+                                                                                                              old_transform.look()));
+
+  SetColorTransform(new_transform, context_menu_widget_);
 }
 
 void ViewerWidget::ContextMenuOCIOView(QAction *action)
 {
-  SetOCIOView(action->data().toString(), context_menu_widget_);
+  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
+
+  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(old_transform.display(),
+                                                                                                              action->data().toString(),
+                                                                                                              old_transform.look()));
+
+  SetColorTransform(new_transform, context_menu_widget_);
 }
 
 void ViewerWidget::ContextMenuOCIOLook(QAction *action)
 {
-  SetOCIOLook(action->data().toString(), context_menu_widget_);
+  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
+
+  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(old_transform.display(),
+                                                                                                              old_transform.view(),
+                                                                                                              action->data().toString()));
+
+  SetColorTransform(new_transform, context_menu_widget_);
 }
 
 void ViewerWidget::SetDividerFromMenu(QAction *action)

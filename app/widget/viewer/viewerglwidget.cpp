@@ -63,16 +63,16 @@ void ViewerGLWidget::ConnectColorManager(ColorManager *color_manager)
   }
 
   if (color_manager_ != nullptr) {
-    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::RefreshColorPipeline);
+    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::ColorConfigChanged);
   }
 
   color_manager_ = color_manager;
 
   if (color_manager_ != nullptr) {
-    connect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::RefreshColorPipeline);
+    connect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::ColorConfigChanged);
   }
 
-  RefreshColorPipeline();
+  ColorConfigChanged();
 }
 
 void ViewerGLWidget::DisconnectColorManager()
@@ -185,53 +185,9 @@ void ViewerGLWidget::SetEmitDrewManagedTextureEnabled(bool e)
   }
 }
 
-void ViewerGLWidget::SetOCIODisplay(const QString &display)
-{
-  ocio_display_ = display;
-
-  // Determine if the selected view is available in this display
-  if (color_manager_
-      && !color_manager_->ListAvailableViews(ocio_display_).contains(ocio_view_)) {
-    // If not, set to the default view for this display
-    ocio_view_ = color_manager_->GetDefaultView(ocio_display_);
-  }
-
-  SetupColorProcessor();
-  update();
-}
-
-void ViewerGLWidget::SetOCIOView(const QString &view)
-{
-  ocio_view_ = view;
-  SetupColorProcessor();
-  update();
-}
-
-void ViewerGLWidget::SetOCIOLook(const QString &look)
-{
-  ocio_look_ = look;
-  SetupColorProcessor();
-  update();
-}
-
 ColorManager *ViewerGLWidget::color_manager() const
 {
   return color_manager_;
-}
-
-const QString &ViewerGLWidget::ocio_display() const
-{
-  return ocio_display_;
-}
-
-const QString &ViewerGLWidget::ocio_view() const
-{
-  return ocio_view_;
-}
-
-const QString &ViewerGLWidget::ocio_look() const
-{
-  return ocio_look_;
 }
 
 void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
@@ -249,6 +205,18 @@ void ViewerGLWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
 {
   safe_margin_ = safe_margin;
 
+  update();
+}
+
+const ColorTransform &ViewerGLWidget::GetColorTransform() const
+{
+  return color_transform_;
+}
+
+void ViewerGLWidget::SetColorTransform(const ColorTransform &transform)
+{
+  color_transform_ = transform;
+  SetupColorProcessor();
   update();
 }
 
@@ -282,15 +250,6 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
 
     emit CursorColor(reference, display);
   }
-}
-
-void ViewerGLWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
-{
-  ocio_display_ = display;
-  ocio_view_ = view;
-  ocio_look_ = look;
-  SetupColorProcessor();
-  update();
 }
 
 void ViewerGLWidget::initializeGL()
@@ -416,30 +375,14 @@ void ViewerGLWidget::paintGL()
   }
 }
 
-void ViewerGLWidget::RefreshColorPipeline()
+void ViewerGLWidget::ColorConfigChanged()
 {
   if (!color_manager_) {
     color_service_ = nullptr;
     return;
   }
 
-  QStringList displays = color_manager_->ListAvailableDisplays();
-  if (!displays.contains(ocio_display_)) {
-    ocio_display_ = color_manager_->GetDefaultDisplay();
-  }
-
-  QStringList views = color_manager_->ListAvailableViews(ocio_display_);
-  if (!views.contains(ocio_view_)) {
-    ocio_view_ = color_manager_->GetDefaultView(ocio_display_);
-  }
-
-  QStringList looks = color_manager_->ListAvailableLooks();
-  if (!looks.contains(ocio_look_)) {
-    ocio_look_.clear();
-  }
-
-  SetupColorProcessor();
-  update();
+  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
 }
 
 #ifdef Q_OS_LINUX
@@ -467,17 +410,9 @@ void ViewerGLWidget::SetupColorProcessor()
 
     try {
 
-      if (ocio_view_.isEmpty()) {
-        color_service_ = OpenGLColorProcessor::Create(color_manager_,
-                                                      color_manager_->GetReferenceColorSpace(),
-                                                      ocio_display_);
-      } else {
-        color_service_ = OpenGLColorProcessor::Create(color_manager_,
-                                                      color_manager_->GetReferenceColorSpace(),
-                                                      ocio_display_,
-                                                      ocio_view_,
-                                                      ocio_look_);
-      }
+      color_service_ = OpenGLColorProcessor::Create(color_manager_,
+                                                    color_manager_->GetReferenceColorSpace(),
+                                                    color_transform_);
 
       makeCurrent();
       color_service_->Enable(context(), true);

@@ -23,13 +23,13 @@
 
 #include <QDialog>
 
-#include "colorspacechooser.h"
-#include "colorvalueswidget.h"
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "render/managedcolor.h"
-#include "widget/colorwheel/colorwheelwidget.h"
 #include "widget/colorwheel/colorgradientwidget.h"
+#include "widget/colorwheel/colorspacechooser.h"
+#include "widget/colorwheel/colorvalueswidget.h"
+#include "widget/colorwheel/colorwheelwidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -67,11 +67,7 @@ public:
 
   QString GetColorSpaceInput() const;
 
-  QString GetColorSpaceDisplay() const;
-
-  QString GetColorSpaceView() const;
-
-  QString GetColorSpaceLook() const;
+  ColorTransform GetColorSpaceOutput() const;
 
 private:
   ColorManager* color_manager_;
@@ -87,7 +83,7 @@ private:
   ColorSpaceChooser* chooser_;
 
 private slots:
-  void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
+  void ColorSpaceChanged(const QString& input, const ColorTransform &output);
 
 };
 

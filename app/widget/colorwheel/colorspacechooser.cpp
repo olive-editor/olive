@@ -131,68 +131,29 @@ QString ColorSpaceChooser::input() const
   }
 }
 
-QString ColorSpaceChooser::display() const
+ColorTransform ColorSpaceChooser::output() const
 {
-  if (display_combobox_) {
-    return display_combobox_->currentText();
-  } else {
-    return QString();
-  }
-}
-
-QString ColorSpaceChooser::view() const
-{
-  if (view_combobox_) {
-    return view_combobox_->currentText();
-  } else {
-    return QString();
-  }
-}
-
-QString ColorSpaceChooser::look() const
-{
-  if (look_combobox_) {
-    return look_combobox_->currentData().toString();
-  } else {
-    return QString();
-  }
+  return ColorTransform(display_combobox_->currentText(),
+                        view_combobox_->currentText(),
+                        look_combobox_->currentIndex() == 0 ? QString() : look_combobox_->currentText());
 }
 
 void ColorSpaceChooser::set_input(const QString &s)
 {
-  if (s.isEmpty()) {
-    input_combobox_->setCurrentText(color_manager_->GetDefaultInputColorSpace());
-  } else {
-    input_combobox_->setCurrentText(s);
-  }
+  input_combobox_->setCurrentText(color_manager_->GetCompliantColorSpace(s));
 }
 
-void ColorSpaceChooser::set_display(const QString &s)
+void ColorSpaceChooser::set_output(const ColorTransform &out)
 {
-  if (s.isEmpty()) {
-    display_combobox_->setCurrentText(color_manager_->GetDefaultDisplay());
-  } else {
-    display_combobox_->setCurrentText(s);
-  }
+  ColorTransform compliant = color_manager_->GetCompliantColorSpace(out);
 
-  UpdateViews(display_combobox_->currentText());
-}
+  display_combobox_->setCurrentText(compliant.display());
+  view_combobox_->setCurrentText(compliant.view());
 
-void ColorSpaceChooser::set_view(const QString &s)
-{
-  if (s.isEmpty()) {
-    view_combobox_->setCurrentText(color_manager_->GetDefaultView(display_combobox_->currentText()));
-  } else {
-    view_combobox_->setCurrentText(s);
-  }
-}
-
-void ColorSpaceChooser::set_look(const QString &s)
-{
-  if (s.isEmpty()) {
+  if (compliant.look().isEmpty()) {
     look_combobox_->setCurrentIndex(0);
   } else {
-    look_combobox_->setCurrentText(s);
+    look_combobox_->setCurrentText(compliant.look());
   }
 }
 
@@ -224,11 +185,11 @@ void ColorSpaceChooser::ComboBoxChanged()
   }
 
   if (display_combobox_) {
-    emit DisplayColorSpaceChanged(display(), view(), look());
+    emit OutputColorSpaceChanged(output());
   }
 
   if (input_combobox_ && display_combobox_) {
-    emit ColorSpaceChanged(input(), display(), view(), look());
+    emit ColorSpaceChanged(input(), output());
   }
 }
 

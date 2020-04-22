@@ -27,14 +27,13 @@ OLIVE_NAMESPACE_ENTER
 ColorButton::ColorButton(ColorManager* color_manager, QWidget *parent) :
   QPushButton(parent),
   color_manager_(color_manager),
-  color_(1.0f, 1.0f, 1.0f),
   color_processor_(nullptr)
 {
   setAutoFillBackground(true);
 
   connect(this, &ColorButton::clicked, this, &ColorButton::ShowColorDialog);
 
-  UpdateColor();
+  SetColor(Color(1.0f, 1.0f, 1.0f));
 }
 
 const ManagedColor &ColorButton::GetColor() const
@@ -45,6 +44,9 @@ const ManagedColor &ColorButton::GetColor() const
 void ColorButton::SetColor(const ManagedColor &c)
 {
   color_ = c;
+
+  color_.set_color_input(color_manager_->GetCompliantColorSpace(color_.color_input()));
+  color_.set_color_output(color_manager_->GetCompliantColorSpace(color_.color_output()));
 
   UpdateColor();
 }
@@ -66,9 +68,7 @@ void ColorButton::UpdateColor()
 {
   color_processor_ = ColorProcessor::Create(color_manager_,
                                             color_.color_input(),
-                                            color_.color_display(),
-                                            color_.color_view(),
-                                            color_.color_look());
+                                            color_.color_output());
 
   QColor managed = color_processor_->ConvertColor(color_).toQColor();
 

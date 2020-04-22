@@ -61,9 +61,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
 
   chooser_ = new ColorSpaceChooser(color_manager_);
   chooser_->set_input(start.color_input());
-  chooser_->set_display(start.color_display());
-  chooser_->set_view(start.color_view());
-  chooser_->set_look(start.color_look());
+  chooser_->set_output(start.color_output());
 
   value_layout->addWidget(chooser_);
 
@@ -106,7 +104,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   color_values_widget_->SetColor(managed_start);
 
   connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
-  ColorSpaceChanged(chooser_->input(), chooser_->display(), chooser_->view(), chooser_->look());
+  ColorSpaceChanged(chooser_->input(), chooser_->output());
 
   // Set default size ratio to 2:1
   resize(sizeHint().height() * 2, sizeHint().height());
@@ -122,9 +120,7 @@ ManagedColor ColorDialog::GetSelectedColor() const
   }
 
   selected.set_color_input(GetColorSpaceInput());
-  selected.set_color_display(GetColorSpaceDisplay());
-  selected.set_color_view(GetColorSpaceView());
-  selected.set_color_look(GetColorSpaceLook());
+  selected.set_color_output(GetColorSpaceOutput());
 
   return selected;
 }
@@ -134,30 +130,18 @@ QString ColorDialog::GetColorSpaceInput() const
   return chooser_->input();
 }
 
-QString ColorDialog::GetColorSpaceDisplay() const
+ColorTransform ColorDialog::GetColorSpaceOutput() const
 {
-  return chooser_->display();
+  return chooser_->output();
 }
 
-QString ColorDialog::GetColorSpaceView() const
-{
-  return chooser_->view();
-}
-
-QString ColorDialog::GetColorSpaceLook() const
-{
-  return chooser_->look();
-}
-
-void ColorDialog::ColorSpaceChanged(const QString &input, const QString &display, const QString &view, const QString &look)
+void ColorDialog::ColorSpaceChanged(const QString &input, const ColorTransform &output)
 {
   input_to_ref_processor_ = ColorProcessor::Create(color_manager_, input, color_manager_->GetReferenceColorSpace());
 
   ColorProcessorPtr ref_to_display = ColorProcessor::Create(color_manager_,
                                                             color_manager_->GetReferenceColorSpace(),
-                                                            display,
-                                                            view,
-                                                            look);
+                                                            output);
 
   ColorProcessorPtr ref_to_input = ColorProcessor::Create(color_manager_, color_manager_->GetReferenceColorSpace(), input);
 

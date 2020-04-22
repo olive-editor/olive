@@ -218,6 +218,53 @@ void ColorManager::SetReferenceColorSpace(const QString &s)
   emit ConfigChanged();
 }
 
+QString ColorManager::GetCompliantColorSpace(const QString &s)
+{
+  if (ListAvailableInputColorspaces().contains(s)) {
+    return s;
+  } else {
+    return GetDefaultInputColorSpace();
+  }
+}
+
+ColorTransform ColorManager::GetCompliantColorSpace(const ColorTransform &transform, bool force_display)
+{
+  if (transform.is_display() || force_display) {
+    // Get display information
+    QString display = transform.display();
+    QString view = transform.view();
+    QString look = transform.look();
+
+    // Check if display still exists in config
+    if (!ListAvailableDisplays().contains(display)) {
+      display = GetDefaultDisplay();
+    }
+
+    // Check if view still exists in display
+    if (!ListAvailableViews(display).contains(view)) {
+      view = GetDefaultView(display);
+    }
+
+    // Check if looks still exists
+    if (!ListAvailableLooks().contains(look)) {
+      look.clear();
+    }
+
+    return ColorTransform(display, view, look);
+
+  } else {
+
+    QString output = transform.output();
+
+    if (!ListAvailableInputColorspaces().contains(output)) {
+      output = GetDefaultInputColorSpace();
+    }
+
+    return ColorTransform(output);
+
+  }
+}
+
 QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)
 {
   QStringList spaces;

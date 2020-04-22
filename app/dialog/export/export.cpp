@@ -218,12 +218,12 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(video_tab_,
           &ExportVideoTab::ColorSpaceChanged,
           preview_viewer_,
-          static_cast<void(ViewerWidget::*)(const QString&)>(&ViewerWidget::SetOCIODisplay));
+          static_cast<void(ViewerWidget::*)(const ColorTransform&)>(&ViewerWidget::SetColorTransform));
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
-  preview_viewer_->SetOCIODisplay(video_tab_->CurrentOCIOColorSpace());
+  preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 
   // Update renderer
   // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a

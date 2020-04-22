@@ -80,10 +80,6 @@ public:
 
   ColorManager* color_manager() const;
 
-  const QString& ocio_display() const;
-  const QString& ocio_view() const;
-  const QString& ocio_look() const;
-
   const QMatrix4x4& GetMatrix();
 
   void ConnectSibling(ViewerGLWidget* sibling);
@@ -91,38 +87,13 @@ public:
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
+  const ColorTransform& GetColorTransform() const;
+
 public slots:
   /**
-   * @brief Set the texture to draw and draw it
-   *
-   * Use this function to update the viewer.
-   *
-   * @param tex
+   * @brief Replaces the color transform with a new one
    */
-  //void SetTexture(OpenGLTexturePtr tex);
-
-  void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
-
-  /**
-   * @brief Externally set the OCIO display to use
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIODisplay(const QString& display);
-
-  /**
-   * @brief Externally set the OCIO view to use
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIOView(const QString& view);
-
-  /**
-   * @brief Externally set the OCIO look to use (use empty string if none)
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIOLook(const QString& look);
+  void SetColorTransform(const ColorTransform& transform);
 
   /**
    * @brief Set the transformation matrix to draw with
@@ -231,19 +202,9 @@ private:
   void ClearOCIOLutTexture();
 
   /**
-   * @brief Internal variable to set color space to
+   * @brief Internal color transform storage
    */
-  QString ocio_display_;
-
-  /**
-   * @brief Internal variable to set color space to
-   */
-  QString ocio_view_;
-
-  /**
-   * @brief Internal variable to set color space to
-   */
-  QString ocio_look_;
+  ColorTransform color_transform_;
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -308,7 +269,7 @@ private slots:
   /**
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
-  void RefreshColorPipeline();
+  void ColorConfigChanged();
 
 #ifdef Q_OS_LINUX
   /**

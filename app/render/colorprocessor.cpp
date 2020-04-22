@@ -25,45 +25,33 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ColorProcessor::ColorProcessor(ColorManager *config, const QString& source_space, const QString& dest_space)
+ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
 {
-  processor_ = config->GetConfig()->getProcessor(source_space.toUtf8(),
-                                                dest_space.toUtf8());
-}
+  const QString& output = (transform.output().isEmpty()) ? config->GetDefaultDisplay() : transform.output();
 
-ColorProcessor::ColorProcessor(ColorManager *config,
-                               QString source_space,
-                               QString display,
-                               QString view,
-                               const QString& look,
-                               Direction direction)
-{
-  if (source_space.isEmpty()) {
-    source_space = config->GetDefaultInputColorSpace();
+  if (transform.is_display()) {
+
+    const QString& view = (transform.view().isEmpty()) ? config->GetDefaultView(output) : transform.view();
+
+    OCIO::DisplayTransformRcPtr display_transform = OCIO::DisplayTransform::Create();
+
+    display_transform->setInputColorSpaceName(input.toUtf8());
+    display_transform->setDisplay(output.toUtf8());
+    display_transform->setView(view.toUtf8());
+
+    if (!transform.look().isEmpty()) {
+      display_transform->setLooksOverride(transform.look().toUtf8());
+      display_transform->setLooksOverrideEnabled(true);
+    }
+
+    processor_ = config->GetConfig()->getProcessor(display_transform);
+
+  } else {
+
+    processor_ = config->GetConfig()->getProcessor(input.toUtf8(),
+                                                   output.toUtf8());
+
   }
-
-  if (display.isEmpty()) {
-    display = config->GetDefaultDisplay();
-  }
-
-  if (view.isEmpty()) {
-    view = config->GetDefaultView(display);
-  }
-
-  // Get current display stats
-  OCIO::DisplayTransformRcPtr transform = OCIO::DisplayTransform::Create();
-  transform->setInputColorSpaceName(source_space.toUtf8());
-  transform->setDisplay(display.toUtf8());
-  transform->setView(view.toUtf8());
-
-  if (!look.isEmpty()) {
-    transform->setLooksOverride(look.toUtf8());
-    transform->setLooksOverrideEnabled(true);
-  }
-
-  OCIO::TransformDirection dir = (direction == kInverse) ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD;
-
-  processor_ = config->GetConfig()->getProcessor(transform, dir);
 }
 
 void ColorProcessor::ConvertFrame(Frame *f)
@@ -85,14 +73,9 @@ Color ColorProcessor::ConvertColor(Color in)
   return in;
 }
 
-ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& source_space, const QString& dest_space)
+ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& input, const ColorTransform &transform)
 {
-  return std::make_shared<ColorProcessor>(config, source_space, dest_space);
-}
-
-ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction direction)
-{
-  return std::make_shared<ColorProcessor>(config, source_space, display, view, look, direction);
+  return std::make_shared<ColorProcessor>(config, input, transform);
 }
 
 OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()

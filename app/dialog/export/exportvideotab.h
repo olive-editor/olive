@@ -26,10 +26,10 @@
 #include <QWidget>
 
 #include "common/rational.h"
-#include "dialog/color/colorspacechooser.h"
 #include "dialog/export/codec/h264section.h"
 #include "dialog/export/codec/imagesection.h"
 #include "render/colormanager.h"
+#include "widget/colorwheel/colorspacechooser.h"
 #include "widget/slider/integerslider.h"
 
 OLIVE_NAMESPACE_ENTER

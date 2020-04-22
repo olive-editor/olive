@@ -72,6 +72,10 @@ public:
 
   void SetReferenceColorSpace(const QString& s);
 
+  QString GetCompliantColorSpace(const QString& s);
+
+  ColorTransform GetCompliantColorSpace(const ColorTransform& transform, bool force_display = false);
+
   static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
 
   enum OCIOMethod {

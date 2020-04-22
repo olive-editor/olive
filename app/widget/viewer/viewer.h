@@ -98,28 +98,7 @@ public slots:
 
   void ShuttleRight();
 
-  void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
-
-  /**
-   * @brief Externally set the OCIO display to use
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIODisplay(const QString& display);
-
-  /**
-   * @brief Externally set the OCIO view to use
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIOView(const QString& view);
-
-  /**
-   * @brief Externally set the OCIO look to use (use empty string if none)
-   *
-   * This value must be a valid display in the current OCIO configuration.
-   */
-  void SetOCIOLook(const QString& look);
+  void SetColorTransform(const ColorTransform& transform);
 
   /**
    * @brief Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled()
@@ -197,10 +176,7 @@ private:
 
   void UpdateMinimumScale();
 
-  void SetOCIOParameters(const QString& display, const QString& view, const QString& look, ViewerGLWidget* sender);
-  void SetOCIODisplay(const QString& display, ViewerGLWidget* sender);
-  void SetOCIOView(const QString& view, ViewerGLWidget* sender);
-  void SetOCIOLook(const QString& look, ViewerGLWidget* sender);
+  void SetColorTransform(const ColorTransform& transform, ViewerGLWidget* sender);
 
   QStackedWidget* stack_;
 

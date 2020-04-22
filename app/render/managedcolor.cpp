@@ -51,34 +51,14 @@ void ManagedColor::set_color_input(const QString &color_input)
   color_input_ = color_input;
 }
 
-const QString &ManagedColor::color_display() const
+const ColorTransform &ManagedColor::color_output() const
 {
-  return color_display_;
+  return color_transform_;
 }
 
-void ManagedColor::set_color_display(const QString &color_display)
+void ManagedColor::set_color_output(const ColorTransform &color_output)
 {
-  color_display_ = color_display;
-}
-
-const QString &ManagedColor::color_view() const
-{
-  return color_view_;
-}
-
-void ManagedColor::set_color_view(const QString &color_view)
-{
-  color_view_ = color_view;
-}
-
-const QString &ManagedColor::color_look() const
-{
-  return color_look_;
-}
-
-void ManagedColor::set_color_look(const QString &color_look)
-{
-  color_look_ = color_look;
+  color_transform_ = color_output;
 }
 
 OLIVE_NAMESPACE_EXIT

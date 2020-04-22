@@ -35,21 +35,17 @@ public:
   ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field = true, bool enable_display_fields = true, QWidget* parent = nullptr);
 
   QString input() const;
-  QString display() const;
-  QString view() const;
-  QString look() const;
+  ColorTransform output() const;
 
   void set_input(const QString& s);
-  void set_display(const QString& s);
-  void set_view(const QString& s);
-  void set_look(const QString& s);
+  void set_output(const ColorTransform& out);
 
 signals:
   void InputColorSpaceChanged(const QString& input);
 
-  void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
+  void OutputColorSpaceChanged(const ColorTransform& out);
 
-  void DisplayColorSpaceChanged(const QString& display, const QString& view, const QString& look);
+  void ColorSpaceChanged(const QString& input, const ColorTransform& out);
 
 private slots:
   void UpdateViews(const QString &display);

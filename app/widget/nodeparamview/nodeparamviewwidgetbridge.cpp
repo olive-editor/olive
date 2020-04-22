@@ -361,9 +361,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
 
     input_->blockSignals(true);
     input_->set_property(QStringLiteral("col_input"), c.color_input());
-    input_->set_property(QStringLiteral("col_display"), c.color_display());
-    input_->set_property(QStringLiteral("col_view"), c.color_view());
-    input_->set_property(QStringLiteral("col_look"), c.color_look());
+    input_->set_property(QStringLiteral("col_display"), c.color_output().display());
+    input_->set_property(QStringLiteral("col_view"), c.color_output().view());
+    input_->set_property(QStringLiteral("col_look"), c.color_output().look());
     input_->blockSignals(false);
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -471,9 +471,12 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     ManagedColor mc = input_->get_value_at_time(node_time).value<Color>();
 
     mc.set_color_input(input_->get_property(QStringLiteral("col_input")).toString());
-    mc.set_color_display(input_->get_property(QStringLiteral("col_display")).toString());
-    mc.set_color_view(input_->get_property(QStringLiteral("col_view")).toString());
-    mc.set_color_look(input_->get_property(QStringLiteral("col_look")).toString());
+
+    QString d = input_->get_property(QStringLiteral("col_display")).toString();
+    QString v = input_->get_property(QStringLiteral("col_view")).toString();
+    QString l = input_->get_property(QStringLiteral("col_look")).toString();
+
+    mc.set_color_output(ColorTransform(d, v, l));
 
     static_cast<ColorButton*>(widgets_.first())->SetColor(mc);
     break;

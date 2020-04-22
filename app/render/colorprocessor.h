@@ -21,11 +21,9 @@
 #ifndef COLORPROCESSOR_H
 #define COLORPROCESSOR_H
 
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
-
 #include "codec/frame.h"
 #include "render/color.h"
+#include "render/colortransform.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -42,25 +40,11 @@ public:
     kInverse
   };
 
-  ColorProcessor(ColorManager* config, const QString &source_space, const QString &dest_space);
-
-  ColorProcessor(ColorManager* config,
-                 QString source_space,
-                 QString display,
-                 QString view,
-                 const QString& look,
-                 Direction direction);
+  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(ColorManager* config, const QString& source_space, const QString& dest_space);
-
-  static ColorProcessorPtr Create(ColorManager* config,
-                                  const QString& source_space,
-                                  const QString& display,
-                                  const QString& view,
-                                  const QString& look,
-                                  Direction direction = kNormal);
+  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
   OCIO::ConstProcessorRcPtr GetProcessor();
 
@@ -73,6 +57,8 @@ private:
   OCIO::ConstProcessorRcPtr processor_;
 
 };
+
+using ColorProcessorChain = QList<ColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
 
