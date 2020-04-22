@@ -175,6 +175,8 @@ private:
   void InitScaler(int divider);
   void FreeScaler();
 
+  static int GetScaledDimension(int dim, int divider);
+
   SwsContext* scale_ctx_;
   int scale_divider_;
   AVPixelFormat src_pix_fmt_;

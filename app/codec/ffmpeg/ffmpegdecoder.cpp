@@ -303,8 +303,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     // Create frame to return
     FramePtr copy = Frame::Create();
-    copy->set_video_params(VideoRenderingParams(vs->width() / divider,
-                                                vs->height() / divider,
+    copy->set_video_params(VideoRenderingParams(GetScaledDimension(vs->width(), divider),
+                                                GetScaledDimension(vs->height(), divider),
                                                 native_pix_fmt_));
     copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
     copy->set_sample_aspect_ratio(aspect_ratio_);
@@ -647,6 +647,11 @@ QString FFmpegDecoder::GetIndexFilename()
 {
   return FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()))
       .append(QString::number(stream()->index()));
+}
+
+int FFmpegDecoder::GetScaledDimension(int dim, int divider)
+{
+  return dim / divider;
 }
 
 void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
@@ -1082,8 +1087,8 @@ void FFmpegDecoder::InitScaler(int divider)
   scale_ctx_ = sws_getContext(vs->width(),
                               vs->height(),
                               src_pix_fmt_,
-                              vs->width() / divider,
-                              vs->height() / divider,
+                              GetScaledDimension(vs->width(), divider),
+                              GetScaledDimension(vs->height(), divider),
                               ideal_pix_fmt_,
                               SWS_FAST_BILINEAR,
                               nullptr,

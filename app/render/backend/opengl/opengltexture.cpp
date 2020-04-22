@@ -22,6 +22,7 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QtMath>
 
 #include "openglrenderfunctions.h"
 #include "render/pixelformat.h"
@@ -123,15 +124,51 @@ void OpenGLTexture::Upload(const void *data)
 
   Bind();
 
-  created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
-                                             0,
-                                             0,
-                                             0,
-                                             width_,
-                                             height_,
-                                             OpenGLRenderFunctions::GetPixelFormat(format_),
-                                             OpenGLRenderFunctions::GetPixelType(format_),
-                                             data);
+  if (width_ % 16 != 0) {
+    // Align to a multiple of 16
+
+    // FIXME: We should probably fold linesizes into the Frame class proper for optimization
+
+    int new_width = qCeil(static_cast<double>(width_) / 16.0) * 16;
+
+    Frame f;
+    f.set_video_params(VideoRenderingParams(new_width, height_, format_));
+    f.allocate();
+
+    int src_linesize = PixelFormat::GetBufferSize(format_, width_, 1);
+    int dst_linesize = PixelFormat::GetBufferSize(format_, new_width, 1);
+
+    for (int i=0;i<height_;i++) {
+      memcpy(f.data() + (i*dst_linesize),
+             reinterpret_cast<const char*>(data) + i*src_linesize,
+             src_linesize);
+    }
+
+    created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, new_width);
+
+    created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                               0,
+                                               0,
+                                               0,
+                                               width_,
+                                               height_,
+                                               OpenGLRenderFunctions::GetPixelFormat(format_),
+                                               OpenGLRenderFunctions::GetPixelType(format_),
+                                               f.data());
+
+    created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+  } else {
+    created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                               0,
+                                               0,
+                                               0,
+                                               width_,
+                                               height_,
+                                               OpenGLRenderFunctions::GetPixelFormat(format_),
+                                               OpenGLRenderFunctions::GetPixelType(format_),
+                                               data);
+  }
 
   Release();
 }
