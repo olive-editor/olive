@@ -37,8 +37,8 @@ ColorManager::ColorManager()
   // Ensures config is set to something
   config_ = OCIO::GetCurrentConfig();
 
-  // Default input space is first in config
-  default_input_color_space_ = ListAvailableInputColorspaces().first();
+  // Default input space
+  default_input_color_space_ = QStringLiteral("sRGB OETF");
 
   // Default reference space is scene linear
   reference_space_ = OCIO::ROLE_SCENE_LINEAR;
