@@ -119,6 +119,10 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
 
       connect(look_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);
     }
+  } else {
+    display_combobox_ = nullptr;
+    view_combobox_ = nullptr;
+    look_combobox_ = nullptr;
   }
 }
 
