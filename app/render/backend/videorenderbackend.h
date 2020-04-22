@@ -58,6 +58,8 @@ public:
 
   void SetOperatingMode(const VideoRenderWorker::OperatingMode& mode);
 
+  void SetFrameGenerationParams(int width, int height, const QMatrix4x4& matrix);
+
   void SetOnlySignalLastFrameRequested(bool enabled);
 
   bool IsRendered(const rational& time) const;

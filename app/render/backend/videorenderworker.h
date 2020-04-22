@@ -22,6 +22,7 @@
 #define VIDEORENDERWORKER_H
 
 #include <QCryptographicHash>
+#include <QMatrix4x4>
 
 #include "colorprocessorcache.h"
 #include "node/dependency.h"
@@ -69,6 +70,8 @@ public:
 
   void SetOperatingMode(const OperatingMode& mode);
 
+  void SetFrameGenerationParams(int width, int height, const QMatrix4x4 &matrix);
+
 signals:
   void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash, bool texture_existed);
 
@@ -89,7 +92,9 @@ protected:
 
   virtual void ParametersChangedEvent(){}
 
-  virtual void TextureToBuffer(const QVariant& texture, void *buffer, int linesize) = 0;
+  virtual void TextureToBuffer(const QVariant& texture, void *buffer, int linesize);
+
+  virtual void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize) = 0;
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 
@@ -105,6 +110,10 @@ private:
   void Download(const rational &time, QVariant texture, QString filename);
 
   void ResizeDownloadBuffer();
+
+  VideoRenderingParams frame_gen_params_;
+
+  QMatrix4x4 frame_gen_mat_;
 
   VideoRenderingParams video_params_;
 

@@ -46,6 +46,16 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
   return video_params_;
 }
 
+void VideoRenderWorker::TextureToBuffer(const QVariant &texture, void *buffer, int linesize)
+{
+  TextureToBuffer(texture,
+                  video_params_.effective_width(),
+                  video_params_.effective_height(),
+                  QMatrix4x4(),
+                  buffer,
+                  linesize);
+}
+
 NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, const qint64 &job_time)
 {
   // Get hash of node graph
@@ -238,6 +248,17 @@ void VideoRenderWorker::SetOperatingMode(const VideoRenderWorker::OperatingMode 
   operating_mode_ = mode;
 }
 
+void VideoRenderWorker::SetFrameGenerationParams(int width, int height, const QMatrix4x4 &matrix)
+{
+  frame_gen_params_ = VideoRenderingParams(width,
+                                           height,
+                                           video_params_.time_base(),
+                                           video_params_.format(),
+                                           video_params_.mode(),
+                                           video_params_.divider());
+  frame_gen_mat_ = matrix;
+}
+
 bool VideoRenderWorker::InitInternal()
 {
   ResizeDownloadBuffer();
@@ -339,10 +360,18 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
   } else {
 
     FramePtr frame = Frame::Create();
-    frame->set_video_params(video_params());
+
+    if (frame_gen_params_.is_valid()) {
+      frame->set_video_params(frame_gen_params_);
+    } else {
+      frame->set_video_params(VideoRenderingParams(video_params_.effective_width(),
+                                                   video_params_.effective_height(),
+                                                   video_params_.format()));
+    }
+
     frame->allocate();
 
-    TextureToBuffer(texture, frame->data(), frame->linesize_pixels());
+    TextureToBuffer(texture, frame->width(), frame->height(), frame_gen_mat_, frame->data(), frame->linesize_pixels());
 
     emit GeneratedFrame(time, frame);
 

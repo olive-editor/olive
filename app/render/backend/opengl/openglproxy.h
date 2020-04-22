@@ -67,7 +67,7 @@ public:
 
   void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params);
 
-  void TextureToBuffer(const QVariant& texture, void *buffer, int linesize);
+  void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize);
 
   void SetParameters(const VideoRenderingParams& params);
 
@@ -82,6 +82,8 @@ private:
   ColorProcessorCache color_cache_;
 
   VideoRenderingParams video_params_;
+
+  OpenGLShaderPtr copy_pipeline_;
 
   OpenGLShaderCache shader_cache_;
 

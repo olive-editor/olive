@@ -97,6 +97,13 @@ void VideoRenderBackend::SetOperatingMode(const VideoRenderWorker::OperatingMode
   }
 }
 
+void VideoRenderBackend::SetFrameGenerationParams(int width, int height, const QMatrix4x4 &matrix)
+{
+  foreach (RenderWorker* worker, processors_) {
+    static_cast<VideoRenderWorker*>(worker)->SetFrameGenerationParams(width, height, matrix);
+  }
+}
+
 void VideoRenderBackend::SetOnlySignalLastFrameRequested(bool enabled)
 {
   only_signal_last_frame_requested_ = enabled;

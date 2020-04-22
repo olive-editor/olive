@@ -195,6 +195,7 @@ void OpenGLProxy::Close()
 {
   shader_cache_.Clear();
   buffer_.Destroy();
+  copy_pipeline_ = nullptr;
   functions_ = nullptr;
   delete ctx_;
   ctx_ = nullptr;
@@ -426,7 +427,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
   output_params.Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
-void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer, int linesize)
+void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height, const QMatrix4x4 &matrix, void *buffer, int linesize)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
@@ -435,7 +436,37 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer, int line
   }
 
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-  buffer_.Attach(texture->texture());
+
+  OpenGLTextureCache::ReferencePtr download_tex;
+
+  if (width != texture->texture()->width() || height != texture->texture()->height()) {
+
+    // Resize the texture if necessary
+    OpenGLTextureCache::ReferencePtr resized = texture_cache_.Get(ctx_,
+                                                                  VideoRenderingParams(width, height, texture->texture()->format()));
+
+    buffer_.Attach(resized->texture(), true);
+    buffer_.Bind();
+
+    texture->texture()->Bind();
+
+    // Blit to this new texture
+    OpenGLRenderFunctions::Blit(copy_pipeline_, false, matrix);
+
+    texture->texture()->Release();
+
+    buffer_.Release();
+    buffer_.Detach();
+
+    download_tex = resized;
+
+  } else {
+
+    download_tex = texture;
+
+  }
+
+  buffer_.Attach(download_tex->texture());
   buffer_.Bind();
 
   f->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
@@ -478,6 +509,8 @@ void OpenGLProxy::FinishInit()
   SetParameters(video_params_);
 
   buffer_.Create(ctx_);
+
+  copy_pipeline_ = OpenGLShader::CreateDefault();
 }
 
 OLIVE_NAMESPACE_EXIT

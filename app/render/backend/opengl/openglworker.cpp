@@ -50,9 +50,9 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
   emit RequestRunNodeAccelerated(node, range, input_params, output_params);
 }
 
-void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, void *buffer, int linesize)
+void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize)
 {
-  emit RequestTextureToBuffer(tex_in, buffer, linesize);
+  emit RequestTextureToBuffer(tex_in, width, height, matrix, buffer, linesize);
 }
 
 OLIVE_NAMESPACE_EXIT
