@@ -78,6 +78,9 @@ public:
 
   static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
 
+  void GetDefaultLumaCoefs(float* rgb) const;
+  Color GetDefaultLumaCoefs() const;
+
   enum OCIOMethod {
     kOCIOFast,
     kOCIOAccurate

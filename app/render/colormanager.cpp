@@ -278,6 +278,24 @@ QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr c
   return spaces;
 }
 
+void ColorManager::GetDefaultLumaCoefs(float *rgb) const
+{
+  config_->getDefaultLumaCoefs(rgb);
+}
+
+Color ColorManager::GetDefaultLumaCoefs() const
+{
+  Color c;
+
+  // Just a default value, shouldn't be significant
+  c.set_alpha(1.0f);
+
+  // The float data in Color lines up with the "rgb" param of this function
+  GetDefaultLumaCoefs(c.data());
+
+  return c;
+}
+
 ColorManager::OCIOMethod ColorManager::GetOCIOMethodForMode(RenderMode::Mode mode)
 {
   return static_cast<OCIOMethod>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod")).toInt());
