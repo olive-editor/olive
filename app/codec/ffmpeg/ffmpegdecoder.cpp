@@ -1221,7 +1221,8 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   frame_pool_(nullptr),
   is_working_(false),
   cache_at_zero_(false),
-  cache_at_eof_(false)
+  cache_at_eof_(false),
+  clear_timer_(nullptr)
 {
   // Open file in a format context
   int error_code = avformat_open_input(&fmt_ctx_, filename, nullptr, nullptr);
@@ -1293,10 +1294,11 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   // Create frame pool
   if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
     // Start clear timer
-    clear_timer_.setInterval(kMaxFrameLife);
-    clear_timer_.moveToThread(qApp->thread());
-    connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent);
-    QMetaObject::invokeMethod(&clear_timer_, "start", Qt::QueuedConnection);
+    clear_timer_ = new QTimer();
+    clear_timer_->setInterval(kMaxFrameLife);
+    //clear_timer_->moveToThread(qApp->thread());
+    connect(clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent);
+    QMetaObject::invokeMethod(clear_timer_, "start", Qt::QueuedConnection);
   }
 
   // Store one second in the source's timebase
@@ -1323,10 +1325,17 @@ void FFmpegDecoderInstance::ClearResources()
   ClearFrameCache();
 
   // Stop timer
-  if (QThread::currentThread() == clear_timer_.thread()) {
-    clear_timer_.stop();
-  } else {
-    QMetaObject::invokeMethod(&clear_timer_, "stop", Qt::BlockingQueuedConnection);
+  if (clear_timer_) {
+
+    if (clear_timer_->thread() == QThread::currentThread()) {
+      clear_timer_->stop();
+    } else {
+      QMetaObject::invokeMethod(clear_timer_, "stop", Qt::BlockingQueuedConnection);
+    }
+
+    QMetaObject::invokeMethod(clear_timer_, "deleteLater", Qt::QueuedConnection);
+    clear_timer_ = nullptr;
+
   }
 
   if (opts_) {

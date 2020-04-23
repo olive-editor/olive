@@ -110,7 +110,7 @@ private:
   bool cache_at_zero_;
   bool cache_at_eof_;
 
-  QTimer clear_timer_;
+  QTimer* clear_timer_;
   static const int kMaxFrameLife;
 
 private slots:
