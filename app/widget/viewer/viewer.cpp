@@ -543,8 +543,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
     const ColorTransform& transform = context_menu_widget_->GetColorTransform();
 
-    qDebug() << "CMW transform" << transform.display() << transform.view() << transform.look();
-
     {
       QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
 
