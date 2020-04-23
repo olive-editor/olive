@@ -80,13 +80,7 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   // Allocate storage for texture
   xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
                    OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                   0, GL_RGB, GL_FLOAT, nullptr);
-
-  // Upload LUT data to texture
-  xf->glTexSubImage3D(GL_TEXTURE_3D, 0,
-                      0, 0, 0,
-                      OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                      GL_RGB, GL_FLOAT, ocio_lut_data);
+                   0, GL_RGB, GL_FLOAT, ocio_lut_data);
 
   // Create OCIO shader code
   QString shader_text(processor->getGpuShaderText(shaderDesc));
