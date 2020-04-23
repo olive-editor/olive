@@ -27,10 +27,10 @@
 OLIVE_NAMESPACE_ENTER
 
 WaveformScope::WaveformScope(QWidget* parent) :
-  QOpenGLWidget(parent),
+  ManagedDisplayWidget(parent),
   texture_(nullptr)
 {
-
+  EnableDefaultContextMenu();
 }
 
 void WaveformScope::SetTexture(OpenGLTexture *texture)
@@ -42,6 +42,8 @@ void WaveformScope::SetTexture(OpenGLTexture *texture)
 
 void WaveformScope::initializeGL()
 {
+  ManagedDisplayWidget::initializeGL();
+
   pipeline_ = OpenGLShader::Create();
   pipeline_->create();
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());

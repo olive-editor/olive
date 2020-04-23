@@ -49,7 +49,7 @@ OLIVE_NAMESPACE_ENTER
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
-class ViewerGLWidget : public ManagedDisplayObject
+class ViewerGLWidget : public ManagedDisplayWidget
 {
   Q_OBJECT
 public:

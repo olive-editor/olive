@@ -110,7 +110,7 @@ QString FileFunctions::GetTempFilePath()
   return temp_path;
 }
 
-void FileFunctions::CopyDirectory(const QString &source, const QString &dest)
+void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bool overwrite)
 {
   QDir d(source);
 
@@ -138,9 +138,13 @@ void FileFunctions::CopyDirectory(const QString &source, const QString &dest)
 
     if (info.isDir()) {
       // Copy dir
-      CopyDirectory(info.absoluteFilePath(), dest_file_path);
+      CopyDirectory(info.absoluteFilePath(), dest_file_path, overwrite);
     } else {
       // Copy file
+      if (overwrite && QFile::exists(dest_file_path)) {
+        QFile::remove(dest_file_path);
+      }
+
       QFile::copy(info.absoluteFilePath(), dest_file_path);
     }
   }

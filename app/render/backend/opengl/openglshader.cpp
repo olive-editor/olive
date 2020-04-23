@@ -44,7 +44,7 @@ OpenGLShaderPtr OpenGLShader::CreateDefault(const QString &function_name, const 
 const int OCIO_LUT3D_EDGE_SIZE = 32;
 
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-const int OCIO_NUM_3D_ENTRIES = 98304;
+const int OCIO_NUM_3D_ENTRIES = 3*OCIO_LUT3D_EDGE_SIZE*OCIO_LUT3D_EDGE_SIZE*OCIO_LUT3D_EDGE_SIZE;
 
 OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
                                          GLuint& lut_texture,
@@ -56,18 +56,19 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   // Set up shader description
   OCIO::GpuShaderDesc shaderDesc;
   const char* ocio_func_name = "OCIODisplay";
-  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
+  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_3);
   shaderDesc.setFunctionName(ocio_func_name);
   shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
 
   // Compute LUT
-  GLfloat ocio_lut_data[OCIO_NUM_3D_ENTRIES];
+  GLfloat* ocio_lut_data = new GLfloat[OCIO_NUM_3D_ENTRIES];
   processor->getGpuLut3D(ocio_lut_data, shaderDesc);
 
   // Create LUT texture
   xf->glGenTextures(1, &lut_texture);
 
   // Bind LUT
+  xf->glActiveTexture(GL_TEXTURE1);
   xf->glBindTexture(GL_TEXTURE_3D, lut_texture);
 
   // Set texture parameters
@@ -78,9 +79,12 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   // Allocate storage for texture
-  xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
+  xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F,
                    OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
                    0, GL_RGB, GL_FLOAT, ocio_lut_data);
+
+  // Delete local copy
+  delete [] ocio_lut_data;
 
   // Create OCIO shader code
   QString shader_text;
@@ -107,9 +111,9 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
     shader_text.append(CodeAlphaReassociate(reassociate_func_name));
 
     // Make OCIO call pass through disassociate and reassociate function
-    shader_call = QStringLiteral("%3(%1(%2(col*1.001), ove_ociolut));").arg(ocio_func_name,
-                                                               disassociate_func_name,
-                                                               reassociate_func_name);
+    shader_call = QStringLiteral("%3(%1(%2(col), ove_ociolut));").arg(ocio_func_name,
+                                                                      disassociate_func_name,
+                                                                      reassociate_func_name);
 
   } else {
 
@@ -139,6 +143,8 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
 
   // Release LUT
   xf->glBindTexture(GL_TEXTURE_3D, 0);
+
+  xf->glActiveTexture(GL_TEXTURE0);
 
   return shader;
 }

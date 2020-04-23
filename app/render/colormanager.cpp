@@ -65,7 +65,10 @@ void ColorManager::SetUpDefaultConfig()
   QString dir = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("ocioconf"));
 
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
-                               dir);
+                               dir,
+                               true);
+
+  qDebug() << "Extracting default OCIO config to" << dir;
 
   default_config_ = OCIO::Config::CreateFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")).toUtf8());
 }

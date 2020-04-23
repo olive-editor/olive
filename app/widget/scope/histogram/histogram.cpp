@@ -29,10 +29,11 @@
 OLIVE_NAMESPACE_ENTER
 
 HistogramScope::HistogramScope(QWidget* parent) :
-  QOpenGLWidget(parent),
-  buffer_(nullptr),
-  processor_(nullptr)
+  ManagedDisplayWidget(parent),
+  buffer_(nullptr)
 {
+  EnableDefaultContextMenu();
+
   connect(&worker_, &HistogramScopeWorker::Finished, this, &HistogramScope::FinishedProcessing, Qt::QueuedConnection);
   worker_.start(QThread::IdlePriority);
 }
@@ -47,13 +48,6 @@ HistogramScope::~HistogramScope()
 void HistogramScope::SetBuffer(Frame* frame)
 {
   buffer_ = frame;
-
-  StartUpdate();
-}
-
-void HistogramScope::SetColorProcessor(ColorProcessorPtr processor)
-{
-  processor_ = processor;
 
   StartUpdate();
 }
@@ -99,10 +93,15 @@ void HistogramScope::resizeEvent(QResizeEvent *e)
   StartUpdate();
 }
 
+void HistogramScope::ColorProcessorChangedEvent()
+{
+  StartUpdate();
+}
+
 void HistogramScope::StartUpdate()
 {
   if (buffer_) {
-    worker_.QueueNext(*buffer_, processor_, width());
+    worker_.QueueNext(*buffer_, color_service(), width());
   } else {
     // Update with nothing
     red_val_.clear();

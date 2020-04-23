@@ -22,12 +22,12 @@
 #define HISTOGRAMSCOPE_H
 
 #include <QMutex>
-#include <QOpenGLWidget>
 #include <QThread>
 #include <QWaitCondition>
 
 #include "codec/frame.h"
 #include "render/colorprocessor.h"
+#include "widget/manageddisplay/manageddisplay.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -60,7 +60,7 @@ private:
 
 };
 
-class HistogramScope : public QOpenGLWidget
+class HistogramScope : public ManagedDisplayWidget
 {
   Q_OBJECT
 public:
@@ -71,20 +71,17 @@ public:
 public slots:
   void SetBuffer(Frame* frame);
 
-  void SetColorProcessor(ColorProcessorPtr processor);
-
 protected:
-//  virtual void paintEvent(QPaintEvent* e) override;
   virtual void paintGL() override;
 
   virtual void resizeEvent(QResizeEvent* e) override;
+
+  virtual void ColorProcessorChangedEvent() override;
 
 private:
   void StartUpdate();
 
   Frame* buffer_;
-
-  ColorProcessorPtr processor_;
 
   QVector<double> red_val_;
 

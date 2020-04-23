@@ -41,13 +41,12 @@ bool ViewerGLWidget::nouveau_check_done_ = false;
 #endif
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
-  ManagedDisplayObject(parent),
+  ManagedDisplayWidget(parent),
   managed_copy_pipeline_(nullptr),
   has_image_(false),
   signal_cursor_color_(false),
   enable_display_referred_signal_(false)
 {
-  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 ViewerGLWidget::~ViewerGLWidget()
@@ -212,7 +211,7 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void ViewerGLWidget::initializeGL()
 {
-  ManagedDisplayObject::initializeGL();
+  ManagedDisplayWidget::initializeGL();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerGLWidget::ContextCleanup, Qt::DirectConnection);
 

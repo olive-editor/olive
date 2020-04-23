@@ -202,19 +202,19 @@ void OpenGLRenderFunctions::OCIOBlit(OpenGLShader *pipeline,
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
 
-  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glActiveTexture(GL_TEXTURE1);
   xf->glBindTexture(GL_TEXTURE_3D, lut);
   xf->glActiveTexture(GL_TEXTURE0);
 
   pipeline->bind();
 
-  pipeline->setUniformValue("ove_ociolut", 2);
+  pipeline->setUniformValue("ove_ociolut", 1);
 
   Blit(pipeline, flipped, matrix);
 
   pipeline->release();
 
-  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glActiveTexture(GL_TEXTURE1);
   xf->glBindTexture(GL_TEXTURE_3D, 0);
   xf->glActiveTexture(GL_TEXTURE0);
 }

@@ -105,9 +105,12 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
   connect(p, &ScopePanel::CloseRequested, this, &ViewerPanelBase::ScopePanelClosed);
 
   // Connect viewer widget texture drawing to scope panel
-  connect(vw, &ViewerWidget::DrewManagedTexture, p, &ScopePanel::DrewManagedTexture);
-  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetBuffer);
-  connect(vw, &ViewerWidget::ColorProcessorChanged, p, &ScopePanel::SetColorProcessor);
+  connect(vw, &ViewerWidget::DrewManagedTexture, p, &ScopePanel::SetDisplayReferredTexture);
+  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
+  connect(vw, &ViewerWidget::LoadedTexture, p, &ScopePanel::SetReferenceTexture);
+  connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
+
+  p->SetColorManager(vw->color_manager());
 
   if (!scope_panel_count_) {
     vw->SetEmitDrewManagedTextureEnabled(true);

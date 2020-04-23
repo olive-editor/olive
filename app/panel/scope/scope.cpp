@@ -84,19 +84,25 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
   return QString();
 }
 
-void ScopePanel::DrewManagedTexture(OpenGLTexture *texture)
+void ScopePanel::SetDisplayReferredTexture(OpenGLTexture *texture)
 {
-  waveform_view_->SetTexture(texture);
+  Q_UNUSED(texture)
 }
 
-void ScopePanel::SetBuffer(Frame *frame)
+void ScopePanel::SetReferenceBuffer(Frame *frame)
 {
   histogram_->SetBuffer(frame);
 }
 
-void ScopePanel::SetColorProcessor(ColorProcessorPtr processor)
+void ScopePanel::SetReferenceTexture(OpenGLTexture *texture)
 {
-  histogram_->SetColorProcessor(processor);
+  waveform_view_->SetTexture(texture);
+}
+
+void ScopePanel::SetColorManager(ColorManager *manager)
+{
+  histogram_->ConnectColorManager(manager);
+  waveform_view_->ConnectColorManager(manager);
 }
 
 void ScopePanel::Retranslate()

@@ -85,6 +85,8 @@ public:
 
   VideoRenderBackend* video_renderer() const;
 
+  ColorManager* color_manager() const;
+
 public slots:
   void Play(bool in_to_out_only);
 
@@ -142,6 +144,11 @@ signals:
    * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
    */
   void ColorProcessorChanged(ColorProcessorPtr processor);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
+   */
+  void ColorManagerChanged(ColorManager* color_manager);
 
 protected:
   virtual void TimebaseChangedEvent(const rational &) override;
@@ -221,21 +228,6 @@ private slots:
   void UpdateRendererParameters();
 
   void ShowContextMenu(const QPoint& pos);
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO display setting has changed
-   */
-  void ContextMenuOCIODisplay(QAction* action);
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO view setting has changed
-   */
-  void ContextMenuOCIOView(QAction* action);
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO look setting has changed
-   */
-  void ContextMenuOCIOLook(QAction* action);
 
   void SetDividerFromMenu(QAction* action);
 

@@ -21,16 +21,15 @@
 #ifndef WAVEFORMSCOPE_H
 #define WAVEFORMSCOPE_H
 
-#include <QOpenGLWidget>
-
 #include "codec/frame.h"
 #include "render/backend/opengl/openglcolorprocessor.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/backend/opengl/opengltexture.h"
+#include "widget/manageddisplay/manageddisplay.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class WaveformScope : public QOpenGLWidget
+class WaveformScope : public ManagedDisplayWidget
 {
   Q_OBJECT
 public:

@@ -69,6 +69,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(main_widget, &ViewerGLWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
   connect(main_widget, &ViewerGLWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
   connect(main_widget, &ViewerGLWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
+  connect(main_widget, &ViewerGLWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
   connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(main_widget);
   gl_widgets_.append(main_widget);
@@ -329,6 +330,11 @@ VideoRenderBackend *ViewerWidget::video_renderer() const
   return video_renderer_;
 }
 
+ColorManager *ViewerWidget::color_manager() const
+{
+  return main_gl_widget()->color_manager();
+}
+
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
@@ -544,19 +550,16 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     {
       Menu* ocio_display_menu = context_menu_widget_->GetDisplayMenu(&menu);
       menu.addMenu(ocio_display_menu);
-      connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
     }
 
     {
       Menu* ocio_view_menu = context_menu_widget_->GetViewMenu(&menu);
       menu.addMenu(ocio_view_menu);
-      connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
     }
 
     {
       Menu* ocio_look_menu = context_menu_widget_->GetLookMenu(&menu);
       menu.addMenu(ocio_look_menu);
-      connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
     }
 
     menu.addSeparator();
@@ -845,39 +848,6 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
   controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
   ruler()->SetCacheStatusLength(length);
   UpdateMinimumScale();
-}
-
-void ViewerWidget::ContextMenuOCIODisplay(QAction* action)
-{
-  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
-
-  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(action->data().toString(),
-                                                                                                              old_transform.view(),
-                                                                                                              old_transform.look()));
-
-  SetColorTransform(new_transform, context_menu_widget_);
-}
-
-void ViewerWidget::ContextMenuOCIOView(QAction *action)
-{
-  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
-
-  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(old_transform.display(),
-                                                                                                              action->data().toString(),
-                                                                                                              old_transform.look()));
-
-  SetColorTransform(new_transform, context_menu_widget_);
-}
-
-void ViewerWidget::ContextMenuOCIOLook(QAction *action)
-{
-  const ColorTransform& old_transform = context_menu_widget_->GetColorTransform();
-
-  ColorTransform new_transform = context_menu_widget_->color_manager()->GetCompliantColorSpace(ColorTransform(old_transform.display(),
-                                                                                                              old_transform.view(),
-                                                                                                              action->data().toString()));
-
-  SetColorTransform(new_transform, context_menu_widget_);
 }
 
 void ViewerWidget::SetDividerFromMenu(QAction *action)

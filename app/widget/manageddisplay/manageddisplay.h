@@ -29,16 +29,11 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class ManagedDisplayObject : public QOpenGLWidget
+class ManagedDisplayWidget : public QOpenGLWidget
 {
   Q_OBJECT
 public:
-  ManagedDisplayObject(QWidget* parent = nullptr);
-
-  /**
-   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
-   */
-  void ConnectColorManager(ColorManager* color_manager);
+  ManagedDisplayWidget(QWidget* parent = nullptr);
 
   /**
    * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
@@ -76,11 +71,21 @@ public slots:
    */
   void SetColorTransform(const ColorTransform& transform);
 
+  /**
+   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
+   */
+  void ConnectColorManager(ColorManager* color_manager);
+
 signals:
   /**
    * @brief Emitted when the color processor changes
    */
   void ColorProcessorChanged(ColorProcessorPtr processor);
+
+  /**
+   * @brief Emitted when a new color manager is connected
+   */
+  void ColorManagerChanged(ColorManager* color_manager);
 
 protected:
   /**
@@ -92,6 +97,18 @@ protected:
    * @brief Override when setting up OpenGL context
    */
   virtual void initializeGL() override;
+
+  /**
+   * @brief Enables a context menu that allows simple access to the DVL pipeline
+   */
+  void EnableDefaultContextMenu();
+
+  /**
+   * @brief Function called whenever the processor changes
+   *
+   * Default functionality is just to call update()
+   */
+  virtual void ColorProcessorChangedEvent();
 
 private:
   /**
@@ -131,6 +148,11 @@ private slots:
   void ContextCleanup();
 
   /**
+   * @brief The default context menu shown
+   */
+  void ShowDefaultContextMenu();
+
+  /**
    * @brief If GetDisplayMenu() is called with `auto_connect` set to true, it will be connected to this
    */
   void MenuDisplaySelect(QAction* action);
@@ -139,6 +161,11 @@ private slots:
    * @brief If GetViewMenu() is called with `auto_connect` set to true, it will be connected to this
    */
   void MenuViewSelect(QAction* action);
+
+  /**
+   * @brief If GetLookMenu() is called with `auto_connect` set to true, it will be connected to this
+   */
+  void MenuLookSelect(QAction* action);
 
 };
 

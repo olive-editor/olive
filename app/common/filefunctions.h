@@ -54,7 +54,8 @@ public:
 
   static QString GetTempFilePath();
 
-  static void CopyDirectory(const QString& source, const QString& dest);
+  static void CopyDirectory(const QString& source, const QString& dest, bool overwrite = false);
+
 };
 
 
