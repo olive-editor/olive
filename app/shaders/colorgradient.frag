@@ -1,13 +1,16 @@
-#version 110
-
-// Standard inputs
-uniform vec2 ove_resolution;
-varying vec2 ove_texcoord;
+#version 150
 
 // Inputs
 uniform int orientation;
 uniform vec3 color_a;
 uniform vec3 color_b;
+
+// Standard inputs
+uniform vec2 ove_resolution;
+
+in vec2 ove_texcoord;
+
+out vec4 fragColor;
 
 void main(void) {
     float t;
@@ -21,5 +24,5 @@ void main(void) {
         t = 1.0 - ove_texcoord.y;
     }
 
-    gl_FragColor = vec4(mix(color_a, color_b, t), 1.0);
+    fragColor = vec4(mix(color_a, color_b, t), 1.0);
 }

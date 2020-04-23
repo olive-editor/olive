@@ -1,11 +1,14 @@
-#version 110
-
-// Standard inputs
-uniform vec2 ove_resolution;
-varying vec2 ove_texcoord;
+#version 150
 
 // Custom inputs
 uniform float hsv_value;
+
+// Standard inputs
+uniform vec2 ove_resolution;
+
+in vec2 ove_texcoord;
+
+out vec4 fragColor;
 
 // Color wheel uses PI
 #define M_PI 3.1415926535897932384626433832795
@@ -46,7 +49,7 @@ vec3 hsv_to_rgb(float H, float S, float V) {
         Gs = 0.0;
         Bs = X; 
     }
-    
+
     return vec3(Rs + m, Gs + m, Bs + m);
 }
 
@@ -84,8 +87,8 @@ void main(void) {
         float pixel_dist = (pixel_radius / radius) * dist;
         float alpha = min((pixel_radius - pixel_dist), 1.0);
 
-        gl_FragColor = vec4(hsv_to_rgb(hue, sat, hsv_value), alpha);
+        fragColor = vec4(hsv_to_rgb(hue, sat, hsv_value), alpha);
     } else {
-        gl_FragColor = vec4(0.0);
+        fragColor = vec4(0.0);
     }
 }
