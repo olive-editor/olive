@@ -83,7 +83,14 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
                    0, GL_RGB, GL_FLOAT, ocio_lut_data);
 
   // Create OCIO shader code
-  QString shader_text(processor->getGpuShaderText(shaderDesc));
+  QString shader_text;
+
+  // Workaround since OCIO doesn't support the GLSL version we use
+  shader_text.append(QStringLiteral("#define texture2D texture\n"
+                                    "#define texture3D texture\n"));
+
+  // Append OCIO shader code
+  shader_text.append(processor->getGpuShaderText(shaderDesc));
 
   QString shader_call;
 
@@ -101,8 +108,8 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
 
     // Make OCIO call pass through disassociate and reassociate function
     shader_call = QStringLiteral("%3(%1(%2(col), ove_ociolut));").arg(ocio_func_name,
-                                                               disassociate_func_name,
-                                                               reassociate_func_name);
+                                                                      disassociate_func_name,
+                                                                      reassociate_func_name);
 
   } else {
 
