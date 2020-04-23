@@ -60,6 +60,7 @@ void WaveformScope::paintGL()
 
   pipeline_->bind();
   pipeline_->setUniformValue("ove_resolution", texture_->width(), texture_->height());
+  pipeline_->setUniformValue("ove_viewport", width(), height());
 
   // The general size of a pixel
   pipeline_->setUniformValue("threshold", 2.0f / static_cast<float>(height()));
