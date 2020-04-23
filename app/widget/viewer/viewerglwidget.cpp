@@ -41,9 +41,8 @@ bool ViewerGLWidget::nouveau_check_done_ = false;
 #endif
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
-  QOpenGLWidget(parent),
+  ManagedDisplayObject(parent),
   managed_copy_pipeline_(nullptr),
-  color_manager_(nullptr),
   has_image_(false),
   signal_cursor_color_(false),
   enable_display_referred_signal_(false)
@@ -54,30 +53,6 @@ ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
 ViewerGLWidget::~ViewerGLWidget()
 {
   ContextCleanup();
-}
-
-void ViewerGLWidget::ConnectColorManager(ColorManager *color_manager)
-{
-  if (color_manager_ == color_manager) {
-    return;
-  }
-
-  if (color_manager_ != nullptr) {
-    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::ColorConfigChanged);
-  }
-
-  color_manager_ = color_manager;
-
-  if (color_manager_ != nullptr) {
-    connect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::ColorConfigChanged);
-  }
-
-  ColorConfigChanged();
-}
-
-void ViewerGLWidget::DisconnectColorManager()
-{
-  ConnectColorManager(nullptr);
 }
 
 void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
@@ -185,11 +160,6 @@ void ViewerGLWidget::SetEmitDrewManagedTextureEnabled(bool e)
   }
 }
 
-ColorManager *ViewerGLWidget::color_manager() const
-{
-  return color_manager_;
-}
-
 void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
 {
   connect(this, &ViewerGLWidget::LoadedBuffer, sibling, &ViewerGLWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
@@ -205,18 +175,6 @@ void ViewerGLWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
 {
   safe_margin_ = safe_margin;
 
-  update();
-}
-
-const ColorTransform &ViewerGLWidget::GetColorTransform() const
-{
-  return color_transform_;
-}
-
-void ViewerGLWidget::SetColorTransform(const ColorTransform &transform)
-{
-  color_transform_ = transform;
-  SetupColorProcessor();
   update();
 }
 
@@ -245,7 +203,7 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
       int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * load_buffer_.height());
 
       reference = load_buffer_.get_pixel(frame_x, frame_y);
-      display = color_service_->ConvertColor(reference);
+      display = color_service()->ConvertColor(reference);
     }
 
     emit CursorColor(reference, display);
@@ -254,7 +212,7 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void ViewerGLWidget::initializeGL()
 {
-  SetupColorProcessor();
+  ManagedDisplayObject::initializeGL();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerGLWidget::ContextCleanup, Qt::DirectConnection);
 
@@ -284,7 +242,7 @@ void ViewerGLWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (has_image_ && color_service_ && texture_.IsCreated()) {
+  if (has_image_ && color_service() && texture_.IsCreated()) {
 
     // If we're distributing our display-referred final buffer, we'll have to make a copy of it
     if (enable_display_referred_signal_) {
@@ -317,7 +275,7 @@ void ViewerGLWidget::paintGL()
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
     // Blit using the color service
-    color_service_->ProcessOpenGL(true, matrix_);
+    color_service()->ProcessOpenGL(true, matrix_);
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);
@@ -375,16 +333,6 @@ void ViewerGLWidget::paintGL()
   }
 }
 
-void ViewerGLWidget::ColorConfigChanged()
-{
-  if (!color_manager_) {
-    color_service_ = nullptr;
-    return;
-  }
-
-  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
-}
-
 #ifdef Q_OS_LINUX
 void ViewerGLWidget::ShowNouveauWarning()
 {
@@ -397,48 +345,10 @@ void ViewerGLWidget::ShowNouveauWarning()
 }
 #endif
 
-void ViewerGLWidget::SetupColorProcessor()
-{
-  if (!context()) {
-    return;
-  }
-
-  color_service_ = nullptr;
-
-  if (color_manager_) {
-    // (Re)create color processor
-
-    try {
-
-      color_service_ = OpenGLColorProcessor::Create(color_manager_,
-                                                    color_manager_->GetReferenceColorSpace(),
-                                                    color_transform_);
-
-      makeCurrent();
-      color_service_->Enable(context(), true);
-      doneCurrent();
-
-    } catch (OCIO::Exception& e) {
-
-      QMessageBox::critical(this,
-                            tr("OpenColorIO Error"),
-                            tr("Failed to set color configuration: %1").arg(e.what()),
-                            QMessageBox::Ok);
-
-    }
-
-  } else {
-    color_service_ = nullptr;
-  }
-
-  emit ColorProcessorChanged(std::static_pointer_cast<ColorProcessor>(color_service_));
-}
-
 void ViewerGLWidget::ContextCleanup()
 {
   makeCurrent();
 
-  color_service_ = nullptr;
   managed_copy_pipeline_ = nullptr;
   texture_.Destroy();
   managed_texture_.Destroy();

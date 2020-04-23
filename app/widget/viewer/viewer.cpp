@@ -541,54 +541,22 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
   // Color options
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
-    const ColorTransform& transform = context_menu_widget_->GetColorTransform();
-
     {
-      QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
-
-      Menu* ocio_display_menu = new Menu(tr("Display"), &menu);
+      Menu* ocio_display_menu = context_menu_widget_->GetDisplayMenu(&menu);
       menu.addMenu(ocio_display_menu);
-
       connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
-      foreach (const QString& d, displays) {
-        QAction* action = ocio_display_menu->addAction(d);
-        action->setCheckable(true);
-        action->setChecked(transform.display() == d);
-        action->setData(d);
-      }
     }
 
     {
-      QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(transform.display());
-
-      Menu* ocio_view_menu = new Menu(tr("View"), &menu);
+      Menu* ocio_view_menu = context_menu_widget_->GetViewMenu(&menu);
       menu.addMenu(ocio_view_menu);
-
       connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
-      foreach (const QString& v, views) {
-        QAction* action = ocio_view_menu->addAction(v);
-        action->setCheckable(true);
-        action->setChecked(transform.view() == v);
-        action->setData(v);
-      }
     }
 
     {
-      QStringList looks = context_menu_widget_->color_manager()->ListAvailableLooks();
-
-      Menu* ocio_look_menu = new Menu(tr("Look"), &menu);
+      Menu* ocio_look_menu = context_menu_widget_->GetLookMenu(&menu);
       menu.addMenu(ocio_look_menu);
-
       connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
-      QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
-      no_look_action->setCheckable(true);
-      no_look_action->setChecked(transform.look().isEmpty());
-      foreach (const QString& l, looks) {
-        QAction* action = ocio_look_menu->addAction(l);
-        action->setCheckable(true);
-        action->setChecked(transform.look() == l);
-        action->setData(l);
-      }
     }
 
     menu.addSeparator();

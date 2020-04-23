@@ -30,6 +30,7 @@
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "viewersafemargininfo.h"
+#include "widget/manageddisplay/manageddisplay.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -48,7 +49,7 @@ OLIVE_NAMESPACE_ENTER
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
-class ViewerGLWidget : public QOpenGLWidget
+class ViewerGLWidget : public ManagedDisplayObject
 {
   Q_OBJECT
 public:
@@ -64,21 +65,9 @@ public:
   virtual ~ViewerGLWidget() override;
 
   /**
-   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
-   */
-  void ConnectColorManager(ColorManager* color_manager);
-
-  /**
-   * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
-   */
-  void DisconnectColorManager();
-
-  /**
    * @brief Set an image to load and display on screen
    */
   void SetImage(const QString& fn);
-
-  ColorManager* color_manager() const;
 
   const QMatrix4x4& GetMatrix();
 
@@ -87,14 +76,7 @@ public:
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
-  const ColorTransform& GetColorTransform() const;
-
 public slots:
-  /**
-   * @brief Replaces the color transform with a new one
-   */
-  void SetColorTransform(const ColorTransform& transform);
-
   /**
    * @brief Set the transformation matrix to draw with
    *
@@ -160,11 +142,6 @@ signals:
    */
   void DrewManagedTexture(OpenGLTexture* texture);
 
-  /**
-   * @brief Emitted when the color processor changes
-   */
-  void ColorProcessorChanged(ColorProcessorPtr processor);
-
 protected:
   /**
    * @brief Override the mouse press event simply to emit the DragStarted() signal
@@ -192,21 +169,6 @@ protected:
 
 private:
   /**
-   * @brief Call this if this user has selected a different display/view/look to recreate the processor
-   */
-  void SetupColorProcessor();
-
-  /**
-   * @brief Cleanup function
-   */
-  void ClearOCIOLutTexture();
-
-  /**
-   * @brief Internal color transform storage
-   */
-  ColorTransform color_transform_;
-
-  /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
   OpenGLTexture texture_;
@@ -227,16 +189,6 @@ private:
    * @brief Pipeline used to draw to managed_texture_
    */
   OpenGLShaderPtr managed_copy_pipeline_;
-
-  /**
-   * @brief Connected color manager
-   */
-  ColorManager* color_manager_;
-
-  /**
-   * @brief Color management service
-   */
-  OpenGLColorProcessorPtr color_service_;
 
   /**
    * @brief Drawing matrix (defaults to identity)
@@ -265,11 +217,6 @@ private slots:
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
    */
   void ContextCleanup();
-
-  /**
-   * @brief Sets all color settings to the defaults pertaining to this configuration
-   */
-  void ColorConfigChanged();
 
 #ifdef Q_OS_LINUX
   /**
