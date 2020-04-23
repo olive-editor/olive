@@ -53,6 +53,17 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
 {
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
 
+  // Set up shader description
+  OCIO::GpuShaderDesc shaderDesc;
+  const char* ocio_func_name = "OCIODisplay";
+  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
+  shaderDesc.setFunctionName(ocio_func_name);
+  shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
+
+  // Compute LUT
+  GLfloat ocio_lut_data[OCIO_NUM_3D_ENTRIES];
+  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
+
   // Create LUT texture
   xf->glGenTextures(1, &lut_texture);
 
@@ -69,32 +80,13 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   // Allocate storage for texture
   xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
                    OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                   0, GL_RGB,GL_FLOAT, nullptr);
-
-  //
-  // SET UP GLSL SHADER
-  //
-
-  OCIO::GpuShaderDesc shaderDesc;
-  const char* ocio_func_name = "OCIODisplay";
-  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
-  shaderDesc.setFunctionName(ocio_func_name);
-  shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
-
-  //
-  // COMPUTE 3D LUT
-  //
-
-  GLfloat* ocio_lut_data = new GLfloat[OCIO_NUM_3D_ENTRIES];
-  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
+                   0, GL_RGB, GL_FLOAT, nullptr);
 
   // Upload LUT data to texture
   xf->glTexSubImage3D(GL_TEXTURE_3D, 0,
                       0, 0, 0,
                       OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
                       GL_RGB, GL_FLOAT, ocio_lut_data);
-
-  delete [] ocio_lut_data;
 
   // Create OCIO shader code
   QString shader_text(processor->getGpuShaderText(shaderDesc));
