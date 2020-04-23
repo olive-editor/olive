@@ -14,19 +14,28 @@ out vec4 fragColor;
 
 void main(void) {
     vec3 col = vec3(0.0);
-    float s = ove_texcoord.y * 1.8 - 0.15;
-    float maxb = s + threshold;
-    float minb = s - threshold;
+    float increment = 1.0 / 255.0;
+    float maxb = ove_texcoord.y + increment;
+    float minb = ove_texcoord.y - increment;
 
     int y_lim = int(ove_resolution.y);
 
+    vec3 cur_col = vec3(0.0);
     for (int i = 0; i < y_lim; i++) {
-        vec3 x = texture(ove_maintex, vec2(ove_texcoord.x, float(i) / float(ove_resolution.y))).rgb;
-        col += step(x, vec3(maxb)) * step(vec3(minb), x) / (ove_resolution.y * 0.125);
+        cur_col = texture2D(
+            ove_maintex,
+            vec2(ove_texcoord.x, float(i) / float(ove_resolution.y))
+        ).rgb;
 
-        float l = dot(x, x);
-        col += step(l, maxb * maxb) * step(minb * minb, l) / (ove_resolution.y * 0.125);
+        col += step(vec3(ove_texcoord.y - increment), cur_col) *
+            step(cur_col, vec3(ove_texcoord.y + increment));
+
+        //float l = dot(x, x);
+        //col += step(l, maxb*maxb)*step(minb*minb, l) / (ove_resolution.y * 0.125);
     }
-
-    fragColor = vec4(col, 1.0);
+    // if (ove_texcoord.y > (240.0 / 255.0))
+    // {
+    //     col = vec3(1.0, 0.0, 1.0);
+    // }
+    gl_FragColor = vec4(col, 1.0);
 }
