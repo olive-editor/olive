@@ -266,7 +266,7 @@ void ViewerGLWidget::paintGL()
       framebuffer_.Attach(&managed_texture_);
       framebuffer_.Bind();
 
-      context()->functions()->glViewport(0, 0, managed_texture_.width(), managed_texture_.height());
+      f->glViewport(0, 0, managed_texture_.width(), managed_texture_.height());
 
     }
 
@@ -289,7 +289,7 @@ void ViewerGLWidget::paintGL()
       // Bind retrieved texture
       managed_texture_.Bind();
 
-      context()->functions()->glViewport(0, 0, width(), height());
+      f->glViewport(0, 0, width(), height());
 
       OpenGLRenderFunctions::Blit(managed_copy_pipeline_);
 

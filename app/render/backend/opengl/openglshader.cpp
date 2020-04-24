@@ -61,8 +61,8 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
 
   // Compute LUT
-  GLfloat* ocio_lut_data = new GLfloat[OCIO_NUM_3D_ENTRIES];
-  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
+  std::vector<float> ocio_lut_data(OCIO_NUM_3D_ENTRIES);
+  processor->getGpuLut3D(&ocio_lut_data[0], shaderDesc);
 
   // Create LUT texture
   xf->glGenTextures(1, &lut_texture);
@@ -81,10 +81,7 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   // Allocate storage for texture
   xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F,
                    OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                   0, GL_RGB, GL_FLOAT, ocio_lut_data);
-
-  // Delete local copy
-  delete [] ocio_lut_data;
+                   0, GL_RGB, GL_FLOAT, &ocio_lut_data[0]);
 
   // Create OCIO shader code
   QString shader_text;
