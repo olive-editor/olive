@@ -25,7 +25,6 @@
 
 #include "core.h"
 #include "timelineplayhead.h"
-#include "timelineviewenditem.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -56,6 +55,8 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void ScaleChangedEvent(const double& scale) override;
+
+  virtual void SceneRectUpdateEvent(QRectF&){}
 
   bool HandleZoomFromScroll(QWheelEvent* event);
 
@@ -95,13 +96,13 @@ private:
   bool dragging_hand_;
   DragMode pre_hand_drag_mode_;
 
-  TimelineViewEndItem* end_item_;
-
   QGraphicsScene scene_;
 
   bool limit_y_axis_;
 
   DragMode default_drag_mode_;
+
+  rational end_time_;
 
 private slots:
   /**

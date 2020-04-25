@@ -28,8 +28,6 @@ set(OLIVE_SOURCES
   widget/timelinewidget/view/timelineviewbase.cpp
   widget/timelinewidget/view/timelineviewblockitem.h
   widget/timelinewidget/view/timelineviewblockitem.cpp
-  widget/timelinewidget/view/timelineviewenditem.h
-  widget/timelinewidget/view/timelineviewenditem.cpp
   widget/timelinewidget/view/timelineviewghostitem.h
   widget/timelinewidget/view/timelineviewghostitem.cpp
   PARENT_SCOPE

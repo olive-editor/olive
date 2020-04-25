@@ -230,6 +230,17 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
   }
 }
 
+void TimelineView::SceneRectUpdateEvent(QRectF &rect)
+{
+  if (alignment() & Qt::AlignTop) {
+    rect.setTop(0);
+    rect.setBottom(GetHeightOfAllTracks() + height() / 2);
+  } else if (alignment() & Qt::AlignBottom) {
+    rect.setBottom(0);
+    rect.setTop(GetHeightOfAllTracks() - height() / 2);
+  }
+}
+
 Timeline::TrackType TimelineView::ConnectedTrackType()
 {
   if (connected_track_list_) {
@@ -279,7 +290,20 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Key
   return timeline_event;
 }
 
-int TimelineView::GetTrackY(int track_index)
+int TimelineView::GetHeightOfAllTracks() const
+{
+  if (connected_track_list_) {
+    if (alignment() & Qt::AlignTop) {
+      return GetTrackY(connected_track_list_->TrackCount());
+    } else {
+      return GetTrackY(connected_track_list_->TrackCount() - 1);
+    }
+  } else {
+    return 0;
+  }
+}
+
+int TimelineView::GetTrackY(int track_index) const
 {
   int y = 0;
 
@@ -301,7 +325,7 @@ int TimelineView::GetTrackY(int track_index)
   return y;
 }
 
-int TimelineView::GetTrackHeight(int track_index)
+int TimelineView::GetTrackHeight(int track_index) const
 {
   if (!connected_track_list_ || track_index >= connected_track_list_->TrackCount()) {
     return TrackOutput::GetDefaultTrackHeight();
@@ -310,7 +334,7 @@ int TimelineView::GetTrackHeight(int track_index)
   return connected_track_list_->TrackAt(track_index)->GetTrackHeight();
 }
 
-QPoint TimelineView::GetScrollCoordinates()
+QPoint TimelineView::GetScrollCoordinates() const
 {
   return QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
 }
