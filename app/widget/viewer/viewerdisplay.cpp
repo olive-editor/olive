@@ -18,7 +18,7 @@
 
 ***/
 
-#include "viewerglwidget.h"
+#include "viewerdisplay.h"
 
 #include <OpenImageIO/imagebuf.h>
 #include <QFileInfo>
@@ -37,10 +37,10 @@
 OLIVE_NAMESPACE_ENTER
 
 #ifdef Q_OS_LINUX
-bool ViewerGLWidget::nouveau_check_done_ = false;
+bool ViewerDisplayWidget::nouveau_check_done_ = false;
 #endif
 
-ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
+ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
   managed_copy_pipeline_(nullptr),
   has_image_(false),
@@ -49,18 +49,18 @@ ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
 {
 }
 
-ViewerGLWidget::~ViewerGLWidget()
+ViewerDisplayWidget::~ViewerDisplayWidget()
 {
   ContextCleanup();
 }
 
-void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
+void ViewerDisplayWidget::SetMatrix(const QMatrix4x4 &mat)
 {
   matrix_ = mat;
   update();
 }
 
-void ViewerGLWidget::SetImage(const QString &fn)
+void ViewerDisplayWidget::SetImage(const QString &fn)
 {
   has_image_ = false;
 
@@ -119,13 +119,13 @@ void ViewerGLWidget::SetImage(const QString &fn)
   }
 }
 
-void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
+void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
   setMouseTracking(e);
 }
 
-void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
+void ViewerDisplayWidget::SetImageFromLoadBuffer(Frame *in_buffer)
 {
   has_image_ = in_buffer;
 
@@ -147,7 +147,7 @@ void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
   update();
 }
 
-void ViewerGLWidget::SetEmitDrewManagedTextureEnabled(bool e)
+void ViewerDisplayWidget::SetEmitDrewManagedTextureEnabled(bool e)
 {
   enable_display_referred_signal_ = e;
 
@@ -159,32 +159,32 @@ void ViewerGLWidget::SetEmitDrewManagedTextureEnabled(bool e)
   }
 }
 
-void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
+void ViewerDisplayWidget::ConnectSibling(ViewerDisplayWidget *sibling)
 {
-  connect(this, &ViewerGLWidget::LoadedBuffer, sibling, &ViewerGLWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
+  connect(this, &ViewerDisplayWidget::LoadedBuffer, sibling, &ViewerDisplayWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
   sibling->SetImageFromLoadBuffer(&load_buffer_);
 }
 
-const ViewerSafeMarginInfo &ViewerGLWidget::GetSafeMargin() const
+const ViewerSafeMarginInfo &ViewerDisplayWidget::GetSafeMargin() const
 {
   return safe_margin_;
 }
 
-void ViewerGLWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
+void ViewerDisplayWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
 {
   safe_margin_ = safe_margin;
 
   update();
 }
 
-void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
+void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mousePressEvent(event);
 
   emit DragStarted();
 }
 
-void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
+void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mouseMoveEvent(event);
 
@@ -209,11 +209,11 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
   }
 }
 
-void ViewerGLWidget::initializeGL()
+void ViewerDisplayWidget::initializeGL()
 {
   ManagedDisplayWidget::initializeGL();
 
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerGLWidget::ContextCleanup, Qt::DirectConnection);
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerDisplayWidget::ContextCleanup, Qt::DirectConnection);
 
 #ifdef Q_OS_LINUX
   if (!nouveau_check_done_) {
@@ -231,7 +231,7 @@ void ViewerGLWidget::initializeGL()
 #endif
 }
 
-void ViewerGLWidget::paintGL()
+void ViewerDisplayWidget::paintGL()
 {
   // Get functions attached to this context (they will already be initialized)
   QOpenGLFunctions* f = context()->functions();
@@ -333,7 +333,7 @@ void ViewerGLWidget::paintGL()
 }
 
 #ifdef Q_OS_LINUX
-void ViewerGLWidget::ShowNouveauWarning()
+void ViewerDisplayWidget::ShowNouveauWarning()
 {
   QMessageBox::warning(this,
                        tr("Driver Warning"),
@@ -344,7 +344,7 @@ void ViewerGLWidget::ShowNouveauWarning()
 }
 #endif
 
-void ViewerGLWidget::ContextCleanup()
+void ViewerDisplayWidget::ContextCleanup()
 {
   makeCurrent();
 

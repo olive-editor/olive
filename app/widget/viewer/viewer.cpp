@@ -62,15 +62,15 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_ = new ViewerSizer();
   stack_->addWidget(sizer_);
 
-  ViewerGLWidget* main_widget = new ViewerGLWidget();
-  connect(main_widget, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
-  connect(main_widget, &ViewerGLWidget::CursorColor, this, &ViewerWidget::CursorColor);
-  connect(main_widget, &ViewerGLWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
-  connect(main_widget, &ViewerGLWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
-  connect(main_widget, &ViewerGLWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
-  connect(main_widget, &ViewerGLWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
-  connect(main_widget, &ViewerGLWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
-  connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerGLWidget::SetMatrix);
+  ViewerDisplayWidget* main_widget = new ViewerDisplayWidget();
+  connect(main_widget, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(main_widget, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
+  connect(main_widget, &ViewerDisplayWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
+  connect(main_widget, &ViewerDisplayWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
+  connect(main_widget, &ViewerDisplayWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
+  connect(main_widget, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
+  connect(main_widget, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
+  connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerDisplayWidget::SetMatrix);
   sizer_->SetWidget(main_widget);
   gl_widgets_.append(main_widget);
 
@@ -168,7 +168,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     using_manager = nullptr;
   }
 
-  foreach (ViewerGLWidget* glw, gl_widgets_) {
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
     glw->ConnectColorManager(using_manager);
   }
 
@@ -200,7 +200,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
 
-  foreach (ViewerGLWidget* glw, gl_widgets_) {
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
     glw->DisconnectColorManager();
   }
 
@@ -234,12 +234,12 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
   UpdateMinimumScale();
 }
 
-const QList<ViewerGLWidget*> &ViewerWidget::gl_widgets() const
+const QList<ViewerDisplayWidget*> &ViewerWidget::gl_widgets() const
 {
   return gl_widgets_;
 }
 
-ViewerGLWidget *ViewerWidget::main_gl_widget() const
+ViewerDisplayWidget *ViewerWidget::main_gl_widget() const
 {
   return gl_widgets_.first();
 }
@@ -280,7 +280,7 @@ void ViewerWidget::SetOverrideSize(int width, int height)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  foreach (ViewerGLWidget* glw, gl_widgets_) {
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
     glw->SetMatrix(mat);
   }
 }
@@ -309,7 +309,7 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   vw->gl_widget()->ConnectColorManager(main_gl_widget()->color_manager());
   main_gl_widget()->ConnectSibling(vw->gl_widget());
   connect(vw, &ViewerWindow::destroyed, this, &ViewerWidget::WindowAboutToClose);
-  connect(vw->gl_widget(), &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(vw->gl_widget(), &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   if (GetConnectedNode()) {
     vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
@@ -373,7 +373,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   controls_->ShowPauseButton();
 
   if (stack_->currentWidget() == sizer_) {
-    connect(main_gl_widget(), &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    connect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   } else {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
   }
@@ -427,7 +427,7 @@ void ViewerWidget::UpdateMinimumScale()
   }
 }
 
-void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerGLWidget *sender)
+void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisplayWidget *sender)
 {
   sender->SetColorTransform(transform);
 }
@@ -543,7 +543,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
   Menu menu(static_cast<QWidget*>(sender()));
 
-  context_menu_widget_ = static_cast<ViewerGLWidget*>(sender());
+  context_menu_widget_ = static_cast<ViewerDisplayWidget*>(sender());
 
   // Color options
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
@@ -683,7 +683,7 @@ void ViewerWidget::Pause()
     controls_->ShowPlayButton();
 
     if (stack_->currentWidget() == sizer_) {
-      disconnect(main_gl_widget(), &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+      disconnect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
     } else {
       disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
     }
@@ -736,7 +736,7 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform)
 
 void ViewerWidget::SetSignalCursorColorEnabled(bool e)
 {
-  foreach (ViewerGLWidget* glw, gl_widgets_) {
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
     glw->SetSignalCursorColorEnabled(e);
   }
 }

@@ -32,11 +32,11 @@ ViewerWindow::ViewerWindow(QWidget *parent) :
   layout->setMargin(0);
   layout->setSpacing(0);
 
-  gl_widget_ = new ViewerGLWidget();
+  gl_widget_ = new ViewerDisplayWidget();
   layout->addWidget(gl_widget_);
 }
 
-ViewerGLWidget *ViewerWindow::gl_widget() const
+ViewerDisplayWidget *ViewerWindow::gl_widget() const
 {
   return gl_widget_;
 }

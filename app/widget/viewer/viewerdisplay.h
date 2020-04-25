@@ -49,7 +49,7 @@ OLIVE_NAMESPACE_ENTER
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
-class ViewerGLWidget : public ManagedDisplayWidget
+class ViewerDisplayWidget : public ManagedDisplayWidget
 {
   Q_OBJECT
 public:
@@ -60,9 +60,9 @@ public:
    *
    * QWidget parent.
    */
-  ViewerGLWidget(QWidget* parent = nullptr);
+  ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  virtual ~ViewerGLWidget() override;
+  virtual ~ViewerDisplayWidget() override;
 
   /**
    * @brief Set an image to load and display on screen
@@ -71,7 +71,7 @@ public:
 
   const QMatrix4x4& GetMatrix();
 
-  void ConnectSibling(ViewerGLWidget* sibling);
+  void ConnectSibling(ViewerDisplayWidget* sibling);
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
