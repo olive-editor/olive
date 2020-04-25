@@ -59,12 +59,12 @@ NodeInput *ClipBlock::texture_input() const
   return texture_input_;
 }
 
-void ClipBlock::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+void ClipBlock::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == texture_input_) {
-    rational start = MediaToSequenceTime(start_range);
-    rational end = MediaToSequenceTime(end_range);
+    rational start = MediaToSequenceTime(range.in());
+    rational end = MediaToSequenceTime(range.out());
 
     // Ensure range actually covers this clip's area
     if (!(end < in() || start > out())) {
@@ -73,12 +73,12 @@ void ClipBlock::InvalidateCache(const rational &start_range, const rational &end
       start = qMax(start, in());
       end = qMin(end, out());
 
-      Node::InvalidateCache(start, end, from);
+      Node::InvalidateCache(TimeRange(start, end), from, source);
 
     }
   } else {
     // Otherwise, pass signal along normally
-    Node::InvalidateCache(start_range, end_range, from);
+    Node::InvalidateCache(range, from, source);
   }
 }
 

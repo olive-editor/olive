@@ -92,26 +92,24 @@ NodeInput *ViewerOutput::samples_input() const
   return samples_input_;
 }
 
-void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  Node::InvalidateCache(start_range, end_range, from);
-
   if (from == texture_input()) {
-    emit VideoChangedBetween(TimeRange(start_range, end_range));
+    emit VideoChangedBetween(range, source);
   } else if (from == samples_input()) {
-    emit AudioChangedBetween(TimeRange(start_range, end_range));
+    emit AudioChangedBetween(range, source);
   }
 
-  SendInvalidateCache(start_range, end_range);
+  Node::InvalidateCache(range, from, source);
 }
 
-void ViewerOutput::InvalidateVisible(NodeInput* from)
+void ViewerOutput::InvalidateVisible(NodeInput* from, NodeInput *source)
 {
   if (from == texture_input()) {
-    emit VisibleInvalidated();
+    emit VisibleInvalidated(source);
   }
 
-  Node::InvalidateVisible(from);
+  Node::InvalidateVisible(from, source);
 }
 
 const VideoParams &ViewerOutput::video_params() const
@@ -162,17 +160,6 @@ rational ViewerOutput::Length()
 const QUuid &ViewerOutput::uuid() const
 {
   return uuid_;
-}
-
-void ViewerOutput::DependentEdgeChanged(NodeInput *from)
-{
-  if (from == texture_input_) {
-    emit VideoGraphChanged();
-  } else if (from == samples_input_) {
-    emit AudioGraphChanged();
-  }
-
-  Node::DependentEdgeChanged(from);
 }
 
 void ViewerOutput::UpdateTrackCache()

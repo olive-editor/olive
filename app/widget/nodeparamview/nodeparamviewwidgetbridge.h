@@ -68,7 +68,7 @@ private:
 private slots:
   void WidgetCallback();
 
-  void InputValueChanged(const rational& start, const rational& end);
+  void InputValueChanged(const TimeRange& range);
 
   void PropertyChanged(const QString& key, const QVariant& value);
 

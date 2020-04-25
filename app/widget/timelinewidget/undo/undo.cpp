@@ -274,7 +274,9 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                          track_->block_input(),
+                          track_->block_input());
 }
 
 void TrackRippleRemoveAreaCommand::undo_internal()
@@ -328,7 +330,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :

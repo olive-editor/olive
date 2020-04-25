@@ -31,7 +31,7 @@ class NodeInputArray : public NodeInput
 public:
   NodeInputArray(const QString &id, const DataType& type, const QVariant& default_value = 0);
 
-  virtual bool IsArray() override;
+  virtual bool IsArray() const override;
 
   int GetSize() const;
 
@@ -53,6 +53,10 @@ public:
 
 signals:
   void SizeChanged(int size);
+
+  void SubParamEdgeAdded(NodeEdgePtr edge);
+
+  void SubParamEdgeRemoved(NodeEdgePtr edge);
 
 protected:
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled) override;

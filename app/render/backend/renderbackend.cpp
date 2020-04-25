@@ -31,12 +31,9 @@ OLIVE_NAMESPACE_ENTER
 
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
-  compiled_(false),
   started_(false),
   viewer_node_(nullptr),
-  copied_viewer_node_(nullptr),
-  recompile_queued_(false),
-  input_update_queued_(false)
+  copied_viewer_node_(nullptr)
 {
   // FIXME: Don't create in CLI mode
   cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
@@ -84,7 +81,7 @@ void RenderBackend::Close()
 
   CancelQueue();
 
-  Decompile();
+  SetViewerNode(nullptr);
 
   CloseInternal();
 
@@ -114,80 +111,35 @@ const QString &RenderBackend::GetError() const
 
 void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 {
-  if (viewer_node_ != nullptr) {
+  if (viewer_node_) {
     CancelQueue();
 
     DisconnectViewer(viewer_node_);
 
-    Decompile();
+    copied_graph_.Clear();
+    copied_viewer_node_ = nullptr;
+    node_copy_map_.clear();
   }
 
   viewer_node_ = viewer_node;
 
-  if (viewer_node_ != nullptr) {
+  if (viewer_node_) {
     ConnectViewer(viewer_node_);
 
     RegenerateCacheID();
-  }
 
-  InvalidateCache(TimeRange(0, RATIONAL_MAX));
+    copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
+    copied_graph_.AddNode(copied_viewer_node_);
+    node_copy_map_.insert(viewer_node_, copied_viewer_node_);
+
+    InvalidateCache(TimeRange(0, RATIONAL_MAX),
+                    static_cast<NodeInput*>(viewer_node_->GetInputWithID(GetDependentInput()->id())));
+  }
 }
 
 bool RenderBackend::IsInitiated()
 {
   return started_;
-}
-
-bool RenderBackend::Compile()
-{
-  if (compiled_) {
-    return true;
-  }
-
-  // Get dependencies of viewer node
-  source_node_list_.append(viewer_node_);
-  source_node_list_.append(viewer_node_->GetDependencies());
-
-  // Copy all dependencies into graph
-  foreach (Node* n, source_node_list_) {
-    Node* copy = n->copy();
-
-    Node::CopyInputs(n, copy, false);
-
-    copied_graph_.AddNode(copy);
-  }
-
-  // We just copied the inputs, so if an input update is queued, it's unnecessary
-  input_update_queued_ = false;
-
-  // We know that the first node will be the viewer node since we appended that first in the copy
-  copied_viewer_node_ = static_cast<ViewerOutput*>(copied_graph_.nodes().first());
-
-  // Copy connections
-  Node::DuplicateConnectionsBetweenLists(source_node_list_, copied_graph_.nodes());
-
-  compiled_ = CompileInternal();
-
-  if (!compiled_) {
-    Decompile();
-  }
-
-  return compiled_;
-}
-
-void RenderBackend::Decompile()
-{
-  if (!compiled_) {
-    return;
-  }
-
-  DecompileInternal();
-
-  copied_graph_.Clear();
-  copied_viewer_node_ = nullptr;
-  source_node_list_.clear();
-
-  compiled_ = false;
 }
 
 void RenderBackend::RegenerateCacheID()
@@ -261,34 +213,19 @@ void RenderBackend::CacheNext()
     return;
   }
 
-  if (!Init()
-      || !ViewerIsConnected()
-      || !CanRender()) {
+  if (!ViewerIsConnected()
+      || !CanRender()
+      || !Init()) {
     return;
   }
 
-  if ((input_update_queued_ || recompile_queued_) && !AllProcessorsAreAvailable()) {
-    return;
-  }
-
-  if (recompile_queued_) {
-    Decompile();
-    recompile_queued_ = false;
-  }
-
-  if (!compiled_ && !Compile()) {
-    return;
-  }
-
-  if (input_update_queued_) {
-    for (int i=0;i<source_node_list_.size();i++) {
-      Node* src = source_node_list_.at(i);
-      Node* dst = copied_graph_.nodes().at(i);
-
-      Node::CopyInputs(src, dst, false);
+  while (!input_update_queued_.isEmpty()) {
+    if (!AllProcessorsAreAvailable()) {
+      // To update the inputs, we need all workers to stop
+      return;
     }
 
-    input_update_queued_ = false;
+    CopyNodeInputValue(input_update_queued_.takeFirst());
   }
 
   Node* node_connected_to_viewer = GetDependentInput()->get_connected_node();
@@ -356,12 +293,8 @@ void RenderBackend::CancelQueue()
   cancel_dialog_->RunIfWorkersAreBusy();
 }
 
-void RenderBackend::InvalidateCache(const TimeRange &range)
+void RenderBackend::InvalidateCache(const TimeRange &range, NodeInput *from)
 {
-  if (!CanRender()) {
-    return;
-  }
-
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), range.in());
   rational end_range_adj = qMin(GetSequenceLength(), range.out());
@@ -371,15 +304,18 @@ void RenderBackend::InvalidateCache(const TimeRange &range)
            << "and"
            << end_range_adj.toDouble();
 
-  // Queue value update
-  QueueValueUpdate();
+  if (from) {
+    // Queue value update
+    qDebug() << "  from" << from->parentNode()->id() << "::" << from->id();
+    QueueValueUpdate(from);
+  }
 
   InvalidateCacheInternal(start_range_adj, end_range_adj);
 }
 
 bool RenderBackend::ViewerIsConnected() const
 {
-  return viewer_node_ != nullptr;
+  return viewer_node_;
 }
 
 const QString &RenderBackend::cache_id() const
@@ -387,9 +323,23 @@ const QString &RenderBackend::cache_id() const
   return cache_id_;
 }
 
-void RenderBackend::QueueValueUpdate()
+void RenderBackend::QueueValueUpdate(NodeInput* from)
 {
-  input_update_queued_ = true;
+  if (!input_update_queued_.isEmpty()) {
+    // Remove any inputs that are dependents of this input since they may have been removed since
+    // it was queued
+    QList<Node*> deps = from->GetDependencies();
+
+    for (int i=0;i<input_update_queued_.size();i++) {
+      if (deps.contains(input_update_queued_.at(i)->parentNode())) {
+        // We don't need to queue this value since this input supersedes it
+        input_update_queued_.removeAt(i);
+        i--;
+      }
+    }
+  }
+
+  input_update_queued_.append(from);
 }
 
 bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
@@ -400,6 +350,87 @@ bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
 void RenderBackend::SetWorkerBusyState(RenderWorker *worker, bool busy)
 {
   processor_busy_state_.replace(processors_.indexOf(worker), busy);
+}
+
+void RenderBackend::CopyNodeInputValue(NodeInput *input)
+{
+  // Find our copy of this parameter
+  Node* our_copy_node = node_copy_map_.value(input->parentNode());
+  NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
+
+  // Copy the standard/keyframe values between these two inputs
+  NodeInput::CopyValues(input,
+                        our_copy,
+                        false);
+
+  // Handle connections
+  if (input->IsConnected() || our_copy->IsConnected()) {
+    // If one of the inputs is connected, it's likely this change came from connecting or
+    // disconnecting whatever was connected to it
+
+    {
+      // We start by removing all old dependencies from the map
+      QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
+
+      foreach (Node* i, old_deps) {
+        Node* n = node_copy_map_.take(node_copy_map_.key(i));
+        copied_graph_.TakeNode(n);
+        delete n;
+      }
+    }
+
+    // Then we copy all node dependencies and connections (if there are any)
+    CopyNodeMakeConnection(input, our_copy);
+  }
+
+  // Call on sub-elements too
+  if (input->IsArray()) {
+    foreach (NodeInput* i, static_cast<NodeInputArray*>(input)->sub_params()) {
+      CopyNodeInputValue(i);
+    }
+  }
+}
+
+Node* RenderBackend::CopyNodeConnections(Node* src_node)
+{
+  // Check if this node is already in the map
+  Node* dst_node = node_copy_map_.value(src_node);
+
+  // If not, create it now
+  if (!dst_node) {
+    dst_node = src_node->copy();
+    copied_graph_.AddNode(dst_node);
+    node_copy_map_.insert(src_node, dst_node);
+  }
+
+  // Make sure its values are copied
+  Node::CopyInputs(src_node, dst_node, false);
+
+  // Copy all connections
+  QList<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
+  QList<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
+
+  for (int i=0;i<src_node_inputs.size();i++) {
+    NodeInput* src_input = src_node_inputs.at(i);
+
+    CopyNodeMakeConnection(src_input, dst_node_inputs.at(i));
+  }
+
+  return dst_node;
+}
+
+void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
+{
+  qDebug() << "Copying input" << src_input->id() << "from" << src_input->parentNode()->id();
+
+  if (src_input->IsConnected()) {
+    Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
+
+    NodeOutput* corresponding_output = dst_node->GetOutputWithID(src_input->get_connected_output()->id());
+
+    NodeParam::ConnectEdge(corresponding_output,
+                           dst_input);
+  }
 }
 
 bool RenderBackend::AllProcessorsAreAvailable() const
@@ -455,11 +486,6 @@ void RenderBackend::InitWorkers()
   processor_busy_state_.fill(false);
 }
 
-void RenderBackend::QueueRecompile()
-{
-  recompile_queued_ = true;
-}
-
 void RenderBackend::FootageUnavailable(StreamPtr stream, Decoder::RetrieveState state, const TimeRange &range, const rational &stream_time)
 {
   if (state == Decoder::kFailedToOpen){
@@ -484,7 +510,7 @@ void RenderBackend::FootageUnavailable(StreamPtr stream, Decoder::RetrieveState 
                || (stream->type() == Stream::kAudio && std::static_pointer_cast<AudioStream>(stream)->index_done())) {
 
       // Index JUST finished, requeue this time
-      InvalidateCache(range);
+      InvalidateCache(range, nullptr);
 
     } else {
 
@@ -529,7 +555,7 @@ void RenderBackend::IndexUpdated(Stream* stream)
       }
 
       if (footage_ready) {
-        InvalidateCache(info.affected_range);
+        InvalidateCache(info.affected_range, nullptr);
         footage_wait_info_.removeAt(i);
         i--;
       }

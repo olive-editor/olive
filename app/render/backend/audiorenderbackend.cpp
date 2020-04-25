@@ -58,29 +58,13 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
-  connect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
   connect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
 }
 
 void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
-  disconnect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
   disconnect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
-}
-
-bool AudioRenderBackend::CompileInternal()
-{
-  for (int i=0;i<copied_graph_.nodes().size();i++) {
-    copy_map_.insert(copied_graph_.nodes().at(i), source_node_list_.at(i));
-  }
-
-  return true;
-}
-
-void AudioRenderBackend::DecompileInternal()
-{
-  copy_map_.clear();
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)
@@ -187,7 +171,7 @@ void AudioRenderBackend::ConformUnavailable(StreamPtr stream, TimeRange range, r
   } else if (audio_stream->has_conformed_version(params)) {
 
     // Index JUST finished, requeue this time
-    InvalidateCache(range);
+    InvalidateCache(range, nullptr);
 
   } else {
 
@@ -215,7 +199,7 @@ void AudioRenderBackend::ConformUpdated(Stream *stream, AudioRenderingParams par
 
       // Send invalidate cache signal
       ic_from_conform_ = true;
-      InvalidateCache(copy.affected_range);
+      InvalidateCache(copy.affected_range, nullptr);
       ic_from_conform_ = false;
 
     }

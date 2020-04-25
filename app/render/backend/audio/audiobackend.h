@@ -40,10 +40,6 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual bool CompileInternal() override;
-
-  virtual void DecompileInternal() override;
-
   virtual void ConnectWorkerToThis(RenderWorker* worker) override;
 
 private slots:

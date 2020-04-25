@@ -291,14 +291,14 @@ void Exporter::EncoderOpenedSuccessfully()
     video_backend_->SetOperatingMode(VideoRenderWorker::kHashOnly);
     connect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
 
-    video_backend_->InvalidateCache(export_range_);
+    video_backend_->InvalidateCache(export_range_, nullptr);
   }
 
   if (!audio_done_) {
     // We set the audio backend to render the full sequence to the disk
     connect(audio_backend_, &AudioRenderBackend::AudioComplete, this, &Exporter::AudioRendered);
 
-    audio_backend_->InvalidateCache(export_range_);
+    audio_backend_->InvalidateCache(export_range_, nullptr);
   }
 }
 
@@ -344,7 +344,7 @@ void Exporter::VideoHashesComplete()
   }
 
   foreach (const TimeRange& range, ranges) {
-    video_backend_->InvalidateCache(range);
+    video_backend_->InvalidateCache(range, nullptr);
   }
 }
 

@@ -152,8 +152,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-  connect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
-  connect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::VideoChangedBetween, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::AudioChangedBetween, this, &ViewerWidget::UpdateStack);
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   LengthChangedSlot(n->Length());
@@ -194,8 +194,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-  disconnect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
-  disconnect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::VideoChangedBetween, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::AudioChangedBetween, this, &ViewerWidget::UpdateStack);
 
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
@@ -434,10 +434,14 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 
 void ViewerWidget::UpdateStack()
 {
-  if (!GetConnectedNode() || GetConnectedNode()->texture_input()->IsConnected()) {
-    stack_->setCurrentWidget(sizer_);
-  } else {
+  if (GetConnectedNode()
+      && !GetConnectedNode()->texture_input()->IsConnected()
+      && GetConnectedNode()->samples_input()->IsConnected()) {
+    // If we have a node AND video is disconnected AND audio is connected, show waveform view
     stack_->setCurrentWidget(waveform_view_);
+  } else {
+    // Otherwise show regular display
+    stack_->setCurrentWidget(sizer_);
   }
 }
 
@@ -527,7 +531,7 @@ void ViewerWidget::UpdateRendererParameters()
 
   if (video_renderer_->params() != vparam) {
     video_renderer_->SetParameters(vparam);
-    video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
+    video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
   }
 
   AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
@@ -535,7 +539,7 @@ void ViewerWidget::UpdateRendererParameters()
 
   if (audio_renderer_->params() != aparam) {
     audio_renderer_->SetParameters(aparam);
-    audio_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
+    audio_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
   }
 }
 
@@ -869,9 +873,9 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
   sizer_->SetZoom(action->data().toInt());
 }
 
-void ViewerWidget::InvalidateVisible()
+void ViewerWidget::InvalidateVisible(NodeInput* source)
 {
-  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()));
+  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()), source);
 }
 
 OLIVE_NAMESPACE_EXIT

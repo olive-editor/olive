@@ -55,8 +55,8 @@ public:
   NodeInput* texture_input() const;
   NodeInput* samples_input() const;
 
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
-  virtual void InvalidateVisible(NodeInput *from) override;
+  virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
+  virtual void InvalidateVisible(NodeInput *from, NodeInput* source) override;
 
   const VideoParams& video_params() const;
   const AudioParams& audio_params() const;
@@ -79,21 +79,14 @@ public:
   const QString& media_name() const;
   void set_media_name(const QString& name);
 
-protected:
-  virtual void DependentEdgeChanged(NodeInput* from) override;
-
 signals:
   void TimebaseChanged(const rational&);
 
-  void VideoChangedBetween(const TimeRange& range);
+  void VideoChangedBetween(const TimeRange& range, NodeInput* source);
 
-  void AudioChangedBetween(const TimeRange& range);
+  void AudioChangedBetween(const TimeRange& range, NodeInput* source);
 
-  void VisibleInvalidated();
-
-  void VideoGraphChanged();
-
-  void AudioGraphChanged();
+  void VisibleInvalidated(NodeInput* source);
 
   void LengthChanged(const rational& length);
 

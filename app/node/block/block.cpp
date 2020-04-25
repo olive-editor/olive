@@ -40,7 +40,7 @@ Block::Block() :
   length_input_->SetConnectable(false);
   length_input_->set_is_keyframable(false);
   AddInput(length_input_);
-  connect(length_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(LengthInputChanged()));
+  connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
 
   media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
   media_in_input_->SetConnectable(false);
@@ -343,14 +343,14 @@ NodeInput *Block::speed_input() const
   return speed_input_;
 }
 
-void Block::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   // We ignore length changes since they don't have an effect on our frames
   if (from == length_input_) {
     return;
   }
 
-  Node::InvalidateCache(start_range, end_range, from);
+  Node::InvalidateCache(range, from, source);
 }
 
 OLIVE_NAMESPACE_EXIT

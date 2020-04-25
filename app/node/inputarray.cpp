@@ -33,7 +33,7 @@ NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QV
 {
 }
 
-bool NodeInputArray::IsArray()
+bool NodeInputArray::IsArray() const
 {
   return true;
 }
@@ -79,8 +79,8 @@ void NodeInputArray::SetSize(int size)
       sub_params_.replace(i, new_param);
 
       connect(new_param, &NodeInput::ValueChanged, this, &NodeInput::ValueChanged);
-      connect(new_param, &NodeInput::EdgeAdded, this, &NodeInput::EdgeAdded);
-      connect(new_param, &NodeInput::EdgeRemoved, this, &NodeInput::EdgeRemoved);
+      connect(new_param, &NodeInput::EdgeAdded, this, &NodeInputArray::SubParamEdgeAdded);
+      connect(new_param, &NodeInput::EdgeRemoved, this, &NodeInputArray::SubParamEdgeRemoved);
     }
   }
 

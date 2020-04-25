@@ -31,8 +31,8 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input, &NodeInputArray::EdgeAdded, this, &TrackList::TrackConnected);
-  connect(track_input, &NodeInputArray::EdgeRemoved, this, &TrackList::TrackDisconnected);
+  connect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
+  connect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
   connect(track_input, &NodeInputArray::SizeChanged, this, &TrackList::TrackListSizeChanged);
 }
 
@@ -120,8 +120,8 @@ TrackOutput* TrackList::AddTrack()
             Node* blend = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.alphaoverblend"));
             GetParentGraph()->AddNode(blend);
 
-            NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("blend_in")));
-            NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("base_in")));
+            NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetInputWithID("blend_in")));
+            NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetInputWithID("base_in")));
             NodeParam::ConnectEdge(blend->output(), edge->input());
             break;
           }

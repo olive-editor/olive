@@ -60,7 +60,7 @@ NodeInput::NodeInput(const QString &id, const NodeParam::DataType &type) :
   Init(type);
 }
 
-bool NodeInput::IsArray()
+bool NodeInput::IsArray() const
 {
   return false;
 }
@@ -273,7 +273,6 @@ void NodeInput::SaveConnections(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // connections
 }
 
-
 const NodeParam::DataType &NodeInput::data_type() const
 {
   return data_type_;
@@ -361,6 +360,45 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
   default:
     return string;
   }
+}
+
+void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
+{
+  if (IsConnected()
+      && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
+    Node* connected = get_connected_node();
+
+    if (!list.contains(connected)) {
+      list.append(connected);
+
+      if (traverse) {
+        QList<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
+
+        foreach (NodeInput* i, connected_inputs) {
+          i->GetDependencies(list, traverse, exclusive_only);
+        }
+      }
+    }
+  }
+}
+
+QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
+{
+  QList<Node *> list;
+
+  GetDependencies(list, traverse, exclusive_only);
+
+  return list;
+}
+
+QList<Node *> NodeInput::GetExclusiveDependencies() const
+{
+  return GetDependencies(true, true);
+}
+
+QList<Node *> NodeInput::GetImmediateDependencies() const
+{
+  return GetDependencies(false, false);
 }
 
 QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections)
@@ -757,7 +795,7 @@ void NodeInput::KeyframeBezierInChanged()
     start = keyframe_tracks_.at(key->track()).at(keyframe_index - 1)->time();
   }
 
-  emit ValueChanged(start, end);
+  emit ValueChanged(TimeRange(start, end));
 }
 
 void NodeInput::KeyframeBezierOutChanged()
@@ -772,7 +810,7 @@ void NodeInput::KeyframeBezierOutChanged()
     end = keyframe_tracks_.at(key->track()).at(keyframe_index + 1)->time();
   }
 
-  emit ValueChanged(start, end);
+  emit ValueChanged(TimeRange(start, end));
 }
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
@@ -855,7 +893,7 @@ TimeRange NodeInput::get_range_around_index(int index, int track) const
 
 void NodeInput::emit_time_range(const TimeRange &range)
 {
-  emit ValueChanged(range.in(), range.out());
+  emit ValueChanged(range);
 }
 
 void NodeInput::emit_range_affected_by_keyframe(NodeKeyframe *key)
@@ -915,7 +953,7 @@ void NodeInput::set_standard_value(const QVariant &value, int track)
 
   if (is_using_standard_value(track)) {
     // If this standard value is being used, we need to send a value changed signal
-    emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+    emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }
 }
 
@@ -964,7 +1002,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
     }
   }
 
-  emit dest->ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+  emit dest->ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
 }
 
 void NodeInput::set_property(const QString &key, const QVariant &value)

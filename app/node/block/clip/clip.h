@@ -44,7 +44,7 @@ public:
 
   NodeInput* texture_input() const;
 
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
+  virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
 
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
 

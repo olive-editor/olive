@@ -38,8 +38,8 @@ TrackOutput::TrackOutput() :
   block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
   block_input_->set_is_keyframable(false);
   AddInput(block_input_);
-  connect(block_input_, &NodeInputArray::EdgeAdded, this, &TrackOutput::BlockConnected);
-  connect(block_input_, &NodeInputArray::EdgeRemoved, this, &TrackOutput::BlockDisconnected);
+  connect(block_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackOutput::BlockConnected);
+  connect(block_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackOutput::BlockDisconnected);
   connect(block_input_, &NodeInputArray::SizeChanged, this, &TrackOutput::BlockListSizeChanged);
 
   muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
@@ -236,10 +236,10 @@ const QVector<Block *> &TrackOutput::Blocks() const
   return block_cache_;
 }
 
-void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+void TrackOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   if (block_invalidate_cache_stack_ == 0) {
-    Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, track_length()), from);
+    Node::InvalidateCache(TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length())), from, source);
   }
 }
 
@@ -276,7 +276,7 @@ void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 
   UnblockInvalidateCache();
 
-  InvalidateCache(block->in(), track_length());
+  InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::AppendBlock(Block *block)
@@ -291,7 +291,7 @@ void TrackOutput::AppendBlock(Block *block)
   UnblockInvalidateCache();
 
   // Invalidate area that block was added to
-  InvalidateCache(block->in(), track_length());
+  InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::BlockInvalidateCache()
@@ -316,7 +316,7 @@ void TrackOutput::RippleRemoveBlock(Block *block)
 
   UnblockInvalidateCache();
 
-  InvalidateCache(remove_in, track_length());
+  InvalidateCache(TimeRange(remove_in, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
@@ -334,9 +334,9 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   UnblockInvalidateCache();
 
   if (old->length() == replace->length()) {
-    InvalidateCache(replace->in(), replace->out());
+    InvalidateCache(TimeRange(replace->in(), replace->out()), block_input_, block_input_);
   } else {
-    InvalidateCache(replace->in(), RATIONAL_MAX);
+    InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX), block_input_, block_input_);
   }
 }
 
@@ -407,6 +407,11 @@ bool TrackOutput::IsLocked() const
   return locked_;
 }
 
+NodeInputArray *TrackOutput::block_input() const
+{
+  return block_input_;
+}
+
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;
@@ -415,7 +420,7 @@ void TrackOutput::SetTrackName(const QString &name)
 void TrackOutput::SetMuted(bool e)
 {
   muted_input_->set_standard_value(e);
-  InvalidateCache(0, track_length());
+  InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::SetLocked(bool e)
@@ -462,8 +467,9 @@ void TrackOutput::UpdateInOutFrom(int index)
     track_length_ = new_track_length;
     emit TrackLengthChanged();
 
-    InvalidateCache(qMin(old_track_length, new_track_length),
-                    qMax(old_track_length, new_track_length));
+    InvalidateCache(TimeRange(qMin(old_track_length, new_track_length), qMax(old_track_length, new_track_length)),
+                    block_input_,
+                    block_input_);
   }
 }
 

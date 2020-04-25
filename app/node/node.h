@@ -29,7 +29,6 @@
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "common/xmlutils.h"
-#include "node/dependency.h"
 #include "node/input.h"
 #include "node/inputarray.h"
 #include "node/output.h"
@@ -196,9 +195,14 @@ public:
   virtual void ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
   /**
-   * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
+   * @brief Returns the input with the specified ID (or nullptr if it doesn't exist)
    */
-  NodeParam* GetParameterWithID(const QString& id) const;
+  NodeInput* GetInputWithID(const QString& id) const;
+
+  /**
+   * @brief Returns the output with the specified ID (or nullptr if it doesn't exist)
+   */
+  NodeOutput* GetOutputWithID(const QString& id) const;
 
   /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
@@ -261,12 +265,12 @@ public:
    * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
    * call this function with transformed time and relay the signal that way.
    */
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
+  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source);
 
   /**
    * @brief Signal through node graph to only invalidate frames that are currently visible on a ViewerWidget
    */
-  virtual void InvalidateVisible(NodeInput *from);
+  virtual void InvalidateVisible(NodeInput *from, NodeInput* source);
 
   /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
@@ -287,11 +291,6 @@ public:
    * Nodes must be of the same types (i.e. have the same ID)
    */
   static void CopyInputs(Node* source, Node* destination, bool include_connections = true);
-
-  /**
-   * @brief For a list of copies nodes, this function will duplicate all the connections in the source list to the destination list
-   */
-  static void DuplicateConnectionsBetweenLists(const QList<Node*>& source, const QList<Node *> &destination);
 
   /**
    * @brief Return whether this Node can be deleted or not
@@ -358,9 +357,7 @@ protected:
 
   void ClearCachedValuesInParameters(const rational& start_range, const rational& end_range);
 
-  void SendInvalidateCache(const rational& start_range, const rational& end_range);
-
-  virtual void DependentEdgeChanged(NodeInput* from);
+  void SendInvalidateCache(const TimeRange &range, NodeInput *source);
 
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
 
@@ -403,9 +400,7 @@ private:
 
   void DisconnectInput(NodeInput* input);
 
-  static void TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse, bool exclusive_only);
-
-  static void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse, bool exclusive_only);
+  QList<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
   QList<NodeParam *> params_;
 
@@ -425,7 +420,7 @@ private:
   QPointF position_;
 
 private slots:
-  void InputChanged(rational start, rational end);
+  void InputChanged(const TimeRange &range);
 
   void InputConnectionChanged(NodeEdgePtr edge);
 

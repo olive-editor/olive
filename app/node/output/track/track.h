@@ -84,7 +84,7 @@ public:
 
   const QVector<Block*>& Blocks() const;
 
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
+  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput *source) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -149,6 +149,8 @@ public:
   bool IsMuted() const;
 
   bool IsLocked() const;
+
+  NodeInputArray* block_input() const;
 
 public slots:
   void SetTrackName(const QString& name);

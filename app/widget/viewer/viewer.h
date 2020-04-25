@@ -233,7 +233,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void InvalidateVisible();
+  void InvalidateVisible(NodeInput *source);
 
   void UpdateStack();
 

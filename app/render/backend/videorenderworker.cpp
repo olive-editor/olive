@@ -261,7 +261,10 @@ void VideoRenderWorker::SetFrameGenerationParams(int width, int height, const QM
 
 bool VideoRenderWorker::InitInternal()
 {
-  ResizeDownloadBuffer();
+  if (video_params_.is_valid()) {
+    ResizeDownloadBuffer();
+  }
+
   return true;
 }
 
