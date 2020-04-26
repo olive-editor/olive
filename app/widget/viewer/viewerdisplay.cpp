@@ -45,7 +45,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   managed_copy_pipeline_(nullptr),
   has_image_(false),
   signal_cursor_color_(false),
-  enable_display_referred_signal_(false)
+  enable_display_referred_signal_(false),
+  gizmos_(nullptr)
 {
 }
 
@@ -177,6 +178,13 @@ void ViewerDisplayWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin
   update();
 }
 
+void ViewerDisplayWidget::SetGizmos(Node *node)
+{
+  gizmos_ = node;
+
+  update();
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mousePressEvent(event);
@@ -297,6 +305,12 @@ void ViewerDisplayWidget::paintGL()
       managed_texture_.Release();
 
     }
+  }
+
+  // Draw gizmos if we have any
+  if (gizmos_) {
+    QPainter p(this);
+    gizmos_->DrawGizmos(&p, rect());
   }
 
   // Draw action/title safe areas

@@ -335,6 +335,11 @@ ColorManager *ViewerWidget::color_manager() const
   return main_gl_widget()->color_manager();
 }
 
+void ViewerWidget::SetGizmos(Node *node)
+{
+  main_gl_widget()->SetGizmos(node);
+}
+
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {

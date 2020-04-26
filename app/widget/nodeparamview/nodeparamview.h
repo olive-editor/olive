@@ -51,6 +51,8 @@ signals:
 
   void ClosedNode(Node* n);
 
+  void FoundGizmos(Node* n);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 

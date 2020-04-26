@@ -23,6 +23,7 @@
 
 #include <QCryptographicHash>
 #include <QObject>
+#include <QPainter>
 #include <QPointF>
 #include <QXmlStreamWriter>
 
@@ -351,6 +352,10 @@ public:
   QList<NodeInput*> GetInputsIncludingArrays() const;
 
   QList<NodeOutput*> GetOutputs() const;
+
+  virtual bool HasGizmos() const;
+
+  virtual void DrawGizmos(QPainter* p, const QRect &viewport) const;
 
 protected:
   void AddInput(NodeInput* input);

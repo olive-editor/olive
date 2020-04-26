@@ -23,6 +23,7 @@
 
 #include <QOpenGLWidget>
 
+#include "node/node.h"
 #include "render/backend/opengl/openglcolorprocessor.h"
 #include "render/backend/opengl/openglframebuffer.h"
 #include "render/backend/opengl/openglshader.h"
@@ -75,6 +76,8 @@ public:
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
+
+  void SetGizmos(Node* node);
 
 public slots:
   /**
@@ -211,6 +214,8 @@ private:
   ViewerSafeMarginInfo safe_margin_;
 
   bool enable_display_referred_signal_;
+
+  Node* gizmos_;
 
 private slots:
   /**

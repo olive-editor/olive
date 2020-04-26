@@ -33,6 +33,7 @@ ParamPanel::ParamPanel(QWidget* parent) :
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::OpenedNode, this, &ParamPanel::OpeningNode);
   connect(view, &NodeParamView::ClosedNode, this, &ParamPanel::ClosingNode);
+  connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
   SetTimeBasedWidget(view);
 
   Retranslate();

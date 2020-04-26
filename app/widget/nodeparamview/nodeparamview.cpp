@@ -127,7 +127,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   // If we already have item widgets, delete them all now
   foreach (NodeParamViewItem* item, items_) {
     emit ClosedNode(item->GetNode());
-
+    emit FoundGizmos(nullptr);
     delete item;
   }
   items_.clear();
@@ -142,6 +142,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   if (!nodes_.isEmpty()) {
     // For each node, create a widget
+    bool found_gizmos = false;
+
     foreach (Node* node, nodes_) {
       NodeParamViewItem* item = new NodeParamViewItem(node);
 
@@ -156,9 +158,14 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       items_.append(item);
 
-      QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
+      QMetaObject::invokeMethod(item, "SignalAllKeyframes", Qt::QueuedConnection);
 
       emit OpenedNode(node);
+
+      if (!found_gizmos && node->HasGizmos()) {
+        emit FoundGizmos(node);
+        found_gizmos = true;
+      }
     }
 
     ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();

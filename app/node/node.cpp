@@ -268,6 +268,15 @@ QList<NodeOutput *> Node::GetOutputs() const
   return {output_};
 }
 
+bool Node::HasGizmos() const
+{
+  return false;
+}
+
+void Node::DrawGizmos(QPainter *, const QRect &) const
+{
+}
+
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());

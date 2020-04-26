@@ -110,6 +110,17 @@ NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
   return output;
 }
 
+bool MatrixGenerator::HasGizmos() const
+{
+  return true;
+}
+
+void MatrixGenerator::DrawGizmos(QPainter *p, const QRect& viewport) const
+{
+  p->setPen(Qt::white);
+  p->drawEllipse(viewport);
+}
+
 void MatrixGenerator::UniformScaleChanged()
 {
   scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());

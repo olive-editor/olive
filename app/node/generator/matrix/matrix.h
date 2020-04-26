@@ -42,6 +42,9 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
+  virtual bool HasGizmos() const override;
+  virtual void DrawGizmos(QPainter *p, const QRect &viewport) const override;
+
 private:
   NodeInput* position_input_;
 
