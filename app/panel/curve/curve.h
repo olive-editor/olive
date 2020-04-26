@@ -32,6 +32,8 @@ class CurvePanel : public TimeBasedPanel
 public:
   CurvePanel(QWidget* parent);
 
+  NodeInput* GetInput() const;
+
 public slots:
   void SetInput(NodeInput* input);
 

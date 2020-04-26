@@ -46,7 +46,6 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
 
   title_bar_collapse_btn_ = new CollapseButton();
-  connect(title_bar_collapse_btn_, &QPushButton::toggled, this, &NodeParamViewItemBody::setVisible);
   title_bar_layout->addWidget(title_bar_collapse_btn_);
 
   title_bar_lbl_ = new QLabel(title_bar_);
@@ -66,11 +65,12 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   }
 
   body_ = new NodeParamViewItemBody(inputs);
-  connect(body_, &NodeParamViewItemBody::InputClicked, this, &NodeParamViewItem::InputClicked);
+  connect(body_, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItem::InputDoubleClicked);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
+  connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
   main_layout->addWidget(body_);
 
   Retranslate();
@@ -86,6 +86,11 @@ void NodeParamViewItem::SetTime(const rational &time)
   time_ = time;
 
   body_->SetTime(time_);
+}
+
+Node *NodeParamViewItem::GetNode() const
+{
+  return node_;
 }
 
 void NodeParamViewItem::SignalAllKeyframes()
@@ -142,7 +147,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
 
     // Add descriptor label
     ui_objects.main_label = new ClickableLabel();
-    connect(ui_objects.main_label, &ClickableLabel::MouseClicked, this, &NodeParamViewItemBody::LabelClicked);
+    connect(ui_objects.main_label, &ClickableLabel::MouseDoubleClicked, this, &NodeParamViewItemBody::LabelDoubleClicked);
 
     if (input->IsArray()) {
       QHBoxLayout* array_label_layout = new QHBoxLayout();
@@ -164,7 +169,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
       connect(sub_body, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItemBody::KeyframeAdded);
       connect(sub_body, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
       connect(sub_body, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
-      connect(sub_body, &NodeParamViewItemBody::InputClicked, this, &NodeParamViewItemBody::InputClicked);
+      connect(sub_body, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItemBody::InputDoubleClicked);
       connect(sub_body, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     } else {
       content_layout->addWidget(ui_objects.main_label, row_count, 0);
@@ -330,12 +335,13 @@ void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframePtr key)
   InputAddedKeyframeInternal(input, key);
 }
 
-void NodeParamViewItemBody::LabelClicked()
+void NodeParamViewItemBody::LabelDoubleClicked()
 {
   QMap<NodeInput*, InputUI>::const_iterator iterator;
+
   for (iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
-    if (iterator.value().connected_label == sender()) {
-      emit InputClicked(iterator.key());
+    if (iterator.value().main_label == sender()) {
+      emit InputDoubleClicked(iterator.key());
       return;
     }
   }

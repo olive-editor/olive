@@ -108,6 +108,11 @@ CurveWidget::~CurveWidget()
   view_->Clear();
 }
 
+NodeInput *CurveWidget::GetInput() const
+{
+  return input_;
+}
+
 void CurveWidget::SetInput(NodeInput *input)
 {
   if (bridge_) {

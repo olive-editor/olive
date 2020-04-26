@@ -98,9 +98,6 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 
   p->SetType(type);
 
-  // We treat our scope panels as kind of children, and destroy them if we're ever destroyed
-  connect(this, &ViewerPanelBase::destroyed, p, &ScopePanel::deleteLater);
-
   // If the scope closes, reduce the count (we do this because if no scopes are open, we can optimize the viewer slightly)
   connect(p, &ScopePanel::CloseRequested, this, &ViewerPanelBase::ScopePanelClosed);
 

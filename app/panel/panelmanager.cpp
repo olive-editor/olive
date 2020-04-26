@@ -144,7 +144,10 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
 void PanelManager::SetPanelsLocked(bool locked)
 {
   foreach (PanelWidget* panel, focus_history_) {
-    panel->SetMovementLocked(locked);
+    // Only affect panels actually in our layout
+    if (!panel->isFloating()) {
+      panel->SetMovementLocked(locked);
+    }
   }
 
   locked_ = locked;

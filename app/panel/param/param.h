@@ -21,6 +21,7 @@
 #ifndef PARAM_H
 #define PARAM_H
 
+#include "panel/curve/curve.h"
 #include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
 
@@ -35,15 +36,27 @@ public:
 public slots:
   void SetNodes(QList<Node*> nodes);
 
-signals:
-  void SelectedInputChanged(NodeInput* input);
+  virtual void SetTimestamp(const int64_t& timestamp) override;
 
+signals:
   void TimeTargetChanged(Node* node);
 
   void RequestSelectNode(const QList<Node*>& target);
 
 protected:
   virtual void Retranslate() override;
+
+private slots:
+  void CreateCurvePanel(NodeInput* input);
+
+  void OpeningNode(Node* n);
+
+  void ClosingNode(Node* n);
+
+  void ClosingCurvePanel();
+
+private:
+  QHash<NodeInput*, CurvePanel*> open_curve_panels_;
 
 };
 

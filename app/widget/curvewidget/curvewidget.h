@@ -41,6 +41,7 @@ public:
 
   virtual ~CurveWidget() override;
 
+  NodeInput* GetInput() const;
   void SetInput(NodeInput* input);
 
   const double& GetVerticalScale();

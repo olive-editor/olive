@@ -68,7 +68,7 @@ void TimeBasedPanel::SetTimebase(const rational &timebase)
   widget_->SetTimebase(timebase);
 }
 
-void TimeBasedPanel::SetTime(const int64_t &timestamp)
+void TimeBasedPanel::SetTimestamp(const int64_t &timestamp)
 {
   widget_->SetTimestamp(timestamp);
 }
