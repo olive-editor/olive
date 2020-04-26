@@ -185,6 +185,11 @@ signals:
    */
   void MutedChanged(bool e);
 
+  /**
+   * @brief Signal emitted when the index has changed
+   */
+  void IndexChanged(int i);
+
 protected:
 
 private:

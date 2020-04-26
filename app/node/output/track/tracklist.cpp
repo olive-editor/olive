@@ -33,7 +33,6 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
 {
   connect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
   connect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
-  connect(track_input, &NodeInputArray::SizeChanged, this, &TrackList::TrackListSizeChanged);
 }
 
 const Timeline::TrackType &TrackList::type() const
@@ -51,38 +50,22 @@ void TrackList::TrackRemovedBlock(Block *block)
   emit BlockRemoved(block);
 }
 
-void TrackList::TrackListSizeChanged(int size)
-{
-  int old_size = track_cache_.size();
-
-  track_cache_.resize(size);
-
-  // Fill new slots with nullptr
-  for (int i=old_size;i<size;i++) {
-    track_cache_.replace(i, nullptr);
-  }
-}
-
-const QVector<TrackOutput *> &TrackList::Tracks() const
+const QVector<TrackOutput *> &TrackList::GetTracks() const
 {
   return track_cache_;
 }
 
-TrackOutput *TrackList::TrackAt(int index) const
+TrackOutput *TrackList::GetTrackAt(int index) const
 {
-  if (index < 0 || index >= track_cache_.size()) {
-    return nullptr;
-  }
-
   return track_cache_.at(index);
 }
 
-const rational &TrackList::TrackLength() const
+const rational &TrackList::GetTotalLength() const
 {
   return total_length_;
 }
 
-int TrackList::TrackCount() const
+int TrackList::GetTrackCount() const
 {
   return track_cache_.size();
 }
@@ -98,7 +81,7 @@ TrackOutput* TrackList::AddTrack()
   NodeParam::ConnectEdge(track->output(),
                          track_input_->At(track_input_->GetSize() - 1));
 
-  // FIXME: Test code only
+  // Auto-merge with previous track
   if (track_input_->GetSize() > 1) {
     TrackOutput* last_track = nullptr;
 
@@ -142,7 +125,6 @@ TrackOutput* TrackList::AddTrack()
       }
     }
   }
-  // End test code
 
   return track;
 }
@@ -173,14 +155,38 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
   if (connected_node->IsTrack()) {
     TrackOutput* connected_track = static_cast<TrackOutput*>(connected_node);
 
-    track_cache_.replace(track_index, connected_track);
+    {
+      // Find "real" index
+      TrackOutput* next = nullptr;
+      for (int i=track_index+1; i<track_input_->GetSize(); i++) {
+        Node* that_track = track_input_->At(i)->get_connected_node();
+
+        if (that_track->IsTrack()) {
+          next = static_cast<TrackOutput*>(that_track);
+          break;
+        }
+      }
+
+      int track_index;
+
+      if (next) {
+        // Insert track before "next"
+        track_index = track_cache_.indexOf(next);
+        track_cache_.insert(track_index, connected_track);
+      } else {
+        // No "next", this track must come at the end
+        track_index = track_cache_.size();
+        track_cache_.append(connected_track);
+      }
+
+      connected_track->SetIndex(track_index);
+    }
 
     connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
     connect(connected_track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
     connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
     connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
 
-    connected_track->SetIndex(track_index);
     connected_track->set_track_type(type_);
 
     emit TrackListChanged();
@@ -201,10 +207,17 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
   Q_ASSERT(track_index >= 0);
 
   Node* connected_node = edge->output()->parentNode();
-  TrackOutput* track = connected_node->IsTrack() ? static_cast<TrackOutput*>(connected_node) : nullptr;
 
-  if (track) {
-    track_cache_.replace(track_index, nullptr);
+  if (connected_node->IsTrack()) {
+    TrackOutput* track = static_cast<TrackOutput*>(connected_node);
+
+    int index_of_track = track_cache_.indexOf(track);
+    track_cache_.removeAt(index_of_track);
+
+    // Update indices for all subsequent tracks
+    for (int i=index_of_track; i<track_cache_.size(); i++) {
+      track_cache_.at(i)->SetIndex(i);
+    }
 
     // Traverse through Tracks uncaching and disconnecting them
     emit TrackRemoved(track);

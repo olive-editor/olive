@@ -167,10 +167,8 @@ void ViewerOutput::UpdateTrackCache()
   track_cache_.clear();
 
   foreach (TrackList* list, track_lists_) {
-    foreach (TrackOutput* track, list->Tracks()) {
-      if (track) {
-        track_cache_.append(track);
-      }
+    foreach (TrackOutput* track, list->GetTracks()) {
+      track_cache_.append(track);
     }
   }
 }
@@ -193,7 +191,7 @@ void ViewerOutput::UpdateLength(const rational &length)
   rational new_length = 0;
 
   foreach (TrackList* list, track_lists_) {
-    new_length = qMax(new_length, list->TrackLength());
+    new_length = qMax(new_length, list->GetTotalLength());
   }
 
   if (new_length != timeline_length_) {

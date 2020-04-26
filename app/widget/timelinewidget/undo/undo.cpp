@@ -347,13 +347,13 @@ void TrackPlaceBlockCommand::redo_internal()
   added_track_count_ = 0;
 
   // Get track (or make it if necessary)
-  while (track_index_ >= timeline_->Tracks().size()) {
+  while (track_index_ >= timeline_->GetTracks().size()) {
     timeline_->AddTrack();
 
     added_track_count_++;
   }
 
-  track_ = timeline_->TrackAt(track_index_);
+  track_ = timeline_->GetTrackAt(track_index_);
 
   append_ = (in_ >= track_->track_length());
 
@@ -610,7 +610,7 @@ void TrackCleanGapsCommand::redo_internal()
   GapBlock* on_gap = nullptr;
   QList<GapBlock*> consecutive_gaps;
 
-  TrackOutput* track = track_list_->TrackAt(track_index_);
+  TrackOutput* track = track_list_->GetTrackAt(track_index_);
 
   foreach (Block* b, track->Blocks()) {
     if (b) {
@@ -657,7 +657,7 @@ void TrackCleanGapsCommand::redo_internal()
 
 void TrackCleanGapsCommand::undo_internal()
 {
-  TrackOutput* track = track_list_->TrackAt(track_index_);
+  TrackOutput* track = track_list_->GetTrackAt(track_index_);
 
   // Restored removed end gaps
   foreach (GapBlock* gap, removed_end_gaps_) {

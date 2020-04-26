@@ -128,6 +128,8 @@ const int &TrackOutput::Index()
 void TrackOutput::SetIndex(const int &index)
 {
   index_ = index;
+
+  emit IndexChanged(index);
 }
 
 Block *TrackOutput::BlockContainingTime(const rational &time) const
