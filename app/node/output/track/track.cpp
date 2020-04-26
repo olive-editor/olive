@@ -40,7 +40,6 @@ TrackOutput::TrackOutput() :
   AddInput(block_input_);
   connect(block_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackOutput::BlockConnected);
   connect(block_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackOutput::BlockDisconnected);
-  connect(block_input_, &NodeInputArray::SizeChanged, this, &TrackOutput::BlockListSizeChanged);
 
   muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
   muted_input_->set_is_keyframable(false);
@@ -233,7 +232,7 @@ QList<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
-const QVector<Block *> &TrackOutput::Blocks() const
+const QList<Block *> &TrackOutput::Blocks() const
 {
   return block_cache_;
 }
@@ -265,16 +264,25 @@ void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 
 void TrackOutput::PrependBlock(Block *block)
 {
-  InsertBlockAtIndex(block, 0);
+  BlockInvalidateCache();
+
+  block_input_->Prepend();
+  NodeParam::ConnectEdge(block->output(), block_input_->First());
+
+  UnblockInvalidateCache();
+
+  // Everything has shifted at this point
+  InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 {
   BlockInvalidateCache();
 
-  block_input_->InsertAt(index);
+  int insert_index = GetInputIndexFromCacheIndex(index);
+  block_input_->InsertAt(insert_index);
   NodeParam::ConnectEdge(block->output(),
-                         block_input_->At(index));
+                         block_input_->At(insert_index));
 
   UnblockInvalidateCache();
 
@@ -285,10 +293,8 @@ void TrackOutput::AppendBlock(Block *block)
 {
   BlockInvalidateCache();
 
-  int last_index = block_input_->GetSize();
   block_input_->Append();
-  NodeParam::ConnectEdge(block->output(),
-                         block_input_->At(last_index));
+  NodeParam::ConnectEdge(block->output(), block_input_->Last());
 
   UnblockInvalidateCache();
 
@@ -312,9 +318,7 @@ void TrackOutput::RippleRemoveBlock(Block *block)
 
   rational remove_in = block->in();
 
-  int index_of_block_to_remove = block_cache_.indexOf(block);
-
-  block_input_->RemoveAt(index_of_block_to_remove);
+  block_input_->RemoveAt(GetInputIndexFromCacheIndex(block));
 
   UnblockInvalidateCache();
 
@@ -325,7 +329,7 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 {
   BlockInvalidateCache();
 
-  int index_of_old_block = block_cache_.indexOf(old);
+  int index_of_old_block = GetInputIndexFromCacheIndex(old);
 
   NodeParam::DisconnectEdge(old->output(),
                             block_input_->At(index_of_old_block));
@@ -432,108 +436,107 @@ void TrackOutput::SetLocked(bool e)
 
 void TrackOutput::UpdateInOutFrom(int index)
 {
-  Q_ASSERT(index >= 0);
-  Q_ASSERT(index < block_cache_.size());
-
-  rational new_track_length;
-
   // Find block just before this one to find the last out point
-  for (int i=index-1;i>=0;i--) {
+  rational last_out = (index == 0) ? 0 : block_cache_.at(index - 1)->out();
+
+  // Iterate through all blocks updating their in/outs
+  for (int i=index; i<block_cache_.size(); i++) {
     Block* b = block_cache_.at(i);
 
-    if (b) {
-      new_track_length = b->out();
-      break;
-    }
-  }
+    b->set_in(last_out);
 
-  for (int i=index;i<block_cache_.size();i++) {
-    Block* b = block_cache_.at(i);
+    last_out += b->length();
 
-    if (b) {
-      // Set in
-      b->set_in(new_track_length);
+    b->set_out(last_out);
 
-      // Set out
-      new_track_length += b->length();
-      b->set_out(new_track_length);
-
-      emit b->Refreshed();
-    }
+    emit b->Refreshed();
   }
 
   // Update track length
-  if (new_track_length != track_length_) {
+  if (last_out != track_length_) {
     rational old_track_length = track_length_;
 
-    track_length_ = new_track_length;
+    track_length_ = last_out;
     emit TrackLengthChanged();
 
-    InvalidateCache(TimeRange(qMin(old_track_length, new_track_length), qMax(old_track_length, new_track_length)),
+    InvalidateCache(TimeRange(qMin(old_track_length, last_out), qMax(old_track_length, last_out)),
                     block_input_,
                     block_input_);
   }
 }
 
-void TrackOutput::UpdatePreviousAndNextOfIndex(int index)
+int TrackOutput::GetInputIndexFromCacheIndex(int cache_index)
 {
-  Block* ref = block_cache_.at(index);
+  return GetInputIndexFromCacheIndex(block_cache_.at(cache_index));
+}
 
-  Block* previous = nullptr;
-  Block* next = nullptr;
-
-  // Find previous
-  for (int i=index-1;i>=0;i--) {
-    previous = block_cache_.at(i);
-
-    if (previous) {
-      break;
+int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
+{
+  for (int i=0; i<block_input_->GetSize(); i++) {
+    if (block_input_->At(i)->get_connected_node() == block) {
+      return i;
     }
   }
 
-  // Find next
-  for (int i=index+1;i<block_cache_.size();i++) {
-    next = block_cache_.at(i);
-
-    if (next) {
-      break;
-    }
-  }
-
-  if (ref) {
-    // Link blocks together
-    ref->set_previous(previous);
-    ref->set_next(next);
-
-    if (previous)
-      previous->set_next(ref);
-
-    if (next)
-      next->set_previous(ref);
-  } else {
-    // Link previous and next together
-    if (previous)
-      previous->set_next(next);
-
-    if (next)
-      next->set_previous(previous);
-  }
+  return -1;
 }
 
 void TrackOutput::BlockConnected(NodeEdgePtr edge)
 {
-  int block_index = block_input_->IndexOfSubParameter(edge->input());
-
-  Q_ASSERT(block_index >= 0);
-
+  // Determine what node was just connected
   Node* connected_node = edge->output()->parentNode();
-  Block* connected_block = connected_node->IsBlock() ? static_cast<Block*>(connected_node) : nullptr;
-  block_cache_.replace(block_index, connected_block);
-  UpdatePreviousAndNextOfIndex(block_index);
-  UpdateInOutFrom(block_index);
 
-  if (connected_block) {
-    connect(connected_block, SIGNAL(LengthChanged(const rational&)), this, SLOT(BlockLengthChanged()));
+  // If this node is a block, we can do something with it
+  if (connected_node->IsBlock()) {
+    Block* connected_block = static_cast<Block*>(connected_node);
+
+    // See where this input falls in our internal "block cache"
+    Block* next = nullptr;
+    for (int i=block_input_->IndexOfSubParameter(edge->input())+1; i<block_input_->GetSize(); i++) {
+      Node* that_node = block_input_->At(i)->get_connected_node();
+
+      // If we find a block, this is the block that will follow the one just connected
+      if (that_node && that_node->IsBlock()) {
+        next = static_cast<Block*>(that_node);
+        break;
+      }
+    }
+
+    int real_block_index;
+
+    // Either insert or append depending on if we found a "next" block
+    if (next) {
+      // Insert block before this next block
+      real_block_index = block_cache_.indexOf(next);
+      block_cache_.insert(real_block_index, connected_block);
+
+      // Update values with next
+      next->set_previous(connected_block);
+      connected_block->set_next(next);
+    } else {
+      // No "next", this block must come at the end
+      real_block_index = block_cache_.size();
+      block_cache_.append(connected_block);
+
+      // Update next value
+      connected_block->set_next(nullptr);
+    }
+
+    // For all blocks after the block we inserted (including it), update the "previous" and "next"
+    // fields as well as the in/out values
+    if (real_block_index == 0) {
+      connected_block->set_previous(nullptr);
+    } else {
+      Block* prev = block_cache_.at(real_block_index - 1);
+
+      connected_block->set_previous(prev);
+      prev->set_next(connected_block);
+    }
+
+    UpdateInOutFrom(real_block_index);
+
+    // Make connections to this block
+    connect(connected_block, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
 
     emit BlockAdded(connected_block);
   }
@@ -541,33 +544,34 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 {
-  int block_index = block_input_->IndexOfSubParameter(edge->input());
-
-  Q_ASSERT(block_index >= 0);
-
-  block_cache_.replace(block_index, nullptr);
-  UpdatePreviousAndNextOfIndex(block_index);
-  UpdateInOutFrom(block_index);
-
+  // See what kind of node was just connected
   Node* connected_node = edge->output()->parentNode();
-  Block* connected_block = connected_node->IsBlock() ? static_cast<Block*>(connected_node) : nullptr;
-  if (connected_block) {
-    disconnect(connected_block, SIGNAL(LengthChanged(const rational&)), this, SLOT(BlockLengthChanged()));
 
-    // Update previous and next references
+  // If this was a block, we would have put it in our block cache in BlockConnected()
+  if (connected_node->IsBlock()) {
+    Block* connected_block = static_cast<Block*>(connected_node);
+
+    // Determine what index this block was in our cache and remove it
+    int index_of_block = block_cache_.indexOf(connected_block);
+    block_cache_.removeAt(index_of_block);
+
+    // If there were blocks following this one, update their ins/outs
+    if (index_of_block < block_cache_.size()) {
+      UpdateInOutFrom(index_of_block);
+    }
+
+    // Join the previous and next blocks together
+    if (connected_block->previous()) {
+      connected_block->previous()->set_next(connected_block->next());
+    }
+
+    if (connected_block->next()) {
+      connected_block->next()->set_previous(connected_block->previous());
+    }
+
+    disconnect(connected_block, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
+
     emit BlockRemoved(connected_block);
-  }
-}
-
-void TrackOutput::BlockListSizeChanged(int size)
-{
-  int old_size = block_cache_.size();
-
-  block_cache_.resize(size);
-
-  // Fill new slots with nullptr
-  for (int i=old_size;i<size;i++) {
-    block_cache_.replace(i, nullptr);
   }
 }
 
@@ -576,11 +580,7 @@ void TrackOutput::BlockLengthChanged()
   // Assumes sender is a Block
   Block* b = static_cast<Block*>(sender());
 
-  int index = block_cache_.indexOf(b);
-
-  Q_ASSERT(index >= 0);
-
-  UpdateInOutFrom(index);
+  UpdateInOutFrom(block_cache_.indexOf(b));
 }
 
 void TrackOutput::MutedInputValueChanged()

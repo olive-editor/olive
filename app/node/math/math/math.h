@@ -42,6 +42,7 @@ public:
   virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
   virtual QString ShaderID(const NodeValueDatabase&) const override;
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
+  virtual QString ShaderVertexCode(const NodeValueDatabase&input) const override;
 
   virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const override;
 
@@ -53,7 +54,6 @@ public:
   NodeInput* param_a_in() const;
   NodeInput* param_b_in() const;
 
-private:
   enum Operation {
     kOpAdd,
     kOpSubtract,
@@ -63,7 +63,9 @@ private:
   };
 
   Operation GetOperation() const;
+  void SetOperation(Operation o);
 
+private:
   enum Pairing {
     kPairNone = -1,
 
@@ -96,21 +98,13 @@ private:
     const NodeValue& GetMostLikelyValueB() const;
 
   private:
-    static Pairing GetMostLikelyPairingInternal(const QVector<int> &a, const QVector<int> &b, const int &weight_a, const int &weight_b);
-
     static QVector<int> GetPairLikelihood(const NodeValueTable& table);
-
-    const NodeValue &GetMostLikelyValue(const NodeValueTable& table, const QVector<int>& likelihood) const;
 
     Pairing most_likely_pairing_;
 
-    const NodeValueTable& table_a_;
+    NodeValue most_likely_value_a_;
 
-    const NodeValueTable& table_b_;
-
-    QVector<int> pair_likelihood_a_;
-
-    QVector<int> pair_likelihood_b_;
+    NodeValue most_likely_value_b_;
 
   };
 

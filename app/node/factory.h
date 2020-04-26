@@ -36,7 +36,7 @@ public:
     kClipBlock,
     kGapBlock,
     kAudioInput,
-    kTransformDistort,
+    kMatrixGenerator,
     kVideoInput,
     kTrackOutput,
     kAudioVolume,

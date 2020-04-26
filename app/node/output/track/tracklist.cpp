@@ -161,7 +161,7 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
       for (int i=track_index+1; i<track_input_->GetSize(); i++) {
         Node* that_track = track_input_->At(i)->get_connected_node();
 
-        if (that_track->IsTrack()) {
+        if (that_track && that_track->IsTrack()) {
           next = static_cast<TrackOutput*>(that_track);
           break;
         }

@@ -25,7 +25,7 @@
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
 #include "block/transition/externaltransition.h"
-#include "distort/transform/transform.h"
+#include "generator/matrix/matrix.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "input/time/timeinput.h"
@@ -141,8 +141,8 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new ClipBlock();
   case kGapBlock:
     return new GapBlock();
-  case kTransformDistort:
-    return new TransformDistort();
+  case kMatrixGenerator:
+    return new MatrixGenerator();
   case kVideoInput:
     return new VideoInput();
   case kAudioInput:

@@ -82,7 +82,7 @@ public:
   Block* BlockAtTime(const rational& time) const;
   QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
-  const QVector<Block*>& Blocks() const;
+  const QList<Block *> &Blocks() const;
 
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput *source) override;
 
@@ -195,9 +195,10 @@ protected:
 private:
   void UpdateInOutFrom(int index);
 
-  void UpdatePreviousAndNextOfIndex(int index);
+  int GetInputIndexFromCacheIndex(int cache_index);
+  int GetInputIndexFromCacheIndex(Block* block);
 
-  QVector<Block*> block_cache_;
+  QList<Block*> block_cache_;
 
   NodeInputArray* block_input_;
 
@@ -221,8 +222,6 @@ private slots:
   void BlockConnected(NodeEdgePtr edge);
 
   void BlockDisconnected(NodeEdgePtr edge);
-
-  void BlockListSizeChanged(int size);
 
   void BlockLengthChanged();
 

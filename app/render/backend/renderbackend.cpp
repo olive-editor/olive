@@ -421,7 +421,7 @@ Node* RenderBackend::CopyNodeConnections(Node* src_node)
 
 void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
 {
-  qDebug() << "Copying input" << src_input->id() << "from" << src_input->parentNode()->id();
+  //qDebug() << "Copying input" << src_input->id() << "from" << src_input->parentNode()->id();
 
   if (src_input->IsConnected()) {
     Node* dst_node = CopyNodeConnections(src_input->get_connected_node());

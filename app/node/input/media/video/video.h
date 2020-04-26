@@ -31,26 +31,13 @@ OLIVE_NAMESPACE_ENTER
 class VideoInput : public MediaInput
 {
 public:
-  VideoInput();
+  VideoInput() = default;
 
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QString Description() const override;
-
-  NodeInput* matrix_input() const;
-
-  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual QString ShaderVertexCode(const NodeValueDatabase&) const override;
-  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
-
-  virtual void Retranslate() override;
-
-protected:
-
-private:
-  NodeInput* matrix_input_;
 
 };
 

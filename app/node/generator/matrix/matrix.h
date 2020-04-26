@@ -18,18 +18,18 @@
 
 ***/
 
-#ifndef TRANSFORMDISTORT_H
-#define TRANSFORMDISTORT_H
+#ifndef MATRIXGENERATOR_H
+#define MATRIXGENERATOR_H
 
 #include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class TransformDistort : public Node
+class MatrixGenerator : public Node
 {
   Q_OBJECT
 public:
-  TransformDistort();
+  MatrixGenerator();
 
   virtual Node* copy() const override;
 

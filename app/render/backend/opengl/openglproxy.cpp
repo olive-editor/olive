@@ -212,8 +212,8 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
   if (!shader) {
     // Since we have shader code, compile it now
 
-    QString frag_code = node->ShaderFragmentCode(input_params);
     QString vert_code = node->ShaderVertexCode(input_params);
+    QString frag_code = node->ShaderFragmentCode(input_params);
 
     if (frag_code.isEmpty()) {
       frag_code = OpenGLShader::CodeDefaultFragment();
@@ -258,7 +258,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // Get value from database at this input
-        NodeValue meta_value = node->InputValueFromTable(input, input_params, true);
+        NodeValue meta_value = node->InputValueFromTable(input, input_params, false);
         const QVariant& value = meta_value.data();
 
         NodeParam::DataType data_type;

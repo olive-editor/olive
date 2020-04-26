@@ -67,7 +67,7 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
   }
 
   // Push buffer to the top of the stack
-  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kSamples);
+  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kBuffer);
   if (buffer.type() != NodeParam::kNone) {
     table.Push(buffer);
   }
