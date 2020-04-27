@@ -423,7 +423,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
       cached_drop_item_->SetHighlightedIndex(highlight_their_index);
     }
 
-    dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
+    dragging_edge_->SetConnected(drag_dest_param_);
 
     dragging_edge_->SetPoints(dragging_edge_start_, end_point);
 
