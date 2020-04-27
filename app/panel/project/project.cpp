@@ -49,12 +49,16 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   layout->addWidget(toolbar);
 
   // Make toolbar connections
-  connect(toolbar, SIGNAL(NewClicked()), this, SLOT(ShowNewMenu()));
+  connect(toolbar, &ProjectToolbar::NewClicked, this, &ProjectPanel::ShowNewMenu);
+  connect(toolbar, &ProjectToolbar::OpenClicked, Core::instance(), &Core::OpenProject);
+  connect(toolbar, &ProjectToolbar::SaveClicked, Core::instance(), &Core::SaveActiveProject);
+  connect(toolbar, &ProjectToolbar::UndoClicked, Core::instance()->undo_stack(), &QUndoStack::undo);
+  connect(toolbar, &ProjectToolbar::RedoClicked, Core::instance()->undo_stack(), &QUndoStack::redo);
 
   // Set up main explorer object
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
-  connect(explorer_, SIGNAL(DoubleClickedItem(Item*)), this, SLOT(ItemDoubleClickSlot(Item*)));
+  connect(explorer_, &ProjectExplorer::DoubleClickedItem, this, &ProjectPanel::ItemDoubleClickSlot);
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());
