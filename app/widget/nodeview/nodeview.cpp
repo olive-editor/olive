@@ -45,7 +45,7 @@ NodeView::NodeView(QWidget *parent) :
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 
-  SetFlowDirection(NodeViewCommon::kLeftToRight);
+  SetFlowDirection(NodeViewCommon::kTopToBottom);
 }
 
 NodeView::~NodeView()
@@ -226,7 +226,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
       new NodeEdgeRemoveCommand(old_edge, command);
 
       // Place new edges
-      new NodeEdgeAddCommand(old_edge->output(), drop_compatible_input_, command);
+      new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
       new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
 
       Core::instance()->undo_stack()->push(command);
@@ -255,31 +255,32 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
     NodeViewEdge* new_drop_edge = nullptr;
 
+    // See if there is an edge here
     foreach (QGraphicsItem* item, items) {
-      NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(item);
+      new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
 
-      if (edge) {
-        // Try to place this node inside this edge
+      if (new_drop_edge) {
+        drop_input_ = nullptr;
 
-        // See if the node we're dropping has an input of a compatible data type
-        NodeInput* edges_input = edge->edge()->input();
-        NodeParam::DataType input_type = edges_input->data_type();
+        foreach (NodeParam* param, attached_item_->GetNode()->parameters()) {
+          if (param->type() == NodeParam::kInput) {
+            NodeInput* input = static_cast<NodeInput*>(param);
 
-        NodeInput* compatible_input = nullptr;
-
-        foreach (NodeParam* drop_node_param, attached_item_->GetNode()->parameters()) {
-          if (drop_node_param->type() == NodeParam::kInput
-              && static_cast<NodeInput*>(drop_node_param)->data_type() & input_type) {
-            compatible_input = static_cast<NodeInput*>(drop_node_param);
-            break;
+            if (input->IsConnectable()) {
+              if (input->data_type() & new_drop_edge->edge()->input()->data_type()) {
+                drop_input_ = input;
+                break;
+              } else if (!drop_input_) {
+                drop_input_ = input;
+              }
+            }
           }
         }
 
-        if (compatible_input) {
-          new_drop_edge = edge;
-          drop_compatible_input_ = compatible_input;
-
+        if (drop_input_) {
           break;
+        } else {
+          new_drop_edge = nullptr;
         }
       }
     }

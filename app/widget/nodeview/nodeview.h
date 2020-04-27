@@ -92,7 +92,7 @@ private:
   NodeViewItem* attached_item_;
 
   NodeViewEdge* drop_edge_;
-  NodeInput* drop_compatible_input_;
+  NodeInput* drop_input_;
 
   NodeViewScene scene_;
 
