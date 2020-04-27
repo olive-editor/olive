@@ -558,6 +558,8 @@ const QPointF &Node::GetPosition()
 void Node::SetPosition(const QPointF &pos)
 {
   position_ = pos;
+
+  emit PositionChanged(position_);
 }
 
 void Node::AddInput(NodeInput *input)

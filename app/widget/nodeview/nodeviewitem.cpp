@@ -68,6 +68,57 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   setRect(title_bar_rect_);
 }
 
+QPointF NodeViewItem::GetNodePosition() const
+{
+  QPointF node_pos;
+
+  qreal adjusted_x = pos().x() / DefaultItemHorizontalPadding();
+  qreal adjusted_y = pos().y() / DefaultItemVerticalPadding();
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    node_pos.setX(adjusted_x);
+    node_pos.setY(adjusted_y);
+    break;
+  case NodeViewCommon::kRightToLeft:
+    node_pos.setX(-adjusted_x);
+    node_pos.setY(adjusted_y);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    node_pos.setX(adjusted_y);
+    node_pos.setY(adjusted_x);
+    break;
+  case NodeViewCommon::kBottomToTop:
+    node_pos.setX(-adjusted_y);
+    node_pos.setY(adjusted_x);
+    break;
+  }
+
+  return node_pos;
+}
+
+void NodeViewItem::SetNodePosition(const QPointF &pos)
+{
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    setPos(pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    setPos(-pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           pos.x() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           -pos.x() * DefaultItemVerticalPadding());
+    break;
+  }
+}
+
 int NodeViewItem::DefaultTextPadding()
 {
   return QFontMetrics(QFont()).height() / 4;
@@ -86,6 +137,24 @@ int NodeViewItem::DefaultItemWidth()
 int NodeViewItem::DefaultItemBorder()
 {
   return QFontMetrics(QFont()).height() / 12;
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding() const
+{
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    return DefaultItemWidth() * 1.5;
+  } else {
+    return DefaultItemWidth() * 1.25;
+  }
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding() const
+{
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    return DefaultItemHeight() * 1.5;
+  } else {
+    return DefaultItemHeight() * 2.0;
+  }
 }
 
 void NodeViewItem::SetNode(Node *n)
@@ -241,8 +310,8 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
       drag_source_ = static_cast<NodeViewScene*>(scene())->NodeToUIObject(drag_src_param_->parentNode());
 
       // Get the opposing parameter's rect center using the line's current coordinates
-      // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
-      //  node is collapsed, therefore it's easier to just retrieve it from line itself)
+      // (we use the current coordinates because a complex formula is used for the line's coords if
+      // the opposing node is collapsed, therefore it's easier to just retrieve it from line itself)
       NodeViewEdge* existing_edge_ui = static_cast<NodeViewScene*>(scene())->EdgeToUIObject(edge);
       QPainterPath existing_edge_line = existing_edge_ui->path();
       QPointF edge_start = existing_edge_line.pointAtPercent(0);
@@ -422,7 +491,9 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
   if (change == ItemPositionHasChanged && node_) {
-    node_->SetPosition(value.toPointF());
+    node_->blockSignals(true);
+    node_->SetPosition(GetNodePosition());
+    node_->blockSignals(false);
   }
 
   return QGraphicsItem::itemChange(change, value);

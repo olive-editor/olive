@@ -37,13 +37,18 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
   direction_ = direction;
 
   {
+    // Iterate over node items setting direction
     QHash<Node*, NodeViewItem*>::const_iterator i;
     for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
       i.value()->SetFlowDirection(direction_);
+
+      // Update position too
+      i.value()->SetNodePosition(i.key()->GetPosition());
     }
   }
 
   {
+    // Iterate over edge items setting direction
     QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
     for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
       i.value()->SetFlowDirection(direction_);
@@ -173,10 +178,14 @@ void NodeViewScene::AddNode(Node* node)
       }
     }
   }
+
+  connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
+  disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
+
   delete item_map_.take(node);
 }
 
@@ -215,59 +224,23 @@ void NodeViewScene::ReorganizeFrom(Node* n)
     return;
   }
 
-  NodeViewItem* parent_item = NodeToUIObject(n);
+  QPointF parent_pos = n->GetPosition();
 
-  int item_sz, item_padding, layer_diff, total_top;
-
-  if (GetFlowOrientation() == Qt::Vertical) {
-    item_sz = NodeViewItem::DefaultItemWidth();
-    item_padding = item_sz / 2;
-    layer_diff = NodeViewItem::DefaultItemHeight() * 2;
-    total_top = parent_item->x();
-  } else {
-    item_sz = NodeViewItem::DefaultItemHeight();
-    item_padding = item_sz;
-    layer_diff = NodeViewItem::DefaultItemWidth() * 3 / 2;
-    total_top = parent_item->y();
-  }
-
-  int item_sz_with_padding = item_sz + item_padding;
-
-  int total_sz = item_sz_with_padding * immediates.size() - item_padding;
-
-  total_top -= total_sz / 2;
-  total_top += item_sz / 2;
-
-  int item_layer_pos;
-
-  switch (direction_) {
-  case NodeViewCommon::kTopToBottom:
-    item_layer_pos = parent_item->pos().y() - layer_diff;
-    break;
-  case NodeViewCommon::kLeftToRight:
-    item_layer_pos = parent_item->pos().x() - layer_diff;
-    break;
-  case NodeViewCommon::kBottomToTop:
-    item_layer_pos = parent_item->pos().y() + layer_diff;
-    break;
-  case NodeViewCommon::kRightToLeft:
-    item_layer_pos = parent_item->pos().x() + layer_diff;
-    break;
-  }
+  qreal child_x = parent_pos.x() - 1.0;
+  qreal children_height = immediates.size()-1;
+  qreal children_y = parent_pos.y() - children_height * 0.5;
 
   for (int i=0;i<immediates.size();i++) {
-    NodeViewItem* item = NodeToUIObject(immediates.at(i));
-
-    if (GetFlowOrientation() == Qt::Vertical) {
-      item->setPos(total_top + item_sz_with_padding * i,
-                   item_layer_pos);
-    } else {
-      item->setPos(item_layer_pos,
-                   total_top + item_sz_with_padding * i);
-    }
+    immediates.at(i)->SetPosition(QPointF(child_x,
+                                          children_y + i));
 
     ReorganizeFrom(immediates.at(i));
   }
+}
+
+void NodeViewScene::NodePositionChanged(const QPointF &pos)
+{
+  item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -43,6 +43,14 @@ public:
       return Qt::Horizontal;
     }
   }
+
+  static bool DirectionsAreOpposing(FlowDirection a, FlowDirection b) {
+    return ((a == NodeViewCommon::kLeftToRight && b == NodeViewCommon::kRightToLeft)
+            || (a == NodeViewCommon::kRightToLeft && b == NodeViewCommon::kLeftToRight)
+            || (a == NodeViewCommon::kTopToBottom && b == NodeViewCommon::kBottomToTop)
+            || (a == NodeViewCommon::kBottomToTop && b == NodeViewCommon::kTopToBottom));
+  }
+
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -121,6 +121,13 @@ private:
 
   NodeViewCommon::FlowDirection direction_;
 
+private slots:
+  /**
+   * @brief Receiver for whenever a node position changes
+   */
+  void NodePositionChanged(const QPointF& pos);
+
+
 };
 
 OLIVE_NAMESPACE_EXIT

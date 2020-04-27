@@ -45,7 +45,7 @@ NodeView::NodeView(QWidget *parent) :
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 
-  SetFlowDirection(NodeViewCommon::kTopToBottom);
+  SetFlowDirection(NodeViewCommon::kLeftToRight);
 }
 
 NodeView::~NodeView()

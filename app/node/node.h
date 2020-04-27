@@ -384,6 +384,11 @@ signals:
    */
   void EdgeRemoved(NodeEdgePtr edge);
 
+  /**
+   * @brief Signal emitted whenever the position is set through SetPosition()
+   */
+  void PositionChanged(const QPointF& pos);
+
 private:
   /**
    * @brief Add a parameter to this node

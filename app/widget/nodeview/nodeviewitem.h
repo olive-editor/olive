@@ -46,6 +46,9 @@ class NodeViewItem : public QGraphicsRectItem
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
 
+  QPointF GetNodePosition() const;
+  void SetNodePosition(const QPointF& pos);
+
   /**
    * @brief Set the Node to correspond to this widget
    */
@@ -84,6 +87,10 @@ public:
   static int DefaultItemWidth();
 
   static int DefaultItemBorder();
+
+  qreal DefaultItemHorizontalPadding() const;
+
+  qreal DefaultItemVerticalPadding() const;
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
