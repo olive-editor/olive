@@ -5,6 +5,9 @@
 
 uniform sampler2D ove_maintex;
 uniform vec2 ove_resolution;
+uniform vec2 ove_viewport;
+varying vec2 ove_texcoord;
+
 
 uniform float threshold;
 
@@ -33,9 +36,6 @@ void main(void) {
         //float l = dot(x, x);
         //col += step(l, maxb*maxb)*step(minb*minb, l) / (ove_resolution.y * 0.125);
     }
-    // if (ove_texcoord.y > (240.0 / 255.0))
-    // {
-    //     col = vec3(1.0, 0.0, 1.0);
-    // }
+
     gl_FragColor = vec4(col, 1.0);
 }
