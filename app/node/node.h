@@ -425,7 +425,7 @@ private:
   QPointF position_;
 
 private slots:
-  void InputChanged(const TimeRange &range);
+  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
 
   void InputConnectionChanged(NodeEdgePtr edge);
 

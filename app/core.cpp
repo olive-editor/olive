@@ -536,7 +536,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<AudioRenderingParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<TimeRange>();
+  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
 }

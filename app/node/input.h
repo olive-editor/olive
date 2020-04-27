@@ -279,7 +279,7 @@ public:
   QList<Node*> GetImmediateDependencies() const;
 
 signals:
-  void ValueChanged(const TimeRange& range);
+  void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 
