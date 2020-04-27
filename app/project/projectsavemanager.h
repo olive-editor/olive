@@ -33,7 +33,7 @@ public:
   ProjectSaveManager(ProjectPtr project);
 
 signals:
-  void ProjectSaveSucceeded(ProjectPtr p);
+  void ProjectSaveSucceeded(OLIVE_NAMESPACE::ProjectPtr p);
 
 protected:
   virtual void Action() override;

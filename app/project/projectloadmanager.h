@@ -36,7 +36,7 @@ protected:
   virtual void Action() override;
 
 signals:
-  void ProjectLoaded(ProjectPtr project);
+  void ProjectLoaded(OLIVE_NAMESPACE::ProjectPtr project);
 
 private:
   QString filename_;

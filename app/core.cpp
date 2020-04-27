@@ -538,7 +538,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<TimeRange>();
   qRegisterMetaType<Color>();
-  qRegisterMetaType<ProjectPtr>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
 }
 
 void Core::StartGUI(bool full_screen)
