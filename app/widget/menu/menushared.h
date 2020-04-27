@@ -39,7 +39,7 @@ public:
   void Retranslate();
 
   void AddItemsForNewMenu(Menu* m);
-  void AddItemsForEditMenu(Menu* m);
+  void AddItemsForEditMenu(Menu* m, bool for_clips);
   void AddItemsForInOutMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
 

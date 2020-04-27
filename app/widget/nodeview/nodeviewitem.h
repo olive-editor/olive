@@ -28,6 +28,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeviewcommon.h"
 #include "nodeviewedge.h"
 #include "nodeviewitemwidgetproxy.h"
 
@@ -70,6 +71,19 @@ public:
    * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
   QPointF GetParamPoint(NodeParam* param) const;
+
+  /**
+   * @brief Sets the direction nodes are flowing
+   */
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
+  static int DefaultTextPadding();
+
+  static int DefaultItemHeight();
+
+  static int DefaultItemWidth();
+
+  static int DefaultItemBorder();
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -152,6 +166,8 @@ private:
    * \see mouseReleaseEvent()
    */
   QUndoCommand* node_edge_change_command_;
+
+  NodeViewCommon::FlowDirection flow_dir_;
 
 };
 

@@ -131,6 +131,10 @@ public:
     return a;
   }
 
+  QAction* AddActionWithData(const QString& text,
+                             const QVariant& data,
+                             const QVariant& compare);
+
   QAction *InsertAlphabetically(const QString& s);
   void InsertAlphabetically(QAction* entry);
   void InsertAlphabetically(Menu* menu);

@@ -35,7 +35,8 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
   edge_(nullptr),
   color_group_(QPalette::Active),
-  color_role_(QPalette::Text)
+  color_role_(QPalette::Text),
+  flow_dir_(NodeViewCommon::kLeftToRight)
 {
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
@@ -75,7 +76,8 @@ void NodeViewEdge::Adjust()
   }
 
   // Draw a line between the two
-  SetPoints(output->GetParamPoint(edge_->output()), input->GetParamPoint(edge_->input()));
+  SetPoints(output->GetParamPoint(edge_->output()),
+            input->GetParamPoint(edge_->input()));
 }
 
 void NodeViewEdge::SetConnected(bool c)
@@ -103,10 +105,24 @@ void NodeViewEdge::SetHighlighted(bool e)
 void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
 {
   QPainterPath path;
-  double half_x = lerp(start.x(), end.x(), 0.5);
   path.moveTo(start);
-  path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
+
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    double half_x = lerp(start.x(), end.x(), 0.5);
+    path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
+  } else {
+    double half_y = lerp(start.y(), end.y(), 0.5);
+    path.cubicTo(QPointF(start.x(), half_y), QPointF(end.x(), half_y), end);
+  }
+
   setPath(path);
+}
+
+void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  flow_dir_ = dir;
+
+  Adjust();
 }
 
 void NodeViewEdge::UpdatePen()

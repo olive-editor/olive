@@ -83,7 +83,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   edit_menu_->addAction(edit_redo_item_);
 
   edit_menu_->addSeparator();
-  MenuShared::instance()->AddItemsForEditMenu(edit_menu_);
+  MenuShared::instance()->AddItemsForEditMenu(edit_menu_, true);
   edit_menu_->addSeparator();
   edit_select_all_item_ = edit_menu_->AddItem("selectall", this, &MainMenu::SelectAllTriggered, "Ctrl+A");
   edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, &MainMenu::DeselectAllTriggered, "Ctrl+Shift+A");

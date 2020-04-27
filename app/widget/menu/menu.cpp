@@ -50,6 +50,17 @@ Menu::Menu(const QString &s, QWidget *parent) :
   Init();
 }
 
+QAction *Menu::AddActionWithData(const QString &text, const QVariant &data, const QVariant &compare)
+{
+  QAction* a = addAction(text);
+
+  a->setData(data);
+  a->setCheckable(true);
+  a->setChecked(data == compare);
+
+  return a;
+}
+
 QAction* Menu::InsertAlphabetically(const QString &s)
 {
   QAction* action = new QAction(s, this);

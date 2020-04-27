@@ -18,6 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/nodeview/nodeview.h
   widget/nodeview/nodeview.cpp
+  widget/nodeview/nodeviewcommon.h
   widget/nodeview/nodeviewedge.h
   widget/nodeview/nodeviewedge.cpp
   widget/nodeview/nodeviewitem.h

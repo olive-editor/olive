@@ -25,6 +25,7 @@
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "widget/menu/menushared.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,13 +38,14 @@ NodeView::NodeView(QWidget *parent) :
   setScene(&scene_);
   setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setMouseTracking(true);
+  setRenderHint(QPainter::Antialiasing);
 
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 
-  setMouseTracking(true);
-  setRenderHint(QPainter::Antialiasing);
+  SetFlowDirection(NodeViewCommon::kTopToBottom);
 }
 
 NodeView::~NodeView()
@@ -321,10 +323,42 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   Menu m;
 
-  Menu* add_menu = NodeFactory::CreateMenu(&m);
-  add_menu->setTitle(tr("Add"));
-  connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
-  m.addMenu(add_menu);
+  MenuShared::instance()->AddItemsForEditMenu(&m, false);
+
+  m.addSeparator();
+
+  if (itemAt(pos)) {
+    QAction* autopos = m.addAction(tr("Auto-Position"));
+    connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
+  } else {
+    Menu* direction_menu = new Menu(tr("Direction"), &m);
+    m.addMenu(direction_menu);
+
+    direction_menu->AddActionWithData(tr("Top to Bottom"),
+                                      NodeViewCommon::kTopToBottom,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Bottom to Top"),
+                                      NodeViewCommon::kBottomToTop,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Left to Right"),
+                                      NodeViewCommon::kLeftToRight,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Right to Left"),
+                                      NodeViewCommon::kRightToLeft,
+                                      scene_.GetFlowDirection());
+
+    connect(direction_menu, &Menu::triggered, this, &NodeView::ContextMenuSetDirection);
+
+    m.addSeparator();
+
+    Menu* add_menu = NodeFactory::CreateMenu(&m);
+    add_menu->setTitle(tr("Add"));
+    connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
+    m.addMenu(add_menu);
+  }
 
   m.exec(mapToGlobal(pos));
 }
@@ -338,6 +372,20 @@ void NodeView::CreateNodeSlot(QAction *action)
 
     NodeViewItem* item = scene_.NodeToUIObject(new_node);
     AttachItemToCursor(item);
+  }
+}
+
+void NodeView::ContextMenuSetDirection(QAction *action)
+{
+  SetFlowDirection(static_cast<NodeViewCommon::FlowDirection>(action->data().toInt()));
+}
+
+void NodeView::AutoPositionDescendents()
+{
+  QList<Node*> selected = scene_.GetSelectedNodes();
+
+  foreach (Node* n, selected) {
+    scene_.ReorganizeFrom(n);
   }
 }
 
@@ -485,6 +533,11 @@ void NodeView::AttachItemToCursor(NodeViewItem *item)
 void NodeView::DetachItemFromCursor()
 {
   AttachItemToCursor(nullptr);
+}
+
+void NodeView::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  scene_.SetFlowDirection(dir);
 }
 
 OLIVE_NAMESPACE_EXIT

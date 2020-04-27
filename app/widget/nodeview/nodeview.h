@@ -85,6 +85,8 @@ private:
 
   void DetachItemFromCursor();
 
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
   NodeGraph* graph_;
 
   NodeViewItem* attached_item_;
@@ -116,6 +118,16 @@ private slots:
    * @brief Receiver for when the user requests a new node from the add menu
    */
   void CreateNodeSlot(QAction* action);
+
+  /**
+   * @brief Receiver for setting the direction from the context menu
+   */
+  void ContextMenuSetDirection(QAction* action);
+
+  /**
+   * @brief Receiver for auto-position descendents menu action
+   */
+  void AutoPositionDescendents();
 
 };
 

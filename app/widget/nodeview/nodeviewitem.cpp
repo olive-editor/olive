@@ -46,7 +46,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   expanded_(false),
   standard_click_(false),
   highlighted_index_(-1),
-  node_edge_change_command_(nullptr)
+  node_edge_change_command_(nullptr),
+  flow_dir_(NodeViewCommon::kLeftToRight)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -57,24 +58,34 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   // We use font metrics to set all the UI measurements for DPI-awareness
   //
 
-  QFont default_font;
-  QFontMetrics font_metrics(default_font);
-
   // Set border width
-  node_border_width_ = font_metrics.height() / 12;
+  node_border_width_ = DefaultItemBorder();
 
-  // Set text and icon padding
-  int node_text_padding = font_metrics.height() / 4;
-
-  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHH");
-
-  // Use the current default font height to size this widget
-  // Set default "collapsed" size
-  int widget_height = font_metrics.height() + node_text_padding * 2;
+  int widget_width = DefaultItemWidth();
+  int widget_height = DefaultItemHeight();
 
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
+}
+
+int NodeViewItem::DefaultTextPadding()
+{
+  return QFontMetrics(QFont()).height() / 4;
+}
+
+int NodeViewItem::DefaultItemHeight()
+{
+  return QFontMetrics(QFont()).height() + DefaultTextPadding() * 2;
+}
+
+int NodeViewItem::DefaultItemWidth()
+{
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHHHH");;
+}
+
+int NodeViewItem::DefaultItemBorder()
+{
+  return QFontMetrics(QFont()).height() / 12;
 }
 
 void NodeViewItem::SetNode(Node *n)
@@ -203,6 +214,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     // Create draggable object
     dragging_edge_ = new NodeViewEdge();
+    dragging_edge_->SetFlowDirection(flow_dir_);
 
     // Set up a QUndoCommand to make this action undoable
     node_edge_change_command_ = new QUndoCommand();
@@ -330,7 +342,9 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
           if (!cached_drop_item_->GetNode()->OutputsTo(node_)) {
             drag_dest_param_ = comp_param;
             highlight_their_index = i;
-            end_point = cached_drop_item_->mapToScene(cached_drop_item_->GetInputPoint(i));
+
+            QPointF end_point_local = cached_drop_item_->GetInputPoint(i);
+            end_point = cached_drop_item_->mapToScene(end_point_local);
           }
 
           break;
@@ -439,7 +453,19 @@ QRectF NodeViewItem::GetInputRect(int index) const
 QPointF NodeViewItem::GetParamPoint(NodeParam *param) const
 {
   if (param->type() == NodeParam::kOutput) {
-    return pos() + QPointF(rect().right(), rect().center().y());
+
+    switch (flow_dir_) {
+    case NodeViewCommon::kLeftToRight:
+    default:
+      return pos() + QPointF(rect().right(), rect().center().y());
+    case NodeViewCommon::kRightToLeft:
+      return pos() + QPointF(rect().left(), rect().center().y());
+    case NodeViewCommon::kTopToBottom:
+      return pos() + QPointF(rect().center().x(), rect().bottom());
+    case NodeViewCommon::kBottomToTop:
+      return pos() + QPointF(rect().center().x(), rect().top());
+    }
+
   } else {
     NodeInput* input = static_cast<NodeInput*>(param);
 
@@ -452,11 +478,26 @@ QPointF NodeViewItem::GetParamPoint(NodeParam *param) const
   }
 }
 
+void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  flow_dir_ = dir;
+}
+
 QPointF NodeViewItem::GetInputPoint(int index) const
 {
   QRectF input_rect = GetInputRect(index);
 
-  return QPointF(input_rect.left(), input_rect.center().y());
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+  default:
+    return QPointF(input_rect.left(), input_rect.center().y());
+  case NodeViewCommon::kRightToLeft:
+    return QPointF(input_rect.right(), input_rect.center().y());
+  case NodeViewCommon::kTopToBottom:
+    return QPointF(input_rect.center().x(), input_rect.top());
+  case NodeViewCommon::kBottomToTop:
+    return QPointF(input_rect.center().x(), input_rect.bottom());
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

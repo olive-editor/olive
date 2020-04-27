@@ -391,7 +391,7 @@ void KeyframeViewBase::ShowContextMenu()
 {
   Menu m;
 
-  MenuShared::instance()->AddItemsForEditMenu(&m);
+  MenuShared::instance()->AddItemsForEditMenu(&m, false);
 
   QAction* linear_key_action = nullptr;
   QAction* bezier_key_action = nullptr;

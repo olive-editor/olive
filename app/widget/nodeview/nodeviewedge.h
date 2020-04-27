@@ -25,6 +25,7 @@
 #include <QPalette>
 
 #include "node/edge.h"
+#include "nodeviewcommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -83,6 +84,11 @@ public:
    */
   void SetPoints(const QPointF& start, const QPointF& end);
 
+  /**
+   * @brief Sets the direction nodes are flowing
+   */
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
 private:
   void UpdatePen();
 
@@ -93,6 +99,8 @@ private:
   QPalette::ColorGroup color_group_;
 
   QPalette::ColorRole color_role_;
+
+  NodeViewCommon::FlowDirection flow_dir_;
 
 };
 
