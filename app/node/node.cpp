@@ -103,6 +103,10 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
+  writer->writeAttribute(QStringLiteral("pos"),
+                         QStringLiteral("%1:%2").arg(QString::number(GetPosition().x()),
+                                                     QString::number(GetPosition().y())));
+
   foreach (NodeParam* param, parameters()) {
     param->Save(writer);
   }
@@ -550,7 +554,7 @@ NodeValue Node::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, boo
   }
 }
 
-const QPointF &Node::GetPosition()
+const QPointF &Node::GetPosition() const
 {
   return position_;
 }

@@ -342,7 +342,7 @@ public:
 
   virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const;
 
-  const QPointF& GetPosition();
+  const QPointF& GetPosition() const;
 
   void SetPosition(const QPointF& pos);
 

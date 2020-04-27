@@ -176,7 +176,7 @@ void NodeViewItem::SetNode(Node *n)
       }
     }
 
-    setPos(node_->GetPosition());
+    SetNodePosition(node_->GetPosition());
   }
 
   update();

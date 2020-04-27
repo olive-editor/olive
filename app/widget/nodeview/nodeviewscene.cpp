@@ -159,8 +159,8 @@ void NodeViewScene::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();
 
-  item->SetNode(node);
   item->SetFlowDirection(direction_);
+  item->SetNode(node);
 
   addItem(item);
   item_map_.insert(node, item);
