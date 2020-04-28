@@ -150,10 +150,12 @@ void WaveformScope::paintGL()
 
     managed_tex_.Release();
 
-    QVector<QLine> ire_lines(6);
     QPainter p(this);
     QFontMetrics font_metrics = QFontMetrics(QFont());
     QString label;
+    float ire_increment = 0.1;
+    float ire_steps = int(1.0 / ire_increment);
+    QVector<QLine> ire_lines(ire_steps + 1);
     int font_x_offset = 0;
     int font_y_offset = font_metrics.capHeight() / 2.0;
 
@@ -162,18 +164,18 @@ void WaveformScope::paintGL()
     p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
     p.setFont(QFont());
 
-    for (int i=0; i <= 5; i++) {
+    for (int i=0; i <= ire_steps; i++) {
       ire_lines[i].setLine(
         waveform_start_dim_x,
-        (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y,
+        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y,
         waveform_end_dim_x,
-        (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y);
-        label = QString::number(1.0 - (i * 0.2), 'f', 1);
+        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
+        label = QString::number(1.0 - (i * ire_increment), 'f', 1);
         font_x_offset = font_metrics.width(label) + 4;
 
         p.drawText(
           waveform_start_dim_x - font_x_offset,
-          (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y + font_y_offset,
+          (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y + font_y_offset,
           label);
     }
     p.drawLines(ire_lines);
