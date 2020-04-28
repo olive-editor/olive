@@ -29,7 +29,7 @@ out vec4 fragColor;
 // Double gaussian formula, actually used in the code below
 // Should be faster than the single gaussian above since it doesn't need sqrt()
 float gaussian2(float x, float y, float sigma) {
-    return (1.0/(pow(sigma, 2.0)*2.0*M_PI))*exp(-0.5*((pow(x, 2.0) + pow(y, 2.0))/pow(sigma, 2.0)));
+    return (1.0/((sigma*sigma)*2.0*M_PI))*exp(-0.5*(((x*x) + (y*y))/(sigma*sigma)));
 }
 
 void main(void) {
