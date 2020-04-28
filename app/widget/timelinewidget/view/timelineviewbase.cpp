@@ -34,12 +34,11 @@ OLIVE_NAMESPACE_ENTER
 const double TimelineViewBase::kMaximumScale = 8192;
 
 TimelineViewBase::TimelineViewBase(QWidget *parent) :
-  QGraphicsView(parent),
+  HandMovableView(parent),
   playhead_(0),
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
   dragging_playhead_(false),
-  dragging_hand_(false),
   limit_y_axis_(false)
 {
   setScene(&scene_);
@@ -50,7 +49,6 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   SetDefaultDragMode(NoDrag);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
-  connect(Core::instance(), &Core::ToolChanged, this, &TimelineViewBase::ApplicationToolChanged);
 
   SetMaximumScale(kMaximumScale);
 }
@@ -100,17 +98,6 @@ rational TimelineViewBase::GetPlayheadTime() const
   return Timecode::timestamp_to_time(playhead_, timebase());
 }
 
-void TimelineViewBase::SetDefaultDragMode(QGraphicsView::DragMode mode)
-{
-  default_drag_mode_ = mode;
-  setDragMode(default_drag_mode_);
-}
-
-const QGraphicsView::DragMode &TimelineViewBase::GetDefaultDragMode() const
-{
-  return default_drag_mode_;
-}
-
 bool TimelineViewBase::PlayheadPress(QMouseEvent *event)
 {
   QPointF scene_pos = mapToScene(event->pos());
@@ -146,70 +133,6 @@ bool TimelineViewBase::PlayheadRelease(QMouseEvent*)
   }
 
   return false;
-}
-
-bool TimelineViewBase::HandPress(QMouseEvent *event)
-{
-  if (event->button() == Qt::MiddleButton) {
-    pre_hand_drag_mode_ = dragMode();
-    dragging_hand_ = true;
-
-    setDragMode(ScrollHandDrag);
-
-    // Transform mouse event to act like the left button is pressed
-    QMouseEvent transformed(event->type(),
-                            event->localPos(),
-                            Qt::LeftButton,
-                            Qt::LeftButton,
-                            event->modifiers());
-
-    QGraphicsView::mousePressEvent(&transformed);
-
-    return true;
-  }
-
-  return false;
-}
-
-bool TimelineViewBase::HandMove(QMouseEvent *event)
-{
-  if (dragging_hand_) {
-    // Transform mouse event to act like the left button is pressed
-    QMouseEvent transformed(event->type(),
-                            event->localPos(),
-                            Qt::LeftButton,
-                            Qt::LeftButton,
-                            event->modifiers());
-
-    QGraphicsView::mouseMoveEvent(&transformed);
-  }
-  return dragging_hand_;
-}
-
-bool TimelineViewBase::HandRelease(QMouseEvent *event)
-{
-  if (dragging_hand_) {
-    // Transform mouse event to act like the left button is pressed
-    QMouseEvent transformed(event->type(),
-                            event->localPos(),
-                            Qt::LeftButton,
-                            Qt::LeftButton,
-                            event->modifiers());
-
-    QGraphicsView::mouseReleaseEvent(&transformed);
-
-    setDragMode(pre_hand_drag_mode_);
-
-    dragging_hand_ = false;
-
-    return true;
-  }
-
-  return false;
-}
-
-void TimelineViewBase::ToolChangedEvent(Tool::Item)
-{
 }
 
 qreal TimelineViewBase::GetPlayheadX()
@@ -303,17 +226,6 @@ void TimelineViewBase::SetLimitYAxis(bool)
 {
   limit_y_axis_ = true;
   UpdateSceneRect();
-}
-
-void TimelineViewBase::ApplicationToolChanged(Tool::Item tool)
-{
-  if (tool == Tool::kHand) {
-    setDragMode(ScrollHandDrag);
-  } else {
-    setDragMode(default_drag_mode_);
-  }
-
-  ToolChangedEvent(tool);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -27,10 +27,12 @@
 #include "node/factory.h"
 #include "widget/menu/menushared.h"
 
+#define super HandMovableView
+
 OLIVE_NAMESPACE_ENTER
 
 NodeView::NodeView(QWidget *parent) :
-  QGraphicsView(parent),
+  HandMovableView(parent),
   graph_(nullptr),
   attached_item_(nullptr),
   drop_edge_(nullptr)
@@ -198,7 +200,7 @@ void NodeView::ItemsChanged()
 
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
-  QGraphicsView::keyPressEvent(event);
+  super::keyPressEvent(event);
 
   if (event->key() == Qt::Key_Escape && attached_item_) {
     DetachItemFromCursor();
@@ -211,6 +213,8 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
+  if (HandPress(event)) return;
+
   if (attached_item_) {
     Node* dropping_node = attached_item_->GetNode();
 
@@ -235,12 +239,14 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     drop_edge_ = nullptr;
   }
 
-  QGraphicsView::mousePressEvent(event);
+  super::mousePressEvent(event);
 }
 
 void NodeView::mouseMoveEvent(QMouseEvent *event)
 {
-  QGraphicsView::mouseMoveEvent(event);
+  if (HandMove(event)) return;
+
+  super::mouseMoveEvent(event);
 
   if (attached_item_) {
     attached_item_->setPos(mapToScene(event->pos()));
@@ -297,6 +303,13 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
       }
     }
   }
+}
+
+void NodeView::mouseReleaseEvent(QMouseEvent *event)
+{
+  if (HandRelease(event)) return;
+
+  super::mouseReleaseEvent(event);
 }
 
 void NodeView::wheelEvent(QWheelEvent *event)

@@ -26,6 +26,7 @@
 
 #include "node/graph.h"
 #include "nodeviewscene.h"
+#include "widget/timelinewidget/view/handmovableview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -36,7 +37,7 @@ OLIVE_NAMESPACE_ENTER
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public QGraphicsView, public NodeCopyPasteWidget
+class NodeView : public HandMovableView, public NodeCopyPasteWidget
 {
   Q_OBJECT
 public:
@@ -73,8 +74,8 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
   virtual void mousePressEvent(QMouseEvent *event) override;
-
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
