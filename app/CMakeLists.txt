@@ -107,6 +107,14 @@ else()
   )
 endif()
 
+if(UNIX AND NOT APPLE)
+  target_compile_options(
+    ${OLIVE_TARGET}
+    PRIVATE
+    -rdynamic
+  )
+endif()
+
 # Set include directories
 target_include_directories(
   ${OLIVE_TARGET}
