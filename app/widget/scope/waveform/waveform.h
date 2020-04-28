@@ -35,6 +35,8 @@ class WaveformScope : public ManagedDisplayWidget
 public:
   WaveformScope(QWidget* parent = nullptr);
 
+  virtual ~WaveformScope() override;
+
 public slots:
   void SetBuffer(Frame* frame);
 

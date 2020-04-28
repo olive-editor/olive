@@ -33,6 +33,15 @@ WaveformScope::WaveformScope(QWidget* parent) :
   EnableDefaultContextMenu();
 }
 
+WaveformScope::~WaveformScope()
+{
+  CleanUp();
+
+  if (context()) {
+    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp);
+  }
+}
+
 void WaveformScope::SetBuffer(Frame *frame)
 {
   buffer_ = frame;
@@ -54,9 +63,7 @@ void WaveformScope::initializeGL()
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp, Qt::DirectConnection);
 
-  if (buffer_) {
-    UploadTextureFromBuffer();
-  }
+  UploadTextureFromBuffer();
 }
 
 void WaveformScope::paintGL()
@@ -86,6 +93,10 @@ void WaveformScope::paintGL()
 
 void WaveformScope::UploadTextureFromBuffer()
 {
+  if (!buffer_) {
+    return;
+  }
+
   makeCurrent();
 
   if (!texture_.IsCreated()
@@ -105,8 +116,6 @@ void WaveformScope::UploadTextureFromBuffer()
 
 void WaveformScope::CleanUp()
 {
-  qDebug() << "Cleaned up...";
-
   makeCurrent();
 
   pipeline_ = nullptr;

@@ -36,6 +36,8 @@ PanelManager::PanelManager(QObject *parent) :
 void PanelManager::DeleteAllPanels()
 {
   foreach (PanelWidget* panel, focus_history_) {
+    // We don't need to run this signal anymore since we're destroying and clearing everything
+    disconnect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed);
     delete panel;
   }
   focus_history_.clear();
