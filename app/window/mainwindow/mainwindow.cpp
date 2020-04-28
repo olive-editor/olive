@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create and set status bar
   MainStatusBar* status_bar = new MainStatusBar(this);
   status_bar->ConnectTaskManager(TaskManager::instance());
+  connect(status_bar, &MainStatusBar::DoubleClicked, this, &MainWindow::StatusBarDoubleClicked);
   setStatusBar(status_bar);
 
   // Create standard panels
@@ -390,6 +391,12 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
   return QMainWindow::nativeEvent(eventType, message, result);
 }
 #endif
+
+void MainWindow::StatusBarDoubleClicked()
+{
+  task_man_panel_->show();
+  task_man_panel_->raise();
+}
 
 void MainWindow::UpdateTitle()
 {
