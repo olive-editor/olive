@@ -486,6 +486,7 @@ private slots:
 
   void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);
+  void TrackIndexChanged();
 
   void ViewSelectionChanged();
 

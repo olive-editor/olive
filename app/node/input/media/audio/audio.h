@@ -28,7 +28,7 @@ OLIVE_NAMESPACE_ENTER
 class AudioInput : public MediaInput
 {
 public:
-  AudioInput();
+  AudioInput() = default;
 
   virtual Node* copy() const override;
 
@@ -36,7 +36,6 @@ public:
   virtual QString id() const override;
   virtual QString Description() const override;
 
-private:
 };
 
 OLIVE_NAMESPACE_EXIT

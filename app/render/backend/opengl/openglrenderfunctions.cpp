@@ -37,23 +37,23 @@ const GLfloat blit_vertices[] = {
 };
 
 const GLfloat blit_texcoords[] = {
-  0.0, 0.0,
-  1.0, 0.0,
-  1.0, 1.0,
+  0.0f, 0.0f,
+  1.0f, 0.0f,
+  1.0f, 1.0f,
 
-  0.0, 0.0,
-  0.0, 1.0,
-  1.0, 1.0
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f
 };
 
 const GLfloat flipped_blit_texcoords[] = {
-  0.0, 1.0,
-  1.0, 1.0,
-  1.0, 0.0,
+  0.0f, 1.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f,
 
-  0.0, 1.0,
-  0.0, 0.0,
-  1.0, 0.0
+  0.0f, 1.0f,
+  0.0f, 0.0f,
+  1.0f, 0.0f
 };
 
 /**
@@ -65,7 +65,8 @@ const GLfloat flipped_blit_texcoords[] = {
  *
  * Currently active QOpenGLFunctions object (use context()->functions() if unsure).
  */
-void OpenGLRenderFunctions::PrepareToDraw(QOpenGLFunctions* f) {
+void OpenGLRenderFunctions::PrepareToDraw(QOpenGLFunctions* f)
+{
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -141,7 +142,6 @@ void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix
 
 void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x4 matrix)
 {
-  // FIXME: is currentContext() reliable here?
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
   PrepareToDraw(func);
@@ -153,13 +153,13 @@ void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x
   QOpenGLBuffer m_vbo;
   m_vbo.create();
   m_vbo.bind();
-  m_vbo.allocate(blit_vertices, 18 * static_cast<int>(sizeof(GLfloat)));
+  m_vbo.allocate(blit_vertices, 18 * sizeof(GLfloat));
   m_vbo.release();
 
   QOpenGLBuffer m_vbo2;
   m_vbo2.create();
   m_vbo2.bind();
-  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * static_cast<int>(sizeof(GLfloat)));
+  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * sizeof(GLfloat));
   m_vbo2.release();
 
   pipeline->bind();
@@ -167,13 +167,13 @@ void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x
   pipeline->setUniformValue("ove_mvpmat", matrix);
   pipeline->setUniformValue("ove_maintex", 0);
 
-  GLuint vertex_location = static_cast<GLuint>(pipeline->attributeLocation("a_position"));
+  int vertex_location = pipeline->attributeLocation("a_position");
   m_vbo.bind();
   func->glEnableVertexAttribArray(vertex_location);
   func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
   m_vbo.release();
 
-  GLuint tex_location = static_cast<GLuint>(pipeline->attributeLocation("a_texcoord"));
+  int tex_location = pipeline->attributeLocation("a_texcoord");
   m_vbo2.bind();
   func->glEnableVertexAttribArray(tex_location);
   func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, nullptr);

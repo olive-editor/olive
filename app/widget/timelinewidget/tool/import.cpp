@@ -30,9 +30,10 @@
 #include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
-#include "node/distort/transform/transform.h"
+#include "node/generator/matrix/matrix.h"
 #include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
+#include "node/math/math/math.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
@@ -397,15 +398,17 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
         VideoInput* video_input = new VideoInput();
         video_input->SetFootage(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
-        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
 
-        TransformDistort* transform = new TransformDistort();
-        new NodeAddCommand(dst_graph, transform, command);
-        new NodeEdgeAddCommand(transform->output(), video_input->matrix_input(), command);
+        MatrixGenerator* matrix = new MatrixGenerator();
+        new NodeAddCommand(dst_graph, matrix, command);
 
-        //OpacityNode* opacity = new OpacityNode();
-        //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
-        //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
+        MathNode* multiply = new MathNode();
+        multiply->SetOperation(MathNode::kOpMultiply);
+        new NodeAddCommand(dst_graph, multiply, command);
+
+        new NodeEdgeAddCommand(video_input->output(), multiply->param_a_in(), command);
+        new NodeEdgeAddCommand(matrix->output(), multiply->param_b_in(), command);
+        new NodeEdgeAddCommand(multiply->output(), clip->texture_input(), command);
         break;
       }
       case Stream::kAudio:

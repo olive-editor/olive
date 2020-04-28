@@ -68,6 +68,8 @@ public:
 
   ScopePanel* AppendScopePanel();
 
+  CurvePanel* AppendCurvePanel();
+
 #ifdef Q_OS_WINDOWS
   void SetTaskbarButtonState(TBPFLAG flags);
 
@@ -100,6 +102,9 @@ private:
   template <typename T>
   T* AppendPanelInternal(QList<T*>& list);
 
+  template <typename T>
+  T* AppendFloatingPanelInternal(QList<T*>& list);
+
   template<typename T>
   void SetUniquePanelID(T* panel, const QList<T*>& list);
 
@@ -122,7 +127,7 @@ private:
   QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
-  CurvePanel* curve_panel_;
+  QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
 
@@ -141,9 +146,7 @@ private slots:
 
   void ProjectCloseRequested();
 
-  void FolderCloseRequested();
-
-  void ScopeCloseRequested();
+  void FloatingPanelCloseRequested();
 
   void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 

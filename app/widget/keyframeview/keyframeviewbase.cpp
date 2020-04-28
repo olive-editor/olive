@@ -174,7 +174,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
           // frame gets rendered in this time
           input_parent->blockSignals(false);
 
-          input_parent->parentNode()->InvalidateVisible(input_parent);
+          input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
         }
       }
     }
@@ -377,7 +377,7 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
 
     input_parent->blockSignals(false);
 
-    input_parent->parentNode()->InvalidateVisible(input_parent);
+    input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
   }
 }
 

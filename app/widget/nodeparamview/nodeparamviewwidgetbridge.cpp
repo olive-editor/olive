@@ -255,7 +255,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
     input_->blockSignals(false);
 
-    input_->parentNode()->InvalidateVisible(input_);
+    input_->parentNode()->InvalidateVisible(input_, input_);
 
   } else {
     if (dragging_) {
@@ -513,9 +513,9 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   return GetAdjustedTime(GetTimeTarget(), input_->parentNode(), time_, NodeParam::kInput);
 }
 
-void NodeParamViewWidgetBridge::InputValueChanged(const rational &start, const rational &end)
+void NodeParamViewWidgetBridge::InputValueChanged(const TimeRange &range)
 {
-  if (!dragging_ && start <= time_ && end >= time_) {
+  if (!dragging_ && range.in() <= time_ && range.out() >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
     UpdateWidgetValues();
   }

@@ -82,9 +82,9 @@ public:
   Block* BlockAtTime(const rational& time) const;
   QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
-  const QVector<Block*>& Blocks() const;
+  const QList<Block *> &Blocks() const;
 
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
+  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput *source) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -150,6 +150,8 @@ public:
 
   bool IsLocked() const;
 
+  NodeInputArray* block_input() const;
+
 public slots:
   void SetTrackName(const QString& name);
 
@@ -183,14 +185,20 @@ signals:
    */
   void MutedChanged(bool e);
 
+  /**
+   * @brief Signal emitted when the index has changed
+   */
+  void IndexChanged(int i);
+
 protected:
 
 private:
   void UpdateInOutFrom(int index);
 
-  void UpdatePreviousAndNextOfIndex(int index);
+  int GetInputIndexFromCacheIndex(int cache_index);
+  int GetInputIndexFromCacheIndex(Block* block);
 
-  QVector<Block*> block_cache_;
+  QList<Block*> block_cache_;
 
   NodeInputArray* block_input_;
 
@@ -214,8 +222,6 @@ private slots:
   void BlockConnected(NodeEdgePtr edge);
 
   void BlockDisconnected(NodeEdgePtr edge);
-
-  void BlockListSizeChanged(int size);
 
   void BlockLengthChanged();
 

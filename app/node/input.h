@@ -49,7 +49,7 @@ public:
   NodeInput(const QString &id, const DataType& type, const QVariant& default_value);
   NodeInput(const QString &id, const DataType& type);
 
-  virtual bool IsArray();
+  virtual bool IsArray() const;
 
   /**
    * @brief Returns kInput
@@ -270,8 +270,16 @@ public:
 
   static QVariant StringToValue(const DataType &data_type, const QString &string);
 
+  void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
+
+  QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
+
+  QList<Node*> GetExclusiveDependencies() const;
+
+  QList<Node*> GetImmediateDependencies() const;
+
 signals:
-  void ValueChanged(const rational& start, const rational& end);
+  void ValueChanged(const TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 

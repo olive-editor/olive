@@ -274,7 +274,9 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                          track_->block_input(),
+                          track_->block_input());
 }
 
 void TrackRippleRemoveAreaCommand::undo_internal()
@@ -328,7 +330,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :
@@ -345,13 +347,13 @@ void TrackPlaceBlockCommand::redo_internal()
   added_track_count_ = 0;
 
   // Get track (or make it if necessary)
-  while (track_index_ >= timeline_->Tracks().size()) {
+  while (track_index_ >= timeline_->GetTracks().size()) {
     timeline_->AddTrack();
 
     added_track_count_++;
   }
 
-  track_ = timeline_->TrackAt(track_index_);
+  track_ = timeline_->GetTrackAt(track_index_);
 
   append_ = (in_ >= track_->track_length());
 
@@ -608,36 +610,34 @@ void TrackCleanGapsCommand::redo_internal()
   GapBlock* on_gap = nullptr;
   QList<GapBlock*> consecutive_gaps;
 
-  TrackOutput* track = track_list_->TrackAt(track_index_);
+  TrackOutput* track = track_list_->GetTrackAt(track_index_);
 
   foreach (Block* b, track->Blocks()) {
-    if (b) {
-      if (b->type() == Block::kGap) {
-        if (on_gap) {
-          consecutive_gaps.append(static_cast<GapBlock*>(b));
-        } else {
-          on_gap = static_cast<GapBlock*>(b);
-        }
-      } else if (on_gap) {
-        merged_gaps_.append({on_gap, on_gap->length(), consecutive_gaps});
-
-        // Remove each gap and add to the length of the merged
-        // We can block the IC signal because merging gaps won't actually change anything
-        track->BlockInvalidateCache();
-        rational new_gap_length = on_gap->length();
-        foreach (GapBlock* gap, consecutive_gaps) {
-          track->RippleRemoveBlock(gap);
-          static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
-
-          new_gap_length += gap->length();
-        }
-        on_gap->set_length_and_media_out(new_gap_length);
-        track->UnblockInvalidateCache();
-
-        // Reset state
-        on_gap = nullptr;
-        consecutive_gaps.clear();
+    if (b->type() == Block::kGap) {
+      if (on_gap) {
+        consecutive_gaps.append(static_cast<GapBlock*>(b));
+      } else {
+        on_gap = static_cast<GapBlock*>(b);
       }
+    } else if (on_gap) {
+      merged_gaps_.append({on_gap, on_gap->length(), consecutive_gaps});
+
+      // Remove each gap and add to the length of the merged
+      // We can block the IC signal because merging gaps won't actually change anything
+      track->BlockInvalidateCache();
+      rational new_gap_length = on_gap->length();
+      foreach (GapBlock* gap, consecutive_gaps) {
+        track->RippleRemoveBlock(gap);
+        static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
+
+        new_gap_length += gap->length();
+      }
+      on_gap->set_length_and_media_out(new_gap_length);
+      track->UnblockInvalidateCache();
+
+      // Reset state
+      on_gap = nullptr;
+      consecutive_gaps.clear();
     }
   }
 
@@ -655,7 +655,7 @@ void TrackCleanGapsCommand::redo_internal()
 
 void TrackCleanGapsCommand::undo_internal()
 {
-  TrackOutput* track = track_list_->TrackAt(track_index_);
+  TrackOutput* track = track_list_->GetTrackAt(track_index_);
 
   // Restored removed end gaps
   foreach (GapBlock* gap, removed_end_gaps_) {

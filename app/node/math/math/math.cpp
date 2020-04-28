@@ -131,9 +131,9 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
     NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
-    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
 
-    operation = QStringLiteral("texture(%1, (vec4(ove_texcoord, 0.0, 1.0) * %2).xy)").arg(tex_in->id(), mat_in->id());
+    // No-op frag shader (can we return QString() instead?)
+    operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
 
   } else {
     switch (GetOperation()) {
@@ -174,6 +174,25 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
                                    param_a_in_->id(),
                                    param_b_in_->id(),
                                    operation);
+}
+
+QString MathNode::ShaderVertexCode(const NodeValueDatabase &input) const
+{
+  PairingCalculator calc(input[param_a_in_], input[param_b_in_]);
+
+  if (calc.GetMostLikelyPairing() == kPairTextureMatrix && GetOperation() == kOpMultiply) {
+
+    NodeParam::DataType type_a = calc.GetMostLikelyValueA().type();
+
+    // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
+    NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
+    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
+
+    return ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
+
+  }
+
+  return QString();
 }
 
 NodeValue MathNode::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
@@ -382,6 +401,11 @@ MathNode::Operation MathNode::GetOperation() const
   return static_cast<Operation>(method_in_->get_standard_value().toInt());
 }
 
+void MathNode::SetOperation(MathNode::Operation o)
+{
+  method_in_->set_standard_value(o);
+}
+
 QString MathNode::GetShaderUniformType(const NodeParam::DataType &type)
 {
   switch (type) {
@@ -403,6 +427,81 @@ QString MathNode::GetShaderVariableCall(const QString &input_id, const NodeParam
   }
 
   return input_id;
+}
+
+QVector4D MathNode::RetrieveVector(const NodeValue &val)
+{
+  // QVariant doesn't know that QVector*D can convert themselves so we do it here
+  switch (val.type()) {
+  case NodeParam::kVec2:
+    return val.data().value<QVector2D>();
+  case NodeParam::kVec3:
+    return val.data().value<QVector3D>();
+  case NodeParam::kVec4:
+  default:
+    return val.data().value<QVector4D>();
+  }
+}
+
+void MathNode::PushVector(NodeValueTable *output, NodeParam::DataType type, const QVector4D &vec)
+{
+  switch (type) {
+  case NodeParam::kVec2:
+    output->Push(type, QVector2D(vec));
+    break;
+  case NodeParam::kVec3:
+    output->Push(type, QVector3D(vec));
+    break;
+  case NodeParam::kVec4:
+    output->Push(type, vec);
+    break;
+  default:
+    break;
+  }
+}
+
+float MathNode::RetrieveNumber(const NodeValue &val)
+{
+  if (val.type() == NodeParam::kRational) {
+    return val.data().value<rational>().toDouble();
+  } else {
+    return val.data().toFloat();
+  }
+}
+
+MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b)
+{
+  QVector<int> pair_likelihood_a = GetPairLikelihood(table_a);
+  QVector<int> pair_likelihood_b = GetPairLikelihood(table_b);
+
+  int weight_a = qMax(0, table_b.Count() - table_a.Count());
+  int weight_b = qMax(0, table_a.Count() - table_b.Count());
+
+  QVector<int> likelihoods(kPairCount);
+
+  for (int i=0;i<kPairCount;i++) {
+    if (pair_likelihood_a.at(i) == -1 || pair_likelihood_b.at(i) == -1) {
+      likelihoods.replace(i, -1);
+    } else {
+      likelihoods.replace(i, pair_likelihood_a.at(i) + weight_a + pair_likelihood_b.at(i) + weight_b);
+    }
+  }
+
+  most_likely_pairing_ = kPairNone;
+
+  for (int i=0;i<likelihoods.size();i++) {
+    if (likelihoods.at(i) > -1) {
+      if (most_likely_pairing_ == kPairNone
+          || likelihoods.at(i) > likelihoods.at(most_likely_pairing_)) {
+        most_likely_pairing_ = static_cast<Pairing>(i);
+      }
+    }
+  }
+
+  if (most_likely_pairing_ != kPairNone) {
+    most_likely_value_a_ = table_a.At(pair_likelihood_a.at(most_likely_pairing_));
+    most_likely_value_b_ = table_b.At(pair_likelihood_b.at(most_likely_pairing_));
+  }
 }
 
 QVector<int> MathNode::PairingCalculator::GetPairLikelihood(const NodeValueTable &table)
@@ -448,88 +547,6 @@ QVector<int> MathNode::PairingCalculator::GetPairLikelihood(const NodeValueTable
   return likelihood;
 }
 
-MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairingInternal(const QVector<int> &a,
-                                                                            const QVector<int> &b,
-                                                                            const int& weight_a,
-                                                                            const int& weight_b)
-{
-  QVector<int> likelihoods(kPairCount);
-
-  for (int i=0;i<likelihoods.size();i++) {
-    if (a.at(i) == -1 || b.at(i) == -1) {
-      likelihoods.replace(i, -1);
-    } else {
-      likelihoods.replace(i, a.at(i) + weight_a + b.at(i) + weight_b);
-    }
-  }
-
-  Pairing pairing = kPairNone;
-
-  for (int i=0;i<likelihoods.size();i++) {
-    if (likelihoods.at(i) > -1) {
-      if (pairing == kPairNone
-          || likelihoods.at(i) > likelihoods.at(pairing)) {
-        pairing = static_cast<Pairing>(i);
-      }
-    }
-  }
-
-  return pairing;
-}
-
-QVector4D MathNode::RetrieveVector(const NodeValue &val)
-{
-  // QVariant doesn't know that QVector*D can convert themselves so we do it here
-  switch (val.type()) {
-  case NodeParam::kVec2:
-    return val.data().value<QVector2D>();
-  case NodeParam::kVec3:
-    return val.data().value<QVector3D>();
-  case NodeParam::kVec4:
-  default:
-    return val.data().value<QVector4D>();
-  }
-}
-
-void MathNode::PushVector(NodeValueTable *output, NodeParam::DataType type, const QVector4D &vec)
-{
-  switch (type) {
-  case NodeParam::kVec2:
-    output->Push(type, QVector2D(vec));
-    break;
-  case NodeParam::kVec3:
-    output->Push(type, QVector3D(vec));
-    break;
-  case NodeParam::kVec4:
-    output->Push(type, vec);
-    break;
-  default:
-    break;
-  }
-}
-
-float MathNode::RetrieveNumber(const NodeValue &val)
-{
-  if (val.type() == NodeParam::kRational) {
-    return val.data().value<rational>().toDouble();
-  } else {
-    return val.data().toFloat();
-  }
-}
-
-MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b) :
-  table_a_(table_a),
-  table_b_(table_b)
-{
-  pair_likelihood_a_ = GetPairLikelihood(table_a_);
-  pair_likelihood_b_ = GetPairLikelihood(table_b_);
-
-  most_likely_pairing_ = GetMostLikelyPairingInternal(pair_likelihood_a_,
-                                                      pair_likelihood_b_,
-                                                      qMax(0, table_b_.Count() - table_a_.Count()),
-                                                      qMax(0, table_a_.Count() - table_b_.Count()));
-}
-
 bool MathNode::PairingCalculator::FoundMostLikelyPairing() const
 {
   return (most_likely_pairing_ > kPairNone && most_likely_pairing_ < kPairCount);
@@ -542,17 +559,12 @@ MathNode::Pairing MathNode::PairingCalculator::GetMostLikelyPairing() const
 
 const NodeValue &MathNode::PairingCalculator::GetMostLikelyValueA() const
 {
-  return GetMostLikelyValue(table_a_, pair_likelihood_a_);
+  return most_likely_value_a_;
 }
 
 const NodeValue &MathNode::PairingCalculator::GetMostLikelyValueB() const
 {
-  return GetMostLikelyValue(table_b_, pair_likelihood_b_);
-}
-
-const NodeValue& MathNode::PairingCalculator::GetMostLikelyValue(const NodeValueTable &table, const QVector<int> &likelihood) const
-{
-  return table.At(likelihood.at(most_likely_pairing_));
+  return most_likely_value_b_;
 }
 
 template<typename T, typename U>

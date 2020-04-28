@@ -241,7 +241,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
     view->ConnectTrackList(track_list);
 
     // Defer to the track to make all the block UI items necessary
-    foreach (TrackOutput* track, n->track_list(track_type)->Tracks()) {
+    foreach (TrackOutput* track, n->track_list(track_type)->GetTracks()) {
       AddTrack(track, track_type);
     }
   }
@@ -881,7 +881,7 @@ void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational
 
 TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
 {
-  return GetConnectedNode()->track_list(ref.type())->TrackAt(ref.index());
+  return GetConnectedNode()->track_list(ref.type())->GetTrackAt(ref.index());
 }
 
 int TimelineWidget::GetTrackY(const TrackReference &ref)
@@ -1017,9 +1017,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 
 void TimelineWidget::RemoveBlock(Block *block)
 {
-  delete block_items_[block];
-
-  block_items_.remove(block);
+  delete block_items_.take(block);
 }
 
 void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
@@ -1027,12 +1025,29 @@ void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
   foreach (Block* b, track->Blocks()) {
     AddBlock(b, TrackReference(type, track->Index()));
   }
+
+  connect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
 }
 
 void TimelineWidget::RemoveTrack(TrackOutput *track)
 {
+  disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
+
   foreach (Block* b, track->Blocks()) {
     RemoveBlock(b);
+  }
+}
+
+void TimelineWidget::TrackIndexChanged()
+{
+  TrackOutput* track = static_cast<TrackOutput*>(sender());
+  TrackReference ref(track->track_type(), track->Index());
+
+  foreach (Block* b, track->Blocks()) {
+    TimelineViewBlockItem* item = block_items_.value(b);
+
+    item->SetYCoords(GetTrackY(ref), GetTrackHeight(ref));
+    item->SetTrack(ref);
   }
 }
 

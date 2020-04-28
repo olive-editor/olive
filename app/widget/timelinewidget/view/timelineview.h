@@ -53,10 +53,10 @@ public:
 
   void DeselectAll();
 
-  int GetTrackY(int track_index);
-  int GetTrackHeight(int track_index);
+  int GetTrackY(int track_index) const;
+  int GetTrackHeight(int track_index) const;
 
-  QPoint GetScrollCoordinates();
+  QPoint GetScrollCoordinates() const;
   void SetScrollCoordinates(const QPoint& pt);
 
   void ConnectTrackList(TrackList* list);
@@ -91,6 +91,8 @@ protected:
 
   virtual void ToolChangedEvent(Tool::Item tool) override;
 
+  virtual void SceneRectUpdateEvent(QRectF& rect) override;
+
 private:
   Timeline::TrackType ConnectedTrackType();
   Stream::Type TrackTypeToStreamType(Timeline::TrackType track_type);
@@ -99,6 +101,8 @@ private:
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
   TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::KeyboardModifiers modifiers);
+
+  int GetHeightOfAllTracks() const;
 
   int SceneToTrack(double y);
 

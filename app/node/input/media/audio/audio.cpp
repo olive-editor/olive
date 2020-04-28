@@ -22,10 +22,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioInput::AudioInput()
-{
-}
-
 Node *AudioInput::copy() const
 {
   return new AudioInput();

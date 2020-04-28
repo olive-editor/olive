@@ -31,7 +31,7 @@ MediaInput::MediaInput() :
   footage_input_ = new NodeInput("footage_in", NodeInput::kFootage);
   footage_input_->SetConnectable(false);
   footage_input_->set_is_keyframable(false);
-  connect(footage_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(FootageChanged()));
+  connect(footage_input_, &NodeInput::ValueChanged, this, &MediaInput::FootageChanged);
   AddInput(footage_input_);
 }
 
@@ -67,7 +67,7 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
   }
 
   // Push buffer to the top of the stack
-  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kSamples);
+  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kBuffer);
   if (buffer.type() != NodeParam::kNone) {
     table.Push(buffer);
   }
@@ -96,7 +96,7 @@ void MediaInput::FootageChanged()
 
 void MediaInput::FootageParametersChanged()
 {
-  InvalidateCache(0, RATIONAL_MAX, footage_input_);
+  InvalidateCache(TimeRange(0, RATIONAL_MAX), footage_input_, footage_input_);
 }
 
 OLIVE_NAMESPACE_EXIT

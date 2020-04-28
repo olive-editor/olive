@@ -189,11 +189,7 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
   int line_y = 0;
 
-  foreach (TrackOutput* track, connected_track_list_->Tracks()) {
-    if (!track) {
-      continue;
-    }
-
+  foreach (TrackOutput* track, connected_track_list_->GetTracks()) {
     line_y += track->GetTrackHeight();
 
     // One px gap between tracks
@@ -227,6 +223,17 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
     break;
   default:
     unsetCursor();
+  }
+}
+
+void TimelineView::SceneRectUpdateEvent(QRectF &rect)
+{
+  if (alignment() & Qt::AlignTop) {
+    rect.setTop(0);
+    rect.setBottom(GetHeightOfAllTracks() + height() / 2);
+  } else if (alignment() & Qt::AlignBottom) {
+    rect.setBottom(0);
+    rect.setTop(GetHeightOfAllTracks() - height() / 2);
   }
 }
 
@@ -279,8 +286,25 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Key
   return timeline_event;
 }
 
-int TimelineView::GetTrackY(int track_index)
+int TimelineView::GetHeightOfAllTracks() const
 {
+  if (connected_track_list_) {
+    if (alignment() & Qt::AlignTop) {
+      return GetTrackY(connected_track_list_->GetTrackCount());
+    } else {
+      return GetTrackY(connected_track_list_->GetTrackCount() - 1);
+    }
+  } else {
+    return 0;
+  }
+}
+
+int TimelineView::GetTrackY(int track_index) const
+{
+  if (!connected_track_list_ || !connected_track_list_->GetTrackCount()) {
+    return 0;
+  }
+
   int y = 0;
 
   if (alignment() & Qt::AlignBottom) {
@@ -301,16 +325,16 @@ int TimelineView::GetTrackY(int track_index)
   return y;
 }
 
-int TimelineView::GetTrackHeight(int track_index)
+int TimelineView::GetTrackHeight(int track_index) const
 {
-  if (!connected_track_list_ || track_index >= connected_track_list_->TrackCount()) {
+  if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
     return TrackOutput::GetDefaultTrackHeight();
   }
 
-  return connected_track_list_->TrackAt(track_index)->GetTrackHeight();
+  return connected_track_list_->GetTrackAt(track_index)->GetTrackHeight();
 }
 
-QPoint TimelineView::GetScrollCoordinates()
+QPoint TimelineView::GetScrollCoordinates() const
 {
   return QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
 }

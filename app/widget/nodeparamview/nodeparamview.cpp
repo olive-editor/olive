@@ -126,6 +126,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   // If we already have item widgets, delete them all now
   foreach (NodeParamViewItem* item, items_) {
+    emit ClosedNode(item->GetNode());
+
     delete item;
   }
   items_.clear();
@@ -149,12 +151,14 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
       connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
       connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
-      connect(item, &NodeParamViewItem::InputClicked, this, &NodeParamView::SelectedInputChanged);
+      connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
       connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
 
       items_.append(item);
 
       QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
+
+      emit OpenedNode(node);
     }
 
     ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();

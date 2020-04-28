@@ -97,7 +97,7 @@ public:
   NodeInput* media_in_input() const;
   NodeInput* speed_input() const;
 
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
+  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source) override;
 
 public slots:
 

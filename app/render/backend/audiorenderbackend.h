@@ -54,10 +54,6 @@ protected:
 
   virtual void DisconnectViewer(ViewerOutput* node) override;
 
-  virtual bool CompileInternal() override;
-
-  virtual void DecompileInternal() override;
-
   /**
    * @brief Internal function for generating the cache ID
    */
@@ -72,8 +68,6 @@ protected:
   virtual TimeRange PopNextFrameFromQueue() override;
 
   virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
-
-  QHash<Node*, Node*> copy_map_;
 
 private:
   struct ConformWaitInfo {

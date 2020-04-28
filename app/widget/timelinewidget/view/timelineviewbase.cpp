@@ -44,10 +44,6 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
 {
   setScene(&scene_);
 
-  // Create end item
-  end_item_ = new TimelineViewEndItem();
-  scene_.addItem(end_item_);
-
   // Set default scale
   SetScale(1.0);
 
@@ -223,54 +219,28 @@ qreal TimelineViewBase::GetPlayheadX()
 
 void TimelineViewBase::SetEndTime(const rational &length)
 {
-  end_item_->SetEndTime(length);
+  end_time_ = length;
+
+  UpdateSceneRect();
 }
 
 void TimelineViewBase::UpdateSceneRect()
 {
   QRectF bounding_rect = scene_.itemsBoundingRect();
 
-  if (limit_y_axis_) {
-    // Make a gap of half the viewport height
-    if (alignment() & Qt::AlignBottom) {
-      bounding_rect.setTop(bounding_rect.top() - height()/2);
-    } else {
-      bounding_rect.setBottom(bounding_rect.bottom() + height()/2);
-    }
-
-    // Ensure the scene height is always AT LEAST the height of the view
-    // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
-    int minimum_height = height() - horizontalScrollBar()->height() - 2;
-
-    if (alignment() & Qt::AlignBottom) {
-      // Ensure the scene left and bottom are always 0
-      bounding_rect.setBottomLeft(QPointF(0, 0));
-
-      if (bounding_rect.top() > minimum_height) {
-        bounding_rect.setTop(-minimum_height);
-      }
-    } else {
-      // Ensure the scene left and top are always 0
-      bounding_rect.setTopLeft(QPointF(0, 0));
-
-      if (bounding_rect.height() < minimum_height) {
-        bounding_rect.setHeight(minimum_height);
-      }
-    }
-  } else {
-    // We'll still limit the X to 0 since that behavior is desired by all TimelineViewBase derivatives
-    bounding_rect.setLeft(0);
-  }
+  // There's no need for a timeline to ever go below 0 on the X scale
+  bounding_rect.setLeft(0);
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  end_item_->SetEndPadding(width()/2);
+  bounding_rect.setRight(TimeToScene(end_time_) + width() / 2);
+
+  // Any further rect processing from derivatives can be done here
+  SceneRectUpdateEvent(bounding_rect);
 
   // If the scene is already this rect, do nothing
-  if (scene_.sceneRect() == bounding_rect) {
-    return;
+  if (scene_.sceneRect() != bounding_rect) {
+    scene_.setSceneRect(bounding_rect);
   }
-
-  scene_.setSceneRect(bounding_rect);
 }
 
 void TimelineViewBase::PageScrollToPlayhead()
@@ -299,9 +269,10 @@ void TimelineViewBase::ScaleChangedEvent(const double &scale)
 {
   TimelineScaledObject::ScaleChangedEvent(scale);
 
-  end_item_->SetScale(scale);
+  // Update scene rect
+  UpdateSceneRect();
 
-  // Force redraw for playhead
+  // Force redraw for playhead if the above function didn't do it
   viewport()->update();
 }
 

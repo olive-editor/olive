@@ -1,8 +1,8 @@
 #version 150
 
-uniform mat4 matrix_in;
+uniform mat4 %1;
 
-uniform vec2 footage_in_resolution;
+uniform vec2 %2_resolution;
 uniform vec2 ove_resolution;
 
 in vec4 a_position;
@@ -27,10 +27,10 @@ void main() {
     transform *= scale_mat4(vec3(1.0 / ove_resolution, 1.0));
 
     // Multiply by received matrix
-    transform *= matrix_in;
+    transform *= %1;
 
     // Scale back out to footage size
-    transform *= scale_mat4(vec3(footage_in_resolution, 1.0));
+    transform *= scale_mat4(vec3(%2_resolution, 1.0));
 
     gl_Position = transform * a_position;
     ove_texcoord = a_texcoord;

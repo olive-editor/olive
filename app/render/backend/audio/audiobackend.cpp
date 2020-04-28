@@ -39,7 +39,7 @@ bool AudioBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    AudioWorker* processor = new AudioWorker(&copy_map_);
+    AudioWorker* processor = new AudioWorker(&node_copy_map_);
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -49,18 +49,6 @@ bool AudioBackend::InitInternal()
 
 void AudioBackend::CloseInternal()
 {
-}
-
-bool AudioBackend::CompileInternal()
-{
-  // This backend doesn't compile anything yet
-  return AudioRenderBackend::CompileInternal();
-}
-
-void AudioBackend::DecompileInternal()
-{
-  // This backend doesn't compile anything yet
-  AudioRenderBackend::DecompileInternal();
 }
 
 void AudioBackend::ConnectWorkerToThis(RenderWorker *worker)

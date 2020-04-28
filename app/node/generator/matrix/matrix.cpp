@@ -18,14 +18,14 @@
 
 ***/
 
-#include "transform.h"
+#include "matrix.h"
 
 #include <QMatrix4x4>
 #include <QVector2D>
 
 OLIVE_NAMESPACE_ENTER
 
-TransformDistort::TransformDistort()
+MatrixGenerator::MatrixGenerator()
 {
   position_input_ = new NodeInput("pos_in", NodeParam::kVec2);
   AddInput(position_input_);
@@ -42,39 +42,39 @@ TransformDistort::TransformDistort()
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
   uniform_scale_input_->set_is_keyframable(false);
   uniform_scale_input_->SetConnectable(false);
-  connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &TransformDistort::UniformScaleChanged);
+  connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &MatrixGenerator::UniformScaleChanged);
   AddInput(uniform_scale_input_);
 
   anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2);
   AddInput(anchor_input_);
 }
 
-Node *TransformDistort::copy() const
+Node *MatrixGenerator::copy() const
 {
-  return new TransformDistort();
+  return new MatrixGenerator();
 }
 
-QString TransformDistort::Name() const
+QString MatrixGenerator::Name() const
 {
-  return tr("Transform");
+  return tr("Orthographic Matrix");
 }
 
-QString TransformDistort::id() const
+QString MatrixGenerator::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.transform");
 }
 
-QString TransformDistort::Category() const
+QString MatrixGenerator::Category() const
 {
-  return tr("Distort");
+  return tr("Generator");
 }
 
-QString TransformDistort::Description() const
+QString MatrixGenerator::Description() const
 {
-  return tr("Apply transformations to position, rotation, and scale.");
+  return tr("Generate an orthographic matrix using position, rotation, and scale.");
 }
 
-void TransformDistort::Retranslate()
+void MatrixGenerator::Retranslate()
 {
   position_input_->set_name(tr("Position"));
   rotation_input_->set_name(tr("Rotation"));
@@ -83,7 +83,7 @@ void TransformDistort::Retranslate()
   anchor_input_->set_name(tr("Anchor Point"));
 }
 
-NodeValueTable TransformDistort::Value(NodeValueDatabase &value) const
+NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
 {
   QMatrix4x4 mat;
 
@@ -110,7 +110,7 @@ NodeValueTable TransformDistort::Value(NodeValueDatabase &value) const
   return output;
 }
 
-void TransformDistort::UniformScaleChanged()
+void MatrixGenerator::UniformScaleChanged()
 {
   scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());
 }

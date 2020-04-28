@@ -100,7 +100,7 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
     {
       // Save waveform to file
-      Block* src_block = static_cast<Block*>(copy_map_->value(b));
+      Block* src_block = static_cast<Block*>(copy_map_->key(b));
       QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
       QDir waveform_loc = local_appdata_dir.filePath(QStringLiteral("waveform"));
       waveform_loc.mkpath(".");

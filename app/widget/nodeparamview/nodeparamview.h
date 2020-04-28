@@ -41,11 +41,15 @@ public:
   const QList<Node*>& nodes();
 
 signals:
-  void SelectedInputChanged(NodeInput* input);
+  void InputDoubleClicked(NodeInput* input);
 
   void TimeTargetChanged(Node* target);
 
   void RequestSelectNode(const QList<Node*>& target);
+
+  void OpenedNode(Node* n);
+
+  void ClosedNode(Node* n);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;

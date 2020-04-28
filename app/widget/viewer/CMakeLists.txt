@@ -24,8 +24,8 @@ set(OLIVE_SOURCES
   widget/viewer/pixelsamplerwidget.cpp
   widget/viewer/viewer.h
   widget/viewer/viewer.cpp
-  widget/viewer/viewerglwidget.h
-  widget/viewer/viewerglwidget.cpp
+  widget/viewer/viewerdisplay.h
+  widget/viewer/viewerdisplay.cpp
   widget/viewer/viewersafemargininfo.h
   widget/viewer/viewersizer.h
   widget/viewer/viewersizer.cpp

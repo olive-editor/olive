@@ -35,7 +35,7 @@
 #include "render/backend/opengl/openglbackend.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "render/backend/audio/audiobackend.h"
-#include "viewerglwidget.h"
+#include "viewerdisplay.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -107,11 +107,6 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  /**
-   * @brief Wrapper for ViewerGLWidget::SetEmitDrewManagedTextureEnabled()
-   */
-  void SetEmitDrewManagedTextureEnabled(bool e);
-
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -122,16 +117,6 @@ signals:
    * @brief Wrapper for ViewerGLWidget::LoadedBuffer()
    */
   void LoadedBuffer(Frame* load_buffer);
-
-  /**
-   * @brief Wrapper for ViewerGLWidget::LoadedTexture()
-   */
-  void LoadedTexture(OpenGLTexture* texture);
-
-  /**
-   * @brief Wrapper for ViewerGLWidget::DrewManagedTexture()
-   */
-  void DrewManagedTexture(OpenGLTexture* texture);
 
   /**
    * @brief Request a scope panel
@@ -167,8 +152,8 @@ protected:
 
   PlaybackControls* controls_;
 
-  const QList<ViewerGLWidget *> &gl_widgets() const;
-  ViewerGLWidget* main_gl_widget() const;
+  const QList<ViewerDisplayWidget *> &gl_widgets() const;
+  ViewerDisplayWidget* main_gl_widget() const;
 
 private:
   void UpdateTimeInternal(int64_t i);
@@ -183,7 +168,7 @@ private:
 
   void UpdateMinimumScale();
 
-  void SetColorTransform(const ColorTransform& transform, ViewerGLWidget* sender);
+  void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
 
   QStackedWidget* stack_;
 
@@ -212,9 +197,9 @@ private:
 
   QList<ViewerWindow*> windows_;
 
-  QList<ViewerGLWidget*> gl_widgets_;
+  QList<ViewerDisplayWidget*> gl_widgets_;
 
-  ViewerGLWidget* context_menu_widget_;
+  ViewerDisplayWidget* context_menu_widget_;
 
 private slots:
   void PlaybackTimerUpdate();
@@ -233,7 +218,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void InvalidateVisible();
+  void InvalidateVisible(NodeInput *source);
 
   void UpdateStack();
 

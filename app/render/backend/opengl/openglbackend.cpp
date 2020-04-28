@@ -89,15 +89,6 @@ void OpenGLBackend::CloseInternal()
   VideoRenderBackend::CloseInternal();
 }
 
-bool OpenGLBackend::CompileInternal()
-{
-  return true;
-}
-
-void OpenGLBackend::DecompileInternal()
-{
-}
-
 void OpenGLBackend::ParamsChangedEvent()
 {
   // If we're initiated, we need to recreate the texture. Otherwise this backend isn't active so it doesn't matter.

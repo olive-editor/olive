@@ -42,6 +42,8 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidg
   connect(connected_to_lbl_, &ClickableLabel::MouseClicked, this, &NodeParamViewConnectedLabel::ConnectionClicked);
   layout->addWidget(connected_to_lbl_);
 
+  layout->addStretch();
+
   // Set up "link" font
   QFont link_font = connected_to_lbl_->font();
   link_font.setUnderline(true);

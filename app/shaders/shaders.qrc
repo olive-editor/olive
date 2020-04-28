@@ -17,7 +17,6 @@
         <file>solid.xml</file>
         <file>stroke.frag</file>
         <file>stroke.xml</file>
-        <file>videoinput.frag</file>
-        <file>videoinput.vert</file>
+        <file>matrix.vert</file>
     </qresource>
 </RCC>

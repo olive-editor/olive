@@ -32,9 +32,16 @@ CurvePanel::CurvePanel(QWidget *parent) :
   Retranslate();
 }
 
+NodeInput *CurvePanel::GetInput() const
+{
+  return static_cast<CurveWidget*>(GetTimeBasedWidget())->GetInput();
+}
+
 void CurvePanel::SetInput(NodeInput *input)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetInput(input);
+
+  Retranslate();
 }
 
 void CurvePanel::SetTimeTarget(Node *target)
@@ -59,6 +66,13 @@ void CurvePanel::Retranslate()
   TimeBasedPanel::Retranslate();
 
   SetTitle(tr("Curve Editor"));
+
+  NodeInput* connected_input = static_cast<CurveWidget*>(GetTimeBasedWidget())->GetInput();
+  if (connected_input) {
+    SetSubtitle(connected_input->name());
+  } else {
+    SetSubtitle(QString());
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

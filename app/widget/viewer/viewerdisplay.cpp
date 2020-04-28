@@ -18,7 +18,7 @@
 
 ***/
 
-#include "viewerglwidget.h"
+#include "viewerdisplay.h"
 
 #include <OpenImageIO/imagebuf.h>
 #include <QFileInfo>
@@ -37,30 +37,28 @@
 OLIVE_NAMESPACE_ENTER
 
 #ifdef Q_OS_LINUX
-bool ViewerGLWidget::nouveau_check_done_ = false;
+bool ViewerDisplayWidget::nouveau_check_done_ = false;
 #endif
 
-ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
+ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
-  managed_copy_pipeline_(nullptr),
   has_image_(false),
-  signal_cursor_color_(false),
-  enable_display_referred_signal_(false)
+  signal_cursor_color_(false)
 {
 }
 
-ViewerGLWidget::~ViewerGLWidget()
+ViewerDisplayWidget::~ViewerDisplayWidget()
 {
   ContextCleanup();
 }
 
-void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
+void ViewerDisplayWidget::SetMatrix(const QMatrix4x4 &mat)
 {
   matrix_ = mat;
   update();
 }
 
-void ViewerGLWidget::SetImage(const QString &fn)
+void ViewerDisplayWidget::SetImage(const QString &fn)
 {
   has_image_ = false;
 
@@ -91,13 +89,11 @@ void ViewerGLWidget::SetImage(const QString &fn)
       input->read_image(input->spec().format, load_buffer_.data(), OIIO::AutoStride, load_buffer_.linesize_bytes());
       input->close();
 
-      emit LoadedBuffer(&load_buffer_);
-
-      texture_.Upload(load_buffer_.data(), load_buffer_.linesize_pixels());
-
-      emit LoadedTexture(&texture_);
+      texture_.Upload(&load_buffer_);
 
       doneCurrent();
+
+      emit LoadedBuffer(&load_buffer_);
 
       has_image_ = true;
 
@@ -119,13 +115,13 @@ void ViewerGLWidget::SetImage(const QString &fn)
   }
 }
 
-void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
+void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
   setMouseTracking(e);
 }
 
-void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
+void ViewerDisplayWidget::SetImageFromLoadBuffer(Frame *in_buffer)
 {
   has_image_ = in_buffer;
 
@@ -138,7 +134,7 @@ void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
         || texture_.format() != in_buffer->format()) {
       texture_.Create(context(), in_buffer->width(), in_buffer->height(), in_buffer->format(), in_buffer->data(), load_buffer_.linesize_pixels());
     } else {
-      texture_.Upload(in_buffer->data(), load_buffer_.linesize_pixels());
+      texture_.Upload(in_buffer);
     }
 
     doneCurrent();
@@ -147,44 +143,32 @@ void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
   update();
 }
 
-void ViewerGLWidget::SetEmitDrewManagedTextureEnabled(bool e)
+void ViewerDisplayWidget::ConnectSibling(ViewerDisplayWidget *sibling)
 {
-  enable_display_referred_signal_ = e;
-
-  if (!enable_display_referred_signal_) {
-    // Destroy the texture now
-    managed_texture_.Destroy();
-    managed_copy_pipeline_ = nullptr;
-    framebuffer_.Destroy();
-  }
-}
-
-void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
-{
-  connect(this, &ViewerGLWidget::LoadedBuffer, sibling, &ViewerGLWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
+  connect(this, &ViewerDisplayWidget::LoadedBuffer, sibling, &ViewerDisplayWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
   sibling->SetImageFromLoadBuffer(&load_buffer_);
 }
 
-const ViewerSafeMarginInfo &ViewerGLWidget::GetSafeMargin() const
+const ViewerSafeMarginInfo &ViewerDisplayWidget::GetSafeMargin() const
 {
   return safe_margin_;
 }
 
-void ViewerGLWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
+void ViewerDisplayWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
 {
   safe_margin_ = safe_margin;
 
   update();
 }
 
-void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
+void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mousePressEvent(event);
 
   emit DragStarted();
 }
 
-void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
+void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   QOpenGLWidget::mouseMoveEvent(event);
 
@@ -209,11 +193,11 @@ void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
   }
 }
 
-void ViewerGLWidget::initializeGL()
+void ViewerDisplayWidget::initializeGL()
 {
   ManagedDisplayWidget::initializeGL();
 
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerGLWidget::ContextCleanup, Qt::DirectConnection);
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerDisplayWidget::ContextCleanup, Qt::DirectConnection);
 
 #ifdef Q_OS_LINUX
   if (!nouveau_check_done_) {
@@ -231,7 +215,7 @@ void ViewerGLWidget::initializeGL()
 #endif
 }
 
-void ViewerGLWidget::paintGL()
+void ViewerDisplayWidget::paintGL()
 {
   // Get functions attached to this context (they will already be initialized)
   QOpenGLFunctions* f = context()->functions();
@@ -243,33 +227,6 @@ void ViewerGLWidget::paintGL()
   // We only draw if we have a pipeline
   if (has_image_ && color_service() && texture_.IsCreated()) {
 
-    // If we're distributing our display-referred final buffer, we'll have to make a copy of it
-    if (enable_display_referred_signal_) {
-
-      if (!managed_texture_.IsCreated()
-          || managed_texture_.width() != texture_.width()
-          || managed_texture_.height() != texture_.height()
-          || managed_texture_.format() != texture_.format()) {
-        managed_texture_.Destroy();
-
-        managed_texture_.Create(context(), texture_.width(), texture_.height(), texture_.format());
-      }
-
-      if (!managed_copy_pipeline_) {
-        managed_copy_pipeline_ = OpenGLShader::CreateDefault();
-      }
-
-      if (!framebuffer_.IsCreated()) {
-        framebuffer_.Create(context());
-      }
-
-      framebuffer_.Attach(&managed_texture_);
-      framebuffer_.Bind();
-
-      context()->functions()->glViewport(0, 0, managed_texture_.width(), managed_texture_.height());
-
-    }
-
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
@@ -279,24 +236,6 @@ void ViewerGLWidget::paintGL()
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
-    if (enable_display_referred_signal_) {
-
-      framebuffer_.Release();
-      framebuffer_.Detach();
-
-      emit DrewManagedTexture(&managed_texture_);
-
-      // Bind retrieved texture
-      managed_texture_.Bind();
-
-      context()->functions()->glViewport(0, 0, width(), height());
-
-      OpenGLRenderFunctions::Blit(managed_copy_pipeline_);
-
-      // Bind retrieved texture
-      managed_texture_.Release();
-
-    }
   }
 
   // Draw action/title safe areas
@@ -333,7 +272,7 @@ void ViewerGLWidget::paintGL()
 }
 
 #ifdef Q_OS_LINUX
-void ViewerGLWidget::ShowNouveauWarning()
+void ViewerDisplayWidget::ShowNouveauWarning()
 {
   QMessageBox::warning(this,
                        tr("Driver Warning"),
@@ -344,14 +283,11 @@ void ViewerGLWidget::ShowNouveauWarning()
 }
 #endif
 
-void ViewerGLWidget::ContextCleanup()
+void ViewerDisplayWidget::ContextCleanup()
 {
   makeCurrent();
 
-  managed_copy_pipeline_ = nullptr;
   texture_.Destroy();
-  managed_texture_.Destroy();
-  framebuffer_.Destroy();
 
   doneCurrent();
 }

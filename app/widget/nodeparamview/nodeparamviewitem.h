@@ -64,7 +64,7 @@ signals:
 
   void RequestSetTime(const rational& time);
 
-  void InputClicked(NodeInput* input);
+  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QList<Node*>& node);
 
@@ -93,7 +93,7 @@ private slots:
 
   void InputAddedKeyframe(NodeKeyframePtr key);
 
-  void LabelClicked();
+  void LabelDoubleClicked();
 
   void ConnectionClicked();
 
@@ -109,6 +109,8 @@ public:
 
   void SetTime(const rational& time);
 
+  Node* GetNode() const;
+
 public slots:
   void SignalAllKeyframes();
 
@@ -119,7 +121,7 @@ signals:
 
   void RequestSetTime(const rational& time);
 
-  void InputClicked(NodeInput* input);
+  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QList<Node*>& node);
 

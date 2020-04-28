@@ -89,7 +89,7 @@ public:
 public slots:
   void SetTimebase(const rational& timebase);
 
-  void SetTime(const int64_t& timestamp);
+  virtual void SetTimestamp(const int64_t& timestamp);
 
 signals:
   void TimeChanged(const int64_t& time);

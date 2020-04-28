@@ -49,7 +49,7 @@ OLIVE_NAMESPACE_ENTER
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
-class ViewerGLWidget : public ManagedDisplayWidget
+class ViewerDisplayWidget : public ManagedDisplayWidget
 {
   Q_OBJECT
 public:
@@ -60,9 +60,9 @@ public:
    *
    * QWidget parent.
    */
-  ViewerGLWidget(QWidget* parent = nullptr);
+  ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  virtual ~ViewerGLWidget() override;
+  virtual ~ViewerDisplayWidget() override;
 
   /**
    * @brief Set an image to load and display on screen
@@ -71,7 +71,7 @@ public:
 
   const QMatrix4x4& GetMatrix();
 
-  void ConnectSibling(ViewerGLWidget* sibling);
+  void ConnectSibling(ViewerDisplayWidget* sibling);
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -101,15 +101,6 @@ public slots:
    */
   void SetImageFromLoadBuffer(Frame* in_buffer);
 
-  /**
-   * @brief Enables or disables DrewManagedTexture()
-   *
-   * To emit a display referred texture, it needs to be copied after the color transform is complete. This naturally
-   * adds extra GPU cycles that are wasted if there's nothing receiving the signal. Therefore, the signal is disabled
-   * by default.
-   */
-  void SetEmitDrewManagedTextureEnabled(bool e);
-
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
@@ -129,18 +120,6 @@ signals:
    * Connect this to the SetImageFromLoadBuffer() slot of another ViewerGLWidget to show the same thing
    */
   void LoadedBuffer(Frame* load_buffer);
-
-  /**
-   * @brief Signal emitted when a buffer is loaded into a texture
-   *
-   * This texture will be the direct output of the renderer in reference space in GPU VRAM.
-   */
-  void LoadedTexture(OpenGLTexture* texture);
-
-  /**
-   * @brief Emitted when the a texture has been transformed to display
-   */
-  void DrewManagedTexture(OpenGLTexture* texture);
 
 protected:
   /**
@@ -174,23 +153,6 @@ private:
   OpenGLTexture texture_;
 
   /**
-   * @brief Internal framebuffer used to draw to managed_texture_
-   */
-  OpenGLFramebuffer framebuffer_;
-
-  /**
-   * @brief Internal referenceto the OpenGL texture that's been managed
-   *
-   * Kept so that scopes can use the display-referred buffer without having to transform again.
-   */
-  OpenGLTexture managed_texture_;
-
-  /**
-   * @brief Pipeline used to draw to managed_texture_
-   */
-  OpenGLShaderPtr managed_copy_pipeline_;
-
-  /**
    * @brief Drawing matrix (defaults to identity)
    */
   QMatrix4x4 matrix_;
@@ -209,8 +171,6 @@ private:
   bool signal_cursor_color_;
 
   ViewerSafeMarginInfo safe_margin_;
-
-  bool enable_display_referred_signal_;
 
 private slots:
   /**

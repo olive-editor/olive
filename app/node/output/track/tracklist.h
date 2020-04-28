@@ -38,17 +38,17 @@ public:
 
   const Timeline::TrackType& type() const;
 
-  const QVector<TrackOutput*>& Tracks() const;
+  const QVector<TrackOutput*>& GetTracks() const;
 
-  TrackOutput* TrackAt(int index) const;
+  TrackOutput* GetTrackAt(int index) const;
 
   TrackOutput *AddTrack();
 
   void RemoveTrack();
 
-  const rational& TrackLength() const;
+  const rational& GetTotalLength() const;
 
-  int TrackCount() const;
+  int GetTrackCount() const;
 
   NodeGraph* GetParentGraph() const;
 
@@ -99,11 +99,6 @@ private slots:
    * @brief Slot for when a connected Track has added a Block so we can update the UI
    */
   void TrackRemovedBlock(Block* block);
-
-  /**
-   * @brief Slot for when the count of tracks in the track input changes
-   */
-  void TrackListSizeChanged(int size);
 
   /**
    * @brief Slot for when any of the track's length changes so we can update the length of the tracklist

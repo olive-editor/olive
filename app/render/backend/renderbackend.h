@@ -52,11 +52,7 @@ public:
   void CancelQueue();
 
 public slots:
-  void InvalidateCache(const TimeRange &range);
-
-  bool Compile();
-
-  void Decompile();
+  void InvalidateCache(const TimeRange &range, NodeInput *from);
 
 signals:
   void QueueComplete();
@@ -67,10 +63,6 @@ protected:
   virtual bool InitInternal();
 
   virtual void CloseInternal();
-
-  virtual bool CompileInternal() = 0;
-
-  virtual void DecompileInternal() = 0;
 
   virtual bool CanRender();
 
@@ -111,7 +103,7 @@ protected:
 
   const QString& cache_id() const;
 
-  void QueueValueUpdate();
+  void QueueValueUpdate(NodeInput *from);
 
   bool AllProcessorsAreAvailable() const;
   bool WorkerIsBusy(RenderWorker* worker) const;
@@ -121,18 +113,17 @@ protected:
 
   QVector<RenderWorker*> processors_;
 
-  bool compiled_;
-
   QHash<TimeRange, qint64> render_job_info_;
 
-  QList<Node*> source_node_list_;
+  QHash<Node*, Node*> node_copy_map_;
 
   NodeGraph copied_graph_;
 
-protected slots:
-  void QueueRecompile();
-
 private:
+  void CopyNodeInputValue(NodeInput* input);
+  Node *CopyNodeConnections(Node *src_node);
+  void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
+
   /**
    * @brief Internal list of RenderProcessThreads
    */
@@ -160,8 +151,7 @@ private:
 
   QString cache_id_;
 
-  bool recompile_queued_;
-  bool input_update_queued_;
+  QList<NodeInput*> input_update_queued_;
 
   QVector<bool> processor_busy_state_;
 

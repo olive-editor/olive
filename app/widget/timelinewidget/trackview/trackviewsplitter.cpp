@@ -141,7 +141,7 @@ void TrackViewSplitter::Remove(int index)
   QList<int> sz = sizes();
 
   if (alignment_ == Qt::AlignBottom) {
-    index = count() - index;
+    index = count() - 1 - index;
   }
 
   sz.removeAt(index);

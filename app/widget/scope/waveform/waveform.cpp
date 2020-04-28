@@ -28,27 +28,35 @@ OLIVE_NAMESPACE_ENTER
 
 WaveformScope::WaveformScope(QWidget* parent) :
   ManagedDisplayWidget(parent),
-  texture_(nullptr)
+  buffer_(nullptr)
 {
   EnableDefaultContextMenu();
 }
 
-void WaveformScope::SetTexture(OpenGLTexture *texture)
+void WaveformScope::SetBuffer(Frame *frame)
 {
-  texture_ = texture;
+  buffer_ = frame;
 
-  update();
+  UploadTextureFromBuffer();
 }
 
 void WaveformScope::initializeGL()
 {
   ManagedDisplayWidget::initializeGL();
 
+  makeCurrent();
   pipeline_ = OpenGLShader::Create();
   pipeline_->create();
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
   pipeline_->link();
+  doneCurrent();
+
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp, Qt::DirectConnection);
+
+  if (buffer_) {
+    UploadTextureFromBuffer();
+  }
 }
 
 void WaveformScope::paintGL()
@@ -56,12 +64,12 @@ void WaveformScope::paintGL()
   context()->functions()->glClearColor(0, 0, 0, 0);
   context()->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
-  if (!pipeline_ || !texture_) {
+  if (!pipeline_ || !texture_.IsCreated()) {
     return;
   }
 
   pipeline_->bind();
-  pipeline_->setUniformValue("ove_resolution", texture_->width(), texture_->height());
+  pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
   pipeline_->setUniformValue("ove_viewport", width(), height());
 
   // The general size of a pixel
@@ -69,17 +77,42 @@ void WaveformScope::paintGL()
 
   pipeline_->release();
 
-  texture_->Bind();
+  texture_.Bind();
 
   OpenGLRenderFunctions::Blit(pipeline_);
 
-  texture_->Release();
+  texture_.Release();
+}
+
+void WaveformScope::UploadTextureFromBuffer()
+{
+  makeCurrent();
+
+  if (!texture_.IsCreated()
+      || texture_.width() != buffer_->width()
+      || texture_.height() != buffer_->height()
+      || texture_.format() != buffer_->format()) {
+    texture_.Destroy();
+    texture_.Create(context(), buffer_);
+  } else {
+    texture_.Upload(buffer_);
+  }
+
+  doneCurrent();
+
+  update();
 }
 
 void WaveformScope::CleanUp()
 {
+  qDebug() << "Cleaned up...";
+
+  makeCurrent();
+
   pipeline_ = nullptr;
-  texture_ = nullptr;
+  texture_.Destroy();
+
+  doneCurrent();
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -23,7 +23,7 @@
 
 #include <QWidget>
 
-#include "viewerglwidget.h"
+#include "viewerdisplay.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -32,7 +32,7 @@ class ViewerWindow : public QWidget
 public:
   ViewerWindow(QWidget* parent = nullptr);
 
-  ViewerGLWidget* gl_widget() const;
+  ViewerDisplayWidget* gl_widget() const;
 
   /**
    * @brief Used to adjust resulting picture to be the right aspect ratio
@@ -45,7 +45,7 @@ protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-  ViewerGLWidget* gl_widget_;
+  ViewerDisplayWidget* gl_widget_;
 
 };
 
