@@ -24,12 +24,13 @@
 #include <QGraphicsView>
 
 #include "core.h"
+#include "handmovableview.h"
 #include "timelineplayhead.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class TimelineViewBase : public QGraphicsView, public TimelineScaledObject
+class TimelineViewBase : public HandMovableView, public TimelineScaledObject
 {
   Q_OBJECT
 public:
@@ -66,18 +67,9 @@ protected:
 
   rational GetPlayheadTime() const;
 
-  void SetDefaultDragMode(DragMode mode);
-  const DragMode& GetDefaultDragMode() const;
-
   bool PlayheadPress(QMouseEvent* event);
   bool PlayheadMove(QMouseEvent* event);
   bool PlayheadRelease(QMouseEvent* event);
-
-  bool HandPress(QMouseEvent* event);
-  bool HandMove(QMouseEvent* event);
-  bool HandRelease(QMouseEvent* event);
-
-  virtual void ToolChangedEvent(Tool::Item tool);
 
   virtual void TimebaseChangedEvent(const rational &) override;
 
@@ -93,14 +85,9 @@ private:
 
   bool dragging_playhead_;
 
-  bool dragging_hand_;
-  DragMode pre_hand_drag_mode_;
-
   QGraphicsScene scene_;
 
   bool limit_y_axis_;
-
-  DragMode default_drag_mode_;
 
   rational end_time_;
 
@@ -117,8 +104,6 @@ private slots:
    * do nothing.
    */
   void PageScrollToPlayhead();
-
-  void ApplicationToolChanged(Tool::Item tool);
 
 };
 
