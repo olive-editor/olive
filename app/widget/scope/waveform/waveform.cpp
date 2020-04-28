@@ -49,6 +49,13 @@ void WaveformScope::SetBuffer(Frame *frame)
   UploadTextureFromBuffer();
 }
 
+void WaveformScope::showEvent(QShowEvent* e)
+{
+  ManagedDisplayWidget::showEvent(e);
+
+  UploadTextureFromBuffer();
+}
+
 void WaveformScope::initializeGL()
 {
   ManagedDisplayWidget::initializeGL();
@@ -93,7 +100,7 @@ void WaveformScope::paintGL()
 
 void WaveformScope::UploadTextureFromBuffer()
 {
-  if (!buffer_) {
+  if (!buffer_ || !isVisible()) {
     return;
   }
 

@@ -45,6 +45,8 @@ protected:
 
   virtual void paintGL() override;
 
+  virtual void showEvent(QShowEvent* e) override;
+
 private:
   void UploadTextureFromBuffer();
 
