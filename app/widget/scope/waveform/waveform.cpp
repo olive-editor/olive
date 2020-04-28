@@ -28,16 +28,32 @@ OLIVE_NAMESPACE_ENTER
 
 WaveformScope::WaveformScope(QWidget* parent) :
   ManagedDisplayWidget(parent),
-  texture_(nullptr)
+  buffer_(nullptr)
 {
   EnableDefaultContextMenu();
 }
 
-void WaveformScope::SetTexture(OpenGLTexture *texture)
+WaveformScope::~WaveformScope()
 {
-  texture_ = texture;
+  CleanUp();
 
-  update();
+  if (context()) {
+    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp);
+  }
+}
+
+void WaveformScope::SetBuffer(Frame *frame)
+{
+  buffer_ = frame;
+
+  UploadTextureFromBuffer();
+}
+
+void WaveformScope::showEvent(QShowEvent* e)
+{
+  ManagedDisplayWidget::showEvent(e);
+
+  UploadTextureFromBuffer();
 }
 
 void WaveformScope::initializeGL()
@@ -49,37 +65,99 @@ void WaveformScope::initializeGL()
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
   pipeline_->link();
+
+  framebuffer_.Create(context());
+
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp, Qt::DirectConnection);
+
+  UploadTextureFromBuffer();
 }
 
 void WaveformScope::paintGL()
 {
-  context()->functions()->glClearColor(0, 0, 0, 0);
-  context()->functions()->glClear(GL_COLOR_BUFFER_BIT);
+  QOpenGLFunctions* f = context()->functions();
 
-  if (!pipeline_ || !texture_) {
+  f->glClearColor(0, 0, 0, 0);
+  f->glClear(GL_COLOR_BUFFER_BIT);
+
+  if (!pipeline_ || !texture_.IsCreated()) {
     return;
   }
 
-  pipeline_->bind();
-  pipeline_->setUniformValue("ove_resolution", texture_->width(), texture_->height());
-  pipeline_->setUniformValue("ove_viewport", width(), height());
+  {
+    // Convert reference frame to display space
+    framebuffer_.Attach(&managed_tex_);
+    framebuffer_.Bind();
 
-  // The general size of a pixel
-  pipeline_->setUniformValue("threshold", 2.0f / static_cast<float>(height()));
+    texture_.Bind();
 
-  pipeline_->release();
+    f->glViewport(0, 0, texture_.width(), texture_.height());
 
-  texture_->Bind();
+    color_service()->ProcessOpenGL();
 
-  OpenGLRenderFunctions::Blit(pipeline_);
+    texture_.Release();
 
-  texture_->Release();
+    framebuffer_.Release();
+    framebuffer_.Detach();
+  }
+
+  {
+    // Draw waveform through shader
+    pipeline_->bind();
+    pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
+    pipeline_->setUniformValue("ove_viewport", width(), height());
+
+    // The general size of a pixel
+    pipeline_->setUniformValue("threshold", 2.0f / static_cast<float>(height()));
+
+    pipeline_->release();
+
+    f->glViewport(0, 0, width(), height());
+
+    managed_tex_.Bind();
+
+    OpenGLRenderFunctions::Blit(pipeline_);
+
+    managed_tex_.Release();
+  }
+}
+
+void WaveformScope::UploadTextureFromBuffer()
+{
+  if (!buffer_ || !isVisible()) {
+    return;
+  }
+
+  makeCurrent();
+
+  if (!texture_.IsCreated()
+      || texture_.width() != buffer_->width()
+      || texture_.height() != buffer_->height()
+      || texture_.format() != buffer_->format()) {
+    texture_.Destroy();
+    managed_tex_.Destroy();
+
+    texture_.Create(context(), buffer_);
+    managed_tex_.Create(context(), buffer_->width(), buffer_->height(), buffer_->format());
+  } else {
+    texture_.Upload(buffer_);
+  }
+
+  doneCurrent();
+
+  update();
 }
 
 void WaveformScope::CleanUp()
 {
+  makeCurrent();
+
   pipeline_ = nullptr;
-  texture_ = nullptr;
+  texture_.Destroy();
+  managed_tex_.Destroy();
+  framebuffer_.Destroy();
+
+  doneCurrent();
 }
 
 OLIVE_NAMESPACE_EXIT

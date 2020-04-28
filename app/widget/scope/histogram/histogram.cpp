@@ -49,7 +49,9 @@ void HistogramScope::SetBuffer(Frame* frame)
 {
   buffer_ = frame;
 
-  StartUpdate();
+  if (isVisible()) {
+    StartUpdate();
+  }
 }
 
 void HistogramScope::FinishedProcessing(QVector<double> red, QVector<double> green, QVector<double> blue)
@@ -109,6 +111,13 @@ void HistogramScope::StartUpdate()
     blue_val_.clear();
     update();
   }
+}
+
+void HistogramScope::showEvent(QShowEvent* e)
+{
+  ManagedDisplayWidget::showEvent(e);
+
+  StartUpdate();
 }
 
 HistogramScopeWorker::HistogramScopeWorker() :

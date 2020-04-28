@@ -156,7 +156,9 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       items_.append(item);
 
-      QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
+      QMetaObject::invokeMethod(item,
+                                "SignalAllKeyframes",
+                                Qt::QueuedConnection);
 
       emit OpenedNode(node);
     }
@@ -216,6 +218,11 @@ void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
 const QList<Node *> &NodeParamView::nodes()
 {
   return nodes_;
+}
+
+Node *NodeParamView::GetTimeTarget() const
+{
+  return keyframe_view_->GetTimeTarget();
 }
 
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)

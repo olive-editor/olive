@@ -78,6 +78,8 @@ protected:
 
   virtual void ColorProcessorChangedEvent() override;
 
+  virtual void showEvent(QShowEvent* e) override;
+
 private:
   void StartUpdate();
 

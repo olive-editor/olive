@@ -23,6 +23,7 @@
 
 #include "codec/frame.h"
 #include "render/backend/opengl/openglcolorprocessor.h"
+#include "render/backend/opengl/openglframebuffer.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "widget/manageddisplay/manageddisplay.h"
@@ -35,18 +36,30 @@ class WaveformScope : public ManagedDisplayWidget
 public:
   WaveformScope(QWidget* parent = nullptr);
 
+  virtual ~WaveformScope() override;
+
 public slots:
-  void SetTexture(OpenGLTexture* texture);
+  void SetBuffer(Frame* frame);
 
 protected:
   virtual void initializeGL() override;
 
   virtual void paintGL() override;
 
+  virtual void showEvent(QShowEvent* e) override;
+
 private:
+  void UploadTextureFromBuffer();
+
   OpenGLShaderPtr pipeline_;
 
-  OpenGLTexture* texture_;
+  OpenGLTexture texture_;
+
+  OpenGLTexture managed_tex_;
+
+  OpenGLFramebuffer framebuffer_;
+
+  Frame* buffer_;
 
 private slots:
   void CleanUp();

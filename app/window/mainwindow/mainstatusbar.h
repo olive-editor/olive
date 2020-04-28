@@ -33,10 +33,17 @@ OLIVE_NAMESPACE_ENTER
  */
 class MainStatusBar : public QStatusBar
 {
+  Q_OBJECT
 public:
   MainStatusBar(QWidget* parent = nullptr);
 
   void ConnectTaskManager(TaskManager* manager);
+
+signals:
+  void DoubleClicked();
+
+protected:
+  virtual void mouseDoubleClickEvent(QMouseEvent* e) override;
 
 private slots:
   void UpdateStatus();

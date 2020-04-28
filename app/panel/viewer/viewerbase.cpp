@@ -25,8 +25,7 @@
 OLIVE_NAMESPACE_ENTER
 
 ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
-  TimeBasedPanel(object_name, parent),
-  scope_panel_count_(0)
+  TimeBasedPanel(object_name, parent)
 {
 }
 
@@ -98,33 +97,13 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 
   p->SetType(type);
 
-  // If the scope closes, reduce the count (we do this because if no scopes are open, we can optimize the viewer slightly)
-  connect(p, &ScopePanel::CloseRequested, this, &ViewerPanelBase::ScopePanelClosed);
-
   // Connect viewer widget texture drawing to scope panel
-  connect(vw, &ViewerWidget::DrewManagedTexture, p, &ScopePanel::SetDisplayReferredTexture);
   connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
-  connect(vw, &ViewerWidget::LoadedTexture, p, &ScopePanel::SetReferenceTexture);
   connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
 
   p->SetColorManager(vw->color_manager());
 
-  if (!scope_panel_count_) {
-    vw->SetEmitDrewManagedTextureEnabled(true);
-  }
-
-  scope_panel_count_++;
-
   vw->ForceUpdate();
-}
-
-void ViewerPanelBase::ScopePanelClosed()
-{
-  scope_panel_count_--;
-
-  if (!scope_panel_count_) {
-    static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetEmitDrewManagedTextureEnabled(false);
-  }
 }
 
 OLIVE_NAMESPACE_EXIT

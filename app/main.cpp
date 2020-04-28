@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
-  // Try to share OpenGL contexts
-  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
   // Create application instance
   QApplication a(argc, argv);

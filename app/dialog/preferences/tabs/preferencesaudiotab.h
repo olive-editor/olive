@@ -23,6 +23,7 @@
 
 #include <QAudioDeviceInfo>
 #include <QComboBox>
+#include <QPushButton>
 
 #include "preferencestab.h"
 
@@ -57,6 +58,11 @@ private:
    */
   QComboBox* recording_combobox_;
 
+  /**
+   * @brief Button that triggers a refresh of the available audio devices
+   */
+  QPushButton* refresh_devices_btn_;
+
 private slots:
   void RefreshDevices();
 
@@ -66,6 +72,8 @@ private slots:
 
 private:
   void RetrieveDeviceLists();
+
+  void UpdateRefreshButtonEnabled();
 
   static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
 

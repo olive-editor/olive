@@ -150,6 +150,8 @@ private slots:
 
   void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 
+  void StatusBarDoubleClicked();
+
 };
 
 OLIVE_NAMESPACE_EXIT
