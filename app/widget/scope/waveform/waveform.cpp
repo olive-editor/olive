@@ -99,22 +99,6 @@ void WaveformScope::paintGL()
 
     color_service()->ProcessOpenGL();
 
-    QVector<QLine> ire_lines(6);
-
-    for (int i=1; i <= 5; i++) {
-      ire_lines[i].setLine(
-        0.0, height() * (i * 0.20), width(), height() *
-        (i * 0.20));
-    }
-    ire_lines[0].setLine(0.0, 0.0, width(), 0.0);
-    ire_lines[5].setLine(0.0, height() - 1.0, width(), height() - 1.0);
-
-    QPainter p(this);
-    p.setCompositionMode(QPainter::CompositionMode_Plus);
-
-    p.setPen(Qt::red);
-    p.drawLines(ire_lines);
-
     texture_.Release();
 
     framebuffer_.Release();
@@ -126,12 +110,35 @@ void WaveformScope::paintGL()
     pipeline_->bind();
     pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
     pipeline_->setUniformValue("ove_viewport", width(), height());
-
     GLfloat luma[3] = {0.0, 0.0, 0.0};
-
     color_manager()->GetDefaultLumaCoefs(luma);
-    // qDebug() << "LUMA" << luma[0] << " " << luma[1] << " " << luma[2];
     pipeline_->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
+
+    // Scale of the waveform relative to the viewport surface.
+    float waveform_scale = 0.80;
+    pipeline_->setUniformValue("waveform_scale", waveform_scale);
+    float waveform_dim_x = width() * waveform_scale;
+    float waveform_dim_y = height() * waveform_scale;
+    pipeline_->setUniformValue(
+      "waveform_dims", waveform_dim_x, waveform_dim_y);
+
+    float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0;
+    float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0;
+    float waveform_end_dim_x = width() - waveform_start_dim_x;
+    float waveform_end_dim_y = height() - waveform_start_dim_y;
+    pipeline_->setUniformValue(
+      "waveform_region",
+      waveform_start_dim_x, waveform_start_dim_y,
+      waveform_end_dim_x, waveform_end_dim_y);
+
+    float waveform_start_uv_x = waveform_start_dim_x / width();
+    float waveform_start_uv_y = waveform_start_dim_y / height();
+    float waveform_end_uv_x = waveform_end_dim_x / width();
+    float waveform_end_uv_y = waveform_end_dim_y / height();
+    pipeline_->setUniformValue(
+      "waveform_uv",
+      waveform_start_uv_x, waveform_start_uv_y,
+      waveform_end_uv_x, waveform_end_uv_y);
 
     pipeline_->release();
 
@@ -142,6 +149,32 @@ void WaveformScope::paintGL()
     OpenGLRenderFunctions::Blit(pipeline_);
 
     managed_tex_.Release();
+
+    QVector<QLine> ire_lines(6);
+    QPainter p(this);
+    QFontMetrics font_metrics = QFontMetrics(QFont());
+    QString label;
+    int font_width = 0;
+
+    p.setCompositionMode(QPainter::CompositionMode_Plus);
+
+    p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
+    p.setFont(QFont());
+
+    for (int i=0; i <= 5; i++) {
+      ire_lines[i].setLine(
+        waveform_start_dim_x,
+        (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y,
+        waveform_end_dim_x,
+        (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y);
+        label = QString::number(i * 20);
+        font_width = font_metrics.width(label);
+        p.drawText(
+          waveform_start_dim_x - font_width,
+          (waveform_dim_y * (i * 0.20)) + waveform_start_dim_y,
+          label);
+    }
+    p.drawLines(ire_lines);
   }
 }
 
