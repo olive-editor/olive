@@ -60,8 +60,6 @@ void WaveformScope::initializeGL()
 {
   ManagedDisplayWidget::initializeGL();
 
-  makeCurrent();
-
   pipeline_ = OpenGLShader::Create();
   pipeline_->create();
   pipeline_->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
@@ -69,8 +67,6 @@ void WaveformScope::initializeGL()
   pipeline_->link();
 
   framebuffer_.Create(context());
-
-  doneCurrent();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp, Qt::DirectConnection);
 
