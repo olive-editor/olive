@@ -107,11 +107,6 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
-  /**
-   * @brief Wrapper for ViewerGLWidget::SetEmitDrewManagedTextureEnabled()
-   */
-  void SetEmitDrewManagedTextureEnabled(bool e);
-
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -122,16 +117,6 @@ signals:
    * @brief Wrapper for ViewerGLWidget::LoadedBuffer()
    */
   void LoadedBuffer(Frame* load_buffer);
-
-  /**
-   * @brief Wrapper for ViewerGLWidget::LoadedTexture()
-   */
-  void LoadedTexture(OpenGLTexture* texture);
-
-  /**
-   * @brief Wrapper for ViewerGLWidget::DrewManagedTexture()
-   */
-  void DrewManagedTexture(OpenGLTexture* texture);
 
   /**
    * @brief Request a scope panel

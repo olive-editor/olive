@@ -36,7 +36,7 @@ public:
   WaveformScope(QWidget* parent = nullptr);
 
 public slots:
-  void SetTexture(OpenGLTexture* texture);
+  void SetBuffer(Frame* frame);
 
 protected:
   virtual void initializeGL() override;
@@ -44,9 +44,13 @@ protected:
   virtual void paintGL() override;
 
 private:
+  void UploadTextureFromBuffer();
+
   OpenGLShaderPtr pipeline_;
 
-  OpenGLTexture* texture_;
+  OpenGLTexture texture_;
+
+  Frame* buffer_;
 
 private slots:
   void CleanUp();

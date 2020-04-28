@@ -177,6 +177,10 @@ T *PanelManager::CreatePanel(QWidget *parent)
 
   panel->SetMovementLocked(locked_);
 
+  // Sane default for panel geometry
+  panel->resize(parent->size() / 3);
+  panel->move(panel->mapFromGlobal(parent->mapToGlobal(parent->pos())));
+
   // Connect destroy signal so we can remove it from focus history
   connect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed);
 

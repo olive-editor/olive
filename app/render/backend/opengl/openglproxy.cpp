@@ -132,7 +132,7 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
 
     VideoRenderingParams footage_params(frame->width(), frame->height(), frame->format());
 
-    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data(), frame->linesize_pixels());
+    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame);
 
     if (ocio_method == ColorManager::kOCIOFast) {
       if (!color_processor->IsEnabled()) {

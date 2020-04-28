@@ -50,9 +50,6 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
-  // Try to share OpenGL contexts
-  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-
   // Create application instance
   QApplication a(argc, argv);
 

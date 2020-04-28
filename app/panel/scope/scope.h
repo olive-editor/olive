@@ -50,11 +50,7 @@ public:
   static QString TypeToName(Type t);
 
 public slots:
-  void SetDisplayReferredTexture(OpenGLTexture* texture);
-
   void SetReferenceBuffer(Frame* frame);
-
-  void SetReferenceTexture(OpenGLTexture* texture);
 
   void SetColorManager(ColorManager* manager);
 
