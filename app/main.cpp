@@ -50,6 +50,9 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
+  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
   // Create application instance
   QApplication a(argc, argv);
 
