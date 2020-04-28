@@ -23,6 +23,7 @@
 
 #include "codec/frame.h"
 #include "render/backend/opengl/openglcolorprocessor.h"
+#include "render/backend/opengl/openglframebuffer.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "widget/manageddisplay/manageddisplay.h"
@@ -53,6 +54,10 @@ private:
   OpenGLShaderPtr pipeline_;
 
   OpenGLTexture texture_;
+
+  OpenGLTexture managed_tex_;
+
+  OpenGLFramebuffer framebuffer_;
 
   Frame* buffer_;
 
