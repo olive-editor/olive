@@ -6,8 +6,7 @@
 uniform sampler2D ove_maintex;
 uniform vec2 ove_resolution;
 uniform vec2 ove_viewport;
-
-uniform float threshold;
+uniform vec3 luma_coeffs;
 
 in vec2 ove_texcoord;
 
@@ -33,6 +32,7 @@ void main(void) {
     int y_lim = int(ove_resolution.y);
 
     vec3 cur_col = vec3(0.0);
+    vec3 cur_lum = vec3(0.0);
     for (int i = 0; i < y_lim; i++) {
         cur_col = texture2D(
             ove_maintex,
@@ -47,10 +47,10 @@ void main(void) {
         // OCIO configuration or the RGB to XYZ matrix and multiplying
         // the above step approach by the luminance weights.
         // EG:
-        // cur_lum = cur_col * lum_coeffs;
-        //
-        // col += step(vec3(ove_texcoord.y - increment), cur_lum) *
-        //     step(cur_lum, vec3(ove_texcoord.y + increment));
+        cur_lum = vec3(dot(cur_col, luma_coeffs));
+
+        col += step(vec3(ove_texcoord.y - increment), cur_lum) *
+            step(cur_lum, vec3(ove_texcoord.y + increment)) * intensity;
 
     }
 

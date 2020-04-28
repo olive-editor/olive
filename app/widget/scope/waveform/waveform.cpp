@@ -21,6 +21,10 @@
 
 #include "waveform.h"
 
+#include <QPainter>
+#include <QtMath>
+#include <QDebug>
+
 #include "node/node.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
 
@@ -95,6 +99,22 @@ void WaveformScope::paintGL()
 
     color_service()->ProcessOpenGL();
 
+    QVector<QLine> ire_lines(6);
+
+    for (int i=1; i <= 5; i++) {
+      ire_lines[i].setLine(
+        0.0, height() * (i * 0.20), width(), height() *
+        (i * 0.20));
+    }
+    ire_lines[0].setLine(0.0, 0.0, width(), 0.0);
+    ire_lines[5].setLine(0.0, height() - 1.0, width(), height() - 1.0);
+
+    QPainter p(this);
+    p.setCompositionMode(QPainter::CompositionMode_Plus);
+
+    p.setPen(Qt::red);
+    p.drawLines(ire_lines);
+
     texture_.Release();
 
     framebuffer_.Release();
@@ -107,8 +127,11 @@ void WaveformScope::paintGL()
     pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
     pipeline_->setUniformValue("ove_viewport", width(), height());
 
-    // The general size of a pixel
-    pipeline_->setUniformValue("threshold", 2.0f / static_cast<float>(height()));
+    GLfloat luma[3] = {0.0, 0.0, 0.0};
+
+    color_manager()->GetDefaultLumaCoefs(luma);
+    // qDebug() << "LUMA" << luma[0] << " " << luma[1] << " " << luma[2];
+    pipeline_->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
 
     pipeline_->release();
 
