@@ -82,7 +82,7 @@ public:
   /**
    * @brief Set points to create curve from
    */
-  void SetPoints(const QPointF& start, const QPointF& end);
+  void SetPoints(const QPointF& start, const QPointF& end, bool input_is_expanded);
 
   /**
    * @brief Sets the direction nodes are flowing

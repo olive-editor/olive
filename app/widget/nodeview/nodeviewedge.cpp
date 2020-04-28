@@ -76,8 +76,9 @@ void NodeViewEdge::Adjust()
   }
 
   // Draw a line between the two
-  SetPoints(output->GetParamPoint(edge_->output()),
-            input->GetParamPoint(edge_->input()));
+  SetPoints(output->GetParamPoint(edge_->output(), output->pos()),
+            input->GetParamPoint(edge_->input(), output->pos()),
+            input->IsExpanded());
 }
 
 void NodeViewEdge::SetConnected(bool c)
@@ -102,18 +103,29 @@ void NodeViewEdge::SetHighlighted(bool e)
   UpdatePen();
 }
 
-void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
+void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
 {
   QPainterPath path;
   path.moveTo(start);
 
+  double half_x = lerp(start.x(), end.x(), 0.5);
+  double half_y = lerp(start.y(), end.y(), 0.5);
+
+  QPointF cp1, cp2;
+
   if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
-    double half_x = lerp(start.x(), end.x(), 0.5);
-    path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
+    cp1 = QPointF(half_x, start.y());
   } else {
-    double half_y = lerp(start.y(), end.y(), 0.5);
-    path.cubicTo(QPointF(start.x(), half_y), QPointF(end.x(), half_y), end);
+    cp1 = QPointF(start.x(), half_y);
   }
+
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+    cp2 = QPointF(half_x, end.y());
+  } else {
+    cp2 = QPointF(end.x(), half_y);
+  }
+
+  path.cubicTo(cp1, cp2, end);
 
   setPath(path);
 }
@@ -128,8 +140,6 @@ void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 void NodeViewEdge::UpdatePen()
 {
   setPen(QPen(qApp->palette().color(color_group_, color_role_), edge_width_));
-
-  //update();
 }
 
 OLIVE_NAMESPACE_EXIT

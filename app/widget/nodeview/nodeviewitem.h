@@ -67,13 +67,13 @@ public:
   /**
    * @brief Set expanded state
    */
-  void SetExpanded(bool e);
+  void SetExpanded(bool e, bool hide_titlebar = false);
   void ToggleExpanded();
 
   /**
    * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
-  QPointF GetParamPoint(NodeParam* param) const;
+  QPointF GetParamPoint(NodeParam* param, const QPointF &source_pos) const;
 
   /**
    * @brief Sets the direction nodes are flowing
@@ -98,6 +98,7 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
@@ -115,7 +116,7 @@ private:
   /**
    * @brief Returns local point that edges should connect to for a NodeInput in array node_inputs_[index]
    */
-  QPointF GetInputPoint(int index) const;
+  QPointF GetInputPoint(int index, const QPointF &source_pos) const;
 
   /**
    * @brief Reference to attached Node
@@ -156,6 +157,8 @@ private:
    * @brief Expanded state
    */
   bool expanded_;
+
+  bool hide_titlebar_;
 
   /**
    * @brief Current click mode
