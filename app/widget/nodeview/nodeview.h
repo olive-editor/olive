@@ -82,15 +82,22 @@ protected:
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
-  void AttachItemToCursor(NodeViewItem* item);
+  void AttachItemToCursor(const QList<NodeViewItem*>& item);
 
   void DetachItemFromCursor();
 
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
+  void MoveAttachedNodesToCursor(const QPoint &p);
+
   NodeGraph* graph_;
 
-  NodeViewItem* attached_item_;
+  struct AttachedItem {
+    NodeViewItem* item;
+    QPointF original_pos;
+  };
+
+  QList<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
   NodeInput* drop_input_;

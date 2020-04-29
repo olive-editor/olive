@@ -34,7 +34,6 @@ OLIVE_NAMESPACE_ENTER
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
   graph_(nullptr),
-  attached_item_(nullptr),
   drop_edge_(nullptr)
 {
   setScene(&scene_);
@@ -185,7 +184,13 @@ void NodeView::Paste()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   if (!pasted_nodes.isEmpty()) {
-    // FIXME: Attach to cursor so user can drop in place
+    QList<NodeViewItem*> items;
+
+    foreach (Node* p, pasted_nodes) {
+      items.append(scene_.NodeToUIObject(p));
+    }
+
+    AttachItemToCursor(items);
   }
 }
 
@@ -202,7 +207,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 {
   super::keyPressEvent(event);
 
-  if (event->key() == Qt::Key_Escape && attached_item_) {
+  if (event->key() == Qt::Key_Escape && !attached_items_.isEmpty()) {
     DetachItemFromCursor();
 
     // We undo the last action which SHOULD be adding the node
@@ -215,28 +220,30 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  if (attached_item_) {
-    Node* dropping_node = attached_item_->GetNode();
-
+  if (!attached_items_.isEmpty()) {
     DetachItemFromCursor();
 
-    if (drop_edge_) {
-      NodeEdgePtr old_edge = drop_edge_->edge();
+    if (attached_items_.size() == 1) {
+      Node* dropping_node = attached_items_.first().item->GetNode();
 
-      // We have everything we need to place the node in between
-      QUndoCommand* command = new QUndoCommand();
+      if (drop_edge_) {
+        NodeEdgePtr old_edge = drop_edge_->edge();
 
-      // Remove old edge
-      new NodeEdgeRemoveCommand(old_edge, command);
+        // We have everything we need to place the node in between
+        QUndoCommand* command = new QUndoCommand();
 
-      // Place new edges
-      new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
-      new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+        // Remove old edge
+        new NodeEdgeRemoveCommand(old_edge, command);
 
-      Core::instance()->undo_stack()->push(command);
+        // Place new edges
+        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
+        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+
+        Core::instance()->undo_stack()->push(command);
+      }
+
+      drop_edge_ = nullptr;
     }
-
-    drop_edge_ = nullptr;
   }
 
   super::mousePressEvent(event);
@@ -248,58 +255,62 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
   super::mouseMoveEvent(event);
 
-  if (attached_item_) {
-    attached_item_->setPos(mapToScene(event->pos()));
+  if (!attached_items_.isEmpty()) {
+    MoveAttachedNodesToCursor(event->pos());
 
-    // See if the user clicked on an edge
-    QRect edge_detect_rect(event->pos(), event->pos());
+    // See if the user clicked on an edge (only when dropping single nodes)
+    if (attached_items_.size() == 1) {
+      Node* attached_node = attached_items_.first().item->GetNode();
 
-    // FIXME: Hardcoded numbers
-    edge_detect_rect.adjust(-20, -20, 20, 20);
+      QRect edge_detect_rect(event->pos(), event->pos());
 
-    QList<QGraphicsItem*> items = this->items(edge_detect_rect);
+      // FIXME: Hardcoded numbers
+      edge_detect_rect.adjust(-20, -20, 20, 20);
 
-    NodeViewEdge* new_drop_edge = nullptr;
+      QList<QGraphicsItem*> items = this->items(edge_detect_rect);
 
-    // See if there is an edge here
-    foreach (QGraphicsItem* item, items) {
-      new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
+      NodeViewEdge* new_drop_edge = nullptr;
 
-      if (new_drop_edge) {
-        drop_input_ = nullptr;
+      // See if there is an edge here
+      foreach (QGraphicsItem* item, items) {
+        new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
 
-        foreach (NodeParam* param, attached_item_->GetNode()->parameters()) {
-          if (param->type() == NodeParam::kInput) {
-            NodeInput* input = static_cast<NodeInput*>(param);
+        if (new_drop_edge) {
+          drop_input_ = nullptr;
 
-            if (input->IsConnectable()) {
-              if (input->data_type() & new_drop_edge->edge()->input()->data_type()) {
-                drop_input_ = input;
-                break;
-              } else if (!drop_input_) {
-                drop_input_ = input;
+          foreach (NodeParam* param, attached_node->parameters()) {
+            if (param->type() == NodeParam::kInput) {
+              NodeInput* input = static_cast<NodeInput*>(param);
+
+              if (input->IsConnectable()) {
+                if (input->data_type() & new_drop_edge->edge()->input()->data_type()) {
+                  drop_input_ = input;
+                  break;
+                } else if (!drop_input_) {
+                  drop_input_ = input;
+                }
               }
             }
           }
-        }
 
-        if (drop_input_) {
-          break;
-        } else {
-          new_drop_edge = nullptr;
+          if (drop_input_) {
+            break;
+          } else {
+            new_drop_edge = nullptr;
+          }
         }
       }
-    }
 
-    if (drop_edge_ != new_drop_edge) {
-      if (drop_edge_) {
-        drop_edge_->SetHighlighted(false);
-      }
+      if (drop_edge_ != new_drop_edge) {
+        if (drop_edge_) {
+          drop_edge_->SetHighlighted(false);
+        }
 
-      drop_edge_ = new_drop_edge;
+        drop_edge_ = new_drop_edge;
 
-      if (drop_edge_) {
-        drop_edge_->SetHighlighted(true);
+        if (drop_edge_) {
+          drop_edge_->SetHighlighted(true);
+        }
       }
     }
   }
@@ -385,7 +396,7 @@ void NodeView::CreateNodeSlot(QAction *action)
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
 
     NodeViewItem* item = scene_.NodeToUIObject(new_node);
-    AttachItemToCursor(item);
+    AttachItemToCursor({item});
   }
 }
 
@@ -537,21 +548,39 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
   }
 }
 
-void NodeView::AttachItemToCursor(NodeViewItem *item)
+void NodeView::AttachItemToCursor(const QList<NodeViewItem*>& items)
 {
-  attached_item_ = item;
+  DetachItemFromCursor();
 
-  setMouseTracking(attached_item_);
+  if (!items.isEmpty()) {
+    foreach (NodeViewItem* i, items) {
+      attached_items_.append({i, i->pos() - items.first()->pos()});
+    }
+
+    setMouseTracking(true);
+
+    MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
+  }
 }
 
 void NodeView::DetachItemFromCursor()
 {
-  AttachItemToCursor(nullptr);
+  attached_items_.clear();
+  setMouseTracking(false);
 }
 
 void NodeView::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   scene_.SetFlowDirection(dir);
+}
+
+void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
+{
+  QPointF item_pos = mapToScene(p);
+
+  foreach (const AttachedItem& i, attached_items_) {
+    i.item->setPos(item_pos + i.original_pos);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT
