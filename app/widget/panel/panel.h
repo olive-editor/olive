@@ -165,6 +165,8 @@ public:
 
   virtual void ToggleSelectedEnabled(){}
 
+  virtual void Duplicate(){}
+
 signals:
   void CloseRequested();
 

@@ -64,6 +64,8 @@ public:
   void CopySelected(bool cut);
   void Paste();
 
+  void Duplicate();
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed
@@ -82,9 +84,11 @@ protected:
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
-  void AttachItemToCursor(const QList<NodeViewItem*>& item);
+  void AttachNodesToCursor(const QList<Node*>& nodes);
 
-  void DetachItemFromCursor();
+  void AttachItemsToCursor(const QList<NodeViewItem*>& items);
+
+  void DetachItemsFromCursor();
 
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 

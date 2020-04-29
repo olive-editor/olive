@@ -184,13 +184,61 @@ void NodeView::Paste()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   if (!pasted_nodes.isEmpty()) {
-    QList<NodeViewItem*> items;
+    AttachNodesToCursor(pasted_nodes);
+  }
+}
 
-    foreach (Node* p, pasted_nodes) {
-      items.append(scene_.NodeToUIObject(p));
+void NodeView::Duplicate()
+{
+  if (!graph_) {
+    return;
+  }
+
+  QList<Node*> selected = scene_.GetSelectedNodes();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  QList<Node*> duplicated_nodes;
+
+  foreach (Node* n, selected) {
+    Node* copy = n->copy();
+
+    Node::CopyInputs(n, copy, false);
+    copy->SetPosition(n->GetPosition());
+
+    duplicated_nodes.append(copy);
+
+    new NodeAddCommand(graph_, copy, command);
+  }
+
+  for (int i=0;i<selected.size();i++) {
+    Node* src = selected.at(i);
+
+    for (int j=0;j<selected.size();j++) {
+      if (i == j) {
+        continue;
+      }
+
+      Node* dst = selected.at(j);
+
+      foreach (NodeEdgePtr edge, src->output()->edges()) {
+        if (edge->input()->parentNode() == dst) {
+          new NodeEdgeAddCommand(duplicated_nodes.at(i)->output(),
+                                 duplicated_nodes.at(j)->GetInputWithID(edge->input()->id()),
+                                 command);
+        }
+      }
     }
+  }
 
-    AttachItemToCursor(items);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  if (!duplicated_nodes.isEmpty()) {
+    AttachNodesToCursor(duplicated_nodes);
   }
 }
 
@@ -208,7 +256,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
   super::keyPressEvent(event);
 
   if (event->key() == Qt::Key_Escape && !attached_items_.isEmpty()) {
-    DetachItemFromCursor();
+    DetachItemsFromCursor();
 
     // We undo the last action which SHOULD be adding the node
     // FIXME: Possible danger of this not being the case?
@@ -221,7 +269,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (HandPress(event)) return;
 
   if (!attached_items_.isEmpty()) {
-    DetachItemFromCursor();
+    DetachItemsFromCursor();
 
     if (attached_items_.size() == 1) {
       Node* dropping_node = attached_items_.first().item->GetNode();
@@ -396,7 +444,7 @@ void NodeView::CreateNodeSlot(QAction *action)
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
 
     NodeViewItem* item = scene_.NodeToUIObject(new_node);
-    AttachItemToCursor({item});
+    AttachItemsToCursor({item});
   }
 }
 
@@ -548,9 +596,20 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
   }
 }
 
-void NodeView::AttachItemToCursor(const QList<NodeViewItem*>& items)
+void NodeView::AttachNodesToCursor(const QList<Node *> &nodes)
 {
-  DetachItemFromCursor();
+  QList<NodeViewItem*> items;
+
+  foreach (Node* p, nodes) {
+    items.append(scene_.NodeToUIObject(p));
+  }
+
+  AttachItemsToCursor(items);
+}
+
+void NodeView::AttachItemsToCursor(const QList<NodeViewItem*>& items)
+{
+  DetachItemsFromCursor();
 
   if (!items.isEmpty()) {
     foreach (NodeViewItem* i, items) {
@@ -563,7 +622,7 @@ void NodeView::AttachItemToCursor(const QList<NodeViewItem*>& items)
   }
 }
 
-void NodeView::DetachItemFromCursor()
+void NodeView::DetachItemsFromCursor()
 {
   attached_items_.clear();
   setMouseTracking(false);

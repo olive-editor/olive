@@ -188,7 +188,7 @@ void MenuShared::PasteInsertTriggered()
 
 void MenuShared::DuplicateTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->Duplicate();
 }
 
 void MenuShared::EnableDisableTriggered()

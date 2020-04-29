@@ -73,6 +73,11 @@ void NodePanel::Paste()
   node_view_->Paste();
 }
 
+void NodePanel::Duplicate()
+{
+  node_view_->Duplicate();
+}
+
 void NodePanel::Select(const QList<Node *> &nodes)
 {
   node_view_->Select(nodes);
