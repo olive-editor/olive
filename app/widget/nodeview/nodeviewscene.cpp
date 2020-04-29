@@ -145,6 +145,21 @@ QList<NodeViewItem *> NodeViewScene::GetSelectedItems() const
   return selected;
 }
 
+QList<NodeEdge*> NodeViewScene::GetSelectedEdges() const
+{
+  QList<NodeEdge*> edges;
+
+  QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
+
+  for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
+    if (i.value()->isSelected()) {
+      edges.append(i.key());
+    }
+  }
+
+  return edges;
+}
+
 const QHash<Node *, NodeViewItem *> &NodeViewScene::item_map() const
 {
   return item_map_;

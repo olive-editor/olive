@@ -89,16 +89,17 @@ public:
    */
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
-private:
-  void UpdatePen();
+protected:
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+private:
   NodeEdgePtr edge_;
 
   int edge_width_;
 
-  QPalette::ColorGroup color_group_;
+  bool connected_;
 
-  QPalette::ColorRole color_role_;
+  bool highlighted_;
 
   NodeViewCommon::FlowDirection flow_dir_;
 

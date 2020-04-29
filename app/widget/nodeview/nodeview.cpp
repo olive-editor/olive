@@ -97,21 +97,33 @@ void NodeView::DeleteSelected()
     return;
   }
 
-  QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+  QUndoCommand* command = new QUndoCommand();
 
-  // Ensure no nodes are "undeletable"
-  for (int i=0;i<selected_nodes.size();i++) {
-    if (!selected_nodes.at(i)->CanBeDeleted()) {
-      selected_nodes.removeAt(i);
-      i--;
+  {
+    QList<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
+
+    foreach (NodeEdge* edge, selected_edges) {
+      new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
     }
   }
 
-  if (selected_nodes.isEmpty()) {
-    return;
+  {
+    QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+
+    // Ensure no nodes are "undeletable"
+    for (int i=0;i<selected_nodes.size();i++) {
+      if (!selected_nodes.at(i)->CanBeDeleted()) {
+        selected_nodes.removeAt(i);
+        i--;
+      }
+    }
+
+    if (!selected_nodes.isEmpty()) {
+      new NodeRemoveCommand(graph_, selected_nodes, command);
+    }
   }
 
-  Core::instance()->undo_stack()->push(new NodeRemoveCommand(graph_, selected_nodes));
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SelectAll()
@@ -269,8 +281,6 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (HandPress(event)) return;
 
   if (!attached_items_.isEmpty()) {
-    DetachItemsFromCursor();
-
     if (attached_items_.size() == 1) {
       Node* dropping_node = attached_items_.first().item->GetNode();
 
@@ -292,6 +302,8 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 
       drop_edge_ = nullptr;
     }
+
+    DetachItemsFromCursor();
   }
 
   super::mousePressEvent(event);
@@ -400,19 +412,26 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   m.addSeparator();
 
-  if (itemAt(pos)) {
-    QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+  QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+
+  if (itemAt(pos) && !selected.isEmpty()) {
 
     if (selected.size() == 1) {
+
+      // Label node action
       QAction* label_action = m.addAction(tr("Label"));
       connect(label_action, &QAction::triggered, this, &NodeView::ContextMenuLabelNode);
 
       m.addSeparator();
+
     }
 
+    // Auto-position action
     QAction* autopos = m.addAction(tr("Auto-Position"));
     connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
+
   } else {
+
     Menu* direction_menu = new Menu(tr("Direction"), &m);
     m.addMenu(direction_menu);
 
@@ -440,6 +459,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     add_menu->setTitle(tr("Add"));
     connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
     m.addMenu(add_menu);
+
   }
 
   m.exec(mapToGlobal(pos));

@@ -65,6 +65,7 @@ public:
 
   QList<Node*> GetSelectedNodes() const;
   QList<NodeViewItem*> GetSelectedItems() const;
+  QList<NodeEdge *> GetSelectedEdges() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
   const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;
