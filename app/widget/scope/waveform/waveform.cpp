@@ -116,15 +116,15 @@ void WaveformScope::paintGL()
     pipeline_->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
 
     // Scale of the waveform relative to the viewport surface.
-    float waveform_scale = 0.80;
+    float waveform_scale = 0.80f;
     pipeline_->setUniformValue("waveform_scale", waveform_scale);
     float waveform_dim_x = width() * waveform_scale;
     float waveform_dim_y = height() * waveform_scale;
     pipeline_->setUniformValue(
       "waveform_dims", waveform_dim_x, waveform_dim_y);
 
-    float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0;
-    float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0;
+    float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0f;
+    float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0f;
     float waveform_end_dim_x = width() - waveform_start_dim_x;
     float waveform_end_dim_y = height() - waveform_start_dim_y;
     pipeline_->setUniformValue(
@@ -154,11 +154,11 @@ void WaveformScope::paintGL()
     QPainter p(this);
     QFontMetrics font_metrics = QFontMetrics(QFont());
     QString label;
-    float ire_increment = 0.1;
+    float ire_increment = 0.1f;
     float ire_steps = int(1.0 / ire_increment);
     QVector<QLine> ire_lines(ire_steps + 1);
     int font_x_offset = 0;
-    int font_y_offset = font_metrics.capHeight() / 2.0;
+    int font_y_offset = font_metrics.capHeight() / 2.0f;
 
     p.setCompositionMode(QPainter::CompositionMode_Plus);
 
