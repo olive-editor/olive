@@ -25,6 +25,7 @@
 #include <QtMath>
 #include <QDebug>
 
+#include "common/qtutils.h"
 #include "node/node.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
 
@@ -171,7 +172,7 @@ void WaveformScope::paintGL()
         waveform_end_dim_x,
         (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
         label = QString::number(1.0 - (i * ire_increment), 'f', 1);
-        font_x_offset = font_metrics.width(label) + 4;
+        font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
 
         p.drawText(
           waveform_start_dim_x - font_x_offset,
