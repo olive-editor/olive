@@ -20,6 +20,7 @@
 
 #include "nodeview.h"
 
+#include <QInputDialog>
 #include <QMouseEvent>
 
 #include "core.h"
@@ -208,7 +209,6 @@ void NodeView::Duplicate()
     Node* copy = n->copy();
 
     Node::CopyInputs(n, copy, false);
-    copy->SetPosition(n->GetPosition());
 
     duplicated_nodes.append(copy);
 
@@ -401,6 +401,15 @@ void NodeView::ShowContextMenu(const QPoint &pos)
   m.addSeparator();
 
   if (itemAt(pos)) {
+    QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+
+    if (selected.size() == 1) {
+      QAction* label_action = m.addAction(tr("Label"));
+      connect(label_action, &QAction::triggered, this, &NodeView::ContextMenuLabelNode);
+
+      m.addSeparator();
+    }
+
     QAction* autopos = m.addAction(tr("Auto-Position"));
     connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
   } else {
@@ -459,6 +468,30 @@ void NodeView::AutoPositionDescendents()
 
   foreach (Node* n, selected) {
     scene_.ReorganizeFrom(n);
+  }
+}
+
+void NodeView::ContextMenuLabelNode()
+{
+  QList<Node*> nodes = scene_.GetSelectedNodes();
+
+  if (nodes.isEmpty()) {
+    return;
+  }
+
+  Node* n = nodes.first();
+
+  bool ok;
+
+  QString s = QInputDialog::getText(this,
+                                    tr("Label Node"),
+                                    tr("Set node label"),
+                                    QLineEdit::Normal,
+                                    n->GetLabel(),
+                                    &ok);
+
+  if (ok) {
+    n->SetLabel(s);
   }
 }
 

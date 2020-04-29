@@ -127,6 +127,10 @@ private slots:
    */
   void NodePositionChanged(const QPointF& pos);
 
+  /**
+   * @brief Receiver for when a node's label has changed
+   */
+  void NodeLabelChanged();
 
 };
 

@@ -180,10 +180,12 @@ void NodeViewScene::AddNode(Node* node)
   }
 
   connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
+  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
+  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
   disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
 
   delete item_map_.take(node);
@@ -241,6 +243,11 @@ void NodeViewScene::ReorganizeFrom(Node* n)
 void NodeViewScene::NodePositionChanged(const QPointF &pos)
 {
   item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
+}
+
+void NodeViewScene::NodeLabelChanged()
+{
+  item_map_.value(static_cast<Node*>(sender()))->update();
 }
 
 OLIVE_NAMESPACE_EXIT

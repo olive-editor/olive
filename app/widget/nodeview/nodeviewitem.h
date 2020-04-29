@@ -86,6 +86,8 @@ public:
 
   static int DefaultItemWidth();
 
+  static int DefaultMaximumTextWidth();
+
   static int DefaultItemBorder();
 
   qreal DefaultItemHorizontalPadding() const;

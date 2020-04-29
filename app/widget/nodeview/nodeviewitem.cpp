@@ -135,6 +135,11 @@ int NodeViewItem::DefaultItemWidth()
   return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHH");;
 }
 
+int NodeViewItem::DefaultMaximumTextWidth()
+{
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHH");;
+}
+
 int NodeViewItem::DefaultItemBorder()
 {
   return QFontMetrics(QFont()).height() / 12;
@@ -262,8 +267,36 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->setPen(app_pal.color(QPalette::Text));
 
+    QString node_label;
+
+    if (node_->GetLabel().isEmpty()) {
+      node_label = node_->ShortName();
+    } else {
+      node_label = node_->GetLabel();
+    }
+
+    {
+      QFont f;
+      QFontMetrics fm(f);
+
+      int max_text_width = DefaultMaximumTextWidth();
+
+      if (QFontMetricsWidth(fm, node_label) > max_text_width) {
+        QString concatenated;
+
+        do {
+          node_label.chop(1);
+          concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
+        } while (QFontMetricsWidth(fm, concatenated) > max_text_width);
+
+        node_label = concatenated;
+      }
+    }
+
     // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(title_bar_rect_, Qt::AlignCenter, node_->ShortName());
+    painter->drawText(title_bar_rect_,
+                      Qt::AlignCenter,
+                      node_label);
 
   }
 

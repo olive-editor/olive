@@ -359,6 +359,9 @@ public:
 
   QList<NodeOutput*> GetOutputs() const;
 
+  const QString& GetLabel() const;
+  void SetLabel(const QString& s);
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -396,6 +399,11 @@ signals:
    */
   void PositionChanged(const QPointF& pos);
 
+  /**
+   * @brief Signal emitted when SetLabel() is called
+   */
+  void LabelChanged(const QString& s);
+
 private:
   /**
    * @brief Add a parameter to this node
@@ -430,6 +438,11 @@ private:
    * @brief UI position for NodeViews
    */
   QPointF position_;
+
+  /**
+   * @brief Custom user label for node
+   */
+  QString label_;
 
 private slots:
   void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);

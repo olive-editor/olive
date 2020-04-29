@@ -141,6 +141,11 @@ private slots:
    */
   void AutoPositionDescendents();
 
+  /**
+   * @brief Receiver for labelling a node from the context menu
+   */
+  void ContextMenuLabelNode();
+
 };
 
 OLIVE_NAMESPACE_EXIT

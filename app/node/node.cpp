@@ -107,6 +107,9 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
                          QStringLiteral("%1:%2").arg(QString::number(GetPosition().x()),
                                                      QString::number(GetPosition().y())));
 
+  writer->writeAttribute(QStringLiteral("label"),
+                         GetLabel());
+
   foreach (NodeParam* param, parameters()) {
     param->Save(writer);
   }
@@ -277,6 +280,20 @@ QList<NodeOutput *> Node::GetOutputs() const
   return {output_};
 }
 
+const QString &Node::GetLabel() const
+{
+  return label_;
+}
+
+void Node::SetLabel(const QString &s)
+{
+  if (label_ != s) {
+    label_ = s;
+
+    emit LabelChanged(label_);
+  }
+}
+
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
@@ -295,6 +312,9 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
       NodeInput::CopyValues(src, dst, include_connections);
     }
   }
+
+  destination->SetPosition(source->GetPosition());
+  destination->SetLabel(source->GetLabel());
 }
 
 bool Node::CanBeDeleted() const

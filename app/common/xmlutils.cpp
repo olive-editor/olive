@@ -31,6 +31,7 @@ Node* XMLLoadNode(QXmlStreamReader* reader)
   QString node_id;
   quintptr node_ptr = 0;
   QPointF node_pos;
+  QString node_label;
 
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("id")) {
@@ -45,6 +46,8 @@ Node* XMLLoadNode(QXmlStreamReader* reader)
         node_pos.setX(pos.at(0).toDouble());
         node_pos.setY(pos.at(1).toDouble());
       }
+    } else if (attr.name() == QStringLiteral("label")) {
+      node_label = attr.value().toString();
     }
   }
 
@@ -58,6 +61,7 @@ Node* XMLLoadNode(QXmlStreamReader* reader)
   if (node) {
     node->setProperty("xml_ptr", node_ptr);
     node->SetPosition(node_pos);
+    node->SetLabel(node_label);
   } else {
     qWarning() << "Failed to load" << node_id << "- no node with that ID is installed";
   }
