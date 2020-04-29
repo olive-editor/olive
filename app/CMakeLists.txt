@@ -92,6 +92,7 @@ if(MSVC)
     /external:anglebrackets
     /external:W0
     "$<$<CONFIG:RELEASE>:/O2>"
+    "$<$<COMPILE_LANGUAGE:CXX>:/MP>"
   )
 else()
   target_compile_options(
