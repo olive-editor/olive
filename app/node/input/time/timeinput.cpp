@@ -62,4 +62,12 @@ NodeValueTable TimeInput::Value(NodeValueDatabase &value) const
   return table;
 }
 
+void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  Node::Hash(hash, time);
+
+  // Make sure time is hashed
+  hash.addData(NodeParam::ValueToBytes(NodeParam::kRational, QVariant::fromValue(time)));
+}
+
 OLIVE_NAMESPACE_EXIT

@@ -40,6 +40,8 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
+  virtual void Hash(QCryptographicHash& hash, const rational& time) const override;
+
 };
 
 OLIVE_NAMESPACE_EXIT

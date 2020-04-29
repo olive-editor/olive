@@ -418,6 +418,16 @@ NodeInputArray *TrackOutput::block_input() const
   return block_input_;
 }
 
+void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  // Resolve block list
+  Block* b = BlockAtTime(time);
+
+  if (b) {
+    return b->Hash(hash, time);
+  }
+}
+
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;

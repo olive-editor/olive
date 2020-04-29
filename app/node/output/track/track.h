@@ -152,6 +152,8 @@ public:
 
   NodeInputArray* block_input() const;
 
+  virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+
 public slots:
   void SetTrackName(const QString& name);
 

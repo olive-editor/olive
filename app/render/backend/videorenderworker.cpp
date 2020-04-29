@@ -75,7 +75,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     hasher.addData(reinterpret_cast<const char*>(&vfmt), sizeof(PixelFormat::Format));
     hasher.addData(reinterpret_cast<const char*>(&vmode), sizeof(RenderMode::Mode));
 
-    HashNodeRecursively(&hasher, path.node(), path.in());
+    path.node()->Hash(hasher, path.in());
     hash = hasher.result();
   }
 
@@ -119,117 +119,6 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   }
 
   return value;
-}
-
-void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time)
-{
-  // Resolve BlockList
-  if (n->IsTrack()) {
-    n = static_cast<const TrackOutput*>(n)->BlockAtTime(time);
-
-    if (!n) {
-      return;
-    }
-  }
-
-  // Add this Node's ID
-  hash->addData(n->id().toUtf8());
-
-  if (n->IsBlock() && static_cast<const Block*>(n)->type() == Block::kTransition) {
-    const TransitionBlock* transition = static_cast<const TransitionBlock*>(n);
-
-    double all_prog = transition->GetTotalProgress(time);
-    double in_prog = transition->GetInProgress(time);
-    double out_prog = transition->GetOutProgress(time);
-
-    hash->addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
-    hash->addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
-    hash->addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
-  }
-
-  foreach (NodeParam* param, n->parameters()) {
-    // For each input, try to hash its value
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      if (n->IsBlock()) {
-        const Block* b = static_cast<const Block*>(n);
-
-        // Ignore some Block attributes when hashing
-        if (input == b->media_in_input()
-            || input == b->speed_input()
-            || input == b->length_input()) {
-          continue;
-        }
-      }
-
-      // Get time adjustment
-      // For a single frame, we only care about one of the times
-      rational input_time = n->InputTimeAdjustment(input, TimeRange(time, time)).in();
-
-      if (input->IsConnected()) {
-        // Traverse down this edge
-        HashNodeRecursively(hash, input->get_connected_node(), input_time);
-      } else {
-        // Grab the value at this time
-        QVariant value = input->get_value_at_time(input_time);
-        hash->addData(NodeParam::ValueToBytes(input->data_type(), value));
-      }
-
-      // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
-      if (input->data_type() == NodeParam::kFootage) {
-        StreamPtr stream = ResolveStreamFromInput(input);
-
-        if (stream) {
-          DecoderPtr decoder = ResolveDecoderFromInput(stream);
-
-          if (decoder) {
-
-            // Add footage details to hash
-
-            // Footage filename
-            hash->addData(stream->footage()->filename().toUtf8());
-
-            // Footage last modified date
-            hash->addData(stream->footage()->timestamp().toString().toUtf8());
-
-            // Footage stream
-            hash->addData(QString::number(stream->index()).toUtf8());
-
-            if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
-              ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
-
-              // Current color config and space
-              hash->addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
-              hash->addData(image_stream->colorspace().toUtf8());
-
-              // Alpha associated setting
-              hash->addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
-            }
-
-            // Footage timestamp
-            if (stream->type() == Stream::kVideo) {
-              hash->addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
-                                                        QString::number(input_time.denominator())).toUtf8());
-
-              hash->addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
-              /*Decoder::RetrieveState state = decoder->GetRetrieveState(input_time);
-
-              if (state == Decoder::kReady) {
-                VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
-
-                int64_t timestamp_here = video_stream->get_closest_timestamp_in_frame_index(input_time);
-
-                hash->addData(QString::number(timestamp_here).toUtf8());
-              } else {
-                ReportUnavailableFootage(stream, state, input_time);
-              }*/
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)

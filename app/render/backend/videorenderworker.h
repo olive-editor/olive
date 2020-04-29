@@ -105,8 +105,6 @@ protected:
   ColorProcessorCache* color_cache();
 
 private:
-  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
-
   void Download(const rational &time, QVariant texture, QString filename);
 
   void ResizeDownloadBuffer();

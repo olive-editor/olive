@@ -78,7 +78,7 @@ void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
 
 StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
 {
-  return input->get_value_at_time(0).value<StreamPtr>();
+  return input->get_standard_value().value<StreamPtr>();
 }
 
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)

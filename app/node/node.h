@@ -362,6 +362,8 @@ public:
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
+  virtual void Hash(QCryptographicHash& hash, const rational &time) const;
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -372,6 +374,8 @@ protected:
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
+
+  virtual QList<NodeInput*> GetInputsToHash() const;
 
 public slots:
 
