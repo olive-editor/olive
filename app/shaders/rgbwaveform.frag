@@ -53,7 +53,7 @@ void main(void) {
         float waveform_y = (ove_texcoord.y - waveform_uv.y) / waveform_scale;
         for (int i = 0; i < waveform_dims.y; i++) {
             ratio = float(i) / float(waveform_dims.y);
-            cur_col = texture2D(
+            cur_col = texture(
                 ove_maintex,
                 vec2(waveform_x, ratio)
             ).rgb;
@@ -68,5 +68,5 @@ void main(void) {
         }
     }
 
-    gl_FragColor = vec4(col, 1.0);
+    fragColor = vec4(col, 1.0);
 }
