@@ -132,7 +132,7 @@ int NodeViewItem::DefaultItemHeight()
 
 int NodeViewItem::DefaultItemWidth()
 {
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHHHH");;
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHH");;
 }
 
 int NodeViewItem::DefaultItemBorder()
