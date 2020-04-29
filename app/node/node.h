@@ -92,6 +92,13 @@ public:
   virtual QString Name() const = 0;
 
   /**
+   * @brief Returns a shortened name of this node if applicable
+   *
+   * Defaults to returning Name() but can be overridden.
+   */
+  virtual QString ShortName() const;
+
+  /**
    * @brief Return the unique identifier of the node
    *
    * This is used in save files and any other times a specific node must be picked out at runtime. This must be an ID

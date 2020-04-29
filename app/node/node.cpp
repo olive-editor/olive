@@ -116,6 +116,11 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
   writer->writeEndElement(); // node
 }
 
+QString Node::ShortName() const
+{
+  return Name();
+}
+
 QString Node::Category() const
 {
   // Return an empty category for any nodes that don't use one

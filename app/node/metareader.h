@@ -35,6 +35,7 @@ public:
   NodeMetaReader(const QString& xml_meta_filename);
 
   QString Name() const;
+  QString ShortName() const;
   const QString& id() const;
   QString Category() const;
   QString Description() const;
@@ -67,6 +68,7 @@ private:
   QString xml_filename_;
 
   LanguageMap names_;
+  LanguageMap short_names_;
   LanguageMap descriptions_;
   LanguageMap categories_;
   QMap<QString, LanguageMap > param_names_;

@@ -263,7 +263,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(app_pal.color(QPalette::Text));
 
     // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(title_bar_rect_, Qt::AlignCenter, node_->Name());
+    painter->drawText(title_bar_rect_, Qt::AlignCenter, node_->ShortName());
 
   }
 
