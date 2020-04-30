@@ -65,43 +65,47 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data,
   if (job_time == render_job_info_.value(dep.range())) {
     render_job_info_.remove(dep.range());
 
-    QByteArray cached_samples = data.Get(NodeParam::kSamples).value<SampleBufferPtr>()->toPackedData();
+    SampleBufferPtr cached_sample_ptr = data.Get(NodeParam::kSamples).value<SampleBufferPtr>();
 
-    int offset = params().time_to_bytes(dep.in());
-    int length = params().time_to_bytes(dep.range().length());
-    int out_point = qMin(offset + length, params().time_to_bytes(GetSequenceLength()));
+    if (cached_sample_ptr) {
+      QByteArray cached_samples = cached_sample_ptr->toPackedData();
 
-    if (offset < out_point) {
-      if (offset + length > out_point) {
-        length = out_point - offset;
-      }
+      int offset = params().time_to_bytes(dep.in());
+      int length = params().time_to_bytes(dep.range().length());
+      int out_point = qMin(offset + length, params().time_to_bytes(GetSequenceLength()));
 
-      QFile f(CachePathName());
-      if (f.open(QFile::ReadWrite)) {
-
-        if (f.size() < out_point && !f.resize(out_point)) {
-          qCritical() << "Failed to resize file" << CachePathName();
+      if (offset < out_point) {
+        if (offset + length > out_point) {
+          length = out_point - offset;
         }
 
-        if (!f.seek(offset)) {
-          qCritical() << "Failed to seek file" << CachePathName();
+        QFile f(CachePathName());
+        if (f.open(QFile::ReadWrite)) {
+
+          if (f.size() < out_point && !f.resize(out_point)) {
+            qCritical() << "Failed to resize file" << CachePathName();
+          }
+
+          if (!f.seek(offset)) {
+            qCritical() << "Failed to seek file" << CachePathName();
+          }
+
+          // Replace data with this data
+          int copy_length = qMin(length, cached_samples.size());
+
+          f.write(cached_samples.data(), copy_length);
+
+          if (copy_length < length) {
+
+            // Fill in remainder with silence
+            QByteArray empty_space(length - copy_length, 0);
+            f.write(empty_space);
+          }
+
+          f.close();
+        } else {
+          qWarning() << "Failed to write to cached PCM file";
         }
-
-        // Replace data with this data
-        int copy_length = qMin(length, cached_samples.size());
-
-        f.write(cached_samples.data(), copy_length);
-
-        if (copy_length < length) {
-
-          // Fill in remainder with silence
-          QByteArray empty_space(length - copy_length, 0);
-          f.write(empty_space);
-        }
-
-        f.close();
-      } else {
-        qWarning() << "Failed to write to cached PCM file";
       }
     }
   }
