@@ -283,6 +283,17 @@ void ExportDialog::accept()
     return;
   }
 
+  // Validate video resolution
+  if (video_enabled_->isChecked()) {
+    if (video_tab_->width_slider()->GetValue() % 2 != 0
+        || video_tab_->height_slider()->GetValue() % 2 != 0) {
+      QMessageBox::critical(this,
+                            tr("Invalid parameters"),
+                            tr("Width and height must be multiples of 2."));
+      return;
+    }
+  }
+
   // Set up export parameters
   exporter_ = new Exporter(viewer_node_, color_manager_, GenerateParams());
 
@@ -500,8 +511,10 @@ void ExportDialog::SetUIElementsEnabled(bool enabled)
   preferences_area_->setEnabled(enabled);
   buttons_->setEnabled(enabled);
 
+  progress_bar_->setEnabled(!enabled);
   export_cancel_btn_->setEnabled(!enabled);
   elapsed_label_->setEnabled(!enabled);
+  remaining_label_->setEnabled(!enabled);
 }
 
 ExportParams ExportDialog::GenerateParams() const
@@ -632,7 +645,6 @@ void ExportDialog::ExporterIsDone()
     SetUIElementsEnabled(true);
   }
 
-  exporter_->deleteLater();
   exporter_ = nullptr;
   cancelled_ = false;
 
