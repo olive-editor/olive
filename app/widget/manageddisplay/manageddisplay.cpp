@@ -32,6 +32,11 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
+ManagedDisplayWidget::~ManagedDisplayWidget()
+{
+  ContextCleanup();
+}
+
 void ManagedDisplayWidget::ConnectColorManager(ColorManager *color_manager)
 {
   if (color_manager_ == color_manager) {

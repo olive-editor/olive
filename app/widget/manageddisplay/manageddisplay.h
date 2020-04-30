@@ -35,6 +35,8 @@ class ManagedDisplayWidget : public QOpenGLWidget
 public:
   ManagedDisplayWidget(QWidget* parent = nullptr);
 
+  virtual ~ManagedDisplayWidget() override;
+
   /**
    * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
    */
