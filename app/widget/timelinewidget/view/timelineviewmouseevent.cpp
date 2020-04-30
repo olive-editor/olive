@@ -30,11 +30,13 @@ TimelineViewMouseEvent::TimelineViewMouseEvent(const qreal &scene_x,
                                                const double &scale_x,
                                                const rational &timebase,
                                                const TrackReference &track,
+                                               const Qt::MouseButton &button,
                                                const Qt::KeyboardModifiers &modifiers) :
   scene_x_(scene_x),
   scale_x_(scale_x),
   timebase_(timebase),
   track_(track),
+  button_(button),
   modifiers_(modifiers),
   source_event_(nullptr),
   mime_data_(nullptr)
@@ -79,6 +81,11 @@ void TimelineViewMouseEvent::SetEvent(QEvent *event)
 const qreal &TimelineViewMouseEvent::GetSceneX() const
 {
   return scene_x_;
+}
+
+const Qt::MouseButton &TimelineViewMouseEvent::GetButton() const
+{
+  return button_;
 }
 
 void TimelineViewMouseEvent::accept()

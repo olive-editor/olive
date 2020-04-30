@@ -36,6 +36,7 @@ public:
                          const double& scale_x,
                          const rational& timebase,
                          const TrackReference &track,
+                         const Qt::MouseButton &button,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
 
   TimelineCoordinate GetCoordinates(bool round_time = false) const;
@@ -61,6 +62,8 @@ public:
 
   const qreal& GetSceneX() const;
 
+  const Qt::MouseButton& GetButton() const;
+
   void accept();
   void ignore();
 
@@ -70,6 +73,8 @@ private:
   rational timebase_;
 
   TrackReference track_;
+
+  Qt::MouseButton button_;
 
   Qt::KeyboardModifiers modifiers_;
 

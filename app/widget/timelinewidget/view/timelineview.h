@@ -100,7 +100,8 @@ private:
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
-  TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::KeyboardModifiers modifiers);
+  TimelineViewMouseEvent CreateMouseEvent(QMouseEvent* event);
+  TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
   int GetHeightOfAllTracks() const;
 
