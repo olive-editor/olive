@@ -417,10 +417,27 @@ void ExportDialog::ResolutionChanged()
   if (video_tab_->maintain_aspect_checkbox()->isChecked()) {
     // Keep aspect ratio maintained
     if (sender() == video_tab_->height_slider()) {
-      video_tab_->width_slider()->SetValue(qRound(static_cast<double>(video_tab_->height_slider()->GetValue()) * video_aspect_ratio_));
+
+      // Convert height to float
+      double new_width = video_tab_->height_slider()->GetValue();
+
+      // Generate width from aspect ratio
+      new_width *= video_aspect_ratio_;
+
+      // Align to even number and set
+      video_tab_->width_slider()->SetValue(AlignEvenNumber(new_width));
+
     } else {
-      // This catches both the width slider changing and the maintain aspect ratio checkbox changing
-      video_tab_->height_slider()->SetValue(qRound(static_cast<double>(video_tab_->width_slider()->GetValue()) / video_aspect_ratio_));
+
+      // Convert width to float
+      double new_height = video_tab_->width_slider()->GetValue();
+
+      // Generate height from aspect ratio
+      new_height /= video_aspect_ratio_;
+
+      // Align to even number and set
+      video_tab_->height_slider()->SetValue(AlignEvenNumber(new_height));
+
     }
   }
 
@@ -543,6 +560,11 @@ void ExportDialog::SetUIElementsEnabled(bool enabled)
   export_cancel_btn_->setEnabled(!enabled);
   elapsed_label_->setEnabled(!enabled);
   remaining_label_->setEnabled(!enabled);
+}
+
+int ExportDialog::AlignEvenNumber(double d)
+{
+  return qCeil(d * 0.5) * 2;
 }
 
 ExportParams ExportDialog::GenerateParams() const
