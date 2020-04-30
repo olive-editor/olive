@@ -57,6 +57,8 @@ public:
   ImageSection* image_section() const;
   H264Section* h264_section() const;
 
+  const int& threads() const;
+
 signals:
   void ColorSpaceChanged(const QString& colorspace);
 
@@ -83,8 +85,12 @@ private:
 
   ColorManager* color_manager_;
 
+  int threads_;
+
 private slots:
   void MaintainAspectRatioChanged(bool val);
+
+  void OpenAdvancedDialog();
 
 };
 

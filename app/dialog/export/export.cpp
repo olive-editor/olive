@@ -531,6 +531,8 @@ ExportParams ExportDialog::GenerateParams() const
     params.EnableVideo(video_render_params,
                        video_codec.id());
 
+    params.set_video_threads(video_tab_->threads());
+
     video_tab_->GetCodecSection()->AddOpts(&params);
 
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
