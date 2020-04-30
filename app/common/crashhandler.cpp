@@ -41,7 +41,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void crash_handler(int sig) {
+void crash_handler(int sig)
+{
   QString log_path = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("olive_crash"));
   QFile output(log_path);
 
