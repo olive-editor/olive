@@ -79,7 +79,7 @@ signals:
 
   void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
 
-  void GeneratedFrame(const rational &time, FramePtr frame);
+  void GeneratedFrame(FramePtr frame);
 
   void Aborted();
 

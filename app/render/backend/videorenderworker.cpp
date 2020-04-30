@@ -269,7 +269,9 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
       TextureToBuffer(texture, frame->width(), frame->height(), frame_gen_mat_, frame->data(), frame->linesize_pixels());
     }
 
-    emit GeneratedFrame(time, frame);
+    frame->set_timestamp(time);
+
+    emit GeneratedFrame(frame);
 
   }
 }

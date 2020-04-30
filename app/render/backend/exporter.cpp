@@ -224,13 +224,39 @@ QMatrix4x4 Exporter::GenerateMatrix(ExportParams::VideoScalingMethod method, int
   return preview_matrix;
 }
 
-void Exporter::FrameRendered(const rational &time, FramePtr frame)
+FramePtr FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
+{
+  qDebug() << "Converting" << frame->timestamp();
+
+  // OCIO conversion requires a frame in 32F format
+  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  }
+
+  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
+  ColorManager::DisassociateAlpha(frame);
+
+  // Convert color space
+  processor->ConvertFrame(frame);
+
+  // Re-associate alpha
+  ColorManager::ReassociateAlpha(frame);
+
+  return frame;
+}
+
+void Exporter::FrameRendered(FramePtr frame)
 {
   // Start color space conversion in another thread
-  QtConcurrent::run(this,
-                    &Exporter::FrameColorConvert,
-                    time,
-                    frame);
+  QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
+
+  connect(watcher, &QFutureWatcher<FramePtr>::finished, this, &Exporter::FrameColorFinished);
+
+  QFuture<FramePtr> future = QtConcurrent::run(FrameColorConvert,
+                                               color_processor_,
+                                               frame);
+
+  watcher->setFuture(future);
 }
 
 void Exporter::AudioRendered()
@@ -328,36 +354,21 @@ void Exporter::DebugTimerMessage()
   qDebug() << "Still waiting for" << waiting_for_frame_.toDouble();
 }
 
-void Exporter::FrameColorConvert(const rational &time, FramePtr frame)
+void Exporter::FrameColorFinished()
 {
-  // OCIO conversion requires a frame in 32F format
-  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  if (!video_backend_ && !audio_backend_) {
+    return;
   }
 
-  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
-  ColorManager::DisassociateAlpha(frame);
+  QFutureWatcher<FramePtr>* watcher = static_cast< QFutureWatcher<FramePtr>* >(sender());
+  FramePtr frame = watcher->result();
+  watcher->deleteLater();
 
-  // Convert color space
-  color_processor_->ConvertFrame(frame);
-
-  // Re-associate alpha
-  ColorManager::ReassociateAlpha(frame);
-
-  QMetaObject::invokeMethod(this,
-                            "FrameColorFinished",
-                            Qt::QueuedConnection,
-                            OLIVE_NS_ARG(rational, time),
-                            OLIVE_NS_ARG(FramePtr, frame));
-}
-
-void Exporter::FrameColorFinished(const rational &time, FramePtr frame)
-{
   debug_timer_.stop();
 
   const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
 
-  QByteArray this_hash = time_hash_map.value(time);
+  QByteArray this_hash = time_hash_map.value(frame->timestamp());
 
   qDebug() << "Received" << this_hash.toHex();
 

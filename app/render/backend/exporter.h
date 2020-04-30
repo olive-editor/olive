@@ -101,7 +101,7 @@ private:
   QTimer debug_timer_;
 
 private slots:
-  void FrameRendered(const rational &time, FramePtr frame);
+  void FrameRendered(FramePtr frame);
 
   void AudioRendered();
 
@@ -117,9 +117,7 @@ private slots:
 
   void DebugTimerMessage();
 
-  void FrameColorConvert(const rational &time, FramePtr frame);
-
-  void FrameColorFinished(const OLIVE_NAMESPACE::rational &time, OLIVE_NAMESPACE::FramePtr frame);
+  void FrameColorFinished();
 
 };
 

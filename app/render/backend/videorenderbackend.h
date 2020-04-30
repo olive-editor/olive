@@ -110,7 +110,7 @@ signals:
 
   void RangeInvalidated(const TimeRange& range);
 
-  void GeneratedFrame(const rational &time, FramePtr frame);
+  void GeneratedFrame(FramePtr frame);
 
 private:
   bool TimeIsQueued(const TimeRange &time) const;
