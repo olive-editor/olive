@@ -46,7 +46,6 @@ CrashHandlerDialog::CrashHandlerDialog(const char *log_file)
   edit->append(QStringLiteral("Run Environment: %1").arg(QSysInfo::currentCpuArchitecture()));
   edit->append(QStringLiteral("Kernel: %1 %2").arg(QSysInfo::kernelType(), QSysInfo::kernelVersion()));
   edit->append(QStringLiteral("System: %1 (%2 %3)").arg(QSysInfo::prettyProductName(), QSysInfo::productType(), QSysInfo::productVersion()));
-  edit->append(QStringLiteral("Version: %1").arg(GITHASH);
   edit->append(QString());
 
   QDialogButtonBox* buttons = new QDialogButtonBox();

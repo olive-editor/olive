@@ -49,7 +49,7 @@ void crash_handler(int sig)
   output.open(QFile::WriteOnly);
   QTextStream ostream(&output);
 
-  ostream << "Signal: " << sig << "\n\n";
+  ostream << "Version: " << GITHASH << "\nSignal: " << sig << "\n\n";
 
 #if defined(Q_OS_WINDOWS)
   // Use Windows stackwalk API
