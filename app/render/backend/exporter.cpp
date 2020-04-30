@@ -20,6 +20,8 @@
 
 #include "exporter.h"
 
+#include <QtConcurrent/QtConcurrent>
+
 #include "render/backend/audio/audiobackend.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/colormanager.h"
@@ -177,17 +179,6 @@ void Exporter::EncodeFrame()
   while (cached_frames_.contains(waiting_for_frame_)) {
     FramePtr frame = cached_frames_.take(waiting_for_frame_);
 
-    // OCIO conversion requires a frame in 32F format
-    if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-      frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
-    }
-
-    // Color conversion must be done with unassociated alpha, and the pipeline is always associated
-    ColorManager::DisassociateAlpha(frame);
-
-    // Convert color space
-    color_processor_->ConvertFrame(frame);
-
     // Encode (may require re-associating alpha?)
     QMetaObject::invokeMethod(encoder_,
                               "WriteFrame",
@@ -233,29 +224,13 @@ QMatrix4x4 Exporter::GenerateMatrix(ExportParams::VideoScalingMethod method, int
   return preview_matrix;
 }
 
-void Exporter::FrameRendered(const rational &time, FramePtr value)
+void Exporter::FrameRendered(const rational &time, FramePtr frame)
 {
-  debug_timer_.stop();
-
-  const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
-
-  QByteArray this_hash = time_hash_map.value(time);
-
-  qDebug() << "Received" << this_hash.toHex();
-
-  QList<rational> matching_times = time_hash_map.keys(this_hash);
-
-  foreach (const rational& t, matching_times) {
-    qDebug() << "  Matches" << t.toDouble();
-
-    cached_frames_.insert(t, value);
-  }
-
-  qDebug() << "    Waiting for" << waiting_for_frame_.toDouble();
-
-  debug_timer_.start();
-
-  EncodeFrame();
+  // Start color space conversion in another thread
+  QtConcurrent::run(this,
+                    &Exporter::FrameColorConvert,
+                    time,
+                    frame);
 }
 
 void Exporter::AudioRendered()
@@ -351,6 +326,54 @@ void Exporter::VideoHashesComplete()
 void Exporter::DebugTimerMessage()
 {
   qDebug() << "Still waiting for" << waiting_for_frame_.toDouble();
+}
+
+void Exporter::FrameColorConvert(const rational &time, FramePtr frame)
+{
+  // OCIO conversion requires a frame in 32F format
+  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  }
+
+  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
+  ColorManager::DisassociateAlpha(frame);
+
+  // Convert color space
+  color_processor_->ConvertFrame(frame);
+
+  // Re-associate alpha
+  ColorManager::ReassociateAlpha(frame);
+
+  QMetaObject::invokeMethod(this,
+                            "FrameColorFinished",
+                            Qt::QueuedConnection,
+                            OLIVE_NS_ARG(rational, time),
+                            OLIVE_NS_ARG(FramePtr, frame));
+}
+
+void Exporter::FrameColorFinished(const rational &time, FramePtr frame)
+{
+  debug_timer_.stop();
+
+  const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
+
+  QByteArray this_hash = time_hash_map.value(time);
+
+  qDebug() << "Received" << this_hash.toHex();
+
+  QList<rational> matching_times = time_hash_map.keys(this_hash);
+
+  foreach (const rational& t, matching_times) {
+    qDebug() << "  Matches" << t.toDouble();
+
+    cached_frames_.insert(t, frame);
+  }
+
+  qDebug() << "    Waiting for" << waiting_for_frame_.toDouble();
+
+  debug_timer_.start();
+
+  EncodeFrame();
 }
 
 OLIVE_NAMESPACE_EXIT
