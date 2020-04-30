@@ -54,6 +54,9 @@ private:
 #else
   std::unique_ptr<OIIO::ImageInput> image_;
 #endif
+
+  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
+
   static bool FileTypeIsSupported(const QString& fn);
 
   static int GetImageSequenceDigitCount(const QString& filename);
