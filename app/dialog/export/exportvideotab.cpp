@@ -126,6 +126,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   layout->addWidget(new QLabel(tr("Width:")), row, 0);
 
   width_slider_ = new IntegerSlider();
+  width_slider_->SetMinimum(1);
   layout->addWidget(width_slider_, row, 1);
 
   row++;
@@ -133,6 +134,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   layout->addWidget(new QLabel(tr("Height:")), row, 0);
 
   height_slider_ = new IntegerSlider();
+  height_slider_->SetMinimum(1);
   layout->addWidget(height_slider_, row, 1);
 
   row++;
