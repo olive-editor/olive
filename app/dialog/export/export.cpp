@@ -238,10 +238,13 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 void ExportDialog::accept()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
-    QMessageBox::critical(this,
-                          tr("Invalid parameters"),
-                          tr("Both video and audio are disabled. There's nothing to export."),
-                          QMessageBox::Ok);
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Invalid parameters"));
+    b.setText(tr("Both video and audio are disabled. There's nothing to export."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
@@ -251,10 +254,16 @@ void ExportDialog::accept()
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
   if (!filename_edit_->text().endsWith(necessary_ext, Qt::CaseInsensitive)) {
-    if (QMessageBox::warning(this,
-                             tr("Invalid filename"),
-                             tr("The filename must contain the extension \".%1\". Would you like to append it automatically?"),
-                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Warning);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Invalid filename"));
+    b.setText(tr("The filename must contain the extension \".%1\". Would you like to append it "
+                 "automatically?"));
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::Yes) {
       filename_edit_->setText(filename_edit_->text().append(necessary_ext));
     } else {
       return;
@@ -267,29 +276,43 @@ void ExportDialog::accept()
 
   // If the directory does not exist, try to create it
   if (!QDir(file_info.path()).mkpath(QStringLiteral("."))) {
-    QMessageBox::critical(this,
-                          tr("Failed to create output directory"),
-                          tr("The intended output directory doesn't exist and Olive couldn't create it. Please choose a different filename."),
-                          QMessageBox::Ok);
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Failed to create output directory"));
+    b.setText(tr("The intended output directory doesn't exist and Olive couldn't create it. "
+                 "Please choose a different filename."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
     return;
   }
 
   // Validate if the file exists and whether the user wishes to overwrite it
-  if (file_info.exists()
-      && QMessageBox::warning(this,
-                              tr("Confirm Overwrite"),
-                              tr("The file \"%1\" already exists. Do you want to overwrite it?").arg(filename_edit_->text()),
-                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-    return;
+  if (file_info.exists()) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Warning);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Confirm Overwrite"));
+    b.setText(tr("The file \"%1\" already exists. Do you want to overwrite it?")
+              .arg(filename_edit_->text()));
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::No) {
+      return;
+    }
   }
 
   // Validate video resolution
   if (video_enabled_->isChecked()) {
     if (video_tab_->width_slider()->GetValue() % 2 != 0
         || video_tab_->height_slider()->GetValue() % 2 != 0) {
-      QMessageBox::critical(this,
-                            tr("Invalid parameters"),
-                            tr("Width and height must be multiples of 2."));
+      QMessageBox b(this);
+      b.setIcon(QMessageBox::Critical);
+      b.setWindowModality(Qt::WindowModal);
+      b.setWindowTitle(tr("Invalid parameters"));
+      b.setText(tr("Width and height must be multiples of 2."));
+      b.exec();
       return;
     }
   }
@@ -318,10 +341,15 @@ void ExportDialog::accept()
 void ExportDialog::closeEvent(QCloseEvent *e)
 {
   if (exporter_) {
-    if (QMessageBox::question(this,
-                              tr("Still Exporting"),
-                              tr("This sequence is still being exported. Do you wish to cancel it?"),
-                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Question);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Still Exporting"));
+    b.setText(tr("This sequence is still being exported. Do you wish to cancel it?"));
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::Yes) {
       CancelExport();
     } else {
       e->ignore();
@@ -624,10 +652,13 @@ void ExportDialog::ExporterIsDone()
   progress_timer_.stop();
 
   if (exporter_->GetExportStatus()) {
-    QMessageBox::information(this,
-                             tr("Export Status"),
-                             tr("Export completed successfully."),
-                             QMessageBox::Ok);
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Information);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Export Status"));
+    b.setText(tr("Export completed successfully."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
 
     QDialog::accept();
   } else {
@@ -636,10 +667,13 @@ void ExportDialog::ExporterIsDone()
       Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
 #endif
 
-      QMessageBox::critical(this,
-                            tr("Export Status"),
-                            tr("Export failed: %1").arg(exporter_->GetExportError()),
-                            QMessageBox::Ok);
+      QMessageBox b(this);
+      b.setIcon(QMessageBox::Critical);
+      b.setWindowModality(Qt::WindowModal);
+      b.setWindowTitle(tr("Export Status"));
+      b.setText(tr("Export failed: %1").arg(exporter_->GetExportError()));
+      b.addButton(QMessageBox::Ok);
+      b.exec();
     }
 
     SetUIElementsEnabled(true);
