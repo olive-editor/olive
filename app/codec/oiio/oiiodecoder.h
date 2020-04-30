@@ -48,14 +48,14 @@ public:
 
   virtual QString GetIndexFilename() override;
 
+  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
+
 private:
 #if OIIO_VERSION < 10903
   OIIO::ImageInput* image_;
 #else
   std::unique_ptr<OIIO::ImageInput> image_;
 #endif
-
-  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
 
   static bool FileTypeIsSupported(const QString& fn);
 

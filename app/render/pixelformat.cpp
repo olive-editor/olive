@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QFloat16>
 
+#include "codec/oiio/oiiodecoder.h"
 #include "common/define.h"
 #include "core.h"
 
@@ -213,19 +214,39 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
     return frame;
   }
 
+  // Create a destination frame with the same parameters
   FramePtr converted = Frame::Create();
-
-  // Copy parameters
   converted->set_video_params(VideoRenderingParams(frame->video_params().width(),
                                                    frame->video_params().height(),
                                                    dest_format));
   converted->set_timestamp(frame->timestamp());
   converted->allocate();
 
-  OIIO::ImageBuf src(OIIO::ImageSpec(frame->width(), frame->height(), ChannelCount(frame->format()), GetOIIOTypeDesc(frame->format())), frame->data());
-  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(), converted->height(), ChannelCount(converted->format()), GetOIIOTypeDesc(converted->format())), converted->data());
+  // Do the conversion through OIIO - create a buffer for the source image
+  OIIO::ImageBuf src(OIIO::ImageSpec(frame->width(),
+                                     frame->height(),
+                                     ChannelCount(frame->format()),
+                                     GetOIIOTypeDesc(frame->format())));
+
+  // Set the pixels (this is necessary as opposed to an OIIO buffer wrapper since Frame has
+  // linesizes)
+  src.set_pixels(OIIO::ROI(),
+                 GetOIIOTypeDesc(frame->format()),
+                 frame->const_data(),
+                 OIIO::AutoStride,
+                 frame->linesize_bytes());
+
+  // Create a destination OIIO buffer with our destination format
+  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(),
+                                     converted->height(),
+                                     ChannelCount(converted->format()),
+                                     GetOIIOTypeDesc(converted->format())));
 
   if (dst.copy_pixels(src)) {
+
+    // Convert our buffer back to a frame
+    OIIODecoder::BufferToFrame(&dst, converted);
+
     return converted;
   } else {
     return nullptr;
