@@ -85,11 +85,15 @@ void WaveformScope::paintGL()
   f->glClearColor(0, 0, 0, 0);
   f->glClear(GL_COLOR_BUFFER_BIT);
 
-  if (!pipeline_ || !texture_.IsCreated()) {
-    return;
-  }
+  float waveform_scale = 0.80f;
+  float waveform_dim_x = width() * waveform_scale;
+  float waveform_dim_y = height() * waveform_scale;
+  float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0f;
+  float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0f;
+  float waveform_end_dim_x = width() - waveform_start_dim_x;
+  float waveform_end_dim_y = height() - waveform_start_dim_y;
 
-  {
+  if (buffer_ && pipeline_ && texture_.IsCreated()) {
     // Convert reference frame to display space
     framebuffer_.Attach(&managed_tex_);
     framebuffer_.Bind();
@@ -104,9 +108,7 @@ void WaveformScope::paintGL()
 
     framebuffer_.Release();
     framebuffer_.Detach();
-  }
 
-  {
     // Draw waveform through shader
     pipeline_->bind();
     pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
@@ -116,17 +118,10 @@ void WaveformScope::paintGL()
     pipeline_->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
 
     // Scale of the waveform relative to the viewport surface.
-    float waveform_scale = 0.80f;
     pipeline_->setUniformValue("waveform_scale", waveform_scale);
-    float waveform_dim_x = width() * waveform_scale;
-    float waveform_dim_y = height() * waveform_scale;
     pipeline_->setUniformValue(
       "waveform_dims", waveform_dim_x, waveform_dim_y);
 
-    float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0f;
-    float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0f;
-    float waveform_end_dim_x = width() - waveform_start_dim_x;
-    float waveform_end_dim_y = height() - waveform_start_dim_y;
     pipeline_->setUniformValue(
       "waveform_region",
       waveform_start_dim_x, waveform_start_dim_y,
@@ -150,61 +145,64 @@ void WaveformScope::paintGL()
     OpenGLRenderFunctions::Blit(pipeline_);
 
     managed_tex_.Release();
-
-    QPainter p(this);
-    QFontMetrics font_metrics = QFontMetrics(QFont());
-    QString label;
-    float ire_increment = 0.1f;
-    float ire_steps = int(1.0 / ire_increment);
-    QVector<QLine> ire_lines(ire_steps + 1);
-    int font_x_offset = 0;
-    int font_y_offset = font_metrics.capHeight() / 2.0f;
-
-    p.setCompositionMode(QPainter::CompositionMode_Plus);
-
-    p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
-    p.setFont(QFont());
-
-    for (int i=0; i <= ire_steps; i++) {
-      ire_lines[i].setLine(
-        waveform_start_dim_x,
-        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y,
-        waveform_end_dim_x,
-        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
-        label = QString::number(1.0 - (i * ire_increment), 'f', 1);
-        font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
-
-        p.drawText(
-          waveform_start_dim_x - font_x_offset,
-          (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y + font_y_offset,
-          label);
-    }
-    p.drawLines(ire_lines);
   }
+
+  // Draw line overlays
+  QPainter p(this);
+  QFontMetrics font_metrics = QFontMetrics(QFont());
+  QString label;
+  float ire_increment = 0.1f;
+  float ire_steps = int(1.0 / ire_increment);
+  QVector<QLine> ire_lines(ire_steps + 1);
+  int font_x_offset = 0;
+  int font_y_offset = font_metrics.capHeight() / 2.0f;
+
+  p.setCompositionMode(QPainter::CompositionMode_Plus);
+
+  p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
+  p.setFont(QFont());
+
+  for (int i=0; i <= ire_steps; i++) {
+    ire_lines[i].setLine(
+      waveform_start_dim_x,
+      (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y,
+      waveform_end_dim_x,
+      (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
+      label = QString::number(1.0 - (i * ire_increment), 'f', 1);
+      font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
+
+      p.drawText(
+        waveform_start_dim_x - font_x_offset,
+        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y + font_y_offset,
+        label);
+  }
+  p.drawLines(ire_lines);
 }
 
 void WaveformScope::UploadTextureFromBuffer()
 {
-  if (!buffer_ || !isVisible()) {
+  if (!isVisible()) {
     return;
   }
 
-  makeCurrent();
+  if (buffer_) {
+    makeCurrent();
 
-  if (!texture_.IsCreated()
-      || texture_.width() != buffer_->width()
-      || texture_.height() != buffer_->height()
-      || texture_.format() != buffer_->format()) {
-    texture_.Destroy();
-    managed_tex_.Destroy();
+    if (!texture_.IsCreated()
+        || texture_.width() != buffer_->width()
+        || texture_.height() != buffer_->height()
+        || texture_.format() != buffer_->format()) {
+      texture_.Destroy();
+      managed_tex_.Destroy();
 
-    texture_.Create(context(), buffer_);
-    managed_tex_.Create(context(), buffer_->width(), buffer_->height(), buffer_->format());
-  } else {
-    texture_.Upload(buffer_);
+      texture_.Create(context(), buffer_);
+      managed_tex_.Create(context(), buffer_->width(), buffer_->height(), buffer_->format());
+    } else {
+      texture_.Upload(buffer_);
+    }
+
+    doneCurrent();
   }
-
-  doneCurrent();
 
   update();
 }
