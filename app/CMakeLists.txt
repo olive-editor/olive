@@ -75,6 +75,8 @@ if(APPLE)
     MACOSX_BUNDLE_ICON_FILE olive.icns
     RESOURCE "${OLIVE_ICON}"
   )
+
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
 endif()
 
 # Set compiler definitions
