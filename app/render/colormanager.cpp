@@ -61,6 +61,16 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
+  if (!qgetenv("OCIO").isEmpty()) {
+    try {
+      default_config_ = OCIO::Config::CreateFromEnv();
+
+      return;
+    } catch (OCIO::Exception& e) {
+      qWarning() << "Failed to load config from OCIO environment variable, loading default instead";
+    }
+  }
+
   // Kind of hacky, but it'll work
   QString dir = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("ocioconf"));
 
