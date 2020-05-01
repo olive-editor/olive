@@ -240,9 +240,15 @@ void OIIODecoder::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
   // See more: https://github.com/OpenImageIO/oiio/pull/2487
   //
   for (int i=0;i<buf->spec().height;i++) {
+    int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
+
     memcpy(frame->data() + i * frame->linesize_bytes(),
+#if OIIO_VERSION < 10903
+           reinterpret_cast<const char*>(buf->localpixels()) + i * width_in_bytes,
+#else
            reinterpret_cast<const char*>(buf->localpixels()) + i * buf->scanline_stride(),
-           frame->width() * PixelFormat::BytesPerPixel(frame->format()));
+#endif
+           width_in_bytes);
   }
 #else
   buf->get_pixels(OIIO::ROI(),
