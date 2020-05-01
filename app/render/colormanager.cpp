@@ -67,7 +67,7 @@ void ColorManager::SetUpDefaultConfig()
 
       return;
     } catch (OCIO::Exception& e) {
-      qWarning() << "Failed to load config from OCIO environment variable, loading default instead";
+      qWarning() << "Failed to load config from OCIO environment variable config:" << e.what();
     }
   }
 
