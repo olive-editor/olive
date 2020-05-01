@@ -40,7 +40,7 @@ REM Build with Ninja
 ninja.exe || exit /B 1
 
 REM If this is a pull request, no further packaging/deploying needs to be done
-if "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
+if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
 
 REM Start building package
 mkdir olive-editor
