@@ -34,6 +34,8 @@ public:
 
   NodeInput* GetInput() const;
 
+  virtual void DeleteSelected() override;
+
 public slots:
   void SetInput(NodeInput* input);
 

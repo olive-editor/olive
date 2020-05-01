@@ -42,6 +42,8 @@ public:
 
   Node* GetTimeTarget() const;
 
+  void DeleteSelected();
+
 signals:
   void InputDoubleClicked(NodeInput* input);
 

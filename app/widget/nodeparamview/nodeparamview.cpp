@@ -225,6 +225,11 @@ Node *NodeParamView::GetTimeTarget() const
   return keyframe_view_->GetTimeTarget();
 }
 
+void NodeParamView::DeleteSelected()
+{
+  keyframe_view_->DeleteSelected();
+}
+
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 {
   rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());

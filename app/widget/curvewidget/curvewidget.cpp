@@ -168,6 +168,11 @@ void CurveWidget::SetVerticalScale(const double &vscale)
   view_->SetYScale(vscale);
 }
 
+void CurveWidget::DeleteSelected()
+{
+  view_->DeleteSelected();
+}
+
 void CurveWidget::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

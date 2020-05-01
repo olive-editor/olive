@@ -38,6 +38,8 @@ public slots:
 
   virtual void SetTimestamp(const int64_t& timestamp) override;
 
+  virtual void DeleteSelected() override;
+
 signals:
   void TimeTargetChanged(Node* node);
 

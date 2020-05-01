@@ -737,6 +737,19 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   emit_time_range(time_affected);
 }
 
+NodeKeyframePtr NodeInput::get_keyframe_shared_ptr_from_raw(NodeKeyframe* raw) const
+{
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
+    foreach (NodeKeyframePtr key, track) {
+      if (key.get() == raw) {
+        return key;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 void NodeInput::KeyframeTimeChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());

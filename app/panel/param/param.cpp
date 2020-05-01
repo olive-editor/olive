@@ -59,6 +59,11 @@ void ParamPanel::SetTimestamp(const int64_t &timestamp)
   }
 }
 
+void ParamPanel::DeleteSelected()
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeleteSelected();
+}
+
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));

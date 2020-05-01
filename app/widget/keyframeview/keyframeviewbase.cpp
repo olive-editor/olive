@@ -73,6 +73,25 @@ void KeyframeViewBase::SetYScale(const double &y_scale)
   }
 }
 
+void KeyframeViewBase::DeleteSelected()
+{
+  QUndoCommand* command = new QUndoCommand();
+
+  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
+
+  for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
+    if (i.value()->isSelected()) {
+      NodeInput* input_parent = i.key()->parent();
+
+      new NodeParamRemoveKeyframeCommand(input_parent,
+                                         input_parent->get_keyframe_shared_ptr_from_raw(i.key()),
+                                         command);
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 {
   KeyframeAboutToBeRemoved(key.get());
