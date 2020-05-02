@@ -230,11 +230,7 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
 
   // Set the pixels (this is necessary as opposed to an OIIO buffer wrapper since Frame has
   // linesizes)
-  src.set_pixels(OIIO::ROI(),
-                 GetOIIOTypeDesc(frame->format()),
-                 frame->const_data(),
-                 OIIO::AutoStride,
-                 frame->linesize_bytes());
+  OIIODecoder::FrameToBuffer(frame, &src);
 
   // Create a destination OIIO buffer with our destination format
   OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(),
