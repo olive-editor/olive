@@ -231,7 +231,7 @@ QString OIIODecoder::GetIndexFilename()
   return QString();
 }
 
-void OIIODecoder::FrameToBuffer(FramePtr frame, OpenImageIO_v2_1::ImageBuf *buf)
+void OIIODecoder::FrameToBuffer(FramePtr frame, OIIO::ImageBuf *buf)
 {
 #if OIIO_VERSION < 20112
   //
