@@ -370,8 +370,17 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogProjectPropertiesShow()
 {
-  ProjectPropertiesDialog ppd(GetActiveProject().get(), main_window_);
-  ppd.exec();
+  ProjectPtr proj = GetActiveProject();
+
+  if (proj) {
+    ProjectPropertiesDialog ppd(proj.get(), main_window_);
+    ppd.exec();
+  } else {
+    QMessageBox::critical(main_window_,
+                          tr("No Active Project"),
+                          tr("No project is currently open to set the properties for"),
+                          QMessageBox::Ok);
+  }
 }
 
 void Core::DialogExportShow()
@@ -783,6 +792,7 @@ QList<uint64_t> Core::SupportedChannelLayouts()
 
   channel_layouts.append(AV_CH_LAYOUT_MONO);
   channel_layouts.append(AV_CH_LAYOUT_STEREO);
+  channel_layouts.append(AV_CH_LAYOUT_2_1);
   channel_layouts.append(AV_CH_LAYOUT_5POINT1);
   channel_layouts.append(AV_CH_LAYOUT_7POINT1);
 
@@ -806,6 +816,8 @@ QString Core::ChannelLayoutToString(const uint64_t &layout)
     return tr("Mono");
   case AV_CH_LAYOUT_STEREO:
     return tr("Stereo");
+  case AV_CH_LAYOUT_2_1:
+    return tr("2.1");
   case AV_CH_LAYOUT_5POINT1:
     return tr("5.1");
   case AV_CH_LAYOUT_7POINT1:

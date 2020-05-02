@@ -319,7 +319,11 @@ QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
   return index_fn;
 }
 
-void Decoder::Index(const QAtomicInt *)
+void Decoder::ProxyVideo(const QAtomicInt *, int )
+{
+}
+
+void Decoder::ProxyAudio(const QAtomicInt *)
 {
 }
 

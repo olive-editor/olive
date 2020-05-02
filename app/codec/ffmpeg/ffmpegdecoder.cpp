@@ -623,24 +623,170 @@ void FFmpegDecoder::Error(const QString &s)
   ClearResources();
 }
 
-void FFmpegDecoder::Index(const QAtomicInt* cancelled)
+void FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
 {
+  // Iterate through each video frame transcode each frame to compressed EXR
   QMutexLocker locker(stream()->index_process_lock());
 
-  if (stream()->type() == Stream::kAudio) {
+  QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
 
-    if (QFileInfo::exists(GetIndexFilename())) {
-      WaveInput input(GetIndexFilename());
-      if (input.open()) {
-        std::static_pointer_cast<AudioStream>(stream())->set_index_done(true);
-        std::static_pointer_cast<AudioStream>(stream())->set_index_length(input.params().bytes_to_time(input.data_length()));
+  FFmpegDecoderInstance index_instance(fn_bytes.constData(), stream()->index());
 
-        input.close();
+
+}
+
+void FFmpegDecoder::ProxyAudio(const QAtomicInt *cancelled)
+{
+  // Iterate through each audio frame and extract the PCM data
+  QMutexLocker locker(stream()->index_process_lock());
+
+  if (QFileInfo::exists(GetIndexFilename())) {
+    WaveInput input(GetIndexFilename());
+    if (input.open()) {
+      std::static_pointer_cast<AudioStream>(stream())->set_index_done(true);
+      std::static_pointer_cast<AudioStream>(stream())->set_index_length(input.params().bytes_to_time(input.data_length()));
+
+      input.close();
+    }
+  } else {
+    QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
+
+    FFmpegDecoderInstance index_instance(fn_bytes.constData(), stream()->index());
+
+    uint64_t channel_layout = index_instance.stream()->codecpar->channel_layout;
+    if (!channel_layout) {
+      if (!index_instance.stream()->codecpar->channels) {
+        // No channel data - we can't do anything with this
+        return;
       }
-    } else {
-      UnconditionalAudioIndex(cancelled);
+
+      channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(index_instance.stream()->codecpar->channels));
     }
 
+    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
+
+    // This should be unnecessary, but just in case...
+    audio_stream->clear_index();
+
+    SwrContext* resampler = nullptr;
+    AVSampleFormat src_sample_fmt = static_cast<AVSampleFormat>(index_instance.stream()->codecpar->format);
+    AVSampleFormat dst_sample_fmt;
+
+    // We don't use planar types internally, so if this is a planar format convert it now
+    if (av_sample_fmt_is_planar(src_sample_fmt)) {
+      dst_sample_fmt = av_get_packed_sample_fmt(src_sample_fmt);
+
+      resampler = swr_alloc_set_opts(nullptr,
+                                     static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
+                                     dst_sample_fmt,
+                                     index_instance.stream()->codecpar->sample_rate,
+                                     static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
+                                     src_sample_fmt,
+                                     index_instance.stream()->codecpar->sample_rate,
+                                     0,
+                                     nullptr);
+
+      swr_init(resampler);
+    } else {
+      dst_sample_fmt = src_sample_fmt;
+    }
+
+    AudioRenderingParams wave_params(index_instance.stream()->codecpar->sample_rate,
+                                     channel_layout,
+                                     FFmpegCommon::GetNativeSampleFormat(dst_sample_fmt));
+    WaveOutput wave_out(GetIndexFilename(), wave_params);
+
+    AVPacket* pkt = av_packet_alloc();
+    AVFrame* frame = av_frame_alloc();
+    int ret;
+
+    if (wave_out.open()) {
+      bool success = false;
+
+      while (true) {
+        // Check if we have a `cancelled` ptr and its value
+        if (cancelled && *cancelled) {
+          break;
+        }
+
+        ret = index_instance.GetFrame(pkt, frame);
+
+        if (ret < 0) {
+
+          if (ret == AVERROR_EOF) {
+            success = true;
+          } else {
+            char err_str[50];
+            av_strerror(ret, err_str, 50);
+            qWarning() << "Failed to index:" << ret << err_str;
+          }
+          break;
+
+        } else {
+          char* data;
+          int nb_samples;
+
+          if (resampler) {
+
+            nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
+
+            data = new char[wave_params.samples_to_bytes(nb_samples)];
+
+            // We must need to resample this (mainly just convert from planar to packed if necessary)
+            nb_samples = swr_convert(resampler,
+                                     reinterpret_cast<uint8_t**>(&data),
+                                     nb_samples,
+                                     const_cast<const uint8_t**>(frame->data),
+                                     frame->nb_samples);
+
+            if (nb_samples < 0) {
+              char err_str[50];
+              av_strerror(nb_samples, err_str, 50);
+              qWarning() << "libswresample failed with error:" << nb_samples << err_str;
+              break;
+            }
+
+          } else {
+
+            // No resampling required, we can write directly from the frame buffer
+            data = reinterpret_cast<char*>(frame->data[0]);
+            nb_samples = frame->nb_samples;
+
+          }
+
+          // Write packed WAV data to the disk cache
+          wave_out.write(data, wave_params.samples_to_bytes(nb_samples));
+
+          audio_stream->set_index_length(wave_params.bytes_to_time(wave_out.data_length()));
+
+          // If we allocated an output for the resampler, delete it here
+          if (data != reinterpret_cast<char*>(frame->data[0])) {
+            delete [] data;
+          }
+
+          SignalIndexProgress(frame->pts);
+        }
+      }
+
+      wave_out.close();
+
+      if (success) {
+        audio_stream->set_index_done(true);
+      } else {
+        // Audio index didn't complete, delete it
+        QFile(GetIndexFilename()).remove();
+        audio_stream->clear_index();
+      }
+    } else {
+      qWarning() << "Failed to open WAVE output for indexing";
+    }
+
+    if (resampler != nullptr) {
+      swr_free(&resampler);
+    }
+
+    av_frame_free(&frame);
+    av_packet_free(&pkt);
   }
 }
 
@@ -653,150 +799,6 @@ QString FFmpegDecoder::GetIndexFilename()
 int FFmpegDecoder::GetScaledDimension(int dim, int divider)
 {
   return dim / divider;
-}
-
-void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
-{
-  // Iterate through each audio frame and extract the PCM data
-
-  QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
-
-  FFmpegDecoderInstance index_instance(fn_bytes.constData(), stream()->index());
-
-  uint64_t channel_layout = index_instance.stream()->codecpar->channel_layout;
-  if (!channel_layout) {
-    if (!index_instance.stream()->codecpar->channels) {
-      // No channel data - we can't do anything with this
-      return;
-    }
-
-    channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(index_instance.stream()->codecpar->channels));
-  }
-
-  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
-
-  // This should be unnecessary, but just in case...
-  audio_stream->clear_index();
-
-  SwrContext* resampler = nullptr;
-  AVSampleFormat src_sample_fmt = static_cast<AVSampleFormat>(index_instance.stream()->codecpar->format);
-  AVSampleFormat dst_sample_fmt;
-
-  // We don't use planar types internally, so if this is a planar format convert it now
-  if (av_sample_fmt_is_planar(src_sample_fmt)) {
-    dst_sample_fmt = av_get_packed_sample_fmt(src_sample_fmt);
-
-    resampler = swr_alloc_set_opts(nullptr,
-                                   static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
-                                   dst_sample_fmt,
-                                   index_instance.stream()->codecpar->sample_rate,
-                                   static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
-                                   src_sample_fmt,
-                                   index_instance.stream()->codecpar->sample_rate,
-                                   0,
-                                   nullptr);
-
-    swr_init(resampler);
-  } else {
-    dst_sample_fmt = src_sample_fmt;
-  }
-
-  AudioRenderingParams wave_params(index_instance.stream()->codecpar->sample_rate,
-                                   channel_layout,
-                                   FFmpegCommon::GetNativeSampleFormat(dst_sample_fmt));
-  WaveOutput wave_out(GetIndexFilename(), wave_params);
-
-  AVPacket* pkt = av_packet_alloc();
-  AVFrame* frame = av_frame_alloc();
-  int ret;
-
-  if (wave_out.open()) {
-    bool success = false;
-
-    while (true) {
-      // Check if we have a `cancelled` ptr and its value
-      if (cancelled && *cancelled) {
-        break;
-      }
-
-      ret = index_instance.GetFrame(pkt, frame);
-
-      if (ret < 0) {
-
-        if (ret == AVERROR_EOF) {
-          success = true;
-        } else {
-          char err_str[50];
-          av_strerror(ret, err_str, 50);
-          qWarning() << "Failed to index:" << ret << err_str;
-        }
-        break;
-
-      } else {
-        char* data;
-        int nb_samples;
-
-        if (resampler) {
-
-          nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
-
-          data = new char[wave_params.samples_to_bytes(nb_samples)];
-
-          // We must need to resample this (mainly just convert from planar to packed if necessary)
-          nb_samples = swr_convert(resampler,
-                                   reinterpret_cast<uint8_t**>(&data),
-                                   nb_samples,
-                                   const_cast<const uint8_t**>(frame->data),
-                                   frame->nb_samples);
-
-          if (nb_samples < 0) {
-            char err_str[50];
-            av_strerror(nb_samples, err_str, 50);
-            qWarning() << "libswresample failed with error:" << nb_samples << err_str;
-            break;
-          }
-
-        } else {
-
-          // No resampling required, we can write directly from the frame buffer
-          data = reinterpret_cast<char*>(frame->data[0]);
-          nb_samples = frame->nb_samples;
-
-        }
-
-        // Write packed WAV data to the disk cache
-        wave_out.write(data, wave_params.samples_to_bytes(nb_samples));
-
-        audio_stream->set_index_length(wave_params.bytes_to_time(wave_out.data_length()));
-
-        // If we allocated an output for the resampler, delete it here
-        if (data != reinterpret_cast<char*>(frame->data[0])) {
-          delete [] data;
-        }
-
-        SignalIndexProgress(frame->pts);
-      }
-    }
-
-    wave_out.close();
-
-    if (success) {
-      audio_stream->set_index_done(true);
-    } else {
-      // Audio index didn't complete, delete it
-      QFile(GetIndexFilename()).remove();
-      audio_stream->clear_index();
-    }
-  } else {
-    qWarning() << "Failed to open WAVE output for indexing";
-  }
-
-  if (resampler != nullptr) {
-    swr_free(&resampler);
-  }
-
-  av_frame_free(&frame);
-  av_packet_free(&pkt);
 }
 
 int FFmpegDecoderInstance::GetFrame(AVPacket *pkt, AVFrame *frame)

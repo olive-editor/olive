@@ -49,6 +49,7 @@ public:
   bool is_image_sequence() const;
   void set_image_sequence(bool e);
 
+  /*
   int64_t get_closest_timestamp_in_frame_index(const rational& time);
   int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
   void clear_frame_index();
@@ -58,6 +59,10 @@ public:
 
   bool load_frame_index(const QString& s);
   bool save_frame_index(const QString& s);
+  */
+
+  bool has_proxy(const int& divider);
+  void append_proxy(const int& divider);
 
 private:
   rational frame_rate_;
@@ -66,9 +71,9 @@ private:
 
   int64_t start_time_;
 
-  QMutex index_access_lock_;
-
   bool is_image_sequence_;
+
+  QVector<int> proxies_;
 
 };
 

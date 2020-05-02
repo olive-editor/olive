@@ -67,7 +67,7 @@ void AudioStream::set_sample_rate(const int &sample_rate)
 
 const rational &AudioStream::index_length()
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(index_access_lock());
 
   return index_length_;
 }
@@ -75,7 +75,7 @@ const rational &AudioStream::index_length()
 void AudioStream::set_index_length(const rational &index_length)
 {
   {
-    QMutexLocker locker(&index_access_lock_);
+    QMutexLocker locker(index_access_lock());
 
     index_length_ = index_length;
   }
@@ -85,7 +85,7 @@ void AudioStream::set_index_length(const rational &index_length)
 
 const bool &AudioStream::index_done()
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(index_access_lock());
 
   return index_done_;
 }
@@ -93,7 +93,7 @@ const bool &AudioStream::index_done()
 void AudioStream::set_index_done(const bool& index_done)
 {
   {
-    QMutexLocker locker(&index_access_lock_);
+    QMutexLocker locker(index_access_lock());
 
     index_done_ = index_done;
   }
@@ -103,7 +103,7 @@ void AudioStream::set_index_done(const bool& index_done)
 
 void AudioStream::clear_index()
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(index_access_lock());
 
   index_done_ = false;
   index_length_ = 0;
@@ -111,7 +111,7 @@ void AudioStream::clear_index()
 
 bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(index_access_lock());
 
   foreach (const AudioRenderingParams& p, conformed_) {
     if (p == params) {
@@ -125,7 +125,7 @@ bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
 void AudioStream::append_conformed_version(const AudioRenderingParams &params)
 {
   {
-    QMutexLocker locker(&index_access_lock_);
+    QMutexLocker locker(index_access_lock());
 
     conformed_.append(params);
   }

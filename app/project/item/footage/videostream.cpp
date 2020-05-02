@@ -73,6 +73,21 @@ void VideoStream::set_image_sequence(bool e)
   is_image_sequence_ = e;
 }
 
+bool VideoStream::has_proxy(const int &divider)
+{
+  QMutexLocker locker(index_access_lock());
+
+  return proxies_.contains(divider);
+}
+
+void VideoStream::append_proxy(const int &divider)
+{
+  QMutexLocker locker(index_access_lock());
+
+  proxies_.append(divider);
+}
+
+/*
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
 {
   // Get rough approximation of what the timestamp would be in this timebase
@@ -204,5 +219,6 @@ bool VideoStream::save_frame_index(const QString &s)
 
   return false;
 }
+*/
 
 OLIVE_NAMESPACE_EXIT

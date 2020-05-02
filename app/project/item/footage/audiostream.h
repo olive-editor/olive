@@ -68,7 +68,6 @@ private:
   uint64_t layout_;
   int sample_rate_;
 
-  QMutex index_access_lock_;
   rational index_length_;
   bool index_done_;
 

@@ -144,7 +144,8 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
-  virtual void Index(const QAtomicInt *cancelled) override;
+  virtual void ProxyVideo(const QAtomicInt* cancelled, int divider) override;
+  virtual void ProxyAudio(const QAtomicInt* cancelled) override;
 
 private:
   /**
@@ -167,8 +168,6 @@ private:
   void FFmpegError(int error_code);
 
   virtual QString GetIndexFilename() override;
-
-  void UnconditionalAudioIndex(const QAtomicInt* cancelled);
 
   void ClearResources();
 

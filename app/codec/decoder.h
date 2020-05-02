@@ -216,37 +216,41 @@ public:
   static DecoderPtr CreateFromID(const QString& id);
 
   /**
-   * @brief Conform an audio stream to match certain parameters (audio only)
+   * @brief AUDIO ONLY: Conform an audio stream to match certain parameters
    *
-   * Resamples and converts the currently open audio to match the params. If the audio doesn't need conforming (e.g.
-   * audio params already match or a conformed match already exists), this function will return immediately. Otherwise
-   * it will block the calling thread until the conform is complete. This function should therefore only be called
-   * from a background render thread.
+   * Resamples and converts the currently open audio to match the params. If the audio doesn't need
+   * conforming (e.g. audio params already match or a conformed match already exists), this function
+   * will return immediately. Otherwise it will block the calling thread until the conform is
+   * complete. This function should therefore only be called from a background render thread.
    *
-   * All audio decoders must override this. It's not pure since video decoders don't need to use this, but default
-   * behavior will abort since it should never be called.
+   * All audio decoders must override this. It's not pure since video decoders don't need to use
+   * this, but default behavior will abort since it should never be called.
    */
   void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
 
   /**
-   * @brief Create an index for this media
-   *
-   * Indexes are used to improve speed and reliability of imported media. Calling Retrieve() will automatically check
-   * for an index and create one if it doesn't exist.
-   *
-   * Indexing is slow so it's recommended to do it in a background thread. Index() must be called while the Decoder is
-   * open, and does not automatically call Open() and Close() the Decoder. The caller must call thse manually.
+   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
    */
-  virtual void Index(const QAtomicInt* cancelled);
+  virtual void ProxyVideo(const QAtomicInt* cancelled, int divider);
 
   /**
-   * @brief AUDIO ONLY: Returns whether a cached transcode of this audio matching the specified params already exists
+   * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
+   *
+   * Internally, our render engine only deals with PCM since it provides the least headaches and
+   * modern computers have the processing power to do it.
+   */
+  virtual void ProxyAudio(const QAtomicInt* cancelled);
+
+  /**
+   * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params
+   * already exists
    */
   bool HasConformedVersion(const AudioRenderingParams& params);
 
 signals:
   /**
-   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if available
+   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
+   * available
    */
   void IndexProgress(int);
 
@@ -256,7 +260,8 @@ protected:
   /**
    * @brief Returns the filename for the index
    *
-   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
+   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for
+   * this to work correctly.
    */
   virtual QString GetIndexFilename() = 0;
 
