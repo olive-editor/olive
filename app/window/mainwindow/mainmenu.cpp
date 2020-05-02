@@ -186,7 +186,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   // WINDOW MENU
   //
   window_menu_ = new Menu(this, this, &MainMenu::WindowMenuAboutToShow);
-  connect(window_menu_, &Menu::aboutToHide, this, &MainMenu::WindowMenuAboutToHide);
   window_menu_separator_ = window_menu_->addSeparator();
   window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, &MainWindow::ToggleMaximizedPanel, "`");
   window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), &PanelManager::SetPanelsLocked);
@@ -365,27 +364,37 @@ void MainMenu::PlaybackMenuAboutToShow()
 
 void MainMenu::WindowMenuAboutToShow()
 {
-  // QMainWindow generates a perfectly usable menu for this purpose, we just need to copy it to the window menu
-  QMenu* panel_menu = static_cast<QMainWindow*>(parentWidget())->createPopupMenu();
-  QList<QAction*> panel_menu_actions = panel_menu->actions();
-
-  // Make sure when we delete the panel_menu, it doesn't delete the actions
-  foreach (QAction* panel_action, panel_menu_actions) {
-    panel_action->setParent(window_menu_);
-  }
-
-  delete panel_menu;
-
-  window_menu_->insertActions(window_menu_separator_, panel_menu_actions);
-
-  window_lock_layout_item_->setChecked(PanelManager::instance()->ArePanelsLocked());
-}
-
-void MainMenu::WindowMenuAboutToHide()
-{
+  // Remove any previous items
   while (window_menu_->actions().first() != window_menu_separator_) {
     window_menu_->removeAction(window_menu_->actions().first());
   }
+
+  QList<QAction*> panel_actions;
+
+  // Alphabetize actions - keeps actions in a consistent order since PanelManager::panels() is
+  // ordered from most recently focused to least, which may be confusing user experience.
+  foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
+    QAction* panel_action = panel->toggleViewAction();
+
+    bool inserted = false;
+
+    for (int i=0;i<panel_actions.size();i++) {
+      if (panel_actions.at(i)->text() > panel_action->text()) {
+        panel_actions.insert(i, panel_action);
+        inserted = true;
+        break;
+      }
+    }
+
+    if (!inserted) {
+      panel_actions.append(panel_action);
+    }
+  }
+
+  // Add new items
+  window_menu_->insertActions(window_menu_separator_, panel_actions);
+
+  window_lock_layout_item_->setChecked(PanelManager::instance()->ArePanelsLocked());
 }
 
 void MainMenu::PopulateOpenRecent()

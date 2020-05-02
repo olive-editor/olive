@@ -95,11 +95,6 @@ private slots:
   void WindowMenuAboutToShow();
 
   /**
-   * @brief Slot triggered just before the Window menu hides
-   */
-  void WindowMenuAboutToHide();
-
-  /**
    * @brief Adds items to open recent menu
    */
   void PopulateOpenRecent();
