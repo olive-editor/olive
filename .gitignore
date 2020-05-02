@@ -3,7 +3,7 @@ Makefile
 .qmake.stash
 effects/frei0r
 ts/*.qm
-docs
+docs/_build/
 history
 build/
 .DS_Store
