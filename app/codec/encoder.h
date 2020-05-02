@@ -43,10 +43,11 @@ public:
   void EnableVideo(const VideoRenderingParams& video_params, const QString& vcodec);
   void EnableAudio(const AudioRenderingParams& audio_params, const QString& acodec);
 
-  void SetVideoOption(const QString& key, const QString& value);
-  void SetVideoBitRate(const int64_t& rate);
-  void SetVideoMaxBitRate(const int64_t& rate);
-  void SetVideoBufferSize(const int64_t& sz);
+  void set_video_option(const QString& key, const QString& value);
+  void set_video_bit_rate(const int64_t& rate);
+  void set_video_max_bit_rate(const int64_t& rate);
+  void set_video_buffer_size(const int64_t& sz);
+  void set_video_threads(const int& threads);
 
   const QString& filename() const;
 
@@ -57,6 +58,7 @@ public:
   const int64_t& video_bit_rate() const;
   const int64_t& video_max_bit_rate() const;
   const int64_t& video_buffer_size() const;
+  const int& video_threads() const;
 
   bool audio_enabled() const;
   const QString& audio_codec() const;
@@ -75,6 +77,7 @@ private:
   int64_t video_bit_rate_;
   int64_t video_max_bit_rate_;
   int64_t video_buffer_size_;
+  int video_threads_;
 
   bool audio_enabled_;
   QString audio_codec_;

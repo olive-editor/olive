@@ -66,8 +66,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(main_widget, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   connect(main_widget, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(main_widget, &ViewerDisplayWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
-  connect(main_widget, &ViewerDisplayWidget::LoadedTexture, this, &ViewerWidget::LoadedTexture);
-  connect(main_widget, &ViewerDisplayWidget::DrewManagedTexture, this, &ViewerWidget::DrewManagedTexture);
   connect(main_widget, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(main_widget, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
   connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerDisplayWidget::SetMatrix);
@@ -748,11 +746,6 @@ void ViewerWidget::SetSignalCursorColorEnabled(bool e)
   foreach (ViewerDisplayWidget* glw, gl_widgets_) {
     glw->SetSignalCursorColorEnabled(e);
   }
-}
-
-void ViewerWidget::SetEmitDrewManagedTextureEnabled(bool e)
-{
-  main_gl_widget()->SetEmitDrewManagedTextureEnabled(e);
 }
 
 void ViewerWidget::TimebaseChangedEvent(const rational &timebase)

@@ -234,6 +234,18 @@ void Block::SaveInternal(QXmlStreamWriter *writer) const
   }
 }
 
+QList<NodeInput *> Block::GetInputsToHash() const
+{
+  QList<NodeInput*> inputs = Node::GetInputsToHash();
+
+  // Ignore these inputs
+  inputs.removeOne(media_in_input_);
+  inputs.removeOne(speed_input_);
+  inputs.removeOne(length_input_);
+
+  return inputs;
+}
+
 void Block::LengthInputChanged()
 {
   emit LengthChanged(length());

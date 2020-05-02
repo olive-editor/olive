@@ -34,10 +34,13 @@ REM Add Qt and FFmpeg directory to path
 set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev
 
 REM Run cmake
-cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
-REM Build with JOM
-C:\Qt\Tools\QtCreator\bin\jom.exe || exit /B 1
+REM Build with Ninja
+ninja.exe || exit /B 1
+
+REM If this is a pull request, no further packaging/deploying needs to be done
+if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
 
 REM Start building package
 mkdir olive-editor

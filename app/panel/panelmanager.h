@@ -175,13 +175,25 @@ T *PanelManager::CreatePanel(QWidget *parent)
 {
   T* panel = new T(parent);
 
-  panel->SetMovementLocked(locked_);
-
-  // Connect destroy signal so we can remove it from focus history
-  connect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed);
-
   // Add panel to the bottom of the focus history
   focus_history_.append(panel);
+
+  panel->SetMovementLocked(locked_);
+
+  // Sane default for panel size
+  panel->resize(parent->size() / 3);
+
+  // We're about to center the panel relative to the parent (usually the main window), but for some
+  // reason this requires the panel to be shown first.
+  panel->show();
+
+  // Center the panel relative to the parent
+  QPoint parent_center = panel->mapFromGlobal(parent->mapToGlobal(parent->rect().center()));
+  QPoint panel_center = panel->rect().center();
+  panel->move(parent_center - panel_center);
+
+  // Connect destroy signal so we can remove it from focus history
+  connect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed, Qt::DirectConnection);
 
   return panel;
 }

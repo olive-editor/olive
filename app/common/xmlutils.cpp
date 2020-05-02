@@ -26,15 +26,28 @@
 
 OLIVE_NAMESPACE_ENTER
 
-Node* XMLLoadNode(QXmlStreamReader* reader) {
+Node* XMLLoadNode(QXmlStreamReader* reader)
+{
   QString node_id;
   quintptr node_ptr = 0;
+  QPointF node_pos;
+  QString node_label;
 
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("id")) {
       node_id = attr.value().toString();
     } else if (attr.name() == QStringLiteral("ptr")) {
       node_ptr = attr.value().toULongLong();
+    } else if (attr.name() == QStringLiteral("pos")) {
+      QStringList pos = attr.value().toString().split(':');
+
+      // Protection in case this file has been messed with
+      if (pos.size() == 2) {
+        node_pos.setX(pos.at(0).toDouble());
+        node_pos.setY(pos.at(1).toDouble());
+      }
+    } else if (attr.name() == QStringLiteral("label")) {
+      node_label = attr.value().toString();
     }
   }
 
@@ -47,6 +60,8 @@ Node* XMLLoadNode(QXmlStreamReader* reader) {
 
   if (node) {
     node->setProperty("xml_ptr", node_ptr);
+    node->SetPosition(node_pos);
+    node->SetLabel(node_label);
   } else {
     qWarning() << "Failed to load" << node_id << "- no node with that ID is installed";
   }

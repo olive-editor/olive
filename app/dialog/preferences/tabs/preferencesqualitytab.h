@@ -26,6 +26,7 @@
 #include <QGroupBox>
 #include <QStackedWidget>
 
+#include "render/pixelformat.h"
 #include "preferencestab.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -35,6 +36,8 @@ class PreferencesQualityGroup : public QGroupBox
   Q_OBJECT
 public:
   PreferencesQualityGroup(const QString& title, QWidget* parent = nullptr);
+
+  void SetBitDepth(PixelFormat::Format f);
 
   QComboBox* bit_depth_combobox();
 

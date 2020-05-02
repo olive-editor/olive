@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   dialog/export/export.h
   dialog/export/export.cpp
+  dialog/export/exportadvancedvideodialog.h
+  dialog/export/exportadvancedvideodialog.cpp
   dialog/export/exportaudiotab.h
   dialog/export/exportaudiotab.cpp
   dialog/export/exportcodec.h

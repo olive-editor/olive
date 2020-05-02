@@ -44,6 +44,7 @@ public:
   void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format, const void *data, int linesize);
   void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format);
   void Create(QOpenGLContext* ctx, FramePtr frame);
+  void Create(QOpenGLContext* ctx, Frame* frame);
 
   bool IsCreated() const;
 
@@ -59,6 +60,8 @@ public:
 
   const GLuint& texture() const;
 
+  void Upload(FramePtr frame);
+  void Upload(Frame* frame);
   void Upload(const void *data, int linesize);
 
 public slots:

@@ -126,6 +126,8 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
+  virtual QList<NodeInput*> GetInputsToHash() const override;
+
   Block* previous_;
   Block* next_;
 

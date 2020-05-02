@@ -47,6 +47,8 @@ public:
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
 
+  void DeleteSelected();
+
 protected:
   virtual void changeEvent(QEvent *) override;
 

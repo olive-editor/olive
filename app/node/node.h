@@ -93,6 +93,13 @@ public:
   virtual QString Name() const = 0;
 
   /**
+   * @brief Returns a shortened name of this node if applicable
+   *
+   * Defaults to returning Name() but can be overridden.
+   */
+  virtual QString ShortName() const;
+
+  /**
    * @brief Return the unique identifier of the node
    *
    * This is used in save files and any other times a specific node must be picked out at runtime. This must be an ID
@@ -343,7 +350,7 @@ public:
 
   virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const;
 
-  const QPointF& GetPosition();
+  const QPointF& GetPosition() const;
 
   void SetPosition(const QPointF& pos);
 
@@ -357,6 +364,11 @@ public:
 
   virtual void DrawGizmos(QPainter* p, const QRect &viewport) const;
 
+  const QString& GetLabel() const;
+  void SetLabel(const QString& s);
+
+  virtual void Hash(QCryptographicHash& hash, const rational &time) const;
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -367,6 +379,8 @@ protected:
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
+
+  virtual QList<NodeInput*> GetInputsToHash() const;
 
 public slots:
 
@@ -388,6 +402,16 @@ signals:
    * The edge that was removed
    */
   void EdgeRemoved(NodeEdgePtr edge);
+
+  /**
+   * @brief Signal emitted whenever the position is set through SetPosition()
+   */
+  void PositionChanged(const QPointF& pos);
+
+  /**
+   * @brief Signal emitted when SetLabel() is called
+   */
+  void LabelChanged(const QString& s);
 
 private:
   /**
@@ -424,8 +448,13 @@ private:
    */
   QPointF position_;
 
+  /**
+   * @brief Custom user label for node
+   */
+  QString label_;
+
 private slots:
-  void InputChanged(const TimeRange &range);
+  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
 
   void InputConnectionChanged(NodeEdgePtr edge);
 

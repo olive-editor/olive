@@ -33,18 +33,21 @@ OLIVE_NAMESPACE_ENTER
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
-#ifdef Q_OS_WINDOWS
-  // Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the window beforehand
-  // works around that issue and we just set it to whatever size is available
+  // Resizes main window to desktop geometry on startup. Fixes the following issues:
+  // * Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the
+  //   window beforehand works around that issue and we just set it to whatever size is available.
+  // * On Linux, it seems the window starts off at a vastly different size and then maximizes
+  //   which throws off the proportions and makes the resulting layout wonky.
   resize(qApp->desktop()->availableGeometry(this).size());
 
+#ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
   taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
   taskbar_interface_ = nullptr;
 #endif
 
-  // Create empty central widget - we don't actually want a central widget but some of Qt's docking/undocking fails
-  // without it
+  // Create empty central widget - we don't actually want a central widget (so we set its maximum
+  // size to 0,0) but some of Qt's docking/undocking fails without it
   QWidget* centralWidget = new QWidget(this);
   centralWidget->setMaximumSize(QSize(0, 0));
   setCentralWidget(centralWidget);
@@ -62,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create and set status bar
   MainStatusBar* status_bar = new MainStatusBar(this);
   status_bar->ConnectTaskManager(TaskManager::instance());
+  connect(status_bar, &MainStatusBar::DoubleClicked, this, &MainWindow::StatusBarDoubleClicked);
   setStatusBar(status_bar);
 
   // Create standard panels
@@ -389,6 +393,12 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
   return QMainWindow::nativeEvent(eventType, message, result);
 }
 #endif
+
+void MainWindow::StatusBarDoubleClicked()
+{
+  task_man_panel_->show();
+  task_man_panel_->raise();
+}
 
 void MainWindow::UpdateTitle()
 {

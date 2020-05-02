@@ -20,30 +20,34 @@
 
 #include "nodeview.h"
 
+#include <QInputDialog>
 #include <QMouseEvent>
 
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "widget/menu/menushared.h"
+
+#define super HandMovableView
 
 OLIVE_NAMESPACE_ENTER
 
 NodeView::NodeView(QWidget *parent) :
-  QGraphicsView(parent),
+  HandMovableView(parent),
   graph_(nullptr),
-  attached_item_(nullptr),
   drop_edge_(nullptr)
 {
   setScene(&scene_);
   setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setMouseTracking(true);
+  setRenderHint(QPainter::Antialiasing);
 
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 
-  setMouseTracking(true);
-  setRenderHint(QPainter::Antialiasing);
+  SetFlowDirection(NodeViewCommon::kTopToBottom);
 }
 
 NodeView::~NodeView()
@@ -93,21 +97,33 @@ void NodeView::DeleteSelected()
     return;
   }
 
-  QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+  QUndoCommand* command = new QUndoCommand();
 
-  // Ensure no nodes are "undeletable"
-  for (int i=0;i<selected_nodes.size();i++) {
-    if (!selected_nodes.at(i)->CanBeDeleted()) {
-      selected_nodes.removeAt(i);
-      i--;
+  {
+    QList<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
+
+    foreach (NodeEdge* edge, selected_edges) {
+      new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
     }
   }
 
-  if (selected_nodes.isEmpty()) {
-    return;
+  {
+    QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+
+    // Ensure no nodes are "undeletable"
+    for (int i=0;i<selected_nodes.size();i++) {
+      if (!selected_nodes.at(i)->CanBeDeleted()) {
+        selected_nodes.removeAt(i);
+        i--;
+      }
+    }
+
+    if (!selected_nodes.isEmpty()) {
+      new NodeRemoveCommand(graph_, selected_nodes, command);
+    }
   }
 
-  Core::instance()->undo_stack()->push(new NodeRemoveCommand(graph_, selected_nodes));
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SelectAll()
@@ -181,7 +197,60 @@ void NodeView::Paste()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   if (!pasted_nodes.isEmpty()) {
-    // FIXME: Attach to cursor so user can drop in place
+    AttachNodesToCursor(pasted_nodes);
+  }
+}
+
+void NodeView::Duplicate()
+{
+  if (!graph_) {
+    return;
+  }
+
+  QList<Node*> selected = scene_.GetSelectedNodes();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  QList<Node*> duplicated_nodes;
+
+  foreach (Node* n, selected) {
+    Node* copy = n->copy();
+
+    Node::CopyInputs(n, copy, false);
+
+    duplicated_nodes.append(copy);
+
+    new NodeAddCommand(graph_, copy, command);
+  }
+
+  for (int i=0;i<selected.size();i++) {
+    Node* src = selected.at(i);
+
+    for (int j=0;j<selected.size();j++) {
+      if (i == j) {
+        continue;
+      }
+
+      Node* dst = selected.at(j);
+
+      foreach (NodeEdgePtr edge, src->output()->edges()) {
+        if (edge->input()->parentNode() == dst) {
+          new NodeEdgeAddCommand(duplicated_nodes.at(i)->output(),
+                                 duplicated_nodes.at(j)->GetInputWithID(edge->input()->id()),
+                                 command);
+        }
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  if (!duplicated_nodes.isEmpty()) {
+    AttachNodesToCursor(duplicated_nodes);
   }
 }
 
@@ -196,10 +265,10 @@ void NodeView::ItemsChanged()
 
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
-  QGraphicsView::keyPressEvent(event);
+  super::keyPressEvent(event);
 
-  if (event->key() == Qt::Key_Escape && attached_item_) {
-    DetachItemFromCursor();
+  if (event->key() == Qt::Key_Escape && !attached_items_.isEmpty()) {
+    DetachItemsFromCursor();
 
     // We undo the last action which SHOULD be adding the node
     // FIXME: Possible danger of this not being the case?
@@ -209,91 +278,109 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
-  if (attached_item_) {
-    Node* dropping_node = attached_item_->GetNode();
+  if (HandPress(event)) return;
 
-    DetachItemFromCursor();
+  if (!attached_items_.isEmpty()) {
+    if (attached_items_.size() == 1) {
+      Node* dropping_node = attached_items_.first().item->GetNode();
 
-    if (drop_edge_) {
-      NodeEdgePtr old_edge = drop_edge_->edge();
+      if (drop_edge_) {
+        NodeEdgePtr old_edge = drop_edge_->edge();
 
-      // We have everything we need to place the node in between
-      QUndoCommand* command = new QUndoCommand();
+        // We have everything we need to place the node in between
+        QUndoCommand* command = new QUndoCommand();
 
-      // Remove old edge
-      new NodeEdgeRemoveCommand(old_edge, command);
+        // Remove old edge
+        new NodeEdgeRemoveCommand(old_edge, command);
 
-      // Place new edges
-      new NodeEdgeAddCommand(old_edge->output(), drop_compatible_input_, command);
-      new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+        // Place new edges
+        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
+        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
 
-      Core::instance()->undo_stack()->push(command);
+        Core::instance()->undo_stack()->push(command);
+      }
+
+      drop_edge_ = nullptr;
     }
 
-    drop_edge_ = nullptr;
+    DetachItemsFromCursor();
   }
 
-  QGraphicsView::mousePressEvent(event);
+  super::mousePressEvent(event);
 }
 
 void NodeView::mouseMoveEvent(QMouseEvent *event)
 {
-  QGraphicsView::mouseMoveEvent(event);
+  if (HandMove(event)) return;
 
-  if (attached_item_) {
-    attached_item_->setPos(mapToScene(event->pos()));
+  super::mouseMoveEvent(event);
 
-    // See if the user clicked on an edge
-    QRect edge_detect_rect(event->pos(), event->pos());
+  if (!attached_items_.isEmpty()) {
+    MoveAttachedNodesToCursor(event->pos());
 
-    // FIXME: Hardcoded numbers
-    edge_detect_rect.adjust(-20, -20, 20, 20);
+    // See if the user clicked on an edge (only when dropping single nodes)
+    if (attached_items_.size() == 1) {
+      Node* attached_node = attached_items_.first().item->GetNode();
 
-    QList<QGraphicsItem*> items = this->items(edge_detect_rect);
+      QRect edge_detect_rect(event->pos(), event->pos());
 
-    NodeViewEdge* new_drop_edge = nullptr;
+      // FIXME: Hardcoded numbers
+      edge_detect_rect.adjust(-20, -20, 20, 20);
 
-    foreach (QGraphicsItem* item, items) {
-      NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(item);
+      QList<QGraphicsItem*> items = this->items(edge_detect_rect);
 
-      if (edge) {
-        // Try to place this node inside this edge
+      NodeViewEdge* new_drop_edge = nullptr;
 
-        // See if the node we're dropping has an input of a compatible data type
-        NodeInput* edges_input = edge->edge()->input();
-        NodeParam::DataType input_type = edges_input->data_type();
+      // See if there is an edge here
+      foreach (QGraphicsItem* item, items) {
+        new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
 
-        NodeInput* compatible_input = nullptr;
+        if (new_drop_edge) {
+          drop_input_ = nullptr;
 
-        foreach (NodeParam* drop_node_param, attached_item_->GetNode()->parameters()) {
-          if (drop_node_param->type() == NodeParam::kInput
-              && static_cast<NodeInput*>(drop_node_param)->data_type() & input_type) {
-            compatible_input = static_cast<NodeInput*>(drop_node_param);
+          foreach (NodeParam* param, attached_node->parameters()) {
+            if (param->type() == NodeParam::kInput) {
+              NodeInput* input = static_cast<NodeInput*>(param);
+
+              if (input->IsConnectable()) {
+                if (input->data_type() & new_drop_edge->edge()->input()->data_type()) {
+                  drop_input_ = input;
+                  break;
+                } else if (!drop_input_) {
+                  drop_input_ = input;
+                }
+              }
+            }
+          }
+
+          if (drop_input_) {
             break;
+          } else {
+            new_drop_edge = nullptr;
           }
         }
+      }
 
-        if (compatible_input) {
-          new_drop_edge = edge;
-          drop_compatible_input_ = compatible_input;
-
-          break;
+      if (drop_edge_ != new_drop_edge) {
+        if (drop_edge_) {
+          drop_edge_->SetHighlighted(false);
         }
-      }
-    }
 
-    if (drop_edge_ != new_drop_edge) {
-      if (drop_edge_) {
-        drop_edge_->SetHighlighted(false);
-      }
+        drop_edge_ = new_drop_edge;
 
-      drop_edge_ = new_drop_edge;
-
-      if (drop_edge_) {
-        drop_edge_->SetHighlighted(true);
+        if (drop_edge_) {
+          drop_edge_->SetHighlighted(true);
+        }
       }
     }
   }
+}
+
+void NodeView::mouseReleaseEvent(QMouseEvent *event)
+{
+  if (HandRelease(event)) return;
+
+  super::mouseReleaseEvent(event);
 }
 
 void NodeView::wheelEvent(QWheelEvent *event)
@@ -321,10 +408,59 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   Menu m;
 
-  Menu* add_menu = NodeFactory::CreateMenu(&m);
-  add_menu->setTitle(tr("Add"));
-  connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
-  m.addMenu(add_menu);
+  MenuShared::instance()->AddItemsForEditMenu(&m, false);
+
+  m.addSeparator();
+
+  QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+
+  if (itemAt(pos) && !selected.isEmpty()) {
+
+    if (selected.size() == 1) {
+
+      // Label node action
+      QAction* label_action = m.addAction(tr("Label"));
+      connect(label_action, &QAction::triggered, this, &NodeView::ContextMenuLabelNode);
+
+      m.addSeparator();
+
+    }
+
+    // Auto-position action
+    QAction* autopos = m.addAction(tr("Auto-Position"));
+    connect(autopos, &QAction::triggered, this, &NodeView::AutoPositionDescendents);
+
+  } else {
+
+    Menu* direction_menu = new Menu(tr("Direction"), &m);
+    m.addMenu(direction_menu);
+
+    direction_menu->AddActionWithData(tr("Top to Bottom"),
+                                      NodeViewCommon::kTopToBottom,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Bottom to Top"),
+                                      NodeViewCommon::kBottomToTop,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Left to Right"),
+                                      NodeViewCommon::kLeftToRight,
+                                      scene_.GetFlowDirection());
+
+    direction_menu->AddActionWithData(tr("Right to Left"),
+                                      NodeViewCommon::kRightToLeft,
+                                      scene_.GetFlowDirection());
+
+    connect(direction_menu, &Menu::triggered, this, &NodeView::ContextMenuSetDirection);
+
+    m.addSeparator();
+
+    Menu* add_menu = NodeFactory::CreateMenu(&m);
+    add_menu->setTitle(tr("Add"));
+    connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
+    m.addMenu(add_menu);
+
+  }
 
   m.exec(mapToGlobal(pos));
 }
@@ -337,7 +473,45 @@ void NodeView::CreateNodeSlot(QAction *action)
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
 
     NodeViewItem* item = scene_.NodeToUIObject(new_node);
-    AttachItemToCursor(item);
+    AttachItemsToCursor({item});
+  }
+}
+
+void NodeView::ContextMenuSetDirection(QAction *action)
+{
+  SetFlowDirection(static_cast<NodeViewCommon::FlowDirection>(action->data().toInt()));
+}
+
+void NodeView::AutoPositionDescendents()
+{
+  QList<Node*> selected = scene_.GetSelectedNodes();
+
+  foreach (Node* n, selected) {
+    scene_.ReorganizeFrom(n);
+  }
+}
+
+void NodeView::ContextMenuLabelNode()
+{
+  QList<Node*> nodes = scene_.GetSelectedNodes();
+
+  if (nodes.isEmpty()) {
+    return;
+  }
+
+  Node* n = nodes.first();
+
+  bool ok;
+
+  QString s = QInputDialog::getText(this,
+                                    tr("Label Node"),
+                                    tr("Set node label"),
+                                    QLineEdit::Normal,
+                                    n->GetLabel(),
+                                    &ok);
+
+  if (ok) {
+    n->SetLabel(s);
   }
 }
 
@@ -475,16 +649,50 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
   }
 }
 
-void NodeView::AttachItemToCursor(NodeViewItem *item)
+void NodeView::AttachNodesToCursor(const QList<Node *> &nodes)
 {
-  attached_item_ = item;
+  QList<NodeViewItem*> items;
 
-  setMouseTracking(attached_item_);
+  foreach (Node* p, nodes) {
+    items.append(scene_.NodeToUIObject(p));
+  }
+
+  AttachItemsToCursor(items);
 }
 
-void NodeView::DetachItemFromCursor()
+void NodeView::AttachItemsToCursor(const QList<NodeViewItem*>& items)
 {
-  AttachItemToCursor(nullptr);
+  DetachItemsFromCursor();
+
+  if (!items.isEmpty()) {
+    foreach (NodeViewItem* i, items) {
+      attached_items_.append({i, i->pos() - items.first()->pos()});
+    }
+
+    setMouseTracking(true);
+
+    MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
+  }
+}
+
+void NodeView::DetachItemsFromCursor()
+{
+  attached_items_.clear();
+  setMouseTracking(false);
+}
+
+void NodeView::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  scene_.SetFlowDirection(dir);
+}
+
+void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
+{
+  QPointF item_pos = mapToScene(p);
+
+  foreach (const AttachedItem& i, attached_items_) {
+    i.item->setPos(item_pos + i.original_pos);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

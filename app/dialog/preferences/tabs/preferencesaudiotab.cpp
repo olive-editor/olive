@@ -22,7 +22,6 @@
 
 #include <QGridLayout>
 #include <QLabel>
-#include <QPushButton>
 
 #include "audio/audiomanager.h"
 #include "config/config.h"
@@ -80,14 +79,14 @@ PreferencesAudioTab::PreferencesAudioTab()
 
   row++;
 
-  QPushButton* refresh_devices = new QPushButton(tr("Refresh Devices"));
-  audio_tab_layout->addWidget(refresh_devices, row, 1);
+  refresh_devices_btn_ = new QPushButton(tr("Refresh Devices"));
+  audio_tab_layout->addWidget(refresh_devices_btn_, row, 1);
 
   row++;
 
   RetrieveDeviceLists();
 
-  connect(refresh_devices, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
+  connect(refresh_devices_btn_, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
   connect(AudioManager::instance(), &AudioManager::OutputListReady, this, &PreferencesAudioTab::RetrieveOutputList);
   connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
 }
@@ -151,6 +150,8 @@ void PreferencesAudioTab::RetrieveOutputList()
                    AudioManager::instance()->IsRefreshingOutputs(),
                    AudioManager::instance()->ListOutputDevices(),
                    Config::Current()["AudioOutput"].toString());
+
+  UpdateRefreshButtonEnabled();
 }
 
 void PreferencesAudioTab::RetrieveInputList()
@@ -159,6 +160,8 @@ void PreferencesAudioTab::RetrieveInputList()
                    AudioManager::instance()->IsRefreshingInputs(),
                    AudioManager::instance()->ListInputDevices(),
                    Config::Current()["AudioInput"].toString());
+
+  UpdateRefreshButtonEnabled();
 }
 
 void PreferencesAudioTab::RetrieveDeviceLists()
@@ -167,17 +170,22 @@ void PreferencesAudioTab::RetrieveDeviceLists()
   RetrieveInputList();
 }
 
+void PreferencesAudioTab::UpdateRefreshButtonEnabled()
+{
+  refresh_devices_btn_->setEnabled(audio_output_devices_->isEnabled()
+                                   && audio_input_devices_->isEnabled());
+}
+
 void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing, const QList<QAudioDeviceInfo> &list, const QString& preferred)
 {
   cb->clear();
 
-  cb->setEnabled(still_refreshing);
+  cb->setEnabled(!still_refreshing);
 
   if (still_refreshing) {
     cb->addItem(tr("Please wait..."));
   } else {
     bool found_preferred_device = false;
-    cb->setEnabled(true);
 
     // Add null default item
     cb->addItem(tr("Default"), QVariant());

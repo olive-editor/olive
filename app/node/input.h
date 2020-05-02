@@ -173,6 +173,11 @@ public:
   void remove_keyframe(NodeKeyframePtr key);
 
   /**
+   * @brief Hacky convenience function to turn a raw pointer into a shared pointer
+   */
+  NodeKeyframePtr get_keyframe_shared_ptr_from_raw(NodeKeyframe *raw) const;
+
+  /**
    * @brief Return whether a keyframe exists at this time
    *
    * If is_keyframing() is false, this will always return false. This checks all tracks and will return true if *any*
@@ -279,7 +284,7 @@ public:
   QList<Node*> GetImmediateDependencies() const;
 
 signals:
-  void ValueChanged(const TimeRange& range);
+  void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 

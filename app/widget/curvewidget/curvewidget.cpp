@@ -168,6 +168,11 @@ void CurveWidget::SetVerticalScale(const double &vscale)
   view_->SetYScale(vscale);
 }
 
+void CurveWidget::DeleteSelected()
+{
+  view_->DeleteSelected();
+}
+
 void CurveWidget::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
@@ -200,12 +205,20 @@ void CurveWidget::ScaleChangedEvent(const double &scale)
 
 void CurveWidget::TimeTargetChangedEvent(Node *target)
 {
+  ConnectViewerNode(nullptr);
+
   key_control_->SetTimeTarget(target);
 
   view_->SetTimeTarget(target);
 
   if (bridge_) {
     bridge_->SetTimeTarget(target);
+  }
+
+  // FIXME: If a non-viewer node is ever set here, it will fail to update the length
+  ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(target);
+  if (viewer) {
+    ConnectViewerNode(viewer);
   }
 }
 

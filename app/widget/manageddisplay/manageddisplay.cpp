@@ -32,6 +32,11 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
+ManagedDisplayWidget::~ManagedDisplayWidget()
+{
+  ContextCleanup();
+}
+
 void ManagedDisplayWidget::ConnectColorManager(ColorManager *color_manager)
 {
   if (color_manager_ == color_manager) {
@@ -142,9 +147,13 @@ void ManagedDisplayWidget::MenuLookSelect(QAction *action)
 
 void ManagedDisplayWidget::SetColorTransform(const ColorTransform &transform)
 {
+  makeCurrent();
+
   color_transform_ = transform;
   SetupColorProcessor();
   ColorProcessorChangedEvent();
+
+  doneCurrent();
 }
 
 void ManagedDisplayWidget::initializeGL()
@@ -248,9 +257,7 @@ void ManagedDisplayWidget::SetupColorProcessor()
                                                     color_manager_->GetReferenceColorSpace(),
                                                     color_transform_);
 
-      makeCurrent();
       color_service_->Enable(context(), true);
-      doneCurrent();
 
     } catch (OCIO::Exception& e) {
 

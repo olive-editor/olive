@@ -37,6 +37,11 @@ NodeInput *CurvePanel::GetInput() const
   return static_cast<CurveWidget*>(GetTimeBasedWidget())->GetInput();
 }
 
+void CurvePanel::DeleteSelected()
+{
+  static_cast<CurveWidget*>(GetTimeBasedWidget())->DeleteSelected();
+}
+
 void CurvePanel::SetInput(NodeInput *input)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetInput(input);

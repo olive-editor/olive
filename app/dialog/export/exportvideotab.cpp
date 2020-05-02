@@ -24,8 +24,10 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QPushButton>
 
 #include "core.h"
+#include "exportadvancedvideodialog.h"
 #include "render/backend/exportparams.h"
 #include "render/colormanager.h"
 
@@ -33,7 +35,8 @@ OLIVE_NAMESPACE_ENTER
 
 ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   QWidget(parent),
-  color_manager_(color_manager)
+  color_manager_(color_manager),
+  threads_(0)
 {
   QVBoxLayout* outer_layout = new QVBoxLayout(this);
 
@@ -106,6 +109,11 @@ H264Section *ExportVideoTab::h264_section() const
   return h264_section_;
 }
 
+const int &ExportVideoTab::threads() const
+{
+  return threads_;
+}
+
 QWidget* ExportVideoTab::SetupResolutionSection()
 {
   int row = 0;
@@ -118,6 +126,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   layout->addWidget(new QLabel(tr("Width:")), row, 0);
 
   width_slider_ = new IntegerSlider();
+  width_slider_->SetMinimum(1);
   layout->addWidget(width_slider_, row, 1);
 
   row++;
@@ -125,6 +134,7 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   layout->addWidget(new QLabel(tr("Height:")), row, 0);
 
   height_slider_ = new IntegerSlider();
+  height_slider_->SetMinimum(1);
   layout->addWidget(height_slider_, row, 1);
 
   row++;
@@ -196,12 +206,29 @@ QWidget *ExportVideoTab::SetupCodecSection()
   h264_section_ = new H264Section();
   codec_stack_->addWidget(h264_section_);
 
+  row++;
+
+  QPushButton* advanced_btn = new QPushButton(tr("Advanced"));
+  connect(advanced_btn, &QPushButton::clicked, this, &ExportVideoTab::OpenAdvancedDialog);
+  codec_layout->addWidget(advanced_btn, row, 1);
+
   return codec_group;
 }
 
 void ExportVideoTab::MaintainAspectRatioChanged(bool val)
 {
   scaling_method_combobox_->setEnabled(!val);
+}
+
+void ExportVideoTab::OpenAdvancedDialog()
+{
+  ExportAdvancedVideoDialog d(this);
+
+  d.set_threads(threads_);
+
+  if (d.exec() == QDialog::Accepted) {
+    threads_ = d.threads();
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

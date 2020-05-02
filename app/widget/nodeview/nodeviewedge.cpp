@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QStyleOptionGraphicsItem>
 
 #include "common/clamp.h"
 #include "common/lerp.h"
@@ -34,9 +35,12 @@ OLIVE_NAMESPACE_ENTER
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
   edge_(nullptr),
-  color_group_(QPalette::Active),
-  color_role_(QPalette::Text)
+  connected_(false),
+  highlighted_(false),
+  flow_dir_(NodeViewCommon::kLeftToRight)
 {
+  setFlag(QGraphicsItem::ItemIsSelectable);
+
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
 
@@ -75,45 +79,79 @@ void NodeViewEdge::Adjust()
   }
 
   // Draw a line between the two
-  SetPoints(output->GetParamPoint(edge_->output()), input->GetParamPoint(edge_->input()));
+  SetPoints(output->GetParamPoint(edge_->output(), output->pos()),
+            input->GetParamPoint(edge_->input(), output->pos()),
+            input->IsExpanded());
 }
 
 void NodeViewEdge::SetConnected(bool c)
 {
-  if (c) {
-    color_group_ = QPalette::Active;
-  } else {
-    color_group_ = QPalette::Disabled;
-  }
+  connected_ = c;
 
-  UpdatePen();
+  update();
 }
 
 void NodeViewEdge::SetHighlighted(bool e)
 {
-  if (e) {
-    color_role_ = QPalette::Highlight;
-  } else {
-    color_role_ = QPalette::Text;
-  }
+  highlighted_ = e;
 
-  UpdatePen();
+  update();
 }
 
-void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
+void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
 {
   QPainterPath path;
-  double half_x = lerp(start.x(), end.x(), 0.5);
   path.moveTo(start);
-  path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
+
+  double half_x = lerp(start.x(), end.x(), 0.5);
+  double half_y = lerp(start.y(), end.y(), 0.5);
+
+  QPointF cp1, cp2;
+
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    cp1 = QPointF(half_x, start.y());
+  } else {
+    cp1 = QPointF(start.x(), half_y);
+  }
+
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+    cp2 = QPointF(half_x, end.y());
+  } else {
+    cp2 = QPointF(end.x(), half_y);
+  }
+
+  path.cubicTo(cp1, cp2, end);
+
   setPath(path);
 }
 
-void NodeViewEdge::UpdatePen()
+void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
-  setPen(QPen(qApp->palette().color(color_group_, color_role_), edge_width_));
+  flow_dir_ = dir;
 
-  //update();
+  Adjust();
+}
+
+void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+{
+  QPalette::ColorGroup group;
+  QPalette::ColorRole role;
+
+  if (connected_) {
+    group = QPalette::Active;
+  } else {
+    group = QPalette::Disabled;
+  }
+
+  if (highlighted_ != bool(option->state & QStyle::State_Selected)) {
+    role = QPalette::Highlight;
+  } else {
+    role = QPalette::Text;
+  }
+
+  painter->setPen(QPen(qApp->palette().color(group, role), edge_width_));
+  painter->setBrush(Qt::NoBrush);
+  painter->drawPath(path());
 }
 
 OLIVE_NAMESPACE_EXIT

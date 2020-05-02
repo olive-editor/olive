@@ -79,7 +79,7 @@ signals:
 
   void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
 
-  void GeneratedFrame(const rational &time, FramePtr frame);
+  void GeneratedFrame(FramePtr frame);
 
   void Aborted();
 
@@ -105,8 +105,6 @@ protected:
   ColorProcessorCache* color_cache();
 
 private:
-  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
-
   void Download(const rational &time, QVariant texture, QString filename);
 
   void ResizeDownloadBuffer();

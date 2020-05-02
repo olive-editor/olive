@@ -40,6 +40,11 @@ QString ExternalTransition::Name() const
   return meta_.Name();
 }
 
+QString ExternalTransition::ShortName() const
+{
+  return meta_.ShortName();
+}
+
 QString ExternalTransition::id() const
 {
   return meta_.id();

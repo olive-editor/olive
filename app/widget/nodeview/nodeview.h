@@ -26,6 +26,7 @@
 
 #include "node/graph.h"
 #include "nodeviewscene.h"
+#include "widget/timelinewidget/view/handmovableview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -36,7 +37,7 @@ OLIVE_NAMESPACE_ENTER
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public QGraphicsView, public NodeCopyPasteWidget
+class NodeView : public HandMovableView, public NodeCopyPasteWidget
 {
   Q_OBJECT
 public:
@@ -63,6 +64,8 @@ public:
   void CopySelected(bool cut);
   void Paste();
 
+  void Duplicate();
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed
@@ -73,24 +76,35 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
   virtual void mousePressEvent(QMouseEvent *event) override;
-
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
-  void AttachItemToCursor(NodeViewItem* item);
+  void AttachNodesToCursor(const QList<Node*>& nodes);
 
-  void DetachItemFromCursor();
+  void AttachItemsToCursor(const QList<NodeViewItem*>& items);
+
+  void DetachItemsFromCursor();
+
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
+  void MoveAttachedNodesToCursor(const QPoint &p);
 
   NodeGraph* graph_;
 
-  NodeViewItem* attached_item_;
+  struct AttachedItem {
+    NodeViewItem* item;
+    QPointF original_pos;
+  };
+
+  QList<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
-  NodeInput* drop_compatible_input_;
+  NodeInput* drop_input_;
 
   NodeViewScene scene_;
 
@@ -116,6 +130,21 @@ private slots:
    * @brief Receiver for when the user requests a new node from the add menu
    */
   void CreateNodeSlot(QAction* action);
+
+  /**
+   * @brief Receiver for setting the direction from the context menu
+   */
+  void ContextMenuSetDirection(QAction* action);
+
+  /**
+   * @brief Receiver for auto-position descendents menu action
+   */
+  void AutoPositionDescendents();
+
+  /**
+   * @brief Receiver for labelling a node from the context menu
+   */
+  void ContextMenuLabelNode();
 
 };
 

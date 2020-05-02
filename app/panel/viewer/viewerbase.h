@@ -62,12 +62,6 @@ public slots:
 protected:
   void CreateScopePanel(ScopePanel::Type type);
 
-private:
-  int scope_panel_count_;
-
-private slots:
-  void ScopePanelClosed();
-
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -25,8 +25,8 @@
 #include <QTimer>
 
 #include "node/graph.h"
-#include "widget/nodeview/nodeviewedge.h"
-#include "widget/nodeview/nodeviewitem.h"
+#include "nodeviewedge.h"
+#include "nodeviewitem.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -65,9 +65,20 @@ public:
 
   QList<Node*> GetSelectedNodes() const;
   QList<NodeViewItem*> GetSelectedItems() const;
+  QList<NodeEdge *> GetSelectedEdges() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
   const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;
+
+  Qt::Orientation GetFlowOrientation() const;
+
+  NodeViewCommon::FlowDirection GetFlowDirection() const;
+  void SetFlowDirection(NodeViewCommon::FlowDirection direction);
+
+  /**
+   * @brief Automatically reposition the nodes based on their connections
+   */
+  void ReorganizeFrom(Node* n);
 
 public slots:
   /**
@@ -103,27 +114,24 @@ public slots:
   void RemoveEdge(NodeEdgePtr edge);
 
 private:
-  void QueueReorganize();
-
-  QList<Node*> GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes);
-
-  int FindWeightsInternal(Node* node, QHash<Node*, int>& weights, QList<Node*>& weighted_nodes);
-
-  void ReorganizeInternal(NodeViewItem *src_item, QHash<Node*, int>& weights, QList<Node *> &positioned_nodes);
-
   QHash<Node*, NodeViewItem*> item_map_;
 
   QHash<NodeEdge*, NodeViewEdge*> edge_map_;
 
-  QTimer reorganize_timer_;
-
   NodeGraph* graph_;
+
+  NodeViewCommon::FlowDirection direction_;
 
 private slots:
   /**
-   * @brief Automatically reposition the nodes based on their connections
+   * @brief Receiver for whenever a node position changes
    */
-  void Reorganize();
+  void NodePositionChanged(const QPointF& pos);
+
+  /**
+   * @brief Receiver for when a node's label has changed
+   */
+  void NodeLabelChanged();
 
 };
 

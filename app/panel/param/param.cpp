@@ -60,6 +60,11 @@ void ParamPanel::SetTimestamp(const int64_t &timestamp)
   }
 }
 
+void ParamPanel::DeleteSelected()
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeleteSelected();
+}
+
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));
@@ -95,9 +100,11 @@ void ParamPanel::CreateCurvePanel(NodeInput *input)
   panel->SetInput(input);
   panel->SetTimebase(view->timebase());
   panel->SetTimestamp(view->GetTimestamp());
+  panel->SetTimeTarget(view->GetTimeTarget());
 
   connect(view, &NodeParamView::TimebaseChanged, panel, &CurvePanel::SetTimebase);
   connect(view, &NodeParamView::TimeChanged, panel, &CurvePanel::SetTimestamp);
+  connect(view, &NodeParamView::TimeTargetChanged, panel, &CurvePanel::SetTimeTarget);
   connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::SetTimestamp);
   connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::TimeChanged);
   connect(panel, &CurvePanel::CloseRequested, this, &ParamPanel::ClosingCurvePanel);

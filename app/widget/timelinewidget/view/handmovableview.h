@@ -18,52 +18,42 @@
 
 ***/
 
-#ifndef PARAM_H
-#define PARAM_H
+#ifndef HANDMOVABLEVIEW_H
+#define HANDMOVABLEVIEW_H
 
-#include "panel/curve/curve.h"
-#include "panel/timebased/timebased.h"
-#include "widget/nodeparamview/nodeparamview.h"
+#include <QGraphicsView>
+
+#include "tool/tool.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ParamPanel : public TimeBasedPanel
+class HandMovableView : public QGraphicsView
 {
   Q_OBJECT
 public:
-  ParamPanel(QWidget* parent);
-
-public slots:
-  void SetNodes(QList<Node*> nodes);
-
-  virtual void SetTimestamp(const int64_t& timestamp) override;
-
-  virtual void DeleteSelected() override;
-
-signals:
-  void TimeTargetChanged(Node* node);
-
-  void RequestSelectNode(const QList<Node*>& target);
-
-  void FoundGizmos(Node* node);
+  HandMovableView(QWidget* parent = nullptr);
 
 protected:
-  virtual void Retranslate() override;
+  virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 
-private slots:
-  void CreateCurvePanel(NodeInput* input);
+  bool HandPress(QMouseEvent* event);
+  bool HandMove(QMouseEvent* event);
+  bool HandRelease(QMouseEvent* event);
 
-  void OpeningNode(Node* n);
-
-  void ClosingNode(Node* n);
-
-  void ClosingCurvePanel();
+  void SetDefaultDragMode(DragMode mode);
+  const DragMode& GetDefaultDragMode() const;
 
 private:
-  QHash<NodeInput*, CurvePanel*> open_curve_panels_;
+  bool dragging_hand_;
+  DragMode pre_hand_drag_mode_;
+
+  DragMode default_drag_mode_;
+
+private slots:
+  void ApplicationToolChanged(Tool::Item tool);
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PARAM_H
+#endif // HANDMOVABLEVIEW_H

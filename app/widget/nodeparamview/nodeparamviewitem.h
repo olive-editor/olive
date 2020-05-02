@@ -129,8 +129,6 @@ protected:
   virtual void changeEvent(QEvent *e) override;
 
 private:
-  void Retranslate();
-
   NodeParamViewItemTitleBar* title_bar_;
 
   QLabel* title_bar_lbl_;
@@ -142,6 +140,9 @@ private:
   Node* node_;
 
   rational time_;
+
+private slots:
+  void Retranslate();
 
 };
 

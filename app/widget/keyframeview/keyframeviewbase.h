@@ -40,6 +40,8 @@ public:
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
+  void DeleteSelected();
+
 public slots:
   void RemoveKeyframe(NodeKeyframePtr key);
 

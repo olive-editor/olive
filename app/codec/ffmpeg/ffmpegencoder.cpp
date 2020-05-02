@@ -468,7 +468,14 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
   }
 
   AVDictionary* codec_opts = nullptr;
-  av_dict_set(&codec_opts, "threads", "auto", 0);
+
+  // Set thread count
+  if (params().video_threads() == 0) {
+    av_dict_set(&codec_opts, "threads", "auto", 0);
+  } else {
+    QString thread_val = QString::number(params().video_threads());
+    av_dict_set(&codec_opts, "threads", thread_val.toUtf8(), 0);
+  }
 
   // Try to open encoder
   error_code = avcodec_open2(codec_ctx, codec, &codec_opts);

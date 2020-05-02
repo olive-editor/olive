@@ -55,6 +55,8 @@ private:
 
   void SetUIElementsEnabled(bool enabled);
 
+  static int AlignEvenNumber(double d);
+
   ExportParams GenerateParams() const;
 
   static QString TimeToString(int64_t ms);

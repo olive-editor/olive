@@ -477,12 +477,12 @@ private:
 private slots:
   void SaveAutorecovery();
 
-  void ProjectSaveSucceeded(ProjectPtr p);
+  void ProjectSaveSucceeded(OLIVE_NAMESPACE::ProjectPtr p);
 
   /**
    * @brief Adds a project to the "open projects" list
    */
-  void AddOpenProject(ProjectPtr p);
+  void AddOpenProject(OLIVE_NAMESPACE::ProjectPtr p);
 
   void ImportTaskComplete(QUndoCommand* command);
 

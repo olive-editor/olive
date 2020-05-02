@@ -41,14 +41,15 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void crash_handler(int sig) {
+void crash_handler(int sig)
+{
   QString log_path = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("olive_crash"));
   QFile output(log_path);
 
   output.open(QFile::WriteOnly);
   QTextStream ostream(&output);
 
-  ostream << "Signal: " << sig << "\n\n";
+  ostream << "Version: " << GITHASH << "\nSignal: " << sig << "\n\n";
 
 #if defined(Q_OS_WINDOWS)
   // Use Windows stackwalk API

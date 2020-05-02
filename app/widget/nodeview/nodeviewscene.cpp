@@ -20,14 +20,40 @@
 
 #include "nodeviewscene.h"
 
+#include "nodeviewedge.h"
+#include "nodeviewitem.h"
+
 OLIVE_NAMESPACE_ENTER
 
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
-  graph_(nullptr)
+  graph_(nullptr),
+  direction_(NodeViewCommon::kLeftToRight)
 {
-  connect(&reorganize_timer_, &QTimer::timeout, &reorganize_timer_, &QTimer::stop);
-  connect(&reorganize_timer_, &QTimer::timeout, this, &NodeViewScene::Reorganize);
+}
+
+void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
+{
+  direction_ = direction;
+
+  {
+    // Iterate over node items setting direction
+    QHash<Node*, NodeViewItem*>::const_iterator i;
+    for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
+      i.value()->SetFlowDirection(direction_);
+
+      // Update position too
+      i.value()->SetNodePosition(i.key()->GetPosition());
+    }
+  }
+
+  {
+    // Iterate over edge items setting direction
+    QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
+    for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
+      i.value()->SetFlowDirection(direction_);
+    }
+  }
 }
 
 void NodeViewScene::clear()
@@ -35,7 +61,7 @@ void NodeViewScene::clear()
   // Deselect everything (prevents signals that a selection has changed after deleting an object)
   DeselectAll();
 
-  // HACK: QGraphicsScene contains some sort of internal hashing of the selected items which doesn't update unless
+  // HACK: QGraphicsScene contains some sort of internal caching of the selected items which doesn't update unless
   //       we call a function like this. That means even though we deselect all items above, QGraphicsScene will
   //       continue to incorrectly signal selectionChanged() when items that were selected (but are now not) get
   //       deleted. Calling this function appears to update the internal cache and prevent this.
@@ -119,6 +145,21 @@ QList<NodeViewItem *> NodeViewScene::GetSelectedItems() const
   return selected;
 }
 
+QList<NodeEdge*> NodeViewScene::GetSelectedEdges() const
+{
+  QList<NodeEdge*> edges;
+
+  QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
+
+  for (i=edge_map_.constBegin(); i!=edge_map_.constEnd(); i++) {
+    if (i.value()->isSelected()) {
+      edges.append(i.key());
+    }
+  }
+
+  return edges;
+}
+
 const QHash<Node *, NodeViewItem *> &NodeViewScene::item_map() const
 {
   return item_map_;
@@ -133,6 +174,7 @@ void NodeViewScene::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();
 
+  item->SetFlowDirection(direction_);
   item->SetNode(node);
 
   addItem(item);
@@ -152,11 +194,15 @@ void NodeViewScene::AddNode(Node* node)
     }
   }
 
-  QueueReorganize();
+  connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
+  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
+  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
+  disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
+
   delete item_map_.take(node);
 }
 
@@ -165,11 +211,10 @@ void NodeViewScene::AddEdge(NodeEdgePtr edge)
   NodeViewEdge* edge_ui = new NodeViewEdge();
 
   edge_ui->SetEdge(edge);
+  edge_ui->SetFlowDirection(direction_);
 
   addItem(edge_ui);
   edge_map_.insert(edge.get(), edge_ui);
-
-  QueueReorganize();
 }
 
 void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
@@ -177,146 +222,47 @@ void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
   delete edge_map_.take(edge.get());
 }
 
-void NodeViewScene::QueueReorganize()
+Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
-  // Avoids the fairly complex Reorganize() function every single time a connection or node is added
-
-  reorganize_timer_.stop();
-  reorganize_timer_.start(20);
+  return NodeViewCommon::GetFlowOrientation(direction_);
 }
 
-QList<Node *> NodeViewScene::GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes)
+NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
 {
-  QList<Node*> direct_descendants = connected_nodes;
-
-  processed_nodes.append(n);
-
-  // Remove any nodes that aren't necessarily attached directly
-  for (int i=0;i<direct_descendants.size();i++) {
-    Node* connected = direct_descendants.at(i);
-
-    for (int j=1;j<connected->output()->edges().size();j++) {
-      Node* this_output_connection = connected->output()->edges().at(j)->input()->parentNode();
-      if (!processed_nodes.contains(this_output_connection)) {
-        direct_descendants.removeAt(i);
-        i--;
-        break;
-      }
-    }
-  }
-
-  return direct_descendants;
+  return direction_;
 }
 
-int NodeViewScene::FindWeightsInternal(Node *node, QHash<Node *, int> &weights, QList<Node*>& weighted_nodes)
+void NodeViewScene::ReorganizeFrom(Node* n)
 {
-  QList<Node*> connected_nodes = node->GetImmediateDependencies();
+  QList<Node*> immediates = n->GetImmediateDependencies();
 
-  int weight = 0;
-
-  if (!connected_nodes.isEmpty()) {
-    QList<Node*> direct_descendants = GetNodeDirectDescendants(node, connected_nodes, weighted_nodes);
-
-    foreach (Node* dep, direct_descendants) {
-      weight += FindWeightsInternal(dep, weights, weighted_nodes);
-    }
-  }
-
-  weight = qMax(weight, 1);
-
-  weights.insert(node, weight);
-
-  return weight;
-}
-
-void NodeViewScene::ReorganizeInternal(NodeViewItem* src_item, QHash<Node*, int>& weights, QList<Node*>& positioned_nodes)
-{
-  if (!src_item) {
+  if (immediates.isEmpty()) {
+    // Nothing to do
     return;
   }
 
-  Node* n = src_item->GetNode();
+  QPointF parent_pos = n->GetPosition();
 
-  QList<Node*> connected_nodes = n->GetImmediateDependencies();
+  qreal child_x = parent_pos.x() - 1.0;
+  qreal children_height = immediates.size()-1;
+  qreal children_y = parent_pos.y() - children_height * 0.5;
 
-  if (connected_nodes.isEmpty()) {
-    return;
-  }
+  for (int i=0;i<immediates.size();i++) {
+    immediates.at(i)->SetPosition(QPointF(child_x,
+                                          children_y + i));
 
-  QList<Node*> direct_descendants = GetNodeDirectDescendants(n, connected_nodes, positioned_nodes);
-
-  int descendant_weight = 0;
-  foreach (Node* dep, direct_descendants) {
-    descendant_weight += weights.value(dep);
-  }
-
-  qreal center_y = src_item->y();
-  qreal total_height = descendant_weight * src_item->rect().height() + (direct_descendants.size()-1) * src_item->rect().height()/2;
-  double item_top = center_y - (total_height/2) + src_item->rect().height()/2;
-
-  // Set each node's position
-  int weight_index = 0;
-  for (int i=0;i<direct_descendants.size();i++) {
-    Node* connected = direct_descendants.at(i);
-
-    NodeViewItem* item = NodeToUIObject(connected);
-
-    if (!item) {
-      continue;
-    }
-
-    double item_y = item_top;
-
-    // Multiply the index by the item height (with 1.5 for padding)
-    item_y += weight_index * src_item->rect().height() * 1.5;
-
-    QPointF item_pos(src_item->pos().x() - item->rect().width() * 3 / 2,
-                     item_y);
-
-    item->setPos(item_pos);
-
-    weight_index += weights.value(connected);
-  }
-
-  // Recursively work on each node
-  foreach (Node* connected, connected_nodes) {
-    NodeViewItem* item = NodeToUIObject(connected);
-
-    if (!item) {
-      continue;
-    }
-
-    ReorganizeInternal(item, weights, positioned_nodes);
+    ReorganizeFrom(immediates.at(i));
   }
 }
 
-void NodeViewScene::Reorganize()
+void NodeViewScene::NodePositionChanged(const QPointF &pos)
 {
-  if (!graph_) {
-    return;
-  }
+  item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
+}
 
-  QList<Node*> end_nodes;
-
-  // Calculate the nodes that don't output to anything, they'll be our anchors
-  foreach (Node* node, graph_->nodes()) {
-    if (!node->HasConnectedOutputs()) {
-      end_nodes.append(node);
-    }
-  }
-
-  QList<Node*> processed_nodes;
-
-  QHash<Node*, int> node_weights;
-  foreach (Node* end_node, end_nodes) {
-    FindWeightsInternal(end_node, node_weights, processed_nodes);
-  }
-
-  processed_nodes.clear();
-
-  foreach (Node* end_node, end_nodes) {
-    ReorganizeInternal(NodeToUIObject(end_node), node_weights, processed_nodes);
-  }
+void NodeViewScene::NodeLabelChanged()
+{
+  item_map_.value(static_cast<Node*>(sender()))->update();
 }
 
 OLIVE_NAMESPACE_EXIT

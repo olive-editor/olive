@@ -59,6 +59,11 @@ QString MatrixGenerator::Name() const
   return tr("Orthographic Matrix");
 }
 
+QString MatrixGenerator::ShortName() const
+{
+  return tr("Ortho");
+}
+
 QString MatrixGenerator::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.transform");

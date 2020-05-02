@@ -73,6 +73,8 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
   main_layout->addWidget(body_);
 
+  connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
+
   Retranslate();
 }
 
@@ -111,7 +113,11 @@ void NodeParamViewItem::Retranslate()
 {
   node_->Retranslate();
 
-  title_bar_lbl_->setText(node_->Name());
+  if (node_->GetLabel().isEmpty()) {
+    title_bar_lbl_->setText(node_->Name());
+  } else {
+    title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
+  }
 
   body_->Retranslate();
 }

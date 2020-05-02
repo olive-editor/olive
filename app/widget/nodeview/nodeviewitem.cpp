@@ -44,9 +44,11 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   cached_drop_item_(nullptr),
   cached_drop_item_expanded_(false),
   expanded_(false),
+  hide_titlebar_(false),
   standard_click_(false),
   highlighted_index_(-1),
-  node_edge_change_command_(nullptr)
+  node_edge_change_command_(nullptr),
+  flow_dir_(NodeViewCommon::kLeftToRight)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -57,24 +59,108 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   // We use font metrics to set all the UI measurements for DPI-awareness
   //
 
-  QFont default_font;
-  QFontMetrics font_metrics(default_font);
-
   // Set border width
-  node_border_width_ = font_metrics.height() / 12;
+  node_border_width_ = DefaultItemBorder();
 
-  // Set text and icon padding
-  int node_text_padding = font_metrics.height() / 4;
-
-  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHH");
-
-  // Use the current default font height to size this widget
-  // Set default "collapsed" size
-  int widget_height = font_metrics.height() + node_text_padding * 2;
+  int widget_width = DefaultItemWidth();
+  int widget_height = DefaultItemHeight();
 
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
+}
+
+QPointF NodeViewItem::GetNodePosition() const
+{
+  QPointF node_pos;
+
+  qreal adjusted_x = pos().x() / DefaultItemHorizontalPadding();
+  qreal adjusted_y = pos().y() / DefaultItemVerticalPadding();
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    node_pos.setX(adjusted_x);
+    node_pos.setY(adjusted_y);
+    break;
+  case NodeViewCommon::kRightToLeft:
+    node_pos.setX(-adjusted_x);
+    node_pos.setY(adjusted_y);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    node_pos.setX(adjusted_y);
+    node_pos.setY(adjusted_x);
+    break;
+  case NodeViewCommon::kBottomToTop:
+    node_pos.setX(-adjusted_y);
+    node_pos.setY(adjusted_x);
+    break;
+  }
+
+  return node_pos;
+}
+
+void NodeViewItem::SetNodePosition(const QPointF &pos)
+{
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    setPos(pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    setPos(-pos.x() * DefaultItemHorizontalPadding(),
+           pos.y() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           pos.x() * DefaultItemVerticalPadding());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    setPos(pos.y() * DefaultItemHorizontalPadding(),
+           -pos.x() * DefaultItemVerticalPadding());
+    break;
+  }
+}
+
+int NodeViewItem::DefaultTextPadding()
+{
+  return QFontMetrics(QFont()).height() / 4;
+}
+
+int NodeViewItem::DefaultItemHeight()
+{
+  return QFontMetrics(QFont()).height() + DefaultTextPadding() * 2;
+}
+
+int NodeViewItem::DefaultItemWidth()
+{
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHH");;
+}
+
+int NodeViewItem::DefaultMaximumTextWidth()
+{
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHH");;
+}
+
+int NodeViewItem::DefaultItemBorder()
+{
+  return QFontMetrics(QFont()).height() / 12;
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding() const
+{
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    return DefaultItemWidth() * 1.5;
+  } else {
+    return DefaultItemWidth() * 1.25;
+  }
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding() const
+{
+  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    return DefaultItemHeight() * 1.5;
+  } else {
+    return DefaultItemHeight() * 2.0;
+  }
 }
 
 void NodeViewItem::SetNode(Node *n)
@@ -96,7 +182,7 @@ void NodeViewItem::SetNode(Node *n)
       }
     }
 
-    setPos(node_->GetPosition());
+    SetNodePosition(node_->GetPosition());
   }
 
   update();
@@ -112,18 +198,26 @@ bool NodeViewItem::IsExpanded() const
   return expanded_;
 }
 
-void NodeViewItem::SetExpanded(bool e)
+void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 {
-  if (expanded_ == e) {
+  if (node_inputs_.isEmpty()
+      || (expanded_ == e && hide_titlebar_ == hide_titlebar)) {
     return;
   }
 
   expanded_ = e;
+  hide_titlebar_ = hide_titlebar;
 
   if (expanded_ && !node_inputs_.isEmpty()) {
     // Create new rect
     QRectF new_rect = title_bar_rect_;
-    new_rect.setHeight(new_rect.height() * node_inputs_.size());
+
+    if (hide_titlebar_) {
+      new_rect.setHeight(new_rect.height() * node_inputs_.size());
+    } else {
+      new_rect.setHeight(new_rect.height() * (node_inputs_.size() + 1));
+    }
+
     setRect(new_rect);
   } else {
     setRect(title_bar_rect_);
@@ -143,33 +237,14 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // don't want here)
   QPalette app_pal = Core::instance()->main_window()->palette();
 
-  {
-    QPen border_pen;
-    border_pen.setWidth(node_border_width_);
-
-    QBrush bkg_color;
-
-    if (option->state & QStyle::State_Selected) {
-      border_pen.setColor(app_pal.color(QPalette::Highlight));
-    } else {
-      border_pen.setColor(css_proxy_.BorderColor());
-    }
-
-    if (IsExpanded()) {
-      bkg_color = app_pal.color(QPalette::Window);
-    } else {
-      bkg_color = css_proxy_.TitleBarColor();
-    }
-
-    painter->setPen(border_pen);
-    painter->setBrush(bkg_color);
+  // Draw background rect if expanded
+  if (IsExpanded()) {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(app_pal.color(QPalette::Window));
 
     painter->drawRect(rect());
-  }
 
-  painter->setPen(app_pal.color(QPalette::Text));
-
-  if (IsExpanded()) {
+    painter->setPen(app_pal.color(QPalette::Text));
 
     for (int i=0;i<node_inputs_.size();i++) {
       QRectF input_rect = GetInputRect(i);
@@ -180,13 +255,65 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
       painter->drawText(input_rect, Qt::AlignCenter, node_inputs_.at(i)->name());
     }
+  }
 
-  } else if (node_) {
+  // Draw the titlebar
+  if (!hide_titlebar_ && node_) {
+
+    painter->setPen(Qt::black);
+    painter->setBrush(css_proxy_.TitleBarColor());
+
+    painter->drawRect(title_bar_rect_);
+
+    painter->setPen(app_pal.color(QPalette::Text));
+
+    QString node_label;
+
+    if (node_->GetLabel().isEmpty()) {
+      node_label = node_->ShortName();
+    } else {
+      node_label = node_->GetLabel();
+    }
+
+    {
+      QFont f;
+      QFontMetrics fm(f);
+
+      int max_text_width = DefaultMaximumTextWidth();
+
+      if (QFontMetricsWidth(fm, node_label) > max_text_width) {
+        QString concatenated;
+
+        do {
+          node_label.chop(1);
+          concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
+        } while (QFontMetricsWidth(fm, concatenated) > max_text_width);
+
+        node_label = concatenated;
+      }
+    }
 
     // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(title_bar_rect_, Qt::AlignCenter, node_->Name());
+    painter->drawText(title_bar_rect_,
+                      Qt::AlignCenter,
+                      node_label);
 
   }
+
+  // Draw final border
+  QPen border_pen;
+  border_pen.setWidth(node_border_width_);
+
+  if (option->state & QStyle::State_Selected) {
+    border_pen.setColor(app_pal.color(QPalette::Highlight));
+  } else {
+    border_pen.setColor(css_proxy_.BorderColor());
+  }
+
+  painter->setPen(border_pen);
+  painter->setBrush(Qt::NoBrush);
+
+  painter->drawRect(rect());
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -203,6 +330,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     // Create draggable object
     dragging_edge_ = new NodeViewEdge();
+    dragging_edge_->SetFlowDirection(flow_dir_);
 
     // Set up a QUndoCommand to make this action undoable
     node_edge_change_command_ = new QUndoCommand();
@@ -213,7 +341,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
       drag_src_param_ = param;
 
       // Set the starting position to the current param's connector
-      dragging_edge_start_ = GetParamPoint(param);
+      dragging_edge_start_ = GetParamPoint(param, QPointF());
 
     } else if (param->type() == NodeParam::kInput) {
       // For an input param, we default to moving an existing edge
@@ -229,8 +357,8 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
       drag_source_ = static_cast<NodeViewScene*>(scene())->NodeToUIObject(drag_src_param_->parentNode());
 
       // Get the opposing parameter's rect center using the line's current coordinates
-      // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
-      //  node is collapsed, therefore it's easier to just retrieve it from line itself)
+      // (we use the current coordinates because a complex formula is used for the line's coords if
+      // the opposing node is collapsed, therefore it's easier to just retrieve it from line itself)
       NodeViewEdge* existing_edge_ui = static_cast<NodeViewScene*>(scene())->EdgeToUIObject(edge);
       QPainterPath existing_edge_line = existing_edge_ui->path();
       QPointF edge_start = existing_edge_line.pointAtPercent(0);
@@ -288,6 +416,8 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
           cached_drop_item_->SetExpanded(false);
         }
 
+        cached_drop_item_->SetHighlightedIndex(-1);
+
         cached_drop_item_->setZValue(0);
         cached_drop_item_ = nullptr;
       }
@@ -303,7 +433,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         cached_drop_item_expanded_ = !cached_drop_item_->IsExpanded();
 
         if (cached_drop_item_expanded_) {
-          cached_drop_item_->SetExpanded(true);
+          cached_drop_item_->SetExpanded(true, true);
         }
 
         cached_drop_item_->setZValue(1);
@@ -330,7 +460,9 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
           if (!cached_drop_item_->GetNode()->OutputsTo(node_)) {
             drag_dest_param_ = comp_param;
             highlight_their_index = i;
-            end_point = cached_drop_item_->mapToScene(cached_drop_item_->GetInputPoint(i));
+
+            QPointF end_point_local = cached_drop_item_->GetInputPoint(i, pos());
+            end_point = cached_drop_item_->mapToScene(end_point_local);
           }
 
           break;
@@ -340,9 +472,11 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
       cached_drop_item_->SetHighlightedIndex(highlight_their_index);
     }
 
-    dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
+    dragging_edge_->SetConnected(drag_dest_param_);
 
-    dragging_edge_->SetPoints(dragging_edge_start_, end_point);
+    dragging_edge_->SetPoints(dragging_edge_start_,
+                              end_point,
+                              cached_drop_item_ ? cached_drop_item_->IsExpanded() : false);
 
     return;
   }
@@ -363,8 +497,14 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     scene()->removeItem(dragging_edge_);
 
     // If we expanded an item in the drag, re-collapse it now
-    if (cached_drop_item_ != nullptr) {
-      cached_drop_item_->SetExpanded(false);
+    if (cached_drop_item_) {
+      if (cached_drop_item_expanded_) {
+        cached_drop_item_->SetExpanded(false);
+      }
+
+      cached_drop_item_->SetHighlightedIndex(-1);
+      cached_drop_item_->setZValue(0);
+
       cached_drop_item_ = nullptr;
     }
 
@@ -405,10 +545,19 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   }
 }
 
+void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsRectItem::mouseDoubleClickEvent(event);
+
+  SetExpanded(!IsExpanded());
+}
+
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
   if (change == ItemPositionHasChanged && node_) {
-    node_->SetPosition(value.toPointF());
+    node_->blockSignals(true);
+    node_->SetPosition(GetNodePosition());
+    node_->blockSignals(false);
   }
 
   return QGraphicsItem::itemChange(change, value);
@@ -429,6 +578,10 @@ QRectF NodeViewItem::GetInputRect(int index) const
 {
   QRectF r = title_bar_rect_;
 
+  if (!hide_titlebar_) {
+    index++;
+  }
+
   if (IsExpanded()) {
     r.translate(0, r.height() * index);
   }
@@ -436,10 +589,22 @@ QRectF NodeViewItem::GetInputRect(int index) const
   return r;
 }
 
-QPointF NodeViewItem::GetParamPoint(NodeParam *param) const
+QPointF NodeViewItem::GetParamPoint(NodeParam *param, const QPointF& source_pos) const
 {
   if (param->type() == NodeParam::kOutput) {
-    return pos() + QPointF(rect().right(), rect().center().y());
+
+    switch (flow_dir_) {
+    case NodeViewCommon::kLeftToRight:
+    default:
+      return pos() + QPointF(rect().right(), rect().center().y());
+    case NodeViewCommon::kRightToLeft:
+      return pos() + QPointF(rect().left(), rect().center().y());
+    case NodeViewCommon::kTopToBottom:
+      return pos() + QPointF(rect().center().x(), rect().bottom());
+    case NodeViewCommon::kBottomToTop:
+      return pos() + QPointF(rect().center().x(), rect().top());
+    }
+
   } else {
     NodeInput* input = static_cast<NodeInput*>(param);
 
@@ -448,15 +613,35 @@ QPointF NodeViewItem::GetParamPoint(NodeParam *param) const
       input = static_cast<NodeInput*>(input->parent());
     }
 
-    return pos() + GetInputPoint(node_inputs_.indexOf(input));
+    return pos() + GetInputPoint(node_inputs_.indexOf(input), source_pos);
   }
 }
 
-QPointF NodeViewItem::GetInputPoint(int index) const
+void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  flow_dir_ = dir;
+}
+
+QPointF NodeViewItem::GetInputPoint(int index, const QPointF& source_pos) const
 {
   QRectF input_rect = GetInputRect(index);
 
-  return QPointF(input_rect.left(), input_rect.center().y());
+  Qt::Orientation flow_orientation = NodeViewCommon::GetFlowOrientation(flow_dir_);
+
+  if (flow_orientation == Qt::Horizontal || IsExpanded()) {
+    if (flow_dir_ == NodeViewCommon::kLeftToRight
+        || (flow_orientation == Qt::Vertical && source_pos.x() < pos().x())) {
+      return QPointF(input_rect.left(), input_rect.center().y());
+    } else {
+      return QPointF(input_rect.right(), input_rect.center().y());
+    }
+  } else {
+    if (flow_dir_ == NodeViewCommon::kTopToBottom) {
+      return QPointF(input_rect.center().x(), input_rect.top());
+    } else {
+      return QPointF(input_rect.center().x(), input_rect.bottom());
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -47,6 +47,8 @@ public:
   double GetOutProgress(const rational& time) const;
   double GetInProgress(const rational& time) const;
 
+  virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+
 private:
   double GetInternalTransitionTime(const rational& time) const;
 

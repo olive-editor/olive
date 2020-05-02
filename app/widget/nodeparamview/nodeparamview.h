@@ -40,6 +40,10 @@ public:
   void SetNodes(QList<Node*> nodes);
   const QList<Node*>& nodes();
 
+  Node* GetTimeTarget() const;
+
+  void DeleteSelected();
+
 signals:
   void InputDoubleClicked(NodeInput* input);
 

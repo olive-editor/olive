@@ -75,6 +75,11 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 {
+  Create(ctx, frame.get());
+}
+
+void OpenGLTexture::Create(QOpenGLContext *ctx, Frame *frame)
+{
   Create(ctx, frame->width(), frame->height(), frame->format(), frame->data(), frame->linesize_pixels());
 }
 
@@ -118,6 +123,16 @@ const PixelFormat::Format &OpenGLTexture::format() const
 const GLuint &OpenGLTexture::texture() const
 {
   return texture_;
+}
+
+void OpenGLTexture::Upload(FramePtr frame)
+{
+  Upload(frame.get());
+}
+
+void OpenGLTexture::Upload(Frame *frame)
+{
+  Upload(frame->data(), frame->linesize_pixels());
 }
 
 void OpenGLTexture::Upload(const void *data, int linesize)

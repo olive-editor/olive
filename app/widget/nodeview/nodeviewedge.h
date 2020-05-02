@@ -25,6 +25,7 @@
 #include <QPalette>
 
 #include "node/edge.h"
+#include "nodeviewcommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -81,18 +82,26 @@ public:
   /**
    * @brief Set points to create curve from
    */
-  void SetPoints(const QPointF& start, const QPointF& end);
+  void SetPoints(const QPointF& start, const QPointF& end, bool input_is_expanded);
+
+  /**
+   * @brief Sets the direction nodes are flowing
+   */
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
+protected:
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  void UpdatePen();
-
   NodeEdgePtr edge_;
 
   int edge_width_;
 
-  QPalette::ColorGroup color_group_;
+  bool connected_;
 
-  QPalette::ColorRole color_role_;
+  bool highlighted_;
+
+  NodeViewCommon::FlowDirection flow_dir_;
 
 };
 

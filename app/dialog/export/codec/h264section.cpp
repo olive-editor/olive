@@ -78,7 +78,7 @@ void H264Section::AddOpts(EncodingParams *params)
   if (method == kConstantRateFactor) {
 
     // Simply set CRF value
-    params->SetVideoOption(QStringLiteral("crf"), QString::number(crf_section_->GetValue()));
+    params->set_video_option(QStringLiteral("crf"), QString::number(crf_section_->GetValue()));
 
   } else {
 
@@ -95,11 +95,11 @@ void H264Section::AddOpts(EncodingParams *params)
     }
 
     // Disable CRF encoding
-    params->SetVideoOption(QStringLiteral("crf"), QStringLiteral("-1"));
+    params->set_video_option(QStringLiteral("crf"), QStringLiteral("-1"));
 
-    params->SetVideoBitRate(target_rate);
-    params->SetVideoMaxBitRate(max_rate);
-    params->SetVideoBufferSize(2000000);
+    params->set_video_bit_rate(target_rate);
+    params->set_video_max_bit_rate(max_rate);
+    params->set_video_buffer_size(2000000);
 
   }
 }

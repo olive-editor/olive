@@ -26,7 +26,6 @@
 
 #include "audio/sampleformat.h"
 #include "render/colormanager.h"
-#include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -49,12 +48,12 @@ PreferencesQualityTab::PreferencesQualityTab()
   quality_stack_ = new QStackedWidget();
 
   offline_group_ = new PreferencesQualityGroup(tr("Offline Quality"));
-  offline_group_->bit_depth_combobox()->setCurrentIndex(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
+  offline_group_->SetBitDepth(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
   offline_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOffline));
   quality_stack_->addWidget(offline_group_);
 
   online_group_ = new PreferencesQualityGroup(tr("Online Quality"));
-  online_group_->bit_depth_combobox()->setCurrentIndex(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
+  online_group_->SetBitDepth(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
   online_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOnline));
   quality_stack_->addWidget(online_group_);
 
@@ -92,7 +91,8 @@ PreferencesQualityGroup::PreferencesQualityGroup(const QString &title, QWidget *
     PixelFormat::Format pix_fmt = static_cast<PixelFormat::Format>(i);
 
     // We always render with an alpha channel internally
-    if (PixelFormat::FormatHasAlphaChannel(pix_fmt)) {
+    if (PixelFormat::FormatHasAlphaChannel(pix_fmt)
+        && PixelFormat::FormatIsFloat(pix_fmt)) {
       bit_depth_combobox_->addItem(PixelFormat::GetName(pix_fmt),
                                    i);
     }
@@ -110,6 +110,16 @@ PreferencesQualityGroup::PreferencesQualityGroup(const QString &title, QWidget *
   video_layout->addWidget(ocio_method_, row, 1);
 
   quality_outer_layout->addStretch();
+}
+
+void PreferencesQualityGroup::SetBitDepth(PixelFormat::Format f)
+{
+  for (int i=0;i<bit_depth_combobox_->count();i++) {
+    if (bit_depth_combobox_->itemData(i) == f) {
+      bit_depth_combobox_->setCurrentIndex(i);
+      break;
+    }
+  }
 }
 
 QComboBox *PreferencesQualityGroup::bit_depth_combobox()

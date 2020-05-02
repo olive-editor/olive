@@ -84,19 +84,10 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
   return QString();
 }
 
-void ScopePanel::SetDisplayReferredTexture(OpenGLTexture *texture)
-{
-  Q_UNUSED(texture)
-}
-
 void ScopePanel::SetReferenceBuffer(Frame *frame)
 {
   histogram_->SetBuffer(frame);
-}
-
-void ScopePanel::SetReferenceTexture(OpenGLTexture *texture)
-{
-  waveform_view_->SetTexture(texture);
+  waveform_view_->SetBuffer(frame);
 }
 
 void ScopePanel::SetColorManager(ColorManager *manager)

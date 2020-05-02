@@ -418,6 +418,16 @@ NodeInputArray *TrackOutput::block_input() const
   return block_input_;
 }
 
+void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  // Resolve block list
+  Block* b = BlockAtTime(time);
+
+  if (b) {
+    return b->Hash(hash, time);
+  }
+}
+
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;
@@ -556,9 +566,7 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
     block_cache_.removeAt(index_of_block);
 
     // If there were blocks following this one, update their ins/outs
-    if (index_of_block < block_cache_.size()) {
-      UpdateInOutFrom(index_of_block);
-    }
+    UpdateInOutFrom(index_of_block);
 
     // Join the previous and next blocks together
     if (connected_block->previous()) {

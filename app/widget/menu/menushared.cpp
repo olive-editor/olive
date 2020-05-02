@@ -79,7 +79,7 @@ void MenuShared::AddItemsForNewMenu(Menu *m)
   m->addAction(new_folder_item_);
 }
 
-void MenuShared::AddItemsForEditMenu(Menu *m)
+void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
 {
   m->addAction(edit_cut_item_);
   m->addAction(edit_copy_item_);
@@ -87,8 +87,11 @@ void MenuShared::AddItemsForEditMenu(Menu *m)
   m->addAction(edit_paste_insert_item_);
   m->addAction(edit_duplicate_item_);
   m->addAction(edit_delete_item_);
-  m->addAction(edit_ripple_delete_item_);
-  m->addAction(edit_split_item_);
+
+  if (for_clips) {
+    m->addAction(edit_ripple_delete_item_);
+    m->addAction(edit_split_item_);
+  }
 }
 
 void MenuShared::AddItemsForInOutMenu(Menu *m)
@@ -185,7 +188,7 @@ void MenuShared::PasteInsertTriggered()
 
 void MenuShared::DuplicateTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->CurrentlyFocused()->Duplicate();
 }
 
 void MenuShared::EnableDisableTriggered()

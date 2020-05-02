@@ -192,8 +192,7 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
 
   if (divider == 1) {
 
-    // Just a simple copy
-    buffer_->get_pixels(OIIO::ROI(), buffer_->spec().format, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
+    BufferToFrame(buffer_, frame);
 
   } else {
 
@@ -204,8 +203,7 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
       qWarning() << "OIIO resize failed";
     }
 
-    // Just a simple copy
-    dst.get_pixels(OIIO::ROI(), dst.spec().format, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
+    BufferToFrame(&dst, frame);
 
   }
 
@@ -231,6 +229,34 @@ bool OIIODecoder::SupportsVideo()
 QString OIIODecoder::GetIndexFilename()
 {
   return QString();
+}
+
+void OIIODecoder::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
+{
+#if OIIO_VERSION < 20112
+  //
+  // Workaround for OIIO bug that ignores destination stride in versions OLDER than 2.1.12
+  //
+  // See more: https://github.com/OpenImageIO/oiio/pull/2487
+  //
+  for (int i=0;i<buf->spec().height;i++) {
+    int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
+
+    memcpy(frame->data() + i * frame->linesize_bytes(),
+#if OIIO_VERSION < 10903
+           reinterpret_cast<const char*>(buf->localpixels()) + i * width_in_bytes,
+#else
+           reinterpret_cast<const char*>(buf->localpixels()) + i * buf->scanline_stride(),
+#endif
+           width_in_bytes);
+  }
+#else
+  buf->get_pixels(OIIO::ROI(),
+                  buf->spec().format,
+                  frame->data(),
+                  OIIO::AutoStride,
+                  frame->linesize_bytes());
+#endif
 }
 
 bool OIIODecoder::FileTypeIsSupported(const QString& fn)

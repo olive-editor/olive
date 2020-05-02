@@ -57,6 +57,15 @@ QString NodeMetaReader::Name() const
   return GetStringForCurrentLanguage(&names_);
 }
 
+QString NodeMetaReader::ShortName() const
+{
+  if (short_names_.isEmpty()) {
+    return Name();
+  } else {
+    return GetStringForCurrentLanguage(&short_names_);
+  }
+}
+
 const QString &NodeMetaReader::id() const
 {
   return id_;
@@ -173,6 +182,9 @@ void NodeMetaReader::XMLReadEffect(QXmlStreamReader* reader)
     if (reader->name() == QStringLiteral("name")) {
       // Pick up name
       XMLReadLanguageString(reader, &names_);
+    } else if (reader->name() == QStringLiteral("shortnames")) {
+      // Pick up short name
+      XMLReadLanguageString(reader, &short_names_);
     } else if (reader->name() == QStringLiteral("category")) {
       // Pick up category
       XMLReadLanguageString(reader, &categories_);

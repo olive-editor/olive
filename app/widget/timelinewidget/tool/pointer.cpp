@@ -91,7 +91,7 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     if (!(event->GetModifiers() & Qt::AltModifier)) {
       parent()->SetBlockLinksSelected(item->block(), true);
     }
-  } else {
+  } else if (event->GetButton() == Qt::LeftButton) {
     // Start rubberband drag
     parent()->StartRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
 

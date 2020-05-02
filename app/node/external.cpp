@@ -42,6 +42,11 @@ QString ExternalNode::Name() const
   return meta_.Name();
 }
 
+QString ExternalNode::ShortName() const
+{
+  return meta_.ShortName();
+}
+
 QString ExternalNode::id() const
 {
   return meta_.id();

@@ -40,6 +40,7 @@ EncodingParams::EncodingParams() :
   video_bit_rate_(0),
   video_max_bit_rate_(0),
   video_buffer_size_(0),
+  video_threads_(0),
   audio_enabled_(false)
 {
 }
@@ -63,24 +64,29 @@ void EncodingParams::EnableAudio(const AudioRenderingParams &audio_params, const
   audio_codec_ = acodec;
 }
 
-void EncodingParams::SetVideoOption(const QString &key, const QString &value)
+void EncodingParams::set_video_option(const QString &key, const QString &value)
 {
   video_opts_.insert(key, value);
 }
 
-void EncodingParams::SetVideoBitRate(const int64_t &rate)
+void EncodingParams::set_video_bit_rate(const int64_t &rate)
 {
   video_bit_rate_ = rate;
 }
 
-void EncodingParams::SetVideoMaxBitRate(const int64_t &rate)
+void EncodingParams::set_video_max_bit_rate(const int64_t &rate)
 {
   video_max_bit_rate_ = rate;
 }
 
-void EncodingParams::SetVideoBufferSize(const int64_t &sz)
+void EncodingParams::set_video_buffer_size(const int64_t &sz)
 {
   video_buffer_size_ = sz;
+}
+
+void EncodingParams::set_video_threads(const int &threads)
+{
+  video_threads_ = threads;
 }
 
 const QString &EncodingParams::filename() const
@@ -121,6 +127,11 @@ const int64_t &EncodingParams::video_max_bit_rate() const
 const int64_t &EncodingParams::video_buffer_size() const
 {
   return video_buffer_size_;
+}
+
+const int &EncodingParams::video_threads() const
+{
+  return video_threads_;
 }
 
 bool EncodingParams::audio_enabled() const

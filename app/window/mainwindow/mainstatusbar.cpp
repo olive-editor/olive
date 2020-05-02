@@ -76,4 +76,11 @@ void MainStatusBar::UpdateStatus()
   }
 }
 
+void MainStatusBar::mouseDoubleClickEvent(QMouseEvent* e)
+{
+  QStatusBar::mouseDoubleClickEvent(e);
+
+  emit DoubleClicked();
+}
+
 OLIVE_NAMESPACE_EXIT

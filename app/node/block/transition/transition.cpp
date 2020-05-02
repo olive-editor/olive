@@ -129,6 +129,19 @@ double TransitionBlock::GetInProgress(const rational &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
+void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  Block::Hash(hash, time);
+
+  double all_prog = GetTotalProgress(time);
+  double in_prog = GetInProgress(time);
+  double out_prog = GetOutProgress(time);
+
+  hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
+  hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
+  hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
+}
+
 double TransitionBlock::GetInternalTransitionTime(const rational &time) const
 {
   return time.toDouble() - in().toDouble();

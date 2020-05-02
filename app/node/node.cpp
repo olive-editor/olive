@@ -25,6 +25,9 @@
 #include <QFile>
 
 #include "common/xmlutils.h"
+#include "project/project.h"
+#include "project/item/footage/footage.h"
+#include "project/item/footage/imagestream.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -103,6 +106,13 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
+  writer->writeAttribute(QStringLiteral("pos"),
+                         QStringLiteral("%1:%2").arg(QString::number(GetPosition().x()),
+                                                     QString::number(GetPosition().y())));
+
+  writer->writeAttribute(QStringLiteral("label"),
+                         GetLabel());
+
   foreach (NodeParam* param, parameters()) {
     param->Save(writer);
   }
@@ -110,6 +120,11 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
   SaveInternal(writer);
 
   writer->writeEndElement(); // node
+}
+
+QString Node::ShortName() const
+{
+  return Name();
 }
 
 QString Node::Category() const
@@ -220,6 +235,11 @@ void Node::SaveInternal(QXmlStreamWriter *) const
 {
 }
 
+QList<NodeInput *> Node::GetInputsToHash() const
+{
+  return GetInputsIncludingArrays();
+}
+
 QString Node::ReadFileAsString(const QString &filename)
 {
   QFile f(filename);
@@ -277,6 +297,83 @@ void Node::DrawGizmos(QPainter *, const QRect &) const
 {
 }
 
+const QString &Node::GetLabel() const
+{
+  return label_;
+}
+
+void Node::SetLabel(const QString &s)
+{
+  if (label_ != s) {
+    label_ = s;
+
+    emit LabelChanged(label_);
+  }
+}
+
+void Node::Hash(QCryptographicHash &hash, const rational& time) const
+{
+  // Add this Node's ID
+  hash.addData(id().toUtf8());
+
+  QList<NodeInput*> inputs = GetInputsToHash();
+
+  foreach (NodeInput* input, inputs) {
+    // For each input, try to hash its value
+
+    // Get time adjustment
+    // For a single frame, we only care about one of the times
+    rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
+
+    if (input->IsConnected()) {
+      // Traverse down this edge
+      input->get_connected_node()->Hash(hash, input_time);
+    } else {
+      // Grab the value at this time
+      QVariant value = input->get_value_at_time(input_time);
+      hash.addData(NodeParam::ValueToBytes(input->data_type(), value));
+    }
+
+    // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
+    if (input->data_type() == NodeParam::kFootage) {
+      StreamPtr stream = input->get_standard_value().value<StreamPtr>();
+
+      if (stream) {
+        // Add footage details to hash
+
+        // Footage filename
+        hash.addData(stream->footage()->filename().toUtf8());
+
+        // Footage last modified date
+        hash.addData(stream->footage()->timestamp().toString().toUtf8());
+
+        // Footage stream
+        hash.addData(QString::number(stream->index()).toUtf8());
+
+        if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
+          ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+
+          // Current color config and space
+          hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
+          hash.addData(image_stream->colorspace().toUtf8());
+
+          // Alpha associated setting
+          hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+        }
+
+        // Footage timestamp
+        if (stream->type() == Stream::kVideo) {
+          hash.addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
+                                                    QString::number(input_time.denominator())).toUtf8());
+
+          hash.addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
+
+        }
+      }
+    }
+  }
+}
+
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
@@ -295,6 +392,9 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
       NodeInput::CopyValues(src, dst, include_connections);
     }
   }
+
+  destination->SetPosition(source->GetPosition());
+  destination->SetLabel(source->GetLabel());
 }
 
 bool Node::CanBeDeleted() const
@@ -559,7 +659,7 @@ NodeValue Node::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, boo
   }
 }
 
-const QPointF &Node::GetPosition()
+const QPointF &Node::GetPosition() const
 {
   return position_;
 }
@@ -567,6 +667,8 @@ const QPointF &Node::GetPosition()
 void Node::SetPosition(const QPointF &pos)
 {
   position_ = pos;
+
+  emit PositionChanged(position_);
 }
 
 void Node::AddInput(NodeInput *input)

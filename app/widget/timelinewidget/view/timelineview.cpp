@@ -81,7 +81,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
     return;
   }
 
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->modifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MousePressed(&timeline_event);
 }
@@ -98,7 +98,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->modifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseMoved(&timeline_event);
 }
@@ -115,14 +115,14 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
     return;
   }
 
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->modifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseReleased(&timeline_event);
 }
 
 void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->modifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseDoubleClicked(&timeline_event);
 }
@@ -146,7 +146,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
 {
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), Qt::NoButton, event->keyboardModifiers());
 
   timeline_event.SetMimeData(event->mimeData());
   timeline_event.SetEvent(event);
@@ -156,7 +156,7 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event)
 
 void TimelineView::dragMoveEvent(QDragMoveEvent *event)
 {
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), Qt::NoButton, event->keyboardModifiers());
 
   timeline_event.SetMimeData(event->mimeData());
   timeline_event.SetEvent(event);
@@ -171,7 +171,7 @@ void TimelineView::dragLeaveEvent(QDragLeaveEvent *event)
 
 void TimelineView::dropEvent(QDropEvent *event)
 {
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event->pos(), Qt::NoButton, event->keyboardModifiers());
 
   timeline_event.SetMimeData(event->mimeData());
   timeline_event.SetEvent(event);
@@ -273,17 +273,21 @@ TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
   return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(ConnectedTrackType(), SceneToTrack(pt.y())));
 }
 
-TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::KeyboardModifiers modifiers)
+TimelineViewMouseEvent TimelineView::CreateMouseEvent(QMouseEvent *event)
+{
+  return CreateMouseEvent(event->pos(), event->button(), event->modifiers());
+}
+
+TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 {
   QPointF scene_pt = mapToScene(pos);
 
-  TimelineViewMouseEvent timeline_event(scene_pt.x(),
-                                        GetScale(),
-                                        timebase(),
-                                        TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
-                                        modifiers);
-
-  return timeline_event;
+  return TimelineViewMouseEvent(scene_pt.x(),
+                                GetScale(),
+                                timebase(),
+                                TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
+                                button,
+                                modifiers);
 }
 
 int TimelineView::GetHeightOfAllTracks() const

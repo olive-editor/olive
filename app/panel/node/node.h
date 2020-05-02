@@ -47,6 +47,8 @@ public:
 
   virtual void Paste() override;
 
+  virtual void Duplicate() override;
+
 public slots:
   void Select(const QList<Node*>& nodes);
   void SelectWithDependencies(const QList<Node*>& nodes);
