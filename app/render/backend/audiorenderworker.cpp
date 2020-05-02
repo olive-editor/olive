@@ -112,7 +112,14 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         AudioRenderingParams waveform_params(SampleSummer::kSumSampleRate, audio_params_.channel_layout(), SampleFormat::SAMPLE_FMT_S32);
         int chunk_size = (audio_params().sample_rate() / waveform_params.sample_rate());
 
-        qint64 start_offset = waveform_params.time_to_bytes(range_for_block.in() - b->in());
+        {
+          // Write metadata header
+          SampleSummer::Info info;
+          info.channels = audio_params_.channel_count();
+          wave_file.write(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
+        }
+
+        qint64 start_offset = sizeof(SampleSummer::Info) + waveform_params.time_to_bytes(range_for_block.in() - b->in());
         qint64 length_offset = waveform_params.time_to_bytes(range_for_block.length());
         qint64 end_offset = start_offset + length_offset;
 
@@ -132,17 +139,6 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         }
 
         wave_file.close();
-
-        // Write metadata about this waveform file
-        QFile wave_metadata(wave_fn.append(QStringLiteral(".meta")));
-        if (wave_metadata.open(QFile::WriteOnly)) {
-          SampleSummer::Info info;
-          info.channels = audio_params_.channel_count();
-
-          wave_metadata.write(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
-
-          wave_metadata.close();
-        }
 
         if (src_block->type() == Block::kClip) {
           emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
