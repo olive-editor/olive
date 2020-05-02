@@ -41,7 +41,7 @@ OpenGLShaderPtr OpenGLShader::CreateDefault(const QString &function_name, const 
 }
 
 // copied from source code to OCIODisplay
-const int OCIO_LUT3D_EDGE_SIZE = 32;
+const int OCIO_LUT3D_EDGE_SIZE = 64;
 
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
 const int OCIO_NUM_3D_ENTRIES = 3*OCIO_LUT3D_EDGE_SIZE*OCIO_LUT3D_EDGE_SIZE*OCIO_LUT3D_EDGE_SIZE;
