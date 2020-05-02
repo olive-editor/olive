@@ -21,6 +21,10 @@ project = 'Olive'
 copyright = '2020, Olive Team'
 author = 'Olive Team'
 
+# The short X.Y version
+version = '0.2'
+# The full version, including alpha/beta/rc tags
+release = 'v0.2-alpha'
 
 # -- General configuration ---------------------------------------------------
 
@@ -28,10 +32,20 @@ author = 'Olive Team'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    #'sphinx.ext.todo',
+    #'sphinx.ext.githubpages',
+    'sphinx.ext.autosectionlabel' # headline IDs for anchor linking
 ]
+# https://stackoverflow.com/questions/15394347/adding-a-cross-reference-to-a-subheading-or-anchor-in-another-page
+autosectionlabel_prefix_document = True # document name + headline as ID?
+#autosectionlabel_maxdepth = 2
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# The suffix(es) of source filenames.
+# You can specify multiple suffix as a list of string:
+#source_suffix = ['.rst', '.md']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
