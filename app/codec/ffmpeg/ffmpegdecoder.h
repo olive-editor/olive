@@ -166,12 +166,16 @@ private:
    */
   void FFmpegError(int error_code);
 
-  virtual QString GetIndexFilename() override;
+  virtual QString GetIndexFilename() const override;
+
+  QString GetProxyFilename(int divider) const;
 
   void ClearResources();
 
   void InitScaler(int divider);
   void FreeScaler();
+
+  QString GetProxyFrameFilename(const int64_t& timestamp, const int &divider) const;
 
   static int GetScaledDimension(int dim, int divider);
 

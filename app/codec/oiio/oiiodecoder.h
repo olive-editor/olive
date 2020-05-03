@@ -45,7 +45,7 @@ public:
 
   virtual bool SupportsVideo() override;
 
-  virtual QString GetIndexFilename() override;
+  virtual QString GetIndexFilename() const override;
 
   static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
 

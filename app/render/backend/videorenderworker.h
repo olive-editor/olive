@@ -73,7 +73,7 @@ public:
   void SetFrameGenerationParams(int width, int height, const QMatrix4x4 &matrix);
 
 signals:
-  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash, bool texture_existed);
+  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash);
 
   void HashAlreadyBeingCached(NodeDependency path, qint64 job_time, QByteArray hash);
 
@@ -103,7 +103,7 @@ protected:
   ColorProcessorCache* color_cache();
 
 private:
-  void Download(const rational &time, QVariant texture, QString filename);
+  void Download(const QByteArray &hash, const rational &time, QVariant texture);
 
   void ResizeDownloadBuffer();
 

@@ -215,7 +215,7 @@ bool OIIODecoder::SupportsVideo()
   return true;
 }
 
-QString OIIODecoder::GetIndexFilename()
+QString OIIODecoder::GetIndexFilename() const
 {
   return QString();
 }

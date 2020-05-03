@@ -74,7 +74,7 @@ public:
 
   virtual QString id() = 0;
 
-  StreamPtr stream();
+  StreamPtr stream() const;
   void set_stream(StreamPtr fs);
 
   /**
@@ -253,7 +253,7 @@ protected:
    * Retrieves the absolute filename of the index file for this stream. Decoder must be open for
    * this to work correctly.
    */
-  virtual QString GetIndexFilename() = 0;
+  virtual QString GetIndexFilename() const = 0;
 
   /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters

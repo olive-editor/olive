@@ -34,6 +34,7 @@ extern "C" {
 #include <QString>
 #include <QtMath>
 #include <QThread>
+#include <QtConcurrent/QtConcurrent>
 
 #include "codec/waveinput.h"
 #include "common/define.h"
@@ -41,6 +42,7 @@ extern "C" {
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
+#include "render/backend/videorenderframecache.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 
@@ -147,6 +149,52 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
   }
 
   int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
+
+  VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
+
+  if (vs->using_proxy()) {
+    QString proxy_fn = GetProxyFilename(vs->using_proxy());
+
+    int64_t index_ts = vs->get_closest_timestamp_in_frame_index(target_ts);
+
+    if (target_ts > -1) {
+      // Use this timestamp instead - even if we fall through to decoding manually, it'll be more
+      // accurate than the one we calculated earlier
+      target_ts = index_ts;
+
+      QString frame_filename = GetProxyFrameFilename(target_ts, vs->using_proxy());
+
+      if (QFileInfo::exists(frame_filename)) {
+        auto in = OIIO::ImageInput::open(frame_filename.toStdString());
+
+        if (in) {
+          FramePtr copy = Frame::Create();
+          copy->set_video_params(VideoRenderingParams(GetScaledDimension(vs->width(), vs->using_proxy()),
+                                                      GetScaledDimension(vs->height(), vs->using_proxy()),
+                                                      native_pix_fmt_));
+          copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
+          copy->set_sample_aspect_ratio(aspect_ratio_);
+          copy->allocate();
+
+          // We're running one "decoder" per thread already, no need to spawn more than that
+          in->threads(1);
+
+          in->read_image(PixelFormat::GetOIIOTypeDesc(native_pix_fmt_),
+                         copy->data(),
+                         OIIO::AutoStride,
+                         copy->linesize_bytes());
+
+          in->close();
+
+#if OIIO_VERSION < 10903
+          OIIO::ImageInput::destroy(in);
+#endif
+
+          return copy;
+        }
+      }
+    }
+  }
 
   FFmpegDecoderInstance* working_instance = nullptr;
   FFmpegFramePool::ElementPtr return_frame = nullptr;
@@ -263,8 +311,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
       FreeScaler();
       InitScaler(divider);
     }
-
-    VideoStream* vs = static_cast<VideoStream*>(stream().get());
 
     // Create frame to return
     FramePtr copy = Frame::Create();
@@ -587,17 +633,61 @@ void FFmpegDecoder::Error(const QString &s)
   ClearResources();
 }
 
+QMutex scaler_lock;
+void SaveCacheFrame(SwsContext* scaler,
+                    AVFrame* frame,
+                    VideoRenderingParams params,
+                    QString dst_fn)
+{
+  QByteArray converted_buffer(PixelFormat::GetBufferSize(params.format(),
+                                                         params.width(),
+                                                         params.height()),
+                              Qt::Uninitialized);
+
+  uint8_t* converted_data = reinterpret_cast<uint8_t*>(converted_buffer.data());
+  int converted_linesize = PixelFormat::GetBufferSize(params.format(),
+                                                      params.width(),
+                                                      1);
+
+  scaler_lock.lock();
+  sws_scale(scaler,
+            frame->data,
+            frame->linesize,
+            0,
+            frame->height,
+            &converted_data,
+            &converted_linesize);
+  scaler_lock.unlock();
+
+  if (!VideoRenderFrameCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params)) {
+    qCritical() <<" Failed to save cache frame" << dst_fn;
+  }
+
+  av_frame_free(&frame);
+}
+
 bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
 {
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  QString frame_index_file = GetIndexFilename().append('d').append(QString::number(divider));
+  QString proxy_filename = GetProxyFilename(divider);
 
-  if (QFileInfo::exists(frame_index_file)) {
+  if (QFileInfo::exists(proxy_filename)) {
 
     // A proxy of this type already exists so we can do nothing
-    video_stream->set_proxy(divider);
-    return true;
+    QFile index_file(proxy_filename);
+    if (index_file.open(QFile::ReadOnly)) {
+      QVector<int64_t> index(index_file.size() / sizeof(int64_t));
+
+      index_file.read(reinterpret_cast<char*>(index.data()),
+                      index_file.size());
+
+      index_file.close();
+
+      video_stream->set_proxy(divider, index);
+
+      return true;
+    }
 
   }
 
@@ -610,8 +700,8 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
   AVPixelFormat ideal_fmt = FFmpegCommon::GetCompatiblePixelFormat(src_fmt);
   PixelFormat::Format native_fmt = GetNativePixelFormat(ideal_fmt);
 
-  int divided_width = instance.stream()->codecpar->width;
-  int divided_height = instance.stream()->codecpar->height;
+  int divided_width = GetScaledDimension(instance.stream()->codecpar->width, divider);
+  int divided_height = GetScaledDimension(instance.stream()->codecpar->height, divider);
 
   SwsContext* scaler = sws_getContext(instance.stream()->codecpar->width,
                                       instance.stream()->codecpar->height,
@@ -625,18 +715,12 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
                                       0);
 
   AVPacket* pkt = av_packet_alloc();
-  AVFrame* frame = av_frame_alloc();
   QVector<int64_t> frame_index;
+  QVector< QFuture<void> > futures;
 
-  QByteArray converted_buffer(PixelFormat::GetBufferSize(native_fmt,
-                                                         divided_width,
-                                                         divided_height),
-                              Qt::Uninitialized);
-
-  uint8_t* converted_data = reinterpret_cast<uint8_t*>(converted_buffer.data());
-  int converted_linesize = PixelFormat::GetBufferSize(native_fmt,
-                                                      divided_width,
-                                                      1);
+  VideoRenderingParams converted_params(divided_width,
+                                        divided_height,
+                                        native_fmt);
 
   bool succeeded = false;
 
@@ -644,6 +728,8 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
     if (cancelled && *cancelled) {
       break;
     }
+
+    AVFrame* frame = av_frame_alloc();
 
     ret = instance.GetFrame(pkt, frame);
 
@@ -657,49 +743,41 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
         qWarning() << "Failed to proxy:" << ret << err_str;
       }
 
+      av_frame_free(&frame);
       break;
-    }
-
-    sws_scale(scaler,
-              frame->data,
-              frame->linesize,
-              0,
-              frame->height,
-              &converted_data,
-              &converted_linesize);
-
-    QString dst_fn = GetIndexFilename()
-        .append(QString::number(frame->pts))
-        .append(QStringLiteral(".tiff"));
-
-    std::string dst_std_fn = dst_fn.toStdString();
-
-    auto out = OIIO::ImageOutput::create(dst_std_fn);
-
-    if (out) {
-
-      out->open(dst_std_fn,
-                OIIO::ImageSpec(divided_width,
-                                divided_height,
-                                PixelFormat::ChannelCount(native_fmt),
-                                PixelFormat::GetOIIOTypeDesc(native_fmt)));
-
-      out->write_image(PixelFormat::GetOIIOTypeDesc(native_fmt), converted_data);
-
-      out->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageOutput::destroy(out);
-#endif
     }
 
     frame_index.append(frame->pts);
     SignalProcessingProgress(frame->pts);
+
+    QFuture<void> future = QtConcurrent::run(SaveCacheFrame,
+                                             scaler,
+                                             frame,
+                                             converted_params,
+                                             GetProxyFrameFilename(frame->pts, divider));
+    futures.append(future);
+  }
+
+  if (succeeded) {
+    QFile index_output(proxy_filename);
+
+    if (index_output.open(QFile::WriteOnly)) {
+      index_output.write(reinterpret_cast<const char*>(frame_index.constData()),
+                         frame_index.size() * sizeof(int64_t));
+
+      index_output.close();
+    }
+
+    video_stream->set_proxy(divider, frame_index);
+  }
+
+  // Wait for all conversions to finish
+  for (int i=0;i<futures.size();i++) {
+    futures[i].waitForFinished();
   }
 
   sws_freeContext(scaler);
 
-  av_frame_free(&frame);
   av_packet_free(&pkt);
 
   return succeeded;
@@ -834,10 +912,15 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderi
   return success;
 }
 
-QString FFmpegDecoder::GetIndexFilename()
+QString FFmpegDecoder::GetIndexFilename() const
 {
   return FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()))
       .append(QString::number(stream()->index()));
+}
+
+QString FFmpegDecoder::GetProxyFilename(int divider) const
+{
+  return GetIndexFilename().append('d').append(QString::number(divider));
 }
 
 int FFmpegDecoder::GetScaledDimension(int dim, int divider)
@@ -1182,6 +1265,14 @@ void FFmpegDecoder::FreeScaler()
 
     scale_divider_ = 0;
   }
+}
+
+QString FFmpegDecoder::GetProxyFrameFilename(const int64_t &timestamp, const int& divider) const
+{
+  QString dst_fn = GetProxyFilename(divider);
+  dst_fn.append(QString::number(timestamp));
+  dst_fn.append(VideoRenderFrameCache::GetFormatExtension(native_pix_fmt_));
+  return dst_fn;
 }
 
 int64_t FFmpegDecoderInstance::RangeStart() const

@@ -263,16 +263,11 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
   return TimeRange(frame_range.in(), frame_range.in());
 }
 
-void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed)
+void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash)
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   SetFrameHash(dep, hash, job_time);
-
-  // Register frame with the disk manager
-  if (texture_existed && operating_mode_ & VideoRenderWorker::kDownloadOnly) {
-    DiskManager::instance()->CreatedFile(frame_cache()->CachePathName(hash, params_.format()), hash);
-  }
 
   QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
 

@@ -45,7 +45,7 @@ Decoder::Decoder(Stream *fs) :
 {
 }
 
-StreamPtr Decoder::stream()
+StreamPtr Decoder::stream() const
 {
   return stream_;
 }
@@ -283,19 +283,6 @@ void Decoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const c
 QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
 {
   QString index_fn = GetIndexFilename();
-  WaveInput input(GetIndexFilename());
-
-  // FIXME: No handling if input failed to open/is corrupt
-  if (input.open()) {
-    // If the parameters are equal, nothing to be done
-    AudioRenderingParams index_params = input.params();
-    input.close();
-
-    if (index_params == params) {
-      // Source file matches perfectly, no conform required
-      return index_fn;
-    }
-  }
 
   index_fn.append('.');
   index_fn.append(QString::number(params.sample_rate()));
