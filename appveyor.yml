@@ -17,6 +17,4 @@ build_script:
 artifacts:
 - path: Olive*.zip
   name: Olive Portable
-- path: Olive*.exe
-  name: Olive Installer
 cache: c:\tools\vcpkg\installed\

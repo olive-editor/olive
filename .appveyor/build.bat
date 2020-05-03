@@ -125,7 +125,7 @@ REM Create installer
 if "%SKIP_INSTALLER%"=="true" goto portable
 copy app\packaging\windows\nsis\* .
 "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
-)
+appveyor PushArtifact -Path "Olive*.exe" -DeploymentName "Olive Installer"
 
 :portable
 REM Create portable
