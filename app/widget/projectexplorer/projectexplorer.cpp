@@ -310,6 +310,14 @@ void ProjectExplorer::ShowContextMenu()
           proxy_menu->addAction(tr("1/4"))->setData(4);
           proxy_menu->addAction(tr("1/8"))->setData(8);
 
+          foreach (QAction* a, proxy_menu->actions()) {
+            a->setCheckable(true);
+
+            if (a->data() == video_stream->using_proxy()) {
+              a->setChecked(true);
+            }
+          }
+
           connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
 
         }
@@ -395,9 +403,21 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
     return;
   }
 
-  if (video_stream->try_start_proxy()) {
-    ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
-    TaskManager::instance()->AddTask(proxy_task);
+  int chosen_proxy_setting = a->data().toInt();
+
+  if (chosen_proxy_setting != video_stream->using_proxy()) {
+    if (!a->data().toInt()) {
+
+      // 0 means disable the proxy
+      video_stream->set_proxy(0, QVector<int64_t>());
+
+    } else if (video_stream->try_start_proxy()) {
+
+      // Start a background task for proxying
+      ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
+      TaskManager::instance()->AddTask(proxy_task);
+
+    }
   }
 }
 

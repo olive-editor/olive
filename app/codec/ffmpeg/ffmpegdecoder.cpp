@@ -760,6 +760,12 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
     futures.append(future);
   }
 
+  // Wait for all conversions to finish
+  for (int i=0;i<futures.size();i++) {
+    futures[i].waitForFinished();
+  }
+
+  // If succeeded, update the video stream's proxy state
   if (succeeded) {
     QFile index_output(proxy_filename);
 
@@ -771,11 +777,6 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
     }
 
     video_stream->set_proxy(divider, frame_index);
-  }
-
-  // Wait for all conversions to finish
-  for (int i=0;i<futures.size();i++) {
-    futures[i].waitForFinished();
   }
 
   sws_freeContext(scaler);

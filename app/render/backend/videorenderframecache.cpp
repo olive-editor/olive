@@ -148,8 +148,14 @@ const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
 QString VideoRenderFrameCache::GetFormatExtension(const PixelFormat::Format &f)
 {
   if (PixelFormat::FormatIsFloat(f)) {
+    // EXR is only fast with float buffers so we only use it for those
     return QStringLiteral(".exr");
   } else {
+    // FIXME: Will probably need different codec here. JPEG is the fastest and smallest by far (much
+    //        more so than TIFF or PNG) and we don't mind lossy for the offline cache, but JPEG
+    //        doesn't support >8-bit or alpha channels. JPEG2000 does, but my OIIO wasn't compiled
+    //        with it and I imagine it's not common in general. Still, this works well for now as a
+    //        prototype.
     return QStringLiteral(".jpg");
   }
 }
