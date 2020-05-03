@@ -152,7 +152,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
   VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
-  if (vs->using_proxy()) {
+  if (use_proxies && vs->using_proxy()) {
     QString proxy_fn = GetProxyFilename(vs->using_proxy());
 
     int64_t index_ts = vs->get_closest_timestamp_in_frame_index(target_ts);
@@ -636,7 +636,8 @@ void FFmpegDecoder::Error(const QString &s)
 }
 
 QMutex scaler_lock;
-void SaveCacheFrame(SwsContext* scaler,
+void SaveCacheFrame(FFmpegDecoder* decoder,
+                    SwsContext* scaler,
                     AVFrame* frame,
                     VideoRenderingParams params,
                     QString dst_fn)
@@ -719,6 +720,7 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
   AVPacket* pkt = av_packet_alloc();
   QVector<int64_t> frame_index;
   QVector< QFuture<void> > futures;
+  int finished_futures = 0;
 
   VideoRenderingParams converted_params(divided_width,
                                         divided_height,
@@ -750,19 +752,29 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
     }
 
     frame_index.append(frame->pts);
-    SignalProcessingProgress(frame->pts);
 
     QFuture<void> future = QtConcurrent::run(SaveCacheFrame,
+                                             this,
                                              scaler,
                                              frame,
                                              converted_params,
                                              GetProxyFrameFilename(frame->pts, divider));
     futures.append(future);
+
+    while (finished_futures < futures.size()) {
+      if (!futures.at(finished_futures).isFinished()) {
+        SignalProcessingProgress(frame_index.at(finished_futures));
+        break;
+      }
+
+      finished_futures++;
+    }
   }
 
   // Wait for all conversions to finish
-  for (int i=0;i<futures.size();i++) {
-    futures[i].waitForFinished();
+  for ( ; finished_futures<futures.size(); finished_futures++) {
+    futures[finished_futures].waitForFinished();
+    SignalProcessingProgress(frame_index.at(finished_futures));
   }
 
   // If succeeded, update the video stream's proxy state
