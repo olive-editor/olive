@@ -1,4 +1,4 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -41,8 +41,8 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
-  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format, const void *data, int linesize);
-  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format);
+  void Create(QOpenGLContext* ctx, const VideoRenderingParams& params, const void *data, int linesize);
+  void Create(QOpenGLContext* ctx, const VideoRenderingParams& params);
   void Create(QOpenGLContext* ctx, FramePtr frame);
   void Create(QOpenGLContext* ctx, Frame* frame);
 
@@ -60,6 +60,8 @@ public:
 
   const GLuint& texture() const;
 
+  const int& divider() const;
+
   void Upload(FramePtr frame);
   void Upload(Frame* frame);
   void Upload(const void *data, int linesize);
@@ -74,11 +76,7 @@ private:
 
   GLuint texture_;
 
-  int width_;
-
-  int height_;
-
-  PixelFormat::Format format_;
+  VideoRenderingParams params_;
 
 };
 

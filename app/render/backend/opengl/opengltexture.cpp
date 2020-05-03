@@ -31,10 +31,7 @@ OLIVE_NAMESPACE_ENTER
 
 OpenGLTexture::OpenGLTexture() :
   created_ctx_(nullptr),
-  texture_(0),
-  width_(0),
-  height_(0),
-  format_(PixelFormat::PIX_FMT_INVALID)
+  texture_(0)
 {
 }
 
@@ -48,7 +45,7 @@ bool OpenGLTexture::IsCreated() const
   return (texture_);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format, const void* data, int linesize)
+void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoRenderingParams &params, const void* data, int linesize)
 {
   if (!ctx) {
     qWarning() << "OpenGLTexture::Create was passed an invalid context";
@@ -58,9 +55,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
   Destroy();
 
   created_ctx_ = ctx;
-  width_ = width;
-  height_ = height;
-  format_ = format;
+  params_ = params;
 
   connect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()), Qt::DirectConnection);
 
@@ -68,9 +63,9 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
   CreateInternal(created_ctx_, &texture_, data, linesize);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format)
+void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoRenderingParams &params)
 {
-  Create(ctx, width, height, format, nullptr, 0);
+  Create(ctx, params, nullptr, 0);
 }
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
@@ -80,7 +75,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, Frame *frame)
 {
-  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data(), frame->linesize_pixels());
+  Create(ctx, frame->video_params(), frame->data(), frame->linesize_pixels());
 }
 
 void OpenGLTexture::Destroy()
@@ -107,22 +102,27 @@ void OpenGLTexture::Release()
 
 const int &OpenGLTexture::width() const
 {
-  return width_;
+  return params_.effective_width();
 }
 
 const int &OpenGLTexture::height() const
 {
-  return height_;
+  return params_.effective_height();
 }
 
 const PixelFormat::Format &OpenGLTexture::format() const
 {
-  return format_;
+  return params_.format();
 }
 
 const GLuint &OpenGLTexture::texture() const
 {
   return texture_;
+}
+
+const int &OpenGLTexture::divider() const
+{
+  return params_.divider();
 }
 
 void OpenGLTexture::Upload(FramePtr frame)
@@ -150,10 +150,10 @@ void OpenGLTexture::Upload(const void *data, int linesize)
                                              0,
                                              0,
                                              0,
-                                             width_,
-                                             height_,
-                                             OpenGLRenderFunctions::GetPixelFormat(format_),
-                                             OpenGLRenderFunctions::GetPixelType(format_),
+                                             width(),
+                                             height(),
+                                             OpenGLRenderFunctions::GetPixelFormat(format()),
+                                             OpenGLRenderFunctions::GetPixelType(format()),
                                              data);
 
   created_ctx_->functions()->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -183,12 +183,12 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   // Allocate storage for texture
   f->glTexImage2D(GL_TEXTURE_2D,
                   0,
-                  OpenGLRenderFunctions::GetInternalFormat(format_),
-                  width_,
-                  height_,
+                  OpenGLRenderFunctions::GetInternalFormat(format()),
+                  width(),
+                  height(),
                   0,
-                  OpenGLRenderFunctions::GetPixelFormat(format_),
-                  OpenGLRenderFunctions::GetPixelType(format_),
+                  OpenGLRenderFunctions::GetPixelFormat(format()),
+                  OpenGLRenderFunctions::GetPixelType(format()),
                   data);
 
   // Return linesize to default

@@ -135,7 +135,7 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider, bool use_proxies)
 {
   QMutexLocker locker(&mutex_);
 
@@ -169,9 +169,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
         if (in) {
           FramePtr copy = Frame::Create();
-          copy->set_video_params(VideoRenderingParams(GetScaledDimension(vs->width(), vs->using_proxy()),
-                                                      GetScaledDimension(vs->height(), vs->using_proxy()),
-                                                      native_pix_fmt_));
+          copy->set_video_params(VideoRenderingParams(vs->width(),
+                                                      vs->height(),
+                                                      native_pix_fmt_,
+                                                      vs->using_proxy()));
           copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
           copy->set_sample_aspect_ratio(aspect_ratio_);
           copy->allocate();
@@ -314,9 +315,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     // Create frame to return
     FramePtr copy = Frame::Create();
-    copy->set_video_params(VideoRenderingParams(GetScaledDimension(vs->width(), divider),
-                                                GetScaledDimension(vs->height(), divider),
-                                                native_pix_fmt_));
+    copy->set_video_params(VideoRenderingParams(vs->width(),
+                                                vs->height(),
+                                                native_pix_fmt_,
+                                                divider));
     copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
     copy->set_sample_aspect_ratio(aspect_ratio_);
     copy->allocate();

@@ -130,19 +130,19 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
       }
     }
 
-    VideoRenderingParams footage_params(frame->width(), frame->height(), frame->format());
-
-    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame);
+    footage_tex_ref = texture_cache_.Get(ctx_, frame);
 
     if (ocio_method == ColorManager::kOCIOFast) {
       if (!color_processor->IsEnabled()) {
         color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
       }
 
+      VideoRenderingParams frame_params = frame->video_params();
+
       // Check frame aspect ratio
       if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
-        int new_width = frame->width();
-        int new_height = frame->height();
+        int new_width = frame_params.width();
+        int new_height = frame_params.height();
 
         // Scale the frame in a way that does not reduce the resolution
         if (frame->sample_aspect_ratio() > 1) {
@@ -153,14 +153,16 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
           new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
         }
 
-        footage_params = VideoRenderingParams(new_width,
-                                              new_height,
-                                              footage_params.format());
+        frame_params = VideoRenderingParams(new_width,
+                                            new_height,
+                                            frame_params.format(),
+                                            frame_params.divider());
       }
 
-      VideoRenderingParams dest_params(footage_params.width(),
-                                       footage_params.height(),
-                                       video_params_.format());
+      VideoRenderingParams dest_params(frame_params.width(),
+                                       frame_params.height(),
+                                       video_params_.format(),
+                                       frame_params.divider());
 
       // Create destination texture
       OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, dest_params);
@@ -329,8 +331,8 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
             int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
             if (res_param_location > -1) {
               shader->setUniformValue(res_param_location,
-                                      static_cast<GLfloat>(texture->texture()->width() * video_params_.divider()),
-                                      static_cast<GLfloat>(texture->texture()->height() * video_params_.divider()));
+                                      static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
+                                      static_cast<GLfloat>(texture->texture()->height() * texture->texture()->divider()));
             }
           }
 

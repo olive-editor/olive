@@ -47,7 +47,7 @@ void Frame::set_video_params(const VideoRenderingParams &params)
   params_ = params;
 
   // Align linesize to 16
-  linesize_ = qCeil(static_cast<double>(params.width()) / 16.0) * 16;
+  linesize_ = qCeil(static_cast<double>(width()) / 16.0) * 16;
 }
 
 int Frame::linesize_pixels() const
@@ -62,12 +62,12 @@ int Frame::linesize_bytes() const
 
 const int &Frame::width() const
 {
-  return params_.width();
+  return params_.effective_width();
 }
 
 const int &Frame::height() const
 {
-  return params_.height();
+  return params_.effective_height();
 }
 
 const PixelFormat::Format &Frame::format() const

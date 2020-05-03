@@ -154,7 +154,7 @@ bool OIIODecoder::Open()
   return true;
 }
 
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider, bool /*use_proxies*/)
 {
   QMutexLocker locker(&mutex_);
 
