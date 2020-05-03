@@ -110,9 +110,7 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
 
 void Menu::Init()
 {
-#ifdef Q_OS_WINDOWS
-  StyleManager::UseNativeWindowsStyling(this);
-#endif
+  StyleManager::UseOSNativeStyling(this);
 }
 
 OLIVE_NAMESPACE_EXIT
