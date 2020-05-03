@@ -245,7 +245,7 @@ signals:
   void IndexProgress(int);
 
 protected:
-  void SignalIndexProgress(const int64_t& ts);
+  void SignalProcessingProgress(const int64_t& ts);
 
   /**
    * @brief Returns the filename for the index

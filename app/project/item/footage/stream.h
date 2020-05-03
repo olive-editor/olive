@@ -102,8 +102,6 @@ protected:
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
 
 signals:
-  void IndexChanged();
-
   void ParametersChanged();
 
 private:

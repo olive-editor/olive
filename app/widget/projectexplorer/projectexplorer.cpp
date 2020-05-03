@@ -31,6 +31,8 @@
 #include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
+#include "task/proxy/proxy.h"
+#include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
@@ -284,6 +286,36 @@ void ProjectExplorer::ShowContextMenu()
       connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
 
       menu.addSeparator();
+
+      Footage* f = static_cast<Footage*>(context_menu_item_);
+
+      if (f->HasStreamsOfType(Stream::kVideo)) {
+        Menu* proxy_menu = new Menu(tr("Proxy"), &menu);
+        menu.addMenu(proxy_menu);
+
+        VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(f->get_first_stream_of_type(Stream::kVideo));
+
+        if (video_stream->is_generating_proxy()) {
+
+          // Prevent multiple proxy actions from occurring at once
+          QAction* cant_proxy_action = proxy_menu->addAction(tr("Proxy being generated..."));
+          cant_proxy_action->setEnabled(false);
+
+        } else {
+
+          proxy_menu->addAction(tr("(None)"))->setData(0);
+          proxy_menu->addSeparator();
+          proxy_menu->addAction(tr("Full"))->setData(1);
+          proxy_menu->addAction(tr("1/2"))->setData(2);
+          proxy_menu->addAction(tr("1/4"))->setData(4);
+          proxy_menu->addAction(tr("1/8"))->setData(8);
+
+          connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
+
+        }
+
+        menu.addSeparator();
+      }
     }
 
     QAction* properties_action = menu.addAction(tr("P&roperties"));
@@ -345,6 +377,28 @@ void ProjectExplorer::OpenContextMenuItemInNewTab()
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
   Core::instance()->main_window()->FolderOpen(project(), context_menu_item_, true);
+}
+
+void ProjectExplorer::ContextMenuStartProxy(QAction *a)
+{
+  // Find video stream
+  VideoStreamPtr video_stream = nullptr;
+
+  foreach (StreamPtr s, static_cast<Footage*>(context_menu_item_)->streams()) {
+    if (s->type() == Stream::kVideo) {
+      video_stream = std::static_pointer_cast<VideoStream>(s);
+      break;
+    }
+  }
+
+  if (!video_stream) {
+    return;
+  }
+
+  if (video_stream->try_start_proxy()) {
+    ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
+    TaskManager::instance()->AddTask(proxy_task);
+  }
 }
 
 Project *ProjectExplorer::project() const

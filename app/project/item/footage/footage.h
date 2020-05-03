@@ -206,12 +206,6 @@ public:
 
   quint64 get_enabled_stream_flags() const;
 
-private:
-  /**
-   * @brief Internal function to delete all Stream children and empty the array
-   */
-  void ClearStreams();
-
   /**
    * @brief Check if this footage has streams of a certain type
    *
@@ -219,7 +213,15 @@ private:
    *
    * The stream type to check for
    */
-  bool HasStreamsOfType(const Stream::Type type);
+  bool HasStreamsOfType(const Stream::Type& type) const;
+
+  StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
+
+private:
+  /**
+   * @brief Internal function to delete all Stream children and empty the array
+   */
+  void ClearStreams();
 
   /**
    * @brief Update the icon based on the Footage status

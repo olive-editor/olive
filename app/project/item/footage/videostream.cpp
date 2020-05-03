@@ -30,7 +30,9 @@ const int64_t VideoStream::kEndTimestamp = AV_NOPTS_VALUE;
 
 VideoStream::VideoStream() :
   start_time_(0),
-  is_image_sequence_(false)
+  is_image_sequence_(false),
+  is_generating_proxy_(false),
+  using_proxy_(0)
 {
   set_type(kVideo);
 }
@@ -73,18 +75,39 @@ void VideoStream::set_image_sequence(bool e)
   is_image_sequence_ = e;
 }
 
-bool VideoStream::has_proxy(const int &divider)
+bool VideoStream::is_generating_proxy()
 {
   QMutexLocker locker(proxy_access_lock());
 
-  return proxies_.contains(divider);
+  return is_generating_proxy_;
 }
 
-void VideoStream::append_proxy(const int &divider)
+bool VideoStream::try_start_proxy()
 {
   QMutexLocker locker(proxy_access_lock());
 
-  proxies_.append(divider);
+  if (is_generating_proxy_) {
+    return false;
+  }
+
+  is_generating_proxy_ = true;
+
+  return true;
+}
+
+int VideoStream::using_proxy()
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  return using_proxy_;
+}
+
+void VideoStream::set_proxy(const int &divider)
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  using_proxy_ = divider;
+  is_generating_proxy_ = false;
 }
 
 /*

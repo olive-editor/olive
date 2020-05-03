@@ -27,6 +27,7 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 }
 
+#include <OpenImageIO/imagebuf.h>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
@@ -588,8 +589,6 @@ void FFmpegDecoder::Error(const QString &s)
 
 bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
 {
-  return false;
-
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
   QString frame_index_file = GetIndexFilename().append('d').append(QString::number(divider));
@@ -597,32 +596,113 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
   if (QFileInfo::exists(frame_index_file)) {
 
     // A proxy of this type already exists so we can do nothing
-    video_stream->append_proxy(divider);
-
-  } else {
-
-    // Iterate each frame and transcode it to EXR
-    FFmpegDecoderInstance instance(stream()->footage()->filename().toUtf8(), stream()->index());
-
-    int ret;
-
-    AVPacket* pkt = av_packet_alloc();
-    AVFrame* frame = av_frame_alloc();
-
-    while (true) {
-      ret = instance.GetFrame(pkt, frame);
-
-      if (ret < 0) {
-        if (ret == AVERROR_EOF) {
-
-        }
-      }
-    }
-
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
+    video_stream->set_proxy(divider);
+    return true;
 
   }
+
+  // Iterate each frame and transcode it to EXR
+  FFmpegDecoderInstance instance(stream()->footage()->filename().toUtf8(), stream()->index());
+
+  int ret;
+
+  AVPixelFormat src_fmt = static_cast<AVPixelFormat>(instance.stream()->codecpar->format);
+  AVPixelFormat ideal_fmt = FFmpegCommon::GetCompatiblePixelFormat(src_fmt);
+  PixelFormat::Format native_fmt = GetNativePixelFormat(ideal_fmt);
+
+  int divided_width = instance.stream()->codecpar->width;
+  int divided_height = instance.stream()->codecpar->height;
+
+  SwsContext* scaler = sws_getContext(instance.stream()->codecpar->width,
+                                      instance.stream()->codecpar->height,
+                                      src_fmt,
+                                      divided_width,
+                                      divided_height,
+                                      ideal_fmt,
+                                      SWS_FAST_BILINEAR,
+                                      nullptr,
+                                      nullptr,
+                                      0);
+
+  AVPacket* pkt = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
+  QVector<int64_t> frame_index;
+
+  QByteArray converted_buffer(PixelFormat::GetBufferSize(native_fmt,
+                                                         divided_width,
+                                                         divided_height),
+                              Qt::Uninitialized);
+
+  uint8_t* converted_data = reinterpret_cast<uint8_t*>(converted_buffer.data());
+  int converted_linesize = PixelFormat::GetBufferSize(native_fmt,
+                                                      divided_width,
+                                                      1);
+
+  bool succeeded = false;
+
+  while (true) {
+    if (cancelled && *cancelled) {
+      break;
+    }
+
+    ret = instance.GetFrame(pkt, frame);
+
+    // Handle errors
+    if (ret < 0) {
+      if (ret == AVERROR_EOF) {
+        succeeded = true;
+      } else {
+        char err_str[50];
+        av_strerror(ret, err_str, 50);
+        qWarning() << "Failed to proxy:" << ret << err_str;
+      }
+
+      break;
+    }
+
+    sws_scale(scaler,
+              frame->data,
+              frame->linesize,
+              0,
+              frame->height,
+              &converted_data,
+              &converted_linesize);
+
+    QString dst_fn = GetIndexFilename()
+        .append(QString::number(frame->pts))
+        .append(QStringLiteral(".tiff"));
+
+    std::string dst_std_fn = dst_fn.toStdString();
+
+    auto out = OIIO::ImageOutput::create(dst_std_fn);
+
+    if (out) {
+
+      out->open(dst_std_fn,
+                OIIO::ImageSpec(divided_width,
+                                divided_height,
+                                PixelFormat::ChannelCount(native_fmt),
+                                PixelFormat::GetOIIOTypeDesc(native_fmt)));
+
+      out->write_image(PixelFormat::GetOIIOTypeDesc(native_fmt), converted_data);
+
+      out->close();
+
+#if OIIO_VERSION < 10903
+      OIIO::ImageOutput::destroy(out);
+#endif
+    }
+
+    frame_index.append(frame->pts);
+    SignalProcessingProgress(frame->pts);
+  }
+
+  sws_freeContext(scaler);
+
+  av_frame_free(&frame);
+  av_packet_free(&pkt);
+
+  return succeeded;
 }
 
 bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderingParams &p)
@@ -694,39 +774,39 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderi
         } else {
           char err_str[50];
           av_strerror(ret, err_str, 50);
-          qWarning() << "Failed to index:" << ret << err_str;
+          qWarning() << "Failed to conform:" << ret << err_str;
         }
         break;
 
-      } else {
-        // Allocate buffers
-        int nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
-        char* data = new char[p.samples_to_bytes(nb_samples)];
-
-        // Resample audio to our destination parameters
-        nb_samples = swr_convert(resampler,
-                                 reinterpret_cast<uint8_t**>(&data),
-                                 nb_samples,
-                                 const_cast<const uint8_t**>(frame->data),
-                                 frame->nb_samples);
-
-        if (nb_samples < 0) {
-          char err_str[50];
-          av_strerror(nb_samples, err_str, 50);
-          qWarning() << "libswresample failed with error:" << nb_samples << err_str;
-          break;
-        }
-
-        // Write packed WAV data to the disk cache
-        wave_out.write(data, p.samples_to_bytes(nb_samples));
-
-        // If we allocated an output for the resampler, delete it here
-        if (data != reinterpret_cast<char*>(frame->data[0])) {
-          delete [] data;
-        }
-
-        SignalIndexProgress(frame->pts);
       }
+
+      // Allocate buffers
+      int nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
+      char* data = new char[p.samples_to_bytes(nb_samples)];
+
+      // Resample audio to our destination parameters
+      nb_samples = swr_convert(resampler,
+                               reinterpret_cast<uint8_t**>(&data),
+                               nb_samples,
+                               const_cast<const uint8_t**>(frame->data),
+                               frame->nb_samples);
+
+      if (nb_samples < 0) {
+        char err_str[50];
+        av_strerror(nb_samples, err_str, 50);
+        qWarning() << "libswresample failed with error:" << nb_samples << err_str;
+        break;
+      }
+
+      // Write packed WAV data to the disk cache
+      wave_out.write(data, p.samples_to_bytes(nb_samples));
+
+      // If we allocated an output for the resampler, delete it here
+      if (data != reinterpret_cast<char*>(frame->data[0])) {
+        delete [] data;
+      }
+
+      SignalProcessingProgress(frame->pts);
     }
 
     wave_out.close();

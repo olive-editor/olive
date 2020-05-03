@@ -61,8 +61,10 @@ public:
   bool save_frame_index(const QString& s);
   */
 
-  bool has_proxy(const int& divider);
-  void append_proxy(const int& divider);
+  bool is_generating_proxy();
+  bool try_start_proxy();
+  int using_proxy();
+  void set_proxy(const int& divider);
 
 private:
   rational frame_rate_;
@@ -73,7 +75,9 @@ private:
 
   bool is_image_sequence_;
 
-  QVector<int> proxies_;
+  bool is_generating_proxy_;
+
+  int using_proxy_;
 
 };
 

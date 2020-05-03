@@ -65,6 +65,8 @@ void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
   disconnect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
+
+  conform_wait_info_.clear();
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)

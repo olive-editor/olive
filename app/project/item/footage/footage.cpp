@@ -304,16 +304,27 @@ void Footage::ClearStreams()
   streams_.clear();
 }
 
-bool Footage::HasStreamsOfType(const Stream::Type type)
+bool Footage::HasStreamsOfType(const Stream::Type &type) const
 {
   // Return true if any streams are video streams
-  for (int i=0;i<streams_.size();i++) {
-    if (streams_.at(i)->type() == type) {
+  foreach (StreamPtr stream, streams_) {
+    if (stream->type() == type) {
       return true;
     }
   }
 
   return false;
+}
+
+StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
+{
+  foreach (StreamPtr stream, streams_) {
+    if (stream->type() == type) {
+      return stream;
+    }
+  }
+
+  return nullptr;
 }
 
 void Footage::UpdateTooltip()
