@@ -39,6 +39,12 @@ echo APPVEYOR_RE_RUN_INCOMPLETE (True or undefined) = "%APPVEYOR_RE_RUN_INCOMPLE
 echo PLATFORM = "%PLATFORM%" & REM platform name set on Build tab of project settings (or through platform parameter in appveyor.yml)
 echo CONFIGURATION = "%CONFIGURATION%" & REM configuration name set on Build tab of project settings (or through configuration parameter in appveyor.yml)
 
+REM Don't do a full deployment if this is a pull request
+if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" (
+    set SKIP_INSTALLER=true
+    set SKIP_UPLOAD=true
+)
+
 REM Get git hash in variable [this seems to be the most efficient way]
 git rev-parse --short=8 HEAD > hash.txt
 git rev-parse HEAD > longhash.txt
@@ -80,9 +86,6 @@ cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vc
 REM Build with Ninja
 ninja.exe || exit /B 1
 
-REM If this is a pull request, no further packaging/deploying needs to be done
-if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
-
 REM Start building package
 mkdir olive-editor
 cd olive-editor
@@ -119,14 +122,19 @@ cd ..
 set PKGNAME=Olive-%GITHASH%-Windows-x86_64
 
 REM Create installer
+if "%SKIP_INSTALLER%"=="true" goto portable
 copy app\packaging\windows\nsis\* .
 "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
+)
 
+:portable
 REM Create portable
 copy nul olive-editor\portable
 7z a %PKGNAME%.zip olive-editor
 
 REM We're ready to upload, but we only upload *sometimes*
+if "%SKIP_UPLOAD%"=="true" goto end
+
 REM set PATH=%PATH%;C:\msys64\usr\bin
 
 REM If this was a tagged build, upload
