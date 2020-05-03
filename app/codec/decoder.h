@@ -118,11 +118,6 @@ public:
   virtual bool Open() = 0;
 
   /**
-   * @brief Determine whether the Decoder is able to retrieve data
-   */
-  virtual RetrieveState GetRetrieveState(const rational& time) = 0;
-
-  /**
    * @brief Retrieve video frame
    *
    * The main function for retrieving video data from the Decoder. This function should always provide complete frame
@@ -216,7 +211,15 @@ public:
   static DecoderPtr CreateFromID(const QString& id);
 
   /**
-   * @brief AUDIO ONLY: Conform an audio stream to match certain parameters
+   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
+   */
+  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider);
+
+  /**
+   * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
+   *
+   * Internally, our render engine only deals with PCM since it provides the least headaches and
+   * modern computers have the processing power to do it.
    *
    * Resamples and converts the currently open audio to match the params. If the audio doesn't need
    * conforming (e.g. audio params already match or a conformed match already exists), this function
@@ -226,20 +229,7 @@ public:
    * All audio decoders must override this. It's not pure since video decoders don't need to use
    * this, but default behavior will abort since it should never be called.
    */
-  void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
-
-  /**
-   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
-   */
-  virtual void ProxyVideo(const QAtomicInt* cancelled, int divider);
-
-  /**
-   * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
-   *
-   * Internally, our render engine only deals with PCM since it provides the least headaches and
-   * modern computers have the processing power to do it.
-   */
-  virtual void ProxyAudio(const QAtomicInt* cancelled);
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams &params);
 
   /**
    * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params

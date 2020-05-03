@@ -92,8 +92,7 @@ public:
 
   static QIcon IconFromType(const Type& type);
 
-  QMutex* index_process_lock();
-  QMutex* index_access_lock();
+  QMutex* proxy_access_lock();
 
 protected:
   virtual void FootageSetEvent(Footage*);
@@ -120,9 +119,7 @@ private:
 
   bool enabled_;
 
-  QMutex index_process_lock_;
-
-  QMutex index_access_lock_;
+  QMutex proxy_access_lock_;
 
 };
 

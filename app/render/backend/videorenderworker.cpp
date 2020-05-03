@@ -295,14 +295,6 @@ NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const Ti
   return table;
 }
 
-void VideoRenderWorker::ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational &stream_time)
-{
-  emit FootageUnavailable(stream,
-                          state,
-                          TimeRange(CurrentPath().in(), CurrentPath().in() + video_params().time_base()),
-                          stream_time);
-}
-
 ColorProcessorCache *VideoRenderWorker::color_cache()
 {
   return &color_cache_;

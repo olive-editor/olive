@@ -24,7 +24,6 @@
 #include <QThread>
 
 #include "core.h"
-#include "render/backend/indexmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -37,8 +36,6 @@ RenderBackend::RenderBackend(QObject *parent) :
 {
   // FIXME: Don't create in CLI mode
   cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
-
-  connect(IndexManager::instance(), &IndexManager::StreamIndexUpdated, this, &RenderBackend::IndexUpdated);
 }
 
 bool RenderBackend::Init()
@@ -473,7 +470,6 @@ void RenderBackend::InitWorkers()
 
     // Connect cancel dialog to it
     connect(processor, &RenderWorker::CompletedCache, cancel_dialog_, &RenderCancelDialog::WorkerDone, Qt::QueuedConnection);
-    connect(processor, &RenderWorker::FootageUnavailable, this, &RenderBackend::FootageUnavailable, Qt::QueuedConnection);
 
     // Finally, we can move it to its own thread
     processor->moveToThread(thread);
@@ -484,83 +480,6 @@ void RenderBackend::InitWorkers()
 
   processor_busy_state_.resize(processors_.size());
   processor_busy_state_.fill(false);
-}
-
-void RenderBackend::FootageUnavailable(StreamPtr stream, Decoder::RetrieveState state, const TimeRange &range, const rational &stream_time)
-{
-  if (state == Decoder::kFailedToOpen){
-
-    qWarning() << "For range" << range.in() << "-" << range.out() << stream->footage()->filename() << "stream" << stream->index() << "failed to open";
-
-  } else if (state == Decoder::kIndexUnavailable) {
-
-    FootageWaitInfo info = {stream, range, stream_time};
-
-    if (footage_wait_info_.contains(info)) {
-      return;
-    }
-
-    qDebug() << "Waiting for" << stream.get() << "time" << stream_time.toDouble() << "for frame" << range.in();
-
-    if (IndexManager::instance()->IsIndexing(stream)) {
-
-      footage_wait_info_.append(info);
-
-    } else if ((stream->type() == Stream::kVideo && std::static_pointer_cast<VideoStream>(stream)->is_frame_index_ready())
-               || (stream->type() == Stream::kAudio && std::static_pointer_cast<AudioStream>(stream)->index_done())) {
-
-      // Index JUST finished, requeue this time
-      InvalidateCache(range, nullptr);
-
-    } else {
-
-      // Start indexing process
-      footage_wait_info_.append(info);
-      IndexManager::instance()->StartIndexingStream(stream);
-
-    }
-
-  }
-}
-
-void RenderBackend::IndexUpdated(Stream* stream)
-{
-  for (int i=0;i<footage_wait_info_.size();i++) {
-    const FootageWaitInfo& info = footage_wait_info_.at(i);
-
-    if (info.stream.get() == stream) {
-      bool footage_ready = false;
-
-      // See if this stream now has an index for the requested time
-      if (stream->type() == Stream::kVideo) {
-
-        VideoStream* video_stream = static_cast<VideoStream*>(stream);
-
-        if (video_stream->get_closest_timestamp_in_frame_index(info.stream_time) >= 0) {
-          // This index now has this frame, we can re-render it
-          qDebug() << "Re-ICing video" << info.affected_range.in().toDouble() << "to" << info.affected_range.out().toDouble();
-          footage_ready = true;
-        }
-
-      } else if (stream->type() == Stream::kAudio) {
-
-        AudioStream* audio_stream = static_cast<AudioStream*>(stream);
-
-        if (audio_stream->index_length() >= info.stream_time) {
-          // The index now has this audio, we can re-render it
-          qDebug() << "Re-ICing audio" << info.affected_range.in().toDouble() << "to" << info.affected_range.out().toDouble();
-          footage_ready = true;
-        }
-
-      }
-
-      if (footage_ready) {
-        InvalidateCache(info.affected_range, nullptr);
-        footage_wait_info_.removeAt(i);
-        i--;
-      }
-    }
-  }
 }
 
 bool RenderBackend::FootageWaitInfo::operator==(const RenderBackend::FootageWaitInfo &rhs) const

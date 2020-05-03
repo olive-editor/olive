@@ -108,23 +108,9 @@ bool FFmpegDecoder::Open()
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
-    switch (ideal_pix_fmt_) {
-    case AV_PIX_FMT_RGB24:
-      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB8;
-      break;
-    case AV_PIX_FMT_RGBA:
-      native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
-      break;
-    case AV_PIX_FMT_RGB48:
-      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB16U;
-      break;
-    case AV_PIX_FMT_RGBA64:
-      native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
-      break;
-    default:
-      // We should never get here, but just in case...
-      qFatal("Invalid output format");
-    }
+    native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
+
+    Q_ASSERT(native_pix_fmt_ != PixelFormat::PIX_FMT_INVALID);
 
     aspect_ratio_ = our_instance->sample_aspect_ratio();
   }
@@ -144,29 +130,6 @@ bool FFmpegDecoder::Open()
   }
 
   return true;
-}
-
-Decoder::RetrieveState FFmpegDecoder::GetRetrieveState(const rational& time)
-{
-  QMutexLocker locker(&mutex_);
-
-  if (!open_) {
-    return kFailedToOpen;
-  }
-
-  if (stream()->type() == Stream::kVideo) {
-
-    // Do nothing
-
-  } else if (stream()->type() == Stream::kAudio) {
-    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
-
-    if (time > audio_stream->index_length() && !audio_stream->index_done()) {
-      return kIndexUnavailable;
-    }
-  }
-
-  return kReady;
 }
 
 FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
@@ -623,171 +586,172 @@ void FFmpegDecoder::Error(const QString &s)
   ClearResources();
 }
 
-void FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
+bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
 {
-  // Iterate through each video frame transcode each frame to compressed EXR
-  QMutexLocker locker(stream()->index_process_lock());
+  return false;
 
-  QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  FFmpegDecoderInstance index_instance(fn_bytes.constData(), stream()->index());
+  QString frame_index_file = GetIndexFilename().append('d').append(QString::number(divider));
 
+  if (QFileInfo::exists(frame_index_file)) {
 
-}
+    // A proxy of this type already exists so we can do nothing
+    video_stream->append_proxy(divider);
 
-void FFmpegDecoder::ProxyAudio(const QAtomicInt *cancelled)
-{
-  // Iterate through each audio frame and extract the PCM data
-  QMutexLocker locker(stream()->index_process_lock());
-
-  if (QFileInfo::exists(GetIndexFilename())) {
-    WaveInput input(GetIndexFilename());
-    if (input.open()) {
-      std::static_pointer_cast<AudioStream>(stream())->set_index_done(true);
-      std::static_pointer_cast<AudioStream>(stream())->set_index_length(input.params().bytes_to_time(input.data_length()));
-
-      input.close();
-    }
   } else {
-    QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
 
-    FFmpegDecoderInstance index_instance(fn_bytes.constData(), stream()->index());
+    // Iterate each frame and transcode it to EXR
+    FFmpegDecoderInstance instance(stream()->footage()->filename().toUtf8(), stream()->index());
 
-    uint64_t channel_layout = index_instance.stream()->codecpar->channel_layout;
-    if (!channel_layout) {
-      if (!index_instance.stream()->codecpar->channels) {
-        // No channel data - we can't do anything with this
-        return;
-      }
-
-      channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(index_instance.stream()->codecpar->channels));
-    }
-
-    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
-
-    // This should be unnecessary, but just in case...
-    audio_stream->clear_index();
-
-    SwrContext* resampler = nullptr;
-    AVSampleFormat src_sample_fmt = static_cast<AVSampleFormat>(index_instance.stream()->codecpar->format);
-    AVSampleFormat dst_sample_fmt;
-
-    // We don't use planar types internally, so if this is a planar format convert it now
-    if (av_sample_fmt_is_planar(src_sample_fmt)) {
-      dst_sample_fmt = av_get_packed_sample_fmt(src_sample_fmt);
-
-      resampler = swr_alloc_set_opts(nullptr,
-                                     static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
-                                     dst_sample_fmt,
-                                     index_instance.stream()->codecpar->sample_rate,
-                                     static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
-                                     src_sample_fmt,
-                                     index_instance.stream()->codecpar->sample_rate,
-                                     0,
-                                     nullptr);
-
-      swr_init(resampler);
-    } else {
-      dst_sample_fmt = src_sample_fmt;
-    }
-
-    AudioRenderingParams wave_params(index_instance.stream()->codecpar->sample_rate,
-                                     channel_layout,
-                                     FFmpegCommon::GetNativeSampleFormat(dst_sample_fmt));
-    WaveOutput wave_out(GetIndexFilename(), wave_params);
+    int ret;
 
     AVPacket* pkt = av_packet_alloc();
     AVFrame* frame = av_frame_alloc();
-    int ret;
 
-    if (wave_out.open()) {
-      bool success = false;
+    while (true) {
+      ret = instance.GetFrame(pkt, frame);
 
-      while (true) {
-        // Check if we have a `cancelled` ptr and its value
-        if (cancelled && *cancelled) {
-          break;
-        }
+      if (ret < 0) {
+        if (ret == AVERROR_EOF) {
 
-        ret = index_instance.GetFrame(pkt, frame);
-
-        if (ret < 0) {
-
-          if (ret == AVERROR_EOF) {
-            success = true;
-          } else {
-            char err_str[50];
-            av_strerror(ret, err_str, 50);
-            qWarning() << "Failed to index:" << ret << err_str;
-          }
-          break;
-
-        } else {
-          char* data;
-          int nb_samples;
-
-          if (resampler) {
-
-            nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
-
-            data = new char[wave_params.samples_to_bytes(nb_samples)];
-
-            // We must need to resample this (mainly just convert from planar to packed if necessary)
-            nb_samples = swr_convert(resampler,
-                                     reinterpret_cast<uint8_t**>(&data),
-                                     nb_samples,
-                                     const_cast<const uint8_t**>(frame->data),
-                                     frame->nb_samples);
-
-            if (nb_samples < 0) {
-              char err_str[50];
-              av_strerror(nb_samples, err_str, 50);
-              qWarning() << "libswresample failed with error:" << nb_samples << err_str;
-              break;
-            }
-
-          } else {
-
-            // No resampling required, we can write directly from the frame buffer
-            data = reinterpret_cast<char*>(frame->data[0]);
-            nb_samples = frame->nb_samples;
-
-          }
-
-          // Write packed WAV data to the disk cache
-          wave_out.write(data, wave_params.samples_to_bytes(nb_samples));
-
-          audio_stream->set_index_length(wave_params.bytes_to_time(wave_out.data_length()));
-
-          // If we allocated an output for the resampler, delete it here
-          if (data != reinterpret_cast<char*>(frame->data[0])) {
-            delete [] data;
-          }
-
-          SignalIndexProgress(frame->pts);
         }
       }
-
-      wave_out.close();
-
-      if (success) {
-        audio_stream->set_index_done(true);
-      } else {
-        // Audio index didn't complete, delete it
-        QFile(GetIndexFilename()).remove();
-        audio_stream->clear_index();
-      }
-    } else {
-      qWarning() << "Failed to open WAVE output for indexing";
-    }
-
-    if (resampler != nullptr) {
-      swr_free(&resampler);
     }
 
     av_frame_free(&frame);
     av_packet_free(&pkt);
+
   }
+}
+
+bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderingParams &p)
+{
+  // Iterate through each audio frame and extract the PCM data
+  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
+
+  // Check if we already have a conform of this type
+  QString conformed_fn = GetConformedFilename(p);
+
+  if (QFileInfo::exists(conformed_fn)) {
+
+    // If we have one, and we can open it correctly, we can use it as-is
+    WaveInput input(conformed_fn);
+    if (input.open()) {
+      audio_stream->append_conformed_version(p);
+
+      input.close();
+
+      return true;
+    }
+  }
+
+  // Conform doesn't exist, we'll have to produce one
+  FFmpegDecoderInstance index_instance(stream()->footage()->filename().toUtf8(),
+                                       stream()->index());
+
+  // Handle NULL channel layout
+  uint64_t channel_layout = ValidateChannelLayout(index_instance.stream());
+  if (!channel_layout) {
+    qCritical() << "Failed to determine channel layout of audio file, could not conform";
+    return false;
+  }
+
+  // Create resampling context
+  SwrContext* resampler = swr_alloc_set_opts(nullptr,
+                                             p.channel_layout(),
+                                             FFmpegCommon::GetFFmpegSampleFormat(p.format()),
+                                             p.sample_rate(),
+                                             static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
+                                             static_cast<AVSampleFormat>(index_instance.stream()->codecpar->format),
+                                             index_instance.stream()->codecpar->sample_rate,
+                                             0,
+                                             nullptr);
+
+  swr_init(resampler);
+
+  WaveOutput wave_out(conformed_fn, p);
+
+  AVPacket* pkt = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
+  int ret;
+
+  bool success = false;
+
+  if (wave_out.open()) {
+    while (true) {
+      // Check if we have a `cancelled` ptr and its value
+      if (cancelled && *cancelled) {
+        break;
+      }
+
+      ret = index_instance.GetFrame(pkt, frame);
+
+      if (ret < 0) {
+
+        if (ret == AVERROR_EOF) {
+          success = true;
+        } else {
+          char err_str[50];
+          av_strerror(ret, err_str, 50);
+          qWarning() << "Failed to index:" << ret << err_str;
+        }
+        break;
+
+      } else {
+        // Allocate buffers
+        int nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
+        char* data = new char[p.samples_to_bytes(nb_samples)];
+
+        // Resample audio to our destination parameters
+        nb_samples = swr_convert(resampler,
+                                 reinterpret_cast<uint8_t**>(&data),
+                                 nb_samples,
+                                 const_cast<const uint8_t**>(frame->data),
+                                 frame->nb_samples);
+
+        if (nb_samples < 0) {
+          char err_str[50];
+          av_strerror(nb_samples, err_str, 50);
+          qWarning() << "libswresample failed with error:" << nb_samples << err_str;
+          break;
+        }
+
+        // Write packed WAV data to the disk cache
+        wave_out.write(data, p.samples_to_bytes(nb_samples));
+
+        // If we allocated an output for the resampler, delete it here
+        if (data != reinterpret_cast<char*>(frame->data[0])) {
+          delete [] data;
+        }
+
+        SignalIndexProgress(frame->pts);
+      }
+    }
+
+    wave_out.close();
+
+    if (success) {
+
+      // If our conform succeeded, add it
+      audio_stream->append_conformed_version(p);
+
+    } else {
+
+      // Audio index didn't complete, delete it
+      QFile(conformed_fn).remove();
+
+    }
+  } else {
+    qWarning() << "Failed to open WAVE output for indexing";
+  }
+
+  swr_free(&resampler);
+
+  av_frame_free(&frame);
+  av_packet_free(&pkt);
+
+  return success;
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -799,6 +763,31 @@ QString FFmpegDecoder::GetIndexFilename()
 int FFmpegDecoder::GetScaledDimension(int dim, int divider)
 {
   return dim / divider;
+}
+
+PixelFormat::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
+{
+  switch (pix_fmt) {
+  case AV_PIX_FMT_RGB24:
+    return PixelFormat::PIX_FMT_RGB8;
+  case AV_PIX_FMT_RGBA:
+    return PixelFormat::PIX_FMT_RGBA8;
+  case AV_PIX_FMT_RGB48:
+    return PixelFormat::PIX_FMT_RGB16U;
+  case AV_PIX_FMT_RGBA64:
+    return PixelFormat::PIX_FMT_RGBA16U;
+  default:
+    return PixelFormat::PIX_FMT_INVALID;
+  }
+}
+
+uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
+{
+  if (stream->codecpar->channel_layout) {
+    return stream->codecpar->channel_layout;
+  }
+
+  return av_get_default_channel_layout(stream->codecpar->channels);
 }
 
 int FFmpegDecoderInstance::GetFrame(AVPacket *pkt, AVFrame *frame)

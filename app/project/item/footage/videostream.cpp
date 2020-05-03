@@ -75,14 +75,14 @@ void VideoStream::set_image_sequence(bool e)
 
 bool VideoStream::has_proxy(const int &divider)
 {
-  QMutexLocker locker(index_access_lock());
+  QMutexLocker locker(proxy_access_lock());
 
   return proxies_.contains(divider);
 }
 
 void VideoStream::append_proxy(const int &divider)
 {
-  QMutexLocker locker(index_access_lock());
+  QMutexLocker locker(proxy_access_lock());
 
   proxies_.append(divider);
 }

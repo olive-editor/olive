@@ -48,7 +48,6 @@
 #include "project/projectimportmanager.h"
 #include "project/projectloadmanager.h"
 #include "project/projectsavemanager.h"
-#include "render/backend/indexmanager.h"
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
@@ -119,14 +118,8 @@ bool Core::Start()
   // Set up node factory/library
   NodeFactory::Initialize();
 
-  // Set up the index manager for renderers
-  IndexManager::CreateInstance();
-
   // Set up color manager's default config
   ColorManager::SetUpDefaultConfig();
-
-  // Initialize disk service
-  DiskManager::CreateInstance();
 
   // Initialize task manager
   TaskManager::CreateInstance();
@@ -225,8 +218,6 @@ void Core::Stop()
   PixelFormat::DestroyInstance();
 
   NodeFactory::Destroy();
-
-  IndexManager::DestroyInstance();
 
   delete main_window_;
 }
@@ -564,6 +555,9 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize audio service
   AudioManager::CreateInstance();
+
+  // Initialize disk service
+  DiskManager::CreateInstance();
 
   // Initialize pixel service
   PixelFormat::CreateInstance();

@@ -48,8 +48,6 @@ public slots:
 signals:
   void CompletedCache(OLIVE_NAMESPACE::NodeDependency dep, OLIVE_NAMESPACE::NodeValueTable data, qint64 job_time);
 
-  void FootageUnavailable(OLIVE_NAMESPACE::StreamPtr stream, OLIVE_NAMESPACE::Decoder::RetrieveState state, const OLIVE_NAMESPACE::TimeRange& range, const OLIVE_NAMESPACE::rational& stream_time);
-
 protected:
   virtual bool InitInternal() = 0;
 
@@ -60,8 +58,6 @@ protected:
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase &input_params, NodeValueTable &output_params);
 
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
-
-  virtual void ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time);
 
   virtual void InputProcessingEvent(NodeInput *input, const TimeRange &input_time, NodeValueTable* table) override;
 

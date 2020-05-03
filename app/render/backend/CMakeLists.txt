@@ -34,8 +34,6 @@ set(OLIVE_SOURCES
   render/backend/audiorenderbackend.cpp
   render/backend/audiorenderworker.h
   render/backend/audiorenderworker.cpp
-  render/backend/indexmanager.h
-  render/backend/indexmanager.cpp
   
   render/backend/videorenderbackend.h
   render/backend/videorenderbackend.cpp

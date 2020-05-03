@@ -154,17 +154,6 @@ bool OIIODecoder::Open()
   return true;
 }
 
-Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
-{
-  QMutexLocker locker(&mutex_);
-
-  if (!open_) {
-    return kFailedToOpen;
-  }
-
-  return kReady;
-}
-
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
 {
   QMutexLocker locker(&mutex_);

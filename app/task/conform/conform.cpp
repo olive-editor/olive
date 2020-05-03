@@ -42,7 +42,7 @@ void ConformTask::Action()
 
     connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
-    decoder->Conform(params_, &IsCancelled());
+    decoder->ConformAudio(&IsCancelled(), params_);
 
     emit Succeeded();
   }

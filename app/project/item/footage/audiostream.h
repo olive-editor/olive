@@ -49,29 +49,21 @@ public:
   const int& sample_rate() const;
   void set_sample_rate(const int& sample_rate);
 
-  const rational& index_length();
-  void set_index_length(const rational& index_length);
-
-  const bool& index_done();
-  void set_index_done(const bool &index_done);
-
-  void clear_index();
-
+  bool try_start_conforming(const AudioRenderingParams& params);
   bool has_conformed_version(const AudioRenderingParams& params);
   void append_conformed_version(const AudioRenderingParams& params);
 
 signals:
-  void ConformAppended(const AudioRenderingParams& params);
+  void ConformAppended(OLIVE_NAMESPACE::AudioRenderingParams params);
 
 private:
   int channels_;
   uint64_t layout_;
   int sample_rate_;
 
-  rational index_length_;
-  bool index_done_;
+  QList<AudioRenderingParams> conformed_;
 
-  QVector<AudioRenderingParams> conformed_;
+  QList<AudioRenderingParams> currently_conforming_;
 
 };
 

@@ -100,8 +100,6 @@ protected:
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
-  virtual void ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time) override;
-
   ColorProcessorCache* color_cache();
 
 private:

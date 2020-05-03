@@ -108,11 +108,6 @@ bool RenderWorker::IsStarted()
   return started_;
 }
 
-void RenderWorker::ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time)
-{
-  emit FootageUnavailable(stream, state, path_.range(), stream_time);
-}
-
 void RenderWorker::InputProcessingEvent(NodeInput* input, const TimeRange& input_time, NodeValueTable *table)
 {
   // Exception for Footage types where we actually retrieve some Footage data from a decoder
@@ -124,13 +119,8 @@ void RenderWorker::InputProcessingEvent(NodeInput* input, const TimeRange& input
 
       if (decoder) {
 
-        Decoder::RetrieveState state = decoder->GetRetrieveState(input_time.out());
+        FrameToValue(decoder, stream, input_time, table);
 
-        if (state == Decoder::kReady) {
-          FrameToValue(decoder, stream, input_time, table);
-        } else {
-          ReportUnavailableFootage(stream, state, input_time.out());
-        }
       }
     }
   }

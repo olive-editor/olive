@@ -139,14 +139,9 @@ QIcon Stream::IconFromType(const Stream::Type &type)
   return QIcon();
 }
 
-QMutex* Stream::index_process_lock()
+QMutex *Stream::proxy_access_lock()
 {
-  return &index_process_lock_;
-}
-
-QMutex *Stream::index_access_lock()
-{
-  return &index_access_lock_;
+  return &proxy_access_lock_;
 }
 
 void Stream::FootageSetEvent(Footage*)

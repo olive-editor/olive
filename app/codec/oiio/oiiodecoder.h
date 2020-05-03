@@ -40,7 +40,6 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
 
   virtual bool Open() override;
-  virtual RetrieveState GetRetrieveState(const rational &time) override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
   virtual void Close() override;
 

@@ -134,7 +134,6 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
 
   virtual bool Open() override;
-  virtual RetrieveState GetRetrieveState(const rational &time) override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
   virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
@@ -144,8 +143,8 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
-  virtual void ProxyVideo(const QAtomicInt* cancelled, int divider) override;
-  virtual void ProxyAudio(const QAtomicInt* cancelled) override;
+  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider) override;
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams& p) override;
 
 private:
   /**
@@ -175,6 +174,10 @@ private:
   void FreeScaler();
 
   static int GetScaledDimension(int dim, int divider);
+
+  static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+
+  static uint64_t ValidateChannelLayout(AVStream *stream);
 
   SwsContext* scale_ctx_;
   int scale_divider_;
