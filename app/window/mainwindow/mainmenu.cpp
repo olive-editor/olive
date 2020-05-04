@@ -39,9 +39,7 @@ OLIVE_NAMESPACE_ENTER
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
 {
-#ifdef Q_OS_WINDOWS
-  StyleManager::UseNativeWindowsStyling(this);
-#endif
+  StyleManager::UseOSNativeStyling(this);
 
   //
   // FILE MENU
