@@ -76,11 +76,6 @@ void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
   Q_UNUSED(output_params)
 }
 
-StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
-{
-  return input->get_standard_value().value<StreamPtr>();
-}
-
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
@@ -108,21 +103,12 @@ bool RenderWorker::IsStarted()
   return started_;
 }
 
-void RenderWorker::InputProcessingEvent(NodeInput* input, const TimeRange& input_time, NodeValueTable *table)
+void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange& input_time, NodeValueTable *table)
 {
-  // Exception for Footage types where we actually retrieve some Footage data from a decoder
-  if (input->data_type() == NodeParam::kFootage) {
-    StreamPtr stream = ResolveStreamFromInput(input);
+  DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-    if (stream) {
-      DecoderPtr decoder = ResolveDecoderFromInput(stream);
-
-      if (decoder) {
-
-        FrameToValue(decoder, stream, input_time, table);
-
-      }
-    }
+  if (decoder) {
+    FrameToValue(decoder, stream, input_time, table);
   }
 }
 

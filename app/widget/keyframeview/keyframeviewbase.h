@@ -23,7 +23,7 @@
 
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
-#include "timetargetobject.h"
+#include "widget/timetarget/timetarget.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
 #include "widget/timelinewidget/view/timelineviewbase.h"
 

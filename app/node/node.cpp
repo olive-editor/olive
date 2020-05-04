@@ -293,7 +293,20 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(QPainter *, const QRect &) const
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *) const
+{
+}
+
+bool Node::GizmoPress(const QPointF &)
+{
+  return false;
+}
+
+void Node::GizmoMove(const QPointF &)
+{
+}
+
+void Node::GizmoRelease(const QPointF &)
 {
 }
 

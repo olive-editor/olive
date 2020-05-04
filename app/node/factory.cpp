@@ -26,6 +26,7 @@
 #include "block/gap/gap.h"
 #include "block/transition/externaltransition.h"
 #include "generator/matrix/matrix.h"
+#include "generator/polygon/polygon.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "input/time/timeinput.h"
@@ -141,6 +142,8 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new ClipBlock();
   case kGapBlock:
     return new GapBlock();
+  case kPolygonGenerator:
+    return new PolygonGenerator();
   case kMatrixGenerator:
     return new MatrixGenerator();
   case kVideoInput:

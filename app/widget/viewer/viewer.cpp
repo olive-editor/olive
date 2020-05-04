@@ -130,6 +130,8 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
     UpdateTextureFromNode(time_set);
 
     PushScrubbedAudio();
+
+    main_gl_widget()->SetTime(time_set);
   }
 
   last_time_ = i;
@@ -335,6 +337,7 @@ ColorManager *ViewerWidget::color_manager() const
 
 void ViewerWidget::SetGizmos(Node *node)
 {
+  main_gl_widget()->SetTimeTarget(GetConnectedNode());
   main_gl_widget()->SetGizmos(node);
 }
 
@@ -536,6 +539,8 @@ void ViewerWidget::UpdateRendererParameters()
     video_renderer_->SetParameters(vparam);
     video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
   }
+
+  main_gl_widget()->SetVideoParams(vparam);
 
   AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
                               SampleFormat::kInternalFormat);

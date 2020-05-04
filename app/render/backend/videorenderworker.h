@@ -92,13 +92,11 @@ protected:
 
   virtual void ParametersChangedEvent(){}
 
-  virtual void TextureToBuffer(const QVariant& texture, void *buffer, int linesize);
+  void TextureToBuffer(const QVariant& texture, void *buffer, int linesize);
 
   virtual void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize) = 0;
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
-
-  virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
   ColorProcessorCache* color_cache();
 

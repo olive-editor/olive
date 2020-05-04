@@ -24,7 +24,7 @@
 #include <QGraphicsRectItem>
 
 #include "node/keyframe.h"
-#include "timetargetobject.h"
+#include "widget/timetarget/timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 

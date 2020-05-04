@@ -18,30 +18,22 @@
 
 ***/
 
-#ifndef PIXELSAMPLERPANEL_H
-#define PIXELSAMPLERPANEL_H
-
-#include "widget/panel/panel.h"
-#include "widget/pixelsampler/pixelsampler.h"
+#include "gizmotraverser.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class PixelSamplerPanel : public PanelWidget
+void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table)
 {
-  Q_OBJECT
-public:
-  PixelSamplerPanel(QWidget* parent = nullptr);
+  if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
 
-public slots:
-  void SetValues(const Color& reference, const Color& display);
+    ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
 
-private:
-  virtual void Retranslate() override;
+    table->Push(NodeParam::kTexture, QSize(image_stream->width(),
+                                           image_stream->height()));
 
-  ManagedPixelSamplerWidget* sampler_widget_;
-
-};
+  } else if (stream->type() == Stream::kAudio) {
+    // FIXME: Get samples
+  }
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // PIXELSAMPLERPANEL_H

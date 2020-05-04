@@ -37,16 +37,19 @@ public:
 
   NodeValueTable ProcessNode(const NodeDependency &dep);
 
-protected:
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
+protected:
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range);
 
   NodeValueTable ProcessInput(const NodeInput* input, const TimeRange &range);
 
-  virtual void InputProcessingEvent(NodeInput*, const TimeRange&, NodeValueTable*){}
+  virtual void FootageProcessingEvent(StreamPtr, const TimeRange&, NodeValueTable*){}
 
   virtual void ProcessNodeEvent(const Node*, const TimeRange&, NodeValueDatabase&, NodeValueTable&){}
+
+private:
+  StreamPtr ResolveStreamFromInput(NodeInput* input);
 
 };
 

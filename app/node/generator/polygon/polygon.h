@@ -18,52 +18,46 @@
 
 ***/
 
-#ifndef MATRIXGENERATOR_H
-#define MATRIXGENERATOR_H
+#ifndef POLYGONGENERATOR_H
+#define POLYGONGENERATOR_H
 
 #include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class MatrixGenerator : public Node
+class PolygonGenerator : public Node
 {
-  Q_OBJECT
 public:
-  MatrixGenerator();
+  PolygonGenerator();
 
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
-  virtual QString ShortName() const override;
   virtual QString id() const override;
   virtual QString Category() const override;
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
+  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
   virtual bool HasGizmos() const override;
   virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) const override;
 
+  /*
+  virtual bool GizmoPress(const QPointF &p) override;
+  virtual void GizmoMove(const QPointF &p) override;
+  virtual void GizmoRelease(const QPointF &p) override;
+  */
+
 private:
-  QMatrix4x4 GenerateMatrix(NodeValueDatabase& value) const;
+  NodeInputArray* points_input_;
 
-  NodeInput* position_input_;
-
-  NodeInput* rotation_input_;
-
-  NodeInput* scale_input_;
-
-  NodeInput* uniform_scale_input_;
-
-  NodeInput* anchor_input_;
-
-private slots:
-  void UniformScaleChanged();
+  NodeInput* color_input_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // TRANSFORMDISTORT_H
+#endif // POLYGONGENERATOR_H

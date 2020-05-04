@@ -32,6 +32,7 @@
 #include "render/colormanager.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
+#include "widget/timetarget/timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -50,7 +51,7 @@ OLIVE_NAMESPACE_ENTER
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
-class ViewerDisplayWidget : public ManagedDisplayWidget
+class ViewerDisplayWidget : public ManagedDisplayWidget, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -78,6 +79,8 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
+  void SetVideoParams(const VideoRenderingParams& params);
+  void SetTime(const rational& time);
 
 public slots:
   /**
@@ -126,14 +129,19 @@ signals:
 
 protected:
   /**
-   * @brief Override the mouse press event simply to emit the DragStarted() signal
+   * @brief Override the mouse press event for the DragStarted() signal and gizmos
    */
   virtual void mousePressEvent(QMouseEvent* event) override;
 
   /**
-   * @brief Override mouse move to provide functionality for
+   * @brief Override mouse move to signal for the pixel sampler and gizmos
    */
   virtual void mouseMoveEvent(QMouseEvent* event) override;
+
+  /**
+   * @brief Override mouse release event for gizmos
+   */
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction
@@ -150,6 +158,10 @@ protected:
   virtual void paintGL() override;
 
 private:
+  QPointF GetTexturePosition(const QPoint& screen_pos);
+  QPointF GetTexturePosition(const QSize& size);
+  QPointF GetTexturePosition(const double& x, const double& y);
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -176,6 +188,12 @@ private:
   ViewerSafeMarginInfo safe_margin_;
 
   Node* gizmos_;
+
+  VideoRenderingParams gizmo_params_;
+
+  bool gizmo_click_;
+
+  rational time_;
 
 private slots:
   /**

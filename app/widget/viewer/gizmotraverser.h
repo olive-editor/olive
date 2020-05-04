@@ -18,30 +18,23 @@
 
 ***/
 
-#ifndef PIXELSAMPLERPANEL_H
-#define PIXELSAMPLERPANEL_H
+#ifndef GIZMOTRAVERSER_H
+#define GIZMOTRAVERSER_H
 
-#include "widget/panel/panel.h"
-#include "widget/pixelsampler/pixelsampler.h"
+#include "node/traverser.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class PixelSamplerPanel : public PanelWidget
+class GizmoTraverser : public NodeTraverser
 {
-  Q_OBJECT
 public:
-  PixelSamplerPanel(QWidget* parent = nullptr);
+  GizmoTraverser() = default;
 
-public slots:
-  void SetValues(const Color& reference, const Color& display);
-
-private:
-  virtual void Retranslate() override;
-
-  ManagedPixelSamplerWidget* sampler_widget_;
+protected:
+  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PIXELSAMPLERPANEL_H
+#endif // GIZMOTRAVERSER_H

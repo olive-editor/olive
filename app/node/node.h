@@ -362,7 +362,11 @@ public:
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(QPainter* p, const QRect &viewport) const;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p) const;
+
+  virtual bool GizmoPress(const QPointF& p);
+  virtual void GizmoMove(const QPointF& p);
+  virtual void GizmoRelease(const QPointF& p);
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);

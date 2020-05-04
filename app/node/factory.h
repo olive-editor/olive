@@ -36,6 +36,7 @@ public:
     kClipBlock,
     kGapBlock,
     kAudioInput,
+    kPolygonGenerator,
     kMatrixGenerator,
     kVideoInput,
     kTrackOutput,

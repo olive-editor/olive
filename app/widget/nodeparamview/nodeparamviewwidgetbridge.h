@@ -24,8 +24,8 @@
 #include <QObject>
 
 #include "node/input.h"
-#include "widget/keyframeview/timetargetobject.h"
 #include "widget/slider/sliderbase.h"
+#include "widget/timetarget/timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 

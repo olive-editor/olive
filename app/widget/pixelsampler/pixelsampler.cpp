@@ -18,7 +18,7 @@
 
 ***/
 
-#include "pixelsamplerwidget.h"
+#include "pixelsampler.h"
 
 #include <QVBoxLayout>
 

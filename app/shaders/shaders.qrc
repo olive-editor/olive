@@ -12,6 +12,7 @@
         <file>dropshadow.xml</file>
         <file>diptoblack.frag</file>
         <file>diptoblack.xml</file>
+        <file>polygon.frag</file>
         <file>rgbwaveform.frag</file>
         <file>solid.frag</file>
         <file>solid.xml</file>
