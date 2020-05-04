@@ -85,7 +85,6 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
       display_combobox_->setCurrentText(color_manager_->GetDefaultDisplay());
 
       connect(display_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);
-      connect(display_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::UpdateViews);
     }
 
     row++;
@@ -184,6 +183,10 @@ void ColorSpaceChooser::UpdateViews(const QString& display)
 
 void ColorSpaceChooser::ComboBoxChanged()
 {
+  if (sender() == display_combobox_) {
+    UpdateViews(display_combobox_->currentText());
+  }
+
   if (input_combobox_) {
     emit InputColorSpaceChanged(input());
   }
