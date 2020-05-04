@@ -57,7 +57,11 @@ const QVector<TrackOutput *> &TrackList::GetTracks() const
 
 TrackOutput *TrackList::GetTrackAt(int index) const
 {
-  return track_cache_.at(index);
+  if (index < track_cache_.size()) {
+    return track_cache_.at(index);
+  } else {
+    return nullptr;
+  }
 }
 
 const rational &TrackList::GetTotalLength() const
