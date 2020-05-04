@@ -23,6 +23,7 @@
 #include <QFile>
 
 #include "common/timecodefunctions.h"
+#include "common/xmlutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -107,6 +108,27 @@ void VideoStream::set_proxy(const int &divider, const QVector<int64_t> &index)
   using_proxy_ = divider;
   frame_index_ = index;
   is_generating_proxy_ = false;
+}
+
+void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
+{
+  // NOTE: Hackily copied from ImageStream::LoadCustomParameters
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("colorspace")) {
+      set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("proxy")) {
+      using_proxy_ = reader->readElementText().toInt();
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
+  ImageStream::SaveCustomParameters(writer);
+
+  writer->writeTextElement("proxy", QString::number(using_proxy_));
 }
 
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
