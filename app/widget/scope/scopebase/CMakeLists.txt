@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(histogram)
-add_subdirectory(scopebase)
-add_subdirectory(waveform)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/scope/scopebase/scopebase.h
+  widget/scope/scopebase/scopebase.cpp
   PARENT_SCOPE
 )
