@@ -31,8 +31,6 @@ class VideoStream : public ImageStream
 public:
   VideoStream();
 
-  static const int64_t kEndTimestamp;
-
   virtual QString description() const override;
 
   /**
@@ -51,6 +49,7 @@ public:
 
   int64_t get_closest_timestamp_in_frame_index(const rational& time);
   int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
+  /*
   void clear_frame_index();
   void append_frame_index(const int64_t& ts);
   bool is_frame_index_ready();
@@ -58,6 +57,12 @@ public:
 
   bool load_frame_index(const QString& s);
   bool save_frame_index(const QString& s);
+  */
+
+  bool is_generating_proxy();
+  bool try_start_proxy();
+  int using_proxy();
+  void set_proxy(const int& divider, const QVector<int64_t>& index);
 
 private:
   rational frame_rate_;
@@ -66,9 +71,11 @@ private:
 
   int64_t start_time_;
 
-  QMutex index_access_lock_;
-
   bool is_image_sequence_;
+
+  bool is_generating_proxy_;
+
+  int using_proxy_;
 
 };
 

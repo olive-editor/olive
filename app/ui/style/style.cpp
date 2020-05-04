@@ -45,14 +45,18 @@ QList<StyleDescriptor> StyleManager::ListInternal()
   return style_list;
 }
 
-#ifdef Q_OS_WINDOWS
-void StyleManager::UseNativeWindowsStyling(QWidget *widget)
+void StyleManager::UseOSNativeStyling(QWidget *widget)
 {
+#if defined(Q_OS_WINDOWS)
   QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
   widget->setStyle(s);
   widget->setPalette(s->standardPalette());
-}
+#elif defined(Q_OS_MAC)
+  QStyle* s = QStyleFactory::create(QStringLiteral("macintosh"));
+  widget->setStyle(s);
+  widget->setPalette(s->standardPalette());
 #endif
+}
 
 QPalette StyleManager::ParsePalette(const QString& ini_path)
 {

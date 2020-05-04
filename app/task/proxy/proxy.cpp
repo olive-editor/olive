@@ -18,20 +18,27 @@
 
 ***/
 
-#include "conform.h"
+#include "proxy.h"
 
 #include "codec/decoder.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ConformTask::ConformTask(AudioStreamPtr stream, const AudioRenderingParams& params) :
+ProxyTask::ProxyTask(VideoStreamPtr stream, int divider) :
   stream_(stream),
-  params_(params)
+  divider_(divider)
 {
-  SetTitle(tr("Conforming Audio %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
+  if (divider_ == 1) {
+    SetTitle(tr("Generating full resolution proxy %1:%2").arg(stream_->footage()->filename(),
+                                                              QString::number(stream_->index())));
+  } else {
+    SetTitle(tr("Generating 1/%1 resolution proxy %2:%3").arg(QString::number(divider),
+                                                              stream_->footage()->filename(),
+                                                              QString::number(stream_->index())));
+  }
 }
 
-void ConformTask::Action()
+void ProxyTask::Action()
 {
   if (stream_->footage()->decoder().isEmpty()) {
     emit Failed(tr("Failed to find decoder to conform audio stream"));
@@ -40,12 +47,12 @@ void ConformTask::Action()
 
     decoder->set_stream(stream_);
 
-    connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
+    connect(decoder.get(), &Decoder::IndexProgress, this, &ProxyTask::ProgressChanged);
 
-    if (decoder->ConformAudio(&IsCancelled(), params_)) {
+    if (decoder->ProxyVideo(&IsCancelled(), divider_)) {
       emit Succeeded();
     } else {
-      emit Failed(QStringLiteral("Failed to conform audio"));
+      emit Failed(QStringLiteral("Failed to generate proxy"));
     }
   }
 }

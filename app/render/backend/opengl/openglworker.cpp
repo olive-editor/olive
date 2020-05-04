@@ -38,7 +38,9 @@ OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, QObject *parent) 
 
 void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable *table)
 {
-  FramePtr frame = decoder->RetrieveVideo(range.in(), video_params().divider());
+  FramePtr frame = decoder->RetrieveVideo(range.in(),
+                                          video_params().divider(),
+                                          video_params().mode() == RenderMode::kOffline);
 
   if (frame) {
     emit RequestFrameToValue(frame, stream, table);

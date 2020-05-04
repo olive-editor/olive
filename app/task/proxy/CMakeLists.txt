@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/index/index.h
-  task/index/index.cpp
+  task/proxy/proxy.h
+  task/proxy/proxy.cpp
   PARENT_SCOPE
 )

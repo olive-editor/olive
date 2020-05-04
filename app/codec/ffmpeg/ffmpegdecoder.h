@@ -134,8 +134,7 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
 
   virtual bool Open() override;
-  virtual RetrieveState GetRetrieveState(const rational &time) override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider, bool use_proxies) override;
   virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
 
@@ -144,7 +143,8 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
-  virtual void Index(const QAtomicInt *cancelled) override;
+  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider) override;
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams& p) override;
 
 private:
   /**
@@ -166,16 +166,22 @@ private:
    */
   void FFmpegError(int error_code);
 
-  virtual QString GetIndexFilename() override;
+  virtual QString GetIndexFilename() const override;
 
-  void UnconditionalAudioIndex(const QAtomicInt* cancelled);
+  QString GetProxyFilename(int divider) const;
 
   void ClearResources();
 
   void InitScaler(int divider);
   void FreeScaler();
 
+  QString GetProxyFrameFilename(const int64_t& timestamp, const int &divider) const;
+
   static int GetScaledDimension(int dim, int divider);
+
+  static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+
+  static uint64_t ValidateChannelLayout(AVStream *stream);
 
   SwsContext* scale_ctx_;
   int scale_divider_;

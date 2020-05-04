@@ -136,7 +136,7 @@ private:
   bool pop_toggle_;
 
 private slots:
-  void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed);
+  void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadGeneratedFrame();

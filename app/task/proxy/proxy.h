@@ -18,34 +18,29 @@
 
 ***/
 
-#include "index.h"
+#ifndef PROXYTASK_H
+#define PROXYTASK_H
 
-#include "codec/decoder.h"
-#include "codec/ffmpeg/ffmpegdecoder.h"
+#include "project/item/footage/videostream.h"
+#include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-IndexTask::IndexTask(StreamPtr stream) :
-  stream_(stream)
+class ProxyTask : public Task
 {
-  SetTitle(tr("Indexing %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
-}
+public:
+  ProxyTask(VideoStreamPtr stream, int divider);
 
-void IndexTask::Action()
-{
-  if (stream_->footage()->decoder().isEmpty()) {
-    emit Failed(QStringLiteral("Stream has no decoder"));
-  } else {
-    DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
+protected:
+  virtual void Action() override;
 
-    decoder->set_stream(stream_);
+private:
+  VideoStreamPtr stream_;
 
-    connect(decoder.get(), &Decoder::IndexProgress, this, &IndexTask::ProgressChanged);
+  int divider_;
 
-    decoder->Index(&IsCancelled());
-
-    emit Succeeded();
-  }
-}
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // PROXYTASK_H

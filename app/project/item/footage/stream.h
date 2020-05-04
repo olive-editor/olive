@@ -33,17 +33,6 @@ OLIVE_NAMESPACE_ENTER
 
 class Footage;
 
-/*class StreamID {
-public:
-  StreamID(const QString& filename, const int& stream_index);
-
-private:
-  QString filename_;
-
-  int stream_index_;
-
-};*/
-
 /**
  * @brief A base class for keeping metadata about a media stream.
  *
@@ -103,9 +92,7 @@ public:
 
   static QIcon IconFromType(const Type& type);
 
-  //StreamID ToID() const;
-
-  QMutex* index_process_lock();
+  QMutex* proxy_access_lock();
 
 protected:
   virtual void FootageSetEvent(Footage*);
@@ -115,8 +102,6 @@ protected:
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
 
 signals:
-  void IndexChanged();
-
   void ParametersChanged();
 
 private:
@@ -132,7 +117,7 @@ private:
 
   bool enabled_;
 
-  QMutex index_process_lock_;
+  QMutex proxy_access_lock_;
 
 };
 

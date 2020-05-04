@@ -25,7 +25,8 @@
 
 #include "audiorenderworker.h"
 #include "common/filefunctions.h"
-#include "render/backend/indexmanager.h"
+#include "task/conform/conform.h"
+#include "task/taskmanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -33,7 +34,6 @@ AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   RenderBackend(parent),
   ic_from_conform_(false)
 {
-  connect(IndexManager::instance(), &IndexManager::StreamConformAppended, this, &AudioRenderBackend::ConformUpdated);
   connect(this, &AudioRenderBackend::QueueComplete, this, &AudioRenderBackend::FilterQueueCompleteSignal);
 }
 
@@ -65,6 +65,8 @@ void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
   disconnect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
+
+  conform_wait_info_.clear();
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)
@@ -154,6 +156,30 @@ void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, co
   RenderBackend::InvalidateCacheInternal(start_range, end_range);
 }
 
+void AudioRenderBackend::ListenForConformSignal(AudioStreamPtr s)
+{
+  foreach (const ConformWaitInfo& info, conform_wait_info_) {
+    if (info.stream == s) {
+      // We've probably already connected to this one
+      return;
+    }
+  }
+
+  connect(s.get(), &AudioStream::ConformAppended, this, &AudioRenderBackend::ConformUpdated);
+}
+
+void AudioRenderBackend::StopListeningForConformSignal(AudioStream* s)
+{
+  foreach (const ConformWaitInfo& info, conform_wait_info_) {
+    if (info.stream.get() == s) {
+      // There are still conforms we're waiting for, don't disconnect
+      return;
+    }
+  }
+
+  disconnect(s, &AudioStream::ConformAppended, this, &AudioRenderBackend::ConformUpdated);
+}
+
 void AudioRenderBackend::ConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params)
 {
   ConformWaitInfo info = {stream, params, range, stream_time};
@@ -164,26 +190,38 @@ void AudioRenderBackend::ConformUnavailable(StreamPtr stream, TimeRange range, r
 
   AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream);
 
-  if (IndexManager::instance()->IsConforming(audio_stream, params)) {
+  if (audio_stream->try_start_conforming(params)) {
+
+    // Start indexing process
+    ListenForConformSignal(audio_stream);
 
     conform_wait_info_.append(info);
+
+    ConformTask* conform_task = new ConformTask(audio_stream, params);
+
+    TaskManager::instance()->AddTask(conform_task);
 
   } else if (audio_stream->has_conformed_version(params)) {
 
-    // Index JUST finished, requeue this time
+    // Conform JUST finished, requeue this time
+    ic_from_conform_ = true;
     InvalidateCache(range, nullptr);
+    ic_from_conform_ = false;
 
   } else {
 
-    // Start indexing process
+    // A conform task is already running, so we'll just wait for it
+    ListenForConformSignal(audio_stream);
+
     conform_wait_info_.append(info);
-    IndexManager::instance()->StartConformingStream(audio_stream, params);
 
   }
 }
 
-void AudioRenderBackend::ConformUpdated(Stream *stream, AudioRenderingParams params)
+void AudioRenderBackend::ConformUpdated(AudioRenderingParams params)
 {
+  AudioStream *stream = static_cast<AudioStream*>(sender());
+
   for (int i=0;i<conform_wait_info_.size();i++) {
     const ConformWaitInfo& info = conform_wait_info_.at(i);
 
@@ -204,6 +242,8 @@ void AudioRenderBackend::ConformUpdated(Stream *stream, AudioRenderingParams par
 
     }
   }
+
+  StopListeningForConformSignal(stream);
 }
 
 void AudioRenderBackend::TruncateCache(const rational &r)

@@ -171,6 +171,8 @@ private slots:
 
   void OpenContextMenuItemInNewWindow();
 
+  void ContextMenuStartProxy(QAction* a);
+
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -40,13 +40,14 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
 
   virtual bool Open() override;
-  virtual RetrieveState GetRetrieveState(const rational &time) override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider, bool use_proxies) override;
   virtual void Close() override;
 
   virtual bool SupportsVideo() override;
 
-  virtual QString GetIndexFilename() override;
+  virtual QString GetIndexFilename() const override;
+
+  static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
 
   static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
 

@@ -84,7 +84,7 @@ void ViewerDisplayWidget::SetImage(const QString &fn)
         load_buffer_.set_video_params(VideoRenderingParams(input->spec().width, input->spec().height, image_format));
         load_buffer_.allocate();
 
-        texture_.Create(context(), input->spec().width, input->spec().height, image_format);
+        texture_.Create(context(), VideoRenderingParams(input->spec().width, input->spec().height, image_format));
       }
 
       input->read_image(input->spec().format, load_buffer_.data(), OIIO::AutoStride, load_buffer_.linesize_bytes());
@@ -133,7 +133,7 @@ void ViewerDisplayWidget::SetImageFromLoadBuffer(Frame *in_buffer)
         || texture_.width() != in_buffer->width()
         || texture_.height() != in_buffer->height()
         || texture_.format() != in_buffer->format()) {
-      texture_.Create(context(), in_buffer->width(), in_buffer->height(), in_buffer->format(), in_buffer->data(), load_buffer_.linesize_pixels());
+      texture_.Create(context(), in_buffer->video_params(), in_buffer->data(), load_buffer_.linesize_pixels());
     } else {
       texture_.Upload(in_buffer);
     }

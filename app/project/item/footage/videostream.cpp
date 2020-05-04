@@ -26,11 +26,11 @@
 
 OLIVE_NAMESPACE_ENTER
 
-const int64_t VideoStream::kEndTimestamp = AV_NOPTS_VALUE;
-
 VideoStream::VideoStream() :
   start_time_(0),
-  is_image_sequence_(false)
+  is_image_sequence_(false),
+  is_generating_proxy_(false),
+  using_proxy_(0)
 {
   set_type(kVideo);
 }
@@ -73,6 +73,42 @@ void VideoStream::set_image_sequence(bool e)
   is_image_sequence_ = e;
 }
 
+bool VideoStream::is_generating_proxy()
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  return is_generating_proxy_;
+}
+
+bool VideoStream::try_start_proxy()
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  if (is_generating_proxy_) {
+    return false;
+  }
+
+  is_generating_proxy_ = true;
+
+  return true;
+}
+
+int VideoStream::using_proxy()
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  return using_proxy_;
+}
+
+void VideoStream::set_proxy(const int &divider, const QVector<int64_t> &index)
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  using_proxy_ = divider;
+  frame_index_ = index;
+  is_generating_proxy_ = false;
+}
+
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
 {
   // Get rough approximation of what the timestamp would be in this timebase
@@ -84,45 +120,31 @@ int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
 
 int64_t VideoStream::get_closest_timestamp_in_frame_index(int64_t timestamp)
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(proxy_access_lock());
 
-  if (frame_index_.isEmpty()) {
-    return -1;
-  }
+  if (!frame_index_.isEmpty()) {
+    if (timestamp <= frame_index_.first()) {
+      return frame_index_.first();
+    } else if (timestamp >= frame_index_.last()) {
+      return frame_index_.last();
+    } else {
+      // Use index to find closest frame in file
+      for (int i=1;i<frame_index_.size();i++) {
+        int64_t this_ts = frame_index_.at(i);
 
-  // Adjust target by stream's start time
-  timestamp += start_time_;
-
-  if (timestamp <= 0) {
-    return frame_index_.first();
-  }
-
-  int index_size = frame_index_.size();
-
-  if (frame_index_.last() == kEndTimestamp) {
-    index_size--;
-  }
-
-  // Use index to find closest frame in file
-  for (int i=0;i<index_size;i++) {
-    int64_t this_ts = frame_index_.at(i);
-
-    if (this_ts == timestamp) {
-      return timestamp;
-    } else if (this_ts > timestamp) {
-      return frame_index_.at(i - 1);
+        if (this_ts == timestamp) {
+          return timestamp;
+        } else if (this_ts > timestamp) {
+          return frame_index_.at(i - 1);
+        }
+      }
     }
   }
 
-  if (frame_index_.last() == kEndTimestamp) {
-    // Index is done
-    return frame_index_.last();
-  } else {
-    // Index is not done yet
-    return -1;
-  }
+  return -1;
 }
 
+/*
 void VideoStream::clear_frame_index()
 {
   {
@@ -204,5 +226,6 @@ bool VideoStream::save_frame_index(const QString &s)
 
   return false;
 }
+*/
 
 OLIVE_NAMESPACE_EXIT

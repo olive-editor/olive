@@ -167,11 +167,6 @@ private:
 
   QList<FootageWaitInfo> footage_wait_info_;
 
-private slots:
-  void FootageUnavailable(StreamPtr stream, Decoder::RetrieveState state, const TimeRange& path, const rational& stream_time);
-
-  void IndexUpdated(Stream *stream);
-
 };
 
 OLIVE_NAMESPACE_EXIT

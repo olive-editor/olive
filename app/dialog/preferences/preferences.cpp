@@ -62,16 +62,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   splitter->addWidget(list_widget_);
   splitter->addWidget(preference_pane_stack_);
 
-  QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
-  buttonBox->setOrientation(Qt::Horizontal);
-  buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  QDialogButtonBox* button_box = new QDialogButtonBox(this);
+  button_box->setOrientation(Qt::Horizontal);
+  button_box->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-  layout->addWidget(buttonBox);
+  layout->addWidget(button_box);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(button_box, &QDialogButtonBox::accepted, this, &PreferencesDialog::accept);
+  connect(button_box, &QDialogButtonBox::rejected, this, &PreferencesDialog::reject);
 
-  connect(list_widget_, SIGNAL(currentRowChanged(int)), preference_pane_stack_, SLOT(setCurrentIndex(int)));
+  connect(list_widget_,
+          &QListWidget::currentRowChanged,
+          preference_pane_stack_,
+          &QStackedWidget::setCurrentIndex);
 }
 
 void PreferencesDialog::accept()

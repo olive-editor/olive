@@ -79,6 +79,10 @@ private:
     bool operator==(const ConformWaitInfo& rhs) const;
   };
 
+  void ListenForConformSignal(AudioStreamPtr s);
+
+  void StopListeningForConformSignal(AudioStream *s);
+
   QList<ConformWaitInfo> conform_wait_info_;
 
   AudioRenderingParams params_;
@@ -88,7 +92,7 @@ private:
 private slots:
   void ConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params);
 
-  void ConformUpdated(Stream *stream, AudioRenderingParams params);
+  void ConformUpdated(OLIVE_NAMESPACE::AudioRenderingParams params);
 
   void TruncateCache(const rational& r);
 

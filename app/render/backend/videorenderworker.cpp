@@ -20,11 +20,6 @@
 
 #include "videorenderworker.h"
 
-#include <OpenEXR/ImfFloatAttribute.h>
-#include <OpenEXR/ImfInputFile.h>
-#include <OpenEXR/ImfOutputFile.h>
-#include <OpenEXR/ImfChannelList.h>
-
 #include "common/define.h"
 #include "common/functiontimer.h"
 #include "node/block/transition/transition.h"
@@ -84,7 +79,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   if (!(operating_mode_ & kRenderOnly)) {
 
     // Emit only the hash
-    emit CompletedDownload(path, job_time, hash, false);
+    emit CompletedDownload(path, job_time, hash);
 
   } else if ((operating_mode_ & kHashOnly) && frame_cache_->HasHash(hash, video_params_.format())) {
 
@@ -101,14 +96,14 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 
     // If we actually have a texture, download it into the disk cache
     if (!texture.isNull() || (!(operating_mode_ & kDownloadOnly))) {
-      Download(path.in(), texture, frame_cache_->CachePathName(hash, video_params_.format()));
+      Download(hash, path.in(), texture);
     }
 
     frame_cache_->RemoveHashFromCurrentlyCaching(hash);
 
     // Signal that this job is complete
     if (operating_mode_ & kDownloadOnly) {
-      emit CompletedDownload(path, job_time, hash, !texture.isNull());
+      emit CompletedDownload(path, job_time, hash);
     }
 
   } else {
@@ -162,92 +157,17 @@ void VideoRenderWorker::CloseInternal()
   download_buffer_.clear();
 }
 
-void VideoRenderWorker::Download(const rational& time, QVariant texture, QString filename)
+void VideoRenderWorker::Download(const QByteArray& hash, const rational& time, QVariant texture)
 {
   if (operating_mode_ & kDownloadOnly) {
 
     TextureToBuffer(texture, download_buffer_.data(), 0);
 
-    switch (video_params().format()) {
-    case PixelFormat::PIX_FMT_RGB8:
-    case PixelFormat::PIX_FMT_RGBA8:
-    case PixelFormat::PIX_FMT_RGB16U:
-    case PixelFormat::PIX_FMT_RGBA16U:
-    {
-      // Integer types are stored in JPEG which we run through OIIO
-
-      std::string fn_std = filename.toStdString();
-
-      auto out = OIIO::ImageOutput::create(fn_std);
-
-      if (out) {
-        // Attempt to keep this write to one thread
-        out->threads(1);
-
-        out->open(fn_std, OIIO::ImageSpec(video_params().effective_width(),
-                                          video_params().effective_height(),
-                                          PixelFormat::ChannelCount(video_params().format()),
-                                          PixelFormat::GetOIIOTypeDesc(video_params().format())));
-
-        out->write_image(PixelFormat::GetOIIOTypeDesc(video_params().format()), download_buffer_.data());
-
-        out->close();
-
-#if OIIO_VERSION < 10903
-        OIIO::ImageOutput::destroy(out);
-#endif
-      } else {
-        qCritical() << "Failed to write JPEG file:" << OIIO::geterror().c_str();
-      }
-      break;
-    }
-    case PixelFormat::PIX_FMT_RGB16F:
-    case PixelFormat::PIX_FMT_RGBA16F:
-    case PixelFormat::PIX_FMT_RGB32F:
-    case PixelFormat::PIX_FMT_RGBA32F:
-    {
-      // Floating point types are stored in EXR
-      Imf::PixelType pix_type;
-
-      if (video_params().format() == PixelFormat::PIX_FMT_RGB16F
-          || video_params().format() == PixelFormat::PIX_FMT_RGBA16F) {
-        pix_type = Imf::HALF;
-      } else {
-        pix_type = Imf::FLOAT;
-      }
-
-      Imf::Header header(video_params().effective_width(),
-                         video_params().effective_height());
-      header.channels().insert("R", Imf::Channel(pix_type));
-      header.channels().insert("G", Imf::Channel(pix_type));
-      header.channels().insert("B", Imf::Channel(pix_type));
-      header.channels().insert("A", Imf::Channel(pix_type));
-
-      header.compression() = Imf::DWAA_COMPRESSION;
-      header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
-
-      Imf::OutputFile out(filename.toUtf8(), header, 0);
-
-      int bpc = PixelFormat::BytesPerChannel(video_params().format());
-
-      size_t xs = kRGBAChannels * bpc;
-      size_t ys = video_params().effective_width() * kRGBAChannels * bpc;
-
-      Imf::FrameBuffer framebuffer;
-      framebuffer.insert("R", Imf::Slice(pix_type, download_buffer_.data(), xs, ys));
-      framebuffer.insert("G", Imf::Slice(pix_type, download_buffer_.data() + bpc, xs, ys));
-      framebuffer.insert("B", Imf::Slice(pix_type, download_buffer_.data() + 2*bpc, xs, ys));
-      framebuffer.insert("A", Imf::Slice(pix_type, download_buffer_.data() + 3*bpc, xs, ys));
-      out.setFrameBuffer(framebuffer);
-
-      out.writePixels(video_params().effective_height());
-      break;
-    }
-    case PixelFormat::PIX_FMT_INVALID:
-    case PixelFormat::PIX_FMT_COUNT:
-      qCritical() << "Unable to cache invalid pixel format" << video_params().format();
-      break;
-    }
+    frame_cache_->SaveCacheFrame(hash,
+                                 download_buffer_.data(),
+                                 VideoRenderingParams(video_params_.effective_width(),
+                                                      video_params_.effective_height(),
+                                                      video_params_.format()));
 
   } else {
 
@@ -293,14 +213,6 @@ NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const Ti
   }
 
   return table;
-}
-
-void VideoRenderWorker::ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational &stream_time)
-{
-  emit FootageUnavailable(stream,
-                          state,
-                          TimeRange(CurrentPath().in(), CurrentPath().in() + video_params().time_base()),
-                          stream_time);
 }
 
 ColorProcessorCache *VideoRenderWorker::color_cache()

@@ -196,7 +196,7 @@ void WaveformScope::UploadTextureFromBuffer()
       managed_tex_.Destroy();
 
       texture_.Create(context(), buffer_);
-      managed_tex_.Create(context(), buffer_->width(), buffer_->height(), buffer_->format());
+      managed_tex_.Create(context(), buffer_->video_params());
     } else {
       texture_.Upload(buffer_);
     }

@@ -22,8 +22,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioStream::AudioStream() :
-  index_done_(false)
+AudioStream::AudioStream()
 {
   set_type(kAudio);
 }
@@ -65,68 +64,32 @@ void AudioStream::set_sample_rate(const int &sample_rate)
   sample_rate_ = sample_rate;
 }
 
-const rational &AudioStream::index_length()
+bool AudioStream::try_start_conforming(const AudioRenderingParams &params)
 {
-  QMutexLocker locker(&index_access_lock_);
+  QMutexLocker locker(proxy_access_lock());
 
-  return index_length_;
-}
-
-void AudioStream::set_index_length(const rational &index_length)
-{
-  {
-    QMutexLocker locker(&index_access_lock_);
-
-    index_length_ = index_length;
-  }
-
-  emit IndexChanged();
-}
-
-const bool &AudioStream::index_done()
-{
-  QMutexLocker locker(&index_access_lock_);
-
-  return index_done_;
-}
-
-void AudioStream::set_index_done(const bool& index_done)
-{
-  {
-    QMutexLocker locker(&index_access_lock_);
-
-    index_done_ = index_done;
-  }
-
-  emit IndexChanged();
-}
-
-void AudioStream::clear_index()
-{
-  QMutexLocker locker(&index_access_lock_);
-
-  index_done_ = false;
-  index_length_ = 0;
-}
-
-bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
-{
-  QMutexLocker locker(&index_access_lock_);
-
-  foreach (const AudioRenderingParams& p, conformed_) {
-    if (p == params) {
-      return true;
-    }
+  if (!currently_conforming_.contains(params)
+      && !conformed_.contains(params)) {
+    currently_conforming_.append(params);
+    return true;
   }
 
   return false;
 }
 
+bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
+{
+  QMutexLocker locker(proxy_access_lock());
+
+  return conformed_.contains(params);
+}
+
 void AudioStream::append_conformed_version(const AudioRenderingParams &params)
 {
   {
-    QMutexLocker locker(&index_access_lock_);
+    QMutexLocker locker(proxy_access_lock());
 
+    currently_conforming_.removeOne(params);
     conformed_.append(params);
   }
 

@@ -107,19 +107,15 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
       // Read metadata
       SampleSummer::Info info;
-      QFile wave_meta(wave_fn.append(QStringLiteral(".meta")));
-      if (wave_meta.open(QFile::ReadOnly)) {
-        wave_meta.read(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
-        wave_meta.close();
-      }
+      memcpy(&info, w.data(), sizeof(SampleSummer::Info));
 
       // Prevent divide by zero
       if (info.channels) {
         AudioWaveformView::DrawWaveform(painter,
                                         rect().toRect(),
                                         this->GetScale(),
-                                        reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
-                                        w.size() / sizeof(SampleSummer::Sum),
+                                        reinterpret_cast<const SampleSummer::Sum*>(w.constData() + sizeof(SampleSummer::Info)),
+                                        (w.size() - sizeof(SampleSummer::Info)) / sizeof(SampleSummer::Sum),
                                         info.channels);
       }
     }

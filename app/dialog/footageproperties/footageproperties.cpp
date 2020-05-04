@@ -66,7 +66,11 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   stacked_widget_ = new QStackedWidget();
   layout->addWidget(stacked_widget_, row, 0, 1, 2);
 
-  foreach (StreamPtr stream, footage_->streams()) {
+  int first_usable_stream = -1;
+
+  for (int i=0;i<footage_->streams().size();i++) {
+    StreamPtr stream = footage_->stream(i);
+
     QListWidgetItem* item = new QListWidgetItem(stream->description(), track_list);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(stream->enabled() ? Qt::Checked : Qt::Unchecked);
@@ -83,11 +87,16 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
     default:
       stacked_widget_->addWidget(new StreamProperties());
     }
+
+    if (first_usable_stream == -1
+        && (stream->type() == Stream::kVideo
+            || stream->type() == Stream::kAudio
+            || stream->type() == Stream::kImage)) {
+      first_usable_stream = i;
+    }
   }
 
   row++;
-
-  connect(track_list, SIGNAL(currentRowChanged(int)), stacked_widget_, SLOT(setCurrentIndex(int)));
 
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
@@ -95,6 +104,14 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+  connect(track_list, &QListWidget::currentRowChanged, stacked_widget_, &QStackedWidget::setCurrentIndex);
+
+  // Auto-select first item that actually has properties
+  if (first_usable_stream >= 0) {
+    track_list->item(first_usable_stream)->setSelected(true);
+  }
+  track_list->setFocus();
 }
 
 void FootagePropertiesDialog::accept() {

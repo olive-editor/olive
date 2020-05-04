@@ -74,7 +74,7 @@ public:
 
   virtual QString id() = 0;
 
-  StreamPtr stream();
+  StreamPtr stream() const;
   void set_stream(StreamPtr fs);
 
   /**
@@ -118,11 +118,6 @@ public:
   virtual bool Open() = 0;
 
   /**
-   * @brief Determine whether the Decoder is able to retrieve data
-   */
-  virtual RetrieveState GetRetrieveState(const rational& time) = 0;
-
-  /**
    * @brief Retrieve video frame
    *
    * The main function for retrieving video data from the Decoder. This function should always provide complete frame
@@ -143,7 +138,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider);
+  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider, bool use_proxies);
 
   /**
    * @brief Retrieve video frame
@@ -216,49 +211,49 @@ public:
   static DecoderPtr CreateFromID(const QString& id);
 
   /**
-   * @brief Conform an audio stream to match certain parameters (audio only)
-   *
-   * Resamples and converts the currently open audio to match the params. If the audio doesn't need conforming (e.g.
-   * audio params already match or a conformed match already exists), this function will return immediately. Otherwise
-   * it will block the calling thread until the conform is complete. This function should therefore only be called
-   * from a background render thread.
-   *
-   * All audio decoders must override this. It's not pure since video decoders don't need to use this, but default
-   * behavior will abort since it should never be called.
+   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
    */
-  void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
+  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider);
 
   /**
-   * @brief Create an index for this media
+   * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
    *
-   * Indexes are used to improve speed and reliability of imported media. Calling Retrieve() will automatically check
-   * for an index and create one if it doesn't exist.
+   * Internally, our render engine only deals with PCM since it provides the least headaches and
+   * modern computers have the processing power to do it.
    *
-   * Indexing is slow so it's recommended to do it in a background thread. Index() must be called while the Decoder is
-   * open, and does not automatically call Open() and Close() the Decoder. The caller must call thse manually.
+   * Resamples and converts the currently open audio to match the params. If the audio doesn't need
+   * conforming (e.g. audio params already match or a conformed match already exists), this function
+   * will return immediately. Otherwise it will block the calling thread until the conform is
+   * complete. This function should therefore only be called from a background render thread.
+   *
+   * All audio decoders must override this. It's not pure since video decoders don't need to use
+   * this, but default behavior will abort since it should never be called.
    */
-  virtual void Index(const QAtomicInt* cancelled);
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams &params);
 
   /**
-   * @brief AUDIO ONLY: Returns whether a cached transcode of this audio matching the specified params already exists
+   * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params
+   * already exists
    */
   bool HasConformedVersion(const AudioRenderingParams& params);
 
 signals:
   /**
-   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if available
+   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
+   * available
    */
   void IndexProgress(int);
 
 protected:
-  void SignalIndexProgress(const int64_t& ts);
+  void SignalProcessingProgress(const int64_t& ts);
 
   /**
    * @brief Returns the filename for the index
    *
-   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
+   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for
+   * this to work correctly.
    */
-  virtual QString GetIndexFilename() = 0;
+  virtual QString GetIndexFilename() const = 0;
 
   /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters

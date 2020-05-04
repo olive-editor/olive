@@ -29,8 +29,6 @@
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
-#include "render/backend/indexmanager.h"
-#include "task/index/index.h"
 #include "task/taskmanager.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -47,7 +45,7 @@ Decoder::Decoder(Stream *fs) :
 {
 }
 
-StreamPtr Decoder::stream()
+StreamPtr Decoder::stream() const
 {
   return stream_;
 }
@@ -59,7 +57,7 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/, bool /*use_proxies*/)
 {
   return nullptr;
 }
@@ -134,16 +132,6 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
 
       // FIXME: Cache the results so we don't have to probe if this media is added a second time
 
-      // Start an index task
-      foreach (StreamPtr stream, f->streams()) {
-        if (stream->type() == Stream::kAudio) {
-          QMetaObject::invokeMethod(IndexManager::instance(),
-                                    "StartIndexingStream",
-                                    Qt::QueuedConnection,
-                                    OLIVE_NS_ARG(StreamPtr, stream));
-        }
-      }
-
       return true;
     }
   }
@@ -173,7 +161,7 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
+/*void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
 {
   if (stream()->type() != Stream::kAudio) {
     // Nothing to be done
@@ -265,7 +253,7 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
   } else {
     qWarning() << "Failed to conform file:" << stream()->footage()->filename();
   }
-}
+}*/
 
 void Decoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const char* in_data, int in_sample_count)
 {
@@ -295,19 +283,6 @@ void Decoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const c
 QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
 {
   QString index_fn = GetIndexFilename();
-  WaveInput input(GetIndexFilename());
-
-  // FIXME: No handling if input failed to open/is corrupt
-  if (input.open()) {
-    // If the parameters are equal, nothing to be done
-    AudioRenderingParams index_params = input.params();
-    input.close();
-
-    if (index_params == params) {
-      // Source file matches perfectly, no conform required
-      return index_fn;
-    }
-  }
 
   index_fn.append('.');
   index_fn.append(QString::number(params.sample_rate()));
@@ -319,8 +294,14 @@ QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
   return index_fn;
 }
 
-void Decoder::Index(const QAtomicInt *)
+bool Decoder::ProxyVideo(const QAtomicInt *, int )
 {
+  return false;
+}
+
+bool Decoder::ConformAudio(const QAtomicInt *, const AudioRenderingParams& )
+{
+  return false;
 }
 
 bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
@@ -349,7 +330,7 @@ bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
   return index_already_matches;
 }
 
-void Decoder::SignalIndexProgress(const int64_t &ts)
+void Decoder::SignalProcessingProgress(const int64_t &ts)
 {
   if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
     emit IndexProgress(qRound(100.0 * static_cast<double>(ts) / static_cast<double>(stream()->duration())));

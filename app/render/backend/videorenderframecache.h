@@ -25,6 +25,7 @@
 
 #include "common/rational.h"
 #include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -50,11 +51,6 @@ public:
    */
   bool TryCache(const QByteArray& hash);
 
-  /**
-   * @brief Return the path of the cached image at this time
-   */
-  QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const;
-
   void SetCacheID(const QString& id);
 
   QByteArray TimeToHash(const rational& time) const;
@@ -76,6 +72,16 @@ public:
   QList<rational> TakeFramesWithHash(const QByteArray& hash);
 
   const QMap<rational, QByteArray>& time_hash_map() const;
+
+  static QString GetFormatExtension(const PixelFormat::Format& f);
+
+  /**
+   * @brief Return the path of the cached image at this time
+   */
+  QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const;
+
+  static bool SaveCacheFrame(const QString& filename, char *data, const VideoRenderingParams &vparam);
+  void SaveCacheFrame(const QByteArray& hash, char *data, const VideoRenderingParams &vparam) const;
 
 private:
   QMap<rational, QByteArray> time_hash_map_;
