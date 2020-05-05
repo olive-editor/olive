@@ -52,6 +52,8 @@ public:
 
   Color(const char *data, const PixelFormat::Format &format);
 
+  Color(const QColor& c);
+
   /**
    * @brief Creates a Color struct from hue/saturation/value
    *

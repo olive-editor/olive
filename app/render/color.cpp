@@ -78,6 +78,14 @@ Color::Color(const char *data, const PixelFormat::Format &format)
   }
 }
 
+Color::Color(const QColor &c)
+{
+  set_red(c.redF());
+  set_green(c.greenF());
+  set_blue(c.blueF());
+  set_alpha(c.alphaF());
+}
+
 void Color::toHsv(float *hue, float *sat, float *val) const
 {
   float fCMax = qMax(qMax(red(), green()), blue());
