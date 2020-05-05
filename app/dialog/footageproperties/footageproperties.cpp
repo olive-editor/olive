@@ -109,7 +109,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
   // Auto-select first item that actually has properties
   if (first_usable_stream >= 0) {
-    track_list->item(first_usable_stream)->setSelected(true);
+    track_list->setCurrentRow(first_usable_stream);
   }
   track_list->setFocus();
 }
