@@ -51,7 +51,7 @@ OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
 
 OCIO::ConstConfigRcPtr ColorManager::CreateConfigFromFile(const QString &filename)
 {
-  SetCLocale();
+  OCIO_SET_C_LOCALE_FOR_SCOPE;
 
   return OCIO::Config::CreateFromFile(filename.toUtf8());
 }
@@ -68,10 +68,11 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
+  OCIO_SET_C_LOCALE_FOR_SCOPE;
+
   if (!qgetenv("OCIO").isEmpty()) {
     // Attempt to set config from "OCIO" environment variable
     try {
-      SetCLocale();
       default_config_ = OCIO::Config::CreateFromEnv();
 
       return;
@@ -379,6 +380,17 @@ void ColorManager::AssociateAlphaInternal(ColorManager::AlphaAction action, T *d
       }
     }
   }
+}
+
+ColorManager::SetLocale::SetLocale(const char* new_locale)
+{
+  old_locale_ = setlocale(LC_NUMERIC, nullptr);
+  setlocale(LC_NUMERIC, new_locale);
+}
+
+ColorManager::SetLocale::~SetLocale()
+{
+  setlocale(LC_NUMERIC, old_locale_.toUtf8());
 }
 
 OLIVE_NAMESPACE_EXIT
