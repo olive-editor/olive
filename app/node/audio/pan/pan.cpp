@@ -49,9 +49,9 @@ QString PanNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.pan");
 }
 
-QString PanNode::Category() const
+QList<Node::CategoryID> PanNode::Category() const
 {
-  return tr("Audio");
+  return {kCategoryChannels};
 }
 
 QString PanNode::Description() const
@@ -64,7 +64,7 @@ Node::Capabilities PanNode::GetCapabilities(const NodeValueDatabase &) const
   return kSampleProcessor;
 }
 
-NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &value) const
+NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
 {
   return samples_input_;
 }

@@ -50,7 +50,7 @@ QString ExternalTransition::id() const
   return meta_.id();
 }
 
-QString ExternalTransition::Category() const
+QList<Node::CategoryID> ExternalTransition::Category() const
 {
   return meta_.Category();
 }

@@ -48,9 +48,9 @@ QString VolumeNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.volume");
 }
 
-QString VolumeNode::Category() const
+QList<Node::CategoryID> VolumeNode::Category() const
 {
-  return tr("Audio");
+  return {kCategoryFilter};
 }
 
 QString VolumeNode::Description() const

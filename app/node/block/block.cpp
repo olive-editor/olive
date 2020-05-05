@@ -63,9 +63,9 @@ Block::Block() :
   set_length_and_media_out(1);
 }
 
-QString Block::Category() const
+QList<Node::CategoryID> Block::Category() const
 {
-  return tr("Block");
+  return {kCategoryTimeline};
 }
 
 const rational &Block::in() const

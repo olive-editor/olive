@@ -80,9 +80,9 @@ QString TrackOutput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.track");
 }
 
-QString TrackOutput::Category() const
+QList<Node::CategoryID> TrackOutput::Category() const
 {
-  return tr("Output");
+  return {kCategoryTimeline};
 }
 
 QString TrackOutput::Description() const
