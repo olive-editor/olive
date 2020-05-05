@@ -91,7 +91,7 @@ public:
   static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
 
   static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
-  
+
   class SetCLocale
   {
   public:
