@@ -49,7 +49,7 @@ public:
 
   virtual Type type() const = 0;
 
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
 
   const rational& in() const;
   const rational& out() const;

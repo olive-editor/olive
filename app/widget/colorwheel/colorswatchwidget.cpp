@@ -77,9 +77,7 @@ void ColorSwatchWidget::SelectedColorChangedEvent(const Color &, bool)
 
 Qt::GlobalColor ColorSwatchWidget::GetUISelectorColor() const
 {
-  float rough_color_luma = (GetSelectedColor().red()+GetSelectedColor().red()+GetSelectedColor().blue()+GetSelectedColor().green()+GetSelectedColor().green()+GetSelectedColor().green())/6;
-
-  if (rough_color_luma > 0.66) {
+  if (GetSelectedColor().GetRoughLuminance() > 0.66) {
     return Qt::black;
   } else {
     return Qt::white;

@@ -35,9 +35,9 @@ MediaInput::MediaInput() :
   AddInput(footage_input_);
 }
 
-QString MediaInput::Category() const
+QList<Node::CategoryID> MediaInput::Category() const
 {
-  return tr("Input");
+  return {kCategoryInput};
 }
 
 StreamPtr MediaInput::footage()

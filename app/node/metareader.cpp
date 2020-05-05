@@ -71,9 +71,9 @@ const QString &NodeMetaReader::id() const
   return id_;
 }
 
-QString NodeMetaReader::Category() const
+QList<Node::CategoryID> NodeMetaReader::Category() const
 {
-  return GetStringForCurrentLanguage(&categories_);
+  return categories_;
 }
 
 QString NodeMetaReader::Description() const
@@ -187,7 +187,19 @@ void NodeMetaReader::XMLReadEffect(QXmlStreamReader* reader)
       XMLReadLanguageString(reader, &short_names_);
     } else if (reader->name() == QStringLiteral("category")) {
       // Pick up category
-      XMLReadLanguageString(reader, &categories_);
+      QStringList category_ids = reader->readElementText().split(':');
+
+      foreach (const QString& id, category_ids) {
+        bool ok;
+
+        int try_parse = id.toInt(&ok);
+
+        if (!ok || try_parse < 0 || try_parse >= Node::kCategoryCount) {
+          continue;
+        }
+
+        categories_.append(static_cast<Node::CategoryID>(try_parse));
+      }
     } else if (reader->name() == QStringLiteral("description")) {
       // Pick up description
       XMLReadLanguageString(reader, &descriptions_);

@@ -20,10 +20,14 @@
 
 #include "preferencesappearancetab.h"
 
+#include <QColorDialog>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
-#include <QPushButton>
+
+#include "node/node.h"
+#include "widget/colorbutton/colorbutton.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -44,7 +48,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
   style_list_ = StyleManager::ListInternal();
 
-  foreach (StyleDescriptor s, style_list_) {
+  foreach (const StyleDescriptor& s, style_list_) {
     style_->addItem(s.name(), s.path());
 
     if (s.path() == StyleManager::GetStyle()) {
@@ -52,9 +56,33 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
     }
   }
 
-  appearance_layout->addWidget(style_, row, 1, 1, 2);
+  appearance_layout->addWidget(style_, row, 1);
 
   row++;
+
+  {
+    QGroupBox* color_group = new QGroupBox();
+    color_group->setTitle(tr("Node Color Scheme"));
+
+    QGridLayout* color_layout = new QGridLayout(color_group);
+
+    for (int i=0; i<Node::kCategoryCount; i++) {
+      QString cat_name = Node::GetCategoryName(static_cast<Node::CategoryID>(i));
+      color_layout->addWidget(new QLabel(cat_name), i, 0);
+
+      Color c = Config::Current()[QStringLiteral("NodeCatColor%1").arg(i)].value<Color>();
+      colors_.append(c.toQColor());
+
+      QPushButton* color_btn = new QPushButton();
+      connect(color_btn, &QPushButton::clicked, this, &PreferencesAppearanceTab::ColorButtonClicked);
+      color_layout->addWidget(color_btn, i, 1);
+      color_btns_.append(color_btn);
+
+      UpdateButtonColor(i);
+    }
+
+    appearance_layout->addWidget(color_group, row, 0, 1, 2);
+  }
 
   layout->addStretch();
 }
@@ -66,6 +94,29 @@ void PreferencesAppearanceTab::Accept()
   if (style_path != StyleManager::GetStyle()) {
     StyleManager::SetStyle(style_path);
     Config::Current()["Style"] = style_path;
+  }
+
+  for (int i=0;i<colors_.size();i++) {
+    Config::Current()[QStringLiteral("NodeCatColor%1").arg(i)] = QVariant::fromValue(Color(colors_.at(i)));
+  }
+}
+
+void PreferencesAppearanceTab::UpdateButtonColor(int index)
+{
+  color_btns_.at(index)->setStyleSheet(QStringLiteral("background: %1;")
+                                       .arg(colors_.at(index).name()));
+}
+
+void PreferencesAppearanceTab::ColorButtonClicked()
+{
+  int index = color_btns_.indexOf(static_cast<QPushButton*>(sender()));
+
+  QColor new_color = QColorDialog::getColor(colors_.at(index), this);
+
+  if (new_color.isValid()) {
+    colors_.replace(index, new_color);
+
+    UpdateButtonColor(index);
   }
 }
 

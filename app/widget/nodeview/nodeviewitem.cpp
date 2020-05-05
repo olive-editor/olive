@@ -28,6 +28,7 @@
 
 #include "common/flipmodifiers.h"
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "core.h"
 #include "nodeview.h"
 #include "nodeviewscene.h"
@@ -260,8 +261,11 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // Draw the titlebar
   if (!hide_titlebar_ && node_) {
 
+    Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
+        .arg(node_->Category().first())].value<Color>();
+
     painter->setPen(Qt::black);
-    painter->setBrush(css_proxy_.TitleBarColor());
+    painter->setBrush(node_color.toQColor());
 
     painter->drawRect(title_bar_rect_);
 
@@ -293,6 +297,12 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       }
     }
 
+    if (node_color.GetRoughLuminance() > 0.66) {
+      painter->setPen(Qt::black);
+    } else {
+      painter->setPen(Qt::white);
+    }
+
     // Draw the text in a rect (the rect is sized around text already in the constructor)
     painter->drawText(title_bar_rect_,
                       Qt::AlignCenter,
@@ -307,7 +317,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   if (option->state & QStyle::State_Selected) {
     border_pen.setColor(app_pal.color(QPalette::Highlight));
   } else {
-    border_pen.setColor(css_proxy_.BorderColor());
+    border_pen.setColor(Qt::black);
   }
 
   painter->setPen(border_pen);

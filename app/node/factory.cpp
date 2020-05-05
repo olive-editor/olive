@@ -73,34 +73,25 @@ Menu *NodeFactory::CreateMenu(QWidget* parent)
     // Make sure nodes are up-to-date with the current translation
     n->Retranslate();
 
-    QStringList path = n->Category().split('/');
+    Menu* destination = nullptr;
 
-    Menu* destination = menu;
+    QString category_name = Node::GetCategoryName(n->Category().isEmpty()
+                                                  ? Node::kCategoryUnknown
+                                                  : n->Category().first());
 
-    // Find destination menu based on category hierarchy
-    foreach (const QString& dir_name, path) {
-      // Ignore an empty directory
-      if (dir_name.isEmpty()) {
-        continue;
+    // See if a menu with this category name already exists
+    QList<QAction*> menu_actions = menu->actions();
+    foreach (QAction* action, menu_actions) {
+      if (action->menu() && action->menu()->title() == category_name) {
+        destination = static_cast<Menu*>(action->menu());
+        break;
       }
+    }
 
-      // See if a menu with this dir_name already exists
-      bool found_cat = false;
-      QList<QAction*> menu_actions = destination->actions();
-      foreach (QAction* action, menu_actions) {
-        if (action->menu() && action->menu()->title() == dir_name) {
-          destination = static_cast<Menu*>(action->menu());
-          found_cat = true;
-          break;
-        }
-      }
-
-      // Create menu here if it doesn't exist
-      if (!found_cat) {
-        Menu* new_category = new Menu(dir_name, destination);
-        destination->InsertAlphabetically(new_category);
-        destination = new_category;
-      }
+    // Create menu here if it doesn't exist
+    if (!destination) {
+      destination = new Menu(category_name, menu);
+      menu->InsertAlphabetically(destination);
     }
 
     // Add entry to menu

@@ -23,6 +23,7 @@
 
 #include <QComboBox>
 #include <QLineEdit>
+#include <QPushButton>
 
 #include "preferencestab.h"
 #include "ui/style/style.h"
@@ -43,6 +44,8 @@ private:
    */
   void BrowseForCSS();
 
+  void UpdateButtonColor(int index);
+
   /**
    * @brief UI widget for selecting the current UI style
    */
@@ -54,6 +57,14 @@ private:
   QList<StyleDescriptor> style_list_;
 
   QString custom_style_path_;
+
+  QList<QColor> colors_;
+
+  QList<QPushButton*> color_btns_;
+
+private slots:
+  void ColorButtonClicked();
+
 };
 
 OLIVE_NAMESPACE_EXIT
