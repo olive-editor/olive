@@ -36,6 +36,8 @@ public:
 
   OCIO::ConstConfigRcPtr GetConfig() const;
 
+  static OCIO::ConstConfigRcPtr CreateConfigFromFile(const QString& filename);
+
   const QString& GetConfigFilename() const;
 
   static OCIO::ConstConfigRcPtr GetDefaultConfig();
@@ -89,6 +91,53 @@ public:
   static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
 
   static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
+
+  class SetCLocale
+  {
+  public:
+    SetCLocale()
+    {
+#ifdef Q_OS_WINDOWS
+      // set locale will only change locale on the current thread
+      previousThreadConfig = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
+
+      // get and store current locale
+      ssaLocale.convert(setlocale(LC_ALL, NULL));
+
+      // set to "C" locale
+      setlocale(LC_ALL, "C");
+#else
+      // set to C locale, saving the old one (returned from useLocale)
+      currentLocale = newlocale(LC_ALL_MASK,"C",NULL);
+      oldLocale = uselocale(currentLocale);
+#endif
+    }
+
+    ~SetCLocale()
+    {
+#ifdef Q_OS_WINDOWS
+      // thread specific
+      setlocale(LC_ALL, ssaLocale.c_str());
+
+      // set back to global settings]
+      _configthreadlocale(previousThreadConfig);
+#else
+      // restore the previous locale and freeing the created locale
+      uselocale(oldLocale);
+      freelocale(currentLocale);
+#endif
+    }
+
+  private:
+#ifdef Q_OS_WINDOWS
+    SoStringA ssaLocale;
+    int previousThreadConfig;
+#else
+    locale_t oldLocale;
+    locale_t currentLocale;
+#endif
+
+  };
 
 signals:
   void ConfigChanged();
