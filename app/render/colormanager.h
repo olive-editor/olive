@@ -102,7 +102,7 @@ public:
       previousThreadConfig = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
 
       // get and store current locale
-      ssaLocale = setlocale(LC_ALL, NULL);
+      ssaLocale = QString::fromUtf8(setlocale(LC_ALL, NULL));
 
       // set to "C" locale
       setlocale(LC_ALL, "C");
