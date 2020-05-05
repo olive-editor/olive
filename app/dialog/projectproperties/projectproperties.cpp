@@ -177,7 +177,7 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
     if (ocio_filename_->text().isEmpty()) {
       c = ColorManager::GetDefaultConfig();
     } else {
-      c = OCIO::Config::CreateFromFile(ocio_filename_->text().toUtf8());
+      c = ColorManager::CreateConfigFromFile(ocio_filename_->text());
     }
 
     ocio_filename_->setStyleSheet(QString());
