@@ -98,7 +98,8 @@ void WaveformScope::DrawScope()
   QFontMetrics font_metrics = QFontMetrics(QFont());
   QString label;
   float ire_increment = 0.1f;
-  float ire_steps = int(1.0 / ire_increment);
+  // Cast required to avoid floating point errors
+  int ire_steps = static_cast<int>(std::round(1.0 / ire_increment));
   QVector<QLine> ire_lines(ire_steps + 1);
   int font_x_offset = 0;
   int font_y_offset = font_metrics.capHeight() / 2.0f;
