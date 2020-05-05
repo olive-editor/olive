@@ -91,7 +91,7 @@ public:
   static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
 
   static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
-
+  
   class SetCLocale
   {
   public:
@@ -102,7 +102,7 @@ public:
       previousThreadConfig = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
 
       // get and store current locale
-      ssaLocale.convert(setlocale(LC_ALL, NULL));
+      ssaLocale = setlocale(LC_ALL, NULL);
 
       // set to "C" locale
       setlocale(LC_ALL, "C");
@@ -117,7 +117,7 @@ public:
     {
 #ifdef Q_OS_WINDOWS
       // thread specific
-      setlocale(LC_ALL, ssaLocale.c_str());
+      setlocale(LC_ALL, qPrintable(ssaLocale));
 
       // set back to global settings]
       _configthreadlocale(previousThreadConfig);
@@ -130,7 +130,7 @@ public:
 
   private:
 #ifdef Q_OS_WINDOWS
-    SoStringA ssaLocale;
+    QString ssaLocale;
     int previousThreadConfig;
 #else
     locale_t oldLocale;
