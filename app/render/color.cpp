@@ -207,6 +207,11 @@ QColor Color::toQColor() const
   return c;
 }
 
+float Color::GetRoughLuminance() const
+{
+  return (2*red()+blue()+3*green())/6.0f;
+}
+
 const Color &Color::operator+=(const Color &rhs)
 {
   for (int i=0;i<kRGBAChannels;i++) {

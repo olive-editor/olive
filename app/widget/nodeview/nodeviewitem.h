@@ -131,13 +131,6 @@ private:
   QList<NodeInput*> node_inputs_;
 
   /**
-   * @brief A QWidget that can receive CSS properties that NodeViewItem can use
-   *
-   * \see NodeViewItemWidget
-   */
-  NodeViewItemWidget css_proxy_;
-
-  /**
    * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)
    */
   QRectF title_bar_rect_;

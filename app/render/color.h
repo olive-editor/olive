@@ -86,6 +86,10 @@ public:
 
   QColor toQColor() const;
 
+  // Suuuuper rough luminance value mostly used for UI (determining whether to overlay with black
+  // or white text)
+  float GetRoughLuminance() const;
+
   // Assignment math operators
   const Color& operator+=(const Color& rhs);
   const Color& operator-=(const Color& rhs);
