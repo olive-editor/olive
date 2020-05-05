@@ -48,9 +48,9 @@ QString TrigonometryNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.trigonometry");
 }
 
-QString TrigonometryNode::Category() const
+QList<Node::CategoryID> TrigonometryNode::Category() const
 {
-  return tr("Math");
+  return {kCategoryMath};
 }
 
 QString TrigonometryNode::Description() const

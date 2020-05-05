@@ -26,6 +26,7 @@
 #include <QXmlStreamReader>
 
 #include "input.h"
+#include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,7 +38,7 @@ public:
   QString Name() const;
   QString ShortName() const;
   const QString& id() const;
-  QString Category() const;
+  QList<Node::CategoryID> Category() const;
   QString Description() const;
 
   const QString& filename() const;
@@ -70,7 +71,7 @@ private:
   LanguageMap names_;
   LanguageMap short_names_;
   LanguageMap descriptions_;
-  LanguageMap categories_;
+  QList<Node::CategoryID> categories_;
   QMap<QString, LanguageMap > param_names_;
   QMap<QString, QList<LanguageMap> > combo_names_;
   QMap<QString, QList<LanguageMap> > combo_descriptions_;

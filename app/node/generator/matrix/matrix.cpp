@@ -69,9 +69,9 @@ QString MatrixGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.transform");
 }
 
-QString MatrixGenerator::Category() const
+QList<Node::CategoryID> MatrixGenerator::Category() const
 {
-  return tr("Generator");
+  return {kCategoryGenerator, kCategoryMath};
 }
 
 QString MatrixGenerator::Description() const

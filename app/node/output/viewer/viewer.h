@@ -49,7 +49,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   NodeInput* texture_input() const;

@@ -52,7 +52,7 @@ QString ExternalNode::id() const
   return meta_.id();
 }
 
-QString ExternalNode::Category() const
+QList<Node::CategoryID> ExternalNode::Category() const
 {
   return meta_.Category();
 }

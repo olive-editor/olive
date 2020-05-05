@@ -127,12 +127,6 @@ QString Node::ShortName() const
   return Name();
 }
 
-QString Node::Category() const
-{
-  // Return an empty category for any nodes that don't use one
-  return QString();
-}
-
 QString Node::Description() const
 {
   // Return an empty string by default
@@ -558,6 +552,35 @@ void Node::DisconnectAll()
   foreach (NodeParam* param, params_) {
     param->DisconnectAll();
   }
+}
+
+QString Node::GetCategoryName(const CategoryID &c)
+{
+  switch (c) {
+  case kCategoryInput:
+    return tr("Input");
+  case kCategoryOutput:
+    return tr("Output");
+  case kCategoryGeneral:
+    return tr("General");
+  case kCategoryMath:
+    return tr("Math");
+  case kCategoryColor:
+    return tr("Color");
+  case kCategoryFilter:
+    return tr("Filter");
+  case kCategoryTimeline:
+    return tr("Timeline");
+  case kCategoryGenerator:
+    return tr("Generator");
+  case kCategoryChannels:
+    return tr("Channel");
+  case kCategoryUnknown:
+  case kCategoryCount:
+    break;
+  }
+
+  return tr("Uncategorized");
 }
 
 QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
