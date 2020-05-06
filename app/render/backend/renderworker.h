@@ -59,11 +59,9 @@ protected:
 
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
 
-  virtual void InputProcessingEvent(NodeInput *input, const TimeRange &input_time, NodeValueTable* table) override;
+  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
 
   virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) override;
-
-  StreamPtr ResolveStreamFromInput(NodeInput* input);
 
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 

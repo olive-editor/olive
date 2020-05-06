@@ -49,6 +49,13 @@ OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
   return config_;
 }
 
+OCIO::ConstConfigRcPtr ColorManager::CreateConfigFromFile(const QString &filename)
+{
+  OCIO_SET_C_LOCALE_FOR_SCOPE;
+
+  return OCIO::Config::CreateFromFile(filename.toUtf8());
+}
+
 const QString &ColorManager::GetConfigFilename() const
 {
   return config_filename_;
@@ -61,7 +68,10 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
+  OCIO_SET_C_LOCALE_FOR_SCOPE;
+
   if (!qgetenv("OCIO").isEmpty()) {
+    // Attempt to set config from "OCIO" environment variable
     try {
       default_config_ = OCIO::Config::CreateFromEnv();
 
@@ -71,7 +81,7 @@ void ColorManager::SetUpDefaultConfig()
     }
   }
 
-  // Kind of hacky, but it'll work
+  // Extract OCIO config - kind of hacky, but it'll work
   QString dir = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("ocioconf"));
 
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
@@ -80,7 +90,7 @@ void ColorManager::SetUpDefaultConfig()
 
   qDebug() << "Extracting default OCIO config to" << dir;
 
-  default_config_ = OCIO::Config::CreateFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")).toUtf8());
+  default_config_ = CreateConfigFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")));
 }
 
 void ColorManager::SetConfig(const QString &filename)
@@ -370,6 +380,17 @@ void ColorManager::AssociateAlphaInternal(ColorManager::AlphaAction action, T *d
       }
     }
   }
+}
+
+ColorManager::SetLocale::SetLocale(const char* new_locale)
+{
+  old_locale_ = setlocale(LC_NUMERIC, nullptr);
+  setlocale(LC_NUMERIC, new_locale);
+}
+
+ColorManager::SetLocale::~SetLocale()
+{
+  setlocale(LC_NUMERIC, old_locale_.toUtf8());
 }
 
 OLIVE_NAMESPACE_EXIT

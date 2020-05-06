@@ -22,6 +22,11 @@
 
 #include <QApplication>
 #include <QMouseEvent>
+#include <QDebug>
+
+#ifdef Q_OS_MAC
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 
 OLIVE_NAMESPACE_ENTER
 
@@ -48,40 +53,51 @@ SliderLabel::SliderLabel(QWidget *parent) :
   setFocusPolicy(Qt::TabFocus);
 }
 
-void SliderLabel::mousePressEvent(QMouseEvent *ev)
+void SliderLabel::mousePressEvent(QMouseEvent *)
 {
-  QLabel::mousePressEvent(ev);
+  emit drag_start();
 
+#if defined(Q_OS_MAC)
+  CGAssociateMouseAndMouseCursorPosition(false);
+  CGDisplayHideCursor(kCGDirectMainDisplay);
+  CGGetLastMouseDelta(nullptr, nullptr);
+#else
   drag_start_ = QCursor::pos();
 
   static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
-
-  emit drag_start();
+#endif
 }
 
-void SliderLabel::mouseMoveEvent(QMouseEvent *ev)
+void SliderLabel::mouseMoveEvent(QMouseEvent *)
 {
-  QLabel::mouseMoveEvent(ev);
-
-  QPoint current_pos = QCursor::pos();
-
-  int x_mvmt = current_pos.x() - drag_start_.x();
-  int y_mvmt = drag_start_.y() - current_pos.y();
-
-  emit dragged(x_mvmt + y_mvmt);
+  int32_t x_mvmt, y_mvmt;
 
   // Keep cursor in the same position
+#if defined(Q_OS_MAC)
+  CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
+#else
+  QPoint current_pos = QCursor::pos();
+
+  x_mvmt = current_pos.x() - drag_start_.x();
+  y_mvmt = drag_start_.y() - current_pos.y();
+
   QCursor::setPos(drag_start_);
+#endif
+
+  emit dragged(x_mvmt + y_mvmt);
 }
 
-void SliderLabel::mouseReleaseEvent(QMouseEvent *ev)
+void SliderLabel::mouseReleaseEvent(QMouseEvent *)
 {
-  QWidget::mouseReleaseEvent(ev);
+#if defined(Q_OS_MAC)
+  CGAssociateMouseAndMouseCursorPosition(true);
+  CGDisplayShowCursor(kCGDirectMainDisplay);
+#else
+  static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
+#endif
 
   // Emit a clicked signal
   emit drag_stop();
-
-  static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
 }
 
 void SliderLabel::focusInEvent(QFocusEvent *event)

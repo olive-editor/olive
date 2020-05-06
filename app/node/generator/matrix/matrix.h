@@ -43,7 +43,12 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
+  virtual bool HasGizmos() const override;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale) const override;
+
 private:
+  QMatrix4x4 GenerateMatrix(NodeValueDatabase& value) const;
+
   NodeInput* position_input_;
 
   NodeInput* rotation_input_;

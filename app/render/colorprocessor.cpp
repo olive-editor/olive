@@ -44,10 +44,12 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
       display_transform->setLooksOverrideEnabled(true);
     }
 
+    OCIO_SET_C_LOCALE_FOR_SCOPE;
     processor_ = config->GetConfig()->getProcessor(display_transform);
 
   } else {
 
+    OCIO_SET_C_LOCALE_FOR_SCOPE;
     processor_ = config->GetConfig()->getProcessor(input.toUtf8(),
                                                    output.toUtf8());
 

@@ -23,6 +23,7 @@
 
 #include <QCryptographicHash>
 #include <QObject>
+#include <QPainter>
 #include <QPointF>
 #include <QXmlStreamWriter>
 
@@ -379,6 +380,14 @@ public:
   QList<NodeInput*> GetInputsIncludingArrays() const;
 
   QList<NodeOutput*> GetOutputs() const;
+
+  virtual bool HasGizmos() const;
+
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale) const;
+
+  virtual bool GizmoPress(const QPointF& p);
+  virtual void GizmoMove(const QPointF& p);
+  virtual void GizmoRelease(const QPointF& p);
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);

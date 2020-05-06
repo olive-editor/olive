@@ -18,7 +18,7 @@
 
 ***/
 
-#include "timetargetobject.h"
+#include "timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 

@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(matrix)
+add_subdirectory(polygon)
+add_subdirectory(solid)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

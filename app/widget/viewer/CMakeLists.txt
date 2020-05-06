@@ -20,8 +20,8 @@ set(OLIVE_SOURCES
   widget/viewer/audiowaveformview.cpp
   widget/viewer/footageviewer.h
   widget/viewer/footageviewer.cpp
-  widget/viewer/pixelsamplerwidget.h
-  widget/viewer/pixelsamplerwidget.cpp
+  widget/viewer/gizmotraverser.h
+  widget/viewer/gizmotraverser.cpp
   widget/viewer/viewer.h
   widget/viewer/viewer.cpp
   widget/viewer/viewerdisplay.h

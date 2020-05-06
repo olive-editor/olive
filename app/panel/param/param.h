@@ -45,6 +45,8 @@ signals:
 
   void RequestSelectNode(const QList<Node*>& target);
 
+  void FoundGizmos(Node* node);
+
 protected:
   virtual void Retranslate() override;
 

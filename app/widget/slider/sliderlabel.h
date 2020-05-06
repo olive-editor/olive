@@ -54,6 +54,8 @@ signals:
 private:
   QPoint drag_start_;
 
+  bool cancel_mm_event_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

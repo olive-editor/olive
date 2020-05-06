@@ -83,15 +83,15 @@ void Config::SetDefaults()
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
   config_map_["Loop"] = false;
 
-  config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.25, 0.25, 0.65));
-  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.6, 0.6, 0.85));
-  config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75, 0.75, 0.45));
-  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.25, 0.5, 0.25));
-  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25, 0.65, 0.25));
-  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.35, 0.35, 0.35));
-  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.45, 0.45, 0.45));
-  config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.7, 0.3, 0.7));
-  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.85, 0.65, 0.4));
+  config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.65f));
+  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.6f, 0.6f, 0.85f));
+  config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.45f));
+  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.25f, 0.5f, 0.25f));
+  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.65f, 0.25f));
+  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.35f, 0.35f, 0.35f));
+  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.45f, 0.45f, 0.45f));
+  config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.7f, 0.3f, 0.7f));
+  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.85f, 0.65f, 0.4f));
 
   config_map_["AudioOutput"] = QString();
   config_map_["AudioInput"] = QString();

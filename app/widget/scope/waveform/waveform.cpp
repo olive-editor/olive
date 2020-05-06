@@ -32,59 +32,24 @@
 OLIVE_NAMESPACE_ENTER
 
 WaveformScope::WaveformScope(QWidget* parent) :
-  ManagedDisplayWidget(parent),
-  buffer_(nullptr)
+  ScopeBase(parent)
 {
-  EnableDefaultContextMenu();
 }
 
-WaveformScope::~WaveformScope()
+OpenGLShaderPtr WaveformScope::CreateShader()
 {
-  CleanUp();
+  OpenGLShaderPtr pipeline = OpenGLShader::Create();
 
-  if (context()) {
-    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp);
-  }
+  pipeline->create();
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
+  pipeline->link();
+
+  return pipeline;
 }
 
-void WaveformScope::SetBuffer(Frame *frame)
+void WaveformScope::DrawScope()
 {
-  buffer_ = frame;
-
-  UploadTextureFromBuffer();
-}
-
-void WaveformScope::showEvent(QShowEvent* e)
-{
-  ManagedDisplayWidget::showEvent(e);
-
-  UploadTextureFromBuffer();
-}
-
-void WaveformScope::initializeGL()
-{
-  ManagedDisplayWidget::initializeGL();
-
-  pipeline_ = OpenGLShader::Create();
-  pipeline_->create();
-  pipeline_->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
-  pipeline_->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
-  pipeline_->link();
-
-  framebuffer_.Create(context());
-
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &WaveformScope::CleanUp, Qt::DirectConnection);
-
-  UploadTextureFromBuffer();
-}
-
-void WaveformScope::paintGL()
-{
-  QOpenGLFunctions* f = context()->functions();
-
-  f->glClearColor(0, 0, 0, 0);
-  f->glClear(GL_COLOR_BUFFER_BIT);
-
   float waveform_scale = 0.80f;
   float waveform_dim_x = width() * waveform_scale;
   float waveform_dim_y = height() * waveform_scale;
@@ -93,66 +58,47 @@ void WaveformScope::paintGL()
   float waveform_end_dim_x = width() - waveform_start_dim_x;
   float waveform_end_dim_y = height() - waveform_start_dim_y;
 
-  if (buffer_ && pipeline_ && texture_.IsCreated()) {
-    // Convert reference frame to display space
-    framebuffer_.Attach(&managed_tex_);
-    framebuffer_.Bind();
+  // Draw waveform through shader
+  pipeline()->bind();
+  pipeline()->setUniformValue("ove_resolution", managed_tex().width(), managed_tex().height());
+  pipeline()->setUniformValue("ove_viewport", width(), height());
+  GLfloat luma[3] = {0.0, 0.0, 0.0};
+  color_manager()->GetDefaultLumaCoefs(luma);
+  pipeline()->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
 
-    texture_.Bind();
+  // Scale of the waveform relative to the viewport surface.
+  pipeline()->setUniformValue("waveform_scale", waveform_scale);
+  pipeline()->setUniformValue(
+    "waveform_dims", waveform_dim_x, waveform_dim_y);
 
-    f->glViewport(0, 0, texture_.width(), texture_.height());
+  pipeline()->setUniformValue(
+    "waveform_region",
+    waveform_start_dim_x, waveform_start_dim_y,
+    waveform_end_dim_x, waveform_end_dim_y);
 
-    color_service()->ProcessOpenGL();
+  float waveform_start_uv_x = waveform_start_dim_x / width();
+  float waveform_start_uv_y = waveform_start_dim_y / height();
+  float waveform_end_uv_x = waveform_end_dim_x / width();
+  float waveform_end_uv_y = waveform_end_dim_y / height();
+  pipeline()->setUniformValue(
+    "waveform_uv",
+    waveform_start_uv_x, waveform_start_uv_y,
+    waveform_end_uv_x, waveform_end_uv_y);
 
-    texture_.Release();
+  pipeline()->release();
 
-    framebuffer_.Release();
-    framebuffer_.Detach();
+  managed_tex().Bind();
 
-    // Draw waveform through shader
-    pipeline_->bind();
-    pipeline_->setUniformValue("ove_resolution", texture_.width(), texture_.height());
-    pipeline_->setUniformValue("ove_viewport", width(), height());
-    GLfloat luma[3] = {0.0, 0.0, 0.0};
-    color_manager()->GetDefaultLumaCoefs(luma);
-    pipeline_->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
+  OpenGLRenderFunctions::Blit(pipeline());
 
-    // Scale of the waveform relative to the viewport surface.
-    pipeline_->setUniformValue("waveform_scale", waveform_scale);
-    pipeline_->setUniformValue(
-      "waveform_dims", waveform_dim_x, waveform_dim_y);
-
-    pipeline_->setUniformValue(
-      "waveform_region",
-      waveform_start_dim_x, waveform_start_dim_y,
-      waveform_end_dim_x, waveform_end_dim_y);
-
-    float waveform_start_uv_x = waveform_start_dim_x / width();
-    float waveform_start_uv_y = waveform_start_dim_y / height();
-    float waveform_end_uv_x = waveform_end_dim_x / width();
-    float waveform_end_uv_y = waveform_end_dim_y / height();
-    pipeline_->setUniformValue(
-      "waveform_uv",
-      waveform_start_uv_x, waveform_start_uv_y,
-      waveform_end_uv_x, waveform_end_uv_y);
-
-    pipeline_->release();
-
-    f->glViewport(0, 0, width(), height());
-
-    managed_tex_.Bind();
-
-    OpenGLRenderFunctions::Blit(pipeline_);
-
-    managed_tex_.Release();
-  }
+  managed_tex().Release();
 
   // Draw line overlays
   QPainter p(this);
   QFontMetrics font_metrics = QFontMetrics(QFont());
   QString label;
   float ire_increment = 0.1f;
-  float ire_steps = int(1.0 / ire_increment);
+  int ire_steps = qRound(1.0 / ire_increment);
   QVector<QLine> ire_lines(ire_steps + 1);
   int font_x_offset = 0;
   int font_y_offset = font_metrics.capHeight() / 2.0f;
@@ -177,46 +123,6 @@ void WaveformScope::paintGL()
         label);
   }
   p.drawLines(ire_lines);
-}
-
-void WaveformScope::UploadTextureFromBuffer()
-{
-  if (!isVisible()) {
-    return;
-  }
-
-  if (buffer_) {
-    makeCurrent();
-
-    if (!texture_.IsCreated()
-        || texture_.width() != buffer_->width()
-        || texture_.height() != buffer_->height()
-        || texture_.format() != buffer_->format()) {
-      texture_.Destroy();
-      managed_tex_.Destroy();
-
-      texture_.Create(context(), buffer_);
-      managed_tex_.Create(context(), buffer_->video_params());
-    } else {
-      texture_.Upload(buffer_);
-    }
-
-    doneCurrent();
-  }
-
-  update();
-}
-
-void WaveformScope::CleanUp()
-{
-  makeCurrent();
-
-  pipeline_ = nullptr;
-  texture_.Destroy();
-  managed_tex_.Destroy();
-  framebuffer_.Destroy();
-
-  doneCurrent();
 }
 
 OLIVE_NAMESPACE_EXIT

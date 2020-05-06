@@ -90,29 +90,57 @@ void MatrixGenerator::Retranslate()
 
 NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
 {
+  // Push matrix output
+  QMatrix4x4 mat = GenerateMatrix(value);
+  NodeValueTable output = value.Merge();
+  output.Push(NodeParam::kMatrix, mat);
+  return output;
+}
+
+bool MatrixGenerator::HasGizmos() const
+{
+  return true;
+}
+
+void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
+{
+  // FIXME: Implement this properly
+  /*
+  p->setPen(Qt::white);
+
+  // Fold values into a matrix
+  QMatrix4x4 matrix = GenerateMatrix(db);
+
+  // Set QPainter transform to our matrix
+  p->setTransform(matrix.toTransform());
+
+  // Draw ellipse
+  p->drawEllipse(QRect(0, 0, 100, 100));
+  */
+}
+
+QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value) const
+{
   QMatrix4x4 mat;
 
   // Position translate
-  QVector2D pos = value[position_input_].Get(NodeParam::kVec2).value<QVector2D>();
+  QVector2D pos = value[position_input_].Take(NodeParam::kVec2).value<QVector2D>();
   mat.translate(pos);
 
   // Rotation
-  mat.rotate(value[rotation_input_].Get(NodeParam::kFloat).toFloat(), 0, 0, 1);
+  mat.rotate(value[rotation_input_].Take(NodeParam::kFloat).toFloat(), 0, 0, 1);
 
   // Scale and Uniform Scale
-  QVector2D scale = value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>();
-  if (value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool()) {
+  QVector2D scale = value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+  if (value[uniform_scale_input_].Take(NodeParam::kBoolean).toBool()) {
     scale.setY(scale.x());
   }
   mat.scale(scale);
 
   // Anchor Point
-  mat.translate(-value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>());
+  mat.translate(-value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>());
 
-  // Push matrix output
-  NodeValueTable output;
-  output.Push(NodeParam::kMatrix, mat);
-  return output;
+  return mat;
 }
 
 void MatrixGenerator::UniformScaleChanged()

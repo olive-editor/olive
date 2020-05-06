@@ -99,9 +99,11 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible) override;
 
   virtual void ParamsChangedEvent(){}
+
+  virtual void WorkerAboutToStartEvent(RenderWorker* worker) override;
 
   VideoRenderWorker::OperatingMode operating_mode_;
 
@@ -134,6 +136,8 @@ private:
   bool limit_caching_;
 
   bool pop_toggle_;
+
+  bool queue_is_visible_only_;
 
 private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);

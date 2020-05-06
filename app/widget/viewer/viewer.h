@@ -87,6 +87,8 @@ public:
 
   ColorManager* color_manager() const;
 
+  void SetGizmos(Node* node);
+
 public slots:
   void Play(bool in_to_out_only);
 
@@ -233,6 +235,8 @@ private slots:
   void WindowAboutToClose();
 
   void ContextMenuScopeTriggered(QAction* action);
+
+  void RendererGeneratedFrame(FramePtr f);
 
 };
 

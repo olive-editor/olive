@@ -16,6 +16,7 @@
 
 add_subdirectory(audio)
 add_subdirectory(block)
+add_subdirectory(filter)
 add_subdirectory(generator)
 add_subdirectory(input)
 add_subdirectory(math)
@@ -27,8 +28,6 @@ set(OLIVE_SOURCES
   node/dependency.cpp
   node/edge.h
   node/edge.cpp
-  node/external.h
-  node/external.cpp
   node/factory.h
   node/factory.cpp
   node/graph.h
@@ -39,8 +38,6 @@ set(OLIVE_SOURCES
   node/inputarray.cpp
   node/keyframe.h
   node/keyframe.cpp
-  node/metareader.h
-  node/metareader.cpp
   node/node.h
   node/node.cpp
   node/output.h

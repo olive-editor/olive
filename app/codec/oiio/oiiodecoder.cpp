@@ -174,9 +174,10 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
 
   FramePtr frame = Frame::Create();
 
-  frame->set_video_params(VideoRenderingParams(buffer_->spec().width / divider,
-                                               buffer_->spec().height / divider,
-                                               pix_fmt_));
+  frame->set_video_params(VideoRenderingParams(buffer_->spec().width,
+                                               buffer_->spec().height,
+                                               pix_fmt_,
+                                               divider));
   frame->allocate();
 
   if (divider == 1) {

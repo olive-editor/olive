@@ -110,7 +110,10 @@ void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable*
       bool has_alpha = PixelFormat::FormatHasAlphaChannel(frame->format());
 
       // Convert frame to float for OCIO
-      frame = PixelFormat::ConvertPixelFormat(frame, has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F);
+      frame = PixelFormat::ConvertPixelFormat(frame,
+                                              has_alpha
+                                              ? PixelFormat::PIX_FMT_RGBA32F
+                                              : PixelFormat::PIX_FMT_RGB32F);
 
       // If alpha is associated, disassociate for the color transform
       if (has_alpha && video_stream->premultiplied_alpha()) {
@@ -281,7 +284,25 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
           shader->setUniformValue(variable_location, value.toFloat());
           break;
         case NodeInput::kVec2:
-          shader->setUniformValue(variable_location, value.value<QVector2D>());
+          if (input->IsArray()) {
+            NodeInputArray* array = static_cast<NodeInputArray*>(input);
+            QVector<QVector2D> a(array->GetSize());
+
+            for (int i=0;i<a.size();i++) {
+              a[i] = input_params[array->At(i)].Get(NodeParam::kVec2).value<QVector2D>();
+            }
+
+            shader->setUniformValueArray(variable_location, a.constData(), a.size());
+
+            int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(input->id()));
+            if (count_location > -1) {
+              shader->setUniformValue(count_location,
+                                      array->GetSize());
+            }
+
+          } else {
+            shader->setUniformValue(variable_location, value.value<QVector2D>());
+          }
           break;
         case NodeInput::kVec3:
           shader->setUniformValue(variable_location, value.value<QVector3D>());

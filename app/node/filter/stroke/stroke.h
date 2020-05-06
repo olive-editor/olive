@@ -18,28 +18,21 @@
 
 ***/
 
-#ifndef EXTERNALNODE_H
-#define EXTERNALNODE_H
+#ifndef STROKEFILTERNODE_H
+#define STROKEFILTERNODE_H
 
-#include <QXmlStreamReader>
-
-#include "node.h"
-#include "metareader.h"
+#include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-/**
- * @brief A node generated from an external XML metadata file
- */
-class ExternalNode : public Node
+class StrokeFilterNode : public Node
 {
 public:
-  ExternalNode(const QString& xml_meta_filename);
+  StrokeFilterNode();
 
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
-  virtual QString ShortName() const override;
   virtual QString id() const override;
   virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
@@ -47,15 +40,21 @@ public:
   virtual void Retranslate() override;
 
   virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual QString ShaderVertexCode(const NodeValueDatabase&) const override;
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
-  virtual int ShaderIterations() const override;
-  virtual NodeInput* ShaderIterativeInput() const override;
 
 private:
-  NodeMetaReader meta_;
+  NodeInput* tex_input_;
+
+  NodeInput* color_input_;
+
+  NodeInput* radius_input_;
+
+  NodeInput* opacity_input_;
+
+  NodeInput* inner_input_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXTERNALNODE_H
+#endif // STROKEFILTERNODE_H

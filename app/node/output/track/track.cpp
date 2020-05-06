@@ -420,11 +420,11 @@ NodeInputArray *TrackOutput::block_input() const
 
 void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  // Resolve block list
   Block* b = BlockAtTime(time);
 
+  // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    return b->Hash(hash, time);
+    b->Hash(hash, time);
   }
 }
 

@@ -36,6 +36,7 @@ public:
     kClipBlock,
     kGapBlock,
     kAudioInput,
+    kPolygonGenerator,
     kMatrixGenerator,
     kVideoInput,
     kTrackOutput,
@@ -44,6 +45,10 @@ public:
     kMath,
     kTime,
     kTrigonometry,
+    kBlurFilter,
+    kSolidGenerator,
+    kMerge,
+    kStrokeFilter,
 
     // Count value
     kInternalNodeCount

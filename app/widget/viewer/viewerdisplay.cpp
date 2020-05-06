@@ -30,6 +30,7 @@
 #include <QPainter>
 
 #include "common/define.h"
+#include "gizmotraverser.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/pixelformat.h"
@@ -43,7 +44,9 @@ bool ViewerDisplayWidget::nouveau_check_done_ = false;
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
   has_image_(false),
-  signal_cursor_color_(false)
+  signal_cursor_color_(false),
+  gizmos_(nullptr),
+  gizmo_click_(false)
 {
 }
 
@@ -161,8 +164,40 @@ void ViewerDisplayWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin
   update();
 }
 
+void ViewerDisplayWidget::SetGizmos(Node *node)
+{
+  gizmos_ = node;
+
+  update();
+}
+
+void ViewerDisplayWidget::SetVideoParams(const VideoRenderingParams &params)
+{
+  gizmo_params_ = params;
+
+  if (gizmos_) {
+    update();
+  }
+}
+
+void ViewerDisplayWidget::SetTime(const rational &time)
+{
+  time_ = time;
+
+  if (gizmos_) {
+    update();
+  }
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
+  if (gizmos_) {
+    if (gizmos_->GizmoPress(GetTexturePosition(event->pos()))) {
+      gizmo_click_ = true;
+      return;
+    }
+  }
+
   QOpenGLWidget::mousePressEvent(event);
 
   emit DragStarted();
@@ -170,6 +205,11 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
+  if (gizmo_click_) {
+    gizmos_->GizmoMove(GetTexturePosition(event->pos()));
+    return;
+  }
+
   QOpenGLWidget::mouseMoveEvent(event);
 
   if (signal_cursor_color_) {
@@ -191,6 +231,18 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 
     emit CursorColor(reference, display);
   }
+}
+
+void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+  if (gizmo_click_) {
+    gizmos_->GizmoRelease(GetTexturePosition(event->pos()));
+    gizmo_click_ = false;
+
+    return;
+  }
+
+  QOpenGLWidget::mouseReleaseEvent(event);
 }
 
 void ViewerDisplayWidget::initializeGL()
@@ -225,7 +277,7 @@ void ViewerDisplayWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (has_image_ && color_service() && texture_.IsCreated()) {
+  if (has_image_ && color_service()) {
 
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
@@ -236,6 +288,18 @@ void ViewerDisplayWidget::paintGL()
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
+  }
+
+  // Draw gizmos if we have any
+  if (gizmos_) {
+    GizmoTraverser gt;
+
+    rational node_time = GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
+
+    NodeValueDatabase db = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
+
+    QPainter p(this);
+    gizmos_->DrawGizmos(db, &p, QVector2D(GetTexturePosition(size())));
   }
 
   // Draw action/title safe areas
@@ -269,6 +333,22 @@ void ViewerDisplayWidget::paintGL()
 
     p.drawLines(lines, 2);
   }
+}
+
+QPointF ViewerDisplayWidget::GetTexturePosition(const QPoint &screen_pos)
+{
+  return GetTexturePosition(screen_pos.x(), screen_pos.y());
+}
+
+QPointF ViewerDisplayWidget::GetTexturePosition(const QSize &size)
+{
+  return GetTexturePosition(size.width(), size.height());
+}
+
+QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y)
+{
+  return QPointF(x / gizmo_params_.width(),
+                 y / gizmo_params_.height());
 }
 
 #ifdef Q_OS_LINUX

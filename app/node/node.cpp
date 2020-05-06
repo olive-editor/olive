@@ -282,6 +282,28 @@ QList<NodeOutput *> Node::GetOutputs() const
   return {output_};
 }
 
+bool Node::HasGizmos() const
+{
+  return false;
+}
+
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &) const
+{
+}
+
+bool Node::GizmoPress(const QPointF &)
+{
+  return false;
+}
+
+void Node::GizmoMove(const QPointF &)
+{
+}
+
+void Node::GizmoRelease(const QPointF &)
+{
+}
+
 const QString &Node::GetLabel() const
 {
   return label_;

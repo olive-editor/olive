@@ -2,7 +2,7 @@
 
 // Node parameter inputs
 uniform sampler2D tex_in;
-uniform vec3 color_in;
+uniform vec4 color_in;
 uniform float radius_in;
 uniform float opacity_in;
 uniform bool inner_in;
@@ -61,15 +61,14 @@ void main(void) {
         }
     }
 
-    stroke_weight *= opacity_in * 0.01;
+    stroke_weight *= opacity_in;
 
     if (inner_in) {
         stroke_weight *= pixel_here.a;
     }
 
     // Make RGBA color
-    vec4 stroke_col = vec4(vec3(1.0) * stroke_weight, stroke_weight);
-    //vec4 stroke_col = vec4(color_in * stroke_weight, stroke_weight);
+    vec4 stroke_col = color_in * stroke_weight;
 
     if (inner_in) {
         // Alpha over the stroke over the texture

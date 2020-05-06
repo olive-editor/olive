@@ -201,20 +201,6 @@ void VideoRenderWorker::ResizeDownloadBuffer()
   download_buffer_.resize(PixelFormat::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
 }
 
-NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)
-{
-  // A frame can only have one active block so we just validate the in point of the range
-  Block* active_block = track->BlockAtTime(range.in());
-
-  NodeValueTable table;
-
-  if (active_block) {
-    table = ProcessNode(NodeDependency(active_block, range));
-  }
-
-  return table;
-}
-
 ColorProcessorCache *VideoRenderWorker::color_cache()
 {
   return &color_cache_;

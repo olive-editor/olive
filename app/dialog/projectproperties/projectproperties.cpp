@@ -44,10 +44,12 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
   setWindowTitle(tr("Project Properties for '%1'").arg(working_project_->name()));
 
+  QTabWidget* tabs = new QTabWidget;
+  layout->addWidget(tabs);
+
   {
     // Color management group
-    QGroupBox* color_group = new QGroupBox();
-    color_group->setTitle(tr("Color Management"));
+    QWidget* color_group = new QWidget();
 
     QGridLayout* color_layout = new QGridLayout(color_group);
 
@@ -72,18 +74,19 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     color_layout->addWidget(browse_btn, 0, 2);
     connect(browse_btn, &QPushButton::clicked, this, &ProjectPropertiesDialog::BrowseForOCIOConfig);
 
-    layout->addWidget(color_group);
-
     ocio_filename_->setText(working_project_->color_manager()->GetConfigFilename());
 
     connect(ocio_filename_, &QLineEdit::textChanged, this, &ProjectPropertiesDialog::OCIOFilenameUpdated);
     OCIOFilenameUpdated();
+
+    tabs->addTab(color_group, tr("Color Management"));
   }
+
+  
 
   {
     // Paths group
-    QGroupBox* paths_group = new QGroupBox();
-    paths_group->setTitle(tr("Paths"));
+    QWidget* paths_group = new QWidget();
 
     QGridLayout* paths_layout = new QGridLayout(paths_group);
 
@@ -104,7 +107,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     paths_layout->addWidget(proxy_path_->browse_btn(), row, 2);
     paths_layout->addWidget(proxy_path_->default_box(), row, 3);
 
-    layout->addWidget(paths_group);
+    tabs->addTab(paths_group, tr("Paths"));
   }
 
   QDialogButtonBox* dialog_btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -177,7 +180,7 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
     if (ocio_filename_->text().isEmpty()) {
       c = ColorManager::GetDefaultConfig();
     } else {
-      c = OCIO::Config::CreateFromFile(ocio_filename_->text().toUtf8());
+      c = ColorManager::CreateConfigFromFile(ocio_filename_->text());
     }
 
     ocio_filename_->setStyleSheet(QString());

@@ -56,6 +56,9 @@ public:
    */
   void SetFullScreen(QScreen* screen = nullptr);
 
+public slots:
+  void SetGizmos(Node* node);
+
 protected:
   void CreateScopePanel(ScopePanel::Type type);
 

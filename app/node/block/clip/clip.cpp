@@ -119,4 +119,13 @@ void ClipBlock::Retranslate()
   texture_input_->set_name(tr("Buffer"));
 }
 
+void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  if (texture_input_->IsConnected()) {
+    rational t = InputTimeAdjustment(texture_input_, TimeRange(time, time)).in();
+
+    texture_input_->get_connected_node()->Hash(hash, t);
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

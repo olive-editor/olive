@@ -22,7 +22,7 @@
 #define PIXELSAMPLERPANEL_H
 
 #include "widget/panel/panel.h"
-#include "widget/viewer/pixelsamplerwidget.h"
+#include "widget/pixelsampler/pixelsampler.h"
 
 OLIVE_NAMESPACE_ENTER
 

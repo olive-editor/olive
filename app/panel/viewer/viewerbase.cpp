@@ -90,6 +90,11 @@ void ViewerPanelBase::SetFullScreen(QScreen *screen)
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetFullScreen(screen);
 }
 
+void ViewerPanelBase::SetGizmos(Node *node)
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetGizmos(node);
+}
+
 void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 {
   ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());

@@ -105,6 +105,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
+  connect(video_renderer_, &VideoRenderBackend::GeneratedFrame, this, &ViewerWidget::RendererGeneratedFrame);
   audio_renderer_ = new AudioBackend(this);
 
   waveform_view_->SetBackend(audio_renderer_);
@@ -130,6 +131,8 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
     UpdateTextureFromNode(time_set);
 
     PushScrubbedAudio();
+
+    main_gl_widget()->SetTime(time_set);
   }
 
   last_time_ = i;
@@ -333,6 +336,12 @@ ColorManager *ViewerWidget::color_manager() const
   return main_gl_widget()->color_manager();
 }
 
+void ViewerWidget::SetGizmos(Node *node)
+{
+  main_gl_widget()->SetTimeTarget(GetConnectedNode());
+  main_gl_widget()->SetGizmos(node);
+}
+
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
@@ -514,6 +523,13 @@ void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
   emit RequestScopePanel(static_cast<ScopePanel::Type>(action->data().toInt()));
 }
 
+void ViewerWidget::RendererGeneratedFrame(FramePtr f)
+{
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
+    glw->SetImageFromLoadBuffer(f.get());
+  }
+}
+
 void ViewerWidget::UpdateRendererParameters()
 {
   if (!GetConnectedNode()) {
@@ -531,6 +547,8 @@ void ViewerWidget::UpdateRendererParameters()
     video_renderer_->SetParameters(vparam);
     video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
   }
+
+  main_gl_widget()->SetVideoParams(vparam);
 
   AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
                               SampleFormat::kInternalFormat);
@@ -868,7 +886,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::InvalidateVisible(NodeInput* source)
 {
-  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()), source);
+  video_renderer_->InvalidateVisible(TimeRange(GetTime(), GetTime()), source);
 }
 
 OLIVE_NAMESPACE_EXIT

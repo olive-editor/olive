@@ -52,7 +52,7 @@ void main(void) {
         float waveform_x = (ove_texcoord.x - waveform_uv.x) / waveform_scale;
         float waveform_y = (ove_texcoord.y - waveform_uv.y) / waveform_scale;
         for (int i = 0; i < waveform_dims.y; i++) {
-            ratio = float(i) / float(waveform_dims.y);
+            ratio = float(i) / float(waveform_dims.y - 1);
             cur_col = texture(
                 ove_maintex,
                 vec2(waveform_x, ratio)

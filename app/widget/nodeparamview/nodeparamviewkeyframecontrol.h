@@ -25,7 +25,7 @@
 #include <QWidget>
 
 #include "node/input.h"
-#include "widget/keyframeview/timetargetobject.h"
+#include "widget/timetarget/timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 

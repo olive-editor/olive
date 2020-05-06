@@ -29,21 +29,29 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  foreach (NodeParam* param, node->parameters()) {
+  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+
+  foreach (NodeInput* input, inputs) {
     if (IsCancelled()) {
       return NodeValueDatabase();
     }
 
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-      TimeRange input_time = node->InputTimeAdjustment(input, range);
+    TimeRange input_time = node->InputTimeAdjustment(input, range);
 
-      NodeValueTable table = ProcessInput(input, input_time);
+    NodeValueTable table = ProcessInput(input, input_time);
 
-      InputProcessingEvent(input, input_time, &table);
+    // Exception for Footage types where we actually retrieve some Footage data from a decoder
+    if (input->data_type() == NodeParam::kFootage) {
+      StreamPtr stream = ResolveStreamFromInput(input);
 
-      database.Insert(input, table);
+      if (stream) {
+
+        FootageProcessingEvent(stream, input_time, &table);
+
+      }
     }
+
+    database.Insert(input, table);
   }
 
   // Insert global variables
@@ -79,8 +87,21 @@ NodeValueTable NodeTraverser::ProcessNode(const NodeDependency& dep)
 
 NodeValueTable NodeTraverser::RenderBlock(const TrackOutput *track, const TimeRange &range)
 {
-  // By default, don't bother traversing blocks
-  return NodeValueTable();
+  // By default, just follow the in point
+  Block* active_block = track->BlockAtTime(range.in());
+
+  NodeValueTable table;
+
+  if (active_block) {
+    table = ProcessNode(NodeDependency(active_block, range));
+  }
+
+  return table;
+}
+
+StreamPtr NodeTraverser::ResolveStreamFromInput(NodeInput *input)
+{
+  return input->get_standard_value().value<StreamPtr>();
 }
 
 NodeValueTable NodeTraverser::ProcessInput(const NodeInput *input, const TimeRange& range)

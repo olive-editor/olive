@@ -365,4 +365,9 @@ void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *
   Node::InvalidateCache(range, from, source);
 }
 
+void Block::Hash(QCryptographicHash &, const rational &) const
+{
+  // A block does nothing by default
+}
+
 OLIVE_NAMESPACE_EXIT
