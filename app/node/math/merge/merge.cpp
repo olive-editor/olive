@@ -82,4 +82,15 @@ NodeInput *MergeNode::blend_in() const
   return blend_in_;
 }
 
+void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
+{
+  if (base_in_->IsConnected()) {
+    base_in_->get_connected_node()->Hash(hash, time);
+  }
+
+  if (blend_in_->IsConnected()) {
+    blend_in_->get_connected_node()->Hash(hash, time);
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

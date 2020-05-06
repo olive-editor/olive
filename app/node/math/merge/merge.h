@@ -45,6 +45,8 @@ public:
   NodeInput* base_in() const;
   NodeInput* blend_in() const;
 
+  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
+
 private:
   NodeInput* base_in_;
 
