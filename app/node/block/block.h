@@ -99,6 +99,8 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source) override;
 
+  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
+
 public slots:
 
 signals:
