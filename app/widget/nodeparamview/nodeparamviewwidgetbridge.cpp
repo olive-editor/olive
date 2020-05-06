@@ -29,6 +29,7 @@
 
 #include "core.h"
 #include "node/node.h"
+#include "nodeparamviewarraywidget.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
@@ -67,113 +68,122 @@ const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
-  // We assume the first data type is the "primary" type
-  switch (input_->data_type()) {
-  // None of these inputs have applicable UI widgets
-  case NodeParam::kNone:
-  case NodeParam::kAny:
-  case NodeParam::kTexture:
-  case NodeParam::kMatrix:
-  case NodeParam::kRational:
-  case NodeParam::kSamples:
-  case NodeParam::kDecimal:
-  case NodeParam::kNumber:
-  case NodeParam::kString:
-  case NodeParam::kBuffer:
-  case NodeParam::kVector:
-    break;
-  case NodeParam::kInt:
-  {
-    IntegerSlider* slider = new IntegerSlider();
-    widgets_.append(slider);
-    connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-    break;
-  }
-  case NodeParam::kFloat:
-  {
-    CreateSliders(1);
-    break;
-  }
-  case NodeParam::kVec2:
-  {
-    CreateSliders(2);
-    break;
-  }
-  case NodeParam::kVec3:
-  {
-    CreateSliders(3);
-    break;
-  }
-  case NodeParam::kVec4:
-  {
-    CreateSliders(4);
-    break;
-  }
-  case NodeParam::kCombo:
-  {
-    QComboBox* combobox = new QComboBox();
+  if (input_->IsArray()) {
 
-    QStringList items = input_->get_combobox_strings();
-    foreach (const QString& s, items) {
-      combobox->addItem(s);
+    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(static_cast<NodeInputArray*>(input_));
+    widgets_.append(w);
+
+  } else {
+
+    // We assume the first data type is the "primary" type
+    switch (input_->data_type()) {
+    // None of these inputs have applicable UI widgets
+    case NodeParam::kNone:
+    case NodeParam::kAny:
+    case NodeParam::kTexture:
+    case NodeParam::kMatrix:
+    case NodeParam::kRational:
+    case NodeParam::kSamples:
+    case NodeParam::kDecimal:
+    case NodeParam::kNumber:
+    case NodeParam::kString:
+    case NodeParam::kBuffer:
+    case NodeParam::kVector:
+      break;
+    case NodeParam::kInt:
+    {
+      IntegerSlider* slider = new IntegerSlider();
+      widgets_.append(slider);
+      connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
+    case NodeParam::kFloat:
+    {
+      CreateSliders(1);
+      break;
+    }
+    case NodeParam::kVec2:
+    {
+      CreateSliders(2);
+      break;
+    }
+    case NodeParam::kVec3:
+    {
+      CreateSliders(3);
+      break;
+    }
+    case NodeParam::kVec4:
+    {
+      CreateSliders(4);
+      break;
+    }
+    case NodeParam::kCombo:
+    {
+      QComboBox* combobox = new QComboBox();
+
+      QStringList items = input_->get_combobox_strings();
+      foreach (const QString& s, items) {
+        combobox->addItem(s);
+      }
+
+      widgets_.append(combobox);
+      connect(combobox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
+    case NodeParam::kFile:
+      // FIXME: File selector
+      break;
+    case NodeParam::kColor:
+    {
+      // NOTE: Very convoluted way to get back to the project's color manager
+      ColorButton* color_button = new ColorButton(static_cast<Sequence*>(input_->parentNode()->parent())->project()->color_manager());
+      widgets_.append(color_button);
+      connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
+    case NodeParam::kText:
+    {
+      QLineEdit* line_edit = new QLineEdit();
+      widgets_.append(line_edit);
+      connect(line_edit, &QLineEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
+    case NodeParam::kBoolean:
+    {
+      QCheckBox* check_box = new QCheckBox();
+      widgets_.append(check_box);
+      connect(check_box, &QCheckBox::clicked, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
+    case NodeParam::kFont:
+    {
+      QFontComboBox* font_combobox = new QFontComboBox();
+      widgets_.append(font_combobox);
+      break;
+    }
+    case NodeParam::kFootage:
+    {
+      FootageComboBox* footage_combobox = new FootageComboBox();
+      footage_combobox->SetRoot(static_cast<Sequence*>(input_->parentNode()->parent())->project()->root());
+
+      connect(footage_combobox, &FootageComboBox::FootageChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+
+      widgets_.append(footage_combobox);
+
+      break;
+    }
     }
 
-    widgets_.append(combobox);
-    connect(combobox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &NodeParamViewWidgetBridge::WidgetCallback);
-    break;
-  }
-  case NodeParam::kFile:
-    // FIXME: File selector
-    break;
-  case NodeParam::kColor:
-  {
-    // NOTE: Very convoluted way to get back to the project's color manager
-    ColorButton* color_button = new ColorButton(static_cast<Sequence*>(input_->parentNode()->parent())->project()->color_manager());
-    widgets_.append(color_button);
-    connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-    break;
-  }
-  case NodeParam::kText:
-  {
-    QLineEdit* line_edit = new QLineEdit();
-    widgets_.append(line_edit);
-    connect(line_edit, &QLineEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
-    break;
-  }
-  case NodeParam::kBoolean:
-  {
-    QCheckBox* check_box = new QCheckBox();
-    widgets_.append(check_box);
-    connect(check_box, &QCheckBox::clicked, this, &NodeParamViewWidgetBridge::WidgetCallback);
-    break;
-  }
-  case NodeParam::kFont:
-  {
-    QFontComboBox* font_combobox = new QFontComboBox();
-    widgets_.append(font_combobox);
-    break;
-  }
-  case NodeParam::kFootage:
-  {
-    FootageComboBox* footage_combobox = new FootageComboBox();
-    footage_combobox->SetRoot(static_cast<Sequence*>(input_->parentNode()->parent())->project()->root());
+    // Check all properties
+    QHash<QString, QVariant>::const_iterator iterator;
 
-    connect(footage_combobox, &FootageComboBox::FootageChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+    for (iterator=input_->properties().begin();iterator!=input_->properties().end();iterator++) {
+      PropertyChanged(iterator.key(), iterator.value());
+    }
 
-    widgets_.append(footage_combobox);
+    UpdateWidgetValues();
 
-    break;
   }
-  }
-
-  // Check all properties
-  QHash<QString, QVariant>::const_iterator iterator;
-
-  for (iterator=input_->properties().begin();iterator!=input_->properties().end();iterator++) {
-    PropertyChanged(iterator.key(), iterator.value());
-  }
-
-  UpdateWidgetValues();
 }
 
 void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
