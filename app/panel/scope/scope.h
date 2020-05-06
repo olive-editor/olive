@@ -23,6 +23,8 @@
 
 #include <QComboBox>
 #include <QStackedWidget>
+#include <QCheckBox>
+#include <QVector>
 
 #include "widget/panel/panel.h"
 #include "widget/scope/histogram/histogram.h"
@@ -49,10 +51,18 @@ public:
 
   static QString TypeToName(Type t);
 
+  void SetSwizzleVisibility();
+
+  void SortSwizzleData(int checkbox);
+
 public slots:
   void SetReferenceBuffer(Frame* frame);
 
   void SetColorManager(ColorManager* manager);
+
+signals:
+
+  void SendSwizzleData(QVector<bool> swizzle);
 
 protected:
   virtual void Retranslate() override;
@@ -67,6 +77,16 @@ private:
   WaveformScope* waveform_view_;
 
   HistogramScope* histogram_;
+
+  QCheckBox* luma_select_;
+
+  QCheckBox* red_select_;
+
+  QCheckBox* green_select_;
+
+  QCheckBox* blue_select_;
+
+  QVector<bool> swizzle_;
 
 };
 

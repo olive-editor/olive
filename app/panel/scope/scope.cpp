@@ -21,6 +21,8 @@
 #include "scope.h"
 
 #include <QVBoxLayout>
+#include <QCheckBox>
+#include <QGuiApplication>
 
 #include "panel/viewer/viewer.h"
 
@@ -45,7 +47,27 @@ ScopePanel::ScopePanel(QWidget* parent) :
   }
 
   toolbar_layout->addWidget(scope_type_combobox_);
+
   toolbar_layout->addStretch();
+
+  swizzle_.reserve(4);
+  swizzle_ = {true, true, true, false};
+
+  //check boxes for channels in waveform
+  luma_select_ = new QCheckBox(tr("Luma"), this);
+  toolbar_layout->addWidget(luma_select_);
+
+  red_select_ = new QCheckBox(tr("R"), this);
+  red_select_->setChecked(true);
+  toolbar_layout->addWidget(red_select_);
+
+  green_select_ = new QCheckBox(tr("G"), this);
+  green_select_->setChecked(true);
+  toolbar_layout->addWidget(green_select_);
+
+  blue_select_ = new QCheckBox(tr("B"), this);
+  blue_select_->setChecked(true);
+  toolbar_layout->addWidget(blue_select_);
 
   layout->addLayout(toolbar_layout);
 
@@ -60,9 +82,54 @@ ScopePanel::ScopePanel(QWidget* parent) :
   histogram_ = new HistogramScope();
   stack_->addWidget(histogram_);
 
-  connect(scope_type_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), stack_, &QStackedWidget::setCurrentIndex);
+  connect(scope_type_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+      stack_, &QStackedWidget::setCurrentIndex);
+  connect(scope_type_combobox_, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), 
+      this, &ScopePanel::SetSwizzleVisibility);
+
+  connect(luma_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(3); });
+  connect(red_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(0); });
+  connect(green_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(1); });
+  connect(blue_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(2); });
+
+  connect(this, &ScopePanel::SendSwizzleData, waveform_view_, &WaveformScope::SetSwizzleData);
 
   Retranslate();
+
+  // show channel selectors if showing waveform
+  SetSwizzleVisibility();
+}
+
+void ScopePanel::SetSwizzleVisibility() 
+{
+  bool display_swizzle = false;
+  if (scope_type_combobox_->currentText() == QString("Waveform")) {
+    display_swizzle = true;
+  }
+  luma_select_->setVisible(display_swizzle);
+  red_select_->setVisible(display_swizzle);
+  green_select_->setVisible(display_swizzle);
+  blue_select_->setVisible(display_swizzle);
+}
+
+void ScopePanel::SortSwizzleData(int checkbox) 
+{ 
+  //If Ctrl is pressed when selecting a channel, display only the 
+  //the channel selected
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+    for (int i = 0; i < 4; i++) {
+      swizzle_[i] = (i == checkbox? true : false);
+    }
+    red_select_->setChecked(checkbox == 0 ? true : false);
+    green_select_->setChecked(checkbox == 1 ? true : false);
+    blue_select_->setChecked(checkbox == 2 ? true : false);
+    luma_select_->setChecked(checkbox == 3 ? true : false);
+  } else { 
+    swizzle_[checkbox] = !swizzle_[checkbox];
+  }
+
+  emit SendSwizzleData(swizzle_);
+
 }
 
 void ScopePanel::SetType(ScopePanel::Type t)

@@ -7,6 +7,7 @@ uniform sampler2D ove_maintex;
 uniform vec2 ove_resolution;
 uniform vec2 ove_viewport;
 uniform vec3 luma_coeffs;
+uniform vec4 channel_swizzle;
 
 uniform float waveform_scale;
 uniform vec2 waveform_dims;
@@ -51,6 +52,13 @@ void main(void) {
         float ratio = 0.0;
         float waveform_x = (ove_texcoord.x - waveform_uv.x) / waveform_scale;
         float waveform_y = (ove_texcoord.y - waveform_uv.y) / waveform_scale;
+        float step_below = waveform_y - increment;
+        float step_above = waveform_y + increment;
+        float ratio_divisor =  1.0 / float(waveform_dims.y - 1);
+
+        vec3 step_below_vec = vec3(waveform_y - increment);
+        vec3 step_above_vec = vec3(waveform_y + increment);
+
         for (int i = 0; i < waveform_dims.y; i++) {
             ratio = float(i) / float(waveform_dims.y - 1);
             cur_col = texture(
@@ -58,13 +66,27 @@ void main(void) {
                 vec2(waveform_x, ratio)
             ).rgb;
 
-            col += step(vec3(waveform_y - increment), cur_col) *
-                step(cur_col, vec3(waveform_y + increment)) * intensity;
+            if(channel_swizzle.r == 1){
+                col.r += step(step_below, cur_col.r) *
+                      step(cur_col.r, step_above) * intensity;
+            }
 
-            cur_lum = vec3(dot(cur_col, luma_coeffs));
+            if(channel_swizzle.g == 1){
+                col.g += step(step_below, cur_col.g) *
+                      step(cur_col.g, step_above) * intensity;
+            }
 
-            col += step(vec3(waveform_y - increment), cur_lum) *
-                step(cur_lum, vec3(waveform_y + increment)) * intensity;
+            if(channel_swizzle.b == 1){
+                col.b += step(step_below, cur_col.b) *
+                      step(cur_col.b, step_above) * intensity;
+            }
+
+            if(channel_swizzle.w == 1){
+                cur_lum = vec3(dot(cur_col, luma_coeffs));
+
+                col += step(step_below_vec, cur_lum) *
+                    step(cur_lum, step_above_vec) * intensity;
+            }
         }
     }
 

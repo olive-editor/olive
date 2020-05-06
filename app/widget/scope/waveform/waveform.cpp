@@ -34,18 +34,33 @@ OLIVE_NAMESPACE_ENTER
 WaveformScope::WaveformScope(QWidget* parent) :
   ScopeBase(parent)
 {
+  //Default setting, matches scope.cpp
+  SetChannels(true, true, true, false);
 }
 
 OpenGLShaderPtr WaveformScope::CreateShader()
 {
   OpenGLShaderPtr pipeline = OpenGLShader::Create();
-
   pipeline->create();
   pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
   pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
   pipeline->link();
 
   return pipeline;
+}
+
+void WaveformScope::SetChannels(bool r, bool g, bool b, bool l) 
+{ 
+  swizzle_[0] = r; 
+  swizzle_[1] = g;
+  swizzle_[2] = b;
+  swizzle_[3] = l;
+}
+
+void WaveformScope::SetSwizzleData(QVector<bool> swizzle) 
+{ 
+  SetChannels(swizzle[0], swizzle[1], swizzle[2], swizzle[3]);
+  update();
 }
 
 void WaveformScope::DrawScope()
@@ -85,7 +100,12 @@ void WaveformScope::DrawScope()
     waveform_start_uv_x, waveform_start_uv_y,
     waveform_end_uv_x, waveform_end_uv_y);
 
+
+  //channel swizzle
+  pipeline()->setUniformValue("channel_swizzle", swizzle_[0], swizzle_[1], swizzle_[2], swizzle_[3]);
+
   pipeline()->release();
+
 
   managed_tex().Bind();
 

@@ -31,10 +31,21 @@ class WaveformScope : public ScopeBase
 public:
   WaveformScope(QWidget* parent = nullptr);
 
+  
+
+  void SetSwizzleData(QVector<bool> swizzle);
+
 protected:
   virtual OpenGLShaderPtr CreateShader() override;
 
   virtual void DrawScope() override;
+  
+private :
+  
+  void SetChannels(bool l, bool r, bool g, bool b);
+
+  bool swizzle_[4];
+
 
 };
 
