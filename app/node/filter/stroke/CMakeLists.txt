@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(solid)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/filter/stroke/stroke.h
+  node/filter/stroke/stroke.cpp
   PARENT_SCOPE
 )

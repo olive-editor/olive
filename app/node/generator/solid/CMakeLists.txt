@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(solid)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/solid/solid.h
+  node/generator/solid/solid.cpp
   PARENT_SCOPE
 )

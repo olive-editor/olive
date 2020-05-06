@@ -24,16 +24,18 @@
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
-#include "block/transition/externaltransition.h"
 #include "generator/matrix/matrix.h"
+#include "generator/solid/solid.h"
+#include "filter/blur/blur.h"
+#include "filter/stroke/stroke.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "input/time/timeinput.h"
 #include "math/math/math.h"
+#include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
-#include "external.h"
 
 OLIVE_NAMESPACE_ENTER
 QList<Node*> NodeFactory::library_;
@@ -47,13 +49,10 @@ void NodeFactory::Initialize()
     library_.append(CreateInternal(static_cast<InternalID>(i)));
   }
 
-  library_.append(new ExternalNode(":/shaders/blur.xml"));
-  library_.append(new ExternalNode(":/shaders/solid.xml"));
-  library_.append(new ExternalNode(":/shaders/stroke.xml"));
-  library_.append(new ExternalNode(":/shaders/alphaover.xml"));
-  library_.append(new ExternalNode(":/shaders/dropshadow.xml"));
+  /*
   library_.append(new ExternalTransition(":/shaders/crossdissolve.xml"));
   library_.append(new ExternalTransition(":/shaders/diptoblack.xml"));
+  */
 }
 
 void NodeFactory::Destroy()
@@ -152,6 +151,14 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new TrigonometryNode();
   case kTime:
     return new TimeInput();
+  case kBlurFilter:
+    return new BlurFilterNode();
+  case kSolidGenerator:
+    return new SolidGenerator();
+  case kMerge:
+    return new MergeNode();
+  case kStrokeFilter:
+    return new StrokeFilterNode();
 
   case kInternalNodeCount:
     break;

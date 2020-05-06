@@ -22,6 +22,7 @@
 
 #include "node/factory.h"
 #include "node/math/math/math.h"
+#include "node/math/merge/merge.h"
 #include "node/output/viewer/viewer.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -104,11 +105,11 @@ TrackOutput* TrackList::AddTrack()
           switch (type_) {
           case Timeline::kTrackTypeVideo:
           {
-            Node* blend = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.alphaoverblend"));
+            MergeNode* blend = new MergeNode();
             GetParentGraph()->AddNode(blend);
 
-            NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetInputWithID("blend_in")));
-            NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetInputWithID("base_in")));
+            NodeParam::ConnectEdge(track->output(), blend->blend_in());
+            NodeParam::ConnectEdge(last_track->output(), blend->base_in());
             NodeParam::ConnectEdge(blend->output(), edge->input());
             break;
           }
