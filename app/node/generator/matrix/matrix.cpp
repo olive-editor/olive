@@ -104,6 +104,8 @@ bool MatrixGenerator::HasGizmos() const
 
 void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
 {
+  // FIXME: Implement this properly
+  /*
   p->setPen(Qt::white);
 
   // Fold values into a matrix
@@ -114,6 +116,7 @@ void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVect
 
   // Draw ellipse
   p->drawEllipse(QRect(0, 0, 100, 100));
+  */
 }
 
 QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value) const
