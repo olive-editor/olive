@@ -67,7 +67,7 @@ protected:
 
   virtual TimeRange PopNextFrameFromQueue() override;
 
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible) override;
 
 private:
   struct ConformWaitInfo {

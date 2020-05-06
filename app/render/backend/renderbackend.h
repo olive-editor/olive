@@ -51,6 +51,8 @@ public:
 
   void CancelQueue();
 
+  void InvalidateVisible(const TimeRange &range, NodeInput *from);
+
 public slots:
   void InvalidateCache(const TimeRange &range, NodeInput *from);
 
@@ -77,7 +79,7 @@ protected:
    */
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) = 0;
 
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range);
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible);
 
   virtual void CacheIDChangedEvent(const QString& id);
 
@@ -120,6 +122,8 @@ protected:
   NodeGraph copied_graph_;
 
 private:
+  void InvalidateCacheVeryInternal(const TimeRange &range, NodeInput *from, bool only_visible);
+
   void CopyNodeInputValue(NodeInput* input);
   Node *CopyNodeConnections(Node *src_node);
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);

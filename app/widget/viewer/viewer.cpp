@@ -878,7 +878,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::InvalidateVisible(NodeInput* source)
 {
-  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()), source);
+  video_renderer_->InvalidateVisible(TimeRange(GetTime(), GetTime()), source);
 }
 
 OLIVE_NAMESPACE_EXIT

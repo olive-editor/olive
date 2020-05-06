@@ -99,7 +99,7 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible) override;
 
   virtual void ParamsChangedEvent(){}
 
