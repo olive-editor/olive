@@ -102,7 +102,7 @@ bool MatrixGenerator::HasGizmos() const
   return true;
 }
 
-void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p) const
+void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
 {
   p->setPen(Qt::white);
 

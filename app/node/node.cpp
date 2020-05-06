@@ -287,7 +287,7 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(NodeValueDatabase &, QPainter *) const
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &) const
 {
 }
 

@@ -299,12 +299,7 @@ void ViewerDisplayWidget::paintGL()
     NodeValueDatabase db = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
     QPainter p(this);
-
-    // Scale so that gizmos can just draw on the buffer
-    QPointF tex_point = GetTexturePosition(size());
-    p.scale(tex_point.x(), tex_point.y());
-
-    gizmos_->DrawGizmos(db, &p);
+    gizmos_->DrawGizmos(db, &p, QVector2D(GetTexturePosition(size())));
   }
 
   // Draw action/title safe areas

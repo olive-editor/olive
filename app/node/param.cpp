@@ -71,14 +71,13 @@ Node *NodeParam::parentNode() const
 {
   QObject* p = parent();
 
-  while (p != nullptr) {
-    // Determine if this object is a Node or not
+  while (p) {
     Node* cast_test = dynamic_cast<Node*>(p);
-    if (cast_test != nullptr) {
+    if (cast_test) {
       return cast_test;
+    } else {
+      p = p->parent();
     }
-
-    p = p->parent();
   }
 
   return nullptr;

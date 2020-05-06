@@ -383,7 +383,7 @@ public:
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p) const;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale) const;
 
   virtual bool GizmoPress(const QPointF& p);
   virtual void GizmoMove(const QPointF& p);

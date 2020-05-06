@@ -34,7 +34,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
@@ -43,7 +43,7 @@ public:
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
   virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) const override;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale) const override;
 
   /*
   virtual bool GizmoPress(const QPointF &p) override;

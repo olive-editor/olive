@@ -68,9 +68,9 @@ QString PolygonGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.polygon");
 }
 
-QString PolygonGenerator::Category() const
+QList<Node::CategoryID> PolygonGenerator::Category() const
 {
-  return tr("Generator");
+  return {kCategoryGenerator};
 }
 
 QString PolygonGenerator::Description() const
@@ -99,22 +99,35 @@ bool PolygonGenerator::HasGizmos() const
   return true;
 }
 
-void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p) const
+void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
 {
+  if (!points_input_->GetSize()) {
+    return;
+  }
+
   QVector<QPointF> points(points_input_->GetSize());
 
   p->setPen(Qt::white);
   p->setBrush(Qt::white);
 
-  for (int i=0;i<points_input_->GetSize();i++) {
-    points[i] = db[points_input_->At(i)].Take(NodeParam::kVec2).value<QVector2D>().toPointF();
+  int rect_sz = p->fontMetrics().height() / 8;
 
-    QRectF rect(points[i] - QPointF(10, 10),
-                points[i] + QPointF(10, 10));
+  for (int i=0;i<points_input_->GetSize();i++) {
+    QVector2D v = db[points_input_->At(i)].Take(NodeParam::kVec2).value<QVector2D>();
+
+    v *= scale;
+
+    QPointF pt = v.toPointF();
+    points[i] = pt;
+
+    QRectF rect(pt - QPointF(rect_sz, rect_sz),
+                pt + QPointF(rect_sz, rect_sz));
     p->drawRect(rect);
   }
 
-  p->drawPolyline(points.constData(), points_input_->GetSize());
+  points.append(points.first());
+
+  p->drawPolyline(points.constData(), points.size());
 }
 
 OLIVE_NAMESPACE_EXIT
