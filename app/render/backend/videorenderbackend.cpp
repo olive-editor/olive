@@ -41,7 +41,8 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   operating_mode_(VideoRenderWorker::kHashRenderCache),
   only_signal_last_frame_requested_(true),
   limit_caching_(true),
-  pop_toggle_(false)
+  pop_toggle_(false),
+  queue_is_visible_only_(false)
 {
   connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
@@ -160,6 +161,8 @@ void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, co
 
   emit RangeInvalidated(invalidated);
 
+  queue_is_visible_only_ = only_visible;
+
   if (only_visible) {
 
     // We're only caching this frame, and for maximum responsiveness, should cancel the rest of the
@@ -174,6 +177,22 @@ void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, co
     // Rework the queue
     Requeue();
 
+  }
+}
+
+void VideoRenderBackend::WorkerAboutToStartEvent(RenderWorker *worker)
+{
+  if (operating_mode_ & VideoRenderWorker::kDownloadOnly) {
+    int mode = operating_mode_;
+
+    if (queue_is_visible_only_) {
+      mode &= ~VideoRenderWorker::kDownloadOnly;
+    } else {
+      mode |= VideoRenderWorker::kDownloadOnly;
+    }
+
+    static_cast<VideoRenderWorker*>(worker)->
+        SetOperatingMode(static_cast<VideoRenderWorker::OperatingMode>(mode));
   }
 }
 

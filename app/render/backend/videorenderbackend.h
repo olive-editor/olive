@@ -103,6 +103,8 @@ protected:
 
   virtual void ParamsChangedEvent(){}
 
+  virtual void WorkerAboutToStartEvent(RenderWorker* worker) override;
+
   VideoRenderWorker::OperatingMode operating_mode_;
 
 signals:
@@ -134,6 +136,8 @@ private:
   bool limit_caching_;
 
   bool pop_toggle_;
+
+  bool queue_is_visible_only_;
 
 private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);

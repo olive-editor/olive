@@ -105,6 +105,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
+  connect(video_renderer_, &VideoRenderBackend::GeneratedFrame, this, &ViewerWidget::RendererGeneratedFrame);
   audio_renderer_ = new AudioBackend(this);
 
   waveform_view_->SetBackend(audio_renderer_);
@@ -520,6 +521,13 @@ void ViewerWidget::WindowAboutToClose()
 void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
 {
   emit RequestScopePanel(static_cast<ScopePanel::Type>(action->data().toInt()));
+}
+
+void ViewerWidget::RendererGeneratedFrame(FramePtr f)
+{
+  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
+    glw->SetImageFromLoadBuffer(f.get());
+  }
 }
 
 void ViewerWidget::UpdateRendererParameters()

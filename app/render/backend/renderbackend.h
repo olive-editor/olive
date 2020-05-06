@@ -83,6 +83,8 @@ protected:
 
   virtual void CacheIDChangedEvent(const QString& id);
 
+  virtual void WorkerAboutToStartEvent(RenderWorker* worker);
+
   void SetError(const QString& error);
 
   virtual void ConnectViewer(ViewerOutput* node);

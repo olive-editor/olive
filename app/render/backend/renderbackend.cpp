@@ -259,6 +259,8 @@ void RenderBackend::CacheNext()
       SetWorkerBusyState(worker, true);
       cancel_dialog_->WorkerStarted();
 
+      WorkerAboutToStartEvent(worker);
+
       QMetaObject::invokeMethod(worker,
                                 "Render",
                                 Qt::QueuedConnection,
@@ -469,6 +471,11 @@ void RenderBackend::InvalidateCacheInternal(const rational &start_range, const r
 void RenderBackend::CacheIDChangedEvent(const QString &id)
 {
   Q_UNUSED(id)
+}
+
+void RenderBackend::WorkerAboutToStartEvent(RenderWorker *worker)
+{
+  Q_UNUSED(worker)
 }
 
 void RenderBackend::InitWorkers()
