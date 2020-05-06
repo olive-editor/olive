@@ -114,6 +114,8 @@ public slots:
   void RemoveEdge(NodeEdgePtr edge);
 
 private:
+  static int DetermineWeight(Node* n);
+
   QHash<Node*, NodeViewItem*> item_map_;
 
   QHash<NodeEdge*, NodeViewEdge*> edge_map_;

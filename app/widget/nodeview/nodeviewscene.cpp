@@ -222,6 +222,19 @@ void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
   delete edge_map_.take(edge.get());
 }
 
+int NodeViewScene::DetermineWeight(Node *n)
+{
+  QList<Node*> inputs = n->GetImmediateDependencies();
+
+  int weight = 0;
+
+  foreach (Node* i, inputs) {
+    weight += DetermineWeight(i);
+  }
+
+  return qMax(1, weight);
+}
+
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
   return NodeViewCommon::GetFlowOrientation(direction_);
@@ -243,15 +256,23 @@ void NodeViewScene::ReorganizeFrom(Node* n)
 
   QPointF parent_pos = n->GetPosition();
 
+  int weight_count = DetermineWeight(n);
+
   qreal child_x = parent_pos.x() - 1.0;
-  qreal children_height = immediates.size()-1;
+  qreal children_height = weight_count-1;
   qreal children_y = parent_pos.y() - children_height * 0.5;
 
-  for (int i=0;i<immediates.size();i++) {
-    immediates.at(i)->SetPosition(QPointF(child_x,
-                                          children_y + i));
+  int weight_counter = 0;
 
-    ReorganizeFrom(immediates.at(i));
+  foreach (Node* i, immediates) {
+    int weight = DetermineWeight(i);
+
+    i->SetPosition(QPointF(child_x,
+                           children_y + weight_counter + (weight - 1) * 0.5));
+
+    weight_counter += weight;
+
+    ReorganizeFrom(i);
   }
 }
 
