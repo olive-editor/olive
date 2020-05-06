@@ -167,6 +167,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
       content_layout->addLayout(array_label_layout, row_count, 0);
 
       NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(static_cast<NodeInputArray*>(input)->sub_params());
+      sub_bodies_.append(sub_body);
       sub_body->layout()->setMargin(0);
       content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col + 1);
 
