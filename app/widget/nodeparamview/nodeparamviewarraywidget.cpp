@@ -31,9 +31,12 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidge
   QHBoxLayout* layout = new QHBoxLayout(this);
 
   count_lbl_ = new QLabel();
-  layout->addWidget(count_lbl_, 1);
+  layout->addWidget(count_lbl_);
+
+  layout->addStretch();
 
   plus_btn_ = new QPushButton(tr("+"));
+  plus_btn_->setFixedWidth(plus_btn_->sizeHint().height());
   layout->addWidget(plus_btn_);
 
   connect(plus_btn_, &QPushButton::clicked, this, &NodeParamViewArrayWidget::AddElement);

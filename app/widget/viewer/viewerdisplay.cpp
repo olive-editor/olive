@@ -192,7 +192,7 @@ void ViewerDisplayWidget::SetTime(const rational &time)
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (gizmos_) {
-    if (gizmos_->GizmoPress(GetTexturePosition(event->pos()))) {
+    if (gizmos_->GizmoPress(gizmo_db_, event->pos(), QVector2D(GetTexturePosition(size())))) {
       gizmo_click_ = true;
       return;
     }
@@ -206,7 +206,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (gizmo_click_) {
-    gizmos_->GizmoMove(GetTexturePosition(event->pos()));
+    gizmos_->GizmoMove(event->pos(), QVector2D(GetTexturePosition(size())));
     return;
   }
 
@@ -296,10 +296,10 @@ void ViewerDisplayWidget::paintGL()
 
     rational node_time = GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
 
-    NodeValueDatabase db = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
+    gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
     QPainter p(this);
-    gizmos_->DrawGizmos(db, &p, QVector2D(GetTexturePosition(size())));
+    gizmos_->DrawGizmos(gizmo_db_, &p, QVector2D(GetTexturePosition(size())));
   }
 
   // Draw action/title safe areas

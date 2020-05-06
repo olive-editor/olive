@@ -189,6 +189,8 @@ private:
 
   Node* gizmos_;
 
+  NodeValueDatabase gizmo_db_;
+
   VideoRenderingParams gizmo_params_;
 
   bool gizmo_click_;

@@ -20,6 +20,7 @@
 
 #include "polygon.h"
 
+#include <QGuiApplication>
 #include <QVector2D>
 
 OLIVE_NAMESPACE_ENTER
@@ -99,35 +100,83 @@ bool PolygonGenerator::HasGizmos() const
   return true;
 }
 
-void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
+void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
 {
   if (!points_input_->GetSize()) {
     return;
   }
 
-  QVector<QPointF> points(points_input_->GetSize());
-
   p->setPen(Qt::white);
   p->setBrush(Qt::white);
 
-  int rect_sz = p->fontMetrics().height() / 8;
+  QVector<QPointF> points = GetGizmoCoordinates(db, scale);
+  QVector<QRectF> rects = GetGizmoRects(points);
 
-  for (int i=0;i<points_input_->GetSize();i++) {
-    QVector2D v = db[points_input_->At(i)].Take(NodeParam::kVec2).value<QVector2D>();
-
-    v *= scale;
-
-    QPointF pt = v.toPointF();
-    points[i] = pt;
-
-    QRectF rect(pt - QPointF(rect_sz, rect_sz),
-                pt + QPointF(rect_sz, rect_sz));
-    p->drawRect(rect);
+  foreach (const QRectF& r, rects) {
+    p->drawRect(r);
   }
 
   points.append(points.first());
 
   p->drawPolyline(points.constData(), points.size());
+}
+
+bool PolygonGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p, const QVector2D &scale)
+{
+  QVector<QPointF> points = GetGizmoCoordinates(db, scale);
+  QVector<QRectF> rects = GetGizmoRects(points);
+
+  for (int i=0;i<rects.size();i++) {
+    const QRectF& r = rects.at(i);
+
+    if (r.contains(p)) {
+      gizmo_drag_ = points_input_->At(i);
+      gizmo_drag_start_ = points.at(i);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale)
+{
+  QVector2D new_pos = QVector2D(p) / scale;
+
+  gizmo_drag_->set_standard_value(new_pos.x(), 0);
+  gizmo_drag_->set_standard_value(new_pos.y(), 1);
+}
+
+QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(const NodeValueDatabase &db, const QVector2D& scale) const
+{
+  QVector<QPointF> points(points_input_->GetSize());
+
+  for (int i=0;i<points_input_->GetSize();i++) {
+    QVector2D v = db[points_input_->At(i)].Get(NodeParam::kVec2).value<QVector2D>();
+
+    v *= scale;
+
+    QPointF pt = v.toPointF();
+    points[i] = pt;
+  }
+
+  return points;
+}
+
+QVector<QRectF> PolygonGenerator::GetGizmoRects(const QVector<QPointF> &points) const
+{
+  QVector<QRectF> rects(points.size());
+
+  int rect_sz = QFontMetrics(qApp->font()).height() / 8;
+
+  for (int i=0;i<points.size();i++) {
+    const QPointF& p = points.at(i);
+
+    rects[i] = QRectF(p - QPointF(rect_sz, rect_sz),
+                      p + QPointF(rect_sz, rect_sz));
+  }
+
+  return rects;
 }
 
 OLIVE_NAMESPACE_EXIT
