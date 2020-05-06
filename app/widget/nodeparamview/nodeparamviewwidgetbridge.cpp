@@ -423,6 +423,10 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 
 void NodeParamViewWidgetBridge::UpdateWidgetValues()
 {
+  if (input_->IsArray()) {
+    return;
+  }
+
   rational node_time = GetCurrentTimeAsNodeTime();
 
   // We assume the first data type is the "primary" type
