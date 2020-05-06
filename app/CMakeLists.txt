@@ -155,6 +155,12 @@ if (WIN32)
     PRIVATE
     DbgHelp
   )
+elseif (APPLE)
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    "-framework ApplicationServices"
+  )
 endif()
 
 set(OLIVE_TS_FILES
