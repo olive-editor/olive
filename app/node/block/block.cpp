@@ -63,9 +63,9 @@ Block::Block() :
   set_length_and_media_out(1);
 }
 
-QString Block::Category() const
+QList<Node::CategoryID> Block::Category() const
 {
-  return tr("Block");
+  return {kCategoryTimeline};
 }
 
 const rational &Block::in() const
@@ -363,6 +363,11 @@ void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *
   }
 
   Node::InvalidateCache(range, from, source);
+}
+
+void Block::Hash(QCryptographicHash &, const rational &) const
+{
+  // A block does nothing by default
 }
 
 OLIVE_NAMESPACE_EXIT

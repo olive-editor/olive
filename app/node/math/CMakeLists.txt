@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(math)
+add_subdirectory(merge)
 add_subdirectory(trigonometry)
 
 set(OLIVE_SOURCES

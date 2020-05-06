@@ -24,17 +24,19 @@
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
-#include "block/transition/externaltransition.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
+#include "generator/solid/solid.h"
+#include "filter/blur/blur.h"
+#include "filter/stroke/stroke.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "input/time/timeinput.h"
 #include "math/math/math.h"
+#include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
-#include "external.h"
 
 OLIVE_NAMESPACE_ENTER
 QList<Node*> NodeFactory::library_;
@@ -48,13 +50,10 @@ void NodeFactory::Initialize()
     library_.append(CreateInternal(static_cast<InternalID>(i)));
   }
 
-  library_.append(new ExternalNode(":/shaders/blur.xml"));
-  library_.append(new ExternalNode(":/shaders/solid.xml"));
-  library_.append(new ExternalNode(":/shaders/stroke.xml"));
-  library_.append(new ExternalNode(":/shaders/alphaover.xml"));
-  library_.append(new ExternalNode(":/shaders/dropshadow.xml"));
+  /*
   library_.append(new ExternalTransition(":/shaders/crossdissolve.xml"));
   library_.append(new ExternalTransition(":/shaders/diptoblack.xml"));
+  */
 }
 
 void NodeFactory::Destroy()
@@ -74,34 +73,25 @@ Menu *NodeFactory::CreateMenu(QWidget* parent)
     // Make sure nodes are up-to-date with the current translation
     n->Retranslate();
 
-    QStringList path = n->Category().split('/');
+    Menu* destination = nullptr;
 
-    Menu* destination = menu;
+    QString category_name = Node::GetCategoryName(n->Category().isEmpty()
+                                                  ? Node::kCategoryUnknown
+                                                  : n->Category().first());
 
-    // Find destination menu based on category hierarchy
-    foreach (const QString& dir_name, path) {
-      // Ignore an empty directory
-      if (dir_name.isEmpty()) {
-        continue;
+    // See if a menu with this category name already exists
+    QList<QAction*> menu_actions = menu->actions();
+    foreach (QAction* action, menu_actions) {
+      if (action->menu() && action->menu()->title() == category_name) {
+        destination = static_cast<Menu*>(action->menu());
+        break;
       }
+    }
 
-      // See if a menu with this dir_name already exists
-      bool found_cat = false;
-      QList<QAction*> menu_actions = destination->actions();
-      foreach (QAction* action, menu_actions) {
-        if (action->menu() && action->menu()->title() == dir_name) {
-          destination = static_cast<Menu*>(action->menu());
-          found_cat = true;
-          break;
-        }
-      }
-
-      // Create menu here if it doesn't exist
-      if (!found_cat) {
-        Menu* new_category = new Menu(dir_name, destination);
-        destination->InsertAlphabetically(new_category);
-        destination = new_category;
-      }
+    // Create menu here if it doesn't exist
+    if (!destination) {
+      destination = new Menu(category_name, menu);
+      menu->InsertAlphabetically(destination);
     }
 
     // Add entry to menu
@@ -164,6 +154,14 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new TrigonometryNode();
   case kTime:
     return new TimeInput();
+  case kBlurFilter:
+    return new BlurFilterNode();
+  case kSolidGenerator:
+    return new SolidGenerator();
+  case kMerge:
+    return new MergeNode();
+  case kStrokeFilter:
+    return new StrokeFilterNode();
 
   case kInternalNodeCount:
     break;

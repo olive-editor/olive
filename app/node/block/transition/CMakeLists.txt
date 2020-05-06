@@ -16,8 +16,6 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/block/transition/externaltransition.h
-  node/block/transition/externaltransition.cpp
   node/block/transition/transition.h
   node/block/transition/transition.cpp
   PARENT_SCOPE

@@ -131,8 +131,6 @@ double TransitionBlock::GetInProgress(const rational &time) const
 
 void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  Block::Hash(hash, time);
-
   double all_prog = GetTotalProgress(time);
   double in_prog = GetInProgress(time);
   double out_prog = GetOutProgress(time);
@@ -140,6 +138,14 @@ void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
   hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
   hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
   hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
+
+  if (out_block_input_->IsConnected()) {
+    out_block_input_->get_connected_node()->Hash(hash, time);
+  }
+
+  if (in_block_input_->IsConnected()) {
+    in_block_input_->get_connected_node()->Hash(hash, time);
+  }
 }
 
 double TransitionBlock::GetInternalTransitionTime(const rational &time) const

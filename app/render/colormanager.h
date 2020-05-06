@@ -26,6 +26,8 @@
 #include "codec/frame.h"
 #include "colorprocessor.h"
 
+#define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
+
 OLIVE_NAMESPACE_ENTER
 
 class ColorManager : public QObject
@@ -35,6 +37,8 @@ public:
   ColorManager();
 
   OCIO::ConstConfigRcPtr GetConfig() const;
+
+  static OCIO::ConstConfigRcPtr CreateConfigFromFile(const QString& filename);
 
   const QString& GetConfigFilename() const;
 
@@ -89,6 +93,18 @@ public:
   static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
 
   static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
+
+  class SetLocale
+  {
+  public:
+    SetLocale(const char* new_locale);
+
+    ~SetLocale();
+
+  private:
+    QString old_locale_;
+
+  };
 
 signals:
   void ConfigChanged();

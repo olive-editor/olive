@@ -62,6 +62,22 @@ public:
     kSampleProcessor = 0x2
   };
 
+  enum CategoryID {
+    kCategoryUnknown = -1,
+
+    kCategoryInput,
+    kCategoryOutput,
+    kCategoryGenerator,
+    kCategoryMath,
+    kCategoryFilter,
+    kCategoryColor,
+    kCategoryGeneral,
+    kCategoryTimeline,
+    kCategoryChannels,
+
+    kCategoryCount
+  };
+
   Node();
 
   virtual ~Node() override;
@@ -116,7 +132,7 @@ public:
    * interpreted as an empty string category. This value should be run through a translator as its largely user
    * oriented.
    */
-  virtual QString Category() const;
+  virtual QList<CategoryID> Category() const = 0;
 
   /**
    * @brief Return a description of this node's purpose (optional for subclassing, but recommended)
@@ -241,6 +257,11 @@ public:
    * @brief Severs all input and output connections
    */
   void DisconnectAll();
+
+  /**
+   * @brief Get the human-readable name for any category
+   */
+  static QString GetCategoryName(const CategoryID &c);
 
   /**
    * @brief Transforms time from this node through the connections it takes to get to the specified node

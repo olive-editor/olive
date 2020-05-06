@@ -78,6 +78,14 @@ Color::Color(const char *data, const PixelFormat::Format &format)
   }
 }
 
+Color::Color(const QColor &c)
+{
+  set_red(c.redF());
+  set_green(c.greenF());
+  set_blue(c.blueF());
+  set_alpha(c.alphaF());
+}
+
 void Color::toHsv(float *hue, float *sat, float *val) const
 {
   float fCMax = qMax(qMax(red(), green()), blue());
@@ -205,6 +213,11 @@ QColor Color::toQColor() const
   c.setAlphaF(clamp(alpha(), 0.0f, 1.0f));
 
   return c;
+}
+
+float Color::GetRoughLuminance() const
+{
+  return (2*red()+blue()+3*green())/6.0f;
 }
 
 const Color &Color::operator+=(const Color &rhs)

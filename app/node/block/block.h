@@ -49,7 +49,7 @@ public:
 
   virtual Type type() const = 0;
 
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
 
   const rational& in() const;
   const rational& out() const;
@@ -98,6 +98,8 @@ public:
   NodeInput* speed_input() const;
 
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source) override;
+
+  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
 public slots:
 

@@ -21,48 +21,20 @@
 #ifndef WAVEFORMSCOPE_H
 #define WAVEFORMSCOPE_H
 
-#include "codec/frame.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
-#include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
-#include "widget/manageddisplay/manageddisplay.h"
+#include "widget/scope/scopebase/scopebase.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class WaveformScope : public ManagedDisplayWidget
+class WaveformScope : public ScopeBase
 {
   Q_OBJECT
 public:
   WaveformScope(QWidget* parent = nullptr);
 
-  virtual ~WaveformScope() override;
-
-public slots:
-  void SetBuffer(Frame* frame);
-
 protected:
-  virtual void initializeGL() override;
+  virtual OpenGLShaderPtr CreateShader() override;
 
-  virtual void paintGL() override;
-
-  virtual void showEvent(QShowEvent* e) override;
-
-private:
-  void UploadTextureFromBuffer();
-
-  OpenGLShaderPtr pipeline_;
-
-  OpenGLTexture texture_;
-
-  OpenGLTexture managed_tex_;
-
-  OpenGLFramebuffer framebuffer_;
-
-  Frame* buffer_;
-
-private slots:
-  void CleanUp();
+  virtual void DrawScope() override;
 
 };
 

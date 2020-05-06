@@ -54,6 +54,8 @@ public:
 
   virtual void Retranslate() override;
 
+  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
+
 signals:
   void PreviewUpdated();
 

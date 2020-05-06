@@ -18,44 +18,48 @@
 
 ***/
 
-#ifndef EXTERNALNODE_H
-#define EXTERNALNODE_H
+#ifndef BLURFILTERNODE_H
+#define BLURFILTERNODE_H
 
-#include <QXmlStreamReader>
-
-#include "node.h"
-#include "metareader.h"
+#include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-/**
- * @brief A node generated from an external XML metadata file
- */
-class ExternalNode : public Node
+class BlurFilterNode : public Node
 {
 public:
-  ExternalNode(const QString& xml_meta_filename);
+  BlurFilterNode();
 
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
-  virtual QString ShortName() const override;
   virtual QString id() const override;
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
 
   virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual QString ShaderVertexCode(const NodeValueDatabase&) const override;
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
+
   virtual int ShaderIterations() const override;
   virtual NodeInput* ShaderIterativeInput() const override;
 
 private:
-  NodeMetaReader meta_;
+  NodeInput* texture_input_;
+
+  NodeInput* method_input_;
+
+  NodeInput* radius_input_;
+
+  NodeInput* horiz_input_;
+
+  NodeInput* vert_input_;
+
+  NodeInput* repeat_edge_pixels_input_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXTERNALNODE_H
+#endif // BLURFILTERNODE_H

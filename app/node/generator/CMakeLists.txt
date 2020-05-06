@@ -16,6 +16,7 @@
 
 add_subdirectory(matrix)
 add_subdirectory(polygon)
+add_subdirectory(solid)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

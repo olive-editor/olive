@@ -45,6 +45,10 @@ public:
     kMath,
     kTime,
     kTrigonometry,
+    kBlurFilter,
+    kSolidGenerator,
+    kMerge,
+    kStrokeFilter,
 
     // Count value
     kInternalNodeCount

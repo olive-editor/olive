@@ -35,7 +35,7 @@ class MediaInput : public Node
 public:
   MediaInput();
 
-  virtual QString Category() const override;
+  virtual QList<CategoryID> Category() const override;
 
   StreamPtr footage();
   void SetFootage(StreamPtr f);

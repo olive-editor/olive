@@ -72,9 +72,9 @@ QString ViewerOutput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.vieweroutput");
 }
 
-QString ViewerOutput::Category() const
+QList<Node::CategoryID> ViewerOutput::Category() const
 {
-  return tr("Output");
+  return {kCategoryOutput};
 }
 
 QString ViewerOutput::Description() const
