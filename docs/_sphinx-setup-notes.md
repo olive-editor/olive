@@ -54,6 +54,9 @@
   sphinx-build . _build -b html
   ```
 
+  TODO: How to use HTML5 translator? (seems to be just HTML currently).
+  -b html5 does not work.
+
 - Serve HTML at http://localhost:8000/
 
   ```
@@ -82,7 +85,7 @@
 
   ```
   Sphinx ~= 3.0.3
-  sphinx-rtd-theme ~= 0.4.3
+  sphinx_rtd_theme ~= 0.4.3
   breathe ~= 4.18.0
   ```
 
@@ -114,8 +117,12 @@
   make html
   ```
 
-  Generate file, class and other lists in .rst format:
+  Generate file, class and other lists in .rst format with `breathe-apidoc`:
+  https://github.com/michaeljones/breathe/blob/master/breathe/apidoc.py
 
   ```
   breathe-apidoc _doxygen/xml -o apidoc
   ```
+
+  Alternative: https://github.com/svenevs/exhale
+
