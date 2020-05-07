@@ -45,6 +45,8 @@ public:
 
   void SetAlignment(Qt::Alignment alignment);
 
+  void SetDefaultValue(const QVariant& v);
+
   bool IsTristate() const;
   void SetTristate();
 
@@ -89,6 +91,7 @@ private:
   FocusableLineEdit* editor_;
 
   QVariant value_;
+  QVariant default_value_;
 
   bool has_min_;
   QVariant min_value_;
@@ -120,6 +123,8 @@ private slots:
   void LineEditConfirmed();
 
   void LineEditCancelled();
+
+  void ValueReset();
 };
 
 OLIVE_NAMESPACE_EXIT

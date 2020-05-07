@@ -55,49 +55,60 @@ SliderLabel::SliderLabel(QWidget *parent) :
 
 void SliderLabel::mousePressEvent(QMouseEvent *)
 {
-  emit drag_start();
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
+    emit ResetResult();
+  }else {
+    emit drag_start();
 
 #if defined(Q_OS_MAC)
-  CGAssociateMouseAndMouseCursorPosition(false);
-  CGDisplayHideCursor(kCGDirectMainDisplay);
-  CGGetLastMouseDelta(nullptr, nullptr);
+    CGAssociateMouseAndMouseCursorPosition(false);
+    CGDisplayHideCursor(kCGDirectMainDisplay);
+    CGGetLastMouseDelta(nullptr, nullptr);
 #else
-  drag_start_ = QCursor::pos();
+    drag_start_ = QCursor::pos();
 
-  static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
+    static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
 #endif
+  }
 }
 
 void SliderLabel::mouseMoveEvent(QMouseEvent *)
 {
-  int32_t x_mvmt, y_mvmt;
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
+      // do nothing
+  }else {
+    int32_t x_mvmt, y_mvmt;
 
-  // Keep cursor in the same position
+    // Keep cursor in the same position
 #if defined(Q_OS_MAC)
-  CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
+    CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
 #else
-  QPoint current_pos = QCursor::pos();
+    QPoint current_pos = QCursor::pos();
 
-  x_mvmt = current_pos.x() - drag_start_.x();
-  y_mvmt = drag_start_.y() - current_pos.y();
+    x_mvmt = current_pos.x() - drag_start_.x();
+    y_mvmt = drag_start_.y() - current_pos.y();
 
-  QCursor::setPos(drag_start_);
+    QCursor::setPos(drag_start_);
 #endif
 
-  emit dragged(x_mvmt + y_mvmt);
+    emit dragged(x_mvmt + y_mvmt);
+  }
 }
 
 void SliderLabel::mouseReleaseEvent(QMouseEvent *)
 {
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
+    //do nothing 
+  } else {
+    // Emit a clicked signal
+    emit drag_stop();
+  }
 #if defined(Q_OS_MAC)
   CGAssociateMouseAndMouseCursorPosition(true);
   CGDisplayShowCursor(kCGDirectMainDisplay);
 #else
   static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
 #endif
-
-  // Emit a clicked signal
-  emit drag_stop();
 }
 
 void SliderLabel::focusInEvent(QFocusEvent *event)

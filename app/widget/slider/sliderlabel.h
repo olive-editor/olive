@@ -51,6 +51,8 @@ signals:
 
   void focused();
 
+  void ResetResult();
+
 private:
   QPoint drag_start_;
 
