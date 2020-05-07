@@ -17,12 +17,21 @@
 Welcome to Olive's documentation!
 =================================
 
+External link: https://google.com
+
+With label: `Google.com <https://google.com>`_
+
+Indirect: `Google Homepage`_
+
+.. _Google Homepage: https://google.com
+
 .. toctree::
    :maxdepth: 2
    :caption: Users
    :hidden:
 
    sub/sample
+   sub/other
 
 .. toctree::
    :maxdepth: 2
@@ -30,6 +39,17 @@ Welcome to Olive's documentation!
    :hidden:
 
    code
+
+.. toctree::
+   :caption: Links
+   :hidden:
+
+   Website <https://olivevideoeditor.org/>
+   GitHub <https://github.com/olive-editor/olive>
+   Discord <https://discordapp.com/invite/4Ae9KZn>
+   Subreddit <https://www.reddit.com/r/olive/>
+   Donate (PayPal) <https://olivevideoeditor.org/donate.php>
+   Patreon <https://www.patreon.com/olivevideoeditor>
 
 .. _index-another-headline:
 
