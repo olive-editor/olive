@@ -47,7 +47,9 @@ OLIVE_NAMESPACE_EXIT
 #define MACRO_NAME_AS_STR(s) #s
 #define MACRO_VAL_AS_STR(s) MACRO_NAME_AS_STR(s)
 
+#define OLIVE_NS_CONST_ARG(x, y) QArgument<const OLIVE_NAMESPACE::x>("const " MACRO_VAL_AS_STR(OLIVE_NAMESPACE) "::" #x, y)
 #define OLIVE_NS_ARG(x, y) QArgument<OLIVE_NAMESPACE::x>(MACRO_VAL_AS_STR(OLIVE_NAMESPACE) "::" #x, y)
+#define OLIVE_NS_RETURN_ARG(x, y) QReturnArgument<OLIVE_NAMESPACE::x>(MACRO_VAL_AS_STR(OLIVE_NAMESPACE) "::" #x, y)
 
 /**
  * Copy/move deleters. Similar to Q_DISABLE_COPY_MOVE, et al. but those functions are not present in Qt < 5.13 so we

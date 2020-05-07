@@ -316,6 +316,8 @@ void NodeInput::Init(DataType type)
 
 void NodeInput::SetDefaultValue(const QVector<QVariant> &default_value)
 {
+  default_value_ = default_value;
+
   for (int i=0;i<standard_value_.size();i++) {
     standard_value_.replace(i, default_value.at(i));
   }
@@ -380,6 +382,11 @@ void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusi
       }
     }
   }
+}
+
+QVariant NodeInput::GetDefaultValue() const
+{
+  return combine_track_values_into_normal_value(default_value_);
 }
 
 QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const

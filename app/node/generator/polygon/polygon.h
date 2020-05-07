@@ -22,6 +22,7 @@
 #define POLYGONGENERATOR_H
 
 #include "node/node.h"
+#include "node/inputdragger.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -43,18 +44,26 @@ public:
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
   virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale) const override;
+  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
 
-  /*
-  virtual bool GizmoPress(const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p) override;
-  virtual void GizmoRelease(const QPointF &p) override;
-  */
+  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
+  virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
+  virtual void GizmoRelease() override;
 
 private:
+  QVector<QPointF> GetGizmoCoordinates(const NodeValueDatabase &db, const QVector2D &scale) const;
+
+  QVector<QRectF> GetGizmoRects(const QVector<QPointF>& points) const;
+
   NodeInputArray* points_input_;
 
   NodeInput* color_input_;
+
+  NodeInput* gizmo_drag_;
+  QPointF gizmo_drag_start_;
+
+  NodeInputDragger gizmo_x_dragger_;
+  NodeInputDragger gizmo_y_dragger_;
 
 };
 

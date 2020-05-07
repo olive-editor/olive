@@ -18,27 +18,43 @@
 
 ***/
 
-#ifndef AUDIOWORKER_H
-#define AUDIOWORKER_H
+#ifndef NODEINPUTDRAGGER_H
+#define NODEINPUTDRAGGER_H
 
-#include "../audiorenderworker.h"
+#include "node/input.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class AudioWorker : public AudioRenderWorker
+class NodeInputDragger
 {
 public:
-  AudioWorker(QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
+  NodeInputDragger();
 
-protected:
-  virtual NodeValue FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) override;
+  bool IsStarted() const;
 
-  virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase& input_params, NodeValueTable& output_params) override;
+  void Start(NodeInput* input, const rational& time, int track);
+
+  void Drag(const QVariant &value);
+
+  void End();
 
 private:
+  NodeInput* input_;
+
+  int track_;
+
+  rational time_;
+
+  QVariant start_value_;
+
+  QVariant end_value_;
+
+  NodeKeyframePtr dragging_key_;
+
+  bool drag_created_key_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // AUDIOWORKER_H
+#endif // NODEINPUTDRAGGER_H
