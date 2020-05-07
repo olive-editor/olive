@@ -94,6 +94,7 @@ if(MSVC)
     /external:anglebrackets
     /external:W0
     "$<$<CONFIG:RELEASE>:/O2>"
+    "$<$<COMPILE_LANGUAGE:CXX>:/MP>"
   )
 else()
   target_compile_options(
@@ -110,7 +111,7 @@ else()
 endif()
 
 if(UNIX AND NOT APPLE)
-  target_compile_options(
+  target_link_options(
     ${OLIVE_TARGET}
     PRIVATE
     -rdynamic
@@ -154,6 +155,12 @@ if (WIN32)
     ${OLIVE_TARGET}
     PRIVATE
     DbgHelp
+  )
+elseif (APPLE)
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    "-framework ApplicationServices"
   )
 endif()
 

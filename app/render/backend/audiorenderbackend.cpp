@@ -124,7 +124,7 @@ TimeRange AudioRenderBackend::PopNextFrameFromQueue()
   return range;
 }
 
-void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
+void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible)
 {
   if (!ic_from_conform_) {
     // Cancel any ranges waiting on a conform here since obviously the contents have changed
@@ -153,7 +153,7 @@ void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, co
     }
   }
 
-  RenderBackend::InvalidateCacheInternal(start_range, end_range);
+  RenderBackend::InvalidateCacheInternal(start_range, end_range, only_visible);
 }
 
 void AudioRenderBackend::ListenForConformSignal(AudioStreamPtr s)

@@ -236,6 +236,8 @@ private slots:
 
   void ContextMenuScopeTriggered(QAction* action);
 
+  void RendererGeneratedFrame(FramePtr f);
+
 };
 
 OLIVE_NAMESPACE_EXIT
