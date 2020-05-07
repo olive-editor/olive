@@ -1,0 +1,6 @@
+.rst-content.style-external-links a.reference.external::after {
+  color: #3091d1;
+}
+.rst-content.style-external-links a.reference.external:visited::after {
+  color: #9B59B6;
+}
