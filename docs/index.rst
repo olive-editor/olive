@@ -19,10 +19,17 @@ Welcome to Olive's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Users
    :hidden:
 
    sub/sample
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developers
+   :hidden:
+
+   code
 
 .. _index-another-headline:
 
