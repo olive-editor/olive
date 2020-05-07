@@ -44,11 +44,11 @@ public:
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
   virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter *p, const QVector2D &scale) const override;
+  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
 
-  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF &p, const QVector2D &scale) override;
+  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
   virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
-  virtual void GizmoRelease(const QPointF &p) override;
+  virtual void GizmoRelease() override;
 
 private:
   QVector<QPointF> GetGizmoCoordinates(const NodeValueDatabase &db, const QVector2D &scale) const;

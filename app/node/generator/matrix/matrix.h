@@ -21,7 +21,10 @@
 #ifndef MATRIXGENERATOR_H
 #define MATRIXGENERATOR_H
 
+#include <QVector2D>
+
 #include "node/node.h"
+#include "node/inputdragger.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -43,11 +46,33 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
-  //virtual bool HasGizmos() const override;
-  //virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale) const override;
+  virtual bool HasGizmos() const override;
+  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
+
+  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
+  virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
+  virtual void GizmoRelease() override;
 
 private:
+  struct GizmoSharedData {
+    GizmoSharedData(const QSize& viewport, const QVector2D& scale);
+
+    QPointF half_viewport;
+    QVector2D half_scale;
+    QVector2D inverted_half_scale;
+  };
+
   QMatrix4x4 GenerateMatrix(NodeValueDatabase& value) const;
+  QMatrix4x4 GenerateMatrix(const NodeValueDatabase& value, bool ignore_anchor) const;
+  static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
+                                   const float &rot,
+                                   const QVector2D &scale,
+                                   bool uniform_scale,
+                                   const QVector2D &anchor);
+
+  QPointF GetGizmoAnchorPoint(const NodeValueDatabase &db, const GizmoSharedData &gizmo_data) const;
+  static int GetGizmoAnchorPointRadius();
+  NodeInput* gizmo_drag_;
 
   NodeInput* position_input_;
 
@@ -58,6 +83,14 @@ private:
   NodeInput* uniform_scale_input_;
 
   NodeInput* anchor_input_;
+
+  QVector2D gizmo_start_;
+  QVector2D gizmo_start2_;
+  QPointF gizmo_mouse_start_;
+  NodeInputDragger gizmo_x_dragger_;
+  NodeInputDragger gizmo_y_dragger_;
+  NodeInputDragger gizmo_x2_dragger_;
+  NodeInputDragger gizmo_y2_dragger_;
 
 private slots:
   void UniformScaleChanged();

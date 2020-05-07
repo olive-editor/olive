@@ -100,7 +100,7 @@ bool PolygonGenerator::HasGizmos() const
   return true;
 }
 
-void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, const QVector2D &scale) const
+void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize &viewport) const
 {
   if (!points_input_->GetSize()) {
     return;
@@ -112,16 +112,13 @@ void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, cons
   QVector<QPointF> points = GetGizmoCoordinates(db, scale);
   QVector<QRectF> rects = GetGizmoRects(points);
 
-  foreach (const QRectF& r, rects) {
-    p->drawRect(r);
-  }
-
   points.append(points.first());
 
   p->drawPolyline(points.constData(), points.size());
+  p->drawRects(rects);
 }
 
-bool PolygonGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p, const QVector2D &scale)
+bool PolygonGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize& viewport)
 {
   QVector<QPointF> points = GetGizmoCoordinates(db, scale);
   QVector<QRectF> rects = GetGizmoRects(points);
@@ -157,7 +154,7 @@ void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const
   InvalidateVisible(gizmo_drag_, gizmo_drag_);
 }
 
-void PolygonGenerator::GizmoRelease(const QPointF &p)
+void PolygonGenerator::GizmoRelease()
 {
   gizmo_x_dragger_.End();
   gizmo_y_dragger_.End();
