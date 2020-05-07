@@ -1,6 +1,7 @@
 INPUT                = ../app
 RECURSIVE            = YES
-FILE_PATTERNS        = *.cpp, *.h
+## 99% of Javadoc comments are in header files
+FILE_PATTERNS        = *.h
 OUTPUT_DIRECTORY     = _doxygen
 PROJECT_NAME         = doxygen_api
 PROJECT_NUMBER       = 0.2.0
