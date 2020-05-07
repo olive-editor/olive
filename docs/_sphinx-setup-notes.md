@@ -76,4 +76,46 @@
   python -m pip install sphinx-theme
   ```
 
-  TODO: Automate installation of extensions/themes (via pip? requirements.txt?)
+  TODO: Automate installation of extensions/themes (via pip = requirements.txt?)
+
+  `requirements.txt`:
+
+  ```
+  Sphinx ~= 3.0.3
+  sphinx-rtd-theme ~= 0.4.3
+  breathe ~= 4.18.0
+  ```
+
+  https://pip.pypa.io/en/stable/reference/pip_install/#example-requirements-file
+
+  Install:
+
+  ```
+  pip install -r requirements.txt
+  ```
+
+  Upgrade
+
+  ```
+  pip install -r requirements.txt --upgrade
+  ```
+
+- Install breathe (Sphinx bridge for doxygen)
+
+  ```
+  python -m pip install breathe
+  ```
+
+- Generate code documentation
+
+  ```
+  cd docs
+  doxygen
+  make html
+  ```
+
+  Generate file, class and other lists in .rst format:
+
+  ```
+  breathe-apidoc _doxygen/xml -o apidoc
+  ```

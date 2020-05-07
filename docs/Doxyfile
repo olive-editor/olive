@@ -1,0 +1,34 @@
+INPUT                = ../app
+RECURSIVE            = YES
+FILE_PATTERNS        = *.cpp, *.h
+OUTPUT_DIRECTORY     = _doxygen
+PROJECT_NAME         = doxygen_api
+PROJECT_NUMBER       = 0.2.0
+EXTRACT_ALL          = YES
+EXTRACT_PRIVATE      = YES
+GENERATE_XML         = YES
+GENERATE_HTML        = NO
+GENERATE_LATEX       = NO
+HIDE_UNDOC_MEMBERS   = YES
+HIDE_UNDOC_CLASSES   = YES
+ENABLE_PREPROCESSING = YES
+MACRO_EXPANSION      = YES
+SEARCH_INCLUDES      = YES
+FULL_PATH_NAMES      = NO
+
+## Should these be predefined? doc\global\qt-cpp-defines.qdocconf ("Cpp.ignoredirectives")
+## The only significant ones are apparently Q_PROPERTY and OLIVE_*
+PREDEFINED           = OLIVE_NAMESPACE_ENTER \
+                       OLIVE_NAMESPACE_EXIT \
+                       Q_PROPERTY(x)=
+##                     Q_OVERRIDE(x)= \
+##                     Q_EXPORT= \
+##                     Q_ENUMS(x)= \
+##                     _WS_X11_ \
+
+## Doesn't seem to help with warnings
+##EXPAND_ONLY_PREDEF   = YES
+
+## Based on include\QtCore\qobjectdefs.h ("qmake ignore")
+EXPAND_AS_DEFINED    = Q_OBJECT Q_OBJECT_FAKE Q_GADGET Q_NAMESPACE_EXPORT Q_NAMESPACE
+## Another possibly related file: include\QtCore\qglobal.h

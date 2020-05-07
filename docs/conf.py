@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -34,11 +37,33 @@ release = 'v0.2-alpha'
 extensions = [
     #'sphinx.ext.todo',
     #'sphinx.ext.githubpages',
+    'breathe',
     'sphinx.ext.autosectionlabel' # headline IDs for anchor linking
+    # Blender:
+    #'youtube',
+    #'vimeo',
+    #'sphinx.ext.mathjax',
+    #'sphinx.ext.intersphinx',
+    #'404'
 ]
+
+# Blender:
+## Is there a better way to check for PDF building?
+#if "latex" in sys.argv:
+#    # To convert gif's when making a PDF.
+#    extensions.append('sphinx.ext.imgconverter')
+
+# intersphinx_mapping = {'blender_api': ('https://docs.blender.org/api/' + blender_version + '/', None)}
+
 # https://stackoverflow.com/questions/15394347/adding-a-cross-reference-to-a-subheading-or-anchor-in-another-page
 autosectionlabel_prefix_document = True # document name + headline as ID?
 #autosectionlabel_maxdepth = 2
+
+breathe_projects = { 'doxygen_api': '_doxygen/xml/' }
+breathe_default_project = 'doxygen_api'
+# TODO: Is this the possible cause WARNING: Duplicate declaration?
+# Or is it because of breathe-apidoc which references information multiple times?
+#breathe_domain_by_extension = { 'h' : 'cpp' }
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,7 +75,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', '_doxygen', 'Thumbs.db', '.DS_Store']
 
 # The master toctree document.
 #master_doc = 'index'
@@ -61,6 +86,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 #language = None
+language = 'en'
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
