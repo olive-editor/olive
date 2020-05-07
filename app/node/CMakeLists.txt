@@ -36,6 +36,8 @@ set(OLIVE_SOURCES
   node/input.cpp
   node/inputarray.h
   node/inputarray.cpp
+  node/inputdragger.h
+  node/inputdragger.cpp
   node/keyframe.h
   node/keyframe.cpp
   node/node.h

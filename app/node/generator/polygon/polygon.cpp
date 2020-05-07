@@ -139,12 +139,28 @@ bool PolygonGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p,
   return false;
 }
 
-void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale)
+void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const rational& time)
 {
   QVector2D new_pos = QVector2D(p) / scale;
 
-  gizmo_drag_->set_standard_value(new_pos.x(), 0);
-  gizmo_drag_->set_standard_value(new_pos.y(), 1);
+  if (!gizmo_x_dragger_.IsStarted()) {
+    gizmo_x_dragger_.Start(gizmo_drag_, time, 0);
+  }
+
+  if (!gizmo_y_dragger_.IsStarted()) {
+    gizmo_y_dragger_.Start(gizmo_drag_, time, 1);
+  }
+
+  gizmo_x_dragger_.Drag(new_pos.x());
+  gizmo_y_dragger_.Drag(new_pos.y());
+
+  InvalidateVisible(gizmo_drag_, gizmo_drag_);
+}
+
+void PolygonGenerator::GizmoRelease(const QPointF &p)
+{
+  gizmo_x_dragger_.End();
+  gizmo_y_dragger_.End();
 }
 
 QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(const NodeValueDatabase &db, const QVector2D& scale) const

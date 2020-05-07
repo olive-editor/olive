@@ -162,6 +162,8 @@ private:
   QPointF GetTexturePosition(const QSize& size);
   QPointF GetTexturePosition(const double& x, const double& y);
 
+  rational GetGizmoTime();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -188,11 +190,9 @@ private:
   ViewerSafeMarginInfo safe_margin_;
 
   Node* gizmos_;
-
   NodeValueDatabase gizmo_db_;
-
+  rational gizmo_drag_time_;
   VideoRenderingParams gizmo_params_;
-
   bool gizmo_click_;
 
   rational time_;

@@ -296,7 +296,7 @@ bool Node::GizmoPress(const NodeValueDatabase &, const QPointF &, const QVector2
   return false;
 }
 
-void Node::GizmoMove(const QPointF &, const QVector2D &)
+void Node::GizmoMove(const QPointF &, const QVector2D &, const rational &)
 {
 }
 
