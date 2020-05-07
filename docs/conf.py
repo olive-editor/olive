@@ -24,10 +24,10 @@ project = 'Olive'
 copyright = '2020, Olive Team'
 author = 'Olive Team'
 
-# The short X.Y version
-version = '0.2'
 # The full version, including alpha/beta/rc tags
-release = 'v0.2-alpha'
+release = 'v0.2.0-alpha'
+# The short X.Y version
+version = release
 
 # -- General configuration ---------------------------------------------------
 
@@ -61,9 +61,12 @@ autosectionlabel_prefix_document = True # document name + headline as ID?
 
 breathe_projects = { 'doxygen_api': '_doxygen/xml/' }
 breathe_default_project = 'doxygen_api'
-# TODO: Is this the possible cause WARNING: Duplicate declaration?
-# Or is it because of breathe-apidoc which references information multiple times?
-#breathe_domain_by_extension = { 'h' : 'cpp' }
+# What does it actually do? It does not prevent WARNING: Duplicate declaration
+# (maybe just because content is referenced multiple times? Or declaration in .h and definition in .cpp?)
+# https://github.com/michaeljones/breathe/issues/405 ?
+breathe_domain_by_extension = { 'h': 'cpp' }
+# Is this supposed to suppress the duplicate declaration warnings, but only for unnamespaced code?
+breathe_implementation_filename_extensions = ['.c', '.cc', '.cpp'] # default
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -76,6 +79,10 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', '_doxygen', 'Thumbs.db', '.DS_Store']
+# TODO: allow to skip api docs for faster user documentation turnaround
+import os
+if os.getenv('SKIP_APIDOCS', None):
+    exclude_patterns.append('apidoc')
 
 # The master toctree document.
 #master_doc = 'index'
@@ -103,6 +110,10 @@ pygments_style = 'sphinx'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_css_files = [
+    'css/custom.css'
+]
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -114,6 +125,76 @@ html_static_path = ['_static']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'neo_rtd_theme'
-import sphinx_theme
-html_theme_path = [sphinx_theme.get_html_theme_path()]
+#html_theme = 'neo_rtd_theme'
+#import sphinx_theme
+#html_theme_path = [sphinx_theme.get_html_theme_path()]
+
+html_theme = "sphinx_rtd_theme"
+
+# https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html
+# https://developer.blender.org/diffusion/BM/browse/trunk/blender_docs/manual/conf.py
+html_theme_options = {
+#   'canonical_url': 'https://olive.readthedocs.org/latest/',
+#   'analytics_id': 'UA-XXXXXXX-1',  #  Provided by Google in your dashboard
+#   'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': True,
+#   'vcs_pageview_mode': '',
+#   'style_nav_header_background': 'white',
+    # Toc options
+#   'collapse_navigation': True,
+    'sticky_navigation': True,
+#   'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
+
+# WARNING: Delete _build folder manually to avoid caching issues (even with make html -a -E)
+
+# Copy of Sphinx 3.0.3 HTML5 translator to patch target and rel for external links in
+# https://stackoverflow.com/questions/25583581/add-open-in-new-tab-links-in-sphinx-restructuredtext
+from sphinx.writers.html import HTMLTranslator
+from docutils import nodes
+from docutils.nodes import Element
+class PatchedHTMLTranslator(HTMLTranslator):
+
+#   def visit_reference(self, node):
+#       if node.get('newtab') or not (node.get('target') or node.get('internal') or 'refuri' not in node):
+#           node['target'] = '_blank'
+#           node['rel'] = 'noopener noreferrer' # original code does not set rel as attribute!
+#       super().visit_reference(node)
+
+    def visit_reference(self, node: Element) -> None:
+        atts = {'class': 'reference'}
+        if node.get('internal') or 'refuri' not in node:
+            atts['class'] += ' internal'
+        else:
+            atts['class'] += ' external'
+            # HACK: Customize behavior (open in new tab, secure site)
+            atts['target'] = '_blank'
+            atts['rel'] = 'noopener noreferrer'
+        if 'refuri' in node:
+            atts['href'] = node['refuri'] or '#'
+            if self.settings.cloak_email_addresses and atts['href'].startswith('mailto:'):
+                atts['href'] = self.cloak_mailto(atts['href'])
+                self.in_mailto = True
+        else:
+            assert 'refid' in node, \
+                   'References must have "refuri" or "refid" attribute.'
+            atts['href'] = '#' + node['refid']
+        if not isinstance(node.parent, nodes.TextElement):
+            assert len(node) == 1 and isinstance(node[0], nodes.image)
+            atts['class'] += ' image-reference'
+        if 'reftitle' in node:
+            atts['title'] = node['reftitle']
+        if 'target' in node:
+            atts['target'] = node['target']
+        self.body.append(self.starttag(node, 'a', '', **atts))
+ 
+        if node.get('secnumber'):
+            self.body.append(('%s' + self.secnumber_suffix) %
+                             '.'.join(map(str, node['secnumber'])))
+
+def setup(app):
+    app.set_translator('html', PatchedHTMLTranslator)
