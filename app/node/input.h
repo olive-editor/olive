@@ -277,6 +277,8 @@ public:
 
   void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
 
+  QVariant GetDefaultValue() const;
+
   QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
 
   QList<Node*> GetExclusiveDependencies() const;
@@ -367,6 +369,11 @@ private:
    * @brief Non-keyframed value
    */
   QVector<QVariant> standard_value_;
+
+  /**
+   * @brief Default value that can be reset if the user requests
+   */
+  QVector<QVariant> default_value_;
 
   /**
    * @brief Internal keyframe array
