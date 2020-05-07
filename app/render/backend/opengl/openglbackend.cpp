@@ -63,13 +63,9 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(frame_cache());
+    OpenGLWorker* processor = new OpenGLWorker(frame_cache(), proxy_);
     processor->SetParameters(params());
     processors_.append(processor);
-
-    connect(processor, &OpenGLWorker::RequestFrameToValue, proxy_, &OpenGLProxy::FrameToValue, Qt::BlockingQueuedConnection);
-    connect(processor, &OpenGLWorker::RequestTextureToBuffer, proxy_, &OpenGLProxy::TextureToBuffer, Qt::BlockingQueuedConnection);
-    connect(processor, &OpenGLWorker::RequestRunNodeAccelerated, proxy_, &OpenGLProxy::RunNodeAccelerated, Qt::BlockingQueuedConnection);
   }
 
   return true;

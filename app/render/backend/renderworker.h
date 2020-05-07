@@ -57,13 +57,13 @@ protected:
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase &input_params, NodeValueTable &output_params);
 
-  virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
-
-  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+  virtual NodeValue FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) = 0;
 
   virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) override;
 
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
+
+  NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
 
   const NodeDependency& CurrentPath() const;
 

@@ -31,7 +31,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class OpenGLProxy : public QObject {
+class OpenGLProxy : public QObject
+{
   Q_OBJECT
 public:
   OpenGLProxy(QObject* parent = nullptr);
@@ -63,13 +64,14 @@ public:
 
   void Close();
 
-  void FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable* table);
+  void SetParameters(const VideoRenderingParams& params);
 
-  void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params);
+public slots:
+  void RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node, const OLIVE_NAMESPACE::TimeRange &range, OLIVE_NAMESPACE::NodeValueDatabase &input_params, OLIVE_NAMESPACE::NodeValueTable& output_params);
 
   void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize);
 
-  void SetParameters(const VideoRenderingParams& params);
+  OLIVE_NAMESPACE::NodeValue FrameToValue(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::StreamPtr stream);
 
 private:
   QOpenGLContext* ctx_;
@@ -88,15 +90,6 @@ private:
   OpenGLShaderCache shader_cache_;
 
   OpenGLTextureCache texture_cache_;
-
-  struct CachedStill {
-    OpenGLTextureCache::ReferencePtr texture;
-    QString colorspace;
-    bool alpha_is_associated;
-    int divider;
-  };
-
-  RenderCache<Stream*, CachedStill> still_image_cache_;
 
 private slots:
   void FinishInit();

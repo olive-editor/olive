@@ -27,21 +27,19 @@ AudioWorker::AudioWorker(QHash<Node *, Node *> *copy_map, QObject *parent) :
 {
 }
 
-void AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
+NodeValue AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range)
 {
-  if (stream->type() != Stream::kAudio) {
-    return;
-  }
-
   if (decoder->HasConformedVersion(audio_params())) {
     SampleBufferPtr frame = decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params());
 
     if (frame) {
-      table->Push(NodeParam::kSamples, QVariant::fromValue(frame));
+      return NodeValue(NodeParam::kSamples, QVariant::fromValue(frame));
     }
   } else {
     emit ConformUnavailable(decoder->stream(), CurrentPath().range(), range.out(), audio_params());
   }
+
+  return NodeValue();
 }
 
 void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)

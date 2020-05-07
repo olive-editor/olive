@@ -31,7 +31,7 @@ public:
   AudioWorker(QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
 
 protected:
-  virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;
+  virtual NodeValue FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) override;
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, NodeValueDatabase& input_params, NodeValueTable& output_params) override;
 

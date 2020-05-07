@@ -120,6 +120,12 @@ void ImageStream::set_colorspace(const QString &color)
   emit ParametersChanged();
 }
 
+QString ImageStream::get_colorspace_match_string() const
+{
+  return QStringLiteral("%1:%2").arg(footage()->project()->color_manager()->GetConfigFilename(),
+                                     colorspace());
+}
+
 void ImageStream::ColorConfigChanged()
 {
   ColorManager* color_manager = footage()->project()->color_manager();

@@ -26,6 +26,7 @@
 
 #include "../videorenderworker.h"
 #include "openglframebuffer.h"
+#include "openglproxy.h"
 #include "openglshadercache.h"
 #include "opengltexturecache.h"
 
@@ -35,21 +36,18 @@ class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
   OpenGLWorker(VideoRenderFrameCache* frame_cache,
+               OpenGLProxy* proxy,
                QObject* parent = nullptr);
 
-signals:
-  void RequestFrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable* table);
-
-  void RequestRunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params);
-
-  void RequestTextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize);
-
 protected:
-  virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;
+  virtual NodeValue FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) override;
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params) override;
 
   virtual void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize) override;
+
+private:
+  OpenGLProxy* proxy_;
 
 };
 

@@ -328,7 +328,7 @@ void ViewerDisplayWidget::paintGL()
 
     int cross = qMin(w, h) / 32;
 
-    QLine lines[] = {QLine(rect().center().x() - cross, rect().center().y(), rect().center().x() + cross, rect().center().y()),
+    QLine lines[] = {QLine(rect().center().x() - cross, rect().center().y(),rect().center().x() + cross, rect().center().y()),
                     QLine(rect().center().x(), rect().center().y() - cross, rect().center().x(), rect().center().y() + cross)};
 
     p.drawLines(lines, 2);

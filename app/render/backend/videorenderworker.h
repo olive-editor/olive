@@ -98,6 +98,8 @@ protected:
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 
+  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+
   ColorProcessorCache* color_cache();
 
 private:
@@ -118,6 +120,16 @@ private:
   QByteArray download_buffer_;
 
   OperatingMode operating_mode_;
+
+  struct CachedStill {
+    NodeValue texture;
+    QString colorspace;
+    bool alpha_is_associated;
+    int divider;
+    rational time;
+  };
+
+  RenderCache<Stream*, CachedStill> still_image_cache_;
 
 private slots:
 
