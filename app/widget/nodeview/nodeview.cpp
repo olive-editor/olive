@@ -45,8 +45,9 @@ NodeView::NodeView(QWidget *parent) :
   setRenderHint(QPainter::Antialiasing);
 
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
-  connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
+
+  ConnectSelectionChangedSignal();
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
 }
@@ -129,12 +130,24 @@ void NodeView::DeleteSelected()
 
 void NodeView::SelectAll()
 {
+  // Optimization: rather than respond to every single item being selected, ignore the signal and
+  //               then handle them all at the end.
+  DisconnectSelectionChangedSignal();
+
   scene_.SelectAll();
+
+  ReconnectSelectionChangedSignal();
 }
 
 void NodeView::DeselectAll()
 {
+  // Optimization: rather than respond to every single item being selected, ignore the signal and
+  //               then handle them all at the end.
+  DisconnectSelectionChangedSignal();
+
   scene_.DeselectAll();
+
+  ReconnectSelectionChangedSignal();
 }
 
 void NodeView::Select(const QList<Node *> &nodes)
@@ -143,13 +156,19 @@ void NodeView::Select(const QList<Node *> &nodes)
     return;
   }
 
-  DeselectAll();
+  // Optimization: rather than respond to every single item being selected, ignore the signal and
+  //               then handle them all at the end.
+  DisconnectSelectionChangedSignal();
+
+  scene_.DeselectAll();
 
   foreach (Node* n, nodes) {
     NodeViewItem* item = scene_.NodeToUIObject(n);
 
     item->setSelected(true);
   }
+
+  ReconnectSelectionChangedSignal();
 }
 
 void NodeView::SelectWithDependencies(QList<Node *> nodes)
@@ -433,8 +452,10 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   } else {
 
-    QAction* filters_action = m.addAction(tr("Filters..."));
-    connect(filters_action, &QAction::triggered, this, &NodeView::ContextMenuShowFiltersDialog);
+    Menu* filter_menu = new Menu(tr("Filter"), &m);
+
+    filter_menu->addAction(tr("Show All"))->setData(NodeViewScene::kFilterShowAll);
+    filter_menu->addAction(tr("Show Selected Blocks Only"))->setData(NodeViewScene::kFilterShowSelectedBlocks);
 
     m.addSeparator();
 
@@ -705,6 +726,22 @@ void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
   foreach (const AttachedItem& i, attached_items_) {
     i.item->setPos(item_pos + i.original_pos);
   }
+}
+
+void NodeView::ConnectSelectionChangedSignal()
+{
+  connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
+}
+
+void NodeView::ReconnectSelectionChangedSignal()
+{
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
+}
+
+void NodeView::DisconnectSelectionChangedSignal()
+{
+  disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
 }
 
 OLIVE_NAMESPACE_EXIT

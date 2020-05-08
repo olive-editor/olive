@@ -94,6 +94,10 @@ private:
 
   void MoveAttachedNodesToCursor(const QPoint &p);
 
+  void ConnectSelectionChangedSignal();
+  void ReconnectSelectionChangedSignal();
+  void DisconnectSelectionChangedSignal();
+
   NodeGraph* graph_;
 
   struct AttachedItem {
