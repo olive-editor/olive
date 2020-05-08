@@ -467,7 +467,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         if (cached_drop_item_->GetInputRect(i).contains(cached_drop_item_->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
 
           // Attempt to prevent circular dependency - ensure the receiving node doesn't output to the outputting node
-          if (!cached_drop_item_->GetNode()->OutputsTo(node_)) {
+          if (!cached_drop_item_->GetNode()->OutputsTo(node_, true)) {
             drag_dest_param_ = comp_param;
             highlight_their_index = i;
 

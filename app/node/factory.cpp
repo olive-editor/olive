@@ -62,7 +62,7 @@ void NodeFactory::Destroy()
   library_.clear();
 }
 
-Menu *NodeFactory::CreateMenu(QWidget* parent)
+Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item)
 {
   Menu* menu = new Menu(parent);
   menu->setToolTipsVisible(true);
@@ -100,18 +100,57 @@ Menu *NodeFactory::CreateMenu(QWidget* parent)
     a->setToolTip(n->Description());
   }
 
+  if (create_none_item) {
+
+    QAction* none_item = new QAction(QCoreApplication::translate("NodeFactory", "None"),
+                                     menu);
+
+    none_item->setData(-1);
+
+    if (menu->actions().isEmpty()) {
+      menu->addAction(none_item);
+    } else {
+      QAction* separator = menu->insertSeparator(menu->actions().first());
+      menu->insertAction(separator, none_item);
+    }
+  }
+
   return menu;
 }
 
 Node* NodeFactory::CreateFromMenuAction(QAction *action)
 {
-  int library_index = action->data().toInt();
+  int index = action->data().toInt();
 
-  if (library_index >= 0 && library_index < library_.size()) {
-    return library_.at(library_index)->copy();
+  if (index == -1) {
+    return nullptr;
   }
 
-  return nullptr;
+  return library_.at(index)->copy();
+}
+
+QString NodeFactory::GetIDFromMenuAction(QAction *action)
+{
+  int index = action->data().toInt();
+
+  if (index == -1) {
+    return QString();
+  }
+
+  return library_.at(action->data().toInt())->id();
+}
+
+QString NodeFactory::GetNameFromID(const QString &id)
+{
+  if (!id.isEmpty()) {
+    foreach (Node* n, library_) {
+      if (n->id() == id) {
+        return n->Name();
+      }
+    }
+  }
+
+  return QString();
 }
 
 Node *NodeFactory::CreateFromID(const QString &id)

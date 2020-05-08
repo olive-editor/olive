@@ -371,7 +371,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
         // Footage timestamp
         if (stream->type() == Stream::kVideo) {
           hash.addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
-                                                    QString::number(input_time.denominator())).toUtf8());
+                                                   QString::number(input_time.denominator())).toUtf8());
 
           hash.addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
 
@@ -532,16 +532,75 @@ NodeOutput *Node::GetOutputWithID(const QString &id) const
   return nullptr;
 }
 
-bool Node::OutputsTo(Node *n) const
+bool Node::OutputsTo(Node *n, bool recursively) const
 {
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      QVector<NodeEdgePtr> edges = param->edges();
+  QList<NodeOutput*> outputs = GetOutputs();
 
-      foreach (NodeEdgePtr edge, edges) {
-        if (edge->input()->parent() == n) {
-          return true;
-        }
+  foreach (NodeOutput* output, outputs) {
+    foreach (NodeEdgePtr edge, output->edges()) {
+      Node* connected = edge->input()->parentNode();
+
+      if (connected == n) {
+        return true;
+      } else if (recursively && connected->OutputsTo(n, recursively)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Node::OutputsTo(const QString &id, bool recursively) const
+{
+  QList<NodeOutput*> outputs = GetOutputs();
+
+  foreach (NodeOutput* output, outputs) {
+    foreach (NodeEdgePtr edge, output->edges()) {
+      Node* connected = edge->input()->parentNode();
+
+      if (connected->id() == id) {
+        return true;
+      } else if (recursively && connected->OutputsTo(id, recursively)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Node::InputsFrom(Node *n, bool recursively) const
+{
+  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+
+  foreach (NodeInput* input, inputs) {
+    foreach (NodeEdgePtr edge, input->edges()) {
+      Node* connected = edge->output()->parentNode();
+
+      if (connected == n) {
+        return true;
+      } else if (recursively && connected->InputsFrom(n, recursively)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Node::InputsFrom(const QString &id, bool recursively) const
+{
+  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+
+  foreach (NodeInput* input, inputs) {
+    foreach (NodeEdgePtr edge, input->edges()) {
+      Node* connected = edge->output()->parentNode();
+
+      if (connected->id() == id) {
+        return true;
+      } else if (recursively && connected->InputsFrom(id, recursively)) {
+        return true;
       }
     }
   }

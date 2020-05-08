@@ -229,9 +229,33 @@ public:
   NodeOutput* GetOutputWithID(const QString& id) const;
 
   /**
-   * @brief Returns whether this Node outputs directly to `n`
+   * @brief Returns whether this Node outputs to `n`
+   *
+   * @param n
+   *
+   * The node instance to check.
+   *
+   * @param recursively
+   *
+   * Whether to keep traversing down outputs to find this node (TRUE) or stick to immediate outputs
+   * (FALSE).
    */
-  bool OutputsTo(Node* n) const;
+  bool OutputsTo(Node* n, bool recursively) const;
+
+  /**
+   * @brief Same as OutputsTo(Node*), but for a node ID rather than a specific instance.
+   */
+  bool OutputsTo(const QString& id, bool recursively) const;
+
+  /**
+   * @brief Returns whether this node ever receives an input from a particular node instance
+   */
+  bool InputsFrom(Node* n, bool recursively) const;
+
+  /**
+   * @brief Returns whether this node ever receives an input from a node with a particular ID
+   */
+  bool InputsFrom(const QString& id, bool recursively) const;
 
   /**
    * @brief Determines how many paths go from this node out to another node

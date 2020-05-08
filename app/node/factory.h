@@ -60,9 +60,13 @@ public:
 
   static void Destroy();
 
-  static Menu* CreateMenu(QWidget *parent);
+  static Menu* CreateMenu(QWidget *parent, bool create_none_item = false);
 
   static Node* CreateFromMenuAction(QAction* action);
+
+  static QString GetIDFromMenuAction(QAction* action);
+
+  static QString GetNameFromID(const QString& id);
 
   static Node* CreateFromID(const QString& id);
 
