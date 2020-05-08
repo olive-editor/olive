@@ -172,6 +172,14 @@ private:
 
   void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
 
+  void FillPlaybackQueue();
+
+  QString GetCachedFilenameFromTime(const rational& time);
+
+  bool FrameExistsAtTime(const rational& time);
+
+  FramePtr DecodeCachedImage(const QString& fn);
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -179,7 +187,7 @@ private:
   qint64 start_msec_;
   int64_t start_timestamp_;
 
-  int playback_speed_;
+  QAtomicInt playback_speed_;
 
   qint64 frame_cache_job_time_;
 
@@ -204,6 +212,15 @@ private:
   QList<ViewerDisplayWidget*> gl_widgets_;
 
   ViewerDisplayWidget* context_menu_widget_;
+
+  struct PlaybackFrame {
+    rational timestamp;
+    FramePtr frame;
+  };
+
+  QMutex playback_frame_queue_lock_;
+  QLinkedList<PlaybackFrame> playback_frame_queue_;
+  int64_t playback_frame_queue_next_frame_;
 
 private slots:
   void PlaybackTimerUpdate();

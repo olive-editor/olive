@@ -345,15 +345,31 @@ void ViewerWidget::SetGizmos(Node *node)
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
-  if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
-    main_gl_widget()->SetImage(QString());
-    video_renderer_->UpdateLastRequestedTime(time);
-  } else {
-    QString frame_fn = video_renderer_->GetCachedFrame(time);
+  {
+    QMutexLocker locker(&playback_frame_queue_lock_);
+    while (!playback_frame_queue_.isEmpty()) {
+      PlaybackFrame pf = playback_frame_queue_.takeFirst();
+
+      if (pf.timestamp == time) {
+        // Frame was in queue, no need to decode anything
+        main_gl_widget()->SetImageFromLoadBuffer(pf.frame.get());
+        QtConcurrent::run(this, &ViewerWidget::FillPlaybackQueue);
+        return;
+      }
+    }
+  }
+
+  // Frame was not in queue, will require decoding
+  if (FrameExistsAtTime(time)) {
+    QString frame_fn = GetCachedFilenameFromTime(time);
 
     if (!frame_fn.isEmpty()) {
-      main_gl_widget()->SetImage(frame_fn);
+      FramePtr f = DecodeCachedImage(frame_fn);
+      main_gl_widget()->SetImageFromLoadBuffer(f.get());
     }
+  } else {
+    main_gl_widget()->SetImageFromLoadBuffer(nullptr);
+    video_renderer_->UpdateLastRequestedTime(time);
   }
 }
 
@@ -372,11 +388,14 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   QString audio_fn = audio_renderer_->CachePathName();
   if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(audio_renderer_->params());
-    AudioManager::instance()->StartOutput(audio_fn, audio_renderer_->params().time_to_bytes(GetTime()), playback_speed_);
+    AudioManager::instance()->StartOutput(audio_fn,
+                                          audio_renderer_->params().time_to_bytes(GetTime()),
+                                          playback_speed_);
   }
 
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
   start_timestamp_ = ruler()->GetTime();
+  playback_frame_queue_next_frame_ = start_timestamp_;
 
   controls_->ShowPauseButton();
 
@@ -385,6 +404,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   if (playback_is_audio_only_) {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
   } else {
+    FillPlaybackQueue();
+
     connect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
 }
@@ -440,6 +461,86 @@ void ViewerWidget::UpdateMinimumScale()
 void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisplayWidget *sender)
 {
   sender->SetColorTransform(transform);
+}
+
+void ViewerWidget::FillPlaybackQueue()
+{
+  playback_frame_queue_lock_.lock();
+  while (playback_frame_queue_.size() < 8) {
+    // Load frame from cache
+    FramePtr frame = nullptr;
+
+    rational rtime = Timecode::timestamp_to_time(playback_frame_queue_next_frame_,
+                                                 timebase());
+
+    QString frame_fn = GetCachedFilenameFromTime(rtime);
+
+    if (!frame_fn.isEmpty()) {
+      frame = DecodeCachedImage(frame_fn);
+    }
+
+    playback_frame_queue_.append({rtime, frame});
+
+    if (!playback_speed_) {
+      break;
+    }
+
+    playback_frame_queue_next_frame_ += playback_speed_;
+  }
+  playback_frame_queue_lock_.unlock();
+}
+
+QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
+{
+  if (FrameExistsAtTime(time)) {
+    return video_renderer_->GetCachedFrame(time);
+  } else {
+    return QString();
+  }
+}
+
+bool ViewerWidget::FrameExistsAtTime(const rational &time)
+{
+  return GetConnectedNode() && time < GetConnectedNode()->Length();
+}
+
+FramePtr ViewerWidget::DecodeCachedImage(const QString &fn)
+{
+  FramePtr frame = nullptr;
+
+  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
+    auto input = OIIO::ImageInput::open(fn.toStdString());
+
+    if (input) {
+
+      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
+                                                                              input->spec().nchannels == kRGBAChannels);
+
+      frame = Frame::Create();
+
+      frame->set_video_params(VideoRenderingParams(input->spec().width,
+                                                   input->spec().height,
+                                                   image_format));
+
+      frame->allocate();
+
+      input->read_image(input->spec().format,
+                        frame->data(),
+                        OIIO::AutoStride,
+                        frame->linesize_bytes());
+
+      input->close();
+
+#if OIIO_VERSION < 10903
+      OIIO::ImageInput::destroy(input);
+#endif
+
+    } else {
+      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+    }
+  }
+
+  return frame;
 }
 
 void ViewerWidget::UpdateStack()
@@ -710,6 +811,10 @@ void ViewerWidget::Pause()
     } else {
       disconnect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
     }
+
+    playback_frame_queue_lock_.lock();
+    playback_frame_queue_.clear();
+    playback_frame_queue_lock_.unlock();
   }
 }
 

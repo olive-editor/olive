@@ -66,11 +66,6 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
-  /**
-   * @brief Set an image to load and display on screen
-   */
-  void SetImage(const QString& fn);
-
   const QMatrix4x4& GetMatrix();
 
   void ConnectSibling(ViewerDisplayWidget* sibling);
