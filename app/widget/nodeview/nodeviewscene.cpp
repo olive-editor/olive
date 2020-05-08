@@ -20,6 +20,7 @@
 
 #include "nodeviewscene.h"
 
+#include "common/functiontimer.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
 
@@ -259,7 +260,6 @@ void NodeViewScene::ReorganizeFrom(Node* n)
   QPointF parent_pos = n->GetPosition();
 
   int weight_count = DetermineWeight(n);
-  qDebug() << "Weight" << n->id() << "is" << weight_count;
 
   qreal child_x = parent_pos.x() - 1.0;
   qreal children_height = weight_count-1;
@@ -279,6 +279,11 @@ void NodeViewScene::ReorganizeFrom(Node* n)
       ReorganizeFrom(i);
     }
   }
+}
+
+void NodeViewScene::SetFilterMode(const NodeViewScene::FilterMode &f)
+{
+  filter_mode_ = f;
 }
 
 void NodeViewScene::NodePositionChanged(const QPointF &pos)

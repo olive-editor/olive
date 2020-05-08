@@ -80,6 +80,13 @@ public:
    */
   void ReorganizeFrom(Node* n);
 
+  enum FilterMode {
+    kFilterShowAll,
+    kFilterShowSelectedBlocks
+  };
+
+  void SetFilterMode(const FilterMode& f);
+
 public slots:
   /**
    * @brief Slot when a Node is added to a graph (SetGraph() connects this)
@@ -123,6 +130,8 @@ private:
   NodeGraph* graph_;
 
   NodeViewCommon::FlowDirection direction_;
+
+  FilterMode filter_mode_;
 
 private slots:
   /**
