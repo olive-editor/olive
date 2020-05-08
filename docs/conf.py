@@ -31,6 +31,12 @@ version = release
 
 # -- General configuration ---------------------------------------------------
 
+# If your documentation needs a minimal Sphinx version, state it here.
+#needs_sphinx = '3.0'
+
+#if os.environ.get('READTHEDOCS', None) == 'True':
+#    subprocess.call('doxygen')
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -84,6 +90,9 @@ import os
 if os.getenv('SKIP_APIDOCS', None):
     exclude_patterns.append('apidoc')
 
+# The encoding of source files.
+#source_encoding = 'utf-8-sig'
+
 # The master toctree document.
 #master_doc = 'index'
 
@@ -98,12 +107,66 @@ language = 'en'
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# https://github.com/fmtlib/fmt/blob/master/doc/conf.py
+#highlight_language = 'c++'
+
+#primary_domain = 'cpp'
+
+# The reST default role (used for this markup: `text`) to use for all documents.
+#default_role = 'cpp:any'
+
+# If true, '()' will be appended to :func: etc. cross-reference text.
+#add_function_parentheses = True
+
+# If true, the current module name will be prepended to all description
+# unit titles (such as .. function::).
+#add_module_names = True
+
 # -- Options for HTML output -------------------------------------------------
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#html_theme_options = {}
+# The name of an image file (within the static path) to use as favicon of the
+# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
+# pixels large.
+#html_favicon = None
+
+# If true, SmartyPants will be used to convert quotes and dashes to
+# typographically correct entities.
+#html_use_smartypants = True
+
+# Custom sidebar templates, maps document names to template names.
+#html_sidebars = {
+#    '**': ['localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']
+#}
+
+# Additional templates that should be rendered to pages, maps page names to
+# template names.
+#html_additional_pages = {}
+
+# If false, no module index is generated.
+#html_domain_indices = True
+
+# If false, no index is generated.
+#html_use_index = True
+
+# If true, the index is split into individual pages for each letter.
+#html_split_index = False
+
+# If true, links to the reST sources are added to the pages.
+#html_show_sourcelink = True
+
+# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
+#html_show_sphinx = True
+
+# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
+#html_show_copyright = True
+
+# If true, an OpenSearch description file will be output, and all pages will
+# contain a <link> tag referring to it.  The value of this option must be the
+# base URL from which the finished HTML is served.
+#html_use_opensearch = ''
+
+# This is the file name suffix for HTML files (e.g. ".xhtml").
+#html_file_suffix = None
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -131,6 +194,9 @@ html_css_files = [
 
 html_theme = "sphinx_rtd_theme"
 
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
 # https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html
 # https://developer.blender.org/diffusion/BM/browse/trunk/blender_docs/manual/conf.py
 html_theme_options = {
