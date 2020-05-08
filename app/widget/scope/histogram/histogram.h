@@ -46,7 +46,6 @@ protected:
 private:
   OpenGLShaderPtr pipeline_secondary_;
   OpenGLTexture texture_row_sums_;
-  OpenGLTexture texture_histogram_;
 
 private slots:
   void CleanUp();

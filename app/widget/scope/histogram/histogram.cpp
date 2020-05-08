@@ -68,14 +68,6 @@ void HistogramScope::AssertAdditionalTextures()
     texture_row_sums_.Create(context(), VideoRenderingParams(width(),
       height(), managed_tex_.format()));
   }
-
-  if (!texture_histogram_.IsCreated()
-        || texture_histogram_.width() != width()
-        || texture_histogram_.height() != height()) {
-    texture_histogram_.Destroy();
-    texture_histogram_.Create(context(), VideoRenderingParams(width(),
-      height(), managed_tex_.format()));
-  }
 }
 
 void HistogramScope::CleanUp()
@@ -84,7 +76,6 @@ void HistogramScope::CleanUp()
 
   pipeline_secondary_ = nullptr;
   texture_row_sums_.Destroy();
-  texture_histogram_.Destroy();
 
   doneCurrent();
 }
