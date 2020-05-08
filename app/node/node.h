@@ -229,9 +229,14 @@ public:
   NodeOutput* GetOutputWithID(const QString& id) const;
 
   /**
-   * @brief Returns whether this Node outputs data to the Node `n` in any way
+   * @brief Returns whether this Node outputs directly to `n`
    */
   bool OutputsTo(Node* n) const;
+
+  /**
+   * @brief Determines how many paths go from this node out to another node
+   */
+  int GetRoutesTo(Node* n) const;
 
   /**
    * @brief Return whether this Node has input parameters

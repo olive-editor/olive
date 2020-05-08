@@ -549,6 +549,32 @@ bool Node::OutputsTo(Node *n) const
   return false;
 }
 
+int Node::GetRoutesTo(Node *n) const
+{
+  bool outputs_directly = false;
+  int routes = 0;
+
+  QList<NodeOutput*> outputs = GetOutputs();
+
+  foreach (NodeOutput* o, outputs) {
+    foreach (NodeEdgePtr edge, o->edges()) {
+      Node* connected_node = edge->input()->parentNode();
+
+      if (connected_node == n) {
+        outputs_directly = true;
+      } else {
+        routes += connected_node->GetRoutesTo(n);
+      }
+    }
+  }
+
+  if (outputs_directly) {
+    routes++;
+  }
+
+  return routes;
+}
+
 bool Node::HasInputs() const
 {
   return HasParamOfType(NodeParam::kInput, false);

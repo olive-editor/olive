@@ -38,7 +38,7 @@ NodeView::NodeView(QWidget *parent) :
   drop_edge_(nullptr)
 {
   setScene(&scene_);
-  setDragMode(RubberBandDrag);
+  SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
   setMouseTracking(true);
   setRenderHint(QPainter::Antialiasing);

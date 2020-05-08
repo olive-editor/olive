@@ -229,7 +229,9 @@ int NodeViewScene::DetermineWeight(Node *n)
   int weight = 0;
 
   foreach (Node* i, inputs) {
-    weight += DetermineWeight(i);
+    if (i->GetRoutesTo(n) == 1) {
+      weight += DetermineWeight(i);
+    }
   }
 
   return qMax(1, weight);
@@ -257,6 +259,7 @@ void NodeViewScene::ReorganizeFrom(Node* n)
   QPointF parent_pos = n->GetPosition();
 
   int weight_count = DetermineWeight(n);
+  qDebug() << "Weight" << n->id() << "is" << weight_count;
 
   qreal child_x = parent_pos.x() - 1.0;
   qreal children_height = weight_count-1;
@@ -265,14 +268,16 @@ void NodeViewScene::ReorganizeFrom(Node* n)
   int weight_counter = 0;
 
   foreach (Node* i, immediates) {
-    int weight = DetermineWeight(i);
+    if (i->GetRoutesTo(n) == 1) {
+      int weight = DetermineWeight(i);
 
-    i->SetPosition(QPointF(child_x,
-                           children_y + weight_counter + (weight - 1) * 0.5));
+      i->SetPosition(QPointF(child_x,
+                             children_y + weight_counter + (weight - 1) * 0.5));
 
-    weight_counter += weight;
+      weight_counter += weight;
 
-    ReorganizeFrom(i);
+      ReorganizeFrom(i);
+    }
   }
 }
 
