@@ -116,6 +116,48 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   return value;
 }
 
+void VideoRenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable *table)
+{
+  if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
+    return;
+  }
+
+  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+  rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time.in();
+  QString colorspace_match = video_stream->get_colorspace_match_string();
+
+  NodeValue value;
+  bool found_cache = false;
+
+  if (still_image_cache_.Has(stream.get())) {
+    CachedStill cs = still_image_cache_.Get(stream.get());
+
+    if (cs.colorspace == colorspace_match
+        && cs.alpha_is_associated == video_stream->premultiplied_alpha()
+        && cs.divider == video_params_.divider()
+        && cs.time == time_match) {
+      value = cs.texture;
+      found_cache = true;
+    } else {
+      still_image_cache_.Remove(stream.get());
+    }
+  }
+
+  if (!found_cache) {
+
+    value = GetDataFromStream(stream, input_time);
+
+    still_image_cache_.Add(stream.get(), {value,
+                                          colorspace_match,
+                                          video_stream->premultiplied_alpha(),
+                                          video_params_.divider(),
+                                          time_match});
+
+  }
+
+  table->Push(value);
+}
+
 void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)
 {
   video_params_ = video_params;

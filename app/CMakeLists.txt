@@ -111,7 +111,7 @@ else()
 endif()
 
 if(UNIX AND NOT APPLE)
-  target_compile_options(
+  target_link_options(
     ${OLIVE_TARGET}
     PRIVATE
     -rdynamic

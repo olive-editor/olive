@@ -43,6 +43,8 @@ protected:
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
+  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+
   const AudioRenderingParams& audio_params() const;
 
 private:

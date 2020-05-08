@@ -31,30 +31,54 @@
 
 OLIVE_NAMESPACE_ENTER
 
-OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
-  VideoRenderWorker(frame_cache, parent)
+OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, OpenGLProxy *proxy, QObject *parent) :
+  VideoRenderWorker(frame_cache, parent),
+  proxy_(proxy)
 {
 }
 
-void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable *table)
+NodeValue OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range)
 {
   FramePtr frame = decoder->RetrieveVideo(range.in(),
                                           video_params().divider(),
                                           video_params().mode() == RenderMode::kOffline);
 
+  NodeValue value;
+
   if (frame) {
-    emit RequestFrameToValue(frame, stream, table);
+    QMetaObject::invokeMethod(proxy_,
+                              "FrameToValue",
+                              Qt::BlockingQueuedConnection,
+                              OLIVE_NS_RETURN_ARG(NodeValue, value),
+                              OLIVE_NS_ARG(FramePtr, frame),
+                              OLIVE_NS_ARG(StreamPtr, stream));
   }
+
+  return value;
 }
 
 void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
 {
-  emit RequestRunNodeAccelerated(node, range, input_params, output_params);
+  QMetaObject::invokeMethod(proxy_,
+                            "RunNodeAccelerated",
+                            Qt::BlockingQueuedConnection,
+                            OLIVE_NS_CONST_ARG(Node*, node),
+                            OLIVE_NS_CONST_ARG(TimeRange&, range),
+                            OLIVE_NS_ARG(NodeValueDatabase&, input_params),
+                            OLIVE_NS_ARG(NodeValueTable&, output_params));
 }
 
 void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize)
 {
-  emit RequestTextureToBuffer(tex_in, width, height, matrix, buffer, linesize);
+  QMetaObject::invokeMethod(proxy_,
+                            "TextureToBuffer",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(const QVariant&, tex_in),
+                            Q_ARG(int, width),
+                            Q_ARG(int, height),
+                            Q_ARG(const QMatrix4x4&, matrix),
+                            Q_ARG(void*, buffer),
+                            Q_ARG(int, linesize));
 }
 
 OLIVE_NAMESPACE_EXIT

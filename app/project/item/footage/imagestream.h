@@ -48,6 +48,8 @@ public:
   const QString& colorspace(bool default_if_empty = true) const;
   void set_colorspace(const QString& color);
 
+  QString get_colorspace_match_string() const;
+
 protected:
   virtual void FootageSetEvent(Footage*) override;
 

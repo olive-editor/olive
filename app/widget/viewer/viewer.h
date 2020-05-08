@@ -195,6 +195,8 @@ private:
 
   bool play_in_to_out_only_;
 
+  bool playback_is_audio_only_;
+
   AudioWaveformView* waveform_view_;
 
   QList<ViewerWindow*> windows_;

@@ -154,6 +154,17 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
   return merged_table;
 }
 
+void AudioRenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable *table)
+{
+  if (stream->type() != Stream::kAudio) {
+    return;
+  }
+
+  NodeValue value = GetDataFromStream(stream, input_time);
+
+  table->Push(value);
+}
+
 const AudioRenderingParams &AudioRenderWorker::audio_params() const
 {
   return audio_params_;

@@ -191,11 +191,11 @@ void ViewerDisplayWidget::SetTime(const rational &time)
 
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (gizmos_) {
-    if (gizmos_->GizmoPress(GetTexturePosition(event->pos()))) {
-      gizmo_click_ = true;
-      return;
-    }
+  if (gizmos_
+      && gizmos_->GizmoPress(gizmo_db_, event->pos(), QVector2D(GetTexturePosition(size())), size())) {
+    gizmo_click_ = true;
+    gizmo_drag_time_ = GetGizmoTime();
+    return;
   }
 
   QOpenGLWidget::mousePressEvent(event);
@@ -206,7 +206,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (gizmo_click_) {
-    gizmos_->GizmoMove(GetTexturePosition(event->pos()));
+    gizmos_->GizmoMove(event->pos(), QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
     return;
   }
 
@@ -236,7 +236,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
 {
   if (gizmo_click_) {
-    gizmos_->GizmoRelease(GetTexturePosition(event->pos()));
+    gizmos_->GizmoRelease();
     gizmo_click_ = false;
 
     return;
@@ -294,12 +294,12 @@ void ViewerDisplayWidget::paintGL()
   if (gizmos_) {
     GizmoTraverser gt;
 
-    rational node_time = GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
+    rational node_time = GetGizmoTime();
 
-    NodeValueDatabase db = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
+    gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
     QPainter p(this);
-    gizmos_->DrawGizmos(db, &p, QVector2D(GetTexturePosition(size())));
+    gizmos_->DrawGizmos(gizmo_db_, &p, QVector2D(GetTexturePosition(size())), size());
   }
 
   // Draw action/title safe areas
@@ -328,7 +328,7 @@ void ViewerDisplayWidget::paintGL()
 
     int cross = qMin(w, h) / 32;
 
-    QLine lines[] = {QLine(rect().center().x() - cross, rect().center().y(), rect().center().x() + cross, rect().center().y()),
+    QLine lines[] = {QLine(rect().center().x() - cross, rect().center().y(),rect().center().x() + cross, rect().center().y()),
                     QLine(rect().center().x(), rect().center().y() - cross, rect().center().x(), rect().center().y() + cross)};
 
     p.drawLines(lines, 2);
@@ -349,6 +349,11 @@ QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y
 {
   return QPointF(x / gizmo_params_.width(),
                  y / gizmo_params_.height());
+}
+
+rational ViewerDisplayWidget::GetGizmoTime()
+{
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
 }
 
 #ifdef Q_OS_LINUX

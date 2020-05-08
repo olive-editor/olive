@@ -69,7 +69,7 @@ colorspaces:
       ITU BT.709 primaries based scene referred linear space.
     isdata: false
     allocation: lg2
-    allocationvars: [-12.473931188, 12.526068812]
+    allocationvars: [-10.0, 10.0, 0.00392156862]
 
 #  - !<ColorSpace>
 #    name: Debug
@@ -80,10 +80,10 @@ colorspaces:
 #      Debug purposes only. Do not use.
 #    isdata: false
 #    allocation: lg2
-#    allocationvars: [-12.473931188, 12.526068812]
+#    allocationvars: [-10.0, 10.0, 0.00392156862]
 #    from_reference: !<GroupTransform>
 #          children:
-#            - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812]} #[-12.473931188, 7.526068812]}
+#            - !<AllocationTransform> {allocation: lg2, vars: [-10.0, 10.0, 0.00392156862]} #[-12.473931188, 7.526068812]}
 #            - !<AllocationTransform> {allocation: uniform, vars: [0, 0.66]} #0.825
 
   - !<ColorSpace>
@@ -95,13 +95,13 @@ colorspaces:
       Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range.
     isdata: false
     allocation: lg2
-    allocationvars: [-12.473931188, 12.526068812]
+    allocationvars: [-10.0, 10.0, 0.00392156862]
     from_reference: !<GroupTransform>
         children:
-          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812]}
+          - !<AllocationTransform> {allocation: lg2, vars: [-10.0, 10.0, 0.00392156862]}
           - !<FileTransform> {src: desat65cube.spi3d, interpolation: best}
           - !<AllocationTransform> {allocation: uniform, vars: [0, 0.66]}
-    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-10, 6.5, 0.00392156862], direction: inverse}
 
 #  - !<ColorSpace>
 #    name: Desat Log Encoding
@@ -112,8 +112,8 @@ colorspaces:
 #        Desaturation transform for proper crosstalk. Not intended for use.
 #    isdata: false
 #    allocation: lg2
-#    allocationvars: [-12.473931188, 12.526068812]
-#    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 12.526068812], direction: inverse}
+#    allocationvars: [-10.0, 10.0, 0.00392156862]
+#    to_reference: !<AllocationTransform> {allocation: lg2, vars: [-10.0, 10.0, 0.00392156862], direction: inverse}
 
   - !<ColorSpace>
     name: sRGB OETF
@@ -134,7 +134,7 @@ colorspaces:
     bitdepth: 32f
     isdata: false
     allocation: lg2
-    allocationvars: [-12.4739, 12.5261]
+    allocationvars: [-10.0, 10.0, 0.00392156862]
     to_reference: !<GroupTransform>
       children:
         - !<MatrixTransform> {matrix: [0.515121, 0.291977, 0.157104, 0, 0.241196, 0.692245, 0.0665741, 0, -0.00105286, 0.0418854, 0.784073, 0, 0, 0, 0, 1]}
@@ -177,7 +177,7 @@ colorspaces:
       Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range with Apple P3 primaries.
     isdata: false
     allocation: lg2
-    allocationvars: [-12.473931188, 12.526068812]
+    allocationvars: [-10.0, 10.0, 0.00392156862]
     from_reference: !<GroupTransform>
         children:
           - !<ColorSpaceTransform> {src: Linear, dst: Filmic Log Encoding}
@@ -189,7 +189,7 @@ colorspaces:
           - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0]}
           - !<ColorSpaceTransform> {src: Apple DCI-P3 D65, dst: Linear}
           - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0], direction: inverse}
-          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+          - !<AllocationTransform> {allocation: lg2, vars: [-10.0, 6.5, 0.00392156862], direction: inverse}
 
   - !<ColorSpace>
     name: BT.1886 Filmic Log Encoding
@@ -200,7 +200,7 @@ colorspaces:
       Log based filmic shaper with 16.5 stops of latitude, and 25 stops of dynamic range with REC.709 primaries.
     isdata: false
     allocation: lg2
-    allocationvars: [-12.473931188, 12.526068812]
+    allocationvars: [-10.0, 10.0, 0.00392156862]
     from_reference: !<GroupTransform>
         children:
           - !<ColorSpaceTransform> {src: Linear, dst: Filmic Log Encoding}
@@ -210,7 +210,7 @@ colorspaces:
         children:
           - !<ExponentTransform> {value: [2.4, 2.4, 2.4, 1.0]}
           - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1.0], direction: inverse}
-          - !<AllocationTransform> {allocation: lg2, vars: [-12.473931188, 4.026068812], direction: inverse}
+          - !<AllocationTransform> {allocation: lg2, vars: [-10.0, 10.0, 0.00392156862], direction: inverse}
 
   - !<ColorSpace>
     name: Fuji F-Log OETF

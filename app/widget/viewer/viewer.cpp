@@ -48,7 +48,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   divider_(Config::Current()["DefaultViewerDivider"].toInt()),
   override_color_manager_(nullptr),
-  time_changed_from_timer_(false)
+  time_changed_from_timer_(false),
+  playback_is_audio_only_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -379,10 +380,12 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   controls_->ShowPauseButton();
 
-  if (stack_->currentWidget() == sizer_) {
-    connect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-  } else {
+  playback_is_audio_only_ = (stack_->currentWidget() != sizer_ || !isVisible());
+
+  if (playback_is_audio_only_) {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+  } else {
+    connect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
 }
 
@@ -702,10 +705,10 @@ void ViewerWidget::Pause()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    if (stack_->currentWidget() == sizer_) {
-      disconnect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-    } else {
+    if (playback_is_audio_only_) {
       disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+    } else {
+      disconnect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
     }
   }
 }

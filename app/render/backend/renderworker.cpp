@@ -98,18 +98,20 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
   return decoder;
 }
 
-bool RenderWorker::IsStarted()
-{
-  return started_;
-}
-
-void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange& input_time, NodeValueTable *table)
+NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &input_time)
 {
   DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
   if (decoder) {
-    FrameToValue(decoder, stream, input_time, table);
+    return FrameToValue(decoder, stream, input_time);
   }
+
+  return NodeValue();
+}
+
+bool RenderWorker::IsStarted()
+{
+  return started_;
 }
 
 void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)

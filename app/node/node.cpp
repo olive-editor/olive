@@ -287,20 +287,20 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &) const
+void Node::DrawGizmos(const NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
 {
 }
 
-bool Node::GizmoPress(const QPointF &)
+bool Node::GizmoPress(const NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &viewport)
 {
   return false;
 }
 
-void Node::GizmoMove(const QPointF &)
+void Node::GizmoMove(const QPointF &, const QVector2D &, const rational &)
 {
 }
 
-void Node::GizmoRelease(const QPointF &)
+void Node::GizmoRelease()
 {
 }
 

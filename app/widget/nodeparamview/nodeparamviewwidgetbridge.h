@@ -24,6 +24,7 @@
 #include <QObject>
 
 #include "node/input.h"
+#include "node/inputdragger.h"
 #include "widget/slider/sliderbase.h"
 #include "widget/timetarget/timetarget.h"
 
@@ -60,10 +61,7 @@ private:
 
   rational time_;
 
-  bool dragging_;
-  bool drag_created_keyframe_;
-  QVariant drag_old_value_;
-  NodeKeyframePtr dragging_keyframe_;
+  NodeInputDragger dragger_;
 
 private slots:
   void WidgetCallback();

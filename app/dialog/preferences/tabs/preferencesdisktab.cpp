@@ -85,12 +85,14 @@ PreferencesDiskTab::PreferencesDiskTab()
 
   cache_ahead_slider_ = new FloatSlider();
   cache_ahead_slider_->SetFormat(tr("%1 seconds"));
+  cache_ahead_slider_->SetMinimum(0);
   cache_ahead_slider_->SetValue(Config::Current()["DiskCacheAhead"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_ahead_slider_, row, 1);
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Behind:")), row, 2);
 
   cache_behind_slider_ = new FloatSlider();
+  cache_behind_slider_->SetMinimum(0);
   cache_behind_slider_->SetFormat(tr("%1 seconds"));
   cache_behind_slider_->SetValue(Config::Current()["DiskCacheBehind"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_behind_slider_, row, 3);
