@@ -26,6 +26,7 @@
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "nodeviewfilter.h"
 #include "widget/menu/menushared.h"
 
 #define super HandMovableView
@@ -258,7 +259,7 @@ void NodeView::ItemsChanged()
 {
   QHash<NodeEdge *, NodeViewEdge *>::const_iterator i;
 
-  for (i=scene_.edge_map().begin();i!=scene_.edge_map().end();i++) {
+  for (i=scene_.edge_map().begin(); i!=scene_.edge_map().end(); i++) {
     i.value()->Adjust();
   }
 }
@@ -432,6 +433,11 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   } else {
 
+    QAction* filters_action = m.addAction(tr("Filters..."));
+    connect(filters_action, &QAction::triggered, this, &NodeView::ContextMenuShowFiltersDialog);
+
+    m.addSeparator();
+
     Menu* direction_menu = new Menu(tr("Direction"), &m);
     m.addMenu(direction_menu);
 
@@ -513,6 +519,12 @@ void NodeView::ContextMenuLabelNode()
   if (ok) {
     n->SetLabel(s);
   }
+}
+
+void NodeView::ContextMenuShowFiltersDialog()
+{
+  NodeViewFilterDialog fd(this);
+  fd.exec();
 }
 
 void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)

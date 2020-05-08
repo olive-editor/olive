@@ -146,6 +146,11 @@ private slots:
    */
   void ContextMenuLabelNode();
 
+  /**
+   * @brief Receiver that shows the filters dialog
+   */
+  void ContextMenuShowFiltersDialog();
+
 };
 
 OLIVE_NAMESPACE_EXIT
