@@ -33,6 +33,16 @@ HistogramScope::HistogramScope(QWidget* parent) :
 {
 }
 
+HistogramScope::~HistogramScope()
+{
+  CleanUp();
+
+  if (context()) {
+    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+      &HistogramScope::CleanUp);
+  }
+}
+
 void HistogramScope::initializeGL()
 {
   ScopeBase::initializeGL();
@@ -45,33 +55,26 @@ void HistogramScope::initializeGL()
     &HistogramScope::CleanUp, Qt::DirectConnection);
 
     // doneCurrent();
-  AssertSecondaryTexture();
+  AssertAdditionalTextures();
   // UploadTextureFromBuffer();
 }
 
-void HistogramScope::AssertSecondaryTexture()
+void HistogramScope::AssertAdditionalTextures()
 {
-  if (buffer_) {
-    // qDebug() << "MAKING CURRENT";
-    // makeCurrent();
+  if (!texture_row_sums_.IsCreated()
+        || texture_row_sums_.width() != width()
+        || texture_row_sums_.height() != height()) {
+    texture_row_sums_.Destroy();
+    texture_row_sums_.Create(context(), VideoRenderingParams(width(),
+      height(), managed_tex_.format()));
+  }
 
-    if (!texture_secondary_.IsCreated()
-          || texture_secondary_.width() != buffer_->width()
-          || texture_secondary_.height() != buffer_->height()
-          || texture_secondary_.format() != buffer_->format()) {
-      // qDebug() << "TEXTURE NOT CREATED";
-
-      texture_secondary_.Destroy();
-
-      // qDebug() << "TEXTURE DESTROYED";
-      texture_secondary_.Create(context(), buffer_);
-
-      // qDebug() << "TEXTURE HAS BEEN CREATED";
-    }
-    else {
-      // qDebug() << "TEXTURE IS CREATED";
-      texture_secondary_.Upload(buffer_);
-    }
+  if (!texture_histogram_.IsCreated()
+        || texture_histogram_.width() != width()
+        || texture_histogram_.height() != height()) {
+    texture_histogram_.Destroy();
+    texture_histogram_.Create(context(), VideoRenderingParams(width(),
+      height(), managed_tex_.format()));
   }
 }
 
@@ -80,7 +83,8 @@ void HistogramScope::CleanUp()
   makeCurrent();
 
   pipeline_secondary_ = nullptr;
-  texture_secondary_.Destroy();
+  texture_row_sums_.Destroy();
+  texture_histogram_.Destroy();
 
   doneCurrent();
 }
@@ -129,22 +133,22 @@ void HistogramScope::DrawScope()
   pipeline()->setUniformValue("ove_viewport", width(), height());
   pipeline()->release();
 
-  AssertSecondaryTexture();
-  framebuffer_.Attach(&texture_secondary_);
+  AssertAdditionalTextures();
+  framebuffer_.Attach(&texture_row_sums_);
   framebuffer_.Bind();
 
-  managed_tex_.Bind();
+  managed_tex().Bind();
 
   OpenGLRenderFunctions::Blit(pipeline());
 
-  managed_tex_.Release();
+  managed_tex().Release();
 
   framebuffer_.Release();
   framebuffer_.Detach();
 
   pipeline_secondary_->bind();
   pipeline_secondary_->setUniformValue("ove_resolution",
-    managed_tex().width(), managed_tex().height());
+    texture_row_sums_.width(), texture_row_sums_.height());
   pipeline_secondary_->setUniformValue("ove_viewport", width(), height());
   pipeline_secondary_->setUniformValue(
     "histogram_region",
@@ -152,15 +156,11 @@ void HistogramScope::DrawScope()
     histogram_end_dim_x, histogram_end_dim_y);
   pipeline_secondary_->release();
 
-  // CreateSecondary();
-  texture_secondary_.Bind();
+  texture_row_sums_.Bind();
 
   OpenGLRenderFunctions::Blit(pipeline_secondary_);
 
-  texture_secondary_.Release();
-
-  // framebuffer_.Release();
-  // framebuffer_.Detach();
+  texture_row_sums_.Release();
 }
 
 OLIVE_NAMESPACE_EXIT
