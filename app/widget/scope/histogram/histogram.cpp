@@ -117,6 +117,10 @@ void HistogramScope::DrawScope()
   float histogram_start_dim_y = (height() - histogram_dim_y) / 2.0f;
   float histogram_end_dim_x = width() - histogram_start_dim_x;
   float histogram_end_dim_y = height() - histogram_start_dim_y;
+  float histogram_start_uv_x = histogram_start_dim_x / width();
+  float histogram_start_uv_y = histogram_start_dim_y / height();
+  float histogram_end_uv_x = histogram_end_dim_x / width();
+  float histogram_end_uv_y = histogram_end_dim_y / height();
 
   pipeline()->bind();
   pipeline()->setUniformValue("ove_resolution", managed_tex().width(),
@@ -138,6 +142,7 @@ void HistogramScope::DrawScope()
   framebuffer_.Detach();
 
   pipeline_secondary_->bind();
+  pipeline_secondary_->setUniformValue("histogram_scale", histogram_scale);
   pipeline_secondary_->setUniformValue("ove_resolution",
     texture_row_sums_.width(), texture_row_sums_.height());
   pipeline_secondary_->setUniformValue("ove_viewport", width(), height());
@@ -145,6 +150,15 @@ void HistogramScope::DrawScope()
     "histogram_region",
     histogram_start_dim_x, histogram_start_dim_y,
     histogram_end_dim_x, histogram_end_dim_y);
+  pipeline_secondary_->setUniformValue(
+    "histogram_dims", histogram_dim_x, histogram_dim_y);
+  pipeline_secondary_->setUniformValue(
+    "histogram_uv",
+    histogram_start_uv_x, histogram_start_uv_y,
+    histogram_end_uv_x, histogram_end_uv_y);
+  // qDebug() << histogram_start_uv_x << " " << histogram_end_uv_x;
+  // qDebug() << histogram_start_uv_y << " " << histogram_end_uv_y;
+
   pipeline_secondary_->release();
 
   texture_row_sums_.Bind();
