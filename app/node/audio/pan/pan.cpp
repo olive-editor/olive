@@ -27,7 +27,7 @@ PanNode::PanNode()
   samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
   AddInput(samples_input_);
 
-  panning_input_ = new NodeInput("panning_in", NodeParam::kFloat);
+  panning_input_ = new NodeInput("panning_in", NodeParam::kFloat, 0.0);
   panning_input_->set_property("min", -1.0);
   panning_input_->set_property("max", 1.0);
   panning_input_->set_property("view", "percent");

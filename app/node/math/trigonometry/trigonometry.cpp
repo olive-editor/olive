@@ -29,7 +29,7 @@ TrigonometryNode::TrigonometryNode()
   method_in_->set_is_keyframable(false);
   AddInput(method_in_);
 
-  x_in_ = new NodeInput(QStringLiteral("x_in"), NodeParam::kFloat);
+  x_in_ = new NodeInput(QStringLiteral("x_in"), NodeParam::kFloat, 0.0);
   AddInput(x_in_);
 }
 

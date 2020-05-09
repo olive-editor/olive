@@ -27,7 +27,7 @@ VolumeNode::VolumeNode()
   samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
   AddInput(samples_input_);
 
-  volume_input_ = new NodeInput("volume_in", NodeParam::kFloat, 1);
+  volume_input_ = new NodeInput("volume_in", NodeParam::kFloat, 1.0);
   volume_input_->set_property("min", 0.0);
   volume_input_->set_property("view", "db");
   AddInput(volume_input_);
