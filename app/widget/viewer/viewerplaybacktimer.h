@@ -18,48 +18,31 @@
 
 ***/
 
-#ifndef SLIDERLABEL_H
-#define SLIDERLABEL_H
+#ifndef VIEWERPLAYBACKTIMER_H
+#define VIEWERPLAYBACKTIMER_H
 
-#include <QLabel>
+#include <QtGlobal>
 
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class SliderLabel : public QLabel
-{
-  Q_OBJECT
+class ViewerPlaybackTimer {
 public:
-  SliderLabel(QWidget* parent);
+  void Start(const int64_t& start_timestamp, const int& playback_speed, const double& timebase);
 
-protected:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
-
-  virtual void mouseMoveEvent(QMouseEvent *ev) override;
-
-  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-
-  virtual void focusInEvent(QFocusEvent *event) override;
-
-signals:
-  void dragged(int x);
-
-  void drag_start();
-
-  void drag_stop();
-
-  void focused();
-
-  void RequestReset();
+  int64_t GetTimestampNow() const;
 
 private:
-  QPoint drag_start_;
+  qint64 start_msec_;
+  int64_t start_timestamp_;
 
-  bool dragging_;
+  int playback_speed_;
+
+  double timebase_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // SLIDERLABEL_H
+#endif // VIEWERPLAYBACKTIMER_H

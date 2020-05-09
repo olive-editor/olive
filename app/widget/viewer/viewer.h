@@ -36,6 +36,8 @@
 #include "render/backend/opengl/opengltexture.h"
 #include "render/backend/audio/audiobackend.h"
 #include "viewerdisplay.h"
+#include "viewerplaybacktimer.h"
+#include "viewerqueue.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -51,6 +53,8 @@ class ViewerWidget : public TimeBasedWidget
   Q_OBJECT
 public:
   ViewerWidget(QWidget* parent = nullptr);
+
+  virtual ~ViewerWidget() override;
 
   void SetPlaybackControlsEnabled(bool enabled);
 
@@ -116,7 +120,7 @@ signals:
   void CursorColor(const Color& reference, const Color& display);
 
   /**
-   * @brief Wrapper for ViewerGLWidget::LoadedBuffer()
+   * @brief Signal emitted when a new frame is loaded
    */
   void LoadedBuffer(Frame* load_buffer);
 
@@ -154,8 +158,7 @@ protected:
 
   PlaybackControls* controls_;
 
-  const QList<ViewerDisplayWidget *> &gl_widgets() const;
-  ViewerDisplayWidget* main_gl_widget() const;
+  ViewerDisplayWidget* display_widget() const;
 
 private:
   void UpdateTimeInternal(int64_t i);
@@ -172,14 +175,21 @@ private:
 
   void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
 
+  void FillPlaybackQueue();
+
+  QString GetCachedFilenameFromTime(const rational& time);
+
+  bool FrameExistsAtTime(const rational& time);
+
+  FramePtr DecodeCachedImage(const QString& fn);
+
+  void SetDisplayImage(FramePtr frame, bool main_only);
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
 
-  qint64 start_msec_;
-  int64_t start_timestamp_;
-
-  int playback_speed_;
+  QAtomicInt playback_speed_;
 
   qint64 frame_cache_job_time_;
 
@@ -201,9 +211,14 @@ private:
 
   QList<ViewerWindow*> windows_;
 
-  QList<ViewerDisplayWidget*> gl_widgets_;
+  ViewerDisplayWidget* display_widget_;
 
   ViewerDisplayWidget* context_menu_widget_;
+
+  ViewerPlaybackTimer playback_timer_;
+
+  ViewerQueue playback_queue_;
+  int64_t playback_queue_next_frame_;
 
 private slots:
   void PlaybackTimerUpdate();

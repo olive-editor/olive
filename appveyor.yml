@@ -14,9 +14,9 @@ install:
 - cd %APPVEYOR_BUILD_FOLDER%
 build_script:
 - cmd: .appveyor\build.bat
-artifacts:
-- path: Olive*.zip
-  name: Olive Portable
-- path: Olive*.exe
-  name: Olive Installer
+#artifacts:
+#- path: Olive*.zip
+#  name: Olive Portable
+#- path: Olive*.exe
+#  name: Olive Installer
 cache: c:\tools\vcpkg\installed\

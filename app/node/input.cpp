@@ -386,7 +386,20 @@ void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusi
 
 QVariant NodeInput::GetDefaultValue() const
 {
+  if (default_value_.isEmpty()) {
+    return QVariant();
+  }
+
   return combine_track_values_into_normal_value(default_value_);
+}
+
+QVariant NodeInput::GetDefaultValueForTrack(int track) const
+{
+  if (default_value_.isEmpty()) {
+    return QVariant();
+  }
+
+  return default_value_.at(track);
 }
 
 QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const

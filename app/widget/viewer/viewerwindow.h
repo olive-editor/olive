@@ -24,6 +24,8 @@
 #include <QWidget>
 
 #include "viewerdisplay.h"
+#include "viewerplaybacktimer.h"
+#include "viewerqueue.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -32,20 +34,37 @@ class ViewerWindow : public QWidget
 public:
   ViewerWindow(QWidget* parent = nullptr);
 
-  ViewerDisplayWidget* gl_widget() const;
+  ViewerDisplayWidget* display_widget() const;
 
   /**
    * @brief Used to adjust resulting picture to be the right aspect ratio
    */
   void SetResolution(int width, int height);
 
+  ViewerQueue* queue() {
+    return &queue_;
+  }
+
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+
+  void Pause();
+
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
   virtual void closeEvent(QCloseEvent* e) override;
 
+private slots:
+  void UpdateFromQueue();
+
 private:
-  ViewerDisplayWidget* gl_widget_;
+  ViewerDisplayWidget* display_widget_;
+
+  ViewerQueue queue_;
+
+  ViewerPlaybackTimer timer_;
+
+  rational playback_timebase_;
 
 };
 

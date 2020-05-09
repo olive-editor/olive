@@ -18,48 +18,33 @@
 
 ***/
 
-#ifndef SLIDERLABEL_H
-#define SLIDERLABEL_H
+#ifndef VIEWERQUEUE_H
+#define VIEWERQUEUE_H
 
-#include <QLabel>
+#include <QLinkedList>
 
-#include "common/define.h"
+#include "codec/frame.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class SliderLabel : public QLabel
-{
-  Q_OBJECT
+struct ViewerPlaybackFrame {
+  rational timestamp;
+  FramePtr frame;
+};
+
+class ViewerQueue : public QLinkedList<ViewerPlaybackFrame> {
 public:
-  SliderLabel(QWidget* parent);
+  ViewerQueue() = default;
 
-protected:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
-
-  virtual void mouseMoveEvent(QMouseEvent *ev) override;
-
-  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-
-  virtual void focusInEvent(QFocusEvent *event) override;
-
-signals:
-  void dragged(int x);
-
-  void drag_start();
-
-  void drag_stop();
-
-  void focused();
-
-  void RequestReset();
+  QMutex* lock() {
+    return &queue_lock_;
+  }
 
 private:
-  QPoint drag_start_;
-
-  bool dragging_;
+  QMutex queue_lock_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // SLIDERLABEL_H
+#endif // VIEWERQUEUE_H

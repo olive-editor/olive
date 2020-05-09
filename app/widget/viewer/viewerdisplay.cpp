@@ -30,6 +30,7 @@
 #include <QPainter>
 
 #include "common/define.h"
+#include "common/functiontimer.h"
 #include "gizmotraverser.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
@@ -43,10 +44,10 @@ bool ViewerDisplayWidget::nouveau_check_done_ = false;
 
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
-  has_image_(false),
   signal_cursor_color_(false),
   gizmos_(nullptr),
-  gizmo_click_(false)
+  gizmo_click_(false),
+  last_loaded_buffer_(nullptr)
 {
 }
 
@@ -61,81 +62,24 @@ void ViewerDisplayWidget::SetMatrix(const QMatrix4x4 &mat)
   update();
 }
 
-void ViewerDisplayWidget::SetImage(const QString &fn)
-{
-  has_image_ = false;
-
-  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    auto input = OIIO::ImageInput::open(fn.toStdString());
-
-    if (input) {
-
-      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
-                                                                              input->spec().nchannels == kRGBAChannels);
-
-      // Ensure the following texture operations are done in our context (in case we're in a separate window for instance)
-      makeCurrent();
-
-      if (!texture_.IsCreated()
-          || texture_.width() != input->spec().width
-          || texture_.height() != input->spec().height
-          || texture_.format() != image_format) {
-        load_buffer_.destroy();
-        texture_.Destroy();
-
-        load_buffer_.set_video_params(VideoRenderingParams(input->spec().width, input->spec().height, image_format));
-        load_buffer_.allocate();
-
-        texture_.Create(context(), VideoRenderingParams(input->spec().width, input->spec().height, image_format));
-      }
-
-      input->read_image(input->spec().format, load_buffer_.data(), OIIO::AutoStride, load_buffer_.linesize_bytes());
-      input->close();
-
-      texture_.Upload(&load_buffer_);
-
-      doneCurrent();
-
-      emit LoadedBuffer(&load_buffer_);
-
-      has_image_ = true;
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageInput::destroy(input);
-#endif
-
-    } else {
-      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
-    }
-  }
-
-  update();
-
-  if (has_image_) {
-    emit LoadedBuffer(&load_buffer_);
-  } else {
-    emit LoadedBuffer(nullptr);
-  }
-}
-
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
   setMouseTracking(e);
 }
 
-void ViewerDisplayWidget::SetImageFromLoadBuffer(Frame *in_buffer)
+void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
 {
-  has_image_ = in_buffer;
+  last_loaded_buffer_ = in_buffer;
 
-  if (has_image_) {
+  if (last_loaded_buffer_) {
     makeCurrent();
 
     if (!texture_.IsCreated()
         || texture_.width() != in_buffer->width()
         || texture_.height() != in_buffer->height()
         || texture_.format() != in_buffer->format()) {
-      texture_.Create(context(), in_buffer->video_params(), in_buffer->data(), load_buffer_.linesize_pixels());
+      texture_.Create(context(), in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
     } else {
       texture_.Upload(in_buffer);
     }
@@ -144,12 +88,6 @@ void ViewerDisplayWidget::SetImageFromLoadBuffer(Frame *in_buffer)
   }
 
   update();
-}
-
-void ViewerDisplayWidget::ConnectSibling(ViewerDisplayWidget *sibling)
-{
-  connect(this, &ViewerDisplayWidget::LoadedBuffer, sibling, &ViewerDisplayWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
-  sibling->SetImageFromLoadBuffer(&load_buffer_);
 }
 
 const ViewerSafeMarginInfo &ViewerDisplayWidget::GetSafeMargin() const
@@ -189,6 +127,11 @@ void ViewerDisplayWidget::SetTime(const rational &time)
   }
 }
 
+FramePtr ViewerDisplayWidget::last_loaded_buffer() const
+{
+  return last_loaded_buffer_;
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (gizmos_
@@ -215,17 +158,17 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   if (signal_cursor_color_) {
     Color reference, display;
 
-    if (has_image_) {
+    if (last_loaded_buffer_) {
       QVector3D pixel_pos(static_cast<float>(event->x()) / static_cast<float>(width()) * 2.0f - 1.0f,
                           static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
                           0);
 
       pixel_pos = pixel_pos * matrix_.inverted();
 
-      int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * load_buffer_.width());
-      int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * load_buffer_.height());
+      int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * last_loaded_buffer_->width());
+      int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * last_loaded_buffer_->height());
 
-      reference = load_buffer_.get_pixel(frame_x, frame_y);
+      reference = last_loaded_buffer_->get_pixel(frame_x, frame_y);
       display = color_service()->ConvertColor(reference);
     }
 
@@ -277,7 +220,7 @@ void ViewerDisplayWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (has_image_ && color_service()) {
+  if (last_loaded_buffer_ && color_service()) {
 
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());

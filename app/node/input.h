@@ -279,6 +279,8 @@ public:
 
   QVariant GetDefaultValue() const;
 
+  QVariant GetDefaultValueForTrack(int track) const;
+
   QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
 
   QList<Node*> GetExclusiveDependencies() const;

@@ -63,15 +63,13 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_ = new ViewerSizer();
   stack_->addWidget(sizer_);
 
-  ViewerDisplayWidget* main_widget = new ViewerDisplayWidget();
-  connect(main_widget, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
-  connect(main_widget, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
-  connect(main_widget, &ViewerDisplayWidget::LoadedBuffer, this, &ViewerWidget::LoadedBuffer);
-  connect(main_widget, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
-  connect(main_widget, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
-  connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerDisplayWidget::SetMatrix);
-  sizer_->SetWidget(main_widget);
-  gl_widgets_.append(main_widget);
+  display_widget_ = new ViewerDisplayWidget();
+  connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(display_widget_, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
+  connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
+  connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
+  connect(sizer_, &ViewerSizer::RequestMatrix, display_widget_, &ViewerDisplayWidget::SetMatrix);
+  sizer_->SetWidget(display_widget_);
 
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
@@ -117,6 +115,15 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetAutoMaxScrollBar(true);
 }
 
+ViewerWidget::~ViewerWidget()
+{
+  QList<ViewerWindow*> windows = windows_;
+
+  foreach (ViewerWindow* window, windows) {
+    delete window;
+  }
+}
+
 void ViewerWidget::TimeChangedEvent(const int64_t &i)
 {
   if (!time_changed_from_timer_) {
@@ -133,7 +140,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
     PushScrubbedAudio();
 
-    main_gl_widget()->SetTime(time_set);
+    display_widget_->SetTime(time_set);
   }
 
   last_time_ = i;
@@ -170,8 +177,9 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     using_manager = nullptr;
   }
 
-  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
-    glw->ConnectColorManager(using_manager);
+  display_widget_->ConnectColorManager(using_manager);
+  foreach (ViewerWindow* window, windows_) {
+    window->display_widget()->ConnectColorManager(using_manager);
   }
 
   divider_ = CalculateDivider();
@@ -202,8 +210,9 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
 
-  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
-    glw->DisconnectColorManager();
+  display_widget_->DisconnectColorManager();
+  foreach (ViewerWindow* window, windows_) {
+    window->display_widget()->DisconnectColorManager();
   }
 
   waveform_view_->ConnectTimelinePoints(nullptr);
@@ -236,14 +245,9 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
   UpdateMinimumScale();
 }
 
-const QList<ViewerDisplayWidget*> &ViewerWidget::gl_widgets() const
+ViewerDisplayWidget *ViewerWidget::display_widget() const
 {
-  return gl_widgets_;
-}
-
-ViewerDisplayWidget *ViewerWidget::main_gl_widget() const
-{
-  return gl_widgets_.first();
+  return display_widget_;
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -282,8 +286,9 @@ void ViewerWidget::SetOverrideSize(int width, int height)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
-    glw->SetMatrix(mat);
+  display_widget_->SetMatrix(mat);
+  foreach (ViewerWindow* vw, windows_) {
+    vw->display_widget()->SetMatrix(mat);
   }
 }
 
@@ -306,19 +311,19 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   ViewerWindow* vw = new ViewerWindow(this);
 
-  vw->showFullScreen();
   vw->setGeometry(screen->geometry());
-  vw->gl_widget()->ConnectColorManager(main_gl_widget()->color_manager());
-  main_gl_widget()->ConnectSibling(vw->gl_widget());
+  vw->showFullScreen();
+  vw->display_widget()->ConnectColorManager(color_manager());
   connect(vw, &ViewerWindow::destroyed, this, &ViewerWidget::WindowAboutToClose);
-  connect(vw->gl_widget(), &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(vw->display_widget(), &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   if (GetConnectedNode()) {
     vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
   }
 
+  vw->display_widget()->SetImage(display_widget_->last_loaded_buffer());
+
   windows_.append(vw);
-  gl_widgets_.append(vw->gl_widget());
 }
 
 void ViewerWidget::ForceUpdate()
@@ -334,26 +339,45 @@ VideoRenderBackend *ViewerWidget::video_renderer() const
 
 ColorManager *ViewerWidget::color_manager() const
 {
-  return main_gl_widget()->color_manager();
+  return display_widget_->color_manager();
 }
 
 void ViewerWidget::SetGizmos(Node *node)
 {
-  main_gl_widget()->SetTimeTarget(GetConnectedNode());
-  main_gl_widget()->SetGizmos(node);
+  display_widget_->SetTimeTarget(GetConnectedNode());
+  display_widget_->SetGizmos(node);
 }
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
-  if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
-    main_gl_widget()->SetImage(QString());
-    video_renderer_->UpdateLastRequestedTime(time);
-  } else {
-    QString frame_fn = video_renderer_->GetCachedFrame(time);
+  {
+    QMutexLocker locker(playback_queue_.lock());
+
+    while (!playback_queue_.isEmpty()) {
+      const ViewerPlaybackFrame& pf = playback_queue_.first();
+
+      if (pf.timestamp == time) {
+        // Frame was in queue, no need to decode anything
+        SetDisplayImage(pf.frame, true);
+        QtConcurrent::run(this, &ViewerWidget::FillPlaybackQueue);
+        return;
+      } else {
+        playback_queue_.removeFirst();
+      }
+    }
+  }
+
+  // Frame was not in queue, will require decoding
+  if (FrameExistsAtTime(time)) {
+    QString frame_fn = GetCachedFilenameFromTime(time);
 
     if (!frame_fn.isEmpty()) {
-      main_gl_widget()->SetImage(frame_fn);
+      FramePtr f = DecodeCachedImage(frame_fn);
+      SetDisplayImage(f, false);
     }
+  } else {
+    SetDisplayImage(nullptr, false);
+    video_renderer_->UpdateLastRequestedTime(time);
   }
 }
 
@@ -372,11 +396,21 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   QString audio_fn = audio_renderer_->CachePathName();
   if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(audio_renderer_->params());
-    AudioManager::instance()->StartOutput(audio_fn, audio_renderer_->params().time_to_bytes(GetTime()), playback_speed_);
+    AudioManager::instance()->StartOutput(audio_fn,
+                                          audio_renderer_->params().time_to_bytes(GetTime()),
+                                          playback_speed_);
   }
 
-  start_msec_ = QDateTime::currentMSecsSinceEpoch();
-  start_timestamp_ = ruler()->GetTime();
+  int64_t start_time = ruler()->GetTime();
+
+  playback_queue_next_frame_ = start_time;
+  FillPlaybackQueue();
+
+  playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
+
+  foreach (ViewerWindow* window, windows_) {
+    window->Play(start_time, playback_speed_, timebase());
+  }
 
   controls_->ShowPauseButton();
 
@@ -385,7 +419,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   if (playback_is_audio_only_) {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
   } else {
-    connect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
 }
 
@@ -415,7 +449,7 @@ int ViewerWidget::CalculateDivider()
 {
   if (GetConnectedNode() && Config::Current()["AutoSelectDivider"].toBool()) {
     int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
-    int long_side_of_widget = qMax(main_gl_widget()->width(), main_gl_widget()->height());
+    int long_side_of_widget = qMax(display_widget_->width(), display_widget_->height());
 
     return qMax(1, long_side_of_video / long_side_of_widget);
   }
@@ -440,6 +474,113 @@ void ViewerWidget::UpdateMinimumScale()
 void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisplayWidget *sender)
 {
   sender->SetColorTransform(transform);
+}
+
+void ViewerWidget::FillPlaybackQueue()
+{
+  playback_queue_.lock()->lock();
+  foreach (ViewerWindow* window, windows_) {
+    window->queue()->lock()->lock();
+  }
+
+  while (playback_queue_.size() < 8) {
+    // Load frame from cache
+    FramePtr frame = nullptr;
+
+    rational rtime = Timecode::timestamp_to_time(playback_queue_next_frame_,
+                                                 timebase());
+
+    QString frame_fn = GetCachedFilenameFromTime(rtime);
+
+    if (!frame_fn.isEmpty()) {
+      frame = DecodeCachedImage(frame_fn);
+    }
+
+    ViewerPlaybackFrame f = {rtime, frame};
+
+    playback_queue_.append(f);
+
+    foreach (ViewerWindow* window, windows_) {
+      window->queue()->append(f);
+    }
+
+    if (!playback_speed_) {
+      break;
+    }
+
+    playback_queue_next_frame_ += playback_speed_;
+  }
+
+  foreach (ViewerWindow* window, windows_) {
+    window->queue()->lock()->unlock();
+  }
+  playback_queue_.lock()->unlock();
+}
+
+QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
+{
+  if (FrameExistsAtTime(time)) {
+    return video_renderer_->GetCachedFrame(time);
+  } else {
+    return QString();
+  }
+}
+
+bool ViewerWidget::FrameExistsAtTime(const rational &time)
+{
+  return GetConnectedNode() && time < GetConnectedNode()->Length();
+}
+
+FramePtr ViewerWidget::DecodeCachedImage(const QString &fn)
+{
+  FramePtr frame = nullptr;
+
+  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
+    auto input = OIIO::ImageInput::open(fn.toStdString());
+
+    if (input) {
+
+      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
+                                                                              input->spec().nchannels == kRGBAChannels);
+
+      frame = Frame::Create();
+
+      frame->set_video_params(VideoRenderingParams(input->spec().width,
+                                                   input->spec().height,
+                                                   image_format));
+
+      frame->allocate();
+
+      input->read_image(input->spec().format,
+                        frame->data(),
+                        OIIO::AutoStride,
+                        frame->linesize_bytes());
+
+      input->close();
+
+#if OIIO_VERSION < 10903
+      OIIO::ImageInput::destroy(input);
+#endif
+
+    } else {
+      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+    }
+  }
+
+  return frame;
+}
+
+void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
+{
+  display_widget_->SetImage(frame);
+
+  if (!main_only) {
+    foreach (ViewerWindow* vw, windows_) {
+      vw->display_widget()->SetImage(frame);
+    }
+  }
+
+  emit LoadedBuffer(frame.get());
 }
 
 void ViewerWidget::UpdateStack()
@@ -515,10 +656,7 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
 
 void ViewerWidget::WindowAboutToClose()
 {
-  ViewerWindow* vw = static_cast<ViewerWindow*>(sender());
-
-  windows_.removeAll(vw);
-  gl_widgets_.removeAll(vw->gl_widget());
+  windows_.removeOne(static_cast<ViewerWindow*>(sender()));
 }
 
 void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
@@ -528,9 +666,7 @@ void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
 
 void ViewerWidget::RendererGeneratedFrame(FramePtr f)
 {
-  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
-    glw->SetImageFromLoadBuffer(f.get());
-  }
+  SetDisplayImage(f, false);
 }
 
 void ViewerWidget::UpdateRendererParameters()
@@ -551,7 +687,7 @@ void ViewerWidget::UpdateRendererParameters()
     video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
   }
 
-  main_gl_widget()->SetVideoParams(vparam);
+  display_widget_->SetVideoParams(vparam);
 
   AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
                               SampleFormat::kInternalFormat);
@@ -708,7 +844,17 @@ void ViewerWidget::Pause()
     if (playback_is_audio_only_) {
       disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
     } else {
-      disconnect(main_gl_widget(), &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+      disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    }
+
+    foreach (ViewerWindow* window, windows_) {
+      window->Pause();
+    }
+
+    {
+      playback_queue_.lock()->lock();
+      playback_queue_.clear();
+      playback_queue_.lock()->unlock();
     }
   }
 }
@@ -754,13 +900,15 @@ void ViewerWidget::ShuttleRight()
 
 void ViewerWidget::SetColorTransform(const ColorTransform &transform)
 {
-  SetColorTransform(transform, main_gl_widget());
+  SetColorTransform(transform, display_widget_);
 }
 
 void ViewerWidget::SetSignalCursorColorEnabled(bool e)
 {
-  foreach (ViewerDisplayWidget* glw, gl_widgets_) {
-    glw->SetSignalCursorColorEnabled(e);
+  display_widget_->SetSignalCursorColorEnabled(e);
+
+  foreach (ViewerWindow* vw, windows_) {
+    vw->display_widget()->SetSignalCursorColorEnabled(e);
   }
 }
 
@@ -776,11 +924,7 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 
 void ViewerWidget::PlaybackTimerUpdate()
 {
-  int64_t real_time = QDateTime::currentMSecsSinceEpoch() - start_msec_;
-
-  int64_t frames_since_start = qRound(static_cast<double>(real_time) / (timebase_dbl() * 1000));
-
-  int64_t current_time = start_timestamp_ + frames_since_start * playback_speed_;
+  int64_t current_time = playback_timer_.GetTimestampNow();
 
   int64_t min_time, max_time;
 

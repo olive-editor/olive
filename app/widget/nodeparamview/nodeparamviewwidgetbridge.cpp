@@ -66,6 +66,7 @@ const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
+
   if (input_->IsArray()) {
 
     NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(static_cast<NodeInputArray*>(input_));
@@ -91,6 +92,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeParam::kInt:
     {
       IntegerSlider* slider = new IntegerSlider();
+      slider->SetDefaultValue(input_->GetDefaultValue());
       widgets_.append(slider);
       connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -363,6 +365,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     FloatSlider* fs = new FloatSlider();
+    fs->SetDefaultValue(input_->GetDefaultValueForTrack(i));
     widgets_.append(fs);
     connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }

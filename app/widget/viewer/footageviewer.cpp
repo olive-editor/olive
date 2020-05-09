@@ -35,7 +35,7 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   audio_node_ = new AudioInput();
   viewer_node_ = new ViewerOutput();
 
-  connect(main_gl_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
+  connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
   controls_->SetAudioVideoDragButtonsVisible(true);
   connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);

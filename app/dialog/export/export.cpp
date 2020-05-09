@@ -204,7 +204,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // Set defaults
   format_combobox_->setCurrentIndex(kFormatMPEG4);
   video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
+  video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
   video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
+  video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
   video_tab_->set_frame_rate(viewer_node_->video_params().time_base().flipped());
   audio_tab_->set_sample_rate(viewer_node_->audio_params().sample_rate());
   audio_tab_->set_channel_layout(viewer_node_->audio_params().channel_layout());

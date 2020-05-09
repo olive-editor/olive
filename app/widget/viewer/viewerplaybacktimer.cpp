@@ -18,48 +18,27 @@
 
 ***/
 
-#ifndef SLIDERLABEL_H
-#define SLIDERLABEL_H
+#include "viewerplaybacktimer.h"
 
-#include <QLabel>
-
-#include "common/define.h"
+#include <QDateTime>
 
 OLIVE_NAMESPACE_ENTER
 
-class SliderLabel : public QLabel
+void ViewerPlaybackTimer::Start(const int64_t &start_timestamp, const int &playback_speed, const double &timebase)
 {
-  Q_OBJECT
-public:
-  SliderLabel(QWidget* parent);
+  start_msec_ = QDateTime::currentMSecsSinceEpoch();
+  start_timestamp_ = start_timestamp;
+  playback_speed_ = playback_speed;
+  timebase_ = timebase;
+}
 
-protected:
-  virtual void mousePressEvent(QMouseEvent *ev) override;
+int64_t ViewerPlaybackTimer::GetTimestampNow() const
+{
+  int64_t real_time = QDateTime::currentMSecsSinceEpoch() - start_msec_;
 
-  virtual void mouseMoveEvent(QMouseEvent *ev) override;
+  int64_t frames_since_start = qRound(static_cast<double>(real_time) / (timebase_ * 1000));
 
-  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-
-  virtual void focusInEvent(QFocusEvent *event) override;
-
-signals:
-  void dragged(int x);
-
-  void drag_start();
-
-  void drag_stop();
-
-  void focused();
-
-  void RequestReset();
-
-private:
-  QPoint drag_start_;
-
-  bool dragging_;
-
-};
+  return start_timestamp_ + frames_since_start * playback_speed_;
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // SLIDERLABEL_H

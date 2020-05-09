@@ -30,10 +30,10 @@ OLIVE_NAMESPACE_ENTER
 
 MatrixGenerator::MatrixGenerator()
 {
-  position_input_ = new NodeInput("pos_in", NodeParam::kVec2);
+  position_input_ = new NodeInput("pos_in", NodeParam::kVec2, QVector2D());
   AddInput(position_input_);
 
-  rotation_input_ = new NodeInput("rot_in", NodeParam::kFloat);
+  rotation_input_ = new NodeInput("rot_in", NodeParam::kFloat, 0.0f);
   AddInput(rotation_input_);
 
   scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(1.0f, 1.0f));
@@ -48,7 +48,7 @@ MatrixGenerator::MatrixGenerator()
   connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &MatrixGenerator::UniformScaleChanged);
   AddInput(uniform_scale_input_);
 
-  anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2);
+  anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2, QVector2D());
   AddInput(anchor_input_);
 }
 
