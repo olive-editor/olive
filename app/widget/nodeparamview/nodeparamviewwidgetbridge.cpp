@@ -92,11 +92,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeParam::kInt:
     {
       IntegerSlider* slider = new IntegerSlider();
-      if (!input_->get_standard_value().isNull()) {
-        slider->SetDefaultValue(input_->get_standard_value());
-      } else {
-        slider->SetDefaultValue(0);
-      }
+      slider->SetDefaultValue(input_->GetDefaultValue());
       widgets_.append(slider);
       connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -369,11 +365,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     FloatSlider* fs = new FloatSlider();
-    if (!input_->get_standard_value().isNull()) {
-      fs->SetDefaultValue(input_->get_split_standard_value().at(i));
-    } else {
-      fs->SetDefaultValue(0.0f);
-    }
+    fs->SetDefaultValue(input_->GetDefaultValueForTrack(i));
     widgets_.append(fs);
     connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }

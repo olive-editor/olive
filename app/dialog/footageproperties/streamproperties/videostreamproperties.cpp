@@ -80,7 +80,6 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
     imgseq_start_time_ = new IntegerSlider();
     imgseq_start_time_->SetMinimum(0);
     imgseq_start_time_->SetValue(video_stream->start_time());
-    imgseq_start_time_->SetDefaultValue(video_stream->start_time());
     imgseq_layout->addWidget(imgseq_start_time_, imgseq_row, 1);
 
     imgseq_row++;
@@ -90,7 +89,6 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
     imgseq_end_time_ = new IntegerSlider();
     imgseq_end_time_->SetMinimum(0);
     imgseq_end_time_->SetValue(video_stream->start_time() + video_stream->duration() - 1);
-    imgseq_end_time_->SetDefaultValue(video_stream->start_time() + video_stream->duration() - 1);
     imgseq_layout->addWidget(imgseq_end_time_, imgseq_row, 1);
 
     video_layout->addWidget(imgseq_group, row, 0, 1, 2);

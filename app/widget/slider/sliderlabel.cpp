@@ -31,7 +31,8 @@
 OLIVE_NAMESPACE_ENTER
 
 SliderLabel::SliderLabel(QWidget *parent) :
-  QLabel(parent)
+  QLabel(parent),
+  dragging_(false)
 {
   QPalette p = palette();
 
@@ -53,12 +54,13 @@ SliderLabel::SliderLabel(QWidget *parent) :
   setFocusPolicy(Qt::TabFocus);
 }
 
-void SliderLabel::mousePressEvent(QMouseEvent *)
+void SliderLabel::mousePressEvent(QMouseEvent *e)
 {
-  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
-    emit ResetResult();
-  }else {
-    emit drag_start();
+  if (e->modifiers() & Qt::AltModifier) {
+
+    emit RequestReset();
+
+  } else {
 
 #if defined(Q_OS_MAC)
     CGAssociateMouseAndMouseCursorPosition(false);
@@ -69,14 +71,18 @@ void SliderLabel::mousePressEvent(QMouseEvent *)
 
     static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
 #endif
+
+    emit drag_start();
+
+    dragging_ = true;
+
   }
 }
 
 void SliderLabel::mouseMoveEvent(QMouseEvent *)
 {
-  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
-      // do nothing
-  }else {
+  if (dragging_) {
+
     int32_t x_mvmt, y_mvmt;
 
     // Keep cursor in the same position
@@ -92,23 +98,26 @@ void SliderLabel::mouseMoveEvent(QMouseEvent *)
 #endif
 
     emit dragged(x_mvmt + y_mvmt);
+
   }
 }
 
 void SliderLabel::mouseReleaseEvent(QMouseEvent *)
 {
-  if (QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier)) {
-    //do nothing 
-  } else {
-    // Emit a clicked signal
-    emit drag_stop();
-  }
+  if (dragging_) {
+
 #if defined(Q_OS_MAC)
-  CGAssociateMouseAndMouseCursorPosition(true);
-  CGDisplayShowCursor(kCGDirectMainDisplay);
+    CGAssociateMouseAndMouseCursorPosition(true);
+    CGDisplayShowCursor(kCGDirectMainDisplay);
 #else
-  static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
+    static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
 #endif
+
+    emit drag_stop();
+
+    dragging_ = false;
+
+  }
 }
 
 void SliderLabel::focusInEvent(QFocusEvent *event)

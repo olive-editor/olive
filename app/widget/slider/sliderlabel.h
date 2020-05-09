@@ -51,12 +51,12 @@ signals:
 
   void focused();
 
-  void ResetResult();
+  void RequestReset();
 
 private:
   QPoint drag_start_;
 
-  bool cancel_mm_event_;
+  bool dragging_;
 
 };
 

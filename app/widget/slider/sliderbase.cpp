@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QEvent>
 #include <QMessageBox>
-#include <QGuiApplication>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -46,13 +45,13 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   editor_ = new FocusableLineEdit(this);
   addWidget(editor_);
 
-  connect(label_, SIGNAL(drag_start()), this, SLOT(LabelPressed()));
-  connect(label_, SIGNAL(dragged(int)), this, SLOT(LabelDragged(int)));
-  connect(label_, SIGNAL(drag_stop()), this, SLOT(LabelClicked()));
-  connect(label_, SIGNAL(focused()), this, SLOT(LabelClicked()));
-  connect(label_, SIGNAL(ResetResult()), this, SLOT(ValueReset()));
-  connect(editor_, SIGNAL(Confirmed()), this, SLOT(LineEditConfirmed()));
-  connect(editor_, SIGNAL(Cancelled()), this, SLOT(LineEditCancelled()));
+  connect(label_, &SliderLabel::drag_start, this, &SliderBase::LabelPressed);
+  connect(label_, &SliderLabel::dragged, this, &SliderBase::LabelDragged);
+  connect(label_, &SliderLabel::drag_stop, this, &SliderBase::LabelClicked);
+  connect(label_, &SliderLabel::focused, this, &SliderBase::LabelClicked);
+  connect(label_, &SliderLabel::RequestReset, this, &SliderBase::ResetValue);
+  connect(editor_, &FocusableLineEdit::Confirmed, this, &SliderBase::LineEditConfirmed);
+  connect(editor_, &FocusableLineEdit::Cancelled, this, &SliderBase::LineEditCancelled);
 
   // Set valid cursor based on mode
   switch (mode_) {
@@ -141,7 +140,7 @@ void SliderBase::SetValue(const QVariant &v)
 
 void SliderBase::SetDefaultValue(const QVariant &v) 
 { 
-  default_value_ = ClampValue(v);
+  default_value_ = v;
 }
 
 void SliderBase::SetMinimumInternal(const QVariant &v)
@@ -333,7 +332,7 @@ void SliderBase::LineEditCancelled()
   label_->blockSignals(false);
 }
 
-void SliderBase::ValueReset() 
+void SliderBase::ResetValue()
 {
   if (!default_value_.isNull()) {
     SetValue(default_value_);

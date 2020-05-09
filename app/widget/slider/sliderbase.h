@@ -124,7 +124,7 @@ private slots:
 
   void LineEditCancelled();
 
-  void ValueReset();
+  void ResetValue();
 };
 
 OLIVE_NAMESPACE_EXIT
