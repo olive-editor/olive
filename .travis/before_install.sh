@@ -2,9 +2,6 @@
 
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
-    # CMake
-    sudo add-apt-repository ppa:olive-editor/cmake -y
-
     # Qt 5.11
     sudo add-apt-repository ppa:beineri/opt-qt-5.11.0-xenial -y
 
