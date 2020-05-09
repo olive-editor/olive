@@ -83,15 +83,16 @@ void Config::SetDefaults()
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
   config_map_["Loop"] = false;
 
-  config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.65f));
-  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.6f, 0.6f, 0.85f));
-  config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.45f));
-  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.25f, 0.5f, 0.25f));
-  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.65f, 0.25f));
-  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.35f, 0.35f, 0.35f));
-  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.45f, 0.45f, 0.45f));
-  config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.7f, 0.3f, 0.7f));
-  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.85f, 0.65f, 0.4f));
+
+  config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
+  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.25f));
+  config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
+  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
+  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.25f));
+  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.75f));
+  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.75f));
+  config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
+  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
 
   config_map_["AudioOutput"] = QString();
   config_map_["AudioInput"] = QString();
@@ -124,8 +125,7 @@ void Config::Load()
   }
 
   if (!config_file.open(QFile::ReadOnly)) {
-    qWarning() << QCoreApplication::translate("Config", "Failed to load application settings. This session will use "
-                                                        "defaults.");
+    qWarning() << "Failed to load application settings. This session will use defaults.";
     return;
   }
 
