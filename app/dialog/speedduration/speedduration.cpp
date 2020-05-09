@@ -93,6 +93,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     speed_slider_ = new FloatSlider();
     speed_slider_->SetMinimum(0);
     speed_slider_->SetDisplayType(FloatSlider::kPercentage);
+    speed_slider_->SetDefaultValue(1);
     speed_layout->addWidget(speed_slider_, row, 1);
 
     if (same_speed) {
@@ -111,6 +112,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     duration_slider_ = new TimeSlider();
     duration_slider_->SetTimebase(timebase_);
     duration_slider_->SetMinimum(1);
+    duration_slider_->SetDefaultValue(Timecode::time_to_timestamp(clips_.first()->length(), timebase_));
     speed_layout->addWidget(duration_slider_, row, 1);
 
     if (same_duration) {

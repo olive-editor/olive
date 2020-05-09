@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QMessageBox>
+#include <QGuiApplication>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -49,6 +50,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   connect(label_, SIGNAL(dragged(int)), this, SLOT(LabelDragged(int)));
   connect(label_, SIGNAL(drag_stop()), this, SLOT(LabelClicked()));
   connect(label_, SIGNAL(focused()), this, SLOT(LabelClicked()));
+  connect(label_, SIGNAL(ResetResult()), this, SLOT(ValueReset()));
   connect(editor_, SIGNAL(Confirmed()), this, SLOT(LineEditConfirmed()));
   connect(editor_, SIGNAL(Cancelled()), this, SLOT(LineEditCancelled()));
 
@@ -135,6 +137,11 @@ void SliderBase::SetValue(const QVariant &v)
   tristate_ = false;
 
   UpdateLabel(value_);
+}
+
+void SliderBase::SetDefaultValue(const QVariant &v) 
+{ 
+  default_value_ = ClampValue(v);
 }
 
 void SliderBase::SetMinimumInternal(const QVariant &v)
@@ -241,7 +248,6 @@ void SliderBase::LabelClicked()
     emit ValueChanged(value_);
   } else {
     // This was a simple click
-
     // Load label's text into editor
     editor_->setText(ValueToString(value_));
 
@@ -325,6 +331,14 @@ void SliderBase::LineEditCancelled()
 
   editor_->blockSignals(false);
   label_->blockSignals(false);
+}
+
+void SliderBase::ValueReset() 
+{
+  if (!default_value_.isNull()) {
+    SetValue(default_value_);
+    emit ValueChanged(value_);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

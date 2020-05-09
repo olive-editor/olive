@@ -121,6 +121,7 @@ H264CRFSection::H264CRFSection(QWidget *parent) :
   crf_input->SetMinimum(kMinimumCRF);
   crf_input->SetMaximum(kMaximumCRF);
   crf_input->SetValue(kDefaultCRF);
+  crf_input->SetDefaultValue(kDefaultCRF);
   layout->addWidget(crf_input);
 
   connect(crf_slider_, &QSlider::valueChanged, crf_input, &IntegerSlider::SetValue);
