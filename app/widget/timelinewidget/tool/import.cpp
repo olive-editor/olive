@@ -399,6 +399,9 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
         video_input->SetFootage(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
+        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
+
+        /*
         MatrixGenerator* matrix = new MatrixGenerator();
         new NodeAddCommand(dst_graph, matrix, command);
 
@@ -409,6 +412,7 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
         new NodeEdgeAddCommand(video_input->output(), multiply->param_a_in(), command);
         new NodeEdgeAddCommand(matrix->output(), multiply->param_b_in(), command);
         new NodeEdgeAddCommand(multiply->output(), clip->texture_input(), command);
+        */
         break;
       }
       case Stream::kAudio:
