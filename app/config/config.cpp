@@ -83,7 +83,6 @@ void Config::SetDefaults()
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
   config_map_["Loop"] = false;
 
-
   config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
   config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.25f));
   config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));

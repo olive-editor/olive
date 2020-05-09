@@ -87,6 +87,8 @@ public:
 
   void SetFilterMode(const FilterMode& f);
 
+  bool GetEdgesAreCurved() const;
+
 public slots:
   /**
    * @brief Slot when a Node is added to a graph (SetGraph() connects this)
@@ -120,6 +122,11 @@ public slots:
    */
   void RemoveEdge(NodeEdgePtr edge);
 
+  /**
+   * @brief Set whether edges in this scene should be curved or not
+   */
+  void SetEdgesAreCurved(bool curved);
+
 private:
   static int DetermineWeight(Node* n);
 
@@ -132,6 +139,8 @@ private:
   NodeViewCommon::FlowDirection direction_;
 
   FilterMode filter_mode_;
+
+  bool curved_edges_;
 
 private slots:
   /**

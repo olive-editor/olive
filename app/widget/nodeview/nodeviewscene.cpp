@@ -30,7 +30,8 @@ OLIVE_NAMESPACE_ENTER
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
   graph_(nullptr),
-  direction_(NodeViewCommon::kLeftToRight)
+  direction_(NodeViewCommon::kLeftToRight),
+  curved_edges_(true)
 {
 }
 
@@ -214,6 +215,7 @@ void NodeViewScene::AddEdge(NodeEdgePtr edge)
 
   edge_ui->SetEdge(edge);
   edge_ui->SetFlowDirection(direction_);
+  edge_ui->SetCurved(curved_edges_);
 
   addItem(edge_ui);
   edge_map_.insert(edge.get(), edge_ui);
@@ -291,6 +293,20 @@ void NodeViewScene::ReorganizeFrom(Node* n)
 void NodeViewScene::SetFilterMode(const NodeViewScene::FilterMode &f)
 {
   filter_mode_ = f;
+}
+
+bool NodeViewScene::GetEdgesAreCurved() const
+{
+  return curved_edges_;
+}
+
+void NodeViewScene::SetEdgesAreCurved(bool curved)
+{
+  curved_edges_ = curved;
+
+  foreach (NodeViewEdge* e, edge_map_) {
+    e->SetCurved(curved_edges_);
+  }
 }
 
 void NodeViewScene::NodePositionChanged(const QPointF &pos)

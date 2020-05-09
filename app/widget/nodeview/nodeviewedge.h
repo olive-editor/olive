@@ -89,6 +89,11 @@ public:
    */
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
+  /**
+   * @brief Set whether edges should be drawn as curved or as straight lines
+   */
+  void SetCurved(bool e);
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -102,6 +107,8 @@ private:
   bool highlighted_;
 
   NodeViewCommon::FlowDirection flow_dir_;
+
+  bool curved_;
 
 };
 

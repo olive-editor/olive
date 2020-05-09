@@ -452,6 +452,13 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   } else {
 
+    QAction* curved_action = m.addAction(tr("Smooth Edges"));
+    curved_action->setCheckable(true);
+    curved_action->setChecked(scene_.GetEdgesAreCurved());
+    connect(curved_action, &QAction::triggered, &scene_, &NodeViewScene::SetEdgesAreCurved);
+
+    m.addSeparator();
+
     Menu* filter_menu = new Menu(tr("Filter"), &m);
 
     filter_menu->addAction(tr("Show All"))->setData(NodeViewScene::kFilterShowAll);

@@ -37,7 +37,8 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   edge_(nullptr),
   connected_(false),
   highlighted_(false),
-  flow_dir_(NodeViewCommon::kLeftToRight)
+  flow_dir_(NodeViewCommon::kLeftToRight),
+  curved_(true)
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 
@@ -103,24 +104,32 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
   QPainterPath path;
   path.moveTo(start);
 
-  double half_x = lerp(start.x(), end.x(), 0.5);
-  double half_y = lerp(start.y(), end.y(), 0.5);
+  if (curved_) {
 
-  QPointF cp1, cp2;
+    double half_x = lerp(start.x(), end.x(), 0.5);
+    double half_y = lerp(start.y(), end.y(), 0.5);
 
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
-    cp1 = QPointF(half_x, start.y());
+    QPointF cp1, cp2;
+
+    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+      cp1 = QPointF(half_x, start.y());
+    } else {
+      cp1 = QPointF(start.x(), half_y);
+    }
+
+    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+      cp2 = QPointF(half_x, end.y());
+    } else {
+      cp2 = QPointF(end.x(), half_y);
+    }
+
+    path.cubicTo(cp1, cp2, end);
+
   } else {
-    cp1 = QPointF(start.x(), half_y);
-  }
 
-  if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
-    cp2 = QPointF(half_x, end.y());
-  } else {
-    cp2 = QPointF(end.x(), half_y);
-  }
+    path.lineTo(end);
 
-  path.cubicTo(cp1, cp2, end);
+  }
 
   setPath(path);
 }
@@ -130,6 +139,13 @@ void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
   flow_dir_ = dir;
 
   Adjust();
+}
+
+void NodeViewEdge::SetCurved(bool e)
+{
+  curved_ = e;
+
+  update();
 }
 
 void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
