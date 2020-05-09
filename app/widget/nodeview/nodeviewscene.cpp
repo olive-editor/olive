@@ -23,6 +23,7 @@
 #include "common/functiontimer.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
+#include "project/item/sequence/sequence.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -216,11 +217,17 @@ void NodeViewScene::AddEdge(NodeEdgePtr edge)
 
   addItem(edge_ui);
   edge_map_.insert(edge.get(), edge_ui);
+
+  // FIXME: Not optimal, fairly brute force/shotgun approach to positioning
+  ReorganizeFrom(static_cast<Sequence*>(graph_)->viewer_output());
 }
 
 void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
 {
   delete edge_map_.take(edge.get());
+
+  // FIXME: Not optimal, fairly brute force/shotgun approach to positioning
+  ReorganizeFrom(static_cast<Sequence*>(graph_)->viewer_output());
 }
 
 int NodeViewScene::DetermineWeight(Node *n)
