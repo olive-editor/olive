@@ -23,6 +23,8 @@
 #include <QKeyEvent>
 #include <QVBoxLayout>
 
+#include "common/timecodefunctions.h"
+
 OLIVE_NAMESPACE_ENTER
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
@@ -32,13 +34,13 @@ ViewerWindow::ViewerWindow(QWidget *parent) :
   layout->setMargin(0);
   layout->setSpacing(0);
 
-  gl_widget_ = new ViewerDisplayWidget();
-  layout->addWidget(gl_widget_);
+  display_widget_ = new ViewerDisplayWidget();
+  layout->addWidget(display_widget_);
 }
 
-ViewerDisplayWidget *ViewerWindow::gl_widget() const
+ViewerDisplayWidget *ViewerWindow::display_widget() const
 {
-  return gl_widget_;
+  return display_widget_;
 }
 
 void ViewerWindow::SetResolution(int width, int height)
@@ -57,7 +59,26 @@ void ViewerWindow::SetResolution(int width, int height)
     mat.scale(1.0f, window_ar / image_ar, 1.0f);
   }
 
-  gl_widget_->SetMatrix(mat);
+  display_widget_->SetMatrix(mat);
+}
+
+void ViewerWindow::Play(const int64_t& start_timestamp, const int& playback_speed, const rational &timebase)
+{
+  timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
+
+  playback_timebase_ = timebase;
+
+  connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWindow::UpdateFromQueue);
+
+  display_widget_->update();
+}
+
+void ViewerWindow::Pause()
+{
+  disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWindow::UpdateFromQueue);
+
+  QMutexLocker locker(queue_.lock());
+  queue_.clear();
 }
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
@@ -74,6 +95,26 @@ void ViewerWindow::closeEvent(QCloseEvent *e)
   QWidget::closeEvent(e);
 
   deleteLater();
+}
+
+void ViewerWindow::UpdateFromQueue()
+{
+  int64_t t = timer_.GetTimestampNow();
+
+  rational time = Timecode::timestamp_to_time(t, playback_timebase_);
+
+  QMutexLocker locker(queue_.lock());
+  while (!queue_.isEmpty()) {
+    const ViewerPlaybackFrame& pf = queue_.first();
+
+    if (pf.timestamp == time) {
+      // Frame was in queue, no need to decode anything
+      display_widget_->SetImage(pf.frame);
+      return;
+    } else {
+      queue_.removeFirst();
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

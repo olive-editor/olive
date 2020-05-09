@@ -111,4 +111,18 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
   vw->ForceUpdate();
 }
 
+void ViewerPanelBase::showEvent(QShowEvent *e)
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->Pause();
+
+  TimeBasedPanel::showEvent(e);
+}
+
+void ViewerPanelBase::closeEvent(QCloseEvent *e)
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->Pause();
+
+  TimeBasedPanel::closeEvent(e);
+}
+
 OLIVE_NAMESPACE_EXIT

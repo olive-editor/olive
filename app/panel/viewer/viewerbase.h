@@ -62,6 +62,10 @@ public slots:
 protected:
   void CreateScopePanel(ScopePanel::Type type);
 
+  virtual void showEvent(QShowEvent* e) override;
+
+  virtual void closeEvent(QCloseEvent* e) override;
+
 };
 
 OLIVE_NAMESPACE_EXIT

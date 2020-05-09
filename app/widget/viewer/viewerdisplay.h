@@ -68,14 +68,14 @@ public:
 
   const QMatrix4x4& GetMatrix();
 
-  void ConnectSibling(ViewerDisplayWidget* sibling);
-
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
   void SetVideoParams(const VideoRenderingParams& params);
   void SetTime(const rational& time);
+
+  FramePtr last_loaded_buffer() const;
 
 public slots:
   /**
@@ -100,7 +100,7 @@ public slots:
    * If there are multiple ViewerGLWidgets showing the same thing, this is faster than decoding the image from file
    * each time.
    */
-  void SetImageFromLoadBuffer(Frame* in_buffer);
+  void SetImage(FramePtr in_buffer);
 
 signals:
   /**
@@ -112,15 +112,6 @@ signals:
    * @brief Signal emitted when cursor color is enabled and the user's mouse position changes
    */
   void CursorColor(const Color& reference, const Color& display);
-
-  /**
-   * @brief Signal emitted when a buffer is loaded from file into memory
-   *
-   * This buffer will be the direct output of the renderer in reference space in CPU memory.
-   *
-   * Connect this to the SetImageFromLoadBuffer() slot of another ViewerGLWidget to show the same thing
-   */
-  void LoadedBuffer(Frame* load_buffer);
 
 protected:
   /**
@@ -169,16 +160,9 @@ private:
    */
   QMatrix4x4 matrix_;
 
-  /**
-   * @brief Buffer to load images into RAM before sending them to the display
-   */
-  Frame load_buffer_;
-
 #ifdef Q_OS_LINUX
   static bool nouveau_check_done_;
 #endif
-
-  bool has_image_;
 
   bool signal_cursor_color_;
 
@@ -191,6 +175,8 @@ private:
   bool gizmo_click_;
 
   rational time_;
+
+  FramePtr last_loaded_buffer_;
 
 private slots:
   /**
