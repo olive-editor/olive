@@ -367,6 +367,10 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     }
   }
 
+  if (IsPlaying()) {
+    qDebug() << "Playback queue couldn't keep up - falling back to realtime decoding";
+  }
+
   // Frame was not in queue, will require decoding
   if (FrameExistsAtTime(time)) {
     QString frame_fn = GetCachedFilenameFromTime(time);
