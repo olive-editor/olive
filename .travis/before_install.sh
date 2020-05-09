@@ -11,6 +11,9 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     # OpenColorIO
     sudo add-apt-repository ppa:olive-editor/opencolorio -y
 
+    # CMake
+    sudo add-apt-repository ppa:olive-editor/cmake -y
+
     # Update apt
     sudo apt-get update -qq
 
