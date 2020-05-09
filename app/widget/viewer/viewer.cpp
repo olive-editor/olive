@@ -352,6 +352,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   {
     QMutexLocker locker(playback_queue_.lock());
+
     while (!playback_queue_.isEmpty()) {
       const ViewerPlaybackFrame& pf = playback_queue_.first();
 
@@ -400,11 +401,15 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
                                           playback_speed_);
   }
 
-  playback_queue_next_frame_ = ruler()->GetTime();
-  playback_timer_.Start(playback_queue_next_frame_, playback_speed_, timebase_dbl());
+  int64_t start_time = ruler()->GetTime();
+
+  playback_queue_next_frame_ = start_time;
+  FillPlaybackQueue();
+
+  playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
 
   foreach (ViewerWindow* window, windows_) {
-    window->Play(playback_queue_next_frame_, playback_speed_, timebase());
+    window->Play(start_time, playback_speed_, timebase());
   }
 
   controls_->ShowPauseButton();
@@ -416,8 +421,6 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   } else {
     connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
-
-  FillPlaybackQueue();
 }
 
 void ViewerWidget::PushScrubbedAudio()
