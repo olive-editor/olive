@@ -835,7 +835,7 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderi
                                              p.channel_layout(),
                                              FFmpegCommon::GetFFmpegSampleFormat(p.format()),
                                              p.sample_rate(),
-                                             static_cast<int64_t>(index_instance.stream()->codecpar->channel_layout),
+                                             channel_layout,
                                              static_cast<AVSampleFormat>(index_instance.stream()->codecpar->format),
                                              index_instance.stream()->codecpar->sample_rate,
                                              0,
