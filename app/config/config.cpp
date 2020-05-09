@@ -87,12 +87,12 @@ void Config::SetDefaults()
   config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
   config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.25f));
   config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
-  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
-  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.25f));
-  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.75f));
-  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.75f));
+  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.75f));
+  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.75f));
+  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.50f, 0.50f, 0.50f));
+  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.25f));
   config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
-  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
+  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.25f));
 
   config_map_["AudioOutput"] = QString();
   config_map_["AudioInput"] = QString();
