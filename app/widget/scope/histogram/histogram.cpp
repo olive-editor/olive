@@ -23,14 +23,181 @@
 #include <QPainter>
 #include <QtMath>
 
-#include "common/clamp.h"
-#include "common/functiontimer.h"
+#include "common/qtutils.h"
+#include "node/node.h"
+#include "render/backend/opengl/openglrenderfunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
 HistogramScope::HistogramScope(QWidget* parent) :
   ScopeBase(parent)
 {
+}
+
+HistogramScope::~HistogramScope()
+{
+  CleanUp();
+
+  if (context()) {
+    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+      &HistogramScope::CleanUp);
+  }
+}
+
+void HistogramScope::initializeGL()
+{
+  ScopeBase::initializeGL();
+
+  pipeline_secondary_ = CreateSecondaryShader();
+
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+    &HistogramScope::CleanUp, Qt::DirectConnection);
+}
+
+void HistogramScope::AssertAdditionalTextures()
+{
+  if (!texture_row_sums_.IsCreated()
+        || texture_row_sums_.width() != width()
+        || texture_row_sums_.height() != height()) {
+    texture_row_sums_.Destroy();
+    texture_row_sums_.Create(context(), VideoRenderingParams(width(),
+      height(), managed_tex_.format()));
+  }
+}
+
+void HistogramScope::CleanUp()
+{
+  makeCurrent();
+
+  pipeline_secondary_ = nullptr;
+  texture_row_sums_.Destroy();
+
+  doneCurrent();
+}
+
+OpenGLShaderPtr HistogramScope::CreateShader()
+{
+  OpenGLShaderPtr pipeline = OpenGLShader::Create();
+
+  pipeline->create();
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex,
+     OpenGLShader::CodeDefaultVertex());
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment,
+    Node::ReadFileAsString(":/shaders/rgbhistogram.frag"));
+  pipeline->link();
+
+  return pipeline;
+}
+
+OpenGLShaderPtr HistogramScope::CreateSecondaryShader()
+{
+  OpenGLShaderPtr pipeline_secondary_ = OpenGLShader::Create();
+
+  pipeline_secondary_->create();
+  pipeline_secondary_->addShaderFromSourceCode(QOpenGLShader::Vertex,
+    Node::ReadFileAsString(":/shaders/rgbhistogram.vert"));
+  pipeline_secondary_->addShaderFromSourceCode(QOpenGLShader::Fragment,
+    Node::ReadFileAsString(":/shaders/rgbhistogram_secondary.frag"));
+  pipeline_secondary_->link();
+
+  return pipeline_secondary_;
+}
+
+void HistogramScope::DrawScope()
+{
+  float histogram_scale = 0.80f;
+  // This value is eyeballed for usefulness. Until we have a geometry
+  // shader approach, it is impossible to normalize against a peak
+  // sum of image values.
+  float histogram_base = 2.5f;
+  float histogram_power = 1.0f / histogram_base;
+
+  pipeline()->bind();
+  pipeline()->setUniformValue("ove_resolution", managed_tex().width(),
+    managed_tex().height());
+  pipeline()->setUniformValue("ove_viewport", width(), height());
+  pipeline()->setUniformValue("histogram_scale", histogram_scale);
+  pipeline()->release();
+
+  AssertAdditionalTextures();
+
+  framebuffer_.Attach(&texture_row_sums_, true);
+  framebuffer_.Bind();
+
+  managed_tex().Bind();
+
+  OpenGLRenderFunctions::Blit(pipeline());
+
+  managed_tex().Release();
+
+  framebuffer_.Release();
+  framebuffer_.Detach();
+
+  pipeline_secondary_->bind();
+  pipeline_secondary_->setUniformValue("ove_resolution",
+    texture_row_sums_.width(), texture_row_sums_.height());
+  pipeline_secondary_->setUniformValue("ove_viewport", width(), height());
+  pipeline_secondary_->setUniformValue("histogram_scale", histogram_scale);
+  pipeline_secondary_->setUniformValue("histogram_power", histogram_power);
+  pipeline_secondary_->release();
+
+  texture_row_sums_.Bind();
+
+  OpenGLRenderFunctions::Blit(pipeline_secondary_);
+
+  texture_row_sums_.Release();
+
+  // Draw line overlays
+  QPainter p(this);
+  QFont font = p.font();
+  font.setPixelSize(10);
+  QFontMetrics font_metrics = QFontMetrics(font);
+  QString label;
+  std::vector<float> histogram_increments = {
+    0.00,
+    0.25,
+    0.50,
+    1.0
+  };
+
+  int histogram_steps = histogram_increments.size();
+  QVector<QLine> histogram_lines(histogram_steps + 1);
+  int font_x_offset = 0;
+  int font_y_offset = font_metrics.capHeight() / 2.0f;
+
+  p.setCompositionMode(QPainter::CompositionMode_Plus);
+
+  p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
+  p.setFont(font);
+
+  float histogram_dim_x = ceil((width() - 1.0) * histogram_scale);
+  float histogram_dim_y = ceil((height() - 1.0) * histogram_scale);
+  float histogram_start_dim_x =
+    ((width() - 1.0) - histogram_dim_x) / 2.0f;
+  float histogram_start_dim_y =
+    ((height() - 1.0) - histogram_dim_y) / 2.0f;
+  float histogram_end_dim_x = (width() - 1.0) - histogram_start_dim_x;
+
+  // for (int i=0; i <= histogram_steps; i++) {
+  for(std::vector<float>::iterator it = histogram_increments.begin();
+    it != histogram_increments.end(); it++) {
+    histogram_lines[it - histogram_increments.begin()].setLine(
+      histogram_start_dim_x,
+      (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
+        histogram_start_dim_y,
+      histogram_end_dim_x,
+      (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
+        histogram_start_dim_y);
+      label = QString::number(
+        *it * 100, 'f', 1) + "%";
+      font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
+
+      p.drawText(
+        histogram_start_dim_x - font_x_offset,
+        (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
+          histogram_start_dim_y + font_y_offset, label);
+  }
+  p.drawLines(histogram_lines);
 }
 
 OLIVE_NAMESPACE_EXIT

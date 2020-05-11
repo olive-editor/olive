@@ -55,7 +55,7 @@ protected:
 
   OpenGLTexture& managed_tex();
 
-private:
+protected:
   void UploadTextureFromBuffer();
 
   OpenGLShaderPtr pipeline_;

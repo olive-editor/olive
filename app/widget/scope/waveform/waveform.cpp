@@ -76,12 +76,13 @@ void WaveformScope::DrawScope()
     waveform_start_dim_x, waveform_start_dim_y,
     waveform_end_dim_x, waveform_end_dim_y);
 
-  float waveform_start_uv_x = waveform_start_dim_x / width();
-  float waveform_start_uv_y = waveform_start_dim_y / height();
-  float waveform_end_uv_x = waveform_end_dim_x / width();
-  float waveform_end_uv_y = waveform_end_dim_y / height();
+  float waveform_start_uv_x = (waveform_start_dim_x - 1.0) / (width() - 1.0);
+  float waveform_start_uv_y = (waveform_start_dim_y - 1.0) / (height() - 1.0);
+  float waveform_end_uv_x = (waveform_end_dim_x - 1.0) / (width() - 1.0);
+  float waveform_end_uv_y = (waveform_end_dim_y - 1.0) / (height() - 1.0);
+
   pipeline()->setUniformValue(
-    "waveform_uv",
+    "waveform_region_uv",
     waveform_start_uv_x, waveform_start_uv_y,
     waveform_end_uv_x, waveform_end_uv_y);
 
