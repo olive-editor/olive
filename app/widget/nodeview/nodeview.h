@@ -61,6 +61,8 @@ public:
   void Select(const QList<Node*>& nodes);
   void SelectWithDependencies(QList<Node *> nodes);
 
+  void SelectBlocks(const QList<Block*>& blocks);
+
   void CopySelected(bool cut);
   void Paste();
 
@@ -98,6 +100,8 @@ private:
   void ReconnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
 
+  void UpdateBlockFilter();
+
   NodeGraph* graph_;
 
   struct AttachedItem {
@@ -112,7 +116,22 @@ private:
 
   NodeViewScene scene_;
 
+  QList<Block*> selected_blocks_;
+
+  enum FilterMode {
+    kFilterShowAll,
+    kFilterShowSelectedBlocks
+  };
+
+  FilterMode filter_mode_;
+
 private slots:
+  void AddNodes(const QList<Node*> node);
+  void AddNode(Node* node);
+  void AddEdge(NodeEdgePtr edge);
+
+  void ValidateFilter();
+
   /**
    * @brief Internal function triggered when any change is signalled from the QGraphicsScene
    *
@@ -154,6 +173,11 @@ private slots:
    * @brief Receiver that shows the filters dialog
    */
   void ContextMenuShowFiltersDialog();
+
+  /**
+   * @brief Receiver for the user changing the filter
+   */
+  void ContextMenuFilterChanged(QAction* action);
 
 };
 

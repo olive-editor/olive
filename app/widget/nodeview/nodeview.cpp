@@ -36,7 +36,8 @@ OLIVE_NAMESPACE_ENTER
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
   graph_(nullptr),
-  drop_edge_(nullptr)
+  drop_edge_(nullptr),
+  filter_mode_(kFilterShowSelectedBlocks)
 {
   setScene(&scene_);
   SetDefaultDragMode(RubberBandDrag);
@@ -65,9 +66,9 @@ void NodeView::SetGraph(NodeGraph *graph)
   }
 
   if (graph_ != nullptr) {
-    disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
+    disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
     disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    disconnect(graph_, &NodeGraph::EdgeAdded, &scene_, &NodeViewScene::AddEdge);
+    disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
     disconnect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
   }
 
@@ -80,16 +81,12 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
-    connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
+    connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
     connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    connect(graph_, &NodeGraph::EdgeAdded, &scene_, &NodeViewScene::AddEdge);
+    connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
     connect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
 
-    QList<Node*> graph_nodes = graph_->nodes();
-
-    foreach (Node* node, graph_nodes) {
-      scene_.AddNode(node);
-    }
+    AddNodes(graph_->nodes());
   }
 }
 
@@ -183,6 +180,25 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
   }
 
   Select(nodes);
+}
+
+void NodeView::SelectBlocks(const QList<Block *> &blocks)
+{
+  selected_blocks_ = blocks;
+
+  if (filter_mode_ == kFilterShowSelectedBlocks) {
+    UpdateBlockFilter();
+  }
+
+  QList<Node*> nodes;
+  nodes.reserve(blocks.size());
+
+  foreach (Block* b, blocks) {
+    nodes.append(b);
+    nodes.append(b->GetDependencies());
+  }
+
+  SelectWithDependencies(nodes);
 }
 
 void NodeView::CopySelected(bool cut)
@@ -460,11 +476,19 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     m.addSeparator();
 
     Menu* filter_menu = new Menu(tr("Filter"), &m);
+    m.addMenu(filter_menu);
 
-    filter_menu->addAction(tr("Show All"))->setData(NodeViewScene::kFilterShowAll);
-    filter_menu->addAction(tr("Show Selected Blocks Only"))->setData(NodeViewScene::kFilterShowSelectedBlocks);
+    filter_menu->AddActionWithData(tr("Show All"),
+                                   kFilterShowAll,
+                                   filter_mode_);
 
-    m.addSeparator();
+    filter_menu->AddActionWithData(tr("Show Selected Blocks Only"),
+                                   kFilterShowSelectedBlocks,
+                                   filter_mode_);
+
+    connect(filter_menu, &Menu::triggered, this, &NodeView::ContextMenuFilterChanged);
+
+
 
     Menu* direction_menu = new Menu(tr("Direction"), &m);
     m.addMenu(direction_menu);
@@ -553,6 +577,28 @@ void NodeView::ContextMenuShowFiltersDialog()
 {
   NodeViewFilterDialog fd(this);
   fd.exec();
+}
+
+void NodeView::ContextMenuFilterChanged(QAction *action)
+{
+  FilterMode filter = static_cast<FilterMode>(action->data().toInt());
+
+  if (filter_mode_ != filter) {
+    filter_mode_ = filter;
+
+    if (filter == kFilterShowAll) {
+      // Un-hide all blocks
+      foreach (NodeViewItem* item, scene_.item_map()) {
+        item->setVisible(true);
+      }
+
+      foreach (NodeViewEdge* edge, scene_.edge_map()) {
+        edge->setVisible(true);
+      }
+    }
+
+    ValidateFilter();
+  }
 }
 
 void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
@@ -749,6 +795,103 @@ void NodeView::ReconnectSelectionChangedSignal()
 void NodeView::DisconnectSelectionChangedSignal()
 {
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
+}
+
+void NodeView::UpdateBlockFilter()
+{
+  // Hide all nodes
+  foreach (NodeViewItem* item, scene_.item_map()) {
+    item->setVisible(false);
+  }
+
+  bool first = true;
+  QRectF last_rect;
+
+  QList<Node*> all_nodes;
+
+  foreach (Block* b, selected_blocks_) {
+    scene_.ReorganizeFrom(b);
+
+    QPointF node_pos = b->GetPosition();
+    QRectF anchor(node_pos, node_pos);
+
+    all_nodes.append(b);
+
+    QList<Node*> deps = b->GetDependencies();
+    all_nodes.append(deps);
+
+    // Show nodes that are block dependencies
+    scene_.NodeToUIObject(b)->setVisible(true);
+
+    foreach (Node* d, deps) {
+      QPointF dep_pos = d->GetPosition();
+
+      anchor.setLeft(qMin(anchor.left(), dep_pos.x()));
+      anchor.setRight(qMax(anchor.right(), dep_pos.x()));
+      anchor.setTop(qMin(anchor.top(), dep_pos.y()));
+      anchor.setBottom(qMax(anchor.bottom(), dep_pos.y()));
+
+      scene_.NodeToUIObject(d)->setVisible(true);
+    }
+
+    if (first) {
+      first = false;
+    } else {
+      QPointF desired_anchor_pos = last_rect.bottomRight() + QPointF(0, 2);
+
+      QPointF necessary_movement = anchor.topRight() - desired_anchor_pos;
+
+      b->SetPosition(b->GetPosition() - necessary_movement);
+      foreach (Node* d, deps) {
+        d->SetPosition(d->GetPosition() - necessary_movement);
+      }
+    }
+
+    last_rect = anchor;
+  }
+
+  // Show only edges between those dependencies
+  foreach (NodeViewEdge* edge, scene_.edge_map()) {
+    edge->setVisible((all_nodes.contains(edge->edge()->input()->parentNode())
+                      && all_nodes.contains(edge->edge()->output()->parentNode())));
+  }
+}
+
+void NodeView::AddNodes(const QList<Node *> node)
+{
+  foreach (Node* n, node) {
+    scene_.AddNode(n);
+  }
+
+  ValidateFilter();
+}
+
+void NodeView::AddNode(Node *node)
+{
+  scene_.AddNode(node);
+
+  ValidateFilter();
+}
+
+void NodeView::AddEdge(NodeEdgePtr edge)
+{
+  scene_.AddEdge(edge);
+
+  ValidateFilter();
+}
+
+void NodeView::ValidateFilter()
+{
+  // Force auto-positioning
+  switch (filter_mode_) {
+  case kFilterShowAll:
+    // NOTE: Assumes Sequence
+    scene_.ReorganizeFrom(static_cast<Sequence*>(graph_)->viewer_output());
+    break;
+  case kFilterShowSelectedBlocks:
+    UpdateBlockFilter();
+    break;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

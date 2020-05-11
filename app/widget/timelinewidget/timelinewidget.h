@@ -93,7 +93,7 @@ public:
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:
-  void SelectionChanged(const QList<Node*>& selected_blocks);
+  void SelectionChanged(const QList<Block*>& selected_blocks);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -452,6 +452,10 @@ private:
   void RippleEditTo(Timeline::MovementMode mode, bool insert_gaps);
 
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
+
+  void ConnectViewSelectionSignal(TimelineView* view);
+
+  void DisconnectViewSelectionSignal(TimelineView* view);
 
   QList<TimelineAndTrackView*> views_;
 

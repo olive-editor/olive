@@ -490,7 +490,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectWithDependencies);
+  connect(panel, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectBlocks);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_->video_renderer(), &VideoRenderBackend::CachedTimeReady, panel->ruler(), &TimeRuler::CacheTimeReady);

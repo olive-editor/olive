@@ -53,6 +53,8 @@ public slots:
   void Select(const QList<Node*>& nodes);
   void SelectWithDependencies(const QList<Node*>& nodes);
 
+  void SelectBlocks(const QList<Block*>& nodes);
+
 signals:
   /**
    * @brief Wrapper for NodeView::SelectionChanged()

@@ -80,13 +80,6 @@ public:
    */
   void ReorganizeFrom(Node* n);
 
-  enum FilterMode {
-    kFilterShowAll,
-    kFilterShowSelectedBlocks
-  };
-
-  void SetFilterMode(const FilterMode& f);
-
   bool GetEdgesAreCurved() const;
 
 public slots:
@@ -137,8 +130,6 @@ private:
   NodeGraph* graph_;
 
   NodeViewCommon::FlowDirection direction_;
-
-  FilterMode filter_mode_;
 
   bool curved_edges_;
 

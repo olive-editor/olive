@@ -124,7 +124,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragMoved, this, &TimelineWidget::ViewDragMoved);
     connect(view, &TimelineView::DragLeft, this, &TimelineWidget::ViewDragLeft);
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
-    connect(view, &TimelineView::SelectionChanged, this, &TimelineWidget::ViewSelectionChanged);
+    ConnectViewSelectionSignal(view);
 
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
 
@@ -156,11 +156,21 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::Clear()
 {
+  foreach (TimelineAndTrackView* tview, views_) {
+    DisconnectViewSelectionSignal(tview->view());
+  }
+
   QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
   for (iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
     delete iterator.value();
   }
   block_items_.clear();
+
+  foreach (TimelineAndTrackView* tview, views_) {
+    ConnectViewSelectionSignal(tview->view());
+  }
+
+  emit SelectionChanged(QList<Block*>());
 
   SetTimebase(0);
 }
@@ -359,15 +369,23 @@ rational TimelineWidget::GetToolTipTimebase() const
 void TimelineWidget::SelectAll()
 {
   foreach (TimelineAndTrackView* view, views_) {
+    DisconnectViewSelectionSignal(view->view());
     view->view()->SelectAll();
+    ConnectViewSelectionSignal(view->view());
   }
+
+  ViewSelectionChanged();
 }
 
 void TimelineWidget::DeselectAll()
 {
   foreach (TimelineAndTrackView* view, views_) {
+    DisconnectViewSelectionSignal(view->view());
     view->view()->DeselectAll();
+    ConnectViewSelectionSignal(view->view());
   }
+
+  emit SelectionChanged(QList<Block*>());
 }
 
 void TimelineWidget::RippleToIn()
@@ -884,6 +902,16 @@ TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
   return GetConnectedNode()->track_list(ref.type())->GetTrackAt(ref.index());
 }
 
+void TimelineWidget::ConnectViewSelectionSignal(TimelineView *view)
+{
+  connect(view, &TimelineView::SelectionChanged, this, &TimelineWidget::ViewSelectionChanged);
+}
+
+void TimelineWidget::DisconnectViewSelectionSignal(TimelineView *view)
+{
+  disconnect(view, &TimelineView::SelectionChanged, this, &TimelineWidget::ViewSelectionChanged);
+}
+
 int TimelineWidget::GetTrackY(const TrackReference &ref)
 {
   return views_.at(ref.type())->view()->GetTrackY(ref.index());
@@ -1058,7 +1086,7 @@ void TimelineWidget::ViewSelectionChanged()
   }
 
   QList<TimelineViewBlockItem*> selected_items = GetSelectedBlocks();
-  QList<Node*> selected_blocks;
+  QList<Block*> selected_blocks;
 
   foreach (TimelineViewBlockItem* item, selected_items) {
     selected_blocks.append(item->block());

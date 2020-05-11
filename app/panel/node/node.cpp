@@ -88,6 +88,11 @@ void NodePanel::SelectWithDependencies(const QList<Node *> &nodes)
   node_view_->SelectWithDependencies(nodes);
 }
 
+void NodePanel::SelectBlocks(const QList<Block *> &nodes)
+{
+  node_view_->SelectBlocks(nodes);
+}
+
 void NodePanel::Retranslate()
 {
   SetTitle(tr("Node Editor"));
