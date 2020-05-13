@@ -38,7 +38,7 @@ OLIVE_NAMESPACE_ENTER
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
-  operating_mode_(VideoRenderWorker::kHashRenderCache),
+  operating_mode_(VideoRenderWorker::kRenderOnly),
   only_signal_last_frame_requested_(true),
   limit_caching_(true),
   pop_toggle_(false),
