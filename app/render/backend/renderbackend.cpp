@@ -386,6 +386,11 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
         copied_graph_.TakeNode(n);
         delete n;
       }
+
+      // And clear any other edges
+      while (!our_copy->edges().isEmpty()) {
+        NodeParam::DisconnectEdge(our_copy->edges().first());
+      }
     }
 
     // Then we copy all node dependencies and connections (if there are any)
