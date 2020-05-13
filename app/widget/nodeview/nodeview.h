@@ -102,6 +102,9 @@ private:
 
   void UpdateBlockFilter();
 
+  void AssociateNodeWithSelectedBlocks(Node* n);
+  void DisassociateNode(Node* n, bool remove_from_map);
+
   NodeGraph* graph_;
 
   struct AttachedItem {
@@ -118,6 +121,10 @@ private:
 
   QList<Block*> selected_blocks_;
 
+  QHash<Node*, QList<Block*> > association_map_;
+
+  QHash<Block*, QList<Node*> > temporary_association_map_;
+
   enum FilterMode {
     kFilterShowAll,
     kFilterShowSelectedBlocks
@@ -126,11 +133,13 @@ private:
   FilterMode filter_mode_;
 
 private slots:
-  void AddNodes(const QList<Node*> node);
-  void AddNode(Node* node);
-  void AddEdge(NodeEdgePtr edge);
-
   void ValidateFilter();
+
+  void AssociatedNodeDestroyed();
+
+  void GraphEdgeAdded(NodeEdgePtr edge);
+
+  void GraphEdgeRemoved(NodeEdgePtr edge);
 
   /**
    * @brief Internal function triggered when any change is signalled from the QGraphicsScene
@@ -168,11 +177,6 @@ private slots:
    * @brief Receiver for labelling a node from the context menu
    */
   void ContextMenuLabelNode();
-
-  /**
-   * @brief Receiver that shows the filters dialog
-   */
-  void ContextMenuShowFiltersDialog();
 
   /**
    * @brief Receiver for the user changing the filter

@@ -26,7 +26,6 @@
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
-#include "nodeviewfilter.h"
 #include "widget/menu/menushared.h"
 
 #define super HandMovableView
@@ -44,6 +43,7 @@ NodeView::NodeView(QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
   setMouseTracking(true);
   setRenderHint(QPainter::Antialiasing);
+  setViewportUpdateMode(FullViewportUpdate);
 
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
@@ -51,6 +51,8 @@ NodeView::NodeView(QWidget *parent) :
   ConnectSelectionChangedSignal();
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
+
+  scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
 }
 
 NodeView::~NodeView()
@@ -66,10 +68,10 @@ void NodeView::SetGraph(NodeGraph *graph)
   }
 
   if (graph_ != nullptr) {
-    disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+    disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
-    disconnect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
+    disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
+    disconnect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
   }
 
   // Clear the scene of all UI objects
@@ -81,12 +83,16 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
-    connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+    connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
-    connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
-    connect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
+    connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
+    connect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
 
-    AddNodes(graph_->nodes());
+    foreach (Node* n, graph_->nodes()) {
+      scene_.AddNode(n);
+    }
+
+    ValidateFilter();
   }
 }
 
@@ -103,7 +109,9 @@ void NodeView::DeleteSelected()
 
     foreach (NodeEdge* edge, selected_edges) {
       new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
+      qDebug() << "Deleting edge between" << edge->output()->parentNode() << "and" << edge->input()->parentNode();
     }
+
   }
 
   {
@@ -184,6 +192,13 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::SelectBlocks(const QList<Block *> &blocks)
 {
+  // Remove temporary associations
+  foreach (Block* b, selected_blocks_) {
+    if (!blocks.contains(b)) {
+      temporary_association_map_.remove(b);
+    }
+  }
+
   selected_blocks_ = blocks;
 
   if (filter_mode_ == kFilterShowSelectedBlocks) {
@@ -199,6 +214,13 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
   }
 
   SelectWithDependencies(nodes);
+
+  if (!blocks.isEmpty()) {
+    NodeViewItem* item = scene_.NodeToUIObject(blocks.first());
+    if (item) {
+      centerOn(item);
+    }
+  }
 }
 
 void NodeView::CopySelected(bool cut)
@@ -294,7 +316,7 @@ void NodeView::ItemsChanged()
 {
   QHash<NodeEdge *, NodeViewEdge *>::const_iterator i;
 
-  for (i=scene_.edge_map().begin(); i!=scene_.edge_map().end(); i++) {
+  for (i=scene_.edge_map().constBegin(); i!=scene_.edge_map().constEnd(); i++) {
     i.value()->Adjust();
   }
 }
@@ -528,6 +550,10 @@ void NodeView::CreateNodeSlot(QAction *action)
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
+    // Associate this new node with these blocks (allows it to be visible with them even while it
+    // isn't connected to anything)
+    AssociateNodeWithSelectedBlocks(new_node);
+
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
 
     NodeViewItem* item = scene_.NodeToUIObject(new_node);
@@ -571,12 +597,6 @@ void NodeView::ContextMenuLabelNode()
   if (ok) {
     n->SetLabel(s);
   }
-}
-
-void NodeView::ContextMenuShowFiltersDialog()
-{
-  NodeViewFilterDialog fd(this);
-  fd.exec();
 }
 
 void NodeView::ContextMenuFilterChanged(QAction *action)
@@ -807,21 +827,17 @@ void NodeView::UpdateBlockFilter()
   bool first = true;
   QRectF last_rect;
 
-  QList<Node*> all_nodes;
+  QList<Node*> currently_visible;
 
   foreach (Block* b, selected_blocks_) {
+    // Auto-position this node's dependencies
     scene_.ReorganizeFrom(b);
 
+    // Start calculating the bounding rect of this node's deps
     QPointF node_pos = b->GetPosition();
     QRectF anchor(node_pos, node_pos);
 
-    all_nodes.append(b);
-
     QList<Node*> deps = b->GetDependencies();
-    all_nodes.append(deps);
-
-    // Show nodes that are block dependencies
-    scene_.NodeToUIObject(b)->setVisible(true);
 
     foreach (Node* d, deps) {
       QPointF dep_pos = d->GetPosition();
@@ -831,9 +847,13 @@ void NodeView::UpdateBlockFilter()
       anchor.setTop(qMin(anchor.top(), dep_pos.y()));
       anchor.setBottom(qMax(anchor.bottom(), dep_pos.y()));
 
-      scene_.NodeToUIObject(d)->setVisible(true);
+      NodeViewItem* item = scene_.NodeToUIObject(d);
+      if (item) {
+        item->setVisible(true);
+      }
     }
 
+    // Shift the bounding rect in relation to the other bounding rects
     if (first) {
       first = false;
     } else {
@@ -847,37 +867,53 @@ void NodeView::UpdateBlockFilter()
       }
     }
 
+    // Now that we're done calculating the bounding rect, add this block...
+    deps.append(b);
+
+    // ...then add its associations
+    deps.append(temporary_association_map_[b]);
+    QHash<Node*, QList<Block*> >::const_iterator i;
+    for (i=association_map_.begin(); i!=association_map_.end(); i++) {
+      if (i.value().contains(b)) {
+        deps.append(i.key());
+      }
+    }
+
+    // And make sure all nodes are shown
+    foreach (Node* n, deps) {
+      NodeViewItem* item = scene_.NodeToUIObject(n);
+      if (item) {
+        item->setVisible(true);
+      }
+    }
+
+    // And lastly, add them all to our currently visible list
+    currently_visible.append(deps);
+
+    // Cache this rect so we can calculate other rects
     last_rect = anchor;
   }
 
   // Show only edges between those dependencies
   foreach (NodeViewEdge* edge, scene_.edge_map()) {
-    edge->setVisible((all_nodes.contains(edge->edge()->input()->parentNode())
-                      && all_nodes.contains(edge->edge()->output()->parentNode())));
+    edge->setVisible((currently_visible.contains(edge->edge()->input()->parentNode())
+                      && currently_visible.contains(edge->edge()->output()->parentNode())));
   }
 }
 
-void NodeView::AddNodes(const QList<Node *> node)
+void NodeView::AssociateNodeWithSelectedBlocks(Node *n)
 {
-  foreach (Node* n, node) {
-    scene_.AddNode(n);
+  association_map_.insert(n, selected_blocks_);
+  connect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed, Qt::DirectConnection);
+}
+
+void NodeView::DisassociateNode(Node *n, bool remove_from_map)
+{
+  if (remove_from_map) {
+    association_map_.remove(n);
   }
 
-  ValidateFilter();
-}
-
-void NodeView::AddNode(Node *node)
-{
-  scene_.AddNode(node);
-
-  ValidateFilter();
-}
-
-void NodeView::AddEdge(NodeEdgePtr edge)
-{
-  scene_.AddEdge(edge);
-
-  ValidateFilter();
+  disconnect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed);
 }
 
 void NodeView::ValidateFilter()
@@ -891,6 +927,64 @@ void NodeView::ValidateFilter()
   case kFilterShowSelectedBlocks:
     UpdateBlockFilter();
     break;
+  }
+}
+
+void NodeView::AssociatedNodeDestroyed()
+{
+  DisassociateNode(static_cast<Node*>(sender()), true);
+}
+
+void NodeView::GraphEdgeAdded(NodeEdgePtr edge)
+{
+  Node* input_node = edge->input()->parentNode();
+
+  if (input_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
+    QHash<Node*, QList<Block*> >::const_iterator i = association_map_.begin();
+
+    while (i != association_map_.end()) {
+      if (input_node->InputsFrom(i.key(), true)) {
+        i = association_map_.erase(i);
+      } else {
+        i++;
+      }
+    }
+  }
+
+  scene_.AddEdge(edge);
+
+  ValidateFilter();
+}
+
+void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
+{
+  scene_.RemoveEdge(edge);
+
+  Node* output_node = edge->output()->parentNode();
+
+  // Check if this disconnected node still connects to a selected block, in which case do nothing
+  foreach (Block* b, selected_blocks_) {
+    if (output_node->OutputsTo(b, true)) {
+      return;
+    }
+  }
+
+  QList<Node*> disconnected_nodes;
+  disconnected_nodes.append(output_node);
+  disconnected_nodes.append(output_node->GetDependencies());
+
+  if (output_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
+    // Check if this disconnected node still has a path to the viewer somewhere else
+    foreach (Block* b, selected_blocks_) {
+      QList<Node*>& temp_assocs = temporary_association_map_[b];
+
+      temp_assocs.append(disconnected_nodes);
+    }
+  } else {
+    // Otherwise, we must associate these nodes
+    foreach (Node* n, disconnected_nodes) {
+      AssociateNodeWithSelectedBlocks(n);
+    }
   }
 }
 
