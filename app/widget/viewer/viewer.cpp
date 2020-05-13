@@ -375,7 +375,9 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   if (FrameExistsAtTime(time)) {
     QString frame_fn = GetCachedFilenameFromTime(time);
 
-    if (!frame_fn.isEmpty()) {
+    if (frame_fn.isEmpty()) {
+      video_renderer_->RenderFrame(time);
+    } else {
       FramePtr f = DecodeCachedImage(frame_fn);
       SetDisplayImage(f, false);
     }
@@ -1037,7 +1039,8 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::InvalidateVisible(NodeInput* source)
 {
-  video_renderer_->InvalidateVisible(TimeRange(GetTime(), GetTime()), source);
+  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()), source);
+  video_renderer_->RenderFrame(GetTime());
 }
 
 OLIVE_NAMESPACE_EXIT

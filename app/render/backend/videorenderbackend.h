@@ -74,6 +74,8 @@ public:
 
   const VideoRenderingParams& params() const;
 
+  void RenderFrame(const rational& time);
+
 protected:
   struct HashTimeMapping {
     rational time;
@@ -99,11 +101,9 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible) override;
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
 
   virtual void ParamsChangedEvent(){}
-
-  virtual void WorkerAboutToStartEvent(RenderWorker* worker) override;
 
   VideoRenderWorker::OperatingMode operating_mode_;
 
@@ -121,8 +121,6 @@ private:
 
   bool SetFrameHash(const NodeDependency& dep, const QByteArray& hash, const qint64& job_time);
 
-  void Requeue();
-
   VideoRenderingParams params_;
 
   VideoRenderFrameCache frame_cache_;
@@ -134,10 +132,6 @@ private:
   bool only_signal_last_frame_requested_;
 
   bool limit_caching_;
-
-  bool pop_toggle_;
-
-  bool queue_is_visible_only_;
 
 private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);

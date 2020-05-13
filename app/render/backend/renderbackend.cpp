@@ -292,14 +292,24 @@ void RenderBackend::CancelQueue()
   cancel_dialog_->RunIfWorkersAreBusy();
 }
 
-void RenderBackend::InvalidateVisible(const TimeRange &range, NodeInput *from)
-{
-  InvalidateCacheVeryInternal(range, from, true);
-}
-
 void RenderBackend::InvalidateCache(const TimeRange &range, NodeInput *from)
 {
-  InvalidateCacheVeryInternal(range, from, false);
+  // Adjust range to min/max values
+  rational start_range_adj = qMax(rational(0), range.in());
+  rational end_range_adj = qMin(GetSequenceLength(), range.out());
+
+  qDebug() << "Cache invalidated between"
+           << start_range_adj.toDouble()
+           << "and"
+           << end_range_adj.toDouble();
+
+  if (from) {
+    // Queue value update
+    qDebug() << "  from" << from->parentNode()->id() << "::" << from->id();
+    QueueValueUpdate(from);
+  }
+
+  InvalidateCacheInternal(start_range_adj, end_range_adj);
 }
 
 bool RenderBackend::ViewerIsConnected() const
@@ -339,26 +349,6 @@ bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
 void RenderBackend::SetWorkerBusyState(RenderWorker *worker, bool busy)
 {
   processor_busy_state_.replace(processors_.indexOf(worker), busy);
-}
-
-void RenderBackend::InvalidateCacheVeryInternal(const TimeRange &range, NodeInput *from, bool only_visible)
-{
-  // Adjust range to min/max values
-  rational start_range_adj = qMax(rational(0), range.in());
-  rational end_range_adj = qMin(GetSequenceLength(), range.out());
-
-  qDebug() << "Cache invalidated between"
-           << start_range_adj.toDouble()
-           << "and"
-           << end_range_adj.toDouble();
-
-  if (from) {
-    // Queue value update
-    qDebug() << "  from" << from->parentNode()->id() << "::" << from->id();
-    QueueValueUpdate(from);
-  }
-
-  InvalidateCacheInternal(start_range_adj, end_range_adj, only_visible);
 }
 
 void RenderBackend::CopyNodeInputValue(NodeInput *input)
@@ -463,10 +453,8 @@ const QVector<QThread *> &RenderBackend::threads()
   return threads_;
 }
 
-void RenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible)
+void RenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
 {
-  Q_UNUSED(only_visible)
-
   // Add the range to the list
   cache_queue_.InsertTimeRange(TimeRange(start_range, end_range));
 

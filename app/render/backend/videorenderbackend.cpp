@@ -40,9 +40,7 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
   operating_mode_(VideoRenderWorker::kRenderOnly),
   only_signal_last_frame_requested_(true),
-  limit_caching_(true),
-  pop_toggle_(false),
-  queue_is_visible_only_(false)
+  limit_caching_(true)
 {
   connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
@@ -153,47 +151,22 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
   connect(video_processor, &VideoRenderWorker::GeneratedFrame, this, &VideoRenderBackend::ThreadGeneratedFrame, Qt::QueuedConnection);
 }
 
-void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible)
+void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
 {
   TimeRange invalidated(start_range, end_range);
 
-  invalidated_.InsertTimeRange(invalidated);
+  if (limit_caching_) {
+    invalidated_.InsertTimeRange(invalidated);
+  } else {
+    RenderBackend::InvalidateCacheInternal(start_range, end_range);
+  }
 
   emit RangeInvalidated(invalidated);
-
-  queue_is_visible_only_ = only_visible;
-
-  if (only_visible) {
-
-    // We're only caching this frame, and for maximum responsiveness, should cancel the rest of the
-    // queue
-    cache_queue_.clear();
-    cache_queue_.InsertTimeRange(TimeRange(start_range, end_range));
-
-    CacheNext();
-
-  } else {
-
-    // Rework the queue
-    Requeue();
-
-  }
 }
 
-void VideoRenderBackend::WorkerAboutToStartEvent(RenderWorker *worker)
+void VideoRenderBackend::RenderFrame(const rational &time)
 {
-  if (operating_mode_ & VideoRenderWorker::kDownloadOnly) {
-    int mode = operating_mode_;
-
-    if (queue_is_visible_only_) {
-      mode &= ~VideoRenderWorker::kDownloadOnly;
-    } else {
-      mode |= VideoRenderWorker::kDownloadOnly;
-    }
-
-    static_cast<VideoRenderWorker*>(worker)->
-        SetOperatingMode(static_cast<VideoRenderWorker::OperatingMode>(mode));
-  }
+  RenderBackend::InvalidateCacheInternal(time, time);
 }
 
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
@@ -234,11 +207,7 @@ QString VideoRenderBackend::GetCachedFrame(const rational &time)
 
 void VideoRenderBackend::UpdateLastRequestedTime(const rational &time)
 {
-  if (last_time_requested_ != time) {
-    last_time_requested_ = time;
-
-    Requeue();
-  }
+  last_time_requested_ = time;
 }
 
 NodeInput *VideoRenderBackend::GetDependentInput()
@@ -253,40 +222,27 @@ bool VideoRenderBackend::CanRender()
 
 TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 {
-  // Try to find the frame that's closest to the last time requested (the playhead)
-  rational earliest_allowed_time = (pop_toggle_) ? 0 : last_time_requested_;
-  pop_toggle_ = !pop_toggle_;
+  rational earliest_frame = RATIONAL_MAX;
 
-  // Set up playhead frame range to see if the queue contains this frame precisely
-  TimeRange test_range(earliest_allowed_time, earliest_allowed_time + params_.time_base());
-
-  // Use this variable to find the closest frame in the range
-  rational closest_time = RATIONAL_MAX;
-
-  foreach (const TimeRange& range_here, cache_queue_) {
-    if (range_here.OverlapsWith(test_range, false, false)) {
-      closest_time = RATIONAL_MAX;
-      break;
-    }
-
-    if (range_here.in() >= earliest_allowed_time) {
-      rational frame_here = Timecode::snap_time_to_timebase(range_here.in(), params_.time_base());
-
-      if (frame_here > range_here.in()) {
-        frame_here = qMax(rational(), frame_here - params_.time_base());
-      }
-
-      closest_time = qMin(closest_time, frame_here);
+  // Find earliest frame in the cache queue
+  foreach (const TimeRange& range, cache_queue_) {
+    if (range.in() < earliest_frame) {
+      earliest_frame = range.in();
     }
   }
 
-  TimeRange frame_range;
+  // Snap this frame to the timebase
+  rational snapped_frame = Timecode::snap_time_to_timebase(earliest_frame, params_.time_base());
+  rational next_frame;
 
-  if (closest_time == RATIONAL_MAX) {
-    frame_range = test_range;
+  if (snapped_frame > earliest_frame) {
+    next_frame = snapped_frame;
+    snapped_frame -= params_.time_base();
   } else {
-    frame_range = TimeRange(closest_time, closest_time + params_.time_base());
+    next_frame = snapped_frame + params_.time_base();
   }
+
+  TimeRange frame_range(snapped_frame, next_frame);
 
   // Remove this particular frame from the queue
   cache_queue_.RemoveTimeRange(frame_range);
@@ -358,9 +314,6 @@ void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
   if (last_time_requested_ >= length) {
     emit CachedTimeReady(last_time_requested_, QDateTime::currentMSecsSinceEpoch());
   }
-
-  // Adjust queue for new invalidated range
-  Requeue();
 }
 
 void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
@@ -396,25 +349,6 @@ bool VideoRenderBackend::SetFrameHash(const NodeDependency &dep, const QByteArra
   }
 
   return false;
-}
-
-void VideoRenderBackend::Requeue()
-{
-  if (limit_caching_) {
-
-    // Reset queue around the last time requested
-    TimeRange queueable_range(last_time_requested_ - Config::Current()["DiskCacheBehind"].value<rational>(),
-                              last_time_requested_ + Config::Current()["DiskCacheAhead"].value<rational>());
-
-    cache_queue_ = invalidated_.Intersects(queueable_range);
-
-  } else {
-
-    cache_queue_ = invalidated_;
-
-  }
-
-  CacheNext();
 }
 
 OLIVE_NAMESPACE_EXIT
