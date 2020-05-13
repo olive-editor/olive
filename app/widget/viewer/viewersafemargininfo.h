@@ -21,6 +21,8 @@
 #ifndef VIEWERSAFEMARGININFO_H
 #define VIEWERSAFEMARGININFO_H
 
+#include <QtMath>
+
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -51,6 +53,14 @@ public:
   double ratio() const
   {
     return ratio_;
+  }
+
+  bool operator==(const ViewerSafeMarginInfo& rhs) const {
+    return (enabled_ == rhs.enabled_ && qFuzzyCompare(ratio_, rhs.ratio_));
+  }
+
+  bool operator!=(const ViewerSafeMarginInfo& rhs) const {
+    return (enabled_ != rhs.enabled_ || !qFuzzyCompare(ratio_, rhs.ratio_));
   }
 
 private:

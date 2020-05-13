@@ -97,16 +97,20 @@ const ViewerSafeMarginInfo &ViewerDisplayWidget::GetSafeMargin() const
 
 void ViewerDisplayWidget::SetSafeMargins(const ViewerSafeMarginInfo &safe_margin)
 {
-  safe_margin_ = safe_margin;
+  if (safe_margin_ != safe_margin) {
+    safe_margin_ = safe_margin;
 
-  update();
+    update();
+  }
 }
 
 void ViewerDisplayWidget::SetGizmos(Node *node)
 {
-  gizmos_ = node;
+  if (gizmos_ != node) {
+    gizmos_ = node;
 
-  update();
+    update();
+  }
 }
 
 void ViewerDisplayWidget::SetVideoParams(const VideoRenderingParams &params)
