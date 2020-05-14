@@ -33,8 +33,6 @@
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
-#include "render/backend/opengl/opengltexture.h"
-#include "render/backend/audio/audiobackend.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -87,9 +85,13 @@ public:
 
   void ForceUpdate();
 
-  VideoRenderBackend* video_renderer() const;
+  RenderBackend* renderer() const {
+    return renderer_;
+  }
 
-  ColorManager* color_manager() const;
+  ColorManager* color_manager() const {
+    return display_widget_->color_manager();
+  }
 
   void SetGizmos(Node* node);
 
@@ -153,8 +155,7 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  OpenGLBackend* video_renderer_;
-  AudioBackend* audio_renderer_;
+  RenderBackend* renderer_;
 
   PlaybackControls* controls_;
 

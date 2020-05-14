@@ -22,7 +22,6 @@
 
 #include <QtConcurrent/QtConcurrent>
 
-#include "render/backend/audio/audiobackend.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/colormanager.h"
 #include "render/pixelformat.h"
@@ -36,8 +35,7 @@ Exporter::Exporter(ViewerOutput *viewer_node,
   QObject(parent),
   viewer_node_(viewer_node),
   params_(params),
-  video_backend_(nullptr),
-  audio_backend_(nullptr),
+  renderer_(nullptr),
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
@@ -54,7 +52,7 @@ Exporter::Exporter(ViewerOutput *viewer_node,
   if (params_.has_custom_range()) {
     export_range_ = params_.custom_range();
   } else {
-    export_range_ = TimeRange(0, viewer_node_->Length());
+    export_range_ = TimeRange(0, viewer_node_->GetLength());
   }
 
   if (params_.video_enabled()) {
@@ -87,18 +85,10 @@ const QString &Exporter::GetExportError() const
 
 void Exporter::Cancel()
 {
-  if (video_backend_) {
-    video_backend_->CancelQueue();
-    video_backend_->Close();
-    video_backend_->deleteLater();
-    video_backend_ = nullptr;
-  }
-
-  if (audio_backend_) {
-    audio_backend_->CancelQueue();
-    audio_backend_->Close();
-    audio_backend_->deleteLater();
-    audio_backend_ = nullptr;
+  if (renderer_) {
+    renderer_->CancelQueue();
+    renderer_->deleteLater();
+    renderer_ = nullptr;
   }
 
   SetExportMessage(tr("User cancelled export"));
@@ -111,25 +101,18 @@ void Exporter::StartExporting()
   export_status_ = false;
 
   // Create renderers
-  if (!video_done_) {
-    video_backend_ = new OpenGLBackend();
+  renderer_ = new OpenGLBackend();
+  renderer_->SetViewerNode(viewer_node_);
 
-    video_backend_->SetLimitCaching(false);
-    video_backend_->SetViewerNode(viewer_node_);
-    video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
-                                                       viewer_node_->video_params().height(),
-                                                       params_.video_params().time_base(),
-                                                       params_.video_params().format(),
-                                                       params_.video_params().mode()));
+  if (!video_done_) {
+    renderer_->SetPixelFormat(params_.video_params().format());
+    renderer_->SetMode(params_.video_params().mode());
 
     waiting_for_frame_ = 0;
   }
 
   if (!audio_done_) {
-    audio_backend_ = new AudioBackend();
-
-    audio_backend_->SetViewerNode(viewer_node_);
-    audio_backend_->SetParameters(params_.audio_params());
+    renderer_->SetSampleFormat(params_.audio_params().format());
   }
 
   // Open encoder and wait for result
@@ -153,10 +136,9 @@ void Exporter::ExportSucceeded()
     return;
   }
 
-  if (video_backend_) {
-    video_backend_->Close();
-    video_backend_->deleteLater();
-    video_backend_ = nullptr;
+  if (renderer_) {
+    renderer_->deleteLater();
+    renderer_ = nullptr;
   }
 
   export_status_ = true;
@@ -189,10 +171,10 @@ void Exporter::EncodeFrame()
     waiting_for_frame_ += params_.video_params().time_base();
 
     // Calculate progress
-    emit ProgressChanged(waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble());
+    emit ProgressChanged(waiting_for_frame_.toDouble() / viewer_node_->GetLength().toDouble());
   }
 
-  if (waiting_for_frame_ >= viewer_node_->Length()) {
+  if (waiting_for_frame_ >= viewer_node_->GetLength()) {
     video_done_ = true;
     debug_timer_.stop();
 
@@ -261,6 +243,7 @@ void Exporter::FrameRendered(FramePtr frame)
 
 void Exporter::AudioRendered()
 {
+  /*
   // Retrieve the audio filename
   QString cache_fn = audio_backend_->CachePathName();
 
@@ -270,11 +253,7 @@ void Exporter::AudioRendered()
                             OLIVE_NS_ARG(AudioRenderingParams, audio_backend_->params()),
                             Q_ARG(const QString&, cache_fn),
                             OLIVE_NS_ARG(TimeRange, export_range_));
-
-  // We don't need the audio backend anymorea
-  audio_backend_->Close();
-  audio_backend_->deleteLater();
-  audio_backend_ = nullptr;
+                            */
 }
 
 void Exporter::AudioEncodeComplete()
@@ -286,6 +265,7 @@ void Exporter::AudioEncodeComplete()
 
 void Exporter::EncoderOpenedSuccessfully()
 {
+  /*
   // Invalidate caches
   if (!video_done_) {
     // First we generate the hashes so we know exactly how many frames we need
@@ -301,6 +281,7 @@ void Exporter::EncoderOpenedSuccessfully()
 
     audio_backend_->InvalidateCache(export_range_, nullptr);
   }
+  */
 }
 
 void Exporter::EncoderOpenFailed()
@@ -317,12 +298,13 @@ void Exporter::EncoderClosed()
 
 void Exporter::VideoHashesComplete()
 {
+  /*
   // We've got our hashes, time to kick off actual rendering
   disconnect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
 
   // Determine what frames will be hashed
   TimeRangeList ranges;
-  ranges.append(TimeRange(0, viewer_node_->Length()));
+  ranges.append(TimeRange(0, viewer_node_->GetLength()));
 
   // Set video backend to render mode but NOT hash or download
   video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
@@ -347,6 +329,7 @@ void Exporter::VideoHashesComplete()
   foreach (const TimeRange& range, ranges) {
     video_backend_->InvalidateCache(range, nullptr);
   }
+  */
 }
 
 void Exporter::DebugTimerMessage()
@@ -356,7 +339,7 @@ void Exporter::DebugTimerMessage()
 
 void Exporter::FrameColorFinished()
 {
-  if (!video_backend_ && !audio_backend_) {
+  if (!renderer_) {
     return;
   }
 
@@ -366,7 +349,7 @@ void Exporter::FrameColorFinished()
 
   debug_timer_.stop();
 
-  const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
+  const QMap<rational, QByteArray>& time_hash_map = viewer_node_->video_frame_cache()->time_hash_map();
 
   QByteArray this_hash = time_hash_map.value(frame->timestamp());
 

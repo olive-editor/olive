@@ -42,7 +42,7 @@ extern "C" {
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
-#include "render/backend/videorenderframecache.h"
+#include "render/framehashcache.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 
@@ -662,7 +662,7 @@ void SaveCacheFrame(FFmpegDecoder* decoder,
             &converted_linesize);
   scaler_lock.unlock();
 
-  if (!VideoRenderFrameCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params)) {
+  if (!FrameHashCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params)) {
     qCritical() <<" Failed to save cache frame" << dst_fn;
   }
 
@@ -1286,7 +1286,7 @@ QString FFmpegDecoder::GetProxyFrameFilename(const int64_t &timestamp, const int
 {
   QString dst_fn = GetProxyFilename(divider);
   dst_fn.append(QString::number(timestamp));
-  dst_fn.append(VideoRenderFrameCache::GetFormatExtension(native_pix_fmt_));
+  dst_fn.append(FrameHashCache::GetFormatExtension(native_pix_fmt_));
   return dst_fn;
 }
 

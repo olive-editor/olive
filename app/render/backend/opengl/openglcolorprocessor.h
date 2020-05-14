@@ -22,6 +22,7 @@
 #define OPENGLCOLORPROCESSOR_H
 
 #include "openglshader.h"
+#include "render/backend/rendercache.h"
 #include "render/colorprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -61,6 +62,8 @@ private slots:
   void ClearTexture();
 
 };
+
+using OpenGLColorProcessorCache = RenderCache<QString, OpenGLColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
 

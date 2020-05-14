@@ -18,35 +18,55 @@
 
 ***/
 
-#ifndef AUDIOBACKEND_H
-#define AUDIOBACKEND_H
+#ifndef PLAYBACKCACHE_H
+#define PLAYBACKCACHE_H
 
-#include <QFile>
+#include <QObject>
 
-#include "../audiorenderbackend.h"
+#include "common/timerange.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class AudioBackend : public AudioRenderBackend
+class PlaybackCache : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  AudioBackend(QObject* parent = nullptr);
+  PlaybackCache();
 
-  virtual ~AudioBackend() override;
+  void Invalidate(const TimeRange& r);
+
+  void SetLength(const rational& r);
+
+  bool IsFullyValidated() const;
+
+  const TimeRangeList& GetInvalidatedRanges() const
+  {
+    return invalidated_;
+  }
+
+signals:
+  void Invalidated(const TimeRange& r);
+
+  void Validated(const TimeRange& r);
+
+  void LengthChanged(const rational& r);
 
 protected:
-  virtual bool InitInternal() override;
+  void Validate(const TimeRange& r);
 
-  virtual void CloseInternal() override;
+  void InvalidateAll();
 
-  virtual void ConnectWorkerToThis(RenderWorker* worker) override;
+  virtual void LengthChangedEvent(const rational& old, const rational& newlen);
 
-private slots:
-  void ThreadCompletedCache(NodeDependency dep, NodeValueTable data, qint64 job_time);
+  virtual void InvalidateEvent(const TimeRange& range);
+
+private:
+  TimeRangeList invalidated_;
+
+  rational length_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // AUDIOBACKEND_H
+#endif // PLAYBACKCACHE_H

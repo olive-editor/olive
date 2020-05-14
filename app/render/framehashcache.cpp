@@ -18,7 +18,7 @@
 
 ***/
 
-#include "videorenderframecache.h"
+#include "framehashcache.h"
 
 #include <OpenEXR/ImfFloatAttribute.h>
 #include <OpenEXR/ImfInputFile.h>
@@ -33,80 +33,24 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void VideoRenderFrameCache::Clear()
-{
-  time_hash_map_.clear();
-
-  {
-    QMutexLocker locker(&currently_caching_lock_);
-    currently_caching_list_.clear();
-  }
-
-  cache_id_.clear();
-}
-
-bool VideoRenderFrameCache::HasHash(const QByteArray &hash, const PixelFormat::Format& format)
-{
-  return QFileInfo::exists(CachePathName(hash, format)) && !IsCaching(hash);
-}
-
-bool VideoRenderFrameCache::IsCaching(const QByteArray &hash)
-{
-  QMutexLocker locker(&currently_caching_lock_);
-
-  return currently_caching_list_.contains(hash);
-}
-
-bool VideoRenderFrameCache::TryCache(const QByteArray &hash)
-{
-  QMutexLocker locker(&currently_caching_lock_);
-
-  if (!currently_caching_list_.contains(hash)) {
-    currently_caching_list_.append(hash);
-    return true;
-  }
-
-  return false;
-}
-
-void VideoRenderFrameCache::SetCacheID(const QString &id)
-{
-  Clear();
-
-  cache_id_ = id;
-}
-
-QByteArray VideoRenderFrameCache::TimeToHash(const rational &time) const
+QByteArray FrameHashCache::GetHash(const rational &time) const
 {
   return time_hash_map_.value(time);
 }
 
-void VideoRenderFrameCache::SetHash(const rational &time, const QByteArray &hash)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash)
 {
   time_hash_map_.insert(time, hash);
+
+  Validate(TimeRange(time, time + timebase_));
 }
 
-void VideoRenderFrameCache::Truncate(const rational &time)
+void FrameHashCache::SetTimebase(const rational &tb)
 {
-  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
-
-  while (i != time_hash_map_.end()) {
-    if (i.key() >= time) {
-      i = time_hash_map_.erase(i);
-    } else {
-      i++;
-    }
-  }
+  timebase_ = tb;
 }
 
-void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &hash)
-{
-  QMutexLocker locker(&currently_caching_lock_);
-
-  currently_caching_list_.removeOne(hash);
-}
-
-QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash) const
+QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash) const
 {
   QList<rational> times;
 
@@ -121,7 +65,7 @@ QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash) co
   return times;
 }
 
-QList<rational> VideoRenderFrameCache::TakeFramesWithHash(const QByteArray &hash)
+QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
@@ -140,12 +84,12 @@ QList<rational> VideoRenderFrameCache::TakeFramesWithHash(const QByteArray &hash
   return times;
 }
 
-const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
+const QMap<rational, QByteArray> &FrameHashCache::time_hash_map() const
 {
   return time_hash_map_;
 }
 
-QString VideoRenderFrameCache::GetFormatExtension(const PixelFormat::Format &f)
+QString FrameHashCache::GetFormatExtension(const PixelFormat::Format &f)
 {
   if (PixelFormat::FormatIsFloat(f)) {
     // EXR is only fast with float buffers so we only use it for those
@@ -160,9 +104,9 @@ QString VideoRenderFrameCache::GetFormatExtension(const PixelFormat::Format &f)
   }
 }
 
-void VideoRenderFrameCache::SaveCacheFrame(const QByteArray& hash,
-                                           char* data,
-                                           const VideoRenderingParams& vparam) const
+void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
+                                    char* data,
+                                    const VideoRenderingParams& vparam)
 {
   QString fn = CachePathName(hash, vparam.format());
 
@@ -172,7 +116,35 @@ void VideoRenderFrameCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-QString VideoRenderFrameCache::CachePathName(const QByteArray& hash, const PixelFormat::Format& pix_fmt) const
+void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
+{
+  if (newlen < old) {
+    QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+
+    while (i != time_hash_map_.end()) {
+      if (i.key() >= newlen) {
+        i = time_hash_map_.erase(i);
+      } else {
+        i++;
+      }
+    }
+  }
+}
+
+void FrameHashCache::InvalidateEvent(const TimeRange &r)
+{
+  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+
+  while (i != time_hash_map_.end()) {
+    if (i.key() >= r.in() && i.key() < r.out()) {
+      i = time_hash_map_.erase(i);
+    } else {
+      i++;
+    }
+  }
+}
+
+QString FrameHashCache::CachePathName(const QByteArray& hash, const PixelFormat::Format& pix_fmt)
 {
   QString ext = GetFormatExtension(pix_fmt);
 
@@ -184,7 +156,7 @@ QString VideoRenderFrameCache::CachePathName(const QByteArray& hash, const Pixel
   return cache_dir.filePath(filename);
 }
 
-bool VideoRenderFrameCache::SaveCacheFrame(const QString &filename, char *data, const VideoRenderingParams &vparam)
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoRenderingParams &vparam)
 {
   switch (vparam.format()) {
   case PixelFormat::PIX_FMT_RGB8:

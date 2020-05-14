@@ -18,47 +18,41 @@
 
 ***/
 
-#include "dependency.h"
+#ifndef AUDIOPLAYBACKCACHE_H
+#define AUDIOPLAYBACKCACHE_H
 
-#include "node.h"
+#include "common/timerange.h"
+#include "codec/samplebuffer.h"
+#include "render/playbackcache.h"
 
 OLIVE_NAMESPACE_ENTER
 
-NodeDependency::NodeDependency() :
-  node_(nullptr)
+class AudioPlaybackCache : public PlaybackCache
 {
-}
+  Q_OBJECT
+public:
+  AudioPlaybackCache();
 
-NodeDependency::NodeDependency(const Node *node, const TimeRange &range) :
-  node_(node),
-  range_(range)
-{
-}
+  const AudioRenderingParams& GetParameters() const {
+    return params_;
+  }
 
-NodeDependency::NodeDependency(const Node *node, const rational &in, const rational &out) :
-  node_(node),
-  range_(in, out)
-{
-}
+  void SetParameters(const AudioRenderingParams& params);
 
-const Node *NodeDependency::node() const
-{
-  return node_;
-}
+  void WritePCM(SampleBufferPtr samples);
 
-const rational& NodeDependency::in() const
-{
-  return range_.in();
-}
+  const QString& GetCacheFilename() const;
 
-const rational &NodeDependency::out() const
-{
-  return range_.out();
-}
+signals:
+  void ParametersChanged();
 
-const TimeRange &NodeDependency::range() const
-{
-  return range_;
-}
+private:
+  QString filename_;
+
+  AudioRenderingParams params_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // AUDIOPLAYBACKCACHE_H

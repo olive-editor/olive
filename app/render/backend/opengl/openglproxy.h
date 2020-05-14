@@ -24,7 +24,9 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-#include "../videorenderworker.h"
+#include "common/timerange.h"
+#include "node/value.h"
+#include "openglcolorprocessor.h"
 #include "openglframebuffer.h"
 #include "openglshadercache.h"
 #include "opengltexturecache.h"
@@ -81,7 +83,7 @@ private:
 
   OpenGLFramebuffer buffer_;
 
-  ColorProcessorCache color_cache_;
+  OpenGLColorProcessorCache color_cache_;
 
   VideoRenderingParams video_params_;
 

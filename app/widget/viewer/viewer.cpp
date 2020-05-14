@@ -100,14 +100,14 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetScale(48.0);
 
   // Start background renderers
-  video_renderer_ = new OpenGLBackend(this);
-  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
-  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
-  connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
-  connect(video_renderer_, &VideoRenderBackend::GeneratedFrame, this, &ViewerWidget::RendererGeneratedFrame);
-  audio_renderer_ = new AudioBackend(this);
+  renderer_ = new OpenGLBackend(this);
+  /*
+  connect(renderer_, &RenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
+  connect(renderer_, &RenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
+  connect(renderer_, &RenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
+  connect(renderer_, &RenderBackend::GeneratedFrame, this, &ViewerWidget::RendererGeneratedFrame);
+  */
 
-  waveform_view_->SetBackend(audio_renderer_);
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
@@ -161,11 +161,10 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-  connect(n, &ViewerOutput::VideoChangedBetween, this, &ViewerWidget::UpdateStack);
-  connect(n, &ViewerOutput::AudioChangedBetween, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
-  LengthChangedSlot(n->Length());
+  LengthChangedSlot(n->GetLength());
 
   ColorManager* using_manager;
   if (override_color_manager_) {
@@ -189,6 +188,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   UpdateStack();
 
   if (GetConnectedTimelinePoints()) {
+    waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
     waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
   }
 }
@@ -204,8 +204,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-  disconnect(n, &ViewerOutput::VideoChangedBetween, this, &ViewerWidget::UpdateStack);
-  disconnect(n, &ViewerOutput::AudioChangedBetween, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
@@ -215,13 +214,13 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
     window->display_widget()->DisconnectColorManager();
   }
 
+  waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
-  video_renderer_->SetViewerNode(n);
-  audio_renderer_->SetViewerNode(n);
+  renderer_->SetViewerNode(n);
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
@@ -332,16 +331,6 @@ void ViewerWidget::ForceUpdate()
   UpdateTextureFromNode(GetTime());
 }
 
-VideoRenderBackend *ViewerWidget::video_renderer() const
-{
-  return video_renderer_;
-}
-
-ColorManager *ViewerWidget::color_manager() const
-{
-  return display_widget_->color_manager();
-}
-
 void ViewerWidget::SetGizmos(Node *node)
 {
   display_widget_->SetTimeTarget(GetConnectedNode());
@@ -376,14 +365,14 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     QString frame_fn = GetCachedFilenameFromTime(time);
 
     if (frame_fn.isEmpty()) {
-      video_renderer_->RenderFrame(time);
+      // FIXME: Connect QFutureWatcher to this
+      renderer_->RenderFrame(time);
     } else {
       FramePtr f = DecodeCachedImage(frame_fn);
       SetDisplayImage(f, false);
     }
   } else {
     SetDisplayImage(nullptr, false);
-    video_renderer_->UpdateLastRequestedTime(time);
   }
 }
 
@@ -399,11 +388,11 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  QString audio_fn = audio_renderer_->CachePathName();
+  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
   if (!audio_fn.isEmpty()) {
-    AudioManager::instance()->SetOutputParams(audio_renderer_->params());
+    AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
     AudioManager::instance()->StartOutput(audio_fn,
-                                          audio_renderer_->params().time_to_bytes(GetTime()),
+                                          GetConnectedNode()->audio_playback_cache()->GetParameters().time_to_bytes(GetTime()),
                                           playback_speed_);
   }
 
@@ -433,17 +422,19 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    QString audio_fn = audio_renderer_->CachePathName();
+    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
     QFile audio_src(audio_fn);
 
     if (audio_src.open(QFile::ReadOnly)) {
+      const AudioRenderingParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+
       // FIXME: Hardcoded scrubbing interval (20ms)
-      int size_of_sample = audio_renderer_->params().time_to_bytes(rational(20, 1000));
+      int size_of_sample = params.time_to_bytes(rational(20, 1000));
 
       // Push audio
-      audio_src.seek(audio_renderer_->params().time_to_bytes(GetTime()));
+      audio_src.seek(params.time_to_bytes(GetTime()));
       QByteArray frame_audio = audio_src.read(size_of_sample);
-      AudioManager::instance()->SetOutputParams(audio_renderer_->params());
+      AudioManager::instance()->SetOutputParams(params);
       AudioManager::instance()->PushToOutput(frame_audio);
 
       audio_src.close();
@@ -469,11 +460,11 @@ void ViewerWidget::UpdateMinimumScale()
     return;
   }
 
-  if (GetConnectedNode()->Length().isNull()) {
+  if (GetConnectedNode()->GetLength().isNull()) {
     // Avoids divide by zero
     SetMinimumScale(0);
   } else {
-    SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->Length().toDouble());
+    SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->GetLength().toDouble());
   }
 }
 
@@ -526,7 +517,10 @@ void ViewerWidget::FillPlaybackQueue()
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
-    return video_renderer_->GetCachedFrame(time);
+    QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
+    return GetConnectedNode()->video_frame_cache()->CachePathName(
+          hash,
+          PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
   } else {
     return QString();
   }
@@ -534,7 +528,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode() && time < GetConnectedNode()->Length();
+  return GetConnectedNode() && time < GetConnectedNode()->GetLength();
 }
 
 FramePtr ViewerWidget::DecodeCachedImage(const QString &fn)
@@ -683,25 +677,13 @@ void ViewerWidget::UpdateRendererParameters()
 
   RenderMode::Mode render_mode = RenderMode::kOffline;
 
-  VideoRenderingParams vparam(GetConnectedNode()->video_params(),
-                              PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
-                              render_mode,
-                              divider_);
+  renderer_->SetDivider(divider_);
+  renderer_->SetMode(render_mode);
+  renderer_->SetPixelFormat(PixelFormat::instance()->GetConfiguredFormatForMode(render_mode));
 
-  if (video_renderer_->params() != vparam) {
-    video_renderer_->SetParameters(vparam);
-    video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
-  }
+  display_widget_->SetVideoParams(GetConnectedNode()->video_params());
 
-  display_widget_->SetVideoParams(vparam);
-
-  AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
-                              SampleFormat::kInternalFormat);
-
-  if (audio_renderer_->params() != aparam) {
-    audio_renderer_->SetParameters(aparam);
-    audio_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()), nullptr);
-  }
+  renderer_->SetSampleFormat(SampleFormat::kInternalFormat);
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
@@ -925,7 +907,7 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
   controls_->SetTimebase(timebase);
 
   controls_->SetTime(ruler()->GetTime());
-  LengthChangedSlot(GetConnectedNode() ? GetConnectedNode()->Length() : 0);
+  LengthChangedSlot(GetConnectedNode() ? GetConnectedNode()->GetLength() : 0);
 }
 
 void ViewerWidget::PlaybackTimerUpdate()
@@ -947,7 +929,7 @@ void ViewerWidget::PlaybackTimerUpdate()
 
       // Otherwise set the bounds to the range of the sequence
       min_time = 0;
-      max_time = Timecode::time_to_timestamp(GetConnectedNode()->Length(), timebase());
+      max_time = Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase());
 
     }
   }
@@ -1039,8 +1021,10 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::InvalidateVisible(NodeInput* source)
 {
-  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()), source);
-  video_renderer_->RenderFrame(GetTime());
+  /*
+  renderer_->NodeGraphChanged(source);
+  renderer_->RenderFrame(GetTime());
+  */
 }
 
 OLIVE_NAMESPACE_EXIT

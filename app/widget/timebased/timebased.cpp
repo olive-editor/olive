@@ -103,7 +103,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
 void TimeBasedWidget::UpdateMaximumScroll()
 {
-  rational length = (viewer_node_) ? viewer_node_->Length() : rational();
+  rational length = (viewer_node_) ? viewer_node_->GetLength() : rational();
 
   if (auto_max_scrollbar_) {
     scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
@@ -244,7 +244,7 @@ void TimeBasedWidget::GoToPrevCut()
 
   int64_t closest_cut = 0;
 
-  foreach (TrackOutput* track, viewer_node_->Tracks()) {
+  foreach (TrackOutput* track, viewer_node_->GetTracks()) {
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
@@ -271,7 +271,7 @@ void TimeBasedWidget::GoToNextCut()
 
   int64_t closest_cut = INT64_MAX;
 
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= GetTimestamp()) {
@@ -319,7 +319,7 @@ void TimeBasedWidget::NextFrame()
 void TimeBasedWidget::GoToEnd()
 {
   if (viewer_node_) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(viewer_node_->Length(), timebase()));
+    SetTimeAndSignal(Timecode::time_to_timestamp(viewer_node_->GetLength(), timebase()));
   }
 }
 
@@ -462,7 +462,7 @@ void TimeBasedWidget::ToggleShowAll()
     w = w / 10 * 9;
 
     toggle_show_all_old_scale_ = GetScale();
-    SetScale(w / GetConnectedNode()->Length().toDouble());
+    SetScale(w / GetConnectedNode()->GetLength().toDouble());
     toggle_show_all_ = true;
   }
 }

@@ -31,28 +31,28 @@ OLIVE_NAMESPACE_ENTER
 
 AudioWaveformView::AudioWaveformView(QWidget *parent) :
   SeekableWidget(parent),
-  backend_(nullptr)
+  playback_(nullptr)
 {
   setAutoFillBackground(true);
   setBackgroundRole(QPalette::Base);
 }
 
-void AudioWaveformView::SetBackend(AudioRenderBackend *backend)
+void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
 {
-  if (backend_) {
-    disconnect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
-    disconnect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
+  if (playback_) {
+    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(0);
   }
 
-  backend_ = backend;
+  playback_ = playback;
 
-  if (backend_) {
-    connect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
-    connect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
+  if (playback_) {
+    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
-    SetTimebase(backend_->params().time_base());
+    SetTimebase(playback_->GetParameters().time_base());
   }
 
   ForceUpdate();
@@ -113,11 +113,13 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
-  if (!backend_ || backend_->CachePathName().isEmpty() || !backend_->params().is_valid()) {
+  const AudioRenderingParams& params = playback_->GetParameters();
+
+  if (!playback_
+      || playback_->GetCacheFilename().isEmpty()
+      || !params.is_valid()) {
     return;
   }
-
-  const AudioRenderingParams& params = backend_->params();
 
   if (cached_size_ != size()
       || cached_scale_ != GetScale()
@@ -126,7 +128,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     cached_waveform_ = QPixmap(size());
     cached_waveform_.fill(Qt::transparent);
 
-    QFile fs(backend_->CachePathName());
+    QFile fs(playback_->GetCacheFilename());
 
     if (fs.open(QFile::ReadOnly)) {
 
@@ -207,12 +209,12 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 
 void AudioWaveformView::BackendParamsChanged()
 {
-  SetTimebase(backend_->params().time_base());
+  SetTimebase(playback_->GetParameters().time_base());
 }
 
 void AudioWaveformView::ForceUpdate()
 {
-  cached_size_  = QSize();
+  cached_size_ = QSize();
   update();
 }
 

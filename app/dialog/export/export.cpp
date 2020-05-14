@@ -228,11 +228,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 
-  // Update renderer
-  // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
-  //        the renderer save the map as some sort of file that this can load.
-  preview_viewer_->video_renderer()->InvalidateCache(TimeRange(0, viewer_node_->Length()), nullptr);
-
   progress_timer_.setInterval(1000);
   connect(&progress_timer_, &QTimer::timeout, this, &ExportDialog::UpdateTimeLabels);
 }
@@ -585,7 +580,7 @@ ExportParams ExportDialog::GenerateParams() const
 
   ExportParams params;
   params.SetFilename(filename_edit_->text());
-  params.SetExportLength(viewer_node_->Length());
+  params.SetExportLength(viewer_node_->GetLength());
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
     params.set_video_scaling_method(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));

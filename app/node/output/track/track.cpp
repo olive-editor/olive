@@ -55,7 +55,7 @@ void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
   track_type_ = track_type;
 }
 
-const Timeline::TrackType& TrackOutput::track_type()
+const Timeline::TrackType& TrackOutput::track_type() const
 {
   return track_type_;
 }

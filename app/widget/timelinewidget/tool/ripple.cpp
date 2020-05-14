@@ -118,7 +118,7 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (TrackOutput* track, parent()->GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, parent()->GetConnectedNode()->GetTracks()) {
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 

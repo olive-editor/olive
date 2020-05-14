@@ -379,7 +379,7 @@ void Core::DialogExportShow()
   TimeBasedPanel* latest_time_based = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
   if (latest_time_based && latest_time_based->GetConnectedViewer()) {
-    if (latest_time_based->GetConnectedViewer()->Length() == 0) {
+    if (latest_time_based->GetConnectedViewer()->GetLength() == 0) {
       QMessageBox::critical(main_window_,
                             tr("Error"),
                             tr("This Sequence is empty. There is nothing to export."),
@@ -525,7 +525,6 @@ void Core::ProjectWasModified(bool e)
 
 void Core::DeclareTypesForQt()
 {
-  qRegisterMetaType<NodeDependency>();
   qRegisterMetaType<rational>();
   qRegisterMetaType<OpenGLTexturePtr>();
   qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();

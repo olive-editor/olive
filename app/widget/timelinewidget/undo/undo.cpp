@@ -727,7 +727,7 @@ void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal()
 
     QList<Block*> blocks_around_range;
 
-    foreach (TrackOutput* track, timeline_->Tracks()) {
+    foreach (TrackOutput* track, timeline_->GetTracks()) {
       // Get the block from every other track that is either at or just before our block's in point
       Block* block_at_time = track->NearestBlockBeforeOrAt(range.in());
 

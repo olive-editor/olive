@@ -113,7 +113,7 @@ void ViewerDisplayWidget::SetGizmos(Node *node)
   }
 }
 
-void ViewerDisplayWidget::SetVideoParams(const VideoRenderingParams &params)
+void ViewerDisplayWidget::SetVideoParams(const VideoParams &params)
 {
   gizmo_params_ = params;
 

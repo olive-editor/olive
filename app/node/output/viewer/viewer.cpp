@@ -55,6 +55,8 @@ ViewerOutput::ViewerOutput()
 
   // Create UUID for this node
   uuid_ = QUuid::createUuid();
+
+  connect(this, &ViewerOutput::LengthChanged, &video_frame_cache_, &FrameHashCache::SetLength);
 }
 
 Node *ViewerOutput::copy() const
@@ -82,22 +84,16 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-NodeInput *ViewerOutput::texture_input() const
-{
-  return texture_input_;
-}
-
-NodeInput *ViewerOutput::samples_input() const
-{
-  return samples_input_;
-}
-
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   if (from == texture_input()) {
-    emit VideoChangedBetween(range, source);
+    emit GraphChangedFrom(from, source);
+
+    video_frame_cache_.Invalidate(range);
   } else if (from == samples_input()) {
-    emit AudioChangedBetween(range, source);
+    emit GraphChangedFrom(from, source);
+
+    audio_playback_cache_.Invalidate(range);
   }
 
   Node::InvalidateCache(range, from, source);
@@ -112,16 +108,6 @@ void ViewerOutput::InvalidateVisible(NodeInput* from, NodeInput *source)
   Node::InvalidateVisible(from, source);
 }
 
-const VideoParams &ViewerOutput::video_params() const
-{
-  return video_params_;
-}
-
-const AudioParams &ViewerOutput::audio_params() const
-{
-  return audio_params_;
-}
-
 void ViewerOutput::set_video_params(const VideoParams &video)
 {
   video_params_ = video;
@@ -134,32 +120,29 @@ void ViewerOutput::set_video_params(const VideoParams &video)
 void ViewerOutput::set_audio_params(const AudioParams &audio)
 {
   audio_params_ = audio;
+
+  emit AudioParamsChanged();
 }
 
-rational ViewerOutput::Length()
+rational ViewerOutput::GetLength()
 {
   NodeTraverser traverser;
 
   rational video_length;
 
   if (texture_input_->IsConnected()) {
-    NodeValueTable t = traverser.ProcessNode(NodeDependency(texture_input_->get_connected_node(), 0, 0));
+    NodeValueTable t = traverser.GenerateTable(texture_input_->get_connected_node(), 0, 0);
     video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
   rational audio_length;
 
   if (samples_input_->IsConnected()) {
-    NodeValueTable t = traverser.ProcessNode(NodeDependency(samples_input_->get_connected_node(), 0, 0));
+    NodeValueTable t = traverser.GenerateTable(samples_input_->get_connected_node(), 0, 0);
     audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
   return qMax(video_length, qMax(audio_length, timeline_length_));
-}
-
-const QUuid &ViewerOutput::uuid() const
-{
-  return uuid_;
 }
 
 void ViewerOutput::UpdateTrackCache()
@@ -231,31 +214,11 @@ void ViewerOutput::Retranslate()
   }
 }
 
-const QString &ViewerOutput::media_name() const
-{
-  return media_name_;
-}
-
 void ViewerOutput::set_media_name(const QString &name)
 {
   media_name_ = name;
 
   emit MediaNameChanged(media_name_);
-}
-
-const QVector<TrackOutput *>& ViewerOutput::Tracks() const
-{
-  return track_cache_;
-}
-
-NodeInput *ViewerOutput::track_input(Timeline::TrackType type) const
-{
-  return track_inputs_.at(type);
-}
-
-TrackList *ViewerOutput::track_list(Timeline::TrackType type) const
-{
-  return track_lists_.at(type);
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)

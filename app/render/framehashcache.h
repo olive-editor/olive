@@ -24,47 +24,29 @@
 #include <QMutex>
 
 #include "common/rational.h"
+#include "common/timerange.h"
 #include "render/pixelformat.h"
+#include "render/playbackcache.h"
 #include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class VideoRenderFrameCache
+class FrameHashCache : public PlaybackCache
 {
+  Q_OBJECT
 public:
-  VideoRenderFrameCache() = default;
+  FrameHashCache() = default;
 
-  void Clear();
-
-  /**
-   * @brief Return whether a frame with this hash already exists
-   */
-  bool HasHash(const QByteArray& hash, const PixelFormat::Format &format);
-
-  /**
-   * @brief Return whether a frame is currently being cached
-   */
-  bool IsCaching(const QByteArray& hash);
-
-  /**
-   * @brief Check if a frame is currently being cached, and if not reserve it
-   */
-  bool TryCache(const QByteArray& hash);
-
-  void SetCacheID(const QString& id);
-
-  QByteArray TimeToHash(const rational& time) const;
+  QByteArray GetHash(const rational& time) const;
 
   void SetHash(const rational& time, const QByteArray& hash);
 
-  void Truncate(const rational& time);
-
-  void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
+  void SetTimebase(const rational& tb);
 
   /**
    * @brief Returns a list of frames that use a particular hash
    */
-  QList<rational> FramesWithHash(const QByteArray& hash) const;
+  QList<rational> GetFramesWithHash(const QByteArray& hash) const;
 
   /**
    * @brief Same as FramesWithHash() but also removes these frames from the map
@@ -73,23 +55,26 @@ public:
 
   const QMap<rational, QByteArray>& time_hash_map() const;
 
-  static QString GetFormatExtension(const PixelFormat::Format& f);
-
   /**
    * @brief Return the path of the cached image at this time
    */
-  QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const;
+  static QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt);
 
   static bool SaveCacheFrame(const QString& filename, char *data, const VideoRenderingParams &vparam);
-  void SaveCacheFrame(const QByteArray& hash, char *data, const VideoRenderingParams &vparam) const;
+  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoRenderingParams &vparam);
+
+  static QString GetFormatExtension(const PixelFormat::Format& f);
+
+protected:
+  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
+
+  virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
   QMap<rational, QByteArray> time_hash_map_;
 
-  QMutex currently_caching_lock_;
-  QVector<QByteArray> currently_caching_list_;
+  rational timebase_;
 
-  QString cache_id_;
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -47,8 +47,6 @@ public:
 
   void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
 
-  VideoRenderBackend* video_renderer() const;
-
   void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
 
   /**

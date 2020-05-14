@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QThread>
 
+#include "config/config.h"
 #include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -30,331 +31,409 @@ OLIVE_NAMESPACE_ENTER
 
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
-  started_(false),
   viewer_node_(nullptr),
-  copied_viewer_node_(nullptr)
+  divider_(1),
+  render_mode_(RenderMode::kOnline),
+  pix_fmt_(PixelFormat::PIX_FMT_RGBA32F),
+  sample_fmt_(SampleFormat::SAMPLE_FMT_FLT)
 {
   // FIXME: Don't create in CLI mode
   cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
 }
 
-bool RenderBackend::Init()
+void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 {
-  if (started_) {
-    return true;
-  }
-
-  threads_.resize(QThread::idealThreadCount());
-
-  for (int i=0;i<threads_.size();i++) {
-    QThread* thread = new QThread(this);
-    threads_.replace(i, thread);
-
-    // We use low priority to keep the app responsive at all times (GUI thread should always prioritize over this one)
-    thread->start(QThread::IdlePriority);
-  }
-
-  cancel_dialog_->SetWorkerCount(threads_.size());
-
-  started_ = InitInternal();
-
-  // Connects workers and moves them to their respective threads
-  InitWorkers();
-
-  if (!started_) {
-    Close();
-  }
-
-  return started_;
-}
-
-void RenderBackend::Close()
-{
-  if (!started_) {
+  if (viewer_node_ == viewer_node) {
     return;
   }
 
-  started_ = false;
-
-  CancelQueue();
-
-  SetViewerNode(nullptr);
-
-  CloseInternal();
-
-  for (int i=0;i<processors_.size();i++) {
-    // Invoke close and quit signals on processor and thread
-    QMetaObject::invokeMethod(processors_.at(i),
-                              "Close",
-                              Qt::QueuedConnection);
-
-    threads_.at(i)->quit();
-  }
-
-  for (int i=0;i<processors_.size();i++) {
-    threads_.at(i)->wait(); // FIXME: Maximum time in case a thread is stuck?
-    delete threads_.at(i);
-    delete processors_.at(i);
-  }
-
-  threads_.clear();
-  processors_.clear();
-}
-
-const QString &RenderBackend::GetError() const
-{
-  return error_;
-}
-
-void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
-{
   if (viewer_node_) {
+    // Clear queue and wait for any currently running actions to complete
     CancelQueue();
 
-    DisconnectViewer(viewer_node_);
+    // Delete all of our copied nodes
+    video_copy_map_.Clear();
+    audio_copy_map_.Clear();
 
-    copied_graph_.Clear();
-    copied_viewer_node_ = nullptr;
-    node_copy_map_.clear();
+    disconnect(viewer_node_,
+               &ViewerOutput::GraphChangedFrom,
+               this,
+               &RenderBackend::NodeGraphChanged);
+
+    disconnect(viewer_node_->audio_playback_cache(),
+               &AudioPlaybackCache::Invalidated,
+               this,
+               &RenderBackend::AudioCallback);
   }
 
+  // Set viewer node
   viewer_node_ = viewer_node;
 
   if (viewer_node_) {
-    ConnectViewer(viewer_node_);
+    // Start copying viewer
+    video_copy_map_.Init(viewer_node_);
+    audio_copy_map_.Init(viewer_node_);
 
-    RegenerateCacheID();
+    video_copy_map_.Queue(viewer_node_->texture_input());
+    audio_copy_map_.Queue(viewer_node_->samples_input());
 
-    copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
-    copied_graph_.AddNode(copied_viewer_node_);
-    node_copy_map_.insert(viewer_node_, copied_viewer_node_);
+    video_copy_map_.ProcessQueue();
+    audio_copy_map_.ProcessQueue();
 
-    InvalidateCache(TimeRange(0, RATIONAL_MAX),
-                    static_cast<NodeInput*>(viewer_node_->GetInputWithID(GetDependentInput()->id())));
+    connect(viewer_node_,
+            &ViewerOutput::GraphChangedFrom,
+            this,
+            &RenderBackend::NodeGraphChanged);
+
+    connect(viewer_node_->audio_playback_cache(),
+            &AudioPlaybackCache::Invalidated,
+            this,
+            &RenderBackend::AudioCallback);
   }
-}
-
-bool RenderBackend::IsInitiated()
-{
-  return started_;
-}
-
-void RenderBackend::RegenerateCacheID()
-{
-  QCryptographicHash hash(QCryptographicHash::Sha1);
-
-  if (!viewer_node_
-      || !GenerateCacheIDInternal(hash)) {
-    cache_id_.clear();
-    CacheIDChangedEvent(QString());
-    return;
-  }
-
-  hash.addData(viewer_node_->uuid().toByteArray());
-
-  QByteArray bytes = hash.result();
-  cache_id_ = bytes.toHex();
-  CacheIDChangedEvent(cache_id_);
-}
-
-bool RenderBackend::InitInternal()
-{
-  return true;
-}
-
-void RenderBackend::CloseInternal()
-{
-}
-
-bool RenderBackend::CanRender()
-{
-  return true;
-}
-
-TimeRange RenderBackend::PopNextFrameFromQueue()
-{
-  return cache_queue_.takeFirst();
-}
-
-rational RenderBackend::GetSequenceLength()
-{
-  if (viewer_node_ == nullptr) {
-    return 0;
-  }
-
-  return viewer_node_->Length();
-}
-
-void RenderBackend::SetError(const QString &error)
-{
-  error_ = error;
-}
-
-void RenderBackend::ConnectViewer(ViewerOutput *node)
-{
-  Q_UNUSED(node)
-}
-
-void RenderBackend::DisconnectViewer(ViewerOutput *node)
-{
-  Q_UNUSED(node)
-}
-
-void RenderBackend::CacheNext()
-{
-  if (cache_queue_.isEmpty()) {
-    if (AllProcessorsAreAvailable()) {
-      emit QueueComplete();
-    }
-
-    return;
-  }
-
-  if (!ViewerIsConnected()
-      || !CanRender()
-      || !Init()) {
-    return;
-  }
-
-  while (!input_update_queued_.isEmpty()) {
-    if (!AllProcessorsAreAvailable()) {
-      // To update the inputs, we need all workers to stop
-      return;
-    }
-
-    CopyNodeInputValue(input_update_queued_.takeFirst());
-  }
-
-  Node* node_connected_to_viewer = GetDependentInput()->get_connected_node();
-
-  if (!node_connected_to_viewer) {
-    return;
-  }
-
-  foreach (RenderWorker* worker, processors_) {
-    if (cache_queue_.isEmpty()) {
-      break;
-    }
-
-    if (!WorkerIsBusy(worker)) {
-      TimeRange cache_frame = PopNextFrameFromQueue();
-
-      NodeDependency dep = NodeDependency(node_connected_to_viewer,
-                                          cache_frame);
-
-      // Timestamp this render job
-      qint64 job_time = QDateTime::currentMSecsSinceEpoch();
-
-      // Ensure the job's time is unique (since that's the whole point)
-      // NOTE: This value will be 0 if it doesn't exist, which will never be the result of currentMSecsSinceEpoch so we
-      //       can safely assume 0 means it doesn't exist.
-      qint64 existing_job_time = render_job_info_.value(cache_frame);
-
-      if (existing_job_time == job_time) {
-        job_time = existing_job_time + 1;
-      }
-
-      render_job_info_.insert(cache_frame, job_time);
-
-      SetWorkerBusyState(worker, true);
-      cancel_dialog_->WorkerStarted();
-
-      WorkerAboutToStartEvent(worker);
-
-      QMetaObject::invokeMethod(worker,
-                                "Render",
-                                Qt::QueuedConnection,
-                                OLIVE_NS_ARG(NodeDependency, dep),
-                                Q_ARG(qint64, job_time));
-    }
-  }
-}
-
-ViewerOutput *RenderBackend::viewer_node() const
-{
-  return copied_viewer_node_;
 }
 
 void RenderBackend::CancelQueue()
 {
-  cache_queue_.clear();
+  // FIXME: Implement something better than this...
+  video_copy_map_.thread_pool()->waitForDone();
+  audio_copy_map_.thread_pool()->waitForDone();
+}
 
-  int busy = 0;
-  for (int i=0;i<processor_busy_state_.size();i++) {
-    if (processor_busy_state_.at(i))
-      busy++;
+QByteArray HashInternal(Node *node,
+                        const VideoRenderingParams &params,
+                        const rational &time)
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  // Embed video parameters into this hash
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+  hasher.addData(reinterpret_cast<const char*>(&params.mode()), sizeof(RenderMode::Mode));
+
+  node->Hash(hasher, time);
+
+  return hasher.result();
+}
+
+QFuture<QByteArray> RenderBackend::Hash(const rational &time)
+{
+  if (!viewer_node_) {
+    return QFuture<QByteArray>();
   }
 
-  if (busy) {
-    qDebug() << this << "is waiting for" << busy << "busy workers";
+  return QtConcurrent::run(video_copy_map_.thread_pool(),
+                           HashInternal,
+                           viewer_node_,
+                           video_params(),
+                           time);
+}
+
+QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time)
+{
+  if (!viewer_node_) {
+    return QFuture<FramePtr>();
   }
 
-  cancel_dialog_->RunIfWorkersAreBusy();
+  return QtConcurrent::run(video_copy_map_.thread_pool(),
+                           this,
+                           &RenderBackend::RenderFrameInternal,
+                           time);
 }
 
-void RenderBackend::InvalidateCache(const TimeRange &range, NodeInput *from)
+void RenderBackend::SetDivider(const int &divider)
 {
-  // Adjust range to min/max values
-  rational start_range_adj = qMax(rational(0), range.in());
-  rational end_range_adj = qMin(GetSequenceLength(), range.out());
+  divider_ = divider;
+}
 
-  qDebug() << "Cache invalidated between"
-           << start_range_adj.toDouble()
-           << "and"
-           << end_range_adj.toDouble();
+void RenderBackend::SetMode(const RenderMode::Mode &mode)
+{
+  render_mode_ = mode;
+}
 
-  if (from) {
-    // Queue value update
-    qDebug() << "  from" << from->parentNode()->id() << "::" << from->id();
-    QueueValueUpdate(from);
+void RenderBackend::SetPixelFormat(const PixelFormat::Format &pix_fmt)
+{
+  pix_fmt_ = pix_fmt;
+}
+
+void RenderBackend::SetSampleFormat(const SampleFormat::Format &sample_fmt)
+{
+  sample_fmt_ = sample_fmt;
+}
+
+void RenderBackend::NodeGraphChanged(NodeInput *from, NodeInput *source)
+{
+  if (from == viewer_node_->texture_input()) {
+    video_copy_map_.Queue(source);
+  } else if (from == viewer_node_->samples_input()) {
+    audio_copy_map_.Queue(source);
+  }
+}
+
+void RenderBackend::FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable *table) const
+{
+  if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+
+    ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+    rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time.in();
+    QString colorspace_match = video_stream->get_colorspace_match_string();
+
+    NodeValue value;
+    bool found_cache = false;
+
+    if (still_image_cache_.Has(stream.get())) {
+      CachedStill cs = still_image_cache_.Get(stream.get());
+
+      if (cs.colorspace == colorspace_match
+          && cs.alpha_is_associated == video_stream->premultiplied_alpha()
+          && cs.divider == video_params_.divider()
+          && cs.time == time_match) {
+        value = cs.texture;
+        found_cache = true;
+      } else {
+        still_image_cache_.Remove(stream.get());
+      }
+    }
+
+    if (!found_cache) {
+
+      value = GetDataFromStream(stream, input_time);
+
+      still_image_cache_.Add(stream.get(), {value,
+                                            colorspace_match,
+                                            video_stream->premultiplied_alpha(),
+                                            video_params_.divider(),
+                                            time_match});
+
+    }
+
+    table->Push(value);
+
+  } else if (stream->type() != Stream::kAudio) {
+
+    NodeValue value = GetDataFromStream(stream, input_time);
+
+    table->Push(value);
+
+  }
+}
+
+NodeValueTable RenderBackend::GenerateBlockTable(const TrackOutput *track, const TimeRange &range) const
+{
+  if (track->track_type() == Timeline::kTrackTypeAudio) {
+
+    QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
+
+    // All these blocks will need to output to a buffer so we create one here
+    SampleBufferPtr block_range_buffer = SampleBuffer::CreateAllocated(audio_params_,
+                                                                       audio_params_.time_to_samples(range.length()));
+    block_range_buffer->fill(0);
+
+    NodeValueTable merged_table;
+
+    // Loop through active blocks retrieving their audio
+    foreach (Block* b, active_blocks) {
+      TimeRange range_for_block(qMax(b->in(), range.in()),
+                                qMin(b->out(), range.out()));
+
+      int destination_offset = audio_params_.time_to_samples(range_for_block.in() - range.in());
+      int max_dest_sz = audio_params_.time_to_samples(range_for_block.length());
+
+      // Destination buffer
+      NodeValueTable table = ProcessNode(NodeDependency(b, range_for_block));
+      QVariant sample_val = table.Take(NodeParam::kSamples);
+      SampleBufferPtr samples_from_this_block;
+
+      if (sample_val.isNull()
+          || !(samples_from_this_block = sample_val.value<SampleBufferPtr>())) {
+        // If we retrieved no samples from this block, do nothing
+        continue;
+      }
+
+      // Stretch samples here
+      rational abs_speed = qAbs(b->speed());
+
+      if (abs_speed != 1) {
+        samples_from_this_block->speed(abs_speed.toDouble());
+      }
+
+      if (b->is_reversed()) {
+        // Reverse the audio buffer
+        samples_from_this_block->reverse();
+      }
+
+      int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count_per_channel());
+
+      // Copy samples into destination buffer
+      block_range_buffer->set(samples_from_this_block->const_data(), destination_offset, copy_length);
+
+      {
+        // Save waveform to file
+        Block* src_block = static_cast<Block*>(copy_map_->key(b));
+        QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
+        QDir waveform_loc = local_appdata_dir.filePath(QStringLiteral("waveform"));
+        waveform_loc.mkpath(".");
+        QString wave_fn(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(src_block))));
+        QFile wave_file(wave_fn);
+
+        if (wave_file.open(QFile::ReadWrite)) {
+          // We use S32 as a size-compatible substitute for SampleSummer::Sum which is 4 bytes in size
+          AudioRenderingParams waveform_params(SampleSummer::kSumSampleRate, audio_params_.channel_layout(), SampleFormat::SAMPLE_FMT_S32);
+          int chunk_size = (audio_params().sample_rate() / waveform_params.sample_rate());
+
+          {
+            // Write metadata header
+            SampleSummer::Info info;
+            info.channels = audio_params_.channel_count();
+            wave_file.write(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
+          }
+
+          qint64 start_offset = sizeof(SampleSummer::Info) + waveform_params.time_to_bytes(range_for_block.in() - b->in());
+          qint64 length_offset = waveform_params.time_to_bytes(range_for_block.length());
+          qint64 end_offset = start_offset + length_offset;
+
+          if (wave_file.size() < end_offset) {
+            wave_file.resize(end_offset);
+          }
+
+          wave_file.seek(start_offset);
+
+          for (int i=0;i<samples_from_this_block->sample_count_per_channel();i+=chunk_size) {
+            QVector<SampleSummer::Sum> summary = SampleSummer::SumSamples(samples_from_this_block,
+                                                                          i,
+                                                                          qMin(chunk_size, samples_from_this_block->sample_count_per_channel() - i));
+
+            wave_file.write(reinterpret_cast<const char*>(summary.constData()),
+                            summary.size() * sizeof(SampleSummer::Sum));
+          }
+
+          wave_file.close();
+
+          if (src_block->type() == Block::kClip) {
+            emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
+          }
+        }
+      }
+
+      NodeValueTable::Merge({merged_table, table});
+    }
+
+    merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer));
+
+    return merged_table;
+
+  } else {
+    return NodeTraverser::GenerateBlockTable(track, range);
+  }
+}
+
+FramePtr RenderBackend::RenderFrameInternal(const rational &time) const
+{
+  NodeValueTable table = GenerateTable(viewer_node_,
+                                       TimeRange(time, time + viewer_node_->video_params().time_base()));
+
+  QVariant texture = table.Get(NodeParam::kTexture);
+
+  FramePtr frame = Frame::Create();
+  frame->set_video_params(video_params());
+  frame->allocate();
+
+  if (texture.isNull()) {
+    memset(frame->data(), 0, frame->allocated_size());
+  } else {
+    TextureToFrame(texture, frame);
   }
 
-  InvalidateCacheInternal(start_range_adj, end_range_adj);
+  return frame;
 }
 
-bool RenderBackend::ViewerIsConnected() const
+VideoRenderingParams RenderBackend::video_params() const
 {
-  return viewer_node_;
+  return VideoRenderingParams(viewer_node_->video_params(),
+                              pix_fmt_,
+                              render_mode_,
+                              divider_);
 }
 
-const QString &RenderBackend::cache_id() const
+void RenderBackend::AudioCallback()
 {
-  return cache_id_;
+  qDebug() << "STUB";
+  /*
+  AudioPlaybackCache* pb_cache = viewer_node_->audio_playback_cache();
+  QThreadPool* thread_pool = audio_copy_map_.thread_pool();
+
+  while (!pb_cache->IsFullyValidated()
+         && thread_pool->activeThreadCount() < thread_pool->maxThreadCount()) {
+    // FIXME: Trigger a background audio thread
+    TimeRange r = viewer_node_->audio_playback_cache()->GetInvalidatedRanges().first();
+
+    qDebug() << "FIXME: Start rendering audio at:" << r;
+
+    break;
+  }
+  */
 }
 
-void RenderBackend::QueueValueUpdate(NodeInput* from)
+bool RenderBackend::ConformWaitInfo::operator==(const RenderBackend::ConformWaitInfo &rhs) const
 {
-  if (!input_update_queued_.isEmpty()) {
+  return rhs.stream == stream
+      && rhs.stream_time == stream_time
+      && rhs.affected_range == affected_range;
+}
+
+RenderBackend::CopyMap::CopyMap() :
+  original_viewer_(nullptr),
+  copied_viewer_(nullptr)
+{
+}
+
+void RenderBackend::CopyMap::Init(ViewerOutput *viewer)
+{
+  original_viewer_ = viewer;
+
+  copied_viewer_ = static_cast<ViewerOutput*>(original_viewer_->copy());
+  copy_map_.insert(original_viewer_, copied_viewer_);
+}
+
+void RenderBackend::CopyMap::Queue(NodeInput *input)
+{
+  if (!queued_updates_.isEmpty()) {
     // Remove any inputs that are dependents of this input since they may have been removed since
     // it was queued
-    QList<Node*> deps = from->GetDependencies();
+    QList<Node*> deps = input->GetDependencies();
 
-    for (int i=0;i<input_update_queued_.size();i++) {
-      if (deps.contains(input_update_queued_.at(i)->parentNode())) {
+    for (int i=0;i<queued_updates_.size();i++) {
+      if (deps.contains(queued_updates_.at(i)->parentNode())) {
         // We don't need to queue this value since this input supersedes it
-        input_update_queued_.removeAt(i);
+        queued_updates_.removeAt(i);
         i--;
       }
     }
   }
 
-  input_update_queued_.append(from);
+  queued_updates_.append(input);
 }
 
-bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
+void RenderBackend::CopyMap::ProcessQueue()
 {
-  return processor_busy_state_.at(processors_.indexOf(worker));
+  while (!queued_updates_.isEmpty()) {
+    CopyNodeInputValue(queued_updates_.takeFirst());
+  }
 }
 
-void RenderBackend::SetWorkerBusyState(RenderWorker *worker, bool busy)
+void RenderBackend::CopyMap::Clear()
 {
-  processor_busy_state_.replace(processors_.indexOf(worker), busy);
+  qDeleteAll(copy_map_);
+  copy_map_.clear();
+
+  original_viewer_ = nullptr;
+  copied_viewer_ = nullptr;
 }
 
-void RenderBackend::CopyNodeInputValue(NodeInput *input)
+void RenderBackend::CopyMap::CopyNodeInputValue(NodeInput *input)
 {
   // Find our copy of this parameter
-  Node* our_copy_node = node_copy_map_.value(input->parentNode());
+  Node* our_copy_node = copy_map_.value(input->parentNode());
   NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
 
   // Copy the standard/keyframe values between these two inputs
@@ -372,8 +451,7 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
       QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
 
       foreach (Node* i, old_deps) {
-        Node* n = node_copy_map_.take(node_copy_map_.key(i));
-        copied_graph_.TakeNode(n);
+        Node* n = copy_map_.take(copy_map_.key(i));
         delete n;
       }
 
@@ -395,16 +473,15 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
   }
 }
 
-Node* RenderBackend::CopyNodeConnections(Node* src_node)
+Node* RenderBackend::CopyMap::CopyNodeConnections(Node* src_node)
 {
   // Check if this node is already in the map
-  Node* dst_node = node_copy_map_.value(src_node);
+  Node* dst_node = copy_map_.value(src_node);
 
   // If not, create it now
   if (!dst_node) {
     dst_node = src_node->copy();
-    copied_graph_.AddNode(dst_node);
-    node_copy_map_.insert(src_node, dst_node);
+    copy_map_.insert(src_node, dst_node);
   }
 
   // Make sure its values are copied
@@ -423,10 +500,8 @@ Node* RenderBackend::CopyNodeConnections(Node* src_node)
   return dst_node;
 }
 
-void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
+void RenderBackend::CopyMap::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
 {
-  //qDebug() << "Copying input" << src_input->id() << "from" << src_input->parentNode()->id();
-
   if (src_input->IsConnected()) {
     Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
 
@@ -435,70 +510,6 @@ void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_
     NodeParam::ConnectEdge(corresponding_output,
                            dst_input);
   }
-}
-
-bool RenderBackend::AllProcessorsAreAvailable() const
-{
-  foreach (bool busy, processor_busy_state_) {
-    if (busy) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-const QVector<QThread *> &RenderBackend::threads()
-{
-  return threads_;
-}
-
-void RenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
-{
-  // Add the range to the list
-  cache_queue_.InsertTimeRange(TimeRange(start_range, end_range));
-
-  CacheNext();
-}
-
-void RenderBackend::CacheIDChangedEvent(const QString &id)
-{
-  Q_UNUSED(id)
-}
-
-void RenderBackend::WorkerAboutToStartEvent(RenderWorker *worker)
-{
-  Q_UNUSED(worker)
-}
-
-void RenderBackend::InitWorkers()
-{
-  for (int i=0;i<processors_.size();i++) {
-    RenderWorker* processor = processors_.at(i);
-    QThread* thread = threads().at(i);
-
-    // Connect to it
-    ConnectWorkerToThis(processor);
-
-    // Connect cancel dialog to it
-    connect(processor, &RenderWorker::CompletedCache, cancel_dialog_, &RenderCancelDialog::WorkerDone, Qt::QueuedConnection);
-
-    // Finally, we can move it to its own thread
-    processor->moveToThread(thread);
-
-    // This function blocks the main thread intentionally. See the documentation for this function to see why.
-    processor->Init();
-  }
-
-  processor_busy_state_.resize(processors_.size());
-  processor_busy_state_.fill(false);
-}
-
-bool RenderBackend::FootageWaitInfo::operator==(const RenderBackend::FootageWaitInfo &rhs) const
-{
-  return rhs.stream == stream
-      && rhs.stream_time == stream_time
-      && rhs.affected_range == affected_range;
 }
 
 OLIVE_NAMESPACE_EXIT

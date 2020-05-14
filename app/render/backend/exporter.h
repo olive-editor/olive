@@ -28,9 +28,8 @@
 
 #include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
-#include "render/backend/audiorenderbackend.h"
 #include "render/backend/exportparams.h"
-#include "render/backend/videorenderbackend.h"
+#include "render/backend/renderbackend.h"
 #include "render/colorprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -76,8 +75,7 @@ private:
   ExportParams params_;
 
   // Renderers
-  VideoRenderBackend* video_backend_;
-  AudioRenderBackend* audio_backend_;
+  RenderBackend* renderer_;
 
   // Export transform
   QMatrix4x4 transform_;

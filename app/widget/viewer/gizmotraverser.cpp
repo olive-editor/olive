@@ -22,7 +22,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table)
+void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table) const
 {
   if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
 

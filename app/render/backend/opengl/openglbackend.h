@@ -21,32 +21,21 @@
 #ifndef OPENGLBACKEND_H
 #define OPENGLBACKEND_H
 
-#include "../videorenderbackend.h"
-#include "openglframebuffer.h"
-#include "openglproxy.h"
-#include "openglshader.h"
-#include "opengltexture.h"
-#include "openglworker.h"
+#include "render/backend/renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class OpenGLBackend : public VideoRenderBackend
+class OpenGLBackend : public RenderBackend
 {
-  Q_OBJECT
 public:
   OpenGLBackend(QObject* parent = nullptr);
 
-  virtual ~OpenGLBackend() override;
-
 protected:
-  virtual bool InitInternal() override;
+  virtual void TextureToFrame(const QVariant& texture, FramePtr frame) const override;
 
-  virtual void CloseInternal() override;
+  virtual QVariant FrameToTexture(FramePtr frame) const override;
 
-  virtual void ParamsChangedEvent() override;
-
-private:
-  OpenGLProxy* proxy_;
+  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) const override;
 
 };
 

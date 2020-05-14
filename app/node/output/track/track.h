@@ -35,7 +35,7 @@ class TrackOutput : public Block
 public:
   TrackOutput();
 
-  const Timeline::TrackType& track_type();
+  const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 
   virtual Type type() const override;

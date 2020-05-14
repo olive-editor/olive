@@ -28,8 +28,10 @@
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
 #include "node/node.h"
-#include "render/videoparams.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/framehashcache.h"
+#include "render/videoparams.h"
 #include "timeline/trackreference.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -52,39 +54,66 @@ public:
   virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  NodeInput* texture_input() const;
-  NodeInput* samples_input() const;
+  NodeInput* texture_input() const {
+    return texture_input_;
+  }
+
+  NodeInput* samples_input() const {
+    return samples_input_;
+  }
 
   virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
   virtual void InvalidateVisible(NodeInput *from, NodeInput* source) override;
 
-  const VideoParams& video_params() const;
-  const AudioParams& audio_params() const;
+  const VideoParams& video_params() const {
+    return video_params_;
+  }
+
+  const AudioParams& audio_params() const {
+    return audio_params_;
+  }
 
   void set_video_params(const VideoParams& video);
   void set_audio_params(const AudioParams& audio);
 
-  rational Length();
+  rational GetLength();
 
-  const QUuid& uuid() const;
+  const QUuid& uuid() const {
+    return uuid_;
+  }
 
-  const QVector<TrackOutput *> &Tracks() const;
+  const QVector<TrackOutput *> &GetTracks() const {
+    return track_cache_;
+  }
 
-  NodeInput* track_input(Timeline::TrackType type) const;
+  NodeInput* track_input(Timeline::TrackType type) const {
+    return track_inputs_.at(type);
+  }
 
-  TrackList* track_list(Timeline::TrackType type) const;
+  TrackList* track_list(Timeline::TrackType type) const {
+    return track_lists_.at(type);
+  }
 
   virtual void Retranslate() override;
 
-  const QString& media_name() const;
+  const QString& media_name() const {
+    return media_name_;
+  }
+
   void set_media_name(const QString& name);
+
+  FrameHashCache* video_frame_cache() {
+    return &video_frame_cache_;
+  }
+
+  AudioPlaybackCache* audio_playback_cache() {
+    return &audio_playback_cache_;
+  }
 
 signals:
   void TimebaseChanged(const rational&);
 
-  void VideoChangedBetween(const TimeRange& range, NodeInput* source);
-
-  void AudioChangedBetween(const TimeRange& range, NodeInput* source);
+  void GraphChangedFrom(NodeInput* from, NodeInput* source);
 
   void VisibleInvalidated(NodeInput* source);
 
@@ -93,6 +122,7 @@ signals:
   void SizeChanged(int width, int height);
 
   void VideoParamsChanged();
+  void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
@@ -124,6 +154,10 @@ private:
   rational timeline_length_;
 
   QString media_name_;
+
+  FrameHashCache video_frame_cache_;
+
+  AudioPlaybackCache audio_playback_cache_;
 
 private slots:
   void UpdateTrackCache();

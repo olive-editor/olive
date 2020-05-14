@@ -72,7 +72,7 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
-  void SetVideoParams(const VideoRenderingParams& params);
+  void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
 
   FramePtr last_loaded_buffer() const;
@@ -171,7 +171,7 @@ private:
   Node* gizmos_;
   NodeValueDatabase gizmo_db_;
   rational gizmo_drag_time_;
-  VideoRenderingParams gizmo_params_;
+  VideoParams gizmo_params_;
   bool gizmo_click_;
 
   rational time_;

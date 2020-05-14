@@ -425,7 +425,7 @@ void TimelineWidget::SplitAtPlayhead()
   bool some_blocks_are_selected = false;
 
   // Get all blocks at the playhead
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
     if (b && b->type() == Block::kClip) {
@@ -566,7 +566,7 @@ void TimelineWidget::IncreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->Tracks();
+  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
 
   // Increase the height of each track by one "unit"
   foreach (TrackOutput* t, all_tracks) {
@@ -580,7 +580,7 @@ void TimelineWidget::DecreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->Tracks();
+  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
 
   // Decrease the height of each track by one "unit"
   foreach (TrackOutput* t, all_tracks) {
@@ -714,7 +714,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
   QUndoCommand* command = new QUndoCommand();
 
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     if (!track->IsLocked()) {
       if (ripple) {
         new TrackRippleRemoveAreaCommand(track,
@@ -794,7 +794,7 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
     closest_point_to_playhead = RATIONAL_MAX;
   }
 
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     Block* b = track->NearestBlockBefore(playhead_time);
 
     if (b != nullptr) {
@@ -821,7 +821,7 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
   rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
   rational ripple_length = out_ripple - in_ripple;
 
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     GapBlock* gap = nullptr;
     if (insert_gaps) {
       gap = new GapBlock();
@@ -854,7 +854,7 @@ void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational
   QList<Block*> blocks_to_append_gap_to;
   QList<Block*> gaps_to_extend;
 
-  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
     if (track->IsLocked()) {
       continue;
     }
