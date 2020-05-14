@@ -34,20 +34,22 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable GenerateTable(const Node *n, const TimeRange &range) const;
-  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out) const;
+  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
+  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out);
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) const;
+  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range) const;
+  NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
 
-  virtual void FootageProcessingEvent(StreamPtr, const TimeRange&, NodeValueTable*) const {}
+  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
+
+  virtual void FootageProcessingEvent(StreamPtr, const TimeRange&, NodeValueTable*) {}
 
   virtual void ProcessNodeEvent(const Node*,
                                 const TimeRange&,
                                 NodeValueDatabase&,
-                                NodeValueTable&) const {}
+                                NodeValueTable&) {}
 
 private:
   static StreamPtr ResolveStreamFromInput(NodeInput* input);

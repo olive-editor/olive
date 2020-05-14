@@ -86,14 +86,14 @@ QString ViewerOutput::Description() const
 
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  if (from == texture_input()) {
-    emit GraphChangedFrom(from, source);
+  if (from == texture_input_ || from == samples_input_) {
+    emit GraphChangedFrom(source);
 
-    video_frame_cache_.Invalidate(range);
-  } else if (from == samples_input()) {
-    emit GraphChangedFrom(from, source);
-
-    audio_playback_cache_.Invalidate(range);
+    if (from == texture_input_) {
+      video_frame_cache_.Invalidate(range);
+    } else {
+      audio_playback_cache_.Invalidate(range);
+    }
   }
 
   Node::InvalidateCache(range, from, source);
@@ -114,14 +114,14 @@ void ViewerOutput::set_video_params(const VideoParams &video)
 
   emit SizeChanged(video_params_.width(), video_params_.height());
   emit TimebaseChanged(video_params_.time_base());
-  emit VideoParamsChanged();
+  emit ParamsChanged();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
 {
   audio_params_ = audio;
 
-  emit AudioParamsChanged();
+  emit ParamsChanged();
 }
 
 rational ViewerOutput::GetLength()

@@ -27,16 +27,18 @@
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
-#include "node/traverser.h"
 #include "render/backend/colorprocessorcache.h"
+#include "renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class RenderBackend : public QObject, public NodeTraverser
+class RenderBackend : public QObject
 {
   Q_OBJECT
 public:
   RenderBackend(QObject* parent = nullptr);
+
+  virtual ~RenderBackend() override;
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
@@ -50,7 +52,7 @@ public:
   /**
    * @brief Asynchronously generate a frame at a given time
    */
-  QFuture<FramePtr> RenderFrame(const rational& time);
+  QFuture<FramePtr> RenderFrame(const rational& time, bool clear_queue);
 
   void SetDivider(const int& divider);
 
@@ -60,83 +62,38 @@ public:
 
   void SetSampleFormat(const SampleFormat::Format& sample_fmt);
 
+  void SetVideoDownloadMatrix(const QMatrix4x4& mat);
+
 public slots:
-  void NodeGraphChanged(NodeInput *from, NodeInput *source);
+  void NodeGraphChanged(NodeInput *source);
 
 protected:
-  virtual void TextureToFrame(const QVariant& texture, FramePtr frame) const = 0;
+  virtual RenderWorker* CreateNewWorker() = 0;
 
-  virtual NodeValue FrameToTexture(FramePtr frame) const = 0;
+  void Close();
 
-  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) const override;
+  VideoRenderingParams video_params() const;
 
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) const override;
+  AudioRenderingParams audio_params() const;
 
 private:
-  FramePtr RenderFrameInternal(const rational& time) const;
+  RenderWorker *GetInstanceFromPool();
 
-  /**
-   * @brief Internal reference to attached viewer node
-   */
   ViewerOutput* viewer_node_;
 
   RenderCancelDialog* cancel_dialog_;
 
-  VideoRenderingParams video_params() const;
+  QLinkedList<RenderWorker*> instance_pool_;
 
-  NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time) const;
-
-  DecoderPtr ResolveDecoderFromInput(StreamPtr stream) const;
-
-  class CopyMap {
-  public:
-    CopyMap();
-
-    void Init(ViewerOutput* viewer);
-
-    void Queue(NodeInput* input);
-
-    void ProcessQueue();
-
-    void Clear();
-
-    QThreadPool* thread_pool() {
-      return &thread_pool_;
-    }
-
-  private:
-    void CopyNodeInputValue(NodeInput* input);
-    Node *CopyNodeConnections(Node *src_node);
-    void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
-
-    ViewerOutput* original_viewer_;
-    ViewerOutput* copied_viewer_;
-    QList<NodeInput*> queued_updates_;
-    QHash<Node*, Node*> copy_map_;
-    QThreadPool thread_pool_;
-
-  };
+  QThreadPool thread_pool_;
 
   // VIDEO MEMBERS
-  CopyMap video_copy_map_;
   int divider_;
   RenderMode::Mode render_mode_;
   PixelFormat::Format pix_fmt_;
-
-  ColorProcessorCache color_cache_;
-
-  struct CachedStill {
-    NodeValue texture;
-    QString colorspace;
-    bool alpha_is_associated;
-    int divider;
-    rational time;
-  };
-
-  RenderCache<Stream*, CachedStill> still_image_cache_;
+  QMatrix4x4 video_download_matrix_;
 
   // AUDIO MEMBERS
-  CopyMap audio_copy_map_;
   SampleFormat::Format sample_fmt_;
 
   struct ConformWaitInfo {

@@ -18,22 +18,31 @@
 
 ***/
 
-#include "gizmotraverser.h"
+#ifndef OPENGLWORKER_H
+#define OPENGLWORKER_H
+
+#include "openglproxy.h"
+#include "render/backend/renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
 
-void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table)
+class OpenGLWorker : public RenderWorker
 {
-  if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+public:
+  OpenGLWorker(OpenGLProxy* proxy);
 
-    ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+protected:
+  virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const override;
 
-    table->Push(NodeParam::kTexture, QSize(image_stream->width(),
-                                           image_stream->height()));
+  virtual NodeValue FrameToTexture(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) const override;
 
-  } else if (stream->type() == Stream::kAudio) {
-    // FIXME: Get samples
-  }
-}
+  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) override;
+
+private:
+  OpenGLProxy* proxy_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // OPENGLWORKER_H

@@ -66,14 +66,20 @@ public:
 
   void Close();
 
-  void SetParameters(const VideoRenderingParams& params);
-
 public slots:
-  void RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node, const OLIVE_NAMESPACE::TimeRange &range, OLIVE_NAMESPACE::NodeValueDatabase &input_params, OLIVE_NAMESPACE::NodeValueTable& output_params);
+  void RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node,
+                          const OLIVE_NAMESPACE::TimeRange &range,
+                          OLIVE_NAMESPACE::NodeValueDatabase &input_params,
+                          OLIVE_NAMESPACE::NodeValueTable& output_params,
+                          const OLIVE_NAMESPACE::VideoRenderingParams &params);
 
-  void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize);
+  void TextureToBuffer(const QVariant& texture,
+                       OLIVE_NAMESPACE::FramePtr frame,
+                       const QMatrix4x4& matrix);
 
-  OLIVE_NAMESPACE::NodeValue FrameToValue(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::StreamPtr stream);
+  OLIVE_NAMESPACE::NodeValue FrameToValue(OLIVE_NAMESPACE::FramePtr frame,
+                                          OLIVE_NAMESPACE::StreamPtr stream,
+                                          const OLIVE_NAMESPACE::VideoRenderingParams &params);
 
 private:
   QOpenGLContext* ctx_;
@@ -84,8 +90,6 @@ private:
   OpenGLFramebuffer buffer_;
 
   OpenGLColorProcessorCache color_cache_;
-
-  VideoRenderingParams video_params_;
 
   OpenGLShaderPtr copy_pipeline_;
 

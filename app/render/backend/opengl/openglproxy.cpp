@@ -67,7 +67,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream)
+NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoRenderingParams& params)
 {
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
@@ -83,7 +83,7 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream)
     color_cache_.Add(colorspace_match, color_processor);
   }
 
-  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
+  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(params.mode());
 
   // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
   if (ocio_method == ColorManager::kOCIOAccurate) {
@@ -144,7 +144,7 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream)
 
     VideoRenderingParams dest_params(frame_params.width(),
                                      frame_params.height(),
-                                     video_params_.format(),
+                                     params.format(),
                                      frame_params.divider());
 
     // Create destination texture
@@ -180,12 +180,12 @@ void OpenGLProxy::Close()
   ctx_ = nullptr;
 }
 
-void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
+void OpenGLProxy::RunNodeAccelerated(const Node *node,
+                                     const TimeRange &range,
+                                     NodeValueDatabase &input_params,
+                                     NodeValueTable &output_params,
+                                     const VideoRenderingParams& params)
 {
-  if (!(node->GetCapabilities(input_params) & Node::kShader)) {
-    return;
-  }
-
   OpenGLShaderPtr shader = shader_cache_.Get(node->ShaderID(input_params));
 
   if (!shader) {
@@ -213,12 +213,12 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
 
   // Create the output textures
   QList<OpenGLTextureCache::ReferencePtr> dst_refs;
-  dst_refs.append(texture_cache_.Get(ctx_, video_params_));
+  dst_refs.append(texture_cache_.Get(ctx_, params));
   GLuint iterative_input = 0;
 
   // If this node requires multiple iterations, get a texture for it too
   if (node->ShaderIterations() > 1 && node->ShaderIterativeInput()) {
-    dst_refs.append(texture_cache_.Get(ctx_, video_params_));
+    dst_refs.append(texture_cache_.Get(ctx_, params));
   }
 
   // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
@@ -359,12 +359,12 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
   }
 
   // Set up OpenGL parameters as necessary
-  functions_->glViewport(0, 0, video_params_.effective_width(), video_params_.effective_height());
+  functions_->glViewport(0, 0, params.effective_width(), params.effective_height());
 
   // Provide some standard args
   shader->setUniformValue("ove_resolution",
-                          static_cast<GLfloat>(video_params_.width()),
-                          static_cast<GLfloat>(video_params_.height()));
+                          static_cast<GLfloat>(params.width()),
+                          static_cast<GLfloat>(params.height()));
 
   if (node->IsBlock() && static_cast<const Block*>(node)->type() == Block::kTransition) {
     const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
@@ -424,7 +424,9 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, N
   output_params.Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
-void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height, const QMatrix4x4 &matrix, void *buffer, int linesize)
+void OpenGLProxy::TextureToBuffer(const QVariant& tex_in,
+                                  FramePtr frame,
+                                  const QMatrix4x4& matrix)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
@@ -432,22 +434,20 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height,
     return;
   }
 
-  QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
   OpenGLTextureCache::ReferencePtr download_tex;
 
-  if (width != texture->texture()->width() || height != texture->texture()->height()) {
+  functions_->glViewport(0, 0, frame->width(), frame->height());
+
+  if (frame->width() != texture->texture()->width()
+      || frame->height() != texture->texture()->height()) {
 
     // Resize the texture if necessary
-    OpenGLTextureCache::ReferencePtr resized = texture_cache_.Get(ctx_,
-                                                                  VideoRenderingParams(width, height, texture->texture()->format()));
+    OpenGLTextureCache::ReferencePtr resized = texture_cache_.Get(ctx_, frame->video_params());
 
     buffer_.Attach(resized->texture(), true);
     buffer_.Bind();
 
     texture->texture()->Bind();
-
-    f->glViewport(0, 0, width, height);
 
     // Blit to this new texture
     OpenGLRenderFunctions::Blit(copy_pipeline_, false, matrix);
@@ -468,29 +468,20 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, int width, int height,
   buffer_.Attach(download_tex->texture());
   buffer_.Bind();
 
-  f->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
+  functions_->glPixelStorei(GL_PACK_ROW_LENGTH, frame->linesize_pixels());
 
-  f->glReadPixels(0,
-                  0,
-                  width,
-                  height,
-                  OpenGLRenderFunctions::GetPixelFormat(video_params_.format()),
-                  OpenGLRenderFunctions::GetPixelType(video_params_.format()),
-                  buffer);
+  functions_->glReadPixels(0,
+                           0,
+                           frame->width(),
+                           frame->height(),
+                           OpenGLRenderFunctions::GetPixelFormat(texture->texture()->format()),
+                           OpenGLRenderFunctions::GetPixelType(texture->texture()->format()),
+                           frame->data());
 
-  f->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+  functions_->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 
   buffer_.Release();
   buffer_.Detach();
-}
-
-void OpenGLProxy::SetParameters(const VideoRenderingParams &params)
-{
-  video_params_ = params;
-
-  if (functions_ != nullptr && video_params_.is_valid()) {
-    functions_->glViewport(0, 0, video_params_.effective_width(), video_params_.effective_height());
-  }
 }
 
 void OpenGLProxy::FinishInit()
@@ -504,8 +495,6 @@ void OpenGLProxy::FinishInit()
   // Store OpenGL functions instance
   functions_ = ctx_->functions();
   functions_->glBlendFunc(GL_ONE, GL_ZERO);
-
-  SetParameters(video_params_);
 
   buffer_.Create(ctx_);
 

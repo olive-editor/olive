@@ -20,12 +20,51 @@
 
 #include "openglbackend.h"
 
+#include "openglworker.h"
+
 OLIVE_NAMESPACE_ENTER
 
 OpenGLBackend::OpenGLBackend(QObject* parent) :
-  RenderBackend(parent)
+  RenderBackend(parent),
+  proxy_(nullptr)
 {
 
+}
+
+OpenGLBackend::~OpenGLBackend()
+{
+  Close();
+
+  ClearProxy();
+}
+
+RenderWorker *OpenGLBackend::CreateNewWorker()
+{
+  if (!proxy_) {
+    proxy_ = new OpenGLProxy();
+
+    QThread* proxy_thread = new QThread();
+    proxy_thread->start(QThread::IdlePriority);
+    proxy_->moveToThread(proxy_thread);
+
+    if (!proxy_->Init()) {
+      ClearProxy();
+      return nullptr;
+    }
+  }
+
+  return new OpenGLWorker(proxy_);
+}
+
+void OpenGLBackend::ClearProxy()
+{
+  if (proxy_) {
+    proxy_->thread()->quit();
+    proxy_->thread()->wait();
+    proxy_->thread()->deleteLater();
+    proxy_->deleteLater();
+    proxy_ = nullptr;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

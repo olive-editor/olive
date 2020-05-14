@@ -85,11 +85,13 @@ public:
 
   void ForceUpdate();
 
-  RenderBackend* renderer() const {
+  RenderBackend* renderer() const
+  {
     return renderer_;
   }
 
-  ColorManager* color_manager() const {
+  ColorManager* color_manager() const
+  {
     return display_widget_->color_manager();
   }
 
@@ -254,7 +256,7 @@ private slots:
 
   void ContextMenuScopeTriggered(QAction* action);
 
-  void RendererGeneratedFrame(FramePtr f);
+  void RendererGeneratedFrame();
 
 };
 

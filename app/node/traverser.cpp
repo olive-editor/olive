@@ -24,7 +24,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range) const
+NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
 
@@ -38,17 +38,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     TimeRange input_time = node->InputTimeAdjustment(input, range);
 
-    NodeValueTable table;
-
-    if (input->IsConnected()) {
-      // Value will equal something from the connected node, follow it
-      table = GenerateTable(input->get_connected_node(), range);
-    } else {
-      // Push onto the table the value at this time from the input
-      QVariant input_value = input->get_value_at_time(range.in());
-
-      table.Push(input->data_type(), input_value);
-    }
+    NodeValueTable table = ProcessInput(input, input_time);
 
     // Exception for Footage types where we actually retrieve some Footage data from a decoder
     if (input->data_type() == NodeParam::kFootage) {
@@ -73,7 +63,24 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   return database;
 }
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range) const
+NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& range)
+{
+  if (input->IsConnected()) {
+    // Value will equal something from the connected node, follow it
+    return GenerateTable(input->get_connected_node(), range);
+  } else if (!input->IsArray()) {
+    // Push onto the table the value at this time from the input
+    QVariant input_value = input->get_value_at_time(range.in());
+
+    NodeValueTable table;
+    table.Push(input->data_type(), input_value);
+    return table;
+  }
+
+  return NodeValueTable();
+}
+
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
 {
   if (n->IsTrack()) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
@@ -93,12 +100,12 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
   return table;
 }
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, const rational &out) const
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, const rational &out)
 {
   return GenerateTable(n, TimeRange(in, out));
 }
 
-NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const TimeRange &range) const
+NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
 {
   // By default, just follow the in point
   Block* active_block = track->BlockAtTime(range.in());

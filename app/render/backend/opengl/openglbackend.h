@@ -21,6 +21,7 @@
 #ifndef OPENGLBACKEND_H
 #define OPENGLBACKEND_H
 
+#include "openglproxy.h"
 #include "render/backend/renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -30,12 +31,15 @@ class OpenGLBackend : public RenderBackend
 public:
   OpenGLBackend(QObject* parent = nullptr);
 
+  virtual ~OpenGLBackend() override;
+
 protected:
-  virtual void TextureToFrame(const QVariant& texture, FramePtr frame) const override;
+  virtual RenderWorker* CreateNewWorker() override;
 
-  virtual NodeValue FrameToTexture(FramePtr frame) const override;
+private:
+  void ClearProxy();
 
-  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) const override;
+  OpenGLProxy* proxy_;
 
 };
 

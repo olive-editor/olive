@@ -159,7 +159,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-  connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
+  connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
@@ -202,7 +202,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-  disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
+  disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
@@ -234,12 +234,14 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 {
   TimeBasedWidget::resizeEvent(event);
 
+  /*
   int new_div = CalculateDivider();
   if (new_div != divider_) {
     divider_ = new_div;
 
     UpdateRendererParameters();
   }
+  */
 
   UpdateMinimumScale();
 }
@@ -365,11 +367,20 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     QString frame_fn = GetCachedFilenameFromTime(time);
 
     if (frame_fn.isEmpty()) {
-      // FIXME: Connect QFutureWatcher to this
-      renderer_->RenderFrame(time);
+
+      QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
+      connect(watcher,
+              &QFutureWatcher<FramePtr>::finished,
+              this,
+              &ViewerWidget::RendererGeneratedFrame);
+
+      watcher->setFuture(renderer_->RenderFrame(time, true));
+
     } else {
+
       FramePtr f = DecodeCachedImage(frame_fn);
       SetDisplayImage(f, false);
+
     }
   } else {
     SetDisplayImage(nullptr, false);
@@ -518,12 +529,15 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
     QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
-    return GetConnectedNode()->video_frame_cache()->CachePathName(
-          hash,
-          PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
-  } else {
-    return QString();
+
+    if (!hash.isEmpty()) {
+
+      return GetConnectedNode()->video_frame_cache()->CachePathName(
+            hash,
+            PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
+    }
   }
+  return QString();
 }
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
@@ -649,7 +663,8 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
 
     QMessageBox::warning(this,
                          tr("Invalid custom ratio"),
-                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a rational fraction with a ':' or a '/' separator.").arg(s),
+                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a rational "
+                            "fraction with a ':' or a '/' separator.").arg(s),
                          QMessageBox::Ok);
   }
 }
@@ -664,17 +679,17 @@ void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
   emit RequestScopePanel(static_cast<ScopePanel::Type>(action->data().toInt()));
 }
 
-void ViewerWidget::RendererGeneratedFrame(FramePtr f)
+void ViewerWidget::RendererGeneratedFrame()
 {
-  SetDisplayImage(f, false);
+  QFutureWatcher<FramePtr>* watcher = static_cast<QFutureWatcher<FramePtr>*>(sender());
+  FramePtr frame = watcher->result();
+  watcher->deleteLater();
+
+  SetDisplayImage(frame, false);
 }
 
 void ViewerWidget::UpdateRendererParameters()
 {
-  if (!GetConnectedNode()) {
-    return;
-  }
-
   RenderMode::Mode render_mode = RenderMode::kOffline;
 
   renderer_->SetDivider(divider_);

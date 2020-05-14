@@ -113,7 +113,7 @@ public:
 signals:
   void TimebaseChanged(const rational&);
 
-  void GraphChangedFrom(NodeInput* from, NodeInput* source);
+  void GraphChangedFrom(NodeInput* source);
 
   void VisibleInvalidated(NodeInput* source);
 
@@ -121,8 +121,7 @@ signals:
 
   void SizeChanged(int width, int height);
 
-  void VideoParamsChanged();
-  void AudioParamsChanged();
+  void ParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
