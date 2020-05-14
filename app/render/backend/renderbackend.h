@@ -42,8 +42,14 @@ public:
 
   void CancelQueue();
 
+  /**
+   * @brief Asynchronously generate a hash at a given time
+   */
   QFuture<QByteArray> Hash(const rational& time);
 
+  /**
+   * @brief Asynchronously generate a frame at a given time
+   */
   QFuture<FramePtr> RenderFrame(const rational& time);
 
   void SetDivider(const int& divider);
@@ -60,7 +66,7 @@ public slots:
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame) const = 0;
 
-  virtual QVariant FrameToTexture(FramePtr frame) const = 0;
+  virtual NodeValue FrameToTexture(FramePtr frame) const = 0;
 
   virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) const override;
 
@@ -77,6 +83,10 @@ private:
   RenderCancelDialog* cancel_dialog_;
 
   VideoRenderingParams video_params() const;
+
+  NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time) const;
+
+  DecoderPtr ResolveDecoderFromInput(StreamPtr stream) const;
 
   class CopyMap {
   public:

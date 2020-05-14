@@ -211,11 +211,20 @@ void RenderBackend::FootageProcessingEvent(StreamPtr stream, const TimeRange &in
 
   } else if (stream->type() != Stream::kAudio) {
 
-    NodeValue value = GetDataFromStream(stream, input_time);
-
-    table->Push(value);
+    table->Push(GetDataFromStream(stream, input_time));
 
   }
+}
+
+NodeValue RenderBackend::GetDataFromStream(StreamPtr stream, const TimeRange &input_time) const
+{
+  DecoderPtr decoder = ResolveDecoderFromInput(stream);
+
+  if (decoder) {
+    return FrameToTexture(decoder, stream, input_time);
+  }
+
+  return NodeValue();
 }
 
 NodeValueTable RenderBackend::GenerateBlockTable(const TrackOutput *track, const TimeRange &range) const

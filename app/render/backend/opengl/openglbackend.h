@@ -33,7 +33,7 @@ public:
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame) const override;
 
-  virtual QVariant FrameToTexture(FramePtr frame) const override;
+  virtual NodeValue FrameToTexture(FramePtr frame) const override;
 
   virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) const override;
 
