@@ -431,7 +431,10 @@ protected:
 
   virtual QList<NodeInput*> GetInputsToHash() const;
 
-public slots:
+protected slots:
+  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void InputConnectionChanged(NodeEdgePtr edge);
 
 signals:
   /**
@@ -501,11 +504,6 @@ private:
    * @brief Custom user label for node
    */
   QString label_;
-
-private slots:
-  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
-
-  void InputConnectionChanged(NodeEdgePtr edge);
 
 };
 

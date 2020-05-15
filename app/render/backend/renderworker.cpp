@@ -458,6 +458,7 @@ void RenderWorker::Init(ViewerOutput* viewer)
 
 void RenderWorker::Close()
 {
+  // Delete all the nodes
   qDeleteAll(copy_map_);
   copy_map_.clear();
 

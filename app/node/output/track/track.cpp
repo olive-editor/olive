@@ -40,6 +40,8 @@ TrackOutput::TrackOutput() :
   AddInput(block_input_);
   connect(block_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackOutput::BlockConnected);
   connect(block_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackOutput::BlockDisconnected);
+  disconnect(block_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackOutput::InputConnectionChanged);
+  disconnect(block_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackOutput::InputConnectionChanged);
 
   muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
   muted_input_->set_is_keyframable(false);
@@ -550,6 +552,8 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
 
     emit BlockAdded(connected_block);
   }
+
+  InputConnectionChanged(edge);
 }
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
@@ -558,11 +562,11 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
   Node* connected_node = edge->output()->parentNode();
 
   // If this was a block, we would have put it in our block cache in BlockConnected()
-  if (connected_node->IsBlock()) {
+  int index_of_block = block_cache_.indexOf(static_cast<Block*>(connected_node));
+  if (index_of_block > -1) {
     Block* connected_block = static_cast<Block*>(connected_node);
 
     // Determine what index this block was in our cache and remove it
-    int index_of_block = block_cache_.indexOf(connected_block);
     block_cache_.removeAt(index_of_block);
 
     // If there were blocks following this one, update their ins/outs
@@ -581,6 +585,8 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 
     emit BlockRemoved(connected_block);
   }
+
+  InputConnectionChanged(edge);
 }
 
 void TrackOutput::BlockLengthChanged()
