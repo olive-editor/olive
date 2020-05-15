@@ -174,9 +174,9 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
                           false);
       } else if (!selected_keys_.isEmpty()) {
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-          NodeInput* input_parent = keypair.key->key()->parent();
+          //NodeInput* input_parent = keypair.key->key()->parent();
 
-          input_parent->blockSignals(true);
+          //input_parent->blockSignals(true);
 
           rational node_time = GetAdjustedTime(GetTimeTarget(),
                                                keypair.key->key()->parent()->parentNode(),
@@ -191,9 +191,9 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
           // We emit a custom value changed signal while the keyframe is being dragged so only the currently viewed
           // frame gets rendered in this time
-          input_parent->blockSignals(false);
+          //input_parent->blockSignals(false);
 
-          input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
+          //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
         }
       }
     }
@@ -352,7 +352,7 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
     new_opposing_pos = dragging_bezier_point_opposing_start_;
   }
 
-  NodeInput* input_parent = dragging_bezier_point_->key()->parent();
+  //NodeInput* input_parent = dragging_bezier_point_->key()->parent();
 
   if (undoable) {
     QUndoCommand* command = new QUndoCommand();
@@ -360,7 +360,7 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
     // Similar to the code in MouseRelease, we manipulated the signalling earlier and need to set the keys back to their
     // original position to allow the input to signal correctly when the undo command is pushed.
 
-    input_parent->blockSignals(true);
+    //input_parent->blockSignals(true);
 
     dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
                                                       dragging_bezier_point_start_);
@@ -382,11 +382,11 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
                                         command);
     }
 
-    input_parent->blockSignals(false);
+    //input_parent->blockSignals(false);
 
     Core::instance()->undo_stack()->push(command);
   } else {
-    input_parent->blockSignals(true);
+    //input_parent->blockSignals(true);
 
     dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
                                                       new_bezier_pos);
@@ -394,9 +394,9 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
     dragging_bezier_point_->key()->set_bezier_control(opposing_type,
                                                       new_opposing_pos);
 
-    input_parent->blockSignals(false);
+    //input_parent->blockSignals(false);
 
-    input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
+    //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
   }
 }
 

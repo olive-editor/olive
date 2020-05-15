@@ -188,6 +188,8 @@ private:
 
   void SetDisplayImage(FramePtr frame, bool main_only);
 
+  void RequestNextFrameForQueue();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -226,8 +228,6 @@ private:
 private slots:
   void PlaybackTimerUpdate();
 
-  void RendererCachedTime(const rational& time, qint64 job_time);
-
   void SizeChangedSlot(int width, int height);
 
   void LengthChangedSlot(const rational& length);
@@ -240,7 +240,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void InvalidateVisible(NodeInput *source);
+  void ViewerInvalidatedRange(const TimeRange &range);
 
   void UpdateStack();
 
@@ -257,6 +257,8 @@ private slots:
   void ContextMenuScopeTriggered(QAction* action);
 
   void RendererGeneratedFrame();
+
+  void RendererGeneratedFrameForQueue();
 
 };
 

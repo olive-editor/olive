@@ -99,15 +99,6 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
   Node::InvalidateCache(range, from, source);
 }
 
-void ViewerOutput::InvalidateVisible(NodeInput* from, NodeInput *source)
-{
-  if (from == texture_input()) {
-    emit VisibleInvalidated(source);
-  }
-
-  Node::InvalidateVisible(from, source);
-}
-
 void ViewerOutput::set_video_params(const VideoParams &video)
 {
   video_params_ = video;

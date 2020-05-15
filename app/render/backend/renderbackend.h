@@ -109,6 +109,8 @@ private:
 private slots:
   void AudioCallback();
 
+  void WorkerFinished();
+
 };
 
 OLIVE_NAMESPACE_EXIT

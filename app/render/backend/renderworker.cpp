@@ -39,7 +39,7 @@ RenderWorker::~RenderWorker()
   Close();
 }
 
-QByteArray RenderWorker::Hash(const rational &time) const
+QByteArray RenderWorker::Hash(const rational &time)
 {
   if (!viewer_) {
     return QByteArray();
@@ -55,6 +55,8 @@ QByteArray RenderWorker::Hash(const rational &time) const
 
   viewer_->Hash(hasher, time);
 
+  emit FinishedJob();
+
   return hasher.result();
 }
 
@@ -69,10 +71,6 @@ FramePtr RenderWorker::RenderFrame(const rational &time)
 
   QVariant texture = table.Get(NodeParam::kTexture);
 
-  if (texture.isNull()) {
-    return nullptr;
-  }
-
   FramePtr frame = Frame::Create();
   frame->set_video_params(video_params_);
   frame->set_timestamp(time);
@@ -85,6 +83,8 @@ FramePtr RenderWorker::RenderFrame(const rational &time)
     // Dump texture contents to frame
     TextureToFrame(texture, frame, video_download_matrix_);
   }
+
+  emit FinishedJob();
 
   return frame;
 }

@@ -36,7 +36,28 @@ class ViewerQueue : public QLinkedList<ViewerPlaybackFrame> {
 public:
   ViewerQueue() = default;
 
-  QMutex* lock() {
+  void AppendTimewise(const ViewerPlaybackFrame& f, int playback_speed)
+  {
+    if (this->isEmpty() || f.timestamp > this->last().timestamp == playback_speed > 0) {
+      this->append(f);
+    } else {
+      reverse_iterator i = this->rbegin();
+
+      while (i != this->rend()) {
+        reverse_iterator next = i + 1;
+
+        if (next->timestamp < f.timestamp == playback_speed > 0) {
+          this->insert(i.base(), f);
+          break;
+        } else {
+          i = next;
+        }
+      }
+    }
+  }
+
+  QMutex* lock()
+  {
     return &queue_lock_;
   }
 

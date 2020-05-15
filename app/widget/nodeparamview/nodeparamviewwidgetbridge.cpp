@@ -233,7 +233,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
     dragger_.Drag(value);
 
-    input_->parentNode()->InvalidateVisible(input_, input_);
+    //input_->parentNode()->InvalidateVisible(input_, input_);
 
   } else if (dragger_.IsStarted()) {
 

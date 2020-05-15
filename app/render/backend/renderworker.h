@@ -84,7 +84,7 @@ public:
    *
    * SHA-1 hash or empty QByteArray if no viewer node is set.
    */
-  QByteArray Hash(const rational &time) const;
+  QByteArray Hash(const rational &time);
 
   /**
    * @brief Render the frame at this time
@@ -126,6 +126,8 @@ protected:
 
 signals:
   void AudioConformUnavailable();
+
+  void FinishedJob();
 
 private:
   NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);

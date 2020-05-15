@@ -326,11 +326,6 @@ public:
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source);
 
   /**
-   * @brief Signal through node graph to only invalidate frames that are currently visible on a ViewerWidget
-   */
-  virtual void InvalidateVisible(NodeInput *from, NodeInput* source);
-
-  /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
    *
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be

@@ -61,9 +61,9 @@ void NodeInputDragger::Start(NodeInput *input, const rational &time, int track)
                                            track);
 
       // We disable default signal emitting during the drag
-      input_->blockSignals(true);
+      //input_->blockSignals(true);
       input_->insert_keyframe(dragging_key_);
-      input_->blockSignals(false);
+      //input_->blockSignals(false);
 
       emit input_->KeyframeAdded(dragging_key_);
     }
@@ -76,7 +76,7 @@ void NodeInputDragger::Drag(const QVariant& value)
 
   end_value_ = value;
 
-  input_->blockSignals(true);
+  //input_->blockSignals(true);
 
   if (input_->is_keyframing()) {
     dragging_key_->set_value(value);
@@ -84,7 +84,7 @@ void NodeInputDragger::Drag(const QVariant& value)
     input_->set_standard_value(value, track_);
   }
 
-  input_->blockSignals(false);
+  //input_->blockSignals(false);
 }
 
 void NodeInputDragger::End()

@@ -151,11 +151,7 @@ void MatrixGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const 
 
     gizmo_x2_dragger_.Drag(new_pos2.x());
     gizmo_y2_dragger_.Drag(new_pos2.y());
-
-    InvalidateVisible(position_input_, position_input_);
   }
-
-  InvalidateVisible(gizmo_drag_, gizmo_drag_);
 }
 
 void MatrixGenerator::GizmoRelease()

@@ -150,8 +150,6 @@ void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const
 
   gizmo_x_dragger_.Drag(new_pos.x());
   gizmo_y_dragger_.Drag(new_pos.y());
-
-  InvalidateVisible(gizmo_drag_, gizmo_drag_);
 }
 
 void PolygonGenerator::GizmoRelease()

@@ -63,7 +63,6 @@ public:
   }
 
   virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
-  virtual void InvalidateVisible(NodeInput *from, NodeInput* source) override;
 
   const VideoParams& video_params() const {
     return video_params_;
@@ -114,8 +113,6 @@ signals:
   void TimebaseChanged(const rational&);
 
   void GraphChangedFrom(NodeInput* source);
-
-  void VisibleInvalidated(NodeInput* source);
 
   void LengthChanged(const rational& length);
 

@@ -21,6 +21,7 @@
 #include "audioplaybackcache.h"
 
 #include <QDir>
+#include <QFile>
 #include <QRandomGenerator>
 
 #include "common/filefunctions.h"
@@ -40,6 +41,14 @@ void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
 {
   if (params_ == params) {
     return;
+  }
+
+  params_ = params;
+
+  // Restart empty file so there's always "something" to play
+  QFile f(filename_);
+  if (f.open(QFile::WriteOnly)) {
+    f.close();
   }
 
   // Our current audio cache is unusable, so we truncate it automatically

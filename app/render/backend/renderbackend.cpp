@@ -101,10 +101,8 @@ void RenderBackend::CancelQueue()
 
 QFuture<QByteArray> RenderBackend::Hash(const rational &time)
 {
-  RenderWorker* instance = GetInstanceFromPool();
-
   return QtConcurrent::run(&thread_pool_,
-                           instance,
+                           GetInstanceFromPool(),
                            &RenderWorker::Hash,
                            time);
 }
@@ -115,10 +113,8 @@ QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time, bool clear_qu
     thread_pool_.clear();
   }
 
-  RenderWorker* instance = GetInstanceFromPool();
-
   return QtConcurrent::run(&thread_pool_,
-                           instance,
+                           GetInstanceFromPool(),
                            &RenderWorker::RenderFrame,
                            time);
 }
@@ -195,6 +191,12 @@ RenderWorker *RenderBackend::GetInstanceFromPool()
     if (viewer_node_) {
       instance->Init(viewer_node_);
     }
+
+    connect(instance,
+            &RenderWorker::FinishedJob,
+            this,
+            &RenderBackend::WorkerFinished,
+            Qt::QueuedConnection);
   }
 
   instance->SetAvailable(false);
@@ -223,6 +225,11 @@ void RenderBackend::AudioCallback()
     break;
   }
   */
+}
+
+void RenderBackend::WorkerFinished()
+{
+  static_cast<RenderWorker*>(sender())->SetAvailable(true);
 }
 
 bool RenderBackend::ConformWaitInfo::operator==(const RenderBackend::ConformWaitInfo &rhs) const

@@ -101,12 +101,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderers
   renderer_ = new OpenGLBackend(this);
-  /*
-  connect(renderer_, &RenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
-  connect(renderer_, &RenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
-  connect(renderer_, &RenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
-  connect(renderer_, &RenderBackend::GeneratedFrame, this, &ViewerWidget::RendererGeneratedFrame);
-  */
 
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
@@ -160,8 +154,11 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
-  connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
+
+  n->audio_playback_cache()->SetParameters(AudioRenderingParams(n->audio_params(),
+                                                                SampleFormat::kInternalFormat));
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   LengthChangedSlot(n->GetLength());
@@ -191,6 +188,9 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
     waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
   }
+
+  // Set texture to new texture (or null if no viewer node is available)
+  ForceUpdate();
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
@@ -203,7 +203,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
-  disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   // Effectively disables the viewer and clears the state
@@ -270,9 +270,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
   override_color_manager_ = color_manager;
 
   TimeBasedWidget::ConnectViewerNode(node);
-
-  // Set texture to new texture (or null if no viewer node is available)
-  ForceUpdate();
 }
 
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
@@ -341,6 +338,12 @@ void ViewerWidget::SetGizmos(Node *node)
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
+  if (!FrameExistsAtTime(time)) {
+    // There is definitely no frame here, we can immediately flip to showing nothing
+    SetDisplayImage(nullptr, false);
+    return;
+  }
+
   {
     QMutexLocker locker(playback_queue_.lock());
 
@@ -348,12 +351,17 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       const ViewerPlaybackFrame& pf = playback_queue_.first();
 
       if (pf.timestamp == time) {
+
         // Frame was in queue, no need to decode anything
         SetDisplayImage(pf.frame, true);
-        QtConcurrent::run(this, &ViewerWidget::FillPlaybackQueue);
         return;
+
       } else {
+
+        // Skip this frame
         playback_queue_.removeFirst();
+        RequestNextFrameForQueue();
+
       }
     }
   }
@@ -363,28 +371,14 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   }
 
   // Frame was not in queue, will require decoding
-  if (FrameExistsAtTime(time)) {
-    QString frame_fn = GetCachedFilenameFromTime(time);
+  QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
 
-    if (frame_fn.isEmpty()) {
+  connect(watcher,
+          &QFutureWatcher<FramePtr>::finished,
+          this,
+          &ViewerWidget::RendererGeneratedFrame);
 
-      QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
-      connect(watcher,
-              &QFutureWatcher<FramePtr>::finished,
-              this,
-              &ViewerWidget::RendererGeneratedFrame);
-
-      watcher->setFuture(renderer_->RenderFrame(time, true));
-
-    } else {
-
-      FramePtr f = DecodeCachedImage(frame_fn);
-      SetDisplayImage(f, false);
-
-    }
-  } else {
-    SetDisplayImage(nullptr, false);
-  }
+  watcher->setFuture(renderer_->RenderFrame(time, true));
 }
 
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
@@ -486,43 +480,19 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 
 void ViewerWidget::FillPlaybackQueue()
 {
-  playback_queue_.lock()->lock();
-  foreach (ViewerWindow* window, windows_) {
-    window->queue()->lock()->lock();
-  }
-
+  // FIXME: Replace with an asynchronous approach
   while (playback_queue_.size() < 8) {
-    // Load frame from cache
-    FramePtr frame = nullptr;
-
-    rational rtime = Timecode::timestamp_to_time(playback_queue_next_frame_,
-                                                 timebase());
-
-    QString frame_fn = GetCachedFilenameFromTime(rtime);
-
-    if (!frame_fn.isEmpty()) {
-      frame = DecodeCachedImage(frame_fn);
-    }
-
-    ViewerPlaybackFrame f = {rtime, frame};
-
-    playback_queue_.append(f);
+    rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
+                                                     timebase());
+    playback_queue_next_frame_ += playback_speed_;
+    QFuture<FramePtr> future = renderer_->RenderFrame(next_time, false);
+    future.waitForFinished();
+    playback_queue_.AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
 
     foreach (ViewerWindow* window, windows_) {
-      window->queue()->append(f);
+      window->queue()->AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
     }
-
-    if (!playback_speed_) {
-      break;
-    }
-
-    playback_queue_next_frame_ += playback_speed_;
   }
-
-  foreach (ViewerWindow* window, windows_) {
-    window->queue()->lock()->unlock();
-  }
-  playback_queue_.lock()->unlock();
 }
 
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
@@ -531,12 +501,12 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
     QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
 
     if (!hash.isEmpty()) {
-
       return GetConnectedNode()->video_frame_cache()->CachePathName(
             hash,
             PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
     }
   }
+
   return QString();
 }
 
@@ -595,6 +565,25 @@ void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
   }
 
   emit LoadedBuffer(frame.get());
+}
+
+void ViewerWidget::RequestNextFrameForQueue()
+{
+  rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
+                                                   timebase());
+
+  if (!FrameExistsAtTime(next_time)) {
+    return;
+  }
+
+  playback_queue_next_frame_ += playback_speed_;
+
+  QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
+  connect(watcher,
+          &QFutureWatcher<FramePtr>::finished,
+          this,
+          &ViewerWidget::RendererGeneratedFrameForQueue);
+  watcher->setFuture(renderer_->RenderFrame(next_time, false));
 }
 
 void ViewerWidget::UpdateStack()
@@ -663,8 +652,8 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
 
     QMessageBox::warning(this,
                          tr("Invalid custom ratio"),
-                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a rational "
-                            "fraction with a ':' or a '/' separator.").arg(s),
+                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a "
+                            "rational fraction with a ':' or a '/' separator.").arg(s),
                          QMessageBox::Ok);
   }
 }
@@ -686,6 +675,18 @@ void ViewerWidget::RendererGeneratedFrame()
   watcher->deleteLater();
 
   SetDisplayImage(frame, false);
+}
+
+void ViewerWidget::RendererGeneratedFrameForQueue()
+{
+  QFutureWatcher<FramePtr>* watcher = static_cast<QFutureWatcher<FramePtr>*>(sender());
+  FramePtr frame = watcher->result();
+  watcher->deleteLater();
+
+  // Ignore this signal if we've paused now
+  if (IsPlaying()) {
+    playback_queue_.AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+  }
 }
 
 void ViewerWidget::UpdateRendererParameters()
@@ -990,15 +991,6 @@ void ViewerWidget::PlaybackTimerUpdate()
   }
 }
 
-void ViewerWidget::RendererCachedTime(const rational &time, qint64 job_time)
-{
-  if (GetTime() == time && job_time > frame_cache_job_time_) {
-    frame_cache_job_time_ = job_time;
-
-    ForceUpdate();
-  }
-}
-
 void ViewerWidget::SizeChangedSlot(int width, int height)
 {
   sizer_->SetChildSize(width, height);
@@ -1034,12 +1026,11 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
   sizer_->SetZoom(action->data().toInt());
 }
 
-void ViewerWidget::InvalidateVisible(NodeInput* source)
+void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
 {
-  /*
-  renderer_->NodeGraphChanged(source);
-  renderer_->RenderFrame(GetTime());
-  */
+  if (GetTime() >= range.in() && GetTime() < range.out()) {
+    ForceUpdate();
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

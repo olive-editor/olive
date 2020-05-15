@@ -175,19 +175,6 @@ void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *s
   SendInvalidateCache(range, source);
 }
 
-void Node::InvalidateVisible(NodeInput *from, NodeInput* source)
-{
-  Q_UNUSED(from)
-
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->InvalidateVisible(edge->input(), source);
-      }
-    }
-  }
-}
-
 TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
