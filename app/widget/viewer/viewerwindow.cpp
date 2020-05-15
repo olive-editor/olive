@@ -77,7 +77,6 @@ void ViewerWindow::Pause()
 {
   disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWindow::UpdateFromQueue);
 
-  QMutexLocker locker(queue_.lock());
   queue_.clear();
 }
 
@@ -103,7 +102,6 @@ void ViewerWindow::UpdateFromQueue()
 
   rational time = Timecode::timestamp_to_time(t, playback_timebase_);
 
-  QMutexLocker locker(queue_.lock());
   while (!queue_.isEmpty()) {
     const ViewerPlaybackFrame& pf = queue_.first();
 

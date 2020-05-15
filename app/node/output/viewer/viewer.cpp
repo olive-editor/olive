@@ -106,6 +106,8 @@ void ViewerOutput::set_video_params(const VideoParams &video)
 {
   video_params_ = video;
 
+  video_frame_cache_.SetTimebase(video_params_.time_base());
+
   emit SizeChanged(video_params_.width(), video_params_.height());
   emit TimebaseChanged(video_params_.time_base());
   emit ParamsChanged();

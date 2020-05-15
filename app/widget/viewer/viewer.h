@@ -182,11 +182,13 @@ private:
 
   bool FrameExistsAtTime(const rational& time);
 
-  FramePtr DecodeCachedImage(const QString& fn);
-
   void SetDisplayImage(FramePtr frame, bool main_only);
 
   void RequestNextFrameForQueue();
+
+  PixelFormat::Format GetCurrentPixelFormat() const;
+
+  QFuture<FramePtr> GetFrame(const rational& t, bool clear_render_queue);
 
   QStackedWidget* stack_;
 
@@ -240,7 +242,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerInvalidatedRange(const TimeRange &range);
+  void ViewerInvalidatedRange(const OLIVE_NAMESPACE::TimeRange &range);
 
   void UpdateStack();
 

@@ -56,14 +56,6 @@ public:
     }
   }
 
-  QMutex* lock()
-  {
-    return &queue_lock_;
-  }
-
-private:
-  QMutex queue_lock_;
-
 };
 
 OLIVE_NAMESPACE_EXIT

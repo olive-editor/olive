@@ -29,7 +29,7 @@ OLIVE_NAMESPACE_ENTER
 
 class PlaybackCache : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
   PlaybackCache();
 
@@ -50,11 +50,11 @@ public:
   }
 
 signals:
-  void Invalidated(const TimeRange& r);
+  void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);
 
-  void Validated(const TimeRange& r);
+  void Validated(const OLIVE_NAMESPACE::TimeRange& r);
 
-  void LengthChanged(const rational& r);
+  void LengthChanged(const OLIVE_NAMESPACE::rational& r);
 
 protected:
   void Validate(const TimeRange& r);

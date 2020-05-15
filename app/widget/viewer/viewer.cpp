@@ -340,6 +340,45 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
+FramePtr DecodeCachedImage(const QString &fn, const rational& time)
+{
+  FramePtr frame = nullptr;
+
+  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
+    auto input = OIIO::ImageInput::open(fn.toStdString());
+
+    if (input) {
+
+      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
+                                                                              input->spec().nchannels == kRGBAChannels);
+
+      frame = Frame::Create();
+      frame->set_timestamp(time);
+      frame->set_video_params(VideoRenderingParams(input->spec().width,
+                                                   input->spec().height,
+                                                   image_format));
+
+      frame->allocate();
+
+      input->read_image(input->spec().format,
+                        frame->data(),
+                        OIIO::AutoStride,
+                        frame->linesize_bytes());
+
+      input->close();
+
+#if OIIO_VERSION < 10903
+      OIIO::ImageInput::destroy(input);
+#endif
+
+    } else {
+      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+    }
+  }
+
+  return frame;
+}
+
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!FrameExistsAtTime(time)) {
@@ -348,9 +387,8 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
     return;
   }
 
-  {
-    QMutexLocker locker(playback_queue_.lock());
-
+  // Check playback queue for a frame
+  if (IsPlaying()) {
     while (!playback_queue_.isEmpty()) {
       const ViewerPlaybackFrame& pf = playback_queue_.first();
 
@@ -368,13 +406,11 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
       }
     }
-  }
 
-  if (IsPlaying()) {
     qDebug() << "Playback queue couldn't keep up - falling back to realtime decoding";
   }
 
-  // Frame was not in queue, will require decoding
+  // Frame was not in queue, will require rendering or decoding from cache
   QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
 
   connect(watcher,
@@ -382,7 +418,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
           this,
           &ViewerWidget::RendererGeneratedFrame);
 
-  watcher->setFuture(renderer_->RenderFrame(time, true));
+  watcher->setFuture(GetFrame(time, true));
 }
 
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
@@ -485,11 +521,11 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 void ViewerWidget::FillPlaybackQueue()
 {
   // FIXME: Replace with an asynchronous approach
-  while (playback_queue_.size() < 8) {
+  while (playback_queue_.size() < 16) {
     rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                      timebase());
     playback_queue_next_frame_ += playback_speed_;
-    QFuture<FramePtr> future = renderer_->RenderFrame(next_time, false);
+    QFuture<FramePtr> future = GetFrame(next_time, false);
     future.waitForFinished();
     playback_queue_.AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
 
@@ -507,7 +543,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
     if (!hash.isEmpty()) {
       return GetConnectedNode()->video_frame_cache()->CachePathName(
             hash,
-            PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
+            GetCurrentPixelFormat());
     }
   }
 
@@ -517,45 +553,6 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
   return GetConnectedNode() && time < GetConnectedNode()->GetLength();
-}
-
-FramePtr ViewerWidget::DecodeCachedImage(const QString &fn)
-{
-  FramePtr frame = nullptr;
-
-  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    auto input = OIIO::ImageInput::open(fn.toStdString());
-
-    if (input) {
-
-      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
-                                                                              input->spec().nchannels == kRGBAChannels);
-
-      frame = Frame::Create();
-
-      frame->set_video_params(VideoRenderingParams(input->spec().width,
-                                                   input->spec().height,
-                                                   image_format));
-
-      frame->allocate();
-
-      input->read_image(input->spec().format,
-                        frame->data(),
-                        OIIO::AutoStride,
-                        frame->linesize_bytes());
-
-      input->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageInput::destroy(input);
-#endif
-
-    } else {
-      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
-    }
-  }
-
-  return frame;
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
@@ -587,7 +584,27 @@ void ViewerWidget::RequestNextFrameForQueue()
           &QFutureWatcher<FramePtr>::finished,
           this,
           &ViewerWidget::RendererGeneratedFrameForQueue);
-  watcher->setFuture(renderer_->RenderFrame(next_time, false));
+  watcher->setFuture(GetFrame(next_time, false));
+}
+
+PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
+{
+  return PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline);
+}
+
+QFuture<FramePtr> ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)
+{
+  QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
+  if (cached_hash.isEmpty()) {
+    // Frame hasn't been cached, start render job
+    return renderer_->RenderFrame(t, clear_render_queue);
+  } else {
+    // Frame has been cached, grab the frame
+    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash,
+                                                                              GetCurrentPixelFormat());
+
+    return QtConcurrent::run(DecodeCachedImage, cache_fn, t);
+  }
 }
 
 void ViewerWidget::UpdateStack()
@@ -699,7 +716,7 @@ void ViewerWidget::UpdateRendererParameters()
 
   renderer_->SetDivider(divider_);
   renderer_->SetMode(render_mode);
-  renderer_->SetPixelFormat(PixelFormat::instance()->GetConfiguredFormatForMode(render_mode));
+  renderer_->SetPixelFormat(GetCurrentPixelFormat());
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());
 
@@ -859,11 +876,7 @@ void ViewerWidget::Pause()
       window->Pause();
     }
 
-    {
-      playback_queue_.lock()->lock();
-      playback_queue_.clear();
-      playback_queue_.lock()->unlock();
-    }
+    playback_queue_.clear();
   }
 }
 

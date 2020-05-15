@@ -27,7 +27,9 @@
 #include "config/config.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"
+#include "dialog/task/task.h"
 #include "panel/panelmanager.h"
+#include "task/cache/cache.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -611,7 +613,16 @@ void MainMenu::OpenRecentItemTriggered()
 
 void MainMenu::SequenceCacheTriggered()
 {
-  qDebug() << "STUB";
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  if (p && p->GetConnectedViewer()) {
+    // FIXME: Hardcoded divider...
+    // FIXME: Consider preventing caching the footage viewer
+    CacheTask* task = new CacheTask(p->GetConnectedViewer(), 2, false);
+
+    TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), parentWidget());
+    dialog->open();
+  }
 }
 
 void MainMenu::SequenceCacheInOutTriggered()

@@ -116,6 +116,11 @@ void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
+void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
+{
+  SaveCacheFrame(hash, frame->data(), frame->video_params());
+}
+
 void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
 {
   if (newlen < old) {
@@ -174,8 +179,8 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
       // Attempt to keep this write to one thread
       out->threads(1);
 
-      out->open(fn_std, OIIO::ImageSpec(vparam.width(),
-                                        vparam.height(),
+      out->open(fn_std, OIIO::ImageSpec(vparam.effective_width(),
+                                        vparam.effective_height(),
                                         PixelFormat::ChannelCount(vparam.format()),
                                         PixelFormat::GetOIIOTypeDesc(vparam.format())));
 
