@@ -181,6 +181,14 @@ MainMenu::MainMenu(MainWindow *parent) :
   playback_loop_item_->setCheckable(true);
 
   //
+  // SEQUENCE MENU
+  //
+
+  sequence_menu_ = new Menu(this, this, &MainMenu::SequenceMenuAboutToShow);
+  sequence_cache_item_ = sequence_menu_->AddItem("seqcache", this, &MainMenu::SequenceCacheTriggered);
+  sequence_cache_in_to_out_item_ = sequence_menu_->AddItem("seqcacheinout", this, &MainMenu::SequenceCacheInOutTriggered);
+
+  //
   // WINDOW MENU
   //
   window_menu_ = new Menu(this, this, &MainMenu::WindowMenuAboutToShow);
@@ -358,6 +366,16 @@ void MainMenu::ToolsMenuAboutToShow()
 void MainMenu::PlaybackMenuAboutToShow()
 {
   playback_loop_item_->setChecked(Config::Current()["Loop"].toBool());
+}
+
+void MainMenu::SequenceMenuAboutToShow()
+{
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  bool can_cache_sequence = (p && p->GetConnectedViewer());
+
+  sequence_cache_item_->setEnabled(can_cache_sequence);
+  sequence_cache_in_to_out_item_->setEnabled(can_cache_sequence);
 }
 
 void MainMenu::WindowMenuAboutToShow()
@@ -591,6 +609,16 @@ void MainMenu::OpenRecentItemTriggered()
   Core::instance()->OpenProjectFromRecentList(static_cast<QAction*>(sender())->data().toInt());
 }
 
+void MainMenu::SequenceCacheTriggered()
+{
+  qDebug() << "STUB";
+}
+
+void MainMenu::SequenceCacheInOutTriggered()
+{
+  qDebug() << "STUB";
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -658,6 +686,11 @@ void MainMenu::Retranslate()
   playback_shuttlestop_item_->setText(tr("Shuttle Stop"));
   playback_shuttleright_item_->setText(tr("Shuttle Right"));
   playback_loop_item_->setText(tr("Loop"));
+
+  // Sequence menu
+  sequence_menu_->setTitle(tr("&Sequence"));
+  sequence_cache_item_->setText(tr("Cache Entire Sequence"));
+  sequence_cache_in_to_out_item_->setText(tr("Cache Sequence In/Out"));
 
   // Window menu
   window_menu_->setTitle("&Window");
