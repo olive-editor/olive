@@ -112,8 +112,6 @@ void TimeBasedWidget::UpdateMaximumScroll()
   foreach (TimelineViewBase* base, timeline_views_) {
     base->SetEndTime(length);
   }
-
-  ruler()->SetCacheStatusLength(length);
 }
 
 void TimeBasedWidget::ScrollBarResized(const double &multiplier)

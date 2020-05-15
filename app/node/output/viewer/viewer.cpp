@@ -89,10 +89,13 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
   if (from == texture_input_ || from == samples_input_) {
     emit GraphChangedFrom(source);
 
+    TimeRange invalidated_range(qMax(rational(), range.in()),
+                                qMin(GetLength(), range.out()));
+
     if (from == texture_input_) {
-      video_frame_cache_.Invalidate(range);
+      video_frame_cache_.Invalidate(invalidated_range);
     } else {
-      audio_playback_cache_.Invalidate(range);
+      audio_playback_cache_.Invalidate(invalidated_range);
     }
   }
 

@@ -45,10 +45,10 @@ void PlaybackCache::SetLength(const rational &r)
 
   if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
-    invalidated_.InsertTimeRange(TimeRange(r, length_));
+    invalidated_.InsertTimeRange(TimeRange(length_, r));
   } else {
     // If new length is smaller, removed hashes
-    invalidated_.RemoveTimeRange(TimeRange(length_, r));
+    invalidated_.RemoveTimeRange(TimeRange(r, length_));
   }
 
   LengthChangedEvent(length_, r);

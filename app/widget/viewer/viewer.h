@@ -157,8 +157,6 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  RenderBackend* renderer_;
-
   PlaybackControls* controls_;
 
   ViewerDisplayWidget* display_widget() const;
@@ -224,6 +222,8 @@ private:
 
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
+
+  RenderBackend* renderer_;
 
 private slots:
   void PlaybackTimerUpdate();

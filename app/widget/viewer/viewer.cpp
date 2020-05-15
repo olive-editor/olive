@@ -157,6 +157,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
+  ruler()->SetPlaybackCache(n->video_frame_cache());
+
   n->audio_playback_cache()->SetParameters(AudioRenderingParams(n->audio_params(),
                                                                 SampleFormat::kInternalFormat));
 
@@ -205,6 +207,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
+
+  ruler()->SetPlaybackCache(nullptr);
 
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
@@ -1003,7 +1007,6 @@ void ViewerWidget::SizeChangedSlot(int width, int height)
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
   controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
-  ruler()->SetCacheStatusLength(length);
   UpdateMinimumScale();
 }
 

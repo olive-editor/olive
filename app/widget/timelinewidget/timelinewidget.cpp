@@ -239,6 +239,8 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
   connect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
+  ruler()->SetPlaybackCache(n->video_frame_cache());
+
   SetTimebase(n->video_params().time_base());
 
   for (int i=0;i<views_.size();i++) {
@@ -265,6 +267,8 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
   disconnect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
+
+  ruler()->SetPlaybackCache(nullptr);
 
   SetTimebase(0);
 

@@ -26,6 +26,7 @@
 
 #include "common/timerange.h"
 #include "seekablewidget.h"
+#include "render/playbackcache.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,12 +38,7 @@ public:
 
   void SetCenteredText(bool c);
 
-public slots:
-  void CacheInvalidatedRange(const TimeRange &range);
-
-  void CacheTimeReady(const rational& time);
-
-  void SetCacheStatusLength(const rational& length);
+  void SetPlaybackCache(PlaybackCache* cache);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -66,9 +62,7 @@ private:
 
   bool show_cache_status_;
 
-  rational cache_length_;
-
-  TimeRangeList dirty_cache_ranges_;
+  PlaybackCache* playback_cache_;
 
 };
 

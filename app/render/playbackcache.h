@@ -35,6 +35,11 @@ public:
 
   void Invalidate(const TimeRange& r);
 
+  const rational& GetLength() const
+  {
+    return length_;
+  }
+
   void SetLength(const rational& r);
 
   bool IsFullyValidated() const;
