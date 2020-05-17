@@ -24,11 +24,10 @@
 #include <QString>
 
 #include "openglshader.h"
-#include "render/backend/rendercache.h"
 
 OLIVE_NAMESPACE_ENTER
 
-using OpenGLShaderCache = RenderCache<QString, OpenGLShaderPtr>;
+using OpenGLShaderCache = QHash<QString, OpenGLShaderPtr>;
 
 OLIVE_NAMESPACE_EXIT
 

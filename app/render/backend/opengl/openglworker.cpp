@@ -22,7 +22,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-OpenGLWorker::OpenGLWorker(OpenGLProxy* proxy) :
+OpenGLWorker::OpenGLWorker(RenderBackend *parent, OpenGLProxy* proxy) :
+  RenderWorker(parent),
   proxy_(proxy)
 {
 }

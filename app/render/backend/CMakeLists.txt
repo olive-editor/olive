@@ -30,7 +30,6 @@ set(OLIVE_SOURCES
   render/backend/renderworker.h
   render/backend/renderworker.cpp
 
-  render/backend/rendercache.h
   render/backend/colorprocessorcache.h
   render/backend/decodercache.h
   

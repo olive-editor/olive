@@ -51,6 +51,11 @@ struct HashDownloadFuturePair {
   QFuture<void> download_future;
 };
 
+struct HashTimePair {
+  rational time;
+  QByteArray hash;
+};
+
 void CacheTask::Action()
 {
   OpenGLBackend backend;
@@ -94,7 +99,7 @@ void CacheTask::Action()
       next = snapped + timebase;
     }
 
-    hash_list.append({snapped, backend.Hash(snapped)});
+    hash_list.append({snapped, backend.Hash(snapped, false)});
     range_to_cache.RemoveTimeRange(TimeRange(snapped, next));
   }
 
@@ -107,11 +112,32 @@ void CacheTask::Action()
   // Render all frames necessary
   QLinkedList<HashFrameFuturePair> render_lookup_table;
   {
+    QLinkedList<HashTimePair> sorted_times;
+    QLinkedList<HashTimePair>::iterator sorted_iterator;
+
+    // Rendering is more efficient if we cache in order
     QMap< QByteArray, QLinkedList<rational> >::const_iterator i;
     for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
       const QByteArray& hash = i.key();
+      const rational& time = i.value().first();
 
-      render_lookup_table.append({hash, backend.RenderFrame(i.value().first(), false)});
+      bool inserted = false;
+
+      for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
+        if (sorted_iterator->time > time) {
+          sorted_times.insert(sorted_iterator, {time, hash});
+          inserted = true;
+          break;
+        }
+      }
+
+      if (!inserted) {
+        sorted_times.append({time, hash});
+      }
+    }
+
+    foreach (const HashTimePair& p, sorted_times) {
+      render_lookup_table.append({p.hash, backend.RenderFrame(p.time, false, false)});
     }
   }
 
@@ -124,6 +150,7 @@ void CacheTask::Action()
   // Start downloading frames that have finished
   {
     int counter = 0;
+    int nb_frames = render_lookup_table.size();
 
     QLinkedList<HashDownloadFuturePair> download_futures;
 
@@ -160,7 +187,7 @@ void CacheTask::Action()
 
           // Signal process
           counter++;
-          emit ProgressChanged(qRound(100.0 * static_cast<double>(counter) / static_cast<double>(render_lookup_table.size())));
+          emit ProgressChanged(qRound(100.0 * static_cast<double>(counter) / static_cast<double>(nb_frames)));
 
           j = download_futures.erase(j);
         } else {

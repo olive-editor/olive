@@ -23,21 +23,10 @@
 
 #include "codec/decoder.h"
 #include "project/item/footage/stream.h"
-#include "rendercache.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class DecoderCache : public RenderCache<Stream*, DecoderPtr>
-{
-public:
-  DecoderCache() = default;
-
-  QMutex* lock() {return &lock_;}
-
-private:
-  QMutex lock_;
-
-};
+using DecoderCache = QHash<Stream*, DecoderPtr>;
 
 OLIVE_NAMESPACE_EXIT
 

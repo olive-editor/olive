@@ -26,15 +26,16 @@
 #include "decodercache.h"
 #include "node/traverser.h"
 #include "node/output/viewer/viewer.h"
-#include "render/backend/rendercache.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class RenderBackend;
 
 class RenderWorker : public QObject, public NodeTraverser
 {
   Q_OBJECT
 public:
-  RenderWorker();
+  RenderWorker(RenderBackend* parent);
 
   virtual ~RenderWorker() override;
 
@@ -84,7 +85,7 @@ public:
    *
    * SHA-1 hash or empty QByteArray if no viewer node is set.
    */
-  QByteArray Hash(const rational &time);
+  QByteArray Hash(const rational &time, bool block_for_update);
 
   /**
    * @brief Render the frame at this time
@@ -97,11 +98,9 @@ public:
    * function will still return a blank frame with the same parameters. If no viewer node is set,
    * nullptr is returned.
    */
-  FramePtr RenderFrame(const rational& time);
+  FramePtr RenderFrame(const rational& time, bool block_for_update);
 
-  SampleBufferPtr RenderAudio(ViewerOutput* viewer,
-                              const TimeRange& range,
-                              const SampleFormat::Format& sample_fmt);
+  SampleBufferPtr RenderAudio(const TimeRange& range);
 
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const = 0;
@@ -130,6 +129,8 @@ signals:
   void FinishedJob();
 
 private:
+  void UpdateData(bool block_for_update);
+
   NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
 
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
@@ -137,6 +138,8 @@ private:
   void CopyNodeInputValue(NodeInput* input);
   Node *CopyNodeConnections(Node *src_node);
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
+
+  RenderBackend* parent_;
 
   VideoRenderingParams video_params_;
 
@@ -150,7 +153,7 @@ private:
     rational time;
   };
 
-  RenderCache<Stream*, CachedStill> still_image_cache_;
+  QHash<Stream*, CachedStill> still_image_cache_;
 
   QMatrix4x4 video_download_matrix_;
 
@@ -160,6 +163,8 @@ private:
   QList<NodeInput*> queued_updates_;
   QHash<Node*, Node*> copy_map_;
   bool available_;
+
+  QMutex lock_;
 
 };
 

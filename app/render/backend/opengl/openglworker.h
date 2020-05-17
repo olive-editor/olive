@@ -29,7 +29,7 @@ OLIVE_NAMESPACE_ENTER
 class OpenGLWorker : public RenderWorker
 {
 public:
-  OpenGLWorker(OpenGLProxy* proxy);
+  OpenGLWorker(RenderBackend* parent, OpenGLProxy* proxy);
 
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const override;

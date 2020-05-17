@@ -188,7 +188,7 @@ private:
 
   PixelFormat::Format GetCurrentPixelFormat() const;
 
-  QFuture<FramePtr> GetFrame(const rational& t, bool clear_render_queue);
+  QFuture<FramePtr> GetFrame(const rational& t, bool clear_render_queue, bool block_update);
 
   QStackedWidget* stack_;
 

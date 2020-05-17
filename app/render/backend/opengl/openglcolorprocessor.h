@@ -22,7 +22,6 @@
 #define OPENGLCOLORPROCESSOR_H
 
 #include "openglshader.h"
-#include "render/backend/rendercache.h"
 #include "render/colorprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -63,7 +62,7 @@ private slots:
 
 };
 
-using OpenGLColorProcessorCache = RenderCache<QString, OpenGLColorProcessorPtr>;
+using OpenGLColorProcessorCache = QHash<QString, OpenGLColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
 

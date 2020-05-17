@@ -32,6 +32,8 @@ OLIVE_NAMESPACE_ENTER
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
+  video_instance_queuer_(0),
+  audio_instance_queuer_(0),
   divider_(1),
   render_mode_(RenderMode::kOnline),
   pix_fmt_(PixelFormat::PIX_FMT_RGBA32F),
@@ -57,7 +59,7 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     CancelQueue();
 
     // Delete all of our copied nodes
-    foreach (RenderWorker* instance, instance_pool_) {
+    foreach (RenderWorker* instance, video_instance_pool_) {
       instance->Close();
     }
 
@@ -69,7 +71,7 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     disconnect(viewer_node_->audio_playback_cache(),
                &AudioPlaybackCache::Invalidated,
                this,
-               &RenderBackend::AudioCallback);
+               &RenderBackend::AudioInvalidated);
   }
 
   // Set viewer node
@@ -77,7 +79,7 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 
   if (viewer_node_) {
     // Initiate instances with new node
-    foreach (RenderWorker* instance, instance_pool_) {
+    foreach (RenderWorker* instance, video_instance_pool_) {
       instance->Init(viewer_node_);
     }
 
@@ -89,34 +91,36 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     connect(viewer_node_->audio_playback_cache(),
             &AudioPlaybackCache::Invalidated,
             this,
-            &RenderBackend::AudioCallback);
+            &RenderBackend::AudioInvalidated);
   }
 }
 
 void RenderBackend::CancelQueue()
 {
   // FIXME: Implement something better than this...
-  thread_pool_.waitForDone();
+  video_thread_pool_.waitForDone();
 }
 
-QFuture<QByteArray> RenderBackend::Hash(const rational &time)
+QFuture<QByteArray> RenderBackend::Hash(const rational &time, bool block_for_update)
 {
-  return QtConcurrent::run(&thread_pool_,
-                           GetInstanceFromPool(),
+  return QtConcurrent::run(&video_thread_pool_,
+                           GetInstanceFromPool(video_instance_pool_, video_thread_pool_, video_instance_queuer_),
                            &RenderWorker::Hash,
-                           time);
+                           time,
+                           block_for_update);
 }
 
-QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time, bool clear_queue)
+QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time, bool clear_queue, bool block_for_update)
 {
   if (clear_queue) {
-    thread_pool_.clear();
+    video_thread_pool_.clear();
   }
 
-  return QtConcurrent::run(&thread_pool_,
-                           GetInstanceFromPool(),
+  return QtConcurrent::run(&video_thread_pool_,
+                           GetInstanceFromPool(video_instance_pool_, video_thread_pool_, video_instance_queuer_),
                            &RenderWorker::RenderFrame,
-                           time);
+                           time,
+                           block_for_update);
 }
 
 void RenderBackend::SetDivider(const int &divider)
@@ -146,19 +150,26 @@ void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
 
 void RenderBackend::NodeGraphChanged(NodeInput *source)
 {
-  QLinkedList<RenderWorker*>::iterator i;
-
-  for (i=instance_pool_.begin(); i!=instance_pool_.end(); i++) {
-    (*i)->Queue(source);
+  foreach (RenderWorker* worker, video_instance_pool_) {
+    worker->Queue(source);
   }
+}
+
+void RenderBackend::UpdateInstance(RenderWorker *instance)
+{
+  instance->SetAvailable(false);
+  instance->ProcessQueue();
+  instance->SetVideoParams(video_params());
+  instance->SetAudioParams(audio_params());
+  instance->SetVideoDownloadMatrix(video_download_matrix_);
 }
 
 void RenderBackend::Close()
 {
   CancelQueue();
 
-  qDeleteAll(instance_pool_);
-  instance_pool_.clear();
+  qDeleteAll(video_instance_pool_);
+  video_instance_pool_.clear();
 }
 
 VideoRenderingParams RenderBackend::video_params() const
@@ -171,60 +182,63 @@ AudioRenderingParams RenderBackend::audio_params() const
   return AudioRenderingParams(viewer_node_->audio_params(), sample_fmt_);
 }
 
-RenderWorker *RenderBackend::GetInstanceFromPool()
+RenderWorker *RenderBackend::GetInstanceFromPool(QVector<RenderWorker *> &worker_pool, QThreadPool &thread_pool, int &instance_queuer)
 {
   RenderWorker* instance = nullptr;
 
-  QLinkedList<RenderWorker*>::iterator i;
-
-  for (i=instance_pool_.begin(); i!=instance_pool_.end(); i++) {
-    if ((*i)->IsAvailable()) {
-      instance = *i;
+  foreach (RenderWorker* worker, worker_pool) {
+    if (worker->IsAvailable()) {
+      instance = worker;
       break;
     }
   }
 
   if (!instance) {
-    instance = CreateNewWorker();
-    instance_pool_.append(instance);
+    if (worker_pool.size() < thread_pool.maxThreadCount()) {
+      // Can create another instance
+      instance = CreateNewWorker();
+      worker_pool.append(instance);
 
-    if (viewer_node_) {
-      instance->Init(viewer_node_);
+      if (viewer_node_) {
+        instance->Init(viewer_node_);
+      }
+
+      connect(instance,
+              &RenderWorker::FinishedJob,
+              this,
+              &RenderBackend::WorkerFinished,
+              Qt::QueuedConnection);
+    } else {
+      instance = worker_pool.at(instance_queuer % worker_pool.size());
+      instance_queuer++;
     }
-
-    connect(instance,
-            &RenderWorker::FinishedJob,
-            this,
-            &RenderBackend::WorkerFinished,
-            Qt::QueuedConnection);
   }
-
-  instance->SetAvailable(false);
-  instance->ProcessQueue();
-  instance->SetVideoParams(video_params());
-  instance->SetAudioParams(audio_params());
-  instance->SetVideoDownloadMatrix(video_download_matrix_);
 
   return instance;
 }
 
-void RenderBackend::AudioCallback()
+void RenderBackend::AudioInvalidated(const TimeRange& r)
 {
-  qDebug() << "STUB";
-  /*
-  AudioPlaybackCache* pb_cache = viewer_node_->audio_playback_cache();
-  QThreadPool* thread_pool = audio_copy_map_.thread_pool();
+  QFutureWatcher<SampleBufferPtr>* watcher = new QFutureWatcher<SampleBufferPtr>();
+  connect(watcher, &QFutureWatcher<SampleBufferPtr>::finished, this, &RenderBackend::AudioRendered);
 
-  while (!pb_cache->IsFullyValidated()
-         && thread_pool->activeThreadCount() < thread_pool->maxThreadCount()) {
-    // FIXME: Trigger a background audio thread
-    TimeRange r = viewer_node_->audio_playback_cache()->GetInvalidatedRanges().first();
+  watcher->setFuture(QtConcurrent::run(&video_thread_pool_,
+                                       GetInstanceFromPool(audio_instance_pool_, audio_thread_pool_, audio_instance_queuer_),
+                                       &RenderWorker::RenderAudio,
+                                       r));
+}
 
-    qDebug() << "FIXME: Start rendering audio at:" << r;
+void RenderBackend::AudioRendered()
+{
+  QFutureWatcher<SampleBufferPtr>* watcher = static_cast<QFutureWatcher<SampleBufferPtr>*>(sender());
 
-    break;
+  if (watcher->result()) {
+    qDebug() << "AUDIO: Received" << watcher->result()->sample_count_per_channel() << "samples!";
+  } else {
+    qDebug() << "AUDIO: Received null";
   }
-  */
+
+  watcher->deleteLater();
 }
 
 void RenderBackend::WorkerFinished()

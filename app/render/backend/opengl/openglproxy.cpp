@@ -74,13 +74,13 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
   // Set up OCIO context
   QString colorspace_match = video_stream->get_colorspace_match_string();
 
-  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
+  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.value(colorspace_match));
 
   if (!color_processor) {
     color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager(),
                                                    video_stream->colorspace(),
                                                    video_stream->footage()->project()->color_manager()->GetReferenceColorSpace());
-    color_cache_.Add(colorspace_match, color_processor);
+    color_cache_.insert(colorspace_match, color_processor);
   }
 
   ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(params.mode());
@@ -172,7 +172,7 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
 
 void OpenGLProxy::Close()
 {
-  shader_cache_.Clear();
+  shader_cache_.clear();
   buffer_.Destroy();
   copy_pipeline_ = nullptr;
   functions_ = nullptr;
@@ -186,7 +186,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node,
                                      NodeValueTable &output_params,
                                      const VideoRenderingParams& params)
 {
-  OpenGLShaderPtr shader = shader_cache_.Get(node->ShaderID(input_params));
+  OpenGLShaderPtr shader = shader_cache_.value(node->ShaderID(input_params));
 
   if (!shader) {
     // Since we have shader code, compile it now
@@ -208,7 +208,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node,
     shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code);
     shader->link();
 
-    shader_cache_.Add(node->id(), shader);
+    shader_cache_.insert(node->id(), shader);
   }
 
   // Create the output textures

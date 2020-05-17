@@ -53,7 +53,7 @@ RenderWorker *OpenGLBackend::CreateNewWorker()
     }
   }
 
-  return new OpenGLWorker(proxy_);
+  return new OpenGLWorker(this, proxy_);
 }
 
 void OpenGLBackend::ClearProxy()

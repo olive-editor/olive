@@ -36,8 +36,9 @@ OLIVE_NAMESPACE_ENTER
 /**
  * @brief Retrieves the width of a string according to certain QFontMetrics
  *
- * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the latter was only
- * introduced in 5.11+. This function wraps the latter for 5.11+ and the former for earlier.
+ * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
+ * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
+ * earlier.
  */
 int QFontMetricsWidth(QFontMetrics fm, const QString& s);
 

@@ -418,7 +418,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
           this,
           &ViewerWidget::RendererGeneratedFrame);
 
-  watcher->setFuture(GetFrame(time, true));
+  watcher->setFuture(GetFrame(time, true, true));
 }
 
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
@@ -525,7 +525,7 @@ void ViewerWidget::FillPlaybackQueue()
     rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                      timebase());
     playback_queue_next_frame_ += playback_speed_;
-    QFuture<FramePtr> future = GetFrame(next_time, false);
+    QFuture<FramePtr> future = GetFrame(next_time, false, false);
     future.waitForFinished();
     playback_queue_.AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
 
@@ -552,7 +552,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode() && time < GetConnectedNode()->GetLength();
+  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->GetLength();
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
@@ -584,7 +584,7 @@ void ViewerWidget::RequestNextFrameForQueue()
           &QFutureWatcher<FramePtr>::finished,
           this,
           &ViewerWidget::RendererGeneratedFrameForQueue);
-  watcher->setFuture(GetFrame(next_time, false));
+  watcher->setFuture(GetFrame(next_time, false, true));
 }
 
 PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
@@ -592,12 +592,12 @@ PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
   return PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline);
 }
 
-QFuture<FramePtr> ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)
+QFuture<FramePtr> ViewerWidget::GetFrame(const rational &t, bool clear_render_queue, bool block_update)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
   if (cached_hash.isEmpty()) {
     // Frame hasn't been cached, start render job
-    return renderer_->RenderFrame(t, clear_render_queue);
+    return renderer_->RenderFrame(t, clear_render_queue, block_update);
   } else {
     // Frame has been cached, grab the frame
     QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash,

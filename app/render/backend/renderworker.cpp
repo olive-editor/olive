@@ -25,10 +25,12 @@
 #include "audio/sumsamples.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
+#include "renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
 
-RenderWorker::RenderWorker() :
+RenderWorker::RenderWorker(RenderBackend* parent) :
+  parent_(parent),
   viewer_(nullptr),
   available_(true)
 {
@@ -39,11 +41,15 @@ RenderWorker::~RenderWorker()
   Close();
 }
 
-QByteArray RenderWorker::Hash(const rational &time)
+QByteArray RenderWorker::Hash(const rational &time, bool block_for_update)
 {
   if (!viewer_) {
     return QByteArray();
   }
+
+  QMutexLocker locker(&lock_);
+
+  UpdateData(block_for_update);
 
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 
@@ -60,14 +66,18 @@ QByteArray RenderWorker::Hash(const rational &time)
   return hasher.result();
 }
 
-FramePtr RenderWorker::RenderFrame(const rational &time)
+FramePtr RenderWorker::RenderFrame(const rational &time, bool block_for_update)
 {
   if (!viewer_) {
     return nullptr;
   }
 
-  NodeValueTable table = GenerateTable(viewer_,
-                                       TimeRange(time, time + video_params_.time_base()));
+  QMutexLocker locker(&lock_);
+
+  UpdateData(block_for_update);
+
+  NodeValueTable table = ProcessInput(viewer_->texture_input(),
+                                      TimeRange(time, time + video_params_.time_base()));
 
   QVariant texture = table.Get(NodeParam::kTexture);
 
@@ -89,9 +99,44 @@ FramePtr RenderWorker::RenderFrame(const rational &time)
   return frame;
 }
 
+SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range)
+{
+  if (!viewer_) {
+    return nullptr;
+  }
+
+  QMutexLocker locker(&lock_);
+
+  UpdateData(true);
+
+  NodeValueTable table = ProcessInput(viewer_->samples_input(), range);
+
+  QVariant samples = table.Get(NodeParam::kSamples);
+
+  return samples.value<SampleBufferPtr>();
+}
+
+void RenderWorker::UpdateData(bool block_for_update)
+{
+  // FIXME: This is pretty trashy. It works, but it's not good. Should probably be changed at some
+  //        point.
+  if (block_for_update) {
+    QMetaObject::invokeMethod(parent_,
+                              "UpdateInstance",
+                              Qt::BlockingQueuedConnection,
+                              OLIVE_NS_ARG(RenderWorker*, this));
+  } else {
+    parent_->UpdateInstance(this);
+  }
+}
+
 NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
 {
+  qDebug() << "Hello from track" << track << "type" << track->track_type();
+
   if (track->track_type() == Timeline::kTrackTypeAudio) {
+
+    qDebug() << "Hello?";
 
     QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
@@ -273,8 +318,8 @@ void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &inp
     NodeValue value;
     bool found_cache = false;
 
-    if (still_image_cache_.Has(stream.get())) {
-      CachedStill cs = still_image_cache_.Get(stream.get());
+    if (still_image_cache_.contains(stream.get())) {
+      const CachedStill& cs = still_image_cache_[stream.get()];
 
       if (cs.colorspace == colorspace_match
           && cs.alpha_is_associated == video_stream->premultiplied_alpha()
@@ -283,7 +328,7 @@ void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &inp
         value = cs.texture;
         found_cache = true;
       } else {
-        still_image_cache_.Remove(stream.get());
+        still_image_cache_.remove(stream.get());
       }
     }
 
@@ -291,11 +336,11 @@ void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &inp
 
       value = GetDataFromStream(stream, input_time);
 
-      still_image_cache_.Add(stream.get(), {value,
-                                            colorspace_match,
-                                            video_stream->premultiplied_alpha(),
-                                            video_params_.divider(),
-                                            time_match});
+      still_image_cache_.insert(stream.get(), {value,
+                                               colorspace_match,
+                                               video_stream->premultiplied_alpha(),
+                                               video_params_.divider(),
+                                               time_match});
 
     }
 
@@ -323,7 +368,7 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
 
-  DecoderPtr decoder = decoder_cache_.Get(stream.get());
+  DecoderPtr decoder = decoder_cache_.value(stream.get());
 
   if (!decoder && stream) {
     // Create a new Decoder here
@@ -331,7 +376,7 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
     decoder->set_stream(stream);
 
     if (decoder->Open()) {
-      decoder_cache_.Add(stream.get(), decoder);
+      decoder_cache_.insert(stream.get(), decoder);
     } else {
       decoder = nullptr;
       qWarning() << "Failed to open decoder for" << stream->footage()->filename()

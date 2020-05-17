@@ -38,17 +38,18 @@ public:
 
   void AppendTimewise(const ViewerPlaybackFrame& f, int playback_speed)
   {
-    if (this->isEmpty() || f.timestamp > this->last().timestamp == playback_speed > 0) {
+    reverse_iterator i = this->rbegin();
+
+    if (this->isEmpty() || (this->last().timestamp < f.timestamp) == (playback_speed > 0)) {
       this->append(f);
     } else {
-      reverse_iterator i = this->rbegin();
-
       while (i != this->rend()) {
         reverse_iterator next = i + 1;
 
-        if (next->timestamp < f.timestamp == playback_speed > 0) {
+        if ((next->timestamp < f.timestamp) == (playback_speed > 0)) {
           this->insert(i.base(), f);
-          break;
+
+          return;
         } else {
           i = next;
         }

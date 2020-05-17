@@ -32,8 +32,8 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
-  connect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
+  connect(track_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
+  connect(track_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
 }
 
 const Timeline::TrackType &TrackList::type() const
@@ -192,6 +192,7 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
     connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
     connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
 
+    qDebug() << "Setting track type" << connected_track << type_;
     connected_track->set_track_type(type_);
 
     emit TrackListChanged();

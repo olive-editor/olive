@@ -23,11 +23,10 @@
 
 #include "project/item/footage/stream.h"
 #include "render/colorprocessor.h"
-#include "rendercache.h"
 
 OLIVE_NAMESPACE_ENTER
 
-using ColorProcessorCache = RenderCache<QString, ColorProcessorPtr>;
+using ColorProcessorCache = QHash<QString, ColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
 

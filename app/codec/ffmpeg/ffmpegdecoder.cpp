@@ -1463,7 +1463,9 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   // Open codec
   error_code = avcodec_open2(codec_ctx_, codec, &opts_);
   if (error_code < 0) {
-    qDebug() << "Failed to open codec" << codec->id << error_code;
+    char buf[50];
+    av_strerror(error_code, buf, 50);
+    qDebug() << "Failed to open codec" << codec->id << error_code << buf;
     ClearResources();
     return;
   }

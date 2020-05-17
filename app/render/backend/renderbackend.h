@@ -47,12 +47,12 @@ public:
   /**
    * @brief Asynchronously generate a hash at a given time
    */
-  QFuture<QByteArray> Hash(const rational& time);
+  QFuture<QByteArray> Hash(const rational& time, bool block_for_update);
 
   /**
    * @brief Asynchronously generate a frame at a given time
    */
-  QFuture<FramePtr> RenderFrame(const rational& time, bool clear_queue);
+  QFuture<FramePtr> RenderFrame(const rational& time, bool clear_queue, bool block_for_update);
 
   void SetDivider(const int& divider);
 
@@ -67,6 +67,8 @@ public:
 public slots:
   void NodeGraphChanged(NodeInput *source);
 
+  void UpdateInstance(OLIVE_NAMESPACE::RenderWorker* instance);
+
 protected:
   virtual RenderWorker* CreateNewWorker() = 0;
 
@@ -77,15 +79,22 @@ protected:
   AudioRenderingParams audio_params() const;
 
 private:
-  RenderWorker *GetInstanceFromPool();
+  RenderWorker *GetInstanceFromPool(QVector<RenderWorker*>& worker_pool,
+                                    QThreadPool& thread_pool,
+                                    int& instance_queuer);
 
   ViewerOutput* viewer_node_;
 
   RenderCancelDialog* cancel_dialog_;
 
-  QLinkedList<RenderWorker*> instance_pool_;
+  QVector<RenderWorker*> video_instance_pool_;
+  QVector<RenderWorker*> audio_instance_pool_;
 
-  QThreadPool thread_pool_;
+  QThreadPool video_thread_pool_;
+  QThreadPool audio_thread_pool_;
+
+  int video_instance_queuer_;
+  int audio_instance_queuer_;
 
   // VIDEO MEMBERS
   int divider_;
@@ -107,7 +116,9 @@ private:
   QList<ConformWaitInfo> footage_wait_info_;
 
 private slots:
-  void AudioCallback();
+  void AudioInvalidated(const TimeRange &r);
+
+  void AudioRendered();
 
   void WorkerFinished();
 
