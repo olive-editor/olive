@@ -1,21 +1,22 @@
-INPUT                = ../app
-RECURSIVE            = YES
+INPUT                 = ../app
+RECURSIVE             = YES
 ## 99% of Javadoc comments are in header files
-FILE_PATTERNS        = *.h
-OUTPUT_DIRECTORY     = _doxygen
-PROJECT_NAME         = doxygen_api
-PROJECT_NUMBER       = 0.2.0
-EXTRACT_ALL          = YES
-EXTRACT_PRIVATE      = YES
-GENERATE_XML         = YES
-GENERATE_HTML        = NO
-GENERATE_LATEX       = NO
-HIDE_UNDOC_MEMBERS   = YES
-HIDE_UNDOC_CLASSES   = YES
-ENABLE_PREPROCESSING = YES
-MACRO_EXPANSION      = YES
-SEARCH_INCLUDES      = YES
-FULL_PATH_NAMES      = NO
+FILE_PATTERNS         = *.h
+OUTPUT_DIRECTORY      = _doxygen
+PROJECT_NAME          = doxygen_api
+PROJECT_NUMBER        = 0.2.0
+EXTRACT_ALL           = YES
+EXTRACT_PRIVATE       = YES
+GENERATE_XML          = YES
+GENERATE_HTML         = NO
+GENERATE_LATEX        = NO
+HIDE_UNDOC_MEMBERS    = YES
+HIDE_UNDOC_CLASSES    = YES
+ENABLE_PREPROCESSING  = YES
+MACRO_EXPANSION       = YES
+SEARCH_INCLUDES       = YES
+FULL_PATH_NAMES       = NO
+INLINE_INHERITED_MEMB = YES
 
 ## Should these be predefined? doc\global\qt-cpp-defines.qdocconf ("Cpp.ignoredirectives")
 ## The only significant ones are apparently Q_PROPERTY and OLIVE_*
