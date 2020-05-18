@@ -360,25 +360,39 @@ void RenderBackend::AudioInvalidated(const TimeRange& r)
     }
   }
 
-  // FIXME: Split into chunks for multithreading
+  // Split into 2 second chunks, one for each thread
+  const int chunk_size = 2;
 
-  {
-    QMutexLocker locker(&queued_audio_lock_);
-    if (queued_audio_.ContainsTimeRange(r)) {
-      return;
+  QList<TimeRange> split_ranges;
+
+  int start_time = qFloor(r.in().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+  int end_time = qCeil(r.out().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+  for (int i=start_time; i<end_time; i+=chunk_size) {
+    TimeRange this_range(qMax(r.in(), rational(i)),
+                         qMin(r.out(), rational(i + chunk_size)));
+
+    {
+      // Check if this range is already in the queue but hasn't started yet, in which case it'll
+      // automatically update to the parameters we have now anyway and we don't need to queue again
+      QMutexLocker locker(&queued_audio_lock_);
+      if (queued_audio_.ContainsTimeRange(this_range)) {
+        continue;
+      }
+      queued_audio_.InsertTimeRange(this_range);
     }
-    queued_audio_.InsertTimeRange(r);
+
+    // Queue this range
+    QFutureWatcher<SampleBufferPtr>* watcher = new QFutureWatcher<SampleBufferPtr>();
+    connect(watcher, &QFutureWatcher<SampleBufferPtr>::finished,
+            this, &RenderBackend::AudioRendered);
+
+    audio_jobs_.insert(watcher, this_range);
+
+    watcher->setFuture(QtConcurrent::run(&audio_pool_.threads,
+                                         GetInstanceFromPool(audio_pool_),
+                                         &RenderWorker::RenderAudio,
+                                         this_range));
   }
-
-  QFutureWatcher<SampleBufferPtr>* watcher = new QFutureWatcher<SampleBufferPtr>();
-  connect(watcher, &QFutureWatcher<SampleBufferPtr>::finished, this, &RenderBackend::AudioRendered);
-
-  audio_jobs_.insert(watcher, r);
-
-  watcher->setFuture(QtConcurrent::run(&audio_pool_.threads,
-                                       GetInstanceFromPool(audio_pool_),
-                                       &RenderWorker::RenderAudio,
-                                       r));
 }
 
 void RenderBackend::AudioRendered()
