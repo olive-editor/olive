@@ -192,7 +192,6 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
     connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
     connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
 
-    qDebug() << "Setting track type" << connected_track << type_;
     connected_track->set_track_type(type_);
 
     emit TrackListChanged();

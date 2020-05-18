@@ -64,6 +64,10 @@ public:
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
+  void SetAudioEnabled(bool e);
+
+  void WorkerStartedRenderingAudio(const TimeRange& r);
+
 public slots:
   void NodeGraphChanged(NodeInput *source);
 
@@ -79,22 +83,31 @@ protected:
   AudioRenderingParams audio_params() const;
 
 private:
-  RenderWorker *GetInstanceFromPool(QVector<RenderWorker*>& worker_pool,
-                                    QThreadPool& thread_pool,
-                                    int& instance_queuer);
+  struct RenderPool {
+    QVector<RenderWorker*> instances;
+    int queuer;
+    QThreadPool threads;
+
+    void Init(ViewerOutput *v);
+    void Queue(NodeInput* input);
+    void Close();
+    void Destroy();
+  };
+
+  RenderWorker *GetInstanceFromPool(RenderPool &pool);
 
   ViewerOutput* viewer_node_;
 
   RenderCancelDialog* cancel_dialog_;
 
-  QVector<RenderWorker*> video_instance_pool_;
-  QVector<RenderWorker*> audio_instance_pool_;
+  RenderPool video_pool_;
+  RenderPool audio_pool_;
+  RenderPool hash_pool_;
 
-  QThreadPool video_thread_pool_;
-  QThreadPool audio_thread_pool_;
+  QMutex queued_audio_lock_;
+  TimeRangeList queued_audio_;
 
-  int video_instance_queuer_;
-  int audio_instance_queuer_;
+  bool audio_enabled_;
 
   // VIDEO MEMBERS
   int divider_;

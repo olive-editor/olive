@@ -60,7 +60,6 @@ void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
 void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples)
 {
   QFile f(filename_);
-  qDebug() << "Writing PCM to" << filename_;
   if (f.open(QFile::ReadWrite)) {
     qint64 start_offset = params_.time_to_bytes(range.in());
     qint64 max_len = params_.time_to_bytes(range.out());

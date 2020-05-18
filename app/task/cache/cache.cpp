@@ -63,6 +63,7 @@ void CacheTask::Action()
   RenderMode::Mode mode = RenderMode::kOffline;
   PixelFormat::Format format = PixelFormat::instance()->GetConfiguredFormatForMode(mode);
 
+  backend.SetAudioEnabled(false);
   backend.SetViewerNode(viewer_);
   backend.SetPixelFormat(format);
   backend.SetMode(mode);

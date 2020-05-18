@@ -433,6 +433,11 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
+  int64_t start_time = ruler()->GetTime();
+
+  playback_queue_next_frame_ = start_time;
+  FillPlaybackQueue();
+
   QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
   if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
@@ -440,11 +445,6 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
                                           GetConnectedNode()->audio_playback_cache()->GetParameters().time_to_bytes(GetTime()),
                                           playback_speed_);
   }
-
-  int64_t start_time = ruler()->GetTime();
-
-  playback_queue_next_frame_ = start_time;
-  FillPlaybackQueue();
 
   playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
 
