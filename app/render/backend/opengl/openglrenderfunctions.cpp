@@ -26,7 +26,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-const GLfloat blit_vertices[] = {
+const QVector<GLfloat> blit_vertices = {
   -1.0f, -1.0f, 0.0f,
   1.0f, -1.0f, 0.0f,
   1.0f, 1.0f, 0.0f,
@@ -36,7 +36,7 @@ const GLfloat blit_vertices[] = {
   1.0f, 1.0f, 0.0f
 };
 
-const GLfloat blit_texcoords[] = {
+const QVector<GLfloat> blit_texcoords = {
   0.0f, 0.0f,
   1.0f, 0.0f,
   1.0f, 1.0f,
@@ -46,7 +46,7 @@ const GLfloat blit_texcoords[] = {
   1.0f, 1.0f
 };
 
-const GLfloat flipped_blit_texcoords[] = {
+const QVector<GLfloat> flipped_blit_texcoords = {
   0.0f, 1.0f,
   1.0f, 1.0f,
   1.0f, 0.0f,
@@ -142,6 +142,15 @@ void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix
 
 void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x4 matrix)
 {
+  Blit(pipeline,
+       GL_TRIANGLES,
+       blit_vertices,
+       flipped ? flipped_blit_texcoords : blit_texcoords,
+       matrix);
+}
+
+void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, GLenum mode, const QVector<GLfloat> &vert, const QVector<GLfloat> &tex, QMatrix4x4 matrix)
+{
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
   PrepareToDraw(func);
@@ -153,13 +162,13 @@ void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x
   QOpenGLBuffer m_vbo;
   m_vbo.create();
   m_vbo.bind();
-  m_vbo.allocate(blit_vertices, 18 * sizeof(GLfloat));
+  m_vbo.allocate(vert.constData(), vert.size() * sizeof(GLfloat));
   m_vbo.release();
 
   QOpenGLBuffer m_vbo2;
   m_vbo2.create();
   m_vbo2.bind();
-  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * sizeof(GLfloat));
+  m_vbo2.allocate(tex.constData(), tex.size() * sizeof(GLfloat));
   m_vbo2.release();
 
   pipeline->bind();
@@ -179,7 +188,8 @@ void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x
   func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
   m_vbo2.release();
 
-  func->glDrawArrays(GL_TRIANGLES, 0, 6);
+  // (Size / 3) because we assume each GLfloat has an XYZ pair
+  func->glDrawArrays(mode, 0, blit_vertices.size() / 3);
 
   pipeline->release();
 
