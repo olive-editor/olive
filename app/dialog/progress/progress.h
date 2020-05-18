@@ -40,7 +40,7 @@ protected:
   virtual void closeEvent(QCloseEvent *) override;
 
 public slots:
-  void SetProgress(int value);
+  void SetProgress(double value);
 
 signals:
   void Cancelled();

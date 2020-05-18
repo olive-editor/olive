@@ -135,9 +135,9 @@ signals:
    *
    * @param p
    *
-   * A value (percentage) between 0 and 100.
+   * A progress value between 0.0 and 1.0.
    */
-  void ProgressChanged(int p);
+  void ProgressChanged(double d);
 
 private:
   QString title_;

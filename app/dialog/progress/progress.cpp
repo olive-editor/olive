@@ -77,12 +77,14 @@ void ProgressDialog::closeEvent(QCloseEvent *e)
 #endif
 }
 
-void ProgressDialog::SetProgress(int value)
+void ProgressDialog::SetProgress(double value)
 {
-  bar_->setValue(value);
+  int percent = qRound(100.0 * value);
+
+  bar_->setValue(percent);
 
 #ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonProgress(value, 100);
+  Core::instance()->main_window()->SetTaskbarButtonProgress(percent, 100);
 #endif
 }
 

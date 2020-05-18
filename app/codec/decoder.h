@@ -242,7 +242,7 @@ signals:
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
    * available
    */
-  void IndexProgress(int);
+  void IndexProgress(double);
 
 protected:
   void SignalProcessingProgress(const int64_t& ts);

@@ -60,13 +60,18 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   layout->addWidget(task_status_lbl_);
 
   // Connect to the task
-  connect(task_, &Task::ProgressChanged, progress_bar_, &QProgressBar::setValue);
+  connect(task_, &Task::ProgressChanged, this, &TaskViewItem::UpdateProgress);
   connect(cancel_btn_, &QPushButton::clicked, task_, &Task::Cancel, Qt::DirectConnection);
 }
 
 void TaskViewItem::Failed()
 {
   task_status_lbl_->setText(task_->GetError());
+}
+
+void TaskViewItem::UpdateProgress(double d)
+{
+  progress_bar_->setValue(qRound(100.0 * d));
 }
 
 OLIVE_NAMESPACE_EXIT

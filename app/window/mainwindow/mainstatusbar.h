@@ -48,6 +48,8 @@ protected:
 private slots:
   void UpdateStatus();
 
+  void SetProgressBarValue(double d);
+
 private:
   TaskManager* manager_;
 

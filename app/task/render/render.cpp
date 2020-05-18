@@ -172,7 +172,7 @@ void RenderTask::Render(TimeRangeList range_to_cache, int divider)
 
           // Signal process
           counter++;
-          emit ProgressChanged(qRound(100.0 * static_cast<double>(counter) / static_cast<double>(nb_frames)));
+          emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(nb_frames));
 
           j = download_futures.erase(j);
         } else {

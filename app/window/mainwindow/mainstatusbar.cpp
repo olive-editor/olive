@@ -72,8 +72,13 @@ void MainStatusBar::UpdateStatus()
     }
 
     bar_->setVisible(true);
-    connect(t, &Task::ProgressChanged, bar_, &QProgressBar::setValue);
+    connect(t, &Task::ProgressChanged, this, &MainStatusBar::SetProgressBarValue);
   }
+}
+
+void MainStatusBar::SetProgressBarValue(double d)
+{
+  bar_->setValue(qRound(100.0 * d));
 }
 
 void MainStatusBar::mouseDoubleClickEvent(QMouseEvent* e)

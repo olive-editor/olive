@@ -333,7 +333,7 @@ bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
 void Decoder::SignalProcessingProgress(const int64_t &ts)
 {
   if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
-    emit IndexProgress(qRound(100.0 * static_cast<double>(ts) / static_cast<double>(stream()->duration())));
+    emit IndexProgress(static_cast<double>(ts) / static_cast<double>(stream()->duration()));
   }
 }
 

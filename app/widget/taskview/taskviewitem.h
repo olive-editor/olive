@@ -55,6 +55,9 @@ private:
 
   Task* task_;
 
+private slots:
+  void UpdateProgress(double d);
+
 };
 
 OLIVE_NAMESPACE_EXIT
