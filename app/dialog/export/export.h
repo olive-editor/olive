@@ -31,7 +31,7 @@
 #include "exportcodec.h"
 #include "exportformat.h"
 #include "exportvideotab.h"
-#include "render/backend/exporter.h"
+#include "task/export/export.h"
 #include "widget/viewer/viewer.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -53,8 +53,6 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
-  void SetUIElementsEnabled(bool enabled);
-
   static int AlignEvenNumber(double d);
 
   ExportParams GenerateParams() const;
@@ -75,8 +73,6 @@ private:
   QLineEdit* filename_edit_;
   QComboBox* format_combobox_;
 
-  Exporter* exporter_;
-
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
 
@@ -84,19 +80,8 @@ private:
 
   ColorManager* color_manager_;
 
-  QProgressBar* progress_bar_;
-
-  QTimer progress_timer_;
-  QLabel* elapsed_label_;
-  QLabel* remaining_label_;
-  qint64 export_start_;
-  double flt_progress_;
-
   QWidget* preferences_area_;
   QDialogButtonBox* buttons_;
-  QPushButton* export_cancel_btn_;
-
-  bool cancelled_;
 
   enum Format {
     kFormatDNxHD,
@@ -137,18 +122,6 @@ private slots:
   void VideoCodecChanged();
 
   void UpdateViewerDimensions();
-
-  void ExporterIsDone();
-
-  void CancelExport();
-
-  void UpdateTimeLabels();
-
-  void ProgressUpdated(double p);
-
-#ifdef Q_OS_WINDOWS
-  void UpdateTaskbarProgress(int progress);
-#endif
 
 };
 

@@ -18,40 +18,35 @@
 
 ***/
 
-#include "task.h"
+#ifndef PROJECTLOADMANAGER_H
+#define PROJECTLOADMANAGER_H
+
+#include "project/project.h"
+#include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-Task::Task() :
-  title_(tr("Task"))
+class ProjectLoadTask : public Task
 {
-}
+  Q_OBJECT
+public:
+  ProjectLoadTask(const QString& filename);
 
-void Task::Start()
-{
-  Action();
+  const QList<ProjectPtr>& GetLoadedProjects()
+  {
+    return projects_;
+  }
 
-  emit Finished();
-}
+public slots:
+  virtual bool Run() override;
 
-const QString &Task::GetTitle()
-{
-  return title_;
-}
+private:
+  QList<ProjectPtr> projects_;
 
-void Task::Cancel()
-{
-  CancelableObject::Cancel();
-}
+  QString filename_;
 
-void Task::SetErrorText(const QString &s)
-{
-  error_ = s;
-}
-
-void Task::SetTitle(const QString &s)
-{
-  title_ = s;
-}
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // PROJECTLOADMANAGER_H

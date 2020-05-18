@@ -28,8 +28,8 @@
 
 #include "core.h"
 #include "exportadvancedvideodialog.h"
-#include "render/backend/exportparams.h"
 #include "render/colormanager.h"
+#include "task/export/exportparams.h"
 
 OLIVE_NAMESPACE_ENTER
 

@@ -229,6 +229,11 @@ public:
    */
   bool CloseAllProjects(bool auto_open_new);
 
+  /**
+   * @brief Runs a modal cache task on the currently active sequence
+   */
+  void CacheActiveSequence(bool in_out_only);
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file
@@ -477,14 +482,16 @@ private:
 private slots:
   void SaveAutorecovery();
 
-  void ProjectSaveSucceeded(OLIVE_NAMESPACE::ProjectPtr p);
+  void ProjectSaveSucceeded(Task *task);
 
   /**
    * @brief Adds a project to the "open projects" list
    */
   void AddOpenProject(OLIVE_NAMESPACE::ProjectPtr p);
 
-  void ImportTaskComplete(QUndoCommand* command);
+  void AddOpenProjectFromTask(Task* task);
+
+  void ImportTaskComplete(Task *task);
 
   bool ConfirmImageSequence(const QString &filename);
 

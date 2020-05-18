@@ -18,31 +18,48 @@
 
 ***/
 
-#ifndef PROJECTLOADMANAGER_H
-#define PROJECTLOADMANAGER_H
+#ifndef PROJECTIMPORTMANAGER_H
+#define PROJECTIMPORTMANAGER_H
 
-#include "project/project.h"
+#include <QFileInfoList>
+#include <QUndoCommand>
+
+#include "project/projectviewmodel.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProjectLoadManager : public Task
+class ProjectImportTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectLoadManager(const QString& filename);
+  ProjectImportTask(ProjectViewModel* model, Folder* folder, const QStringList& filenames);
 
-protected:
-  virtual void Action() override;
+  const int& GetFileCount() const;
 
-signals:
-  void ProjectLoaded(OLIVE_NAMESPACE::ProjectPtr project);
+  QUndoCommand* GetCommand() const
+  {
+    return command_;
+  }
+
+public slots:
+  virtual bool Run() override;
 
 private:
-  QString filename_;
+  void Import(Folder* folder, const QFileInfoList &import, int& counter, QUndoCommand *parent_command);
+
+  QUndoCommand* command_;
+
+  ProjectViewModel* model_;
+
+  Folder* folder_;
+
+  QFileInfoList filenames_;
+
+  int file_count_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROJECTLOADMANAGER_H
+#endif // PROJECTIMPORTMANAGER_H

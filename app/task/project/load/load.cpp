@@ -18,7 +18,7 @@
 
 ***/
 
-#include "projectloadmanager.h"
+#include "load.h"
 
 #include <QApplication>
 #include <QFile>
@@ -28,13 +28,13 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ProjectLoadManager::ProjectLoadManager(const QString &filename) :
+ProjectLoadTask::ProjectLoadTask(const QString &filename) :
   filename_(filename)
 {
   SetTitle(tr("Loading '%1'").arg(filename));
 }
 
-void ProjectLoadManager::Action()
+bool ProjectLoadTask::Run()
 {
   QFile project_file(filename_);
 
@@ -57,7 +57,7 @@ void ProjectLoadManager::Action()
             moveToThread(qApp->thread());
 
             if (!IsCancelled()) {
-              emit ProjectLoaded(project);
+              projects_.append(project);
             }
           } else {
             reader.skipCurrentElement();
@@ -68,14 +68,18 @@ void ProjectLoadManager::Action()
       }
     }
 
+    project_file.close();
+
     if (reader.hasError()) {
-      qDebug() << "Found XML error:" << reader.errorString();
-      emit Failed(reader.errorString());
+      SetError(reader.errorString());
+      return false;
     } else {
-      emit Succeeded();
+      return true;
     }
 
-    project_file.close();
+  } else {
+    SetError(tr("Failed to read file \"%1\" for reading.").arg(filename_));
+    return false;
   }
 }
 

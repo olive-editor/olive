@@ -50,9 +50,17 @@ public slots:
    */
   void AddTask(Task* t);
 
+  void TaskFailed(Task* t);
+
+  void RemoveTask(Task* t);
+
 private:
   QWidget* central_widget_;
+
   QVBoxLayout* layout_;
+
+  QHash<Task*, TaskViewItem*> items_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -21,8 +21,11 @@
 #include "progress.h"
 
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -56,9 +59,46 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
   cancel_layout->addStretch();
 }
 
+void ProgressDialog::showEvent(QShowEvent *e)
+{
+  QDialog::showEvent(e);
+
+#ifdef Q_OS_WINDOWS
+  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
+#endif
+}
+
+void ProgressDialog::closeEvent(QCloseEvent *e)
+{
+  QDialog::closeEvent(e);
+
+#ifdef Q_OS_WINDOWS
+  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NOPROGRESS);
+#endif
+}
+
 void ProgressDialog::SetProgress(int value)
 {
   bar_->setValue(value);
+
+#ifdef Q_OS_WINDOWS
+  Core::instance()->main_window()->SetTaskbarButtonProgress(value, 100);
+#endif
+}
+
+void ProgressDialog::ShowErrorMessage(const QString &title, const QString &message)
+{
+#ifdef Q_OS_WINDOWS
+  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
+#endif
+
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Critical);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(title);
+  b.setText(message);
+  b.addButton(QMessageBox::Ok);
+  b.exec();
 }
 
 OLIVE_NAMESPACE_EXIT

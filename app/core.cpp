@@ -45,13 +45,14 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "project/projectimportmanager.h"
-#include "project/projectloadmanager.h"
-#include "project/projectsavemanager.h"
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
+#include "task/cache/cache.h"
+#include "task/project/import/import.h"
+#include "task/project/load/load.h"
+#include "task/project/save/save.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -239,7 +240,7 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  ProjectImportManager* pim = new ProjectImportManager(model, parent, urls);
+  ProjectImportTask* pim = new ProjectImportTask(model, parent, urls);
 
   if (!pim->GetFileCount()) {
     // No files to import
@@ -247,9 +248,10 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  connect(pim, &ProjectImportManager::ImportComplete, this, &Core::ImportTaskComplete, Qt::BlockingQueuedConnection);
-
   TaskDialog* task_dialog = new TaskDialog(pim, tr("Importing..."), main_window());
+
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ImportTaskComplete);
+
   task_dialog->open();
 }
 
@@ -482,8 +484,19 @@ void Core::AddOpenProject(ProjectPtr p)
   emit ProjectOpened(p.get());
 }
 
-void Core::ImportTaskComplete(QUndoCommand *command)
+void Core::AddOpenProjectFromTask(Task *task)
 {
+  QList<ProjectPtr> projects = static_cast<ProjectLoadTask*>(task)->GetLoadedProjects();
+
+  foreach (ProjectPtr p, projects) {
+    AddOpenProject(p);
+  }
+}
+
+void Core::ImportTaskComplete(Task* task)
+{
+  QUndoCommand *command = static_cast<ProjectImportTask*>(task)->GetCommand();
+
   undo_stack_.pushIfHasChildren(command);
 }
 
@@ -601,11 +614,11 @@ void Core::StartGUI(bool full_screen)
 void Core::SaveProjectInternal(ProjectPtr project)
 {
   // Create save manager
-  ProjectSaveManager* psm = new ProjectSaveManager(project);
+  ProjectSaveTask* psm = new ProjectSaveTask(project);
+  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
 
-  connect(psm, &ProjectSaveManager::ProjectSaveSucceeded, this, &Core::ProjectSaveSucceeded);
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
 
-  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window());
   task_dialog->open();
 }
 
@@ -619,8 +632,10 @@ void Core::SaveAutorecovery()
   }
 }
 
-void Core::ProjectSaveSucceeded(ProjectPtr p)
+void Core::ProjectSaveSucceeded(Task* task)
 {
+  ProjectPtr p = static_cast<ProjectSaveTask*>(task)->GetProject();
+
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
@@ -885,20 +900,19 @@ void Core::OpenProjectInternal(const QString &filename)
     }
   }
 
-  ProjectLoadManager* plm = new ProjectLoadManager(filename);
+  ProjectLoadTask* plm = new ProjectLoadTask(filename);
 
   if (gui_active_) {
 
-    // We use a blocking queued connection here because we want to ensure we have this project instance before the
-    // ProjectLoadManager is destroyed
-    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
-
     TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+
     task_dialog->open();
 
   } else {
 
-    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
+    //connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
 
     CLITaskDialog task_dialog(plm);
 
@@ -1098,6 +1112,20 @@ bool Core::CloseAllProjects(bool auto_open_new)
   }
 
   return true;
+}
+
+void Core::CacheActiveSequence(bool in_out_only)
+{
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  if (p && p->GetConnectedViewer()) {
+    // FIXME: Hardcoded divider...
+    // FIXME: Consider preventing caching the footage viewer
+    CacheTask* task = new CacheTask(p->GetConnectedViewer(), 2, in_out_only);
+
+    TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), main_window_);
+    dialog->open();
+  }
 }
 
 bool Core::CloseAllProjects()

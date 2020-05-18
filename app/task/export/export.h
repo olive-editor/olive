@@ -18,31 +18,33 @@
 
 ***/
 
-#ifndef PROJECTSAVEMANAGER_H
-#define PROJECTSAVEMANAGER_H
+#ifndef EXPORTTASK_H
+#define EXPORTTASK_H
 
-#include "project/project.h"
+#include "exportparams.h"
+#include "node/output/viewer/viewer.h"
+#include "render/colorprocessor.h"
+#include "task/render/render.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProjectSaveManager : public Task
+class ExportTask : public RenderTask
 {
   Q_OBJECT
 public:
-  ProjectSaveManager(ProjectPtr project);
+  ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager, const ExportParams &params);
 
-signals:
-  void ProjectSaveSucceeded(OLIVE_NAMESPACE::ProjectPtr p);
-
-protected:
-  virtual void Action() override;
+public slots:
+  virtual bool Run() override;
 
 private:
-  ProjectPtr project_;
+  ColorManager* color_manager_;
+
+  ExportParams params_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROJECTSAVEMANAGER_H
+#endif // EXPORTTASK_H

@@ -18,33 +18,33 @@
 
 ***/
 
-#include "taskmanager.h"
+#ifndef PROJECTSAVEMANAGER_H
+#define PROJECTSAVEMANAGER_H
 
-#include "task/taskmanager.h"
+#include "project/project.h"
+#include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
-  PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
+class ProjectSaveTask : public Task
 {
-  // Create task view
-  view_ = new TaskView(this);
+  Q_OBJECT
+public:
+  ProjectSaveTask(ProjectPtr project);
 
-  // Set it as the main widget
-  setWidget(view_);
+  ProjectPtr GetProject() const
+  {
+    return project_;
+  }
 
-  // Connect task view to the task manager
-  connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
-  connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_, &TaskView::RemoveTask);
-  connect(TaskManager::instance(), &TaskManager::TaskFailed, view_, &TaskView::TaskFailed);
+public slots:
+  virtual bool Run() override;
 
-  // Set strings
-  Retranslate();
-}
+private:
+  ProjectPtr project_;
 
-void TaskManagerPanel::Retranslate()
-{
-  SetTitle(tr("Task Manager"));
-}
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // PROJECTSAVEMANAGER_H

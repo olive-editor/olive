@@ -21,6 +21,8 @@
 #ifndef EXPORTPARAMS_H
 #define EXPORTPARAMS_H
 
+#include <QMatrix4x4>
+
 #include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
 #include "render/colortransform.h"
@@ -49,6 +51,10 @@ public:
 
   const ColorTransform& color_transform() const;
   void set_color_transform(const ColorTransform& color_transform);
+
+  static QMatrix4x4 GenerateMatrix(ExportParams::VideoScalingMethod method,
+                                   int source_width, int source_height,
+                                   int dest_width, int dest_height);
 
 private:
   QString encoder_id_;

@@ -18,44 +18,32 @@
 
 ***/
 
-#ifndef PROJECTIMPORTMANAGER_H
-#define PROJECTIMPORTMANAGER_H
+#ifndef RENDERTASK_H
+#define RENDERTASK_H
 
-#include <QFileInfoList>
-#include <QUndoCommand>
-
-#include "projectviewmodel.h"
+#include "node/output/viewer/viewer.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProjectImportManager : public Task
+class RenderTask : public Task
 {
-  Q_OBJECT
 public:
-  ProjectImportManager(ProjectViewModel* model, Folder* folder, const QStringList& filenames);
-
-  const int& GetFileCount();
+  RenderTask(ViewerOutput* viewer);
 
 protected:
-  virtual void Action() override;
+  void Render(TimeRangeList range_to_cache, int divider = 1);
 
-signals:
-  void ImportComplete(QUndoCommand* command);
+  ViewerOutput* viewer() const
+  {
+    return viewer_;
+  }
 
 private:
-  void Import(Folder* folder, const QFileInfoList &import, int& counter, QUndoCommand *parent_command);
-
-  ProjectViewModel* model_;
-
-  Folder* folder_;
-
-  QFileInfoList filenames_;
-
-  int file_count_;
+  ViewerOutput* viewer_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROJECTIMPORTMANAGER_H
+#endif // RENDERTASK_H

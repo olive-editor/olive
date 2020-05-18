@@ -52,59 +52,68 @@ public:
   /**
    * @brief Task Constructor
    */
-  Task();
+  Task() :
+    title_(tr("Task")),
+    error_(tr("Unknown error"))
+  {
+  }
 
   /**
    * @brief Retrieve the current title of this Task
    */
-  const QString& GetTitle();
+  const QString& GetTitle()
+  {
+    return title_;
+  }
+
+  /**
+   * @brief Returns the error that occurred if Run() returns false
+   */
+  const QString& GetError()
+  {
+    return error_;
+  }
 
 public slots:
   /**
-   * @brief Try to start this Task
+   * @brief Run this task
    *
-   * The main function for starting this Task. If this task is currently waiting, this function will start a new thread
-   * and set the status to kWorking.
+   * @return True if the task completed successfully, false if not.
    *
-   * This function also checks its dependency Tasks and will only start if all of them are complete. If they are still
-   * working, this function will return FALSE and the status will continue to be kWaiting. If any of them failed, this
-   * Task will also fail - this function will return FALSE and the status will be set to kError.
+   * \see GetError() if this returns false.
    */
-  void Start();
+  virtual bool Run() = 0;
+
+  /**
+   * @brief Reset state so that Run() can be called again.
+   *
+   * Override this if your class holds any persistent state that should be cleared/modified before
+   * it's safe for Run() to run again.
+   */
+  virtual void Reset(){}
 
   /**
    * @brief Cancel the Task
    *
-   * Sends a signal to the Task to stop as soon as possible. Always call this directly or connect with
-   * Qt::DirectConnection, or else it'll be queued *after* the task has already finished.
+   * Sends a signal to the Task to stop as soon as possible. Always call this directly or connect
+   * with Qt::DirectConnection, or else it'll be queued *after* the task has already finished.
    */
-  void Cancel();
+  void Cancel()
+  {
+    CancelableObject::Cancel();
+  }
 
 protected:
-  /**
-   * @brief The main Task function which is run in a separate thread
-   *
-   * Action() is the function that gets called once the separate thread has been created. This function should be
-   * overridden in subclasses.
-   *
-   * It's also recommended to emit ProgressChanged() throughout your Action() so that any attached ProgressBars can
-   * show accurate progress information.
-   *
-   * @return
-   *
-   * TRUE if the Task could complete successfully. FALSE if not. Note that FALSE should only be returned if the Task
-   * could not finish, not if the Task found a negative result (see Task documentation for details). Before returning
-   * FALSE, it's recommended to use set_error() to signal to the user what caused the failure.
-   */
-  virtual void Action() = 0;
-
   /**
    * @brief Set the error message
    *
    * It is recommended to use this if your Action() function ever returns FALSE to tell the user why the failure
    * occurred.
    */
-  void SetErrorText(const QString& s);
+  void SetError(const QString& s)
+  {
+    error_ = s;
+  }
 
   /**
    * @brief Set the Task title
@@ -113,7 +122,10 @@ protected:
    * and shouldn't need to change during the life of the Task. To show an error message, it's recommended to use
    * set_error() instead.
    */
-  void SetTitle(const QString& s);
+  void SetTitle(const QString& s)
+  {
+    title_ = s;
+  }
 
 signals:
   /**
@@ -126,17 +138,6 @@ signals:
    * A value (percentage) between 0 and 100.
    */
   void ProgressChanged(int p);
-
-  void Succeeded();
-
-  void Failed(const QString& error);
-
-  void Finished();
-
-  /**
-   * @brief Signal emitted when this Task is removed from TaskManager
-   */
-  void Removed();
 
 private:
   QString title_;

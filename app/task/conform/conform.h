@@ -32,8 +32,8 @@ class ConformTask : public Task
 public:
   ConformTask(AudioStreamPtr stream, const AudioRenderingParams& params);
 
-protected:
-  virtual void Action() override;
+public slots:
+  virtual bool Run() override;
 
 private:
   AudioStreamPtr stream_;

@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-#include "render/backend/exportparams.h"
 #include "widget/slider/integerslider.h"
 
 OLIVE_NAMESPACE_ENTER

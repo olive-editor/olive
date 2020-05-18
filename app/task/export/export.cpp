@@ -18,44 +18,22 @@
 
 ***/
 
-#include "projectsavemanager.h"
-
-#include <QFile>
-#include <QXmlStreamWriter>
+#include "export.h"
 
 OLIVE_NAMESPACE_ENTER
 
-ProjectSaveManager::ProjectSaveManager(ProjectPtr project) :
-  project_(project)
+ExportTask::ExportTask(ViewerOutput* viewer_node,
+                       ColorManager* color_manager,
+                       const ExportParams& params) :
+  RenderTask(viewer_node),
+  color_manager_(color_manager),
+  params_(params)
 {
-  SetTitle(tr("Saving '%1'").arg(project->filename()));
 }
 
-void ProjectSaveManager::Action()
+bool ExportTask::Run()
 {
-  QFile project_file(project_->filename());
-
-  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
-    QXmlStreamWriter writer(&project_file);
-    writer.setAutoFormatting(true);
-
-    writer.writeStartDocument();
-
-    writer.writeStartElement("olive");
-
-    writer.writeTextElement("version", "0.2.0");
-
-    project_->Save(&writer);
-
-    writer.writeEndElement(); // olive
-
-    writer.writeEndDocument();
-
-    project_file.close();
-  }
-
-  emit Succeeded();
-  emit ProjectSaveSucceeded(project_);
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

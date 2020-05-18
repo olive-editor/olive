@@ -38,10 +38,11 @@ ProxyTask::ProxyTask(VideoStreamPtr stream, int divider) :
   }
 }
 
-void ProxyTask::Action()
+bool ProxyTask::Run()
 {
   if (stream_->footage()->decoder().isEmpty()) {
-    emit Failed(tr("Failed to find decoder to conform audio stream"));
+    SetError(tr("Failed to find decoder to conform audio stream"));
+    return false;
   } else {
     DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
 
@@ -50,9 +51,10 @@ void ProxyTask::Action()
     connect(decoder.get(), &Decoder::IndexProgress, this, &ProxyTask::ProgressChanged);
 
     if (decoder->ProxyVideo(&IsCancelled(), divider_)) {
-      emit Succeeded();
+      return true;
     } else {
-      emit Failed(QStringLiteral("Failed to generate proxy"));
+      SetError(tr("Failed to generate proxy"));
+      return false;
     }
   }
 }

@@ -18,7 +18,7 @@
 
 ***/
 
-#include "projectimportmanager.h"
+#include "import.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -29,7 +29,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ProjectImportManager::ProjectImportManager(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
+ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
+  command_(nullptr),
   model_(model),
   folder_(folder)
 {
@@ -42,27 +43,29 @@ ProjectImportManager::ProjectImportManager(ProjectViewModel *model, Folder *fold
   SetTitle(tr("Importing %1 files").arg(file_count_));
 }
 
-const int &ProjectImportManager::GetFileCount()
+const int &ProjectImportTask::GetFileCount() const
 {
   return file_count_;
 }
 
-void ProjectImportManager::Action()
+bool ProjectImportTask::Run()
 {
-  QUndoCommand* command = new QUndoCommand();
+  command_ = new QUndoCommand();
 
   int imported = 0;
 
-  Import(folder_, filenames_, imported, command);
+  Import(folder_, filenames_, imported, command_);
 
   if (IsCancelled()) {
-    delete command;
+    delete command_;
+    command_ = nullptr;
+    return false;
   } else {
-    emit ImportComplete(command);
+    return true;
   }
 }
 
-void ProjectImportManager::Import(Folder *folder, const QFileInfoList &import, int &counter, QUndoCommand* parent_command)
+void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int &counter, QUndoCommand* parent_command)
 {
   foreach (const QFileInfo& file_info, import) {
     if (IsCancelled()) {

@@ -46,7 +46,20 @@ TaskView::TaskView(QWidget* parent) :
 void TaskView::AddTask(Task *t)
 {
   // Create TaskViewItem (UI representation of a Task) and connect it
-  layout_->insertWidget(layout_->count()-1, new TaskViewItem(t));
+  TaskViewItem* item = new TaskViewItem(t);
+  items_.insert(t, item);
+  layout_->insertWidget(layout_->count()-1, item);
+}
+
+void TaskView::TaskFailed(Task *t)
+{
+  items_.value(t)->Failed();
+}
+
+void TaskView::RemoveTask(Task *t)
+{
+  items_.value(t)->deleteLater();
+  items_.remove(t);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -19,11 +19,6 @@ add_subdirectory(opengl)
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
 
-  render/backend/exporter.h
-  render/backend/exporter.cpp
-  render/backend/exportparams.h
-  render/backend/exportparams.cpp
-
   render/backend/renderbackend.h
   render/backend/renderbackend.cpp
 

@@ -45,6 +45,8 @@ class TaskViewItem : public QFrame
 public:
   TaskViewItem(Task *task, QWidget* parent = nullptr);
 
+  void Failed();
+
 private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;

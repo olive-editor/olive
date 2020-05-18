@@ -61,8 +61,12 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
 
   // Connect to the task
   connect(task_, &Task::ProgressChanged, progress_bar_, &QProgressBar::setValue);
-  connect(task_, &Task::Removed, this, &TaskViewItem::deleteLater);
   connect(cancel_btn_, &QPushButton::clicked, task_, &Task::Cancel, Qt::DirectConnection);
+}
+
+void TaskViewItem::Failed()
+{
+  task_status_lbl_->setText(task_->GetError());
 }
 
 OLIVE_NAMESPACE_EXIT

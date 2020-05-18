@@ -31,8 +31,8 @@ class ProxyTask : public Task
 public:
   ProxyTask(VideoStreamPtr stream, int divider);
 
-protected:
-  virtual void Action() override;
+public slots:
+  virtual bool Run() override;
 
 private:
   VideoStreamPtr stream_;

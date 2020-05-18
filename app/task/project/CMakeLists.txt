@@ -14,13 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(item)
+add_subdirectory(import)
+add_subdirectory(load)
+add_subdirectory(save)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  project/project.h
-  project/project.cpp
-  project/projectviewmodel.h
-  project/projectviewmodel.cpp
   PARENT_SCOPE
 )

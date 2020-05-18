@@ -21,23 +21,22 @@
 #ifndef CACHETASK_H
 #define CACHETASK_H
 
-#include "node/output/viewer/viewer.h"
-#include "task/task.h"
+#include <QtConcurrent/QtConcurrent>
+
+#include "task/render/render.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class CacheTask : public Task
+class CacheTask : public RenderTask
 {
   Q_OBJECT
 public:
   CacheTask(ViewerOutput* viewer, int divider, bool in_out_only);
 
-protected:
-  virtual void Action() override;
+public slots:
+  virtual bool Run() override;
 
 private:
-  ViewerOutput* viewer_;
-
   bool in_out_only_;
 
   int divider_;

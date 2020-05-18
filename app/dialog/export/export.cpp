@@ -31,21 +31,18 @@
 #include <QStandardPaths>
 
 #include "core.h"
+#include "dialog/task/task.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/backend/exportparams.h"
 #include "render/pixelformat.h"
 #include "ui/icons/icons.h"
-#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
   viewer_node_(viewer_node),
-  previously_selected_format_(0),
-  exporter_(nullptr),
-  cancelled_(false)
+  previously_selected_format_(0)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -53,11 +50,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
-  QWidget* outer_preferences_area = new QWidget();
-  QVBoxLayout* outer_preferences_layout = new QVBoxLayout(outer_preferences_area);
-
   preferences_area_ = new QWidget();
-  outer_preferences_layout->addWidget(preferences_area_);
   QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
   preferences_layout->setMargin(0);
 
@@ -142,44 +135,17 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preferences_tabs->addTab(audio_area, tr("Audio"));
   preferences_layout->addWidget(preferences_tabs, row, 0, 1, 4);
 
-  QHBoxLayout* progress_bar_layout = new QHBoxLayout();
-  progress_bar_layout->setMargin(0);
-  outer_preferences_layout->addLayout(progress_bar_layout);
-
-  progress_bar_ = new QProgressBar();
-  progress_bar_->setEnabled(false);
-  progress_bar_->setValue(0);
-  progress_bar_layout->addWidget(progress_bar_);
-
-  export_cancel_btn_ = new QPushButton();
-  export_cancel_btn_->setIcon(icon::Error);
-  export_cancel_btn_->setEnabled(false);
-  connect(export_cancel_btn_, &QPushButton::clicked, this, &ExportDialog::CancelExport);
-  progress_bar_layout->addWidget(export_cancel_btn_);
-
-  QHBoxLayout* time_label_layout = new QHBoxLayout();
-  time_label_layout->setMargin(0);
-  outer_preferences_layout->addLayout(time_label_layout);
-
-  elapsed_label_ = new QLabel();
-  elapsed_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  time_label_layout->addWidget(elapsed_label_);
-
-  remaining_label_ = new QLabel();
-  remaining_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  time_label_layout->addWidget(remaining_label_);
-
-  UpdateTimeLabels();
+  row++;
 
   buttons_ = new QDialogButtonBox();
   buttons_->setCenterButtons(true);
   buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
   buttons_->addButton(QDialogButtonBox::Cancel);
-  connect(buttons_, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons_, SIGNAL(rejected()), this, SLOT(reject()));
-  outer_preferences_layout->addWidget(buttons_);
+  connect(buttons_, &QDialogButtonBox::accepted, this, &ExportDialog::accept);
+  connect(buttons_, &QDialogButtonBox::rejected, this, &ExportDialog::reject);
+  preferences_layout->addWidget(buttons_, row, 0, 1, 4);
 
-  splitter->addWidget(outer_preferences_area);
+  splitter->addWidget(preferences_area_);
 
   QWidget* preview_area = new QWidget();
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
@@ -190,7 +156,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->addWidget(preview_area);
 
   // Set default filename
-  // FIXME: Use Sequence name and project filename to construct this
   SetDefaultFilename();
 
   // Set up available export formats
@@ -227,9 +192,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
-
-  progress_timer_.setInterval(1000);
-  connect(&progress_timer_, &QTimer::timeout, this, &ExportDialog::UpdateTimeLabels);
 }
 
 void ExportDialog::accept()
@@ -314,46 +276,13 @@ void ExportDialog::accept()
     }
   }
 
-  // Set up export parameters
-  exporter_ = new Exporter(viewer_node_, color_manager_, GenerateParams());
-
-  connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
-  connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::ProgressUpdated);
-
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
-#endif
-
-  export_start_ = QDateTime::currentMSecsSinceEpoch();
-
-  flt_progress_ = 0;
-
-  progress_timer_.start();
-
-  QMetaObject::invokeMethod(exporter_, "StartExporting", Qt::QueuedConnection);
-
-  SetUIElementsEnabled(false);
+  ExportTask* task = new ExportTask(viewer_node_, color_manager_, GenerateParams());
+  TaskDialog* td = new TaskDialog(task, tr("Export"), this);
+  td->open();
 }
 
 void ExportDialog::closeEvent(QCloseEvent *e)
 {
-  if (exporter_) {
-    QMessageBox b(this);
-    b.setIcon(QMessageBox::Question);
-    b.setWindowModality(Qt::WindowModal);
-    b.setWindowTitle(tr("Still Exporting"));
-    b.setText(tr("This sequence is still being exported. Do you wish to cancel it?"));
-    b.addButton(QMessageBox::Yes);
-    b.addButton(QMessageBox::No);
-
-    if (b.exec() == QMessageBox::Yes) {
-      CancelExport();
-    } else {
-      e->ignore();
-      return;
-    }
-  }
-
   preview_viewer_->ConnectViewerNode(nullptr);
 
   QDialog::closeEvent(e);
@@ -548,17 +477,6 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
-void ExportDialog::SetUIElementsEnabled(bool enabled)
-{
-  preferences_area_->setEnabled(enabled);
-  buttons_->setEnabled(enabled);
-
-  progress_bar_->setEnabled(!enabled);
-  export_cancel_btn_->setEnabled(!enabled);
-  elapsed_label_->setEnabled(!enabled);
-  remaining_label_->setEnabled(!enabled);
-}
-
 int ExportDialog::AlignEvenNumber(double d)
 {
   return qCeil(d * 0.5) * 2;
@@ -607,40 +525,6 @@ ExportParams ExportDialog::GenerateParams() const
   return params;
 }
 
-void ExportDialog::UpdateTimeLabels()
-{
-  qint64 elapsed, remaining;
-
-  if (exporter_) {
-    elapsed = QDateTime::currentMSecsSinceEpoch() - export_start_;
-
-    if (flt_progress_ > 0) {
-      remaining = qRound64((1.0 - flt_progress_) * static_cast<double>(elapsed) / flt_progress_);
-    } else {
-      remaining = 0;
-    }
-  } else {
-    elapsed = 0;
-    remaining = 0;
-  }
-
-  elapsed_label_->setText(tr("Elapsed: %1").arg(TimeToString(elapsed)));
-  remaining_label_->setText(tr("Remaining: %1").arg(TimeToString(remaining)));
-}
-
-void ExportDialog::ProgressUpdated(double p)
-{
-  int i_prog = qRound(100.0 * p);
-
-  progress_bar_->setValue(i_prog);
-
-#ifdef Q_OS_WINDOWS
-  UpdateTaskbarProgress(i_prog);
-#endif
-
-  flt_progress_ = p;
-}
-
 QString ExportDialog::TimeToString(int64_t ms)
 {
   int64_t total_seconds = ms / 1000;
@@ -659,66 +543,14 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                    static_cast<int>(video_tab_->height_slider()->GetValue()));
 
-  preview_viewer_->SetMatrix(Exporter::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                                      viewer_node_->video_params().width(),
-                                                      viewer_node_->video_params().height(),
-                                                      static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                                      static_cast<int>(video_tab_->height_slider()->GetValue())));
+  QMatrix4x4 transform =
+      ExportParams::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                                   viewer_node_->video_params().width(),
+                                   viewer_node_->video_params().height(),
+                                   static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                   static_cast<int>(video_tab_->height_slider()->GetValue()));
+
+  preview_viewer_->SetMatrix(transform);
 }
-
-void ExportDialog::ExporterIsDone()
-{
-  progress_timer_.stop();
-
-  if (exporter_->GetExportStatus()) {
-    QMessageBox b(this);
-    b.setIcon(QMessageBox::Information);
-    b.setWindowModality(Qt::WindowModal);
-    b.setWindowTitle(tr("Export Status"));
-    b.setText(tr("Export completed successfully."));
-    b.addButton(QMessageBox::Ok);
-    b.exec();
-
-    QDialog::accept();
-  } else {
-    if (!cancelled_) {
-#ifdef Q_OS_WINDOWS
-      Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
-#endif
-
-      QMessageBox b(this);
-      b.setIcon(QMessageBox::Critical);
-      b.setWindowModality(Qt::WindowModal);
-      b.setWindowTitle(tr("Export Status"));
-      b.setText(tr("Export failed: %1").arg(exporter_->GetExportError()));
-      b.addButton(QMessageBox::Ok);
-      b.exec();
-    }
-
-    SetUIElementsEnabled(true);
-  }
-
-  exporter_ = nullptr;
-  cancelled_ = false;
-
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NOPROGRESS);
-#endif
-}
-
-void ExportDialog::CancelExport()
-{
-  if (exporter_) {
-    cancelled_ = true;
-    exporter_->Cancel();
-  }
-}
-
-#ifdef Q_OS_WINDOWS
-void ExportDialog::UpdateTaskbarProgress(int progress)
-{
-  Core::instance()->main_window()->SetTaskbarButtonProgress(progress, 100);
-}
-#endif
 
 OLIVE_NAMESPACE_EXIT

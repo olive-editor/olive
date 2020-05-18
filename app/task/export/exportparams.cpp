@@ -74,4 +74,30 @@ void ExportParams::set_color_transform(const ColorTransform &color_transform)
   color_transform_ = color_transform;
 }
 
+QMatrix4x4 ExportParams::GenerateMatrix(ExportParams::VideoScalingMethod method,
+                                        int source_width, int source_height,
+                                        int dest_width, int dest_height)
+{
+  QMatrix4x4 preview_matrix;
+
+  if (method == ExportParams::kStretch) {
+    return preview_matrix;
+  }
+
+  float export_ar = static_cast<float>(dest_width) / static_cast<float>(dest_height);
+  float source_ar = static_cast<float>(source_width) / static_cast<float>(source_height);
+
+  if (qFuzzyCompare(export_ar, source_ar)) {
+    return preview_matrix;
+  }
+
+  if ((export_ar > source_ar) == (method == ExportParams::kFit)) {
+    preview_matrix.scale(source_ar / export_ar, 1.0F);
+  } else {
+    preview_matrix.scale(1.0F, export_ar / source_ar);
+  }
+
+  return preview_matrix;
+}
+
 OLIVE_NAMESPACE_EXIT
