@@ -265,8 +265,6 @@ protected:
   QMutex mutex_;
 
 private:
-  void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
-
   StreamPtr stream_;
 
 };
