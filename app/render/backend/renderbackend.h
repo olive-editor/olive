@@ -104,18 +104,31 @@ private:
 
   // AUDIO MEMBERS
   SampleFormat::Format sample_fmt_;
+  QHash< QFutureWatcher<SampleBufferPtr>*, TimeRange > audio_jobs_;
 
   struct ConformWaitInfo {
     StreamPtr stream;
+    AudioRenderingParams params;
     TimeRange affected_range;
     rational stream_time;
 
     bool operator==(const ConformWaitInfo& rhs) const;
   };
 
-  QList<ConformWaitInfo> footage_wait_info_;
+  QList<ConformWaitInfo> conform_wait_info_;
+
+  void ListenForConformSignal(AudioStreamPtr s);
+
+  void StopListeningForConformSignal(AudioStream *s);
+
+  bool ic_from_conform_;
 
 private slots:
+  void AudioConformUnavailable(StreamPtr stream, TimeRange range,
+                               rational stream_time, AudioRenderingParams params);
+
+  void AudioConformUpdated(OLIVE_NAMESPACE::AudioRenderingParams params);
+
   void AudioInvalidated(const TimeRange &r);
 
   void AudioRendered();

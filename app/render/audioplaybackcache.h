@@ -39,7 +39,9 @@ public:
 
   void SetParameters(const AudioRenderingParams& params);
 
-  void WritePCM(SampleBufferPtr samples);
+  void WritePCM(const TimeRange &range, SampleBufferPtr samples);
+
+  void WriteSilence(const TimeRange &range);
 
   const QString& GetCacheFilename() const;
 

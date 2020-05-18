@@ -57,6 +57,59 @@ void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
   emit ParametersChanged();
 }
 
+void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples)
+{
+  QFile f(filename_);
+  qDebug() << "Writing PCM to" << filename_;
+  if (f.open(QFile::ReadWrite)) {
+    qint64 start_offset = params_.time_to_bytes(range.in());
+    qint64 max_len = params_.time_to_bytes(range.out());
+    qint64 write_len = max_len - start_offset;
+
+    QByteArray a = samples->toPackedData();
+
+    if (f.size() < max_len) {
+      f.resize(max_len);
+    }
+
+    f.seek(start_offset);
+    f.write(a);
+
+    if (write_len > a.size()) {
+      // Fill remaining space with silence
+      QByteArray s(write_len - a.size(), 0x00);
+      f.write(s);
+    }
+
+    f.close();
+  } else {
+    qWarning() << "Failed to write PCM data to" << filename_;
+  }
+}
+
+void AudioPlaybackCache::WriteSilence(const TimeRange &range)
+{
+  QFile f(filename_);
+  if (f.open(QFile::ReadWrite)) {
+    qint64 start_offset = params_.time_to_bytes(range.in());
+    qint64 max_len = params_.time_to_bytes(range.out());
+    qint64 write_len = max_len - start_offset;
+
+    if (f.size() < max_len) {
+      f.resize(max_len);
+    }
+
+    f.seek(start_offset);
+
+    QByteArray a(write_len, 0x00);
+    f.write(a);
+
+    f.close();
+  } else {
+    qWarning() << "Failed to write PCM data to" << filename_;
+  }
+}
+
 const QString &AudioPlaybackCache::GetCacheFilename() const
 {
   return filename_;

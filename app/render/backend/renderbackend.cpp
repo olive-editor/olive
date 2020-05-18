@@ -25,6 +25,8 @@
 
 #include "config/config.h"
 #include "core.h"
+#include "task/conform/conform.h"
+#include "task/taskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -37,7 +39,8 @@ RenderBackend::RenderBackend(QObject *parent) :
   divider_(1),
   render_mode_(RenderMode::kOnline),
   pix_fmt_(PixelFormat::PIX_FMT_RGBA32F),
-  sample_fmt_(SampleFormat::SAMPLE_FMT_FLT)
+  sample_fmt_(SampleFormat::SAMPLE_FMT_FLT),
+  ic_from_conform_(false)
 {
   // FIXME: Don't create in CLI mode
   cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
@@ -203,11 +206,11 @@ RenderWorker *RenderBackend::GetInstanceFromPool(QVector<RenderWorker *> &worker
         instance->Init(viewer_node_);
       }
 
-      connect(instance,
-              &RenderWorker::FinishedJob,
-              this,
-              &RenderBackend::WorkerFinished,
-              Qt::QueuedConnection);
+      connect(instance, &RenderWorker::FinishedJob,
+              this, &RenderBackend::WorkerFinished, Qt::QueuedConnection);
+
+      connect(instance, &RenderWorker::AudioConformUnavailable,
+              this, &RenderBackend::AudioConformUnavailable, Qt::QueuedConnection);
     } else {
       instance = worker_pool.at(instance_queuer % worker_pool.size());
       instance_queuer++;
@@ -217,10 +220,127 @@ RenderWorker *RenderBackend::GetInstanceFromPool(QVector<RenderWorker *> &worker
   return instance;
 }
 
+void RenderBackend::ListenForConformSignal(AudioStreamPtr s)
+{
+  foreach (const ConformWaitInfo& info, conform_wait_info_) {
+    if (info.stream == s) {
+      // We've probably already connected to this one
+      return;
+    }
+  }
+
+  connect(s.get(), &AudioStream::ConformAppended, this, &RenderBackend::AudioConformUpdated);
+}
+
+void RenderBackend::StopListeningForConformSignal(AudioStream *s)
+{
+  foreach (const ConformWaitInfo& info, conform_wait_info_) {
+    if (info.stream.get() == s) {
+      // There are still conforms we're waiting for, don't disconnect
+      return;
+    }
+  }
+
+  disconnect(s, &AudioStream::ConformAppended, this, &RenderBackend::AudioConformUpdated);
+}
+
+void RenderBackend::AudioConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params)
+{
+  ConformWaitInfo info = {stream, params, range, stream_time};
+
+  if (conform_wait_info_.contains(info)) {
+    return;
+  }
+
+  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream);
+
+  if (audio_stream->try_start_conforming(params)) {
+
+    // Start indexing process
+    ListenForConformSignal(audio_stream);
+
+    conform_wait_info_.append(info);
+
+    ConformTask* conform_task = new ConformTask(audio_stream, params);
+
+    TaskManager::instance()->AddTask(conform_task);
+
+  } else if (audio_stream->has_conformed_version(params)) {
+
+    // Conform JUST finished, requeue this time
+    ic_from_conform_ = true;
+    AudioInvalidated(range);
+    ic_from_conform_ = false;
+
+  } else {
+
+    // A conform task is already running, so we'll just wait for it
+    ListenForConformSignal(audio_stream);
+
+    conform_wait_info_.append(info);
+
+  }
+}
+
+void RenderBackend::AudioConformUpdated(AudioRenderingParams params)
+{
+  AudioStream *stream = static_cast<AudioStream*>(sender());
+
+  for (int i=0;i<conform_wait_info_.size();i++) {
+    const ConformWaitInfo& info = conform_wait_info_.at(i);
+
+    if (info.stream.get() == stream
+        && info.params == params) {
+
+      // Make a copy so the values we use aren't corrupt
+      ConformWaitInfo copy = info;
+
+      // Remove this entry from the list
+      conform_wait_info_.removeAt(i);
+      i--;
+
+      // Send invalidate cache signal
+      ic_from_conform_ = true;
+      AudioInvalidated(copy.affected_range);
+      ic_from_conform_ = false;
+
+    }
+  }
+
+  StopListeningForConformSignal(stream);
+}
+
 void RenderBackend::AudioInvalidated(const TimeRange& r)
 {
+  if (!ic_from_conform_) {
+    // Cancel any ranges waiting on a conform here since obviously the contents have changed
+    for (int i=0;i<conform_wait_info_.size();i++) {
+      ConformWaitInfo& info = conform_wait_info_[i];
+
+      // FIXME: Code shamelessly copied from TimeRangeList::RemoveTimeRange()
+
+      if (r.Contains(info.affected_range)) {
+        conform_wait_info_.removeAt(i);
+        i--;
+      } else if (info.affected_range.Contains(r, false, false)) {
+        ConformWaitInfo copy = info;
+
+        info.affected_range.set_out(r.in());
+        copy.affected_range.set_in(r.out());
+
+        conform_wait_info_.append(copy);
+      } else if (info.affected_range.in() < r.in() && info.affected_range.out() > r.in()) {
+        info.affected_range.set_out(r.in());
+      } else if (info.affected_range.in() < r.out() && info.affected_range.out() > r.out()) {
+        info.affected_range.set_in(r.out());
+      }
+    }
+  }
+
   QFutureWatcher<SampleBufferPtr>* watcher = new QFutureWatcher<SampleBufferPtr>();
   connect(watcher, &QFutureWatcher<SampleBufferPtr>::finished, this, &RenderBackend::AudioRendered);
+
+  audio_jobs_.insert(watcher, r);
 
   watcher->setFuture(QtConcurrent::run(&video_thread_pool_,
                                        GetInstanceFromPool(audio_instance_pool_, audio_thread_pool_, audio_instance_queuer_),
@@ -232,10 +352,16 @@ void RenderBackend::AudioRendered()
 {
   QFutureWatcher<SampleBufferPtr>* watcher = static_cast<QFutureWatcher<SampleBufferPtr>*>(sender());
 
-  if (watcher->result()) {
-    qDebug() << "AUDIO: Received" << watcher->result()->sample_count_per_channel() << "samples!";
-  } else {
-    qDebug() << "AUDIO: Received null";
+  if (audio_jobs_.contains(watcher)) {
+    TimeRange r = audio_jobs_.take(watcher);
+
+    if (watcher->result()) {
+      qDebug() << "Received" << watcher->result()->sample_count_per_channel() << "samples";
+      viewer_node_->audio_playback_cache()->WritePCM(r, watcher->result());
+    } else {
+      qDebug() << "Received null";
+      viewer_node_->audio_playback_cache()->WriteSilence(r);
+    }
   }
 
   watcher->deleteLater();

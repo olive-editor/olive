@@ -109,6 +109,15 @@ SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range)
 
   UpdateData(true);
 
+  audio_render_time_ = range;
+
+  qDebug() << "Audio deps:";
+
+  QList<Node*> d = viewer_->samples_input()->GetDependencies();
+  foreach (Node* n, d) {
+    qDebug() << "  " << n;
+  }
+
   NodeValueTable table = ProcessInput(viewer_->samples_input(), range);
 
   QVariant samples = table.Get(NodeParam::kSamples);
@@ -132,11 +141,7 @@ void RenderWorker::UpdateData(bool block_for_update)
 
 NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
 {
-  qDebug() << "Hello from track" << track << "type" << track->track_type();
-
   if (track->track_type() == Timeline::kTrackTypeAudio) {
-
-    qDebug() << "Hello?";
 
     QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
@@ -309,6 +314,8 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
 
 void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable *table)
 {
+  qDebug() << "Stream type" << stream->type();
+
   if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
 
     ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
@@ -348,6 +355,7 @@ void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &inp
 
   } else if (stream->type() == Stream::kAudio) {
 
+    qDebug() << "Hello!";
     table->Push(GetDataFromStream(stream, input_time));
 
   }
@@ -358,7 +366,25 @@ NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &inp
   DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
   if (decoder) {
-    return FrameToTexture(decoder, stream, input_time);
+    if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+      return FrameToTexture(decoder, stream, input_time);
+    } else if (stream->type() == Stream::kAudio) {
+      qDebug() << "Decoding audio!";
+      if (decoder->HasConformedVersion(audio_params())) {
+        qDebug() << "  Retrieving audio!";
+        SampleBufferPtr frame = decoder->RetrieveAudio(input_time.in(), input_time.length(),
+                                                       audio_params());
+
+        if (frame) {
+          qDebug() << "  Returning audio!";
+          return NodeValue(NodeParam::kSamples, QVariant::fromValue(frame));
+        }
+      } else {
+        qDebug() << "  Conform doesn't exist! AAAAA";
+        emit AudioConformUnavailable(decoder->stream(), audio_render_time_,
+                                     input_time.out(), audio_params());
+      }
+    }
   }
 
   return NodeValue();
@@ -498,6 +524,7 @@ void RenderWorker::Init(ViewerOutput* viewer)
 
   Queue(viewer->texture_input());
   Queue(viewer->samples_input());
+  Queue(viewer->track_input(Timeline::kTrackTypeAudio));
   ProcessQueue();
 }
 

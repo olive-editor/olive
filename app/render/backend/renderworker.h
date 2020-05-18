@@ -124,7 +124,8 @@ protected:
   }
 
 signals:
-  void AudioConformUnavailable();
+  void AudioConformUnavailable(StreamPtr stream, TimeRange range,
+                               rational stream_time, AudioRenderingParams params);
 
   void FinishedJob();
 
@@ -160,6 +161,7 @@ private:
   DecoderCache decoder_cache_;
 
   ViewerOutput* viewer_;
+  TimeRange audio_render_time_;
   QList<NodeInput*> queued_updates_;
   QHash<Node*, Node*> copy_map_;
   bool available_;

@@ -86,9 +86,9 @@ QString ViewerOutput::Description() const
 
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  if (from == texture_input_ || from == samples_input_) {
-    emit GraphChangedFrom(source);
+  emit GraphChangedFrom(source);
 
+  if (from == texture_input_ || from == samples_input_) {
     TimeRange invalidated_range(qMax(rational(), range.in()),
                                 qMin(GetLength(), range.out()));
 
