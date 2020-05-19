@@ -33,6 +33,9 @@ public:
 
   virtual ~HistogramScope() override;
 
+public slots:
+  void PerformanceMode();
+
 protected:
   virtual void initializeGL() override;
 
@@ -46,6 +49,8 @@ protected:
 private:
   OpenGLShaderPtr pipeline_secondary_;
   OpenGLTexture texture_row_sums_;
+
+  bool performance_mode_;
 
 private slots:
   void CleanUp();

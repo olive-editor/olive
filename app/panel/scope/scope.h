@@ -23,6 +23,7 @@
 
 #include <QComboBox>
 #include <QStackedWidget>
+#include <QCheckBox>
 
 #include "widget/panel/panel.h"
 #include "widget/scope/histogram/histogram.h"
@@ -58,6 +59,9 @@ protected:
   virtual void Retranslate() override;
 
 private:
+  // Draws the correct toolbar based on the displayed scope
+  void SelectToolbar();
+
   Type type_;
 
   QStackedWidget* stack_;
@@ -67,6 +71,8 @@ private:
   WaveformScope* waveform_view_;
 
   HistogramScope* histogram_;
+
+  QCheckBox* performance_select_;
 
 };
 

@@ -47,6 +47,9 @@ ScopePanel::ScopePanel(QWidget* parent) :
   toolbar_layout->addWidget(scope_type_combobox_);
   toolbar_layout->addStretch();
 
+  performance_select_ = new QCheckBox(tr("Performance Mode"), this);
+  toolbar_layout->addWidget(performance_select_);
+
   layout->addLayout(toolbar_layout);
 
   stack_ = new QStackedWidget();
@@ -61,7 +64,12 @@ ScopePanel::ScopePanel(QWidget* parent) :
   stack_->addWidget(histogram_);
 
   connect(scope_type_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), stack_, &QStackedWidget::setCurrentIndex);
+  connect(scope_type_combobox_, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+          &ScopePanel::SelectToolbar);
+  
+  connect(performance_select_, &QCheckBox::clicked, histogram_, &HistogramScope::PerformanceMode);
 
+  SelectToolbar();
   Retranslate();
 }
 
@@ -103,6 +111,17 @@ void ScopePanel::Retranslate()
   for (int i=0;i<ScopePanel::kTypeCount;i++) {
     scope_type_combobox_->setItemText(i, TypeToName(static_cast<Type>(i)));
   }
+}
+
+void ScopePanel::SelectToolbar()
+{
+  bool histogram = false;
+
+  if (scope_type_combobox_->currentText() == QString("Histogram")) {
+    histogram = true;
+  }
+
+  performance_select_->setVisible(histogram);
 }
 
 OLIVE_NAMESPACE_EXIT
