@@ -68,6 +68,12 @@ ScopePanel::ScopePanel(QWidget* parent) :
 void ScopePanel::SetType(ScopePanel::Type t)
 {
   scope_type_combobox_->setCurrentIndex(t);
+  type_ = t;
+}
+
+ScopePanel::Type ScopePanel::GetType()
+{
+  return type_;
 }
 
 QString ScopePanel::TypeToName(ScopePanel::Type t)
@@ -82,6 +88,13 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
   }
 
   return QString();
+}
+
+ScopePanel::Type ScopePanel::NameToType(QString t) {
+  if (t == QString("Waveform")) return kTypeWaveform;
+  if (t == QString("Histogram")) return kTypeHistogram;
+
+  return kTypeWaveform;  // Default to waveform if there's a problem
 }
 
 void ScopePanel::SetReferenceBuffer(Frame *frame)

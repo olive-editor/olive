@@ -47,7 +47,11 @@ public:
 
   void SetType(Type t);
 
+  Type GetType();
+
   static QString TypeToName(Type t);
+
+  Type NameToType(QString t);
 
 public slots:
   void SetReferenceBuffer(Frame* frame);

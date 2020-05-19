@@ -51,6 +51,8 @@ public:
 
   void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
 
+  void LoadScopePanel(QXmlStreamAttributes attr);
+
   /**
    * @brief Wrapper for ViewerWidget::SetFullScreen()
    */

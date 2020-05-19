@@ -24,9 +24,11 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QSettings>
 
 #include "mainmenu.h"
 #include "mainstatusbar.h"
+#include "panel/scope/scope.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -138,7 +140,34 @@ void MainWindow::SaveLayout(QXmlStreamWriter *writer) const
 
   writer->writeEndElement(); // timeline
 
+  //foreach (ScopePanel* scope, scope_panels_) {
+  //  scope->saveGeometry();
+  //}
+
+  writer->writeStartElement(QStringLiteral("scopes"));
+
+  foreach (ScopePanel* scope, scope_panels_) {
+    writer->writeEmptyElement(QStringLiteral("scope"));
+    writer->writeAttribute(QString("geom"), QString(scope->saveGeometry().toBase64()));
+
+    QXmlStreamAttributes attr;
+    attr.append(QStringLiteral("name"), scope->objectName());
+    attr.append(QStringLiteral("size"), QStringLiteral("%1:%2").arg(QString::number(scope->size().width()),
+                                                                    QString::number(scope->size().height())));
+    attr.append(QStringLiteral("pos"),
+                QStringLiteral("%1:%2").arg(QString::number(scope->pos().x()), QString::number(scope->pos().y())));
+    attr.append(QStringLiteral("type"), scope->TypeToName(scope->GetType()));
+    attr.append(QStringLiteral("floating"), QString::number(scope->isFloating()));
+
+  }
+
+  writer->writeEndElement();  // scopes
+
+  //writer->writeTextElement(QStringLiteral("geometry"), QString(saveGeometry().toBase64()));
   writer->writeTextElement(QStringLiteral("state"), QString(saveState().toBase64()));
+  
+
+ 
 
   writer->writeEndElement(); // layout
 }
@@ -477,6 +506,25 @@ void MainWindow::LoadLayoutInternal(QXmlStreamReader *reader, XMLNodeData *xml_d
 
       restoreState(state);
 
+    } else if (reader->name() == QStringLiteral("geometry")) {
+      QByteArray state = QByteArray::fromBase64(reader->readElementText().toLatin1());
+
+      //restoreGeometry(state);
+
+    } else if (reader->name() == QStringLiteral("scopes")) {
+        printf("Scopes: %d\n", scope_panels_.size());
+      while (XMLReadNextStartElement(reader)) {
+          printf("el: %s\n", reader->name().toString().toStdString().c_str());
+        if (reader->name() == QStringLiteral("scope")) {
+          XMLAttributeLoop(reader, attr) {
+            printf("attrib: %s, %s\n", attr.name().toString().toStdString().c_str(),
+                   attr.value().toString().toStdString().c_str());
+          }
+          QXmlStreamAttributes attr = reader->attributes();
+          sequence_viewer_panel_->LoadScopePanel(attr);
+          reader->readNext(); // hack to read next elemnts
+        }
+       }
     } else {
       reader->skipCurrentElement();
     }
@@ -652,6 +700,9 @@ T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
 
   panel->setFloating(true);
   panel->show();
+
+  // add new panel to panel_list_
+  list.append(panel);
 
   panel->SetSignalInsteadOfClose(true);
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::FloatingPanelCloseRequested);

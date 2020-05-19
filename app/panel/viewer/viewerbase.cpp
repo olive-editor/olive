@@ -111,6 +111,22 @@ void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
   vw->ForceUpdate();
 }
 
+void ViewerPanelBase::LoadScopePanel(QXmlStreamAttributes attr) {
+  ViewerWidget *vw = static_cast<ViewerWidget *>(GetTimeBasedWidget());
+  ScopePanel *p = Core::instance()->main_window()->AppendScopePanel();
+
+  QByteArray geom = QByteArray::fromBase64(attr.value(QStringLiteral("geom")).toLatin1());
+  p->restoreGeometry(geom);
+
+  // Connect viewer widget texture drawing to scope panel
+  connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
+  connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
+
+  p->SetColorManager(vw->color_manager());
+
+  vw->ForceUpdate();
+}
+
 void ViewerPanelBase::closeEvent(QCloseEvent *e)
 {
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->Pause();
