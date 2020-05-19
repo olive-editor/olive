@@ -147,12 +147,12 @@ void MainWindow::SaveLayout(QXmlStreamWriter *writer) const
   foreach (ScopePanel* scope, scope_panels_) {
     writer->writeEmptyElement(QStringLiteral("scope"));
     writer->writeAttribute(QString("geom"), QString(scope->saveGeometry().toBase64()));
+    writer->writeAttribute(QString("type"), scope->TypeToName(scope->GetType()));
 
-    QXmlStreamAttributes attr;
-    attr.append(QStringLiteral("name"), scope->objectName());
-    attr.append(QStringLiteral("type"), scope->TypeToName(scope->GetType()));
-    attr.append(QStringLiteral("floating"), QString::number(scope->isFloating()));
-
+    //QXmlStreamAttributes attr;
+    //attr.append(QStringLiteral("name"), scope->objectName());
+    //attr.append(QStringLiteral("type"), scope->TypeToName(scope->GetType()));
+    //attr.append(QStringLiteral("floating"), QString::number(scope->isFloating()));
   }
 
   writer->writeEndElement();  // scopes

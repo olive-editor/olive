@@ -117,6 +117,7 @@ void ViewerPanelBase::LoadScopePanel(QXmlStreamAttributes attr) {
 
   QByteArray geom = QByteArray::fromBase64(attr.value(QStringLiteral("geom")).toLatin1());
   p->restoreGeometry(geom);
+  p->SetType(p->NameToType(attr.value(QString("type")).toString()));
 
   // Connect viewer widget texture drawing to scope panel
   connect(vw, &ViewerWidget::LoadedBuffer, p, &ScopePanel::SetReferenceBuffer);
