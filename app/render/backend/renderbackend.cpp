@@ -34,7 +34,7 @@ OLIVE_NAMESPACE_ENTER
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
-  audio_enabled_(true),
+  audio_mode_(kAudioPreview),
   divider_(1),
   render_mode_(RenderMode::kOnline),
   pix_fmt_(PixelFormat::PIX_FMT_RGBA32F),
@@ -91,7 +91,7 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
             this,
             &RenderBackend::NodeGraphChanged);
 
-    if (audio_enabled_) {
+    if (audio_mode_ == kAudioPreview) {
       // Listen for audio invalidation signals
       connect(viewer_node_->audio_playback_cache(),
               &AudioPlaybackCache::Invalidated,
@@ -161,9 +161,9 @@ void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
   video_download_matrix_ = mat;
 }
 
-void RenderBackend::SetAudioEnabled(bool e)
+void RenderBackend::SetAudioMode(AudioMode e)
 {
-  audio_enabled_ = e;
+  audio_mode_ = e;
 }
 
 void RenderBackend::WorkerStartedRenderingAudio(const TimeRange &r)
@@ -391,7 +391,8 @@ void RenderBackend::AudioInvalidated(const TimeRange& r)
     watcher->setFuture(QtConcurrent::run(&audio_pool_.threads,
                                          GetInstanceFromPool(audio_pool_),
                                          &RenderWorker::RenderAudio,
-                                         this_range));
+                                         this_range,
+                                         audio_mode_ == kAudioPreview));
   }
 }
 

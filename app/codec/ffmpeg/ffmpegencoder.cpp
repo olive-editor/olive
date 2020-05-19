@@ -35,8 +35,139 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   video_scale_ctx_(nullptr),
   audio_stream_(nullptr),
   audio_codec_ctx_(nullptr),
-  audio_resample_ctx_(nullptr)
+  audio_resample_ctx_(nullptr),
+  open_(false)
 {
+}
+
+bool FFmpegEncoder::Open()
+{
+  if (open_) {
+    return true;
+  }
+
+  int error_code;
+
+  // Convert QString to C string that FFmpeg expects
+  QByteArray filename_bytes = params().filename().toUtf8();
+  const char* filename_c_str = filename_bytes.constData();
+
+  // Create output format context
+  error_code = avformat_alloc_output_context2(&fmt_ctx_, nullptr, nullptr, filename_c_str);
+
+  // Check error code
+  if (error_code < 0) {
+    FFmpegError("Failed to allocate output context", error_code);
+    return false;
+  }
+
+  // Initialize a video stream if it's enabled
+  if (params().video_enabled()) {
+    if (!InitializeStream(AVMEDIA_TYPE_VIDEO, &video_stream_, &video_codec_ctx_, params().video_codec())) {
+      return false;
+    }
+
+    // This is the format we will expect frames received in Write() to be in
+    PixelFormat::Format native_pixel_fmt = params().video_params().format();
+
+    // This is the format we will need to convert the frame to for swscale to understand it
+    video_conversion_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(native_pixel_fmt);
+
+    // This is the equivalent pixel format above as an AVPixelFormat that swscale can understand
+    AVPixelFormat src_pix_fmt = FFmpegCommon::GetFFmpegPixelFormat(video_conversion_fmt_);
+
+    // This is the pixel format the encoder wants to encode to
+    AVPixelFormat encoder_pix_fmt = video_codec_ctx_->pix_fmt;
+
+    // Set up a scaling context - if the native pixel format is not equal to the encoder's, we'll need to convert it
+    // before encoding. Even if we don't, this may be useful for converting between linesizes, etc.
+    video_scale_ctx_ = sws_getContext(params().video_params().width(),
+                                      params().video_params().height(),
+                                      src_pix_fmt,
+                                      params().video_params().width(),
+                                      params().video_params().height(),
+                                      encoder_pix_fmt,
+                                      0,
+                                      nullptr,
+                                      nullptr,
+                                      nullptr);
+  }
+
+  // Initialize an audio stream if it's enabled
+  if (params().audio_enabled()
+      && !InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
+    return false;
+  }
+
+  av_dump_format(fmt_ctx_, 0, filename_c_str, 1);
+
+  // Open output file for writing
+  error_code = avio_open(&fmt_ctx_->pb, filename_c_str, AVIO_FLAG_WRITE);
+  if (error_code < 0) {
+    FFmpegError("Failed to open IO context", error_code);
+    return false;
+  }
+
+  // Write header
+  error_code = avformat_write_header(fmt_ctx_, nullptr);
+  if (error_code < 0) {
+    FFmpegError("Failed to write format header", error_code);
+    return false;
+  }
+
+  open_ = true;
+  return true;
+}
+
+bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
+{
+  bool success = false;
+
+  AVFrame* encoded_frame = av_frame_alloc();
+
+  int error_code;
+  const char* input_data;
+  int input_linesize;
+
+  // Frame must be video
+  encoded_frame->width = frame->width();
+  encoded_frame->height = frame->height();
+  encoded_frame->format = video_codec_ctx_->pix_fmt;
+
+  error_code = av_frame_get_buffer(encoded_frame, 0);
+  if (error_code < 0) {
+    FFmpegError("Failed to create AVFrame buffer", error_code);
+    goto fail;
+  }
+
+  // We may need to convert this frame to a frame that swscale will understand
+  if (frame->format() != video_conversion_fmt_) {
+    frame = PixelFormat::ConvertPixelFormat(frame, video_conversion_fmt_);
+  }
+
+  // Use swscale context to convert formats/linesizes
+  input_data = frame->const_data();
+  input_linesize = frame->linesize_bytes();
+  error_code = sws_scale(video_scale_ctx_,
+                         reinterpret_cast<const uint8_t**>(&input_data),
+                         &input_linesize,
+                         0,
+                         frame->height(),
+                         encoded_frame->data,
+                         encoded_frame->linesize);
+  if (error_code < 0) {
+    FFmpegError("Failed to scale frame", error_code);
+    goto fail;
+  }
+
+  encoded_frame->pts = qRound64(time.toDouble() / av_q2d(video_codec_ctx_->time_base));
+
+  success = WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
+
+fail:
+  av_frame_free(&encoded_frame);
+
+  return success;
 }
 
 void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm_filename, TimeRange range)
@@ -150,140 +281,19 @@ void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm
 
     pcm.close();
   }
-
-  emit AudioComplete();
 }
 
-bool FFmpegEncoder::OpenInternal()
+void FFmpegEncoder::Close()
 {
-  int error_code;
-
-  // Convert QString to C string that FFmpeg expects
-  QByteArray filename_bytes = params().filename().toUtf8();
-  const char* filename_c_str = filename_bytes.constData();
-
-  // Create output format context
-  error_code = avformat_alloc_output_context2(&fmt_ctx_, nullptr, nullptr, filename_c_str);
-
-  // Check error code
-  if (error_code < 0) {
-    FFmpegError("Failed to allocate output context", error_code);
-    return false;
-  }
-
-  // Initialize a video stream if it's enabled
-  if (params().video_enabled()) {
-    if (!InitializeStream(AVMEDIA_TYPE_VIDEO, &video_stream_, &video_codec_ctx_, params().video_codec())) {
-      return false;
-    }
-
-    // This is the format we will expect frames received in Write() to be in
-    PixelFormat::Format native_pixel_fmt = params().video_params().format();
-
-    // This is the format we will need to convert the frame to for swscale to understand it
-    video_conversion_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(native_pixel_fmt);
-
-    // This is the equivalent pixel format above as an AVPixelFormat that swscale can understand
-    AVPixelFormat src_pix_fmt = FFmpegCommon::GetFFmpegPixelFormat(video_conversion_fmt_);
-
-    // This is the pixel format the encoder wants to encode to
-    AVPixelFormat encoder_pix_fmt = video_codec_ctx_->pix_fmt;
-
-    // Set up a scaling context - if the native pixel format is not equal to the encoder's, we'll need to convert it
-    // before encoding. Even if we don't, this may be useful for converting between linesizes, etc.
-    video_scale_ctx_ = sws_getContext(params().video_params().width(),
-                                      params().video_params().height(),
-                                      src_pix_fmt,
-                                      params().video_params().width(),
-                                      params().video_params().height(),
-                                      encoder_pix_fmt,
-                                      0,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr);
-  }
-
-  // Initialize an audio stream if it's enabled
-  if (params().audio_enabled()
-      && !InitializeStream(AVMEDIA_TYPE_AUDIO, &audio_stream_, &audio_codec_ctx_, params().audio_codec())) {
-    return false;
-  }
-
-  av_dump_format(fmt_ctx_, 0, filename_c_str, 1);
-
-  // Open output file for writing
-  error_code = avio_open(&fmt_ctx_->pb, filename_c_str, AVIO_FLAG_WRITE);
-  if (error_code < 0) {
-    FFmpegError("Failed to open IO context", error_code);
-    return false;
-  }
-
-  // Write header
-  error_code = avformat_write_header(fmt_ctx_, nullptr);
-  if (error_code < 0) {
-    FFmpegError("Failed to write format header", error_code);
-    return false;
-  }
-
-  return true;
-}
-
-void FFmpegEncoder::WriteInternal(FramePtr frame, rational time)
-{
-  AVFrame* encoded_frame = av_frame_alloc();
-
-  int error_code;
-  const char* input_data;
-  int input_linesize;
-
-  // Frame must be video
-  encoded_frame->width = frame->width();
-  encoded_frame->height = frame->height();
-  encoded_frame->format = video_codec_ctx_->pix_fmt;
-
-  error_code = av_frame_get_buffer(encoded_frame, 0);
-  if (error_code < 0) {
-    FFmpegError("Failed to create AVFrame buffer", error_code);
-    goto fail;
-  }
-
-  // We may need to convert this frame to a frame that swscale will understand
-  if (frame->format() != video_conversion_fmt_) {
-    frame = PixelFormat::ConvertPixelFormat(frame, video_conversion_fmt_);
-  }
-
-  // Use swscale context to convert formats/linesizes
-  input_data = frame->const_data();
-  input_linesize = frame->linesize_bytes();
-  error_code = sws_scale(video_scale_ctx_,
-                         reinterpret_cast<const uint8_t**>(&input_data),
-                         &input_linesize,
-                         0,
-                         frame->height(),
-                         encoded_frame->data,
-                         encoded_frame->linesize);
-  if (error_code < 0) {
-    FFmpegError("Failed to scale frame", error_code);
-    goto fail;
-  }
-
-  encoded_frame->pts = qRound64(time.toDouble() / av_q2d(video_codec_ctx_->time_base));
-
-  WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
-
-fail:
-  av_frame_free(&encoded_frame);
-}
-
-void FFmpegEncoder::CloseInternal()
-{
-  if (IsOpen()) {
+  if (open_) {
     // Flush encoders
     FlushEncoders();
 
     // We've written a header, so we'll write a trailer
     av_write_trailer(fmt_ctx_);
     avio_closep(&fmt_ctx_->pb);
+
+    open_ = false;
   }
 
   if (video_scale_ctx_) {

@@ -38,13 +38,14 @@ class FFmpegEncoder : public Encoder
 public:
   FFmpegEncoder(const EncodingParams &params);
 
-public slots:
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info, const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) override;
+  virtual bool Open() override;
 
-protected:
-  virtual bool OpenInternal() override;
-  virtual void WriteInternal(FramePtr frame, rational time) override;
-  virtual void CloseInternal() override;
+  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) override;
+
+  virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info,
+                          const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) override;
+
+  virtual void Close() override;
 
 private:
   /**
@@ -85,6 +86,8 @@ private:
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;
   SwrContext* audio_resample_ctx_;
+
+  bool open_;
 
 };
 

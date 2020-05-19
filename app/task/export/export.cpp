@@ -20,6 +20,9 @@
 
 #include "export.h"
 
+#include "common/timecodefunctions.h"
+#include "render/colormanager.h"
+
 OLIVE_NAMESPACE_ENTER
 
 ExportTask::ExportTask(ViewerOutput* viewer_node,
@@ -29,11 +32,125 @@ ExportTask::ExportTask(ViewerOutput* viewer_node,
   color_manager_(color_manager),
   params_(params)
 {
+  SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
 }
 
 bool ExportTask::Run()
 {
-  return true;
+  TimeRange range;
+
+  encoder_ = Encoder::CreateFromID(params_.encoder(), params_);
+  if (!encoder_) {
+    SetError(tr("Failed to create encoder"));
+    return false;
+  }
+
+  if (!encoder_->Open()) {
+    SetError(tr("Failed to open file"));
+    encoder_->deleteLater();
+    return false;
+  }
+
+  if (params_.has_custom_range()) {
+    // Render custom range only
+    range = params_.custom_range();
+  } else {
+    // Render entire sequence
+    range = TimeRange(0, viewer()->GetLength());
+  }
+
+  frame_time_ = Timecode::time_to_timestamp(range.in(), viewer()->video_params().time_base());
+
+  QMatrix4x4 mat;
+
+  if (params_.video_enabled()) {
+
+    // If a transformation matrix is applied to this video, create it here
+    if (params_.video_scaling_method() != ExportParams::kStretch) {
+      mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
+                                         viewer()->video_params().width(),
+                                         viewer()->video_params().height(),
+                                         params_.video_params().width(),
+                                         params_.video_params().height());
+    }
+
+    // Create color processor
+    color_processor_ = ColorProcessor::Create(color_manager_,
+                                              color_manager_->GetReferenceColorSpace(),
+                                              params_.color_transform());
+  }
+
+  TimeRangeList ranges;
+  ranges.InsertTimeRange(range);
+  Render(ranges, RenderMode::kOnline, mat, true, 1);
+
+  bool success = true;
+
+  foreach (QFuture<bool> f, write_frame_futures_) {
+    f.waitForFinished();
+
+    if (!f.result()) {
+      SetError(tr("Failed to write AVFrame"));
+      success = false;
+    }
+  }
+
+  encoder_->Close();
+
+  encoder_->deleteLater();
+
+  return success;
+}
+
+void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
+{
+  qDebug() << "Converting" << frame->timestamp() << "from" << frame->format();
+
+  // OCIO conversion requires a frame in 32F format
+  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  }
+
+  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
+  ColorManager::DisassociateAlpha(frame);
+
+  // Convert color space
+  processor->ConvertFrame(frame);
+
+  // Re-associate alpha
+  ColorManager::ReassociateAlpha(frame);
+}
+
+QFuture<void> ExportTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
+{
+  rendered_frame_.insert(hash, frame);
+
+  return QtConcurrent::run(FrameColorConvert, color_processor_, frame);
+}
+
+void ExportTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<rational> &times)
+{
+  FramePtr f = rendered_frame_.value(hash);
+
+  foreach (const rational& t, times) {
+    time_map_.insert(t, f);
+  }
+
+  forever {
+    rational real_time = Timecode::timestamp_to_time(frame_time_,
+                                                     viewer()->video_params().time_base());
+
+    if (!time_map_.contains(real_time)) {
+      break;
+    }
+
+    // Unfortunately this can't be done in another thread since the frames need to be sent
+    // one after the other chronologically.
+    encoder_->WriteFrame(time_map_.value(real_time), real_time);
+
+    frame_time_++;
+
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

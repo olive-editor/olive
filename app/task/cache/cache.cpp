@@ -21,6 +21,7 @@
 #include "cache.h"
 
 #include <QLinkedList>
+#include <QMatrix4x4>
 
 #include "project/item/sequence/sequence.h"
 
@@ -48,9 +49,21 @@ bool CacheTask::Run()
     }
   }
 
-  Render(range_to_cache, 2);
+  Render(range_to_cache, RenderMode::kOffline, QMatrix4x4(), false, divider_);
 
   return true;
+}
+
+QFuture<void> CacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
+{
+  return QtConcurrent::run(FrameHashCache::SaveCacheFrame, hash, frame);
+}
+
+void CacheTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<rational> &times)
+{
+  foreach (const rational& t, times) {
+    viewer()->video_frame_cache()->SetHash(t, hash);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

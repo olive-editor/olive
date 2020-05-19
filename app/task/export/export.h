@@ -38,10 +38,27 @@ public:
 public slots:
   virtual bool Run() override;
 
+protected:
+  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
+
+  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) override;
+
 private:
+  QHash<QByteArray, FramePtr> rendered_frame_;
+
+  QHash<rational, FramePtr> time_map_;
+
+  QList< QFuture<bool> > write_frame_futures_;
+
   ColorManager* color_manager_;
 
   ExportParams params_;
+
+  Encoder* encoder_;
+
+  ColorProcessorPtr color_processor_;
+
+  int64_t frame_time_;
 
 };
 

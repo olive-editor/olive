@@ -474,8 +474,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant& tex_in,
                            0,
                            frame->width(),
                            frame->height(),
-                           OpenGLRenderFunctions::GetPixelFormat(texture->texture()->format()),
-                           OpenGLRenderFunctions::GetPixelType(texture->texture()->format()),
+                           OpenGLRenderFunctions::GetPixelFormat(frame->format()),
+                           OpenGLRenderFunctions::GetPixelType(frame->format()),
                            frame->data());
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, 0);

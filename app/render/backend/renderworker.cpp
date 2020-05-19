@@ -99,7 +99,7 @@ FramePtr RenderWorker::RenderFrame(const rational &time, bool block_for_update)
   return frame;
 }
 
-SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range)
+SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range, bool block_for_update)
 {
   if (!viewer_) {
     return nullptr;
@@ -109,7 +109,7 @@ SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range)
 
   parent_->WorkerStartedRenderingAudio(range);
 
-  UpdateData(true);
+  UpdateData(block_for_update);
 
   audio_render_time_ = range;
 

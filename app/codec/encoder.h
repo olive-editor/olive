@@ -104,31 +104,17 @@ public:
 
   const EncodingParams& params() const;
 
-public slots:
-  void Open();
-  void WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time);
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info, const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) = 0;
-  void Close();
+  virtual bool Open() = 0;
 
-signals:
-  void OpenSucceeded();
-  void OpenFailed();
+  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
+  virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info,
+                          const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) = 0;
 
-  void Closed();
-
-  void AudioComplete();
-
-protected:
-  virtual bool OpenInternal() = 0;
-  virtual void WriteInternal(FramePtr frame, rational time) = 0;
-  virtual void CloseInternal() = 0;
-
-  bool IsOpen() const;
+  virtual void Close() = 0;
 
 private:
   EncodingParams params_;
 
-  bool open_;
 };
 
 OLIVE_NAMESPACE_EXIT

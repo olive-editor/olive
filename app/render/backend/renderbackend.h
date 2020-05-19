@@ -64,7 +64,13 @@ public:
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
-  void SetAudioEnabled(bool e);
+  enum AudioMode {
+    kAudioDisabled,
+    kAudioPreview,
+    kAudioRender
+  };
+
+  void SetAudioMode(AudioMode e);
 
   void WorkerStartedRenderingAudio(const TimeRange& r);
 
@@ -107,7 +113,7 @@ private:
   QMutex queued_audio_lock_;
   TimeRangeList queued_audio_;
 
-  bool audio_enabled_;
+  AudioMode audio_mode_;
 
   // VIDEO MEMBERS
   int divider_;

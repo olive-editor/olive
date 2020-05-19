@@ -100,7 +100,7 @@ public:
    */
   FramePtr RenderFrame(const rational& time, bool block_for_update);
 
-  SampleBufferPtr RenderAudio(const TimeRange& range);
+  SampleBufferPtr RenderAudio(const TimeRange& range, bool block_for_update);
 
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const = 0;

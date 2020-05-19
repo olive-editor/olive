@@ -979,7 +979,7 @@ void ViewerWidget::PlaybackTimerUpdate()
       tripped_time = max_time;
     }
 
-    if (Config::Current()["Loop"].toBool()) {
+    if (Config::Current()[QStringLiteral("Loop")].toBool()) {
 
       // If we're looping, jump to the other side of the workarea and continue
       int64_t opposing_time = (tripped_time == min_time) ? max_time : min_time;
@@ -1044,7 +1044,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
 {
-  if (GetTime() >= range.in() && GetTime() < range.out()) {
+  if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     ForceUpdate();
   }
 }

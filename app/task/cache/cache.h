@@ -36,6 +36,11 @@ public:
 public slots:
   virtual bool Run() override;
 
+protected:
+  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
+
+  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) override;
+
 private:
   bool in_out_only_;
 

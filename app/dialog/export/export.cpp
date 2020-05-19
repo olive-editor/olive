@@ -67,7 +67,10 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   file_browse_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   file_browse_btn->setIcon(icon::Folder);
   file_browse_btn->setToolTip(tr("Browse for exported file filename"));
-  connect(file_browse_btn, SIGNAL(clicked(bool)), this, SLOT(BrowseFilename()));
+  connect(file_browse_btn,
+          &QPushButton::clicked,
+          this,
+          &ExportDialog::BrowseFilename);
   preferences_layout->addWidget(file_browse_btn, row, 3);
 
   row++;
@@ -102,7 +105,10 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   preferences_layout->addWidget(new QLabel(tr("Format:")), row, 0);
   format_combobox_ = new QComboBox();
-  connect(format_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(FormatChanged(int)));
+  connect(format_combobox_,
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::FormatChanged);
   preferences_layout->addWidget(format_combobox_, row, 1, 1, 3);
 
   row++;
@@ -141,7 +147,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   buttons_->setCenterButtons(true);
   buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
   buttons_->addButton(QDialogButtonBox::Cancel);
-  connect(buttons_, &QDialogButtonBox::accepted, this, &ExportDialog::accept);
+  connect(buttons_, &QDialogButtonBox::accepted, this, &ExportDialog::StartExport);
   connect(buttons_, &QDialogButtonBox::rejected, this, &ExportDialog::reject);
   preferences_layout->addWidget(buttons_, row, 0, 1, 4);
 
@@ -178,11 +184,31 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
 
-  connect(video_tab_->width_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->height_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->scaling_method_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(UpdateViewerDimensions()));
-  connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
+  connect(video_tab_->width_slider(),
+          &IntegerSlider::ValueChanged,
+          this,
+          &ExportDialog::ResolutionChanged);
+
+  connect(video_tab_->height_slider(),
+          &IntegerSlider::ValueChanged,
+          this,
+          &ExportDialog::ResolutionChanged);
+
+  connect(video_tab_->scaling_method_combobox(),
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::UpdateViewerDimensions);
+
+  connect(video_tab_->maintain_aspect_checkbox(),
+          &QCheckBox::toggled,
+          this,
+          &ExportDialog::ResolutionChanged);
+
+  connect(video_tab_->codec_combobox(),
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::VideoCodecChanged);
+
   connect(video_tab_,
           &ExportVideoTab::ColorSpaceChanged,
           preview_viewer_,
@@ -194,7 +220,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
 
-void ExportDialog::accept()
+void ExportDialog::StartExport()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
     QMessageBox b(this);
@@ -278,6 +304,7 @@ void ExportDialog::accept()
 
   ExportTask* task = new ExportTask(viewer_node_, color_manager_, GenerateParams());
   TaskDialog* td = new TaskDialog(task, tr("Export"), this);
+  connect(td, &TaskDialog::TaskSucceeded, this, &QDialog::accept);
   td->open();
 }
 

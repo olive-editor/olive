@@ -42,9 +42,6 @@ class ExportDialog : public QDialog
 public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
-public slots:
-  virtual void accept() override;
-
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
 
@@ -122,6 +119,8 @@ private slots:
   void VideoCodecChanged();
 
   void UpdateViewerDimensions();
+
+  void StartExport();
 
 };
 

@@ -21,6 +21,8 @@
 #ifndef RENDERTASK_H
 #define RENDERTASK_H
 
+#include <QtConcurrent/QtConcurrent>
+
 #include "node/output/viewer/viewer.h"
 #include "task/task.h"
 
@@ -32,12 +34,16 @@ public:
   RenderTask(ViewerOutput* viewer);
 
 protected:
-  void Render(TimeRangeList range_to_cache, int divider = 1);
+  void Render(TimeRangeList range_to_cache, RenderMode::Mode mode, const QMatrix4x4 &mat, bool audio_enabled, int divider);
 
   ViewerOutput* viewer() const
   {
     return viewer_;
   }
+
+  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
+
+  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) = 0;
 
 private:
   ViewerOutput* viewer_;

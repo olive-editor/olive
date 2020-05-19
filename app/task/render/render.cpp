@@ -36,6 +36,11 @@ struct TimeHashFuturePair {
   QFuture<QByteArray> hash_future;
 };
 
+struct HashTimePair {
+  rational time;
+  QByteArray hash;
+};
+
 struct HashFrameFuturePair {
   QByteArray hash;
   QFuture<FramePtr> frame_future;
@@ -46,24 +51,23 @@ struct HashDownloadFuturePair {
   QFuture<void> download_future;
 };
 
-struct HashTimePair {
-  rational time;
-  QByteArray hash;
-};
-
-void RenderTask::Render(TimeRangeList range_to_cache, int divider)
+void RenderTask::Render(TimeRangeList range_to_cache,
+                        RenderMode::Mode mode,
+                        const QMatrix4x4& mat,
+                        bool audio_enabled,
+                        int divider)
 {
   OpenGLBackend backend;
 
-  RenderMode::Mode mode = RenderMode::kOffline;
   PixelFormat::Format format = PixelFormat::instance()->GetConfiguredFormatForMode(mode);
 
-  backend.SetAudioEnabled(false);
+  backend.SetAudioMode(audio_enabled ? RenderBackend::kAudioRender : RenderBackend::kAudioDisabled);
   backend.SetViewerNode(viewer_);
   backend.SetPixelFormat(format);
   backend.SetMode(mode);
   backend.SetDivider(divider);
   backend.SetSampleFormat(SampleFormat::kInternalFormat);
+  backend.SetVideoDownloadMatrix(mat);
 
   // Get hashes for each frame
   QLinkedList<TimeHashFuturePair> hash_list;
@@ -126,58 +130,52 @@ void RenderTask::Render(TimeRangeList range_to_cache, int divider)
     }
   }
 
+  // Start downloading frames that have finished
   OIIO::TypeDesc output_desc = PixelFormat::GetOIIOTypeDesc(format);
-  OIIO::ImageSpec output_spec(viewer_->video_params().width() / divider,
-                              viewer_->video_params().height() / divider,
+  OIIO::ImageSpec output_spec(viewer()->video_params().width() / divider,
+                              viewer()->video_params().height() / divider,
                               PixelFormat::ChannelCount(format),
                               output_desc);
 
-  // Start downloading frames that have finished
-  {
-    int counter = 0;
-    int nb_frames = render_lookup_table.size();
+  int counter = 0;
+  int nb_frames = render_lookup_table.size();
 
-    QLinkedList<HashDownloadFuturePair> download_futures;
+  QLinkedList<HashDownloadFuturePair> download_futures;
 
-    // Iterators
-    QLinkedList<HashFrameFuturePair>::iterator i;
-    QLinkedList<HashDownloadFuturePair>::iterator j;
+  // Iterators
+  QLinkedList<HashFrameFuturePair>::iterator i;
+  QLinkedList<HashDownloadFuturePair>::iterator j;
 
-    while (!render_lookup_table.isEmpty() || !download_futures.isEmpty()) {
-      i = render_lookup_table.begin();
+  while (!render_lookup_table.isEmpty() || !download_futures.isEmpty()) {
+    i = render_lookup_table.begin();
 
-      while (i != render_lookup_table.end()) {
-        if (i->frame_future.isFinished()) {
-          FramePtr f = i->frame_future.result();
+    while (i != render_lookup_table.end()) {
+      if (i->frame_future.isFinished()) {
+        FramePtr f = i->frame_future.result();
 
-          // Start multithreaded download here
-          download_futures.append({i->hash,
-                                   QtConcurrent::run(FrameHashCache::SaveCacheFrame, i->hash, f)});
+        // Start multithreaded download here
+        download_futures.append({i->hash, DownloadFrame(f, i->hash)});
 
-          i = render_lookup_table.erase(i);
-        } else {
-          i++;
-        }
+        i = render_lookup_table.erase(i);
+      } else {
+        i++;
       }
+    }
 
-      j = download_futures.begin();
+    j = download_futures.begin();
 
-      while (j != download_futures.end()) {
-        if (j->download_future.isFinished()) {
-          // Place it in the cache
-          const QLinkedList<rational>& times_with_hash = times_to_render.value(j->hash);
-          foreach (const rational& t, times_with_hash) {
-            viewer_->video_frame_cache()->SetHash(t, j->hash);
-          }
+    while (j != download_futures.end()) {
+      if (j->download_future.isFinished()) {
+        // Place it in the cache
+        FrameDownloaded(j->hash, times_to_render.value(j->hash));
 
-          // Signal process
-          counter++;
-          emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(nb_frames));
+        // Signal process
+        counter++;
+        emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(nb_frames));
 
-          j = download_futures.erase(j);
-        } else {
-          j++;
-        }
+        j = download_futures.erase(j);
+      } else {
+        j++;
       }
     }
   }

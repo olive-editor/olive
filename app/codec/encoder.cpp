@@ -25,8 +25,7 @@
 OLIVE_NAMESPACE_ENTER
 
 Encoder::Encoder(const EncodingParams &params) :
-  params_(params),
-  open_(false)
+  params_(params)
 {
 }
 
@@ -164,42 +163,6 @@ Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
   Q_UNUSED(id)
   
   return new FFmpegEncoder(params);
-}
-
-bool Encoder::IsOpen() const
-{
-  return open_;
-}
-
-void Encoder::Open()
-{
-  if (!open_) {
-    open_ = OpenInternal();
-  }
-
-  if (open_) {
-    emit OpenSucceeded();
-  } else {
-    emit OpenFailed();
-  }
-}
-
-void Encoder::WriteFrame(FramePtr frame, rational time)
-{
-  if (open_) {
-    WriteInternal(frame, time);
-  }
-}
-
-void Encoder::Close()
-{
-  if (open_) {
-    CloseInternal();
-
-    open_ = false;
-  }
-
-  emit Closed();
 }
 
 OLIVE_NAMESPACE_EXIT
