@@ -24,11 +24,9 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
-#include <QSettings>
 
 #include "mainmenu.h"
 #include "mainstatusbar.h"
-#include "panel/scope/scope.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -152,10 +150,6 @@ void MainWindow::SaveLayout(QXmlStreamWriter *writer) const
 
     QXmlStreamAttributes attr;
     attr.append(QStringLiteral("name"), scope->objectName());
-    attr.append(QStringLiteral("size"), QStringLiteral("%1:%2").arg(QString::number(scope->size().width()),
-                                                                    QString::number(scope->size().height())));
-    attr.append(QStringLiteral("pos"),
-                QStringLiteral("%1:%2").arg(QString::number(scope->pos().x()), QString::number(scope->pos().y())));
     attr.append(QStringLiteral("type"), scope->TypeToName(scope->GetType()));
     attr.append(QStringLiteral("floating"), QString::number(scope->isFloating()));
 
@@ -512,9 +506,7 @@ void MainWindow::LoadLayoutInternal(QXmlStreamReader *reader, XMLNodeData *xml_d
       //restoreGeometry(state);
 
     } else if (reader->name() == QStringLiteral("scopes")) {
-        printf("Scopes: %d\n", scope_panels_.size());
       while (XMLReadNextStartElement(reader)) {
-          printf("el: %s\n", reader->name().toString().toStdString().c_str());
         if (reader->name() == QStringLiteral("scope")) {
           XMLAttributeLoop(reader, attr) {
             printf("attrib: %s, %s\n", attr.name().toString().toStdString().c_str(),
