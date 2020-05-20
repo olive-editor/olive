@@ -104,6 +104,34 @@ TimeRange TimeRange::Combine(const TimeRange &a, const TimeRange &b)
                    qMax(a.out(), b.out()));
 }
 
+TimeRange TimeRange::operator+(const rational &rhs) const
+{
+  TimeRange answer(*this);
+  answer += rhs;
+  return answer;
+}
+
+TimeRange TimeRange::operator-(const rational &rhs) const
+{
+  TimeRange answer(*this);
+  answer -= rhs;
+  return answer;
+}
+
+const TimeRange &TimeRange::operator+=(const rational &rhs)
+{
+  set_range(in_ + rhs, out_ + rhs);
+
+  return *this;
+}
+
+const TimeRange &TimeRange::operator-=(const rational &rhs)
+{
+  set_range(in_ - rhs, out_ - rhs);
+
+  return *this;
+}
+
 void TimeRange::normalize()
 {
   // If `out` is earlier than `in`, swap them
@@ -173,7 +201,7 @@ bool TimeRangeList::ContainsTimeRange(const TimeRange &range, bool in_inclusive,
   return false;
 }
 
-TimeRangeList TimeRangeList::Intersects(const TimeRange &range)
+TimeRangeList TimeRangeList::Intersects(const TimeRange &range) const
 {
   TimeRangeList intersect_list;
 

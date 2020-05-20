@@ -47,6 +47,12 @@ public:
   TimeRange CombineWith(const TimeRange& a) const;
   static TimeRange Combine(const TimeRange &a, const TimeRange &b);
 
+  TimeRange operator+(const rational& rhs) const;
+  TimeRange operator-(const rational& rhs) const;
+
+  const TimeRange& operator+=(const rational &rhs);
+  const TimeRange& operator-=(const rational &rhs);
+
 private:
   void normalize();
 
@@ -66,7 +72,7 @@ public:
 
   bool ContainsTimeRange(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
-  TimeRangeList Intersects(const TimeRange& range);
+  TimeRangeList Intersects(const TimeRange& range) const;
 
 private:
   void PrintTimeList();
