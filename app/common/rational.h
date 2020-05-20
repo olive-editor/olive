@@ -29,22 +29,33 @@ class rational
 {
 public:
   //constructors
-  rational(const intType &numerator = 0)
-    :numer(numerator), denom(1)
+  rational(const intType &numerator = 0) :
+    numer_(numerator)
   {
-    if(numer == 0)
-      denom = 0;
+    if (numer_ == 0) {
+      denom_ = 0;
+    } else {
+      denom_ = 1;
+    }
   }
 
-  rational(const intType &numerator, const intType &denominator)
-    :numer(numerator), denom(denominator)
+  rational(const intType &numerator, const intType &denominator) :
+    numer_(numerator),
+    denom_(denominator)
   {
-    validateConstructor();
+    fix_signs();
+    reduce();
   }
 
   rational(const rational &rhs) = default;
 
-  rational(const AVRational& r);
+  rational(const AVRational& r) :
+    numer_(r.num),
+    denom_(r.den)
+  {
+    fix_signs();
+    reduce();
+  }
 
   static rational fromDouble(const double& flt);
 
@@ -105,17 +116,15 @@ public:
 
 private:
   //numerator and denominator
-  intType numer;
-  intType denom;
-
-  void validateConstructor();
+  intType numer_;
+  intType denom_;
 
   //Function: ensures denom >= 0
-  void fixSigns();
+  void fix_signs();
   //Function: ensures lowest form
   void reduce();
   //Function: finds greatest common denominator
-  intType gcd(intType &x, intType &y);
+  static intType gcd(const intType &x, const intType &y);
 };
 
 // We define these limits at 32-bit to try avoiding integer overflow

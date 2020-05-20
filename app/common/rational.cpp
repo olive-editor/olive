@@ -5,13 +5,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-rational::rational(const AVRational &r) :
-  numer(r.num),
-  denom(r.den)
-{
-  validateConstructor();
-}
-
 rational rational::fromDouble(const double &flt)
 {
   // Use FFmpeg function for the time being
@@ -36,87 +29,82 @@ rational rational::fromString(const QString &str)
 
 void rational::print(std::ostream &out) const
 {
-  out << this->numer << "/" << this->denom;
+  out << this->numer_ << "/" << this->denom_;
 }
 
 //Function: ensures denom >= 0
 
-void rational::fixSigns()
+void rational::fix_signs()
 {
-  if(denom < 0)
-    {
-      denom = -denom;
-      numer = -numer;
-    }
-  if(numer == intType(0) || denom == intType(0))
-    {
-      numer = intType(0);
-      denom = intType(0);
-    }
+  if (denom_ < 0) {
+    denom_ = -denom_;
+    numer_ = -numer_;
+  }
+
+  if (numer_ == intType(0) || denom_ == intType(0)) {
+    numer_ = intType(0);
+    denom_ = intType(0);
+  }
 }
 
 //Function: ensures lowest form
 
 void rational::reduce()
 {
-  // Euclidean often fails if numbers are negative, we abs it and re-neg it later if necessary
-  bool neg = numer < 0;
+  if (!isNull()) {
+    // Euclidean often fails if numbers are negative, we abs it and re-neg it later if necessary
+    bool neg = numer_ < 0;
 
-  numer = qAbs(numer);
+    numer_ = qAbs(numer_);
 
-  intType d = 1;
+    intType d = gcd(numer_, denom_);
 
-  if(denom != 0 && numer !=0)
-    d = gcd(numer, denom);
-
-  if(d > 1)
-    {
-      numer /= d;
-      denom /= d;
+    if (d > 1) {
+      numer_ /= d;
+      denom_ /= d;
     }
 
-  if (neg) {
-    numer = -numer;
+    if (neg) {
+      numer_ = -numer_;
+    }
   }
 }
 
 //Function: finds greatest common denominator
 
-intType rational::gcd(intType &x, intType &y)
+intType rational::gcd(const intType &x, const intType &y)
 {
-  if(y == 0)
+  if (y == 0) {
     return x;
-  else
-    {
-      intType tmp = x % y;
-
-      return gcd(y, tmp);
-    }
+  } else {
+    return gcd(y, x % y);
+  }
 }
 
 //Function: convert to double
 
 double rational::toDouble() const
 {
-  if(denom != 0)
-    return static_cast<double>(numer) / static_cast<double>(denom);
-  else
+  if (denom_ != 0) {
+    return static_cast<double>(numer_) / static_cast<double>(denom_);
+  } else {
     return static_cast<double>(0);
+  }
 }
 
 AVRational rational::toAVRational() const
 {
   AVRational r;
 
-  r.num = static_cast<int>(numer);
-  r.den = static_cast<int>(denom);
+  r.num = static_cast<int>(numer_);
+  r.den = static_cast<int>(denom_);
 
   return r;
 }
 
 rational rational::flipped() const
 {
-  return rational(denom, numer);
+  return rational(denom_, numer_);
 }
 
 bool rational::isNull() const
@@ -126,117 +114,79 @@ bool rational::isNull() const
 
 const intType &rational::numerator() const
 {
-  return numer;
+  return numer_;
 }
 
 const intType &rational::denominator() const
 {
-  return denom;
+  return denom_;
 }
 
 QString rational::toString() const
 {
-  return QStringLiteral("%1/%2").arg(QString::number(numer), QString::number(denom));
-}
-
-void rational::validateConstructor()
-{
-  if(denom != intType(0))
-    {
-      if(numer != intType(0))
-        {
-          fixSigns();
-          reduce();
-        }
-      else
-        denom = intType(0);
-    }
-  else
-    numer = intType(0);
+  return QStringLiteral("%1/%2").arg(QString::number(numer_), QString::number(denom_));
 }
 
 //Assignment Operators
 
 const rational& rational::operator=(const rational &rhs)
 {
-  if(this != &rhs)
-    {
-      numer = rhs.numer;
-      denom = rhs.denom;
-    }
+  if (this != &rhs) {
+    numer_ = rhs.numer_;
+    denom_ = rhs.denom_;
+  }
+
   return *this;
 }
 
 const rational& rational::operator+=(const rational &rhs)
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
-    {
-      numer = intType(0);
-      denom = intType(0);
+  if (!rhs.isNull()) {
+    if (isNull()) {
+      numer_ = rhs.numer_;
+      denom_ = rhs.denom_;
+    } else {
+      numer_ = (numer_ * rhs.denom_) + (rhs.numer_ * denom_);
+      denom_ = denom_ * rhs.denom_;
+      fix_signs();
+      reduce();
     }
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
+  }
 
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          numer = rhs.numer;
-          denom = rhs.denom;
-        }
-      else
-        {
-          numer = (numer * rhs.denom) + (rhs.numer * denom);
-          denom = denom * rhs.denom;
-          fixSigns();
-          reduce();
-        }
   return *this;
 }
 
 const rational& rational::operator-=(const rational &rhs)
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
-    {
-      numer = intType(0);
-      denom = intType(0);
+  if (!rhs.isNull()) {
+    if (isNull()) {
+      numer_ = -rhs.numer_;
+      denom_ = rhs.denom_;
+    } else {
+      numer_ = (numer_ * rhs.denom_) - (rhs.numer_ * denom_);
+      denom_ = denom_ * rhs.denom_;
+      fix_signs();
+      reduce();
     }
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
+  }
 
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          numer = -(rhs.numer);
-          denom = rhs.denom;
-        }
-      else
-        {
-          numer = (numer * rhs.denom) - (rhs.numer * denom);
-          denom = denom * rhs.denom;
-          fixSigns();
-          reduce();
-        }
   return *this;
 }
 
 const rational& rational::operator/=(const rational &rhs)
 {
-  numer = numer * rhs.denom;
-  denom = denom * rhs.numer;
-  fixSigns();
+  numer_ = numer_ * rhs.denom_;
+  denom_ = denom_ * rhs.numer_;
+  fix_signs();
   reduce();
   return *this;
 }
 
 const rational& rational::operator*=(const rational &rhs)
 {
-  numer = numer * rhs.numer;
-  denom = denom * rhs.denom;
-  fixSigns();
+  numer_ = numer_ * rhs.numer_;
+  denom_ = denom_ * rhs.denom_;
+  fix_signs();
   reduce();
   return *this;
 }
@@ -245,9 +195,9 @@ const rational& rational::operator*=(const rational &rhs)
 
 rational rational::operator+(const rational &rhs) const
 {
- rational answer(*this);
- answer += rhs;
- return answer;
+  rational answer(*this);
+  answer += rhs;
+  return answer;
 }
 
 rational rational::operator-(const rational &rhs) const
@@ -275,138 +225,83 @@ rational rational::operator*(const rational &rhs) const
 
 bool rational::operator<(const rational &rhs) const
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+  if (isNull() && rhs.isNull()) {
     return false;
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
-        if(numer * denom < intType(0))
-          return true;
-        else
-          return false;
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          if(rhs.numer * rhs.denom < intType(0))
-            return false;
-          else
-            return true;
-        }
-      else
-        return ((numer * rhs.denom) < (denom * rhs.numer));
+  }
+
+  if (!isNull() && rhs.isNull()) {
+    return (numer_ * denom_ < intType(0));
+  }
+
+  if (isNull() && !rhs.isNull()) {
+    return !(rhs.numer_ * rhs.denom_ < intType(0));
+  }
+
+  return ((numer_ * rhs.denom_) < (denom_ * rhs.numer_));
 }
 
 bool rational::operator<=(const rational &rhs) const
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+  if (isNull() && rhs.isNull()) {
     return true;
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
-        if(numer * denom < intType(0))
-          return true;
-        else
-          return false;
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          if(rhs.numer * rhs.denom < intType(0))
-            return false;
-          else
-            return true;
-        }
-      else
-        return ((numer * rhs.denom) <= (denom * rhs.numer));
+  }
+
+  if (!isNull() && rhs.isNull()) {
+    return (numer_ * denom_ < intType(0));
+  }
+
+  if (isNull() && !rhs.isNull()) {
+    return !(rhs.numer_ * rhs.denom_ < intType(0));
+  }
+
+  return ((numer_ * rhs.denom_) <= (denom_ * rhs.numer_));
 }
 
 bool rational::operator>(const rational &rhs) const
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
-    return false;
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
-        if(numer * denom > intType(0))
-          return true;
-        else
-          return false;
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          if(rhs.numer * rhs.denom > intType(0))
-            return false;
-          else
-            return true;
-        }
-      else
-        return ((numer * rhs.denom) > (denom * rhs.numer));
+  return rhs < *this;
 }
 
 bool rational::operator>=(const rational &rhs) const
 {
-  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
-    return true;
-  else
-    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
-      {
-        if(numer * denom > intType(0))
-          return true;
-        else
-          return false;
-      }
-    else
-      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
-        {
-          if(rhs.numer * rhs.denom > intType(0))
-            return false;
-          else
-            return true;
-        }
-      else
-
-  return ((numer * rhs.denom) >= (denom * rhs.numer));
+  return rhs <= *this;
 }
 
 bool rational::operator==(const rational &rhs) const
 {
-  return (numer == rhs.numer && denom == rhs.denom);
+  return (numer_ == rhs.numer_ && denom_ == rhs.denom_);
 }
 
 bool rational::operator!=(const rational &rhs) const
 {
-  return (numer != rhs.numer) || (denom != rhs.denom);
-
+  return (numer_ != rhs.numer_) || (denom_ != rhs.denom_);
 }
 
 //Unary operators
 
 const rational& rational::operator++()
 {
-  numer += denom;
+  numer_ += denom_;
   return *this;
 }
 
 rational rational::operator++(int)
 {
   rational tmp = *this;
-  numer += denom;
+  numer_ += denom_;
   return tmp;
 }
 
 const rational& rational::operator--()
 {
-  numer -= denom;
+  numer_ -= denom_;
   return *this;
-
 }
 
 rational rational::operator--(int)
 {
   rational tmp;
-  numer -= denom;
+  numer_ -= denom_;
   return tmp;
 }
 
@@ -417,46 +312,45 @@ const rational& rational::operator+() const
 
 rational rational::operator-() const
 {
-  return rational(numer, -denom);
+  return rational(numer_, -denom_);
 }
 
 bool rational::operator!() const
 {
-  return !numer;
+  return !numer_;
 }
 
 //IO
 
 std::ostream& operator<<(std::ostream &out, const rational &value)
 {
-  out << value.numer;
-  if(value.denom != 1)
-    {
-      out << '/' << value.denom;
-      return out;
-    }
+  out << value.numer_;
+
+  if (value.denom_ != 1) {
+    out << '/' << value.denom_;
+    return out;
+  }
+
   return out;
 }
 
 std::istream& operator>>(std::istream &in, rational &value)
 {
-  in >> value.numer;
-  value.denom = 1;
+  in >> value.numer_;
+  value.denom_ = 1;
 
   char ch;
   in.get(ch);
 
-  if(!in.eof())
-    {
-      if(ch == '/')
-        {
-          in >> value.denom;
-          value.fixSigns();
-          value.reduce();
-        }
-      else
-        in.putback(ch);
+  if(!in.eof()) {
+    if(ch == '/') {
+      in >> value.denom_;
+      value.fix_signs();
+      value.reduce();
+    } else {
+      in.putback(ch);
     }
+  }
   return in;
 }
 
@@ -472,4 +366,3 @@ QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational &r)
   debug.nospace() << r.numerator() << "/" << r.denominator();
   return debug.space();
 }
-
