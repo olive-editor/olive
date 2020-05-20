@@ -42,7 +42,7 @@ RenderBackend::RenderBackend(QObject *parent) :
   ic_from_conform_(false)
 {
   // FIXME: Don't create in CLI mode
-  cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
+  //cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
 }
 
 RenderBackend::~RenderBackend()

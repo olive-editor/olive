@@ -104,7 +104,7 @@ private:
 
   ViewerOutput* viewer_node_;
 
-  RenderCancelDialog* cancel_dialog_;
+  //RenderCancelDialog* cancel_dialog_;
 
   RenderPool video_pool_;
   RenderPool audio_pool_;
