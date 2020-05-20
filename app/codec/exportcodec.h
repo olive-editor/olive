@@ -18,42 +18,41 @@
 
 ***/
 
-#ifndef EXPORTFORMAT_H
-#define EXPORTFORMAT_H
+#ifndef EXPORTCODEC_H
+#define EXPORTCODEC_H
 
-#include <QList>
+#include <QObject>
 #include <QString>
 
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportFormat {
+class ExportCodec : public QObject {
 public:
-  ExportFormat(const QString& name, const QString& extension, const QString& encoder, const QList<int>& vcodecs, const QList<int>& acodecs) :
-    name_(name),
-    extension_(extension),
-    encoder_(encoder),
-    video_codecs_(vcodecs),
-    audio_codecs_(acodecs)
-  {
-  }
+  enum Codec {
+    kCodecDNxHD,
+    kCodecH264,
+    kCodecH265,
+    kCodecOpenEXR,
+    kCodecPNG,
+    kCodecProRes,
+    kCodecTIFF,
 
-  const QString& name() const {return name_;}
-  const QString& extension() const {return extension_;}
-  const QString& encoder() const {return encoder_;}
-  const QList<int>& video_codecs() const {return video_codecs_;}
-  const QList<int>& audio_codecs() const {return audio_codecs_;}
+    kCodecMP2,
+    kCodecMP3,
+    kCodecAAC,
+    kCodecPCM,
 
-private:
-  QString name_;
-  QString extension_;
-  QString encoder_;
-  QList<int> video_codecs_;
-  QList<int> audio_codecs_;
+    kCodecCount
+  };
+
+  static QString GetCodecName(Codec c);
+
+  static bool IsCodecAStillImage(Codec c);
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTFORMAT_H
+#endif // EXPORTCODEC_H

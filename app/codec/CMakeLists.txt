@@ -23,6 +23,10 @@ set(OLIVE_SOURCES
   codec/decoder.cpp
   codec/encoder.h
   codec/encoder.cpp
+  codec/exportcodec.h
+  codec/exportcodec.cpp
+  codec/exportformat.h
+  codec/exportformat.cpp
   codec/frame.h
   codec/frame.cpp
   codec/samplebuffer.h

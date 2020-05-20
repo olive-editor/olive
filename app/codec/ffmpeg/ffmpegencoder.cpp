@@ -362,19 +362,57 @@ fail:
   return succeeded;
 }
 
-bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const QString& codec)
+bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const ExportCodec::Codec& codec)
 {
   if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO) {
     Error(QStringLiteral("Cannot initialize a stream that is not a video or audio type"));
     return false;
   }
 
-  // Retrieve codec and convert to C string
-  QByteArray codec_bytes = codec.toUtf8();
-  const char* codec_c_str = codec_bytes.constData();
+  // Retrieve codec
+  AVCodecID codec_id;
+
+  switch (codec) {
+  case ExportCodec::kCodecDNxHD:
+    codec_id = AV_CODEC_ID_DNXHD;
+    break;
+  case ExportCodec::kCodecAAC:
+    codec_id = AV_CODEC_ID_AAC;
+    break;
+  case ExportCodec::kCodecMP2:
+    codec_id = AV_CODEC_ID_MP2;
+    break;
+  case ExportCodec::kCodecMP3:
+    codec_id = AV_CODEC_ID_MP3;
+    break;
+  case ExportCodec::kCodecH264:
+    codec_id = AV_CODEC_ID_H264;
+    break;
+  case ExportCodec::kCodecH265:
+    codec_id = AV_CODEC_ID_HEVC;
+    break;
+  case ExportCodec::kCodecOpenEXR:
+    codec_id = AV_CODEC_ID_EXR;
+    break;
+  case ExportCodec::kCodecPNG:
+    codec_id = AV_CODEC_ID_PNG;
+    break;
+  case ExportCodec::kCodecTIFF:
+    codec_id = AV_CODEC_ID_TIFF;
+    break;
+  case ExportCodec::kCodecProRes:
+    codec_id = AV_CODEC_ID_PRORES;
+    break;
+  case ExportCodec::kCodecPCM:
+    codec_id = AV_CODEC_ID_PCM_S16LE;
+    break;
+  case ExportCodec::kCodecCount:
+    Error(QStringLiteral("Unknown internal codec"));
+    return false;
+  }
 
   // Find encoder with this name
-  AVCodec* encoder = avcodec_find_encoder_by_name(codec_c_str);
+  AVCodec* encoder = avcodec_find_encoder(codec_id);
 
   if (!encoder) {
     Error(QStringLiteral("Failed to find codec for %1").arg(codec));

@@ -69,7 +69,7 @@ private:
 
   bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 
-  bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const QString& codec);
+  bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const ExportCodec::Codec &codec);
   bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, AVCodec* codec);
   bool SetupCodecContext(AVStream *stream, AVCodecContext *codec_ctx, AVCodec *codec);
 

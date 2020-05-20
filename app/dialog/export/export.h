@@ -27,9 +27,9 @@
 #include <QLineEdit>
 #include <QProgressBar>
 
+#include "codec/exportcodec.h"
+#include "codec/exportformat.h"
 #include "exportaudiotab.h"
-#include "exportcodec.h"
-#include "exportformat.h"
 #include "exportvideotab.h"
 #include "task/export/export.h"
 #include "widget/viewer/viewer.h"
@@ -46,7 +46,6 @@ protected:
   virtual void closeEvent(QCloseEvent *e) override;
 
 private:
-  void SetUpFormats();
   void LoadPresets();
   void SetDefaultFilename();
 
@@ -58,13 +57,10 @@ private:
 
   ViewerOutput* viewer_node_;
 
-  QList<ExportFormat> formats_;
-  int previously_selected_format_;
+  ExportFormat::Format previously_selected_format_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
-
-  QList<ExportCodec> codecs_;
 
   ViewerWidget* preview_viewer_;
   QLineEdit* filename_edit_;
@@ -79,35 +75,6 @@ private:
 
   QWidget* preferences_area_;
   QDialogButtonBox* buttons_;
-
-  enum Format {
-    kFormatDNxHD,
-    kFormatMatroska,
-    kFormatMPEG4,
-    kFormatOpenEXR,
-    kFormatQuickTime,
-    kFormatPNG,
-    kFormatTIFF,
-
-    kFormatCount
-  };
-
-  enum Codec {
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecTIFF,
-
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-
-    kCodecCount
-  };
 
 private slots:
   void BrowseFilename();

@@ -18,40 +18,39 @@
 
 ***/
 
-#ifndef EXPORTCODEC_H
-#define EXPORTCODEC_H
+#ifndef EXPORTFORMAT_H
+#define EXPORTFORMAT_H
 
+#include <QList>
 #include <QString>
 
 #include "common/define.h"
+#include "exportcodec.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportCodec {
+class ExportFormat : public QObject {
 public:
-  enum Flag {
-    kNone,
-    kStillImage
+  enum Format {
+    kFormatDNxHD,
+    kFormatMatroska,
+    kFormatMPEG4,
+    kFormatOpenEXR,
+    kFormatQuickTime,
+    kFormatPNG,
+    kFormatTIFF,
+
+    kFormatCount
   };
 
-  ExportCodec(const QString& name, const QString& id, Flag flags = kNone) :
-    name_(name),
-    id_(id),
-    flags_(flags)
-  {
-  }
-
-  const QString& name() const {return name_;}
-  const QString& id() const {return id_;}
-  const Flag& flags() const {return flags_;}
-
-private:
-  QString name_;
-  QString id_;
-  Flag flags_;
+  static QString GetName(Format f);
+  static QString GetExtension(Format f);
+  static QString GetEncoder(Format f);
+  static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
+  static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTCODEC_H
+#endif // EXPORTFORMAT_H

@@ -41,8 +41,7 @@ OLIVE_NAMESPACE_ENTER
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
-  viewer_node_(viewer_node),
-  previously_selected_format_(0)
+  viewer_node_(viewer_node)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -164,16 +163,15 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // Set default filename
   SetDefaultFilename();
 
-  // Set up available export formats
-  SetUpFormats();
-
   // Populate combobox formats
-  foreach (const ExportFormat& format, formats_) {
-    format_combobox_->addItem(format.name());
+  for (int i=0; i<ExportFormat::kFormatCount; i++) {
+    format_combobox_->addItem(ExportFormat::GetName(static_cast<ExportFormat::Format>(i)));
   }
 
   // Set defaults
-  format_combobox_->setCurrentIndex(kFormatMPEG4);
+  format_combobox_->setCurrentIndex(ExportFormat::kFormatMPEG4);
+  previously_selected_format_ = ExportFormat::kFormatMPEG4;
+
   video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
   video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
   video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
@@ -235,7 +233,7 @@ void ExportDialog::StartExport()
 
   // Validate if the entered filename contains the correct extension (the extension is necessary for both FFmpeg and
   // OIIO to determine the output format)
-  QString necessary_ext = QStringLiteral(".%1").arg(formats_.at(format_combobox_->currentIndex()).extension());
+  QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(static_cast<ExportFormat::Format>(format_combobox_->currentIndex())));
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
   if (!filename_edit_->text().endsWith(necessary_ext, Qt::CaseInsensitive)) {
@@ -317,12 +315,12 @@ void ExportDialog::closeEvent(QCloseEvent *e)
 
 void ExportDialog::BrowseFilename()
 {
-  const ExportFormat& current_format = formats_.at(format_combobox_->currentIndex());
+  ExportFormat::Format f = static_cast<ExportFormat::Format>(format_combobox_->currentIndex());
 
   QString browsed_fn = QFileDialog::getSaveFileName(this,
                                                     "",
                                                     filename_edit_->text(),
-                                                    QStringLiteral("%1 (*.%2)").arg(current_format.name(), current_format.extension()),
+                                                    QStringLiteral("%1 (*.%2)").arg(ExportFormat::GetName(f), ExportFormat::GetExtension(f)),
                                                     nullptr,
 
                                                     // We don't confirm overwrite here because we do it later
@@ -336,9 +334,9 @@ void ExportDialog::BrowseFilename()
 void ExportDialog::FormatChanged(int index)
 {
   QString current_filename = filename_edit_->text();
-  const QString& previously_selected_ext = formats_.at(previously_selected_format_).extension();
-  const ExportFormat& current_format = formats_.at(index);
-  const QString& currently_selected_ext = current_format.extension();
+  QString previously_selected_ext = ExportFormat::GetExtension(previously_selected_format_);
+  ExportFormat::Format current_format = static_cast<ExportFormat::Format>(index);
+  QString currently_selected_ext = ExportFormat::GetExtension(current_format);
 
   // If the previous extension was added, remove it
   if (current_filename.endsWith(previously_selected_ext, Qt::CaseInsensitive)) {
@@ -350,18 +348,18 @@ void ExportDialog::FormatChanged(int index)
   current_filename.append(currently_selected_ext);
   filename_edit_->setText(current_filename);
 
-  previously_selected_format_ = index;
+  previously_selected_format_ = current_format;
 
   // Update video and audio comboboxes
   video_tab_->codec_combobox()->clear();
-  foreach (int vcodec, current_format.video_codecs()) {
-    video_tab_->codec_combobox()->addItem(codecs_.at(vcodec).name(), vcodec);
+  foreach (ExportCodec::Codec vcodec, ExportFormat::GetVideoCodecs(current_format)) {
+    video_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(vcodec), vcodec);
   }
   VideoCodecChanged();
 
   audio_tab_->codec_combobox()->clear();
-  foreach (int acodec, current_format.audio_codecs()) {
-    audio_tab_->codec_combobox()->addItem(codecs_.at(acodec).name(), acodec);
+  foreach (ExportCodec::Codec acodec, ExportFormat::GetAudioCodecs(current_format)) {
+    audio_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(acodec), acodec);
   }
 }
 
@@ -399,86 +397,12 @@ void ExportDialog::ResolutionChanged()
 
 void ExportDialog::VideoCodecChanged()
 {
-  int codec_index = video_tab_->codec_combobox()->currentData().toInt();
-  const ExportCodec& codec = codecs_.at(codec_index);
+  ExportCodec::Codec codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
 
-  if (codec_index == kCodecH264) {
+  if (codec == ExportCodec::kCodecH264) {
     video_tab_->SetCodecSection(video_tab_->h264_section());
-  } else if (codec.flags() & ExportCodec::kStillImage) {
+  } else if (ExportCodec::IsCodecAStillImage(codec)) {
     video_tab_->SetCodecSection(video_tab_->image_section());
-  }
-}
-
-void ExportDialog::SetUpFormats()
-{
-  // Set up codecs
-  for (int i=0;i<kCodecCount;i++) {
-    switch (static_cast<Codec>(i)) {
-    case kCodecDNxHD:
-      codecs_.append(ExportCodec(tr("DNxHD"), "dnxhd"));
-      break;
-    case kCodecH264:
-      codecs_.append(ExportCodec(tr("H.264"), "libx264"));
-      break;
-    case kCodecH265:
-      codecs_.append(ExportCodec(tr("H.265"), "libx265"));
-      break;
-    case kCodecOpenEXR:
-      codecs_.append(ExportCodec(tr("OpenEXR"), "exr", ExportCodec::kStillImage));
-      break;
-    case kCodecPNG:
-      codecs_.append(ExportCodec(tr("PNG"), "png", ExportCodec::kStillImage));
-      break;
-    case kCodecProRes:
-      codecs_.append(ExportCodec(tr("ProRes"), "prores"));
-      break;
-    case kCodecTIFF:
-      codecs_.append(ExportCodec(tr("TIFF"), "tiff", ExportCodec::kStillImage));
-      break;
-    case kCodecMP2:
-      codecs_.append(ExportCodec(tr("MP2"), "mp2"));
-      break;
-    case kCodecMP3:
-      codecs_.append(ExportCodec(tr("MP3"), "libmp3lame"));
-      break;
-    case kCodecAAC:
-      codecs_.append(ExportCodec(tr("AAC"), "aac"));
-      break;
-    case kCodecPCM:
-      codecs_.append(ExportCodec(tr("PCM (Uncompressed)"), "pcm"));
-      break;
-    case kCodecCount:
-      break;
-    }
-  }
-
-  // Set up formats
-  for (int i=0;i<kFormatCount;i++) {
-    switch (static_cast<Format>(i)) {
-    case kFormatDNxHD:
-      formats_.append(ExportFormat(tr("DNxHD"), "mxf", "ffmpeg", {kCodecDNxHD}, {kCodecPCM}));
-      break;
-    case kFormatMatroska:
-      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatMPEG4:
-      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatOpenEXR:
-      formats_.append(ExportFormat(tr("OpenEXR"), "exr", "oiio", {kCodecOpenEXR}, {}));
-      break;
-    case kFormatQuickTime:
-      formats_.append(ExportFormat(tr("QuickTime"), "mov", "ffmpeg", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatPNG:
-      formats_.append(ExportFormat(tr("PNG"), "png", "oiio", {kCodecPNG}, {}));
-      break;
-    case kFormatTIFF:
-      formats_.append(ExportFormat(tr("TIFF"), "tiff", "oiio", {kCodecTIFF}, {}));
-      break;
-    case kFormatCount:
-      break;
-    }
   }
 }
 
@@ -532,9 +456,8 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (video_enabled_->isChecked()) {
-    const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
-    params.EnableVideo(video_render_params,
-                       video_codec.id());
+    ExportCodec::Codec video_codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
+    params.EnableVideo(video_render_params, video_codec);
 
     params.set_video_threads(video_tab_->threads());
 
@@ -544,9 +467,8 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (audio_enabled_->isChecked()) {
-    const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
-    params.EnableAudio(audio_render_params,
-                       audio_codec.id());
+    ExportCodec::Codec audio_codec = static_cast<ExportCodec::Codec>(audio_tab_->codec_combobox()->currentData().toInt());
+    params.EnableAudio(audio_render_params, audio_codec);
   }
 
   return params;

@@ -24,6 +24,8 @@
 #include <memory>
 #include <QString>
 
+#include "codec/exportcodec.h"
+#include "codec/exportformat.h"
 #include "codec/frame.h"
 #include "common/timerange.h"
 #include "render/audioparams.h"
@@ -40,8 +42,8 @@ public:
 
   void SetFilename(const QString& filename);
 
-  void EnableVideo(const VideoRenderingParams& video_params, const QString& vcodec);
-  void EnableAudio(const AudioRenderingParams& audio_params, const QString& acodec);
+  void EnableVideo(const VideoRenderingParams& video_params, const ExportCodec::Codec& vcodec);
+  void EnableAudio(const AudioRenderingParams& audio_params, const ExportCodec::Codec &acodec);
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
@@ -52,7 +54,7 @@ public:
   const QString& filename() const;
 
   bool video_enabled() const;
-  const QString& video_codec() const;
+  const ExportCodec::Codec& video_codec() const;
   const VideoRenderingParams& video_params() const;
   const QHash<QString, QString>& video_opts() const;
   const int64_t& video_bit_rate() const;
@@ -61,7 +63,7 @@ public:
   const int& video_threads() const;
 
   bool audio_enabled() const;
-  const QString& audio_codec() const;
+  const ExportCodec::Codec &audio_codec() const;
   const AudioRenderingParams& audio_params() const;
 
   const rational& GetExportLength() const;
@@ -71,7 +73,7 @@ private:
   QString filename_;
 
   bool video_enabled_;
-  QString video_codec_;
+  ExportCodec::Codec video_codec_;
   VideoRenderingParams video_params_;
   QHash<QString, QString> video_opts_;
   int64_t video_bit_rate_;
@@ -80,7 +82,7 @@ private:
   int video_threads_;
 
   bool audio_enabled_;
-  QString audio_codec_;
+  ExportCodec::Codec audio_codec_;
   AudioRenderingParams audio_params_;
 
   rational export_length_;
