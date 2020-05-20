@@ -421,6 +421,8 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
           this,
           &ViewerWidget::RendererGeneratedFrame);
 
+  nonqueue_watchers_.append(watcher);
+
   watcher->setFuture(GetFrame(time, true, true));
 }
 
@@ -695,9 +697,18 @@ void ViewerWidget::RendererGeneratedFrame()
 {
   QFutureWatcher<FramePtr>* watcher = static_cast<QFutureWatcher<FramePtr>*>(sender());
   FramePtr frame = watcher->result();
-  watcher->deleteLater();
 
-  SetDisplayImage(frame, false);
+  if (nonqueue_watchers_.contains(watcher)) {
+    while (!nonqueue_watchers_.isEmpty()) {
+      if (nonqueue_watchers_.takeFirst() == watcher) {
+        break;
+      }
+    }
+
+    SetDisplayImage(frame, false);
+  }
+
+  watcher->deleteLater();
 }
 
 void ViewerWidget::RendererGeneratedFrameForQueue()

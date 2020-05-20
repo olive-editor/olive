@@ -231,6 +231,8 @@ private:
 
   bool prequeuing_;
 
+  QList< QFutureWatcher<FramePtr>* > nonqueue_watchers_;
+
 private slots:
   void PlaybackTimerUpdate();
 
