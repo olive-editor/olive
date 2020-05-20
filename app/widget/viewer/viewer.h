@@ -190,6 +190,8 @@ private:
 
   QFuture<FramePtr> GetFrame(const rational& t, bool clear_render_queue, bool block_update);
 
+  void FinishPlayPreprocess();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -226,6 +228,8 @@ private:
   int64_t playback_queue_next_frame_;
 
   RenderBackend* renderer_;
+
+  bool prequeuing_;
 
 private slots:
   void PlaybackTimerUpdate();

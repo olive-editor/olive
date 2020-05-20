@@ -41,6 +41,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const int kMaxPreQueueSize = 16;
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
   playback_speed_(0),
@@ -49,7 +51,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   divider_(Config::Current()["DefaultViewerDivider"].toInt()),
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
-  playback_is_audio_only_(false)
+  playback_is_audio_only_(false),
+  prequeuing_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -389,6 +392,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
   // Check playback queue for a frame
   if (IsPlaying()) {
+
     while (!playback_queue_.isEmpty()) {
       const ViewerPlaybackFrame& pf = playback_queue_.first();
 
@@ -407,7 +411,6 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       }
     }
 
-    qDebug() << "Playback queue couldn't keep up - falling back to realtime decoding";
   }
 
   // Frame was not in queue, will require rendering or decoding from cache
@@ -433,24 +436,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  int64_t start_time = ruler()->GetTime();
-
-  playback_queue_next_frame_ = start_time;
-  FillPlaybackQueue();
-
-  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
-  if (!audio_fn.isEmpty()) {
-    AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
-    AudioManager::instance()->StartOutput(audio_fn,
-                                          GetConnectedNode()->audio_playback_cache()->GetParameters().time_to_bytes(GetTime()),
-                                          playback_speed_);
-  }
-
-  playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
-
-  foreach (ViewerWindow* window, windows_) {
-    window->Play(start_time, playback_speed_, timebase());
-  }
+  playback_queue_next_frame_ = ruler()->GetTime();
 
   controls_->ShowPauseButton();
 
@@ -458,8 +444,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   if (playback_is_audio_only_) {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+    FinishPlayPreprocess();
   } else {
-    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    FillPlaybackQueue();
   }
 }
 
@@ -520,18 +507,10 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 
 void ViewerWidget::FillPlaybackQueue()
 {
-  // FIXME: Replace with an asynchronous approach
-  while (playback_queue_.size() < 16) {
-    rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
-                                                     timebase());
-    playback_queue_next_frame_ += playback_speed_;
-    QFuture<FramePtr> future = GetFrame(next_time, false, false);
-    future.waitForFinished();
-    playback_queue_.AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
+  prequeuing_ = true;
 
-    foreach (ViewerWindow* window, windows_) {
-      window->queue()->AppendTimewise({future.result()->timestamp(), future.result()}, playback_speed_);
-    }
+  for (int i=0; i<kMaxPreQueueSize; i++) {
+    RequestNextFrameForQueue();
   }
 }
 
@@ -604,6 +583,29 @@ QFuture<FramePtr> ViewerWidget::GetFrame(const rational &t, bool clear_render_qu
                                                                               GetCurrentPixelFormat());
 
     return QtConcurrent::run(DecodeCachedImage, cache_fn, t);
+  }
+}
+
+void ViewerWidget::FinishPlayPreprocess()
+{
+  int64_t start_time = ruler()->GetTime();
+
+  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
+  if (!audio_fn.isEmpty()) {
+    AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
+    AudioManager::instance()->StartOutput(audio_fn,
+                                          GetConnectedNode()->audio_playback_cache()->GetParameters().time_to_bytes(GetTime()),
+                                          playback_speed_);
+  }
+
+  playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
+
+  foreach (ViewerWindow* window, windows_) {
+    window->Play(start_time, playback_speed_, timebase());
+  }
+
+  if (!playback_is_audio_only_) {
+    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
 }
 
@@ -705,8 +707,17 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
   watcher->deleteLater();
 
   // Ignore this signal if we've paused now
-  if (IsPlaying()) {
+  if (IsPlaying() || prequeuing_) {
     playback_queue_.AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+
+    foreach (ViewerWindow* window, windows_) {
+      window->queue()->AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+    }
+
+    if (prequeuing_ && playback_queue_.size() == kMaxPreQueueSize) {
+      prequeuing_ = false;
+      FinishPlayPreprocess();
+    }
   }
 }
 
@@ -878,6 +889,8 @@ void ViewerWidget::Pause()
 
     playback_queue_.clear();
   }
+
+  prequeuing_ = false;
 }
 
 void ViewerWidget::ShuttleLeft()
