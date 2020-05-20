@@ -1121,7 +1121,18 @@ void Core::CacheActiveSequence(bool in_out_only)
   if (p && p->GetConnectedViewer()) {
     // FIXME: Hardcoded divider...
     // FIXME: Consider preventing caching the footage viewer
-    CacheTask* task = new CacheTask(p->GetConnectedViewer(), 2, in_out_only);
+    VideoRenderingParams vrp(p->GetConnectedViewer()->video_params(),
+                             PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline),
+                             RenderMode::kOffline,
+                             2);
+
+    AudioRenderingParams arp(p->GetConnectedViewer()->audio_params(),
+                             SampleFormat::kInternalFormat);
+
+    CacheTask* task = new CacheTask(p->GetConnectedViewer(),
+                                    vrp,
+                                    arp,
+                                    in_out_only);
 
     TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), main_window_);
     dialog->open();

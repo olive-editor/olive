@@ -75,6 +75,11 @@ public:
     video_download_matrix_ = mat;
   }
 
+  void SetAudioModeIsPreview(bool audio_mode_is_preview)
+  {
+    audio_mode_is_preview_ = audio_mode_is_preview;
+  }
+
   /**
    * @brief Return a unique ID for the image generated at this time
    *
@@ -165,6 +170,8 @@ private:
   QList<NodeInput*> queued_updates_;
   QHash<Node*, Node*> copy_map_;
   bool available_;
+
+  bool audio_mode_is_preview_;
 
   QMutex lock_;
 

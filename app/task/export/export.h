@@ -43,6 +43,8 @@ protected:
 
   virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) override;
 
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+
 private:
   QHash<QByteArray, FramePtr> rendered_frame_;
 
@@ -59,6 +61,8 @@ private:
   ColorProcessorPtr color_processor_;
 
   int64_t frame_time_;
+
+  AudioPlaybackCache audio_data_;
 
 };
 

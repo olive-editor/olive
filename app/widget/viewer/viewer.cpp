@@ -723,15 +723,15 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
 
 void ViewerWidget::UpdateRendererParameters()
 {
-  RenderMode::Mode render_mode = RenderMode::kOffline;
+  renderer_->SetVideoParams(VideoRenderingParams(GetConnectedNode()->video_params(),
+                                                 GetCurrentPixelFormat(),
+                                                 RenderMode::kOffline,
+                                                 divider_));
 
-  renderer_->SetDivider(divider_);
-  renderer_->SetMode(render_mode);
-  renderer_->SetPixelFormat(GetCurrentPixelFormat());
+  renderer_->SetAudioParams(AudioRenderingParams(GetConnectedNode()->audio_params(),
+                                                 SampleFormat::kInternalFormat));
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());
-
-  renderer_->SetSampleFormat(SampleFormat::kInternalFormat);
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)

@@ -31,22 +31,38 @@ OLIVE_NAMESPACE_ENTER
 class RenderTask : public Task
 {
 public:
-  RenderTask(ViewerOutput* viewer);
+  RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams);
 
 protected:
-  void Render(TimeRangeList range_to_cache, RenderMode::Mode mode, const QMatrix4x4 &mat, bool audio_enabled, int divider);
+  void Render(const TimeRangeList &range_to_cache, const QMatrix4x4 &mat, bool audio_enabled);
+
+  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
+
+  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) = 0;
+
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples);
 
   ViewerOutput* viewer() const
   {
     return viewer_;
   }
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
+  VideoRenderingParams video_params() const
+  {
+    return video_params_;
+  }
 
-  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) = 0;
+  AudioRenderingParams audio_params() const
+  {
+    return audio_params_;
+  }
 
 private:
   ViewerOutput* viewer_;
+
+  VideoRenderingParams video_params_;
+
+  AudioRenderingParams audio_params_;
 
 };
 

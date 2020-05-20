@@ -25,10 +25,11 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(ViewerOutput* viewer) :
-  viewer_(viewer)
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams) :
+  viewer_(viewer),
+  video_params_(vparams),
+  audio_params_(aparams)
 {
-
 }
 
 struct TimeHashFuturePair {
@@ -46,50 +47,52 @@ struct HashFrameFuturePair {
   QFuture<FramePtr> frame_future;
 };
 
+struct RangeSampleFuturePair {
+  TimeRange range;
+  QFuture<SampleBufferPtr> sample_future;
+};
+
 struct HashDownloadFuturePair {
   QByteArray hash;
   QFuture<void> download_future;
 };
 
-void RenderTask::Render(TimeRangeList range_to_cache,
-                        RenderMode::Mode mode,
+void RenderTask::Render(const TimeRangeList& range_to_cache,
                         const QMatrix4x4& mat,
-                        bool audio_enabled,
-                        int divider)
+                        bool audio_enabled)
 {
   OpenGLBackend backend;
 
-  PixelFormat::Format format = PixelFormat::instance()->GetConfiguredFormatForMode(mode);
-
-  backend.SetAudioMode(audio_enabled ? RenderBackend::kAudioRender : RenderBackend::kAudioDisabled);
+  backend.SetAutomaticAudio(false);
   backend.SetViewerNode(viewer_);
-  backend.SetPixelFormat(format);
-  backend.SetMode(mode);
-  backend.SetDivider(divider);
-  backend.SetSampleFormat(SampleFormat::kInternalFormat);
+  backend.SetVideoParams(video_params_);
+  backend.SetAudioParams(audio_params_);
   backend.SetVideoDownloadMatrix(mat);
 
   // Get hashes for each frame
   QLinkedList<TimeHashFuturePair> hash_list;
 
-  while (!range_to_cache.isEmpty()) {
-    const TimeRange& range = range_to_cache.first();
+  {
+    TimeRangeList range_list = range_to_cache;
+    while (!range_list.isEmpty()) {
+      const TimeRange& range = range_list.first();
 
-    const rational& timebase = viewer_->video_params().time_base();
+      const rational& timebase = viewer_->video_params().time_base();
 
-    rational time = range.in();
-    rational snapped = Timecode::snap_time_to_timebase(time, timebase);
-    rational next;
+      rational time = range.in();
+      rational snapped = Timecode::snap_time_to_timebase(time, timebase);
+      rational next;
 
-    if (snapped > time) {
-      next = snapped;
-      snapped -= timebase;
-    } else {
-      next = snapped + timebase;
+      if (snapped > time) {
+        next = snapped;
+        snapped -= timebase;
+      } else {
+        next = snapped + timebase;
+      }
+
+      hash_list.append({snapped, backend.Hash(snapped, false)});
+      range_list.RemoveTimeRange(TimeRange(snapped, next));
     }
-
-    hash_list.append({snapped, backend.Hash(snapped, false)});
-    range_to_cache.RemoveTimeRange(TimeRange(snapped, next));
   }
 
   // Determine any duplicates
@@ -130,12 +133,18 @@ void RenderTask::Render(TimeRangeList range_to_cache,
     }
   }
 
+  QLinkedList<RangeSampleFuturePair> audio_lookup_table;
+  if (audio_enabled) {
+    foreach (const TimeRange& r, range_to_cache) {
+      QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
+
+      foreach (const TimeRange& split, ranges) {
+        audio_lookup_table.append({split, backend.RenderAudio(split, false)});
+      }
+    }
+  }
+
   // Start downloading frames that have finished
-  OIIO::TypeDesc output_desc = PixelFormat::GetOIIOTypeDesc(format);
-  OIIO::ImageSpec output_spec(viewer()->video_params().width() / divider,
-                              viewer()->video_params().height() / divider,
-                              PixelFormat::ChannelCount(format),
-                              output_desc);
 
   int counter = 0;
   int nb_frames = render_lookup_table.size();
@@ -145,8 +154,12 @@ void RenderTask::Render(TimeRangeList range_to_cache,
   // Iterators
   QLinkedList<HashFrameFuturePair>::iterator i;
   QLinkedList<HashDownloadFuturePair>::iterator j;
+  QLinkedList<RangeSampleFuturePair>::iterator k;
 
-  while (!render_lookup_table.isEmpty() || !download_futures.isEmpty()) {
+  while (!render_lookup_table.isEmpty()
+         || !download_futures.isEmpty()
+         || !audio_lookup_table.isEmpty()) {
+
     i = render_lookup_table.begin();
 
     while (i != render_lookup_table.end()) {
@@ -178,7 +191,25 @@ void RenderTask::Render(TimeRangeList range_to_cache,
         j++;
       }
     }
+
+    if (audio_enabled) {
+      k = audio_lookup_table.begin();
+
+      while (k != audio_lookup_table.end()) {
+        if (k->sample_future.isFinished()) {
+          AudioDownloaded(k->range, k->sample_future.result());
+
+          k = audio_lookup_table.erase(k);
+        } else {
+          k++;
+        }
+      }
+    }
   }
+}
+
+void RenderTask::AudioDownloaded(const TimeRange &, SampleBufferPtr)
+{
 }
 
 OLIVE_NAMESPACE_EXIT

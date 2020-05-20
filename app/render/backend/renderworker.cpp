@@ -25,6 +25,7 @@
 #include "audio/sumsamples.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
+#include "task/conform/conform.h"
 #include "renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -32,7 +33,8 @@ OLIVE_NAMESPACE_ENTER
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   viewer_(nullptr),
-  available_(true)
+  available_(true),
+  audio_mode_is_preview_(false)
 {
 }
 
@@ -359,8 +361,51 @@ NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &inp
 
   if (decoder) {
     if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+
+      // Return a texture from the derived class
       return FrameToTexture(decoder, stream, input_time);
+
     } else if (stream->type() == Stream::kAudio) {
+
+      // See if we have a conformed version of this audio
+      if (!decoder->HasConformedVersion(audio_params())) {
+
+        // If not, check what audio mode we're in
+        if (audio_mode_is_preview_) {
+
+          // For preview, we report the conform is missing and finish the render without it
+          // temporarily. The backend that picks up this signal will recache this section once the
+          // conform is available.
+          emit AudioConformUnavailable(decoder->stream(),
+                                       audio_render_time_,
+                                       input_time.out(),
+                                       audio_params());
+
+        } else {
+
+          // For online rendering/export, it's a waste of time to render the audio until we have
+          // all we need, so we try to handle the conform ourselves
+          AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
+
+          // Check if any other threads are conforming this audio
+          if (as->try_start_conforming(audio_params())) {
+
+            // If not, conform it ourselves
+            decoder->ConformAudio(&IsCancelled(), audio_params());
+
+          } else {
+
+            // If another thread is conforming already, hackily try to wait until it's done.
+            do {
+              QThread::msleep(1000);
+            } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
+
+          }
+        }
+
+      }
+
+
       if (decoder->HasConformedVersion(audio_params())) {
         SampleBufferPtr frame = decoder->RetrieveAudio(input_time.in(), input_time.length(),
                                                        audio_params());
@@ -368,9 +413,6 @@ NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &inp
         if (frame) {
           return NodeValue(NodeParam::kSamples, QVariant::fromValue(frame));
         }
-      } else {
-        emit AudioConformUnavailable(decoder->stream(), audio_render_time_,
-                                     input_time.out(), audio_params());
       }
     }
   }

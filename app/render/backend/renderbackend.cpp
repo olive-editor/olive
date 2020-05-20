@@ -34,11 +34,7 @@ OLIVE_NAMESPACE_ENTER
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
-  audio_mode_(kAudioPreview),
-  divider_(1),
-  render_mode_(RenderMode::kOnline),
-  pix_fmt_(PixelFormat::PIX_FMT_RGBA32F),
-  sample_fmt_(SampleFormat::SAMPLE_FMT_FLT),
+  auto_audio_(true),
   ic_from_conform_(false)
 {
   // FIXME: Don't create in CLI mode
@@ -91,7 +87,7 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
             this,
             &RenderBackend::NodeGraphChanged);
 
-    if (audio_mode_ == kAudioPreview) {
+    if (auto_audio_) {
       // Listen for audio invalidation signals
       connect(viewer_node_->audio_playback_cache(),
               &AudioPlaybackCache::Invalidated,
@@ -136,24 +132,23 @@ QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time, bool clear_qu
                            block_for_update);
 }
 
-void RenderBackend::SetDivider(const int &divider)
+QFuture<SampleBufferPtr> RenderBackend::RenderAudio(const TimeRange &r, bool block_for_update)
 {
-  divider_ = divider;
+  return QtConcurrent::run(&audio_pool_.threads,
+                           GetInstanceFromPool(audio_pool_),
+                           &RenderWorker::RenderAudio,
+                           r,
+                           block_for_update);
 }
 
-void RenderBackend::SetMode(const RenderMode::Mode &mode)
+void RenderBackend::SetVideoParams(const VideoRenderingParams &params)
 {
-  render_mode_ = mode;
+  video_params_ = params;
 }
 
-void RenderBackend::SetPixelFormat(const PixelFormat::Format &pix_fmt)
+void RenderBackend::SetAudioParams(const AudioRenderingParams &params)
 {
-  pix_fmt_ = pix_fmt;
-}
-
-void RenderBackend::SetSampleFormat(const SampleFormat::Format &sample_fmt)
-{
-  sample_fmt_ = sample_fmt;
+  audio_params_ = params;
 }
 
 void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
@@ -161,9 +156,9 @@ void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
   video_download_matrix_ = mat;
 }
 
-void RenderBackend::SetAudioMode(AudioMode e)
+void RenderBackend::SetAutomaticAudio(bool e)
 {
-  audio_mode_ = e;
+  auto_audio_ = e;
 }
 
 void RenderBackend::WorkerStartedRenderingAudio(const TimeRange &r)
@@ -171,6 +166,23 @@ void RenderBackend::WorkerStartedRenderingAudio(const TimeRange &r)
   queued_audio_lock_.lock();
   queued_audio_.RemoveTimeRange(r);
   queued_audio_lock_.unlock();
+}
+
+QList<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
+{
+  const int chunk_size = 2;
+
+  QList<TimeRange> split_ranges;
+
+  int start_time = qFloor(r.in().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+  int end_time = qCeil(r.out().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+
+  for (int i=start_time; i<end_time; i+=chunk_size) {
+    split_ranges.append(TimeRange(qMax(r.in(), rational(i)),
+                         qMin(r.out(), rational(i + chunk_size))));
+  }
+
+  return split_ranges;
 }
 
 void RenderBackend::NodeGraphChanged(NodeInput *source)
@@ -184,9 +196,10 @@ void RenderBackend::UpdateInstance(RenderWorker *instance)
 {
   instance->SetAvailable(false);
   instance->ProcessQueue();
-  instance->SetVideoParams(video_params());
-  instance->SetAudioParams(audio_params());
+  instance->SetVideoParams(video_params_);
+  instance->SetAudioParams(audio_params_);
   instance->SetVideoDownloadMatrix(video_download_matrix_);
+  instance->SetAudioModeIsPreview(auto_audio_);
 }
 
 void RenderBackend::Close()
@@ -196,16 +209,6 @@ void RenderBackend::Close()
   video_pool_.Destroy();
   audio_pool_.Destroy();
   hash_pool_.Destroy();
-}
-
-VideoRenderingParams RenderBackend::video_params() const
-{
-  return VideoRenderingParams(viewer_node_->video_params(), pix_fmt_, render_mode_, divider_);
-}
-
-AudioRenderingParams RenderBackend::audio_params() const
-{
-  return AudioRenderingParams(viewer_node_->audio_params(), sample_fmt_);
 }
 
 RenderWorker *RenderBackend::GetInstanceFromPool(RenderPool& pool)
@@ -361,15 +364,9 @@ void RenderBackend::AudioInvalidated(const TimeRange& r)
   }
 
   // Split into 2 second chunks, one for each thread
-  const int chunk_size = 2;
+  QList<TimeRange> split_ranges = SplitRangeIntoChunks(r);
 
-  QList<TimeRange> split_ranges;
-
-  int start_time = qFloor(r.in().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
-  int end_time = qCeil(r.out().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
-  for (int i=start_time; i<end_time; i+=chunk_size) {
-    TimeRange this_range(qMax(r.in(), rational(i)),
-                         qMin(r.out(), rational(i + chunk_size)));
+  foreach (const TimeRange& this_range, split_ranges) {
 
     {
       // Check if this range is already in the queue but hasn't started yet, in which case it'll
@@ -388,11 +385,7 @@ void RenderBackend::AudioInvalidated(const TimeRange& r)
 
     audio_jobs_.insert(watcher, this_range);
 
-    watcher->setFuture(QtConcurrent::run(&audio_pool_.threads,
-                                         GetInstanceFromPool(audio_pool_),
-                                         &RenderWorker::RenderAudio,
-                                         this_range,
-                                         audio_mode_ == kAudioPreview));
+    watcher->setFuture(RenderAudio(this_range, auto_audio_));
   }
 }
 

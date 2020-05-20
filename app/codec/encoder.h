@@ -108,7 +108,7 @@ public:
 
   virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
   virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info,
-                          const QString& pcm_filename, OLIVE_NAMESPACE::TimeRange range) = 0;
+                          const QString& pcm_filename) = 0;
 
   virtual void Close() = 0;
 

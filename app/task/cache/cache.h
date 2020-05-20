@@ -31,7 +31,10 @@ class CacheTask : public RenderTask
 {
   Q_OBJECT
 public:
-  CacheTask(ViewerOutput* viewer, int divider, bool in_out_only);
+  CacheTask(ViewerOutput* viewer,
+            const VideoRenderingParams &vparams,
+            const AudioRenderingParams &aparams,
+            bool in_out_only);
 
 public slots:
   virtual bool Run() override;
@@ -43,8 +46,6 @@ protected:
 
 private:
   bool in_out_only_;
-
-  int divider_;
 
 };
 

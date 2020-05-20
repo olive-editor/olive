@@ -28,7 +28,7 @@ OLIVE_NAMESPACE_ENTER
 ExportTask::ExportTask(ViewerOutput* viewer_node,
                        ColorManager* color_manager,
                        const ExportParams& params) :
-  RenderTask(viewer_node),
+  RenderTask(viewer_node, params.video_params(), params.audio_params()),
   color_manager_(color_manager),
   params_(params)
 {
@@ -80,9 +80,14 @@ bool ExportTask::Run()
                                               params_.color_transform());
   }
 
+  if (params_.audio_enabled()) {
+    audio_data_.SetParameters(audio_params());
+  }
+
+  // Start render process
   TimeRangeList ranges;
   ranges.InsertTimeRange(range);
-  Render(ranges, RenderMode::kOnline, mat, true, 1);
+  Render(ranges, mat, params_.audio_enabled());
 
   bool success = true;
 
@@ -95,6 +100,11 @@ bool ExportTask::Run()
     }
   }
 
+  if (params_.audio_enabled()) {
+    // Write audio data now
+    encoder_->WriteAudio(audio_params(), audio_data_.GetCacheFilename());
+  }
+
   encoder_->Close();
 
   encoder_->deleteLater();
@@ -104,8 +114,6 @@ bool ExportTask::Run()
 
 void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
 {
-  qDebug() << "Converting" << frame->timestamp() << "from" << frame->format();
-
   // OCIO conversion requires a frame in 32F format
   if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
     frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
@@ -151,6 +159,19 @@ void ExportTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<ratio
     frame_time_++;
 
   }
+}
+
+void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+{
+  TimeRange adjusted_range = range;
+
+  if (params_.has_custom_range()) {
+    adjusted_range -= params_.custom_range().in();
+  }
+
+  qDebug() << "Downloaded audio" << adjusted_range;
+
+  audio_data_.WritePCM(adjusted_range, samples);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -27,10 +27,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-CacheTask::CacheTask(ViewerOutput* viewer, int divider, bool in_out_only) :
-  RenderTask(viewer),
-  in_out_only_(in_out_only),
-  divider_(divider)
+CacheTask::CacheTask(ViewerOutput* viewer, const VideoRenderingParams& vparams, const AudioRenderingParams &aparams, bool in_out_only) :
+  RenderTask(viewer, vparams, aparams),
+  in_out_only_(in_out_only)
 {
   SetTitle(tr("Caching \"%1\"").arg(viewer->media_name()));
 }
@@ -49,7 +48,7 @@ bool CacheTask::Run()
     }
   }
 
-  Render(range_to_cache, RenderMode::kOffline, QMatrix4x4(), false, divider_);
+  Render(range_to_cache, QMatrix4x4(), false);
 
   return true;
 }

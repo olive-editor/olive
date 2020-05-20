@@ -170,7 +170,7 @@ fail:
   return success;
 }
 
-void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm_filename, TimeRange range)
+void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm_filename)
 {
   QFile pcm(pcm_filename);
   if (pcm.open(QFile::ReadOnly)) {
@@ -213,13 +213,6 @@ void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm
     // Keep track of sample count to use as each frame's timebase
     int sample_counter = 0;
 
-    // Go to start range if one was set
-    if (range.in() > 0) {
-      pcm.seek(pcm_info.time_to_bytes(range.in()));
-    }
-
-    int end_in_bytes = pcm_info.time_to_bytes(range.out());
-
     while (true) {
       // Calculate how many samples should input this frame
       int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
@@ -229,11 +222,6 @@ void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm
 
       // Calculate how many bytes this is
       int max_read = pcm_info.samples_to_bytes(samples_needed);
-
-      // Limit read to end time if necessary
-      if (pcm.pos() + max_read > end_in_bytes) {
-        max_read = end_in_bytes - pcm.pos();
-      }
 
       // Read bytes from PCM
       QByteArray input_data = pcm.read(max_read);
@@ -270,7 +258,7 @@ void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm
       }
 
       // Break if we've reached the end point
-      if (pcm.atEnd() || pcm.pos() == end_in_bytes) {
+      if (pcm.atEnd()) {
         break;
       }
     }

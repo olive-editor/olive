@@ -54,25 +54,22 @@ public:
    */
   QFuture<FramePtr> RenderFrame(const rational& time, bool clear_queue, bool block_for_update);
 
-  void SetDivider(const int& divider);
+  /**
+   * @brief Asynchronously generate a chunk of audio
+   */
+  QFuture<SampleBufferPtr> RenderAudio(const TimeRange& r, bool block_for_update);
 
-  void SetMode(const RenderMode::Mode& mode);
+  void SetVideoParams(const VideoRenderingParams& params);
 
-  void SetPixelFormat(const PixelFormat::Format& pix_fmt);
-
-  void SetSampleFormat(const SampleFormat::Format& sample_fmt);
+  void SetAudioParams(const AudioRenderingParams& params);
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
-  enum AudioMode {
-    kAudioDisabled,
-    kAudioPreview,
-    kAudioRender
-  };
-
-  void SetAudioMode(AudioMode e);
+  void SetAutomaticAudio(bool e);
 
   void WorkerStartedRenderingAudio(const TimeRange& r);
+
+  static QList<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
 public slots:
   void NodeGraphChanged(NodeInput *source);
@@ -83,10 +80,6 @@ protected:
   virtual RenderWorker* CreateNewWorker() = 0;
 
   void Close();
-
-  VideoRenderingParams video_params() const;
-
-  AudioRenderingParams audio_params() const;
 
 private:
   struct RenderPool {
@@ -113,16 +106,14 @@ private:
   QMutex queued_audio_lock_;
   TimeRangeList queued_audio_;
 
-  AudioMode audio_mode_;
+  bool auto_audio_;
 
   // VIDEO MEMBERS
-  int divider_;
-  RenderMode::Mode render_mode_;
-  PixelFormat::Format pix_fmt_;
+  VideoRenderingParams video_params_;
   QMatrix4x4 video_download_matrix_;
 
   // AUDIO MEMBERS
-  SampleFormat::Format sample_fmt_;
+  AudioRenderingParams audio_params_;
   QHash< QFutureWatcher<SampleBufferPtr>*, TimeRange > audio_jobs_;
 
   struct ConformWaitInfo {
