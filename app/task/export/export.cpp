@@ -85,9 +85,7 @@ bool ExportTask::Run()
   }
 
   // Start render process
-  TimeRangeList ranges;
-  ranges.InsertTimeRange(range);
-  Render(ranges, mat, params_.audio_enabled());
+  Render({range}, mat, params_.audio_enabled());
 
   bool success = true;
 

@@ -29,6 +29,7 @@
 
 #include "codec/frame.h"
 #include "common/filefunctions.h"
+#include "common/timecodefunctions.h"
 #include "render/diskmanager.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -102,6 +103,36 @@ QString FrameHashCache::GetFormatExtension(const PixelFormat::Format &f)
     //        prototype.
     return QStringLiteral(".jpg");
   }
+}
+
+QList<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
+{
+  QList<rational> times;
+
+  while (!range_list.isEmpty()) {
+    const TimeRange& range = range_list.first();
+
+    rational time = range.in();
+    rational snapped = Timecode::snap_time_to_timebase(time, timebase);
+    rational next;
+
+    if (snapped > time) {
+      next = snapped;
+      snapped -= timebase;
+    } else {
+      next = snapped + timebase;
+    }
+
+    times.append(snapped);
+    range_list.RemoveTimeRange(TimeRange(snapped, next));
+  }
+
+  return times;
+}
+
+QList<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range) const
+{
+  return GetFrameListFromTimeRange(range, timebase_);
 }
 
 void FrameHashCache::SaveCacheFrame(const QByteArray& hash,

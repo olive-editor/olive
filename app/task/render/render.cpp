@@ -73,25 +73,10 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
   QLinkedList<TimeHashFuturePair> hash_list;
 
   {
-    TimeRangeList range_list = range_to_cache;
-    while (!range_list.isEmpty()) {
-      const TimeRange& range = range_list.first();
+    QList<rational> times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(range_to_cache);
 
-      const rational& timebase = viewer_->video_params().time_base();
-
-      rational time = range.in();
-      rational snapped = Timecode::snap_time_to_timebase(time, timebase);
-      rational next;
-
-      if (snapped > time) {
-        next = snapped;
-        snapped -= timebase;
-      } else {
-        next = snapped + timebase;
-      }
-
-      hash_list.append({snapped, backend.Hash(snapped, false)});
-      range_list.RemoveTimeRange(TimeRange(snapped, next));
+    foreach (const rational& r, times) {
+      hash_list.append({r, backend.Hash(r, false)});
     }
   }
 

@@ -233,6 +233,8 @@ private:
 
   QList< QFutureWatcher<FramePtr>* > nonqueue_watchers_;
 
+  QHash<QFutureWatcher<QByteArray>*, rational> hash_watchers_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -267,6 +269,8 @@ private slots:
   void RendererGeneratedFrame();
 
   void RendererGeneratedFrameForQueue();
+
+  void HashGenerated();
 
 };
 

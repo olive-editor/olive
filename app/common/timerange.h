@@ -66,6 +66,11 @@ class TimeRangeList : public QList<TimeRange> {
 public:
   TimeRangeList() = default;
 
+  TimeRangeList(std::initializer_list<TimeRange> r) :
+    QList<TimeRange>(r)
+  {
+  }
+
   void InsertTimeRange(const TimeRange& range);
 
   void RemoveTimeRange(const TimeRange& range);

@@ -732,6 +732,24 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
   }
 }
 
+void ViewerWidget::HashGenerated()
+{
+  QFutureWatcher<QByteArray>* watcher = static_cast<QFutureWatcher<QByteArray>*>(sender());
+
+  if (hash_watchers_.contains(watcher)) {
+    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(watcher->result(), GetCurrentPixelFormat());
+
+    if (QFileInfo::exists(cache_fn)) {
+      GetConnectedNode()->video_frame_cache()->SetHash(hash_watchers_.value(watcher),
+                                                       watcher->result());
+    }
+
+    hash_watchers_.remove(watcher);
+  }
+
+  watcher->deleteLater();
+}
+
 void ViewerWidget::UpdateRendererParameters()
 {
   renderer_->SetVideoParams(VideoRenderingParams(GetConnectedNode()->video_params(),
@@ -1070,6 +1088,14 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
 {
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     ForceUpdate();
+  }
+
+  QList<rational> invalidated_frames = GetConnectedNode()->video_frame_cache()->GetFrameListFromTimeRange({range});
+  foreach (const rational& r, invalidated_frames) {
+    QFutureWatcher<QByteArray>* watcher = new QFutureWatcher<QByteArray>();
+    connect(watcher, &QFutureWatcher<QByteArray>::finished, this, &ViewerWidget::HashGenerated);
+    hash_watchers_.insert(watcher, r);
+    watcher->setFuture(renderer_->Hash(r, true));
   }
 }
 
