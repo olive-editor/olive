@@ -58,6 +58,24 @@ private slots:
    */
   virtual void accept() override;
 
+  void RestoreDefaultSettings();
+
+signals:
+
+  void ResetGeneral(bool reset_all_tabs);
+
+  void ResetAppearance(bool reset_all_tabs);
+
+  void ResetBehavior(bool reset_all_tabs);
+
+  void ResetQuality(bool reset_all_tabs);
+  
+  void ResetDisk(bool reset_all_tabs);
+
+  void ResetAudio(bool reset_all_tabs);
+
+  void ResetKeyboard(bool reset_all_tabs);
+
 private:
   void AddTab(PreferencesTab* tab, const QString& title);
 

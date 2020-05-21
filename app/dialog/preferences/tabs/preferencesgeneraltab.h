@@ -45,7 +45,12 @@ private slots:
    */
   void edit_default_sequence_settings();
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
+  void SetValuesFromConfig(Config config);
+
   QComboBox* language_combobox_;
 
   QComboBox* autoscroll_method_;

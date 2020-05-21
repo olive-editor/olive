@@ -43,9 +43,9 @@ public:
 
   QVariant& operator[](const QString&);
 
-private:
   Config();
 
+private:
   QMap<QString, QVariant> config_map_;
 
   static Config current_config_;

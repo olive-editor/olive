@@ -37,6 +37,9 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
   /**
    * @brief UI widget for selecting the output audio device
@@ -76,6 +79,8 @@ private:
   void UpdateRefreshButtonEnabled();
 
   static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
+
+  void SetValuesFromConfig(Config config);
 
 };
 

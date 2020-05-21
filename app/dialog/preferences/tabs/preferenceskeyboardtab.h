@@ -37,6 +37,9 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private slots:
   /**
    * @brief Show a file dialog to load an external shortcut preset from file
@@ -52,13 +55,6 @@ private slots:
    * @brief Reset all selected shortcuts in keyboard_tree to their defaults
    */
   void reset_default_shortcut();
-
-  /**
-   * @brief Reset all shortcuts indiscriminately to their defaults
-   *
-   * This is safe to call directly as it'll ask the user if they wish to do so before it resets.
-   */
-  void reset_all_shortcuts();
 
   /**
    * @brief Shows/hides shortcut entries according to a shortcut query.

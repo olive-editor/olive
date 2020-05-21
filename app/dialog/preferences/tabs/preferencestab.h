@@ -22,6 +22,7 @@
 #define PREFERENCESTAB_H
 
 #include <QWidget>
+#include <QMessageBox>
 
 #include "config/config.h"
 

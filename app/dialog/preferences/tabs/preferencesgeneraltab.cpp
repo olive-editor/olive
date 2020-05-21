@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QPushButton>
 
+#include "config/config.h"
 #include "common/autoscroll.h"
 #include "dialog/sequence/sequence.h"
 #include "project/item/sequence/sequence.h"
@@ -47,9 +48,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   // Add default language (en-US)
   language_combobox_->addItem(QLocale("en_US").nativeLanguageName());
-
-  // Set sequence to pick up default parameters from the config
-  default_sequence_.set_default_parameters();
 
   /*
     // add languages from file
@@ -89,7 +87,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
   autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
   autoscroll_method_->addItem(tr("Smooth Scrolling"), AutoScroll::kSmooth);
-  autoscroll_method_->setCurrentIndex(Config::Current()["Autoscroll"].toInt());
   general_layout->addWidget(autoscroll_method_, row, 1);
 
   row++;
@@ -97,7 +94,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   general_layout->addWidget(new QLabel(tr("Rectified Waveforms:")), row, 0);
 
   rectified_waveforms_ = new QCheckBox();
-  rectified_waveforms_->setChecked(Config::Current()["RectifiedWaveforms"].toBool());
   general_layout->addWidget(rectified_waveforms_, row, 1);
 
   row++;
@@ -106,7 +102,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   default_still_length_ = new FloatSlider();
   default_still_length_->SetMinimum(0.1);
-  default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
   general_layout->addWidget(default_still_length_);
 
   row++;
@@ -119,6 +114,8 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   general_layout->addWidget(default_sequence_settings, row, 1);
 
   layout->addStretch();
+
+  SetValuesFromConfig(Config::Current());
 }
 
 void PreferencesGeneralTab::Accept()
@@ -142,6 +139,33 @@ void PreferencesGeneralTab::edit_default_sequence_settings()
   sd.SetUndoable(false);
   sd.SetNameIsEditable(false);
   sd.exec();
+}
+
+void PreferencesGeneralTab::SetValuesFromConfig(Config config) {
+  language_combobox_->setCurrentIndex(0);  // Will need editing when more languages added
+  rectified_waveforms_->setChecked(config["RectifiedWaveforms"].toBool());
+  autoscroll_method_->setCurrentIndex(config["Autoscroll"].toInt());
+  default_still_length_->SetValue(config["DefaultStillLength"].value<rational>().toDouble());
+
+  default_sequence_.set_video_params(VideoParams(config["DefaultSequenceWidth"].toInt(),
+                                                 config["DefaultSequenceHeight"].toInt(),
+                                                 config["DefaultSequenceFrameRate"].value<rational>()));
+  default_sequence_.set_audio_params(AudioParams(config["DefaultSequenceAudioFrequency"].toInt(),
+                                                 config["DefaultSequenceAudioLayout"].toULongLong()));
+}
+
+void PreferencesGeneralTab::ResetDefaults(bool reset_all_tabs)
+{
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset General Settings"),
+                                          tr("Are you sure you wish to reset all General settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    Config default_config;
+    SetValuesFromConfig(default_config);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

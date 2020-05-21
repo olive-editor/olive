@@ -89,6 +89,8 @@ PreferencesAudioTab::PreferencesAudioTab()
   connect(refresh_devices_btn_, &QPushButton::clicked, this, &PreferencesAudioTab::RefreshDevices);
   connect(AudioManager::instance(), &AudioManager::OutputListReady, this, &PreferencesAudioTab::RetrieveOutputList);
   connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
+
+  SetValuesFromConfig(Config::Current());
 }
 
 void PreferencesAudioTab::Accept()
@@ -113,7 +115,7 @@ void PreferencesAudioTab::Accept()
 
     // Save it in the global application preferences
     if (Config::Current()["AudioOutput"] != selected_output_name) {
-      Config::Current()["AudioOutput"] = selected_output_name;
+      Config::Current()["AudioOutput"] = QVariant::fromValue(selected_output_name);
       AudioManager::instance()->SetOutputDevice(selected_output);
     }
   }
@@ -131,10 +133,12 @@ void PreferencesAudioTab::Accept()
     }
 
     if (Config::Current()["AudioInput"] != selected_input_name) {
-      Config::Current()["AudioInput"] = selected_input_name;
+      Config::Current()["AudioInput"] = QVariant::fromValue(selected_input_name);
       AudioManager::instance()->SetInputDevice(selected_input);
     }
   }
+
+  Config::Current()["AudioRecording"] = QVariant::fromValue(recording_combobox_->currentText());
 }
 
 void PreferencesAudioTab::RefreshDevices()
@@ -205,5 +209,42 @@ void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing,
 
   }
 }
+
+void PreferencesAudioTab::SetValuesFromConfig(Config config)
+{
+  if (audio_output_devices_->isEnabled()) {
+    if (config["AudioOutput"] == QString("")) {
+      audio_output_devices_->setCurrentIndex(audio_output_devices_->findText("Default"));
+    } else {
+      audio_output_devices_->setCurrentIndex(audio_output_devices_->findText(config["AudioOutput"].toString()));
+    }
+  }
+
+  if (audio_input_devices_->isEnabled()) {
+    if (config["AudioInput"] == QString("")) {
+      audio_input_devices_->setCurrentIndex(audio_input_devices_->findText("Default"));
+    } else {
+      audio_input_devices_->setCurrentIndex(audio_input_devices_->findText(config["AudioInput"].toString()));
+    }
+  }
+
+  recording_combobox_->setCurrentIndex(recording_combobox_->findText(config["AudioRecording"].toString()));
+}
+
+void PreferencesAudioTab::ResetDefaults(bool reset_all_tabs) {
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Audio Settings"),
+                                          tr("Are you sure you wish to reset all Audio settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+
+  if (confirm_reset) {
+      Config default_config;
+      SetValuesFromConfig(default_config);
+  }
+}
+
+
 
 OLIVE_NAMESPACE_EXIT

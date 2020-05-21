@@ -38,7 +38,12 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
+  void SetValuesFromConfig(Config config);
+
   /**
    * @brief Show a file dialog to browse for an external CSS file to load for styling the application.
    */

@@ -24,6 +24,7 @@
 #include <QListWidget>
 #include <QSplitter>
 #include <QVBoxLayout>
+#include <QApplication>
 
 #include "config/config.h"
 #include "tabs/preferencesgeneraltab.h"
@@ -59,22 +60,58 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));
 
+  // Set default selected tab
+  list_widget_->setCurrentRow(0);
+
   splitter->addWidget(list_widget_);
   splitter->addWidget(preference_pane_stack_);
 
   QDialogButtonBox* button_box = new QDialogButtonBox(this);
   button_box->setOrientation(Qt::Horizontal);
-  button_box->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  button_box->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok | QDialogButtonBox::RestoreDefaults);
+  button_box->button(QDialogButtonBox::RestoreDefaults)
+      ->setToolTip(tr("Reset tab to default settings\nCtrl click resets all preferences"));
 
   layout->addWidget(button_box);
 
   connect(button_box, &QDialogButtonBox::accepted, this, &PreferencesDialog::accept);
   connect(button_box, &QDialogButtonBox::rejected, this, &PreferencesDialog::reject);
 
+  connect(button_box->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this,
+          &PreferencesDialog::RestoreDefaultSettings);
+
   connect(list_widget_,
           &QListWidget::currentRowChanged,
           preference_pane_stack_,
           &QStackedWidget::setCurrentIndex);
+
+  connect(this, &PreferencesDialog::ResetGeneral,
+          static_cast<olive::PreferencesGeneralTab*>(preference_pane_stack_->widget(0)),
+          &PreferencesGeneralTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetAppearance,
+          static_cast<olive::PreferencesAppearanceTab*>(preference_pane_stack_->widget(1)),
+          &PreferencesAppearanceTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetBehavior,
+          static_cast<olive::PreferencesBehaviorTab*>(preference_pane_stack_->widget(2)),
+          &PreferencesBehaviorTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetQuality,
+          static_cast<olive::PreferencesQualityTab*>(preference_pane_stack_->widget(3)),
+          &PreferencesQualityTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetDisk,
+          static_cast<olive::PreferencesDiskTab*>(preference_pane_stack_->widget(4)),
+          &PreferencesDiskTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetAudio,
+          static_cast<olive::PreferencesAudioTab*>(preference_pane_stack_->widget(5)),
+          &PreferencesAudioTab::ResetDefaults);
+
+  connect(this, &PreferencesDialog::ResetKeyboard,
+          static_cast<olive::PreferencesKeyboardTab*>(preference_pane_stack_->widget(6)),
+          &PreferencesKeyboardTab::ResetDefaults);
 }
 
 void PreferencesDialog::accept()
@@ -90,6 +127,44 @@ void PreferencesDialog::accept()
   }
 
   QDialog::accept();
+}
+
+void PreferencesDialog::RestoreDefaultSettings() 
+{ 
+  bool reset_all_tabs = false;
+
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+    if(QMessageBox::question(this, tr("Confirm Reset All Settings"),
+                                                 tr("Are you sure you wish to reset all settings?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+      reset_all_tabs = true;
+    } else {
+      return;
+    }
+  }
+
+  QString list_item = list_widget_->currentItem()->text();
+  if (list_item == tr("General") || reset_all_tabs) {
+    emit ResetGeneral(reset_all_tabs);
+  }
+  if (list_item == tr("Appearance") || reset_all_tabs) {
+    emit ResetAppearance(reset_all_tabs);
+  }
+  if (list_item == tr("Behavior") || reset_all_tabs) {
+    emit ResetBehavior(reset_all_tabs);
+  }
+  if (list_item == tr("Quality") || reset_all_tabs) {
+    emit ResetQuality(reset_all_tabs);
+  }
+  if (list_item == tr("Disk") || reset_all_tabs) {
+    emit ResetDisk(reset_all_tabs);
+  }
+  if (list_item == tr("Audio") || reset_all_tabs) {
+    emit ResetAudio(reset_all_tabs);
+  }
+  if (list_item == tr("Keyboard") || reset_all_tabs) {
+    emit ResetKeyboard(reset_all_tabs);
+  }
 }
 
 void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)

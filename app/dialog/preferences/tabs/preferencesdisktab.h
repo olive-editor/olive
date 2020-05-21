@@ -38,6 +38,9 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
   QLineEdit* disk_cache_location_;
 
@@ -57,6 +60,8 @@ private slots:
   void BrowseDiskCachePath();
 
   void ClearDiskCache();
+
+  void SetValuesFromConfig(Config config);
 
 };
 

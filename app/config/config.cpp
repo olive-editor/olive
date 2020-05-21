@@ -93,8 +93,9 @@ void Config::SetDefaults()
   config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
   config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.25f));
 
-  config_map_["AudioOutput"] = QString();
-  config_map_["AudioInput"] = QString();
+  config_map_["AudioOutput"] = QString("");
+  config_map_["AudioInput"] = QString("");
+  config_map_["AudioRecording"] = QString("Mono");
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   config_map_["DiskCacheSize"] = 20.0;

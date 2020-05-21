@@ -58,7 +58,12 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
+  void SetValuesFromConfig(Config config);
+
   QStackedWidget* quality_stack_;
 
   PreferencesQualityGroup* offline_group_;

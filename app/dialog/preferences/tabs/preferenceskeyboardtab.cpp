@@ -62,10 +62,6 @@ PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
   reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
   connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
 
-  QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"));
-  reset_shortcut_layout->addWidget(reset_all_shortcut_button);
-  connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
-
   shortcut_layout->addLayout(reset_shortcut_layout);
 
   setup_kbd_shortcuts(menubar);
@@ -129,18 +125,6 @@ void PreferencesKeyboardTab::reset_default_shortcut() {
   for (int i=0;i<items.size();i++) {
     QTreeWidgetItem* item = keyboard_tree_->selectedItems().at(i);
     static_cast<KeySequenceEditor*>(keyboard_tree_->itemWidget(item, 1))->reset_to_default();
-  }
-}
-
-void PreferencesKeyboardTab::reset_all_shortcuts() {
-  if (QMessageBox::question(
-        this,
-        tr("Confirm Reset All Shortcuts"),
-        tr("Are you sure you wish to reset all keyboard shortcuts to their defaults?"),
-        QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    for (int i=0;i<key_shortcut_fields_.size();i++) {
-      key_shortcut_fields_.at(i)->reset_to_default();
-    }
   }
 }
 
@@ -235,6 +219,23 @@ void PreferencesKeyboardTab::save_shortcut_file() {
       QMessageBox::information(this, tr("Export Shortcuts"), tr("Shortcuts exported successfully"));
     } else {
       QMessageBox::critical(this, tr("Error saving shortcuts"), tr("Failed to open file for writing"));
+    }
+  }
+}
+
+// Keyboard shortcuts are not stored in the config file so. hence we don't ResetValuesFromConfig
+// like the other preferences tab
+void PreferencesKeyboardTab::ResetDefaults(bool reset_all_tabs)
+{
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Keyboard Settings"),
+                                          tr("Are you sure you wish to reset all Keyboard settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    for (int i = 0; i < key_shortcut_fields_.size(); i++) {
+      key_shortcut_fields_.at(i)->reset_to_default();
     }
   }
 }

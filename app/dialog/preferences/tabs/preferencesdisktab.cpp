@@ -45,7 +45,6 @@ PreferencesDiskTab::PreferencesDiskTab()
   disk_management_layout->addWidget(new QLabel(tr("Disk Cache Location:")), row, 0);
 
   disk_cache_location_ = new QLineEdit();
-  disk_cache_location_->setText(Config::Current()["DiskCachePath"].toString());
   connect(disk_cache_location_, &QLineEdit::textChanged, this, &PreferencesDiskTab::DiskCacheLineEditChanged);
   disk_management_layout->addWidget(disk_cache_location_, row, 1);
 
@@ -60,7 +59,6 @@ PreferencesDiskTab::PreferencesDiskTab()
   maximum_cache_slider_ = new FloatSlider();
   maximum_cache_slider_->SetFormat(tr("%1 GB"));
   maximum_cache_slider_->SetMinimum(1.0);
-  maximum_cache_slider_->SetValue(Config::Current()["DiskCacheSize"].toDouble());
   disk_management_layout->addWidget(maximum_cache_slider_, row, 1, 1, 2);
 
   row++;
@@ -72,7 +70,6 @@ PreferencesDiskTab::PreferencesDiskTab()
   row++;
 
   clear_disk_cache_ = new QCheckBox(tr("Automatically clear disk cache on close"));
-  clear_disk_cache_->setChecked(Config::Current()["ClearDiskCacheOnClose"].toBool());
   disk_management_layout->addWidget(clear_disk_cache_, row, 1, 1, 2);
 
   QGroupBox* cache_behavior = new QGroupBox(tr("Cache Behavior"));
@@ -86,7 +83,6 @@ PreferencesDiskTab::PreferencesDiskTab()
   cache_ahead_slider_ = new FloatSlider();
   cache_ahead_slider_->SetFormat(tr("%1 seconds"));
   cache_ahead_slider_->SetMinimum(0);
-  cache_ahead_slider_->SetValue(Config::Current()["DiskCacheAhead"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_ahead_slider_, row, 1);
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Behind:")), row, 2);
@@ -94,10 +90,11 @@ PreferencesDiskTab::PreferencesDiskTab()
   cache_behind_slider_ = new FloatSlider();
   cache_behind_slider_->SetMinimum(0);
   cache_behind_slider_->SetFormat(tr("%1 seconds"));
-  cache_behind_slider_->SetValue(Config::Current()["DiskCacheBehind"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_behind_slider_, row, 3);
 
   outer_layout->addStretch();
+
+  SetValuesFromConfig(Config::Current());
 }
 
 void PreferencesDiskTab::Accept()
@@ -146,6 +143,28 @@ void PreferencesDiskTab::ClearDiskCache()
                                QMessageBox::Ok);
       clear_cache_btn_->setText(tr("Disk Cache Partially Cleared"));
     }
+  }
+}
+
+void PreferencesDiskTab::SetValuesFromConfig(Config config) 
+{
+  disk_cache_location_->setText(config["DiskCachePath"].toString());
+  maximum_cache_slider_->SetValue(config["DiskCacheSize"].toDouble());
+  clear_disk_cache_->setChecked(config["ClearDiskCacheOnClose"].toBool());
+  cache_ahead_slider_->SetValue(config["DiskCacheAhead"].value<rational>().toDouble());
+  cache_behind_slider_->SetValue(config["DiskCacheBehind"].value<rational>().toDouble());
+}
+
+void PreferencesDiskTab::ResetDefaults(bool reset_all_tabs) {
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Disk Settings"),
+                                          tr("Are you sure you wish to reset all Disk settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    Config default_config;
+    SetValuesFromConfig(default_config);
   }
 }
 

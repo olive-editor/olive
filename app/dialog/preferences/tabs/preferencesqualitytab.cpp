@@ -48,14 +48,12 @@ PreferencesQualityTab::PreferencesQualityTab()
   quality_stack_ = new QStackedWidget();
 
   offline_group_ = new PreferencesQualityGroup(tr("Offline Quality"));
-  offline_group_->SetBitDepth(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
-  offline_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOffline));
   quality_stack_->addWidget(offline_group_);
 
   online_group_ = new PreferencesQualityGroup(tr("Online Quality"));
-  online_group_->SetBitDepth(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
-  online_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOnline));
   quality_stack_->addWidget(online_group_);
+
+  SetValuesFromConfig(Config::Current());
 
   layout->addWidget(quality_stack_);
 
@@ -130,6 +128,28 @@ QComboBox *PreferencesQualityGroup::bit_depth_combobox()
 QComboBox *PreferencesQualityGroup::ocio_method()
 {
   return ocio_method_;
+}
+
+void PreferencesQualityTab::ResetDefaults(bool reset_all_tabs)
+{
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Quality Settings"),
+                                          tr("Are you sure you wish to reset all Quality settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    Config default_config;
+    SetValuesFromConfig(default_config);
+  }
+}
+
+void PreferencesQualityTab::SetValuesFromConfig(Config config) {
+  offline_group_->SetBitDepth(static_cast<PixelFormat::Format>(config["OfflinePixelFormat"].toInt()) );
+  offline_group_->ocio_method()->setCurrentIndex(config["OfflineOCIOMethod"].toInt());
+
+  online_group_->SetBitDepth(static_cast<PixelFormat::Format>(config["OnlinePixelFormat"].toInt()));
+  online_group_->ocio_method()->setCurrentIndex(config["OnlineOCIOMethod"].toInt());
 }
 
 OLIVE_NAMESPACE_EXIT

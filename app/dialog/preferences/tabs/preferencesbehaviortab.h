@@ -35,12 +35,17 @@ public:
 
   virtual void Accept() override;
 
+public slots:
+  void ResetDefaults(bool reset_all_tabs);
+
 private:
   QTreeWidgetItem *AddParent(const QString& text, const QString &tooltip, QTreeWidgetItem *parent = nullptr);
   QTreeWidgetItem *AddParent(const QString& text, QTreeWidgetItem *parent = nullptr);
 
   QTreeWidgetItem *AddItem(const QString& text, const QString& config_key, const QString &tooltip, QTreeWidgetItem *parent );
   QTreeWidgetItem *AddItem(const QString& text, const QString& config_key, QTreeWidgetItem *parent);
+
+  void SetValuesFromConfig(Config config);
 
   QMap<QTreeWidgetItem*, QString> config_map_;
 

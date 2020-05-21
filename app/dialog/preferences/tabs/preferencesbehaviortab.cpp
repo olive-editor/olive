@@ -99,6 +99,8 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Auto-Scale By Default"),
           QStringLiteral("AutoscaleByDefault"),
           node_group);
+
+  SetValuesFromConfig(Config::Current());
 }
 
 void PreferencesBehaviorTab::Accept()
@@ -114,7 +116,6 @@ QTreeWidgetItem* PreferencesBehaviorTab::AddItem(const QString &text, const QStr
 {
   QTreeWidgetItem* item = new QTreeWidgetItem({text});
   item->setToolTip(0, tooltip);
-  item->setCheckState(0, Config::Current()[config_key].toBool() ? Qt::Checked : Qt::Unchecked);
 
   config_map_.insert(item, config_key);
 
@@ -125,6 +126,31 @@ QTreeWidgetItem* PreferencesBehaviorTab::AddItem(const QString &text, const QStr
   }
 
   return item;
+}
+
+void PreferencesBehaviorTab::ResetDefaults(bool reset_all_tabs)
+{
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Behavior Settings"),
+                                          tr("Are you sure you wish to reset all Behavior settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    Config default_config;
+    SetValuesFromConfig(default_config);
+  }
+}
+
+void PreferencesBehaviorTab::SetValuesFromConfig(Config config) 
+{
+  // Iterate over all items in the tree that have no children (leaf nodes).
+  // Check boxes have to be leaf nodes so get iterated over
+  QTreeWidgetItemIterator it(behavior_tree_, QTreeWidgetItemIterator::NoChildren);
+  while (*it) {
+    (*it)->setCheckState(0, config[config_map_[(*it)]].toBool() ? Qt::Checked : Qt::Unchecked);
+    ++it;
+  }
 }
 
 QTreeWidgetItem *PreferencesBehaviorTab::AddItem(const QString &text, const QString &config_key, QTreeWidgetItem *parent)

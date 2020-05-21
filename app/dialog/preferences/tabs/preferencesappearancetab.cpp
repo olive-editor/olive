@@ -70,7 +70,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
       QString cat_name = Node::GetCategoryName(static_cast<Node::CategoryID>(i));
       color_layout->addWidget(new QLabel(cat_name), i, 0);
 
-      Color c = Config::Current()[QStringLiteral("NodeCatColor%1").arg(i)].value<Color>();
+      Color c;
       colors_.append(c.toQColor());
 
       QPushButton* color_btn = new QPushButton();
@@ -80,6 +80,8 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
       UpdateButtonColor(i);
     }
+
+    SetValuesFromConfig(Config::Current());
 
     appearance_layout->addWidget(color_group, row, 0, 1, 2);
   }
@@ -105,6 +107,29 @@ void PreferencesAppearanceTab::UpdateButtonColor(int index)
 {
   color_btns_.at(index)->setStyleSheet(QStringLiteral("background: %1;")
                                        .arg(colors_.at(index).name()));
+}
+
+void PreferencesAppearanceTab::SetValuesFromConfig(Config config)
+{
+  for (int i = 0; i < Node::kCategoryCount; i++) {
+    Color c = config[QStringLiteral("NodeCatColor%1").arg(i)].value<Color>();
+    colors_[i] = c.toQColor();
+    UpdateButtonColor(i);
+  }
+}
+
+void PreferencesAppearanceTab::ResetDefaults(bool reset_all_tabs)
+{
+  bool confirm_reset = true;
+  if (!reset_all_tabs) {
+    confirm_reset = QMessageBox::question(this, tr("Confirm Reset Appearance Settings"),
+                                          tr("Are you sure you wish to reset all Appearance settings?"),
+                                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+  }
+  if (confirm_reset) {
+    Config default_config;
+    SetValuesFromConfig(default_config);
+  }
 }
 
 void PreferencesAppearanceTab::ColorButtonClicked()
