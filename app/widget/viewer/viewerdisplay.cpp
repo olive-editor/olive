@@ -147,7 +147,9 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
   QOpenGLWidget::mousePressEvent(event);
 
-  emit DragStarted();
+  if (event->button() == Qt::LeftButton) {
+    emit DragStarted();
+  }
 }
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
