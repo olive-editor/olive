@@ -370,7 +370,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   // Retrieve codec
-  AVCodecID codec_id;
+  AVCodecID codec_id = AV_CODEC_ID_NONE;
 
   switch (codec) {
   case ExportCodec::kCodecDNxHD:
@@ -407,6 +407,10 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_id = AV_CODEC_ID_PCM_S16LE;
     break;
   case ExportCodec::kCodecCount:
+    break;
+  }
+
+  if (codec_id == AV_CODEC_ID_NONE) {
     Error(QStringLiteral("Unknown internal codec"));
     return false;
   }
