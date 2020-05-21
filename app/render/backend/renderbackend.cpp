@@ -418,6 +418,11 @@ bool RenderBackend::ConformWaitInfo::operator==(const RenderBackend::ConformWait
       && rhs.affected_range == affected_range;
 }
 
+RenderBackend::RenderPool::RenderPool() :
+  queuer(0)
+{
+}
+
 void RenderBackend::RenderPool::Init(ViewerOutput* v)
 {
   foreach (RenderWorker* instance, instances) {

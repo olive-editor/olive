@@ -83,6 +83,8 @@ protected:
 
 private:
   struct RenderPool {
+    RenderPool();
+
     QVector<RenderWorker*> instances;
     int queuer;
     QThreadPool threads;
