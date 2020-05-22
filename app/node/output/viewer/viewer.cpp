@@ -40,6 +40,8 @@ ViewerOutput::ViewerOutput()
     // Create track input
     NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
     AddInput(track_input);
+    disconnect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &ViewerOutput::InputConnectionChanged);
+    disconnect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &ViewerOutput::InputConnectionChanged);
     track_inputs_.replace(i, track_input);
 
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
