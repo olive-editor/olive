@@ -23,6 +23,7 @@
 #include <QDir>
 
 #include "audio/sumsamples.h"
+#include "common/functiontimer.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
 #include "task/conform/conform.h"
@@ -446,15 +447,25 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 void RenderWorker::Queue(NodeInput *input)
 {
   if (!queued_updates_.isEmpty()) {
-    // Remove any inputs that are dependents of this input since they may have been removed since
-    // it was queued
-    QList<Node*> deps = input->GetDependencies();
+    // First, check if anything in our queue is a dependency of this input. If so, we should remove
+    // it and just update this input.
 
-    for (int i=0;i<queued_updates_.size();i++) {
-      if (deps.contains(queued_updates_.at(i)->parentNode())) {
-        // We don't need to queue this value since this input supersedes it
-        queued_updates_.removeAt(i);
-        i--;
+    // First we need to find our copy of the input being queued
+    Node* our_copy_node = copy_map_.value(input->parentNode());
+
+    if (our_copy_node) {
+      NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
+      QList<Node*> our_copy_deps = our_copy->GetDependencies(our_copy);
+
+      for (int i=0;i<queued_updates_.size();i++) {
+        NodeInput* check_input = queued_updates_.at(i);
+        Node* check_input_our_copy = copy_map_.value(check_input->parentNode());
+
+        // If this input isn't connected anymore, it obviously won't come up as a dependency
+        if (our_copy_deps.contains(check_input_our_copy)) {
+          queued_updates_.removeAt(i);
+          i--;
+        }
       }
     }
   }
@@ -488,7 +499,7 @@ void RenderWorker::CopyNodeInputValue(NodeInput *input)
     // We start by removing all old dependencies from the map
     QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
     foreach (Node* i, old_deps) {
-      delete copy_map_.take(copy_map_.key(i));
+      copy_map_.take(copy_map_.key(i))->deleteLater();
     }
 
     // And clear any other edges
@@ -516,6 +527,12 @@ Node* RenderWorker::CopyNodeConnections(Node* src_node)
   // If not, create it now
   if (!dst_node) {
     dst_node = src_node->copy();
+
+    if (dst_node->IsTrack()) {
+      // Hack that ensures the track type is set since we don't bother copying the whole timeline
+      static_cast<TrackOutput*>(dst_node)->set_track_type(static_cast<TrackOutput*>(src_node)->track_type());
+    }
+
     copy_map_.insert(src_node, dst_node);
   }
 
@@ -554,7 +571,6 @@ void RenderWorker::Init(ViewerOutput* viewer)
 
   Queue(viewer->texture_input());
   Queue(viewer->samples_input());
-  Queue(viewer->track_input(Timeline::kTrackTypeAudio));
   ProcessQueue();
 }
 
