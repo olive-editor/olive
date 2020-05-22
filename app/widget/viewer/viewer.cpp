@@ -394,6 +394,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   if (IsPlaying()) {
 
     while (!playback_queue_.isEmpty()) {
+
       const ViewerPlaybackFrame& pf = playback_queue_.first();
 
       if (pf.timestamp == time) {
@@ -410,6 +411,8 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
       }
     }
+
+    qWarning() << "Playback queue failed to keep up";
 
   }
 
