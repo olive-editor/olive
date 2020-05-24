@@ -49,6 +49,11 @@ public:
     return invalidated_;
   }
 
+  bool HasInvalidatedRanges() const
+  {
+    return !invalidated_.isEmpty();
+  }
+
 signals:
   void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);
 
