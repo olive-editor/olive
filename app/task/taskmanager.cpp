@@ -93,7 +93,7 @@ void TaskManager::AddTask(Task* t)
   tasks_.insert(watcher, t);
 
   // Run task concurrently
-  watcher->setFuture(QtConcurrent::run(t, &Task::Run));
+  watcher->setFuture(QtConcurrent::run(t, &Task::Start));
 
   // Emit signal that a Task was added
   emit TaskAdded(t);

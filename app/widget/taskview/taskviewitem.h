@@ -24,8 +24,10 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QStackedWidget>
 #include <QWidget>
 
+#include "elapsedcounterwidget.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -54,7 +56,10 @@ private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;
   QPushButton* cancel_btn_;
-  QLabel* task_status_lbl_;
+
+  QStackedWidget* status_stack_;
+  ElapsedCounterWidget* elapsed_timer_lbl_;
+  QLabel* task_error_lbl_;
 
   Task* task_;
 

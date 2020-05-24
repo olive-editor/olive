@@ -18,44 +18,44 @@
 
 ***/
 
-#ifndef PROGRESSDIALOG_H
-#define PROGRESSDIALOG_H
+#ifndef ELAPSEDCOUNTERWIDGET_H
+#define ELAPSEDCOUNTERWIDGET_H
 
-#include <QDialog>
-#include <QProgressBar>
+#include <QLabel>
+#include <QTimer>
+#include <QWidget>
 
-#include "common/debug.h"
-#include "widget/taskview/elapsedcounterwidget.h"
+#include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProgressDialog : public QDialog
+class ElapsedCounterWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ProgressDialog(const QString &message, const QString &title, QWidget* parent = nullptr);
+  ElapsedCounterWidget(QWidget* parent = nullptr);
 
-protected:
-  virtual void showEvent(QShowEvent* e) override;
+  void SetProgress(double d);
 
-  virtual void closeEvent(QCloseEvent *) override;
-
-public slots:
-  void SetProgress(double value);
-
-signals:
-  void Cancelled();
-
-protected:
-  void ShowErrorMessage(const QString& title, const QString& message);
+  void Start();
+  void Start(qint64 start_time);
 
 private:
-  QProgressBar* bar_;
+  QLabel* elapsed_lbl_;
 
-  ElapsedCounterWidget* elapsed_timer_lbl_;
+  QLabel* remaining_lbl_;
+
+  double last_progress_;
+
+  QTimer elapsed_timer_;
+
+  qint64 start_time_;
+
+private slots:
+  void UpdateTimers();
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROGRESSDIALOG_H
+#endif // ELAPSEDCOUNTERWIDGET_H

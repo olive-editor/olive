@@ -20,8 +20,10 @@
 
 #include "taskviewitem.h"
 
+#include <QDateTime>
 #include <QVBoxLayout>
 
+#include "common/timecodefunctions.h"
 #include "ui/icons/icons.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -55,9 +57,22 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   cancel_btn_->setIcon(icon::Error);
   middle_layout->addWidget(cancel_btn_);
 
-  // Create status label
-  task_status_lbl_ = new QLabel(this);
-  layout->addWidget(task_status_lbl_);
+  // Create stack with error label and elapsed/remaining time
+  status_stack_ = new QStackedWidget();
+  status_stack_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  layout->addWidget(status_stack_);
+
+  // Create elapsed timer
+  elapsed_timer_lbl_ = new ElapsedCounterWidget();
+  status_stack_->addWidget(elapsed_timer_lbl_);
+
+  // Create error label
+  task_error_lbl_ = new QLabel(this);
+  status_stack_->addWidget(task_error_lbl_);
+
+  // Set up elapsed timer
+  status_stack_->setCurrentWidget(elapsed_timer_lbl_);
+  elapsed_timer_lbl_->Start(task_->GetStartTime());
 
   // Connect to the task
   connect(task_, &Task::ProgressChanged, this, &TaskViewItem::UpdateProgress);
@@ -66,13 +81,15 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
 
 void TaskViewItem::Failed()
 {
-  task_status_lbl_->setStyleSheet("color: red");
-  task_status_lbl_->setText(tr("Error: %1").arg(task_->GetError()));
+  status_stack_->setCurrentWidget(task_error_lbl_);
+  task_error_lbl_->setStyleSheet("color: red");
+  task_error_lbl_->setText(tr("Error: %1").arg(task_->GetError()));
 }
 
 void TaskViewItem::UpdateProgress(double d)
 {
   progress_bar_->setValue(qRound(100.0 * d));
+  elapsed_timer_lbl_->SetProgress(d);
 }
 
 OLIVE_NAMESPACE_EXIT

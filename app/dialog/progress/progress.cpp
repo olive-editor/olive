@@ -46,6 +46,9 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
   bar_->setMaximum(100);
   layout->addWidget(bar_);
 
+  elapsed_timer_lbl_ = new ElapsedCounterWidget();
+  layout->addWidget(elapsed_timer_lbl_);
+
   QHBoxLayout* cancel_layout = new QHBoxLayout();
   layout->addLayout(cancel_layout);
   cancel_layout->setMargin(0);
@@ -62,6 +65,8 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
 void ProgressDialog::showEvent(QShowEvent *e)
 {
   QDialog::showEvent(e);
+
+  elapsed_timer_lbl_->Start();
 
 #ifdef Q_OS_WINDOWS
   Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
@@ -82,6 +87,7 @@ void ProgressDialog::SetProgress(double value)
   int percent = qRound(100.0 * value);
 
   bar_->setValue(percent);
+  elapsed_timer_lbl_->SetProgress(value);
 
 #ifdef Q_OS_WINDOWS
   Core::instance()->main_window()->SetTaskbarButtonProgress(percent, 100);

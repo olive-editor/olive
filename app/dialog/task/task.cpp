@@ -52,7 +52,7 @@ void TaskDialog::showEvent(QShowEvent *e)
           this, &TaskDialog::TaskFinished, Qt::QueuedConnection);
 
   // Run task in another thread with QtConcurrent
-  task_watcher->setFuture(QtConcurrent::run(task_, &Task::Run));
+  task_watcher->setFuture(QtConcurrent::run(task_, &Task::Start));
 }
 
 void TaskDialog::closeEvent(QCloseEvent *e)

@@ -22,6 +22,7 @@
 #define TASK_H
 
 #include <memory>
+#include <QDateTime>
 #include <QObject>
 
 #include "common/cancelableobject.h"
@@ -54,14 +55,15 @@ public:
    */
   Task() :
     title_(tr("Task")),
-    error_(tr("Unknown error"))
+    error_(tr("Unknown error")),
+    start_time_(0)
   {
   }
 
   /**
    * @brief Retrieve the current title of this Task
    */
-  const QString& GetTitle()
+  const QString& GetTitle() const
   {
     return title_;
   }
@@ -69,9 +71,14 @@ public:
   /**
    * @brief Returns the error that occurred if Run() returns false
    */
-  const QString& GetError()
+  const QString& GetError() const
   {
     return error_;
+  }
+
+  const qint64& GetStartTime() const
+  {
+    return start_time_;
   }
 
 public slots:
@@ -82,7 +89,12 @@ public slots:
    *
    * \see GetError() if this returns false.
    */
-  virtual bool Run() = 0;
+  bool Start()
+  {
+    start_time_ = QDateTime::currentMSecsSinceEpoch();
+
+    return Run();
+  }
 
   /**
    * @brief Reset state so that Run() can be called again.
@@ -104,6 +116,8 @@ public slots:
   }
 
 protected:
+  virtual bool Run() = 0;
+
   /**
    * @brief Set the error message
    *
@@ -143,6 +157,8 @@ private:
   QString title_;
 
   QString error_;
+
+  qint64 start_time_;
 
 };
 
