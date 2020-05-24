@@ -147,7 +147,7 @@ private:
 
   QVector<TrackOutput*> track_cache_;
 
-  rational timeline_length_;
+  rational last_length_;
 
   QString media_name_;
 
@@ -158,7 +158,7 @@ private:
 private slots:
   void UpdateTrackCache();
 
-  void UpdateLength(const rational &length);
+  void VerifyLength();
 
   void TrackListAddedBlock(Block* block, int index);
 

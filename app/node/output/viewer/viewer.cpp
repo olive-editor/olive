@@ -47,7 +47,7 @@ ViewerOutput::ViewerOutput()
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
-    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::UpdateLength);
+    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
     connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
@@ -101,6 +101,8 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
     }
   }
 
+  VerifyLength();
+
   Node::InvalidateCache(range, from, source);
 }
 
@@ -124,6 +126,22 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 
 rational ViewerOutput::GetLength()
 {
+  return last_length_;
+}
+
+void ViewerOutput::UpdateTrackCache()
+{
+  track_cache_.clear();
+
+  foreach (TrackList* list, track_lists_) {
+    foreach (TrackOutput* track, list->GetTracks()) {
+      track_cache_.append(track);
+    }
+  }
+}
+
+void ViewerOutput::VerifyLength()
+{
   NodeTraverser traverser;
 
   rational video_length;
@@ -140,44 +158,17 @@ rational ViewerOutput::GetLength()
     audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  return qMax(video_length, qMax(audio_length, timeline_length_));
-}
+  rational timeline_length;
 
-void ViewerOutput::UpdateTrackCache()
-{
-  track_cache_.clear();
-
-  foreach (TrackList* list, track_lists_) {
-    foreach (TrackOutput* track, list->GetTracks()) {
-      track_cache_.append(track);
-    }
-  }
-}
-
-void ViewerOutput::UpdateLength(const rational &length)
-{
-  // If this length is equal, no-op
-  if (length == timeline_length_) {
-    return;
+  foreach (TrackList* tl, track_lists_) {
+    timeline_length = qMax(timeline_length, tl->GetTotalLength());
   }
 
-  // If this length is greater, this must be the new total length
-  if (length > timeline_length_) {
-    timeline_length_ = length;
-    emit LengthChanged(timeline_length_);
-    return;
-  }
+  rational real_length = qMax(timeline_length, qMax(video_length, audio_length));
 
-  // Otherwise, the new length is shorter and we'll have to manually determine what the new max length is
-  rational new_length = 0;
-
-  foreach (TrackList* list, track_lists_) {
-    new_length = qMax(new_length, list->GetTotalLength());
-  }
-
-  if (new_length != timeline_length_) {
-    timeline_length_ = new_length;
-    emit LengthChanged(timeline_length_);
+  if (real_length != last_length_) {
+    last_length_ = real_length;
+    emit LengthChanged(last_length_);
   }
 }
 
@@ -207,8 +198,9 @@ void ViewerOutput::Retranslate()
       break;
     }
 
-    if (!input_name.isEmpty())
+    if (!input_name.isEmpty()) {
       track_inputs_.at(i)->set_name(input_name);
+    }
   }
 }
 
