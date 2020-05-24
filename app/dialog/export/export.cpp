@@ -474,19 +474,6 @@ ExportParams ExportDialog::GenerateParams() const
   return params;
 }
 
-QString ExportDialog::TimeToString(int64_t ms)
-{
-  int64_t total_seconds = ms / 1000;
-  int64_t ss = total_seconds % 60;
-  int64_t mm = (total_seconds / 60) % 60;
-  int64_t hh = total_seconds / 3600;
-
-  return QStringLiteral("%1:%2:%3")
-      .arg(hh, 2, 10, QChar('0'))
-      .arg(mm, 2, 10, QChar('0'))
-      .arg(ss, 2, 10, QChar('0'));
-}
-
 void ExportDialog::UpdateViewerDimensions()
 {
   preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),

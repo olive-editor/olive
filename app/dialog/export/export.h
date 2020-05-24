@@ -53,8 +53,6 @@ private:
 
   ExportParams GenerateParams() const;
 
-  static QString TimeToString(int64_t ms);
-
   ViewerOutput* viewer_node_;
 
   ExportFormat::Format previously_selected_format_;

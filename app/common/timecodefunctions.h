@@ -68,6 +68,8 @@ public:
 
   static bool TimebaseIsDropFrame(const rational& timebase);
 
+  static QString TimeToString(int64_t ms);
+
 };
 
 OLIVE_NAMESPACE_EXIT
