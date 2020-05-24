@@ -98,7 +98,7 @@ public:
 
   void SetGizmos(Node* node);
 
-  static void StopAllBackgroundCacheTasks();
+  static void StopAllBackgroundCacheTasks(bool wait);
   static void SetBackgroundCacheTask(CacheTask* t);
 
 public slots:
@@ -172,6 +172,8 @@ private:
 
   void PlayInternal(int speed, bool in_to_out_only);
 
+  void PauseInternal();
+
   void PushScrubbedAudio();
 
   int CalculateDivider();
@@ -198,8 +200,6 @@ private:
 
   VideoRenderingParams GenerateVideoParams() const;
   AudioRenderingParams GenerateAudioParams() const;
-
-  void StopBackgroundCache();
 
   QStackedWidget* stack_;
 
@@ -246,7 +246,13 @@ private:
 
   QTimer cache_wait_timer_;
 
+  bool busy_;
+
+  CacheTask* our_cache_background_task_;
+
   static CacheTask* cache_background_task_;
+
+  static int busy_viewers_;
 
 private slots:
   void PlaybackTimerUpdate();

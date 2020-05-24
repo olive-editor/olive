@@ -1136,9 +1136,16 @@ void Core::CacheActiveSequence(bool in_out_only)
                                     in_out_only);
 
     // Stop any current auto-cache tasks
-    ViewerWidget::StopAllBackgroundCacheTasks();
+    ViewerWidget::StopAllBackgroundCacheTasks(true);
+    ViewerWidget::SetBackgroundCacheTask(task);
 
     TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), main_window_);
+
+    connect(dialog,
+            &TaskDialog::TaskSucceeded,
+            this,
+            [] { ViewerWidget::SetBackgroundCacheTask(nullptr); });
+
     dialog->open();
   }
 }

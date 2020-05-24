@@ -46,6 +46,8 @@ const int kMaxPreQueueSize = 16;
 
 CacheTask* ViewerWidget::cache_background_task_ = nullptr;
 
+int ViewerWidget::busy_viewers_ = 0;
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
   playback_speed_(0),
@@ -55,7 +57,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
   playback_is_audio_only_(false),
-  prequeuing_(false)
+  prequeuing_(false),
+  busy_(false),
+  our_cache_background_task_(nullptr)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -237,7 +241,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
 
-  StopAllBackgroundCacheTasks();
+  StopAllBackgroundCacheTasks(true);
   cache_background_task_ = nullptr;
   cache_wait_timer_.stop();
 }
@@ -360,9 +364,16 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
-void ViewerWidget::StopAllBackgroundCacheTasks()
+void ViewerWidget::StopAllBackgroundCacheTasks(bool wait)
 {
-  TaskManager::instance()->CancelTaskAndWait(cache_background_task_);
+  if (cache_background_task_) {
+    if (wait) {
+      TaskManager::instance()->CancelTaskAndWait(cache_background_task_);
+    } else {
+      cache_background_task_->Cancel();
+    }
+    cache_background_task_ = nullptr;
+  }
 }
 
 void ViewerWidget::SetBackgroundCacheTask(CacheTask *t)
@@ -481,7 +492,36 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     FillPlaybackQueue();
   }
 
-  StopBackgroundCache();
+  if (!busy_) {
+    busy_ = true;
+    busy_viewers_++;
+  }
+
+  StopAllBackgroundCacheTasks(false);
+  cache_wait_timer_.stop();
+}
+
+void ViewerWidget::PauseInternal()
+{
+  if (IsPlaying()) {
+    AudioManager::instance()->StopOutput();
+    playback_speed_ = 0;
+    controls_->ShowPlayButton();
+
+    if (playback_is_audio_only_) {
+      disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+    } else {
+      disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    }
+
+    foreach (ViewerWindow* window, windows_) {
+      window->Pause();
+    }
+
+    playback_queue_.clear();
+  }
+
+  prequeuing_ = false;
 }
 
 void ViewerWidget::PushScrubbedAudio()
@@ -657,15 +697,6 @@ AudioRenderingParams ViewerWidget::GenerateAudioParams() const
                               SampleFormat::kInternalFormat);
 }
 
-void ViewerWidget::StopBackgroundCache()
-{
-  cache_wait_timer_.stop();
-  if (cache_background_task_) {
-    cache_background_task_->Cancel();
-    cache_background_task_ = nullptr;
-  }
-}
-
 void ViewerWidget::UpdateStack()
 {
   if (GetConnectedNode()
@@ -807,8 +838,14 @@ void ViewerWidget::HashGenerated()
 
 void ViewerWidget::StartBackgroundCaching()
 {
-  if (Config::Current()["AutoCache"].toBool()) {
-    if (cache_background_task_) {
+  if (busy_) {
+    busy_viewers_--;
+    busy_ = false;
+  }
+
+  if (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
+      && Config::Current()["AutoCache"].toBool()) {
+    if (cache_background_task_ || busy_viewers_) {
 
       // Something else is caching right now, we don't want to do multiple at once so we'll check
       // again in our next interval
@@ -819,6 +856,8 @@ void ViewerWidget::StartBackgroundCaching()
                                              GenerateVideoParams(),
                                              GenerateAudioParams(),
                                              false);
+
+      our_cache_background_task_ = cache_background_task_;
 
       TaskManager::instance()->AddTask(cache_background_task_);
     }
@@ -834,6 +873,12 @@ void ViewerWidget::BackgroundCacheFinished(Task* t)
 
 void ViewerWidget::UpdateRendererParameters()
 {
+  if (cache_background_task_ == our_cache_background_task_) {
+    StopAllBackgroundCacheTasks(false);
+  }
+
+  StartBackgroundCaching();
+
   renderer_->SetVideoParams(GenerateVideoParams());
 
   renderer_->SetAudioParams(GenerateAudioParams());
@@ -979,25 +1024,8 @@ void ViewerWidget::Play()
 
 void ViewerWidget::Pause()
 {
-  if (IsPlaying()) {
-    AudioManager::instance()->StopOutput();
-    playback_speed_ = 0;
-    controls_->ShowPlayButton();
+  PauseInternal();
 
-    if (playback_is_audio_only_) {
-      disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
-    } else {
-      disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-    }
-
-    foreach (ViewerWindow* window, windows_) {
-      window->Pause();
-    }
-
-    playback_queue_.clear();
-  }
-
-  prequeuing_ = false;
   StartBackgroundCaching();
 }
 
@@ -1006,7 +1034,7 @@ void ViewerWidget::ShuttleLeft()
   int current_speed = playback_speed_;
 
   if (current_speed != 0) {
-    Pause();
+    PauseInternal();
   }
 
   current_speed--;
@@ -1028,7 +1056,7 @@ void ViewerWidget::ShuttleRight()
   int current_speed = playback_speed_;
 
   if (current_speed != 0) {
-    Pause();
+    PauseInternal();
   }
 
   current_speed++;
@@ -1170,8 +1198,16 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
   }
 
   // Restart the cache wait timer
-  StopBackgroundCache();
-  cache_wait_timer_.start();
+  cache_wait_timer_.stop();
+  StopAllBackgroundCacheTasks(false);
+
+  if (qApp->mouseButtons() & Qt::LeftButton) {
+    cache_wait_timer_.start();
+  } else {
+    StartBackgroundCaching();
+  }
+
+
 
   /*
   QList<rational> invalidated_frames = GetConnectedNode()->video_frame_cache()->GetFrameListFromTimeRange({range});
