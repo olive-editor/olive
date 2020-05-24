@@ -62,7 +62,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     VideoStreamPtr video_stream = nullptr;
     AudioStreamPtr audio_stream = nullptr;
 
-    foreach (StreamPtr s, footage->streams()) {
+    foreach (StreamPtr s, footage_->streams()) {
       if (!audio_stream && s->type() == Stream::kAudio) {
         audio_stream = std::static_pointer_cast<AudioStream>(s);
       }
@@ -77,6 +77,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       }
     }
 
+    viewer_node_->set_media_name(footage_->name());
+
     if (video_stream) {
       video_node_->SetFootage(video_stream);
       viewer_node_->set_video_params(VideoParams(video_stream->width(), video_stream->height(), video_stream->frame_rate().flipped()));
@@ -89,7 +91,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
     }
 
-    ConnectViewerNode(viewer_node_, footage->project()->color_manager());
+    ConnectViewerNode(viewer_node_, footage_->project()->color_manager());
   }
 }
 
