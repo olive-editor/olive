@@ -96,20 +96,30 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
     QMap< QByteArray, QLinkedList<rational> >::const_iterator i;
     for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
       const QByteArray& hash = i.key();
-      const rational& time = i.value().first();
 
-      bool inserted = false;
+      if (QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()))) {
 
-      for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
-        if (sorted_iterator->time > time) {
-          sorted_times.insert(sorted_iterator, {time, hash});
-          inserted = true;
-          break;
+        // Already exists, no need to render it again
+        FrameDownloaded(hash, i.value());
+
+      } else {
+
+        const rational& time = i.value().first();
+
+        bool inserted = false;
+
+        for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
+          if (sorted_iterator->time > time) {
+            sorted_times.insert(sorted_iterator, {time, hash});
+            inserted = true;
+            break;
+          }
         }
-      }
 
-      if (!inserted) {
-        sorted_times.append({time, hash});
+        if (!inserted) {
+          sorted_times.append({time, hash});
+        }
+
       }
     }
 
