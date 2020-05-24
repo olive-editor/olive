@@ -35,6 +35,8 @@ public:
 
   void Invalidate(const TimeRange& r);
 
+  void InvalidateAll();
+
   const rational& GetLength() const
   {
     return length_;
@@ -63,8 +65,6 @@ signals:
 
 protected:
   void Validate(const TimeRange& r);
-
-  void InvalidateAll();
 
   virtual void LengthChangedEvent(const rational& old, const rational& newlen);
 

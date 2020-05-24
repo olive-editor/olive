@@ -113,9 +113,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_ = new OpenGLBackend(this);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
-  cache_wait_timer_.setInterval(1000);
+  cache_wait_timer_.setInterval(100);
   cache_wait_timer_.setSingleShot(true);
   connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
+
+  // Remove pointer to cache task if it's removed from the task manager
   connect(TaskManager::instance(), &TaskManager::TaskRemoved, this, &ViewerWidget::BackgroundCacheFinished);
 
   // Ensures that seeking on the waveform view updates the time as expected
@@ -241,8 +243,10 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
 
-  StopAllBackgroundCacheTasks(true);
-  cache_background_task_ = nullptr;
+  if (cache_background_task_ == our_cache_background_task_) {
+    StopAllBackgroundCacheTasks(true);
+    cache_background_task_ = nullptr;
+  }
   cache_wait_timer_.stop();
 }
 
@@ -823,11 +827,12 @@ void ViewerWidget::HashGenerated()
   QFutureWatcher<QByteArray>* watcher = static_cast<QFutureWatcher<QByteArray>*>(sender());
 
   if (hash_watchers_.contains(watcher)) {
-    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(watcher->result(), GetCurrentPixelFormat());
+    FrameHashCache* cache = GetConnectedNode()->video_frame_cache();
+
+    QString cache_fn = cache->CachePathName(watcher->result(), GetCurrentPixelFormat());
 
     if (QFileInfo::exists(cache_fn)) {
-      GetConnectedNode()->video_frame_cache()->SetHash(hash_watchers_.value(watcher),
-                                                       watcher->result());
+      cache->SetHash(hash_watchers_.value(watcher), watcher->result());
     }
 
     hash_watchers_.remove(watcher);
@@ -876,6 +881,8 @@ void ViewerWidget::UpdateRendererParameters()
   if (cache_background_task_ == our_cache_background_task_) {
     StopAllBackgroundCacheTasks(false);
   }
+
+  GetConnectedNode()->video_frame_cache()->InvalidateAll();
 
   StartBackgroundCaching();
 
@@ -1201,13 +1208,9 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
   cache_wait_timer_.stop();
   StopAllBackgroundCacheTasks(false);
 
-  if (qApp->mouseButtons() & Qt::LeftButton) {
+  if (!(qApp->mouseButtons() & Qt::LeftButton)) {
     cache_wait_timer_.start();
-  } else {
-    StartBackgroundCaching();
   }
-
-
 
   /*
   QList<rational> invalidated_frames = GetConnectedNode()->video_frame_cache()->GetFrameListFromTimeRange({range});
