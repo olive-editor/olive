@@ -36,12 +36,15 @@
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/pixelformat.h"
+#include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
 const int kMaxPreQueueSize = 16;
+
+CacheTask* ViewerWidget::cache_background_task_ = nullptr;
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
@@ -102,11 +105,19 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // FIXME: Magic number
   SetScale(48.0);
 
-  // Start background renderers
+  // Start background renderer
   renderer_ = new OpenGLBackend(this);
 
+  // Setup cache wait timer (waits a few seconds of inactivity before caching)
+  cache_wait_timer_.setInterval(1000);
+  cache_wait_timer_.setSingleShot(true);
+  connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
+  connect(TaskManager::instance(), &TaskManager::TaskRemoved, this, &ViewerWidget::BackgroundCacheFinished);
+
+  // Ensures that seeking on the waveform view updates the time as expected
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
+  // Ensures renderer is updated if the global pixel format is changed
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
   SetAutoMaxScrollBar(true);
@@ -196,6 +207,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
   // Set texture to new texture (or null if no viewer node is available)
   ForceUpdate();
+
+  StartBackgroundCaching();
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
@@ -223,6 +236,10 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
+
+  StopAllBackgroundCacheTasks();
+  cache_background_task_ = nullptr;
+  cache_wait_timer_.stop();
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
@@ -343,6 +360,16 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
+void ViewerWidget::StopAllBackgroundCacheTasks()
+{
+  TaskManager::instance()->CancelTaskAndWait(cache_background_task_);
+}
+
+void ViewerWidget::SetBackgroundCacheTask(CacheTask *t)
+{
+  cache_background_task_ = t;
+}
+
 FramePtr DecodeCachedImage(const QString &fn, const rational& time)
 {
   FramePtr frame = nullptr;
@@ -453,6 +480,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   } else {
     FillPlaybackQueue();
   }
+
+  StopBackgroundCache();
 }
 
 void ViewerWidget::PushScrubbedAudio()
@@ -614,6 +643,29 @@ void ViewerWidget::FinishPlayPreprocess()
   }
 }
 
+VideoRenderingParams ViewerWidget::GenerateVideoParams() const
+{
+  return VideoRenderingParams(GetConnectedNode()->video_params(),
+                              GetCurrentPixelFormat(),
+                              RenderMode::kOffline,
+                              divider_);
+}
+
+AudioRenderingParams ViewerWidget::GenerateAudioParams() const
+{
+  return AudioRenderingParams(GetConnectedNode()->audio_params(),
+                              SampleFormat::kInternalFormat);
+}
+
+void ViewerWidget::StopBackgroundCache()
+{
+  cache_wait_timer_.stop();
+  if (cache_background_task_) {
+    cache_background_task_->Cancel();
+    cache_background_task_ = nullptr;
+  }
+}
+
 void ViewerWidget::UpdateStack()
 {
   if (GetConnectedNode()
@@ -753,15 +805,38 @@ void ViewerWidget::HashGenerated()
   watcher->deleteLater();
 }
 
+void ViewerWidget::StartBackgroundCaching()
+{
+  if (Config::Current()["AutoCache"].toBool()) {
+    if (cache_background_task_) {
+
+      // Something else is caching right now, we don't want to do multiple at once so we'll check
+      // again in our next interval
+      cache_wait_timer_.start();
+
+    } else {
+      cache_background_task_ = new CacheTask(GetConnectedNode(),
+                                             GenerateVideoParams(),
+                                             GenerateAudioParams(),
+                                             false);
+
+      TaskManager::instance()->AddTask(cache_background_task_);
+    }
+  }
+}
+
+void ViewerWidget::BackgroundCacheFinished(Task* t)
+{
+  if (cache_background_task_ == t) {
+    cache_background_task_ = nullptr;
+  }
+}
+
 void ViewerWidget::UpdateRendererParameters()
 {
-  renderer_->SetVideoParams(VideoRenderingParams(GetConnectedNode()->video_params(),
-                                                 GetCurrentPixelFormat(),
-                                                 RenderMode::kOffline,
-                                                 divider_));
+  renderer_->SetVideoParams(GenerateVideoParams());
 
-  renderer_->SetAudioParams(AudioRenderingParams(GetConnectedNode()->audio_params(),
-                                                 SampleFormat::kInternalFormat));
+  renderer_->SetAudioParams(GenerateAudioParams());
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());
 }
@@ -923,6 +998,7 @@ void ViewerWidget::Pause()
   }
 
   prequeuing_ = false;
+  StartBackgroundCaching();
 }
 
 void ViewerWidget::ShuttleLeft()
@@ -1093,6 +1169,11 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
     ForceUpdate();
   }
 
+  // Restart the cache wait timer
+  StopBackgroundCache();
+  cache_wait_timer_.start();
+
+  /*
   QList<rational> invalidated_frames = GetConnectedNode()->video_frame_cache()->GetFrameListFromTimeRange({range});
   foreach (const rational& r, invalidated_frames) {
     QFutureWatcher<QByteArray>* watcher = new QFutureWatcher<QByteArray>();
@@ -1100,6 +1181,7 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
     hash_watchers_.insert(watcher, r);
     watcher->setFuture(renderer_->Hash(r, true));
   }
+  */
 }
 
 OLIVE_NAMESPACE_EXIT

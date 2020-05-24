@@ -63,6 +63,8 @@ public:
 
   Task* GetFirstTask() const;
 
+  void CancelTaskAndWait(Task* t);
+
 public slots:
   /**
    * @brief Add a new Task
@@ -80,6 +82,8 @@ public slots:
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
    */
   void AddTask(Task *t);
+
+  void CancelTask(Task* t);
 
 signals:
   /**

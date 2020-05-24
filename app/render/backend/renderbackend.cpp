@@ -204,6 +204,10 @@ void RenderBackend::UpdateInstance(RenderWorker *instance)
 
 void RenderBackend::Close()
 {
+  video_pool_.threads.clear();
+  audio_pool_.threads.clear();
+  hash_pool_.threads.clear();
+
   CancelQueue();
 
   video_pool_.Destroy();

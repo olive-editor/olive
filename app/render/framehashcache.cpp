@@ -135,6 +135,11 @@ QList<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &r
   return GetFrameListFromTimeRange(range, timebase_);
 }
 
+QList<rational> FrameHashCache::GetInvalidatedFrames() const
+{
+  return GetFrameListFromTimeRange(GetInvalidatedRanges());
+}
+
 void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
                                     const VideoRenderingParams& vparam)

@@ -50,12 +50,14 @@ bool CacheTask::Run()
 
   Render(range_to_cache, QMatrix4x4(), false);
 
+  download_threads_.waitForDone();
+
   return true;
 }
 
 QFuture<void> CacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
 {
-  return QtConcurrent::run(FrameHashCache::SaveCacheFrame, hash, frame);
+  return QtConcurrent::run(&download_threads_, FrameHashCache::SaveCacheFrame, hash, frame);
 }
 
 void CacheTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<rational> &times)

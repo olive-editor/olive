@@ -72,6 +72,17 @@ Task *TaskManager::GetFirstTask() const
   return tasks_.begin().value();
 }
 
+void TaskManager::CancelTaskAndWait(Task* t)
+{
+  t->Cancel();
+
+  QFutureWatcher<bool>* w = tasks_.key(t);
+
+  if (w) {
+    w->waitForFinished();
+  }
+}
+
 void TaskManager::AddTask(Task* t)
 {
   // Create a watcher for signalling
@@ -87,6 +98,17 @@ void TaskManager::AddTask(Task* t)
   // Emit signal that a Task was added
   emit TaskAdded(t);
   emit TaskListChanged();
+}
+
+void TaskManager::CancelTask(Task *t)
+{
+  if (failed_tasks_.contains(t)) {
+    failed_tasks_.removeOne(t);
+    emit TaskRemoved(t);
+    t->deleteLater();
+  } else {
+    t->Cancel();
+  }
 }
 
 void TaskManager::TaskFinished()

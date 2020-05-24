@@ -92,7 +92,7 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
     QLinkedList<HashTimePair> sorted_times;
     QLinkedList<HashTimePair>::iterator sorted_iterator;
 
-    // Rendering is more efficient if we cache in order
+    // Rendering is more efficient if we cache in order, so here we sort
     QMap< QByteArray, QLinkedList<rational> >::const_iterator i;
     for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
       const QByteArray& hash = i.key();
@@ -141,9 +141,10 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
   QLinkedList<HashDownloadFuturePair>::iterator j;
   QLinkedList<RangeSampleFuturePair>::iterator k;
 
-  while (!render_lookup_table.isEmpty()
-         || !download_futures.isEmpty()
-         || !audio_lookup_table.isEmpty()) {
+  while (!IsCancelled()
+         && (!render_lookup_table.isEmpty()
+             || !download_futures.isEmpty()
+             || !audio_lookup_table.isEmpty())) {
 
     i = render_lookup_table.begin();
 
@@ -195,6 +196,11 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
 
 void RenderTask::AudioDownloaded(const TimeRange &, SampleBufferPtr)
 {
+}
+
+void RenderTask::SetAnchorPoint(const rational &r)
+{
+  anchor_point_ = r;
 }
 
 OLIVE_NAMESPACE_EXIT

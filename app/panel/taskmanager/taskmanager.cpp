@@ -37,6 +37,7 @@ TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
   connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_, &TaskView::RemoveTask);
   connect(TaskManager::instance(), &TaskManager::TaskFailed, view_, &TaskView::TaskFailed);
+  connect(view_, &TaskView::TaskCancelled, TaskManager::instance(), &TaskManager::CancelTask);
 
   // Set strings
   Retranslate();

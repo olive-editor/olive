@@ -68,6 +68,7 @@ public:
 
   static QList<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QList<rational> GetFrameListFromTimeRange(const TimeRangeList &range) const;
+  QList<rational> GetInvalidatedFrames() const;
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;

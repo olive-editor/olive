@@ -61,12 +61,13 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
 
   // Connect to the task
   connect(task_, &Task::ProgressChanged, this, &TaskViewItem::UpdateProgress);
-  connect(cancel_btn_, &QPushButton::clicked, task_, &Task::Cancel, Qt::DirectConnection);
+  connect(cancel_btn_, &QPushButton::clicked, this, [this] { emit TaskCancelled(task_); });
 }
 
 void TaskViewItem::Failed()
 {
-  task_status_lbl_->setText(task_->GetError());
+  task_status_lbl_->setStyleSheet("color: red");
+  task_status_lbl_->setText(tr("Error: %1").arg(task_->GetError()));
 }
 
 void TaskViewItem::UpdateProgress(double d)

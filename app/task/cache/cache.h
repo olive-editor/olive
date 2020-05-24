@@ -47,6 +47,8 @@ protected:
 private:
   bool in_out_only_;
 
+  QThreadPool download_threads_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

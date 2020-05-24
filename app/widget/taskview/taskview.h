@@ -42,6 +42,9 @@ class TaskView : public QScrollArea
 public:
   TaskView(QWidget* parent);
 
+signals:
+  void TaskCancelled(Task* t);
+
 public slots:
   /**
    * @brief Creates a TaskViewItem, connects it to a Task, and adds it to this widget

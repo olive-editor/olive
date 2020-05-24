@@ -62,6 +62,7 @@ void MainStatusBar::UpdateStatus()
   if (manager_->GetTaskCount() == 0) {
     clearMessage();
     bar_->setVisible(false);
+    bar_->setValue(0);
   } else {
     Task* t = manager_->GetFirstTask();
 

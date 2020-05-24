@@ -33,6 +33,7 @@
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
+#include "task/cache/cache.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -96,6 +97,9 @@ public:
   }
 
   void SetGizmos(Node* node);
+
+  static void StopAllBackgroundCacheTasks();
+  static void SetBackgroundCacheTask(CacheTask* t);
 
 public slots:
   void Play(bool in_to_out_only);
@@ -192,6 +196,11 @@ private:
 
   void FinishPlayPreprocess();
 
+  VideoRenderingParams GenerateVideoParams() const;
+  AudioRenderingParams GenerateAudioParams() const;
+
+  void StopBackgroundCache();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -235,6 +244,10 @@ private:
 
   QHash<QFutureWatcher<QByteArray>*, rational> hash_watchers_;
 
+  QTimer cache_wait_timer_;
+
+  static CacheTask* cache_background_task_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -271,6 +284,10 @@ private slots:
   void RendererGeneratedFrameForQueue();
 
   void HashGenerated();
+
+  void StartBackgroundCaching();
+
+  void BackgroundCacheFinished(Task *t);
 
 };
 

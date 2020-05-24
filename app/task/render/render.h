@@ -57,12 +57,16 @@ protected:
     return audio_params_;
   }
 
+  void SetAnchorPoint(const rational& r);
+
 private:
   ViewerOutput* viewer_;
 
   VideoRenderingParams video_params_;
 
   AudioRenderingParams audio_params_;
+
+  rational anchor_point_;
 
 };
 

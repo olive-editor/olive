@@ -58,6 +58,7 @@
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
+#include "widget/viewer/viewer.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -1133,6 +1134,9 @@ void Core::CacheActiveSequence(bool in_out_only)
                                     vrp,
                                     arp,
                                     in_out_only);
+
+    // Stop any current auto-cache tasks
+    ViewerWidget::StopAllBackgroundCacheTasks();
 
     TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), main_window_);
     dialog->open();

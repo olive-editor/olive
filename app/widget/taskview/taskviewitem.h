@@ -47,6 +47,9 @@ public:
 
   void Failed();
 
+signals:
+  void TaskCancelled(Task* t);
+
 private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;
