@@ -276,10 +276,36 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
   qint64 current_time = QDateTime::currentMSecsSinceEpoch();
   qint64 time_passed = current_time - last_time_;
 
-  // Determine how many bytes this is
-  int bytes_to_read = params_.time_to_bytes(static_cast<double>(time_passed) * 0.001);
+  // Convert ms to float seconds and determine how many bytes that is
+  qint64 bytes_to_read = params_.time_to_bytes(static_cast<double>(time_passed) * 0.001);
 
-  QByteArray b = file_.read(bytes_to_read);;
+  if (playback_speed_ < 0) {
+    bytes_to_read = qMin(bytes_to_read, file_.pos());
+
+    file_.seek(file_.pos() - bytes_to_read);
+  }
+
+  QByteArray b = file_.read(bytes_to_read);
+
+  if (playback_speed_ < 0) {
+    file_.seek(file_.pos() - bytes_to_read);
+  }
+
+  int abs_speed = qAbs(playback_speed_);
+  if (abs_speed != 1) {
+    int sample_sz = params_.samples_to_bytes(1);
+    int in_nb_samples = params_.bytes_to_samples(b.size());
+    int out_nb_samples = in_nb_samples / abs_speed;
+    QByteArray speed_adjusted(out_nb_samples * sample_sz, Qt::Uninitialized);
+
+    for (int i=0;i<out_nb_samples;i++) {
+      memcpy(speed_adjusted.data() + params_.samples_to_bytes(i),
+             b.constData() + params_.samples_to_bytes(i * abs_speed),
+             sample_sz);
+    }
+
+    b = speed_adjusted;
+  }
 
   BytesToSampleSummary(b, v);
 
