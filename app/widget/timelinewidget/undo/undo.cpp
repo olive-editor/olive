@@ -612,6 +612,9 @@ void TrackCleanGapsCommand::redo_internal()
 
   TrackOutput* track = track_list_->GetTrackAt(track_index_);
 
+  // We can block the IC signal because merging gaps won't actually change anything
+  track->BlockInvalidateCache();
+
   foreach (Block* b, track->Blocks()) {
     if (b->type() == Block::kGap) {
       if (on_gap) {
@@ -623,8 +626,6 @@ void TrackCleanGapsCommand::redo_internal()
       merged_gaps_.append({on_gap, on_gap->length(), consecutive_gaps});
 
       // Remove each gap and add to the length of the merged
-      // We can block the IC signal because merging gaps won't actually change anything
-      track->BlockInvalidateCache();
       rational new_gap_length = on_gap->length();
       foreach (GapBlock* gap, consecutive_gaps) {
         track->RippleRemoveBlock(gap);
@@ -633,7 +634,6 @@ void TrackCleanGapsCommand::redo_internal()
         new_gap_length += gap->length();
       }
       on_gap->set_length_and_media_out(new_gap_length);
-      track->UnblockInvalidateCache();
 
       // Reset state
       on_gap = nullptr;
@@ -651,11 +651,15 @@ void TrackCleanGapsCommand::redo_internal()
       static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
     }
   }
+
+  track->UnblockInvalidateCache();
 }
 
 void TrackCleanGapsCommand::undo_internal()
 {
   TrackOutput* track = track_list_->GetTrackAt(track_index_);
+
+  track->BlockInvalidateCache();
 
   // Restored removed end gaps
   foreach (GapBlock* gap, removed_end_gaps_) {
@@ -663,8 +667,6 @@ void TrackCleanGapsCommand::undo_internal()
     track->AppendBlock(gap);
   }
   removed_end_gaps_.clear();
-
-  track->BlockInvalidateCache();
 
   for (int i=merged_gaps_.size()-1;i>=0;i--) {
     const MergedGap& merge_info = merged_gaps_.at(i);
