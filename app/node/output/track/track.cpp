@@ -465,16 +465,7 @@ void TrackOutput::UpdateInOutFrom(int index)
   }
 
   // Update track length
-  if (last_out != track_length_) {
-    rational old_track_length = track_length_;
-
-    track_length_ = last_out;
-    emit TrackLengthChanged();
-
-    InvalidateCache(TimeRange(qMin(old_track_length, last_out), qMax(old_track_length, last_out)),
-                    block_input_,
-                    block_input_);
-  }
+  SetLengthInternal(last_out);
 }
 
 int TrackOutput::GetInputIndexFromCacheIndex(int cache_index)
@@ -493,8 +484,68 @@ int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
   return -1;
 }
 
+void TrackOutput::SetLengthInternal(const rational &r)
+{
+  if (r != track_length_) {
+    rational old_track_length = track_length_;
+
+    track_length_ = r;
+    emit TrackLengthChanged();
+
+    InvalidateCache(TimeRange(qMin(old_track_length, r), qMax(old_track_length, r)),
+                    block_input_,
+                    block_input_);
+  }
+}
+
 void TrackOutput::BlockConnected(NodeEdgePtr edge)
 {
+  QList<Block*> new_block_list;
+
+  foreach (NodeInput* i, block_input_->sub_params()) {
+    Node* connected = i->get_connected_node();
+
+    if (connected
+        && connected->IsBlock()
+        && !new_block_list.contains(static_cast<Block*>(connected))) {
+      Block* b = static_cast<Block*>(connected);
+
+      if (!new_block_list.isEmpty()) {
+        new_block_list.last()->set_next(b);
+        b->set_previous(new_block_list.last());
+      }
+
+      new_block_list.append(b);
+
+      if (!block_cache_.contains(b)) {
+        // Make connections to this block
+        connect(b, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
+
+        emit BlockAdded(b);
+      }
+    }
+  }
+
+  if (!new_block_list.isEmpty()) {
+    new_block_list.first()->set_previous(nullptr);
+    new_block_list.last()->set_next(nullptr);
+  }
+
+  int new_index;
+
+  for (new_index = 0; new_index < block_cache_.size(); new_index++) {
+    if (block_cache_.at(new_index) != new_block_list.at(new_index)) {
+      break;
+    }
+  }
+
+  block_cache_ = new_block_list;
+
+  UpdateInOutFrom(new_index);
+
+  InputConnectionChanged(edge);
+
+  /*
   // Determine what node was just connected
   Node* connected_node = edge->output()->parentNode();
 
@@ -554,10 +605,44 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
   }
 
   InputConnectionChanged(edge);
+  */
 }
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 {
+  Block* b = static_cast<Block*>(edge->output()->parentNode());
+
+  if (block_cache_.contains(b)) {
+    block_cache_.removeOne(b);
+
+    Block* previous = b->previous();
+    Block* next = b->next();
+
+    if (previous) {
+      previous->set_next(next);
+    }
+
+    if (next) {
+      next->set_previous(previous);
+    }
+
+    b->set_previous(nullptr);
+    b->set_next(nullptr);
+
+    if (next) {
+      UpdateInOutFrom(block_cache_.indexOf(next));
+    } else if (block_cache_.isEmpty()) {
+      SetLengthInternal(rational());
+    } else {
+      SetLengthInternal(block_cache_.last()->out());
+    }
+
+    disconnect(b, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
+
+    emit BlockRemoved(b);
+  }
+
+  /*
   // See what kind of node was just connected
   Node* connected_node = edge->output()->parentNode();
 
@@ -585,6 +670,7 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 
     emit BlockRemoved(connected_block);
   }
+  */
 
   InputConnectionChanged(edge);
 }

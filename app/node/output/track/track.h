@@ -200,6 +200,8 @@ private:
   int GetInputIndexFromCacheIndex(int cache_index);
   int GetInputIndexFromCacheIndex(Block* block);
 
+  void SetLengthInternal(const rational& r);
+
   QList<Block*> block_cache_;
 
   NodeInputArray* block_input_;
