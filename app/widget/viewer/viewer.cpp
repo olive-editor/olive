@@ -111,6 +111,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderer
   renderer_ = new OpenGLBackend(this);
+  renderer_->SetUpdateWithGraph(true);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
   cache_wait_timer_.setInterval(100);
@@ -424,6 +425,11 @@ FramePtr DecodeCachedImage(const QString &fn, const rational& time)
   return frame;
 }
 
+void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time)
+{
+  ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
+}
+
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!FrameExistsAtTime(time)) {
@@ -459,16 +465,10 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   }
 
   // Frame was not in queue, will require rendering or decoding from cache
-  QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
-
-  connect(watcher,
-          &QFutureWatcher<FramePtr>::finished,
-          this,
-          &ViewerWidget::RendererGeneratedFrame);
-
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
   nonqueue_watchers_.append(watcher);
-
-  watcher->setFuture(GetFrame(time, true, true));
+  watcher->SetTicket(GetFrame(time, true));
 }
 
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
@@ -636,12 +636,9 @@ void ViewerWidget::RequestNextFrameForQueue()
 
   playback_queue_next_frame_ += playback_speed_;
 
-  QFutureWatcher<FramePtr>* watcher = new QFutureWatcher<FramePtr>();
-  connect(watcher,
-          &QFutureWatcher<FramePtr>::finished,
-          this,
-          &ViewerWidget::RendererGeneratedFrameForQueue);
-  watcher->setFuture(GetFrame(next_time, false, true));
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
+  watcher->SetTicket(GetFrame(next_time, false));
 }
 
 PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
@@ -649,18 +646,24 @@ PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
   return PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline);
 }
 
-QFuture<FramePtr> ViewerWidget::GetFrame(const rational &t, bool clear_render_queue, bool block_update)
+RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
   if (cached_hash.isEmpty()) {
     // Frame hasn't been cached, start render job
-    return renderer_->RenderFrame(t, clear_render_queue, block_update);
+    if (clear_render_queue) {
+      renderer_->ClearVideoQueue();
+    }
+
+    return renderer_->RenderFrame(t);
   } else {
     // Frame has been cached, grab the frame
     QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash,
                                                                               GetCurrentPixelFormat());
 
-    return QtConcurrent::run(DecodeCachedImage, cache_fn, t);
+    RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo, TimeRange(t, t));
+    QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);
+    return ticket;
   }
 }
 
@@ -785,57 +788,45 @@ void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
 
 void ViewerWidget::RendererGeneratedFrame()
 {
-  QFutureWatcher<FramePtr>* watcher = static_cast<QFutureWatcher<FramePtr>*>(sender());
-  FramePtr frame = watcher->result();
+  RenderTicketWatcher* ticket = static_cast<RenderTicketWatcher*>(sender());
 
-  if (nonqueue_watchers_.contains(watcher)) {
-    while (!nonqueue_watchers_.isEmpty()) {
-      if (nonqueue_watchers_.takeFirst() == watcher) {
-        break;
+  if (!ticket->WasCancelled()) {
+    FramePtr frame = ticket->Get().value<FramePtr>();
+
+    if (nonqueue_watchers_.contains(ticket)) {
+      while (!nonqueue_watchers_.isEmpty()) {
+        if (nonqueue_watchers_.takeFirst() == ticket) {
+          break;
+        }
       }
-    }
 
-    SetDisplayImage(frame, false);
+      SetDisplayImage(frame, false);
+    }
   }
 
-  watcher->deleteLater();
+  ticket->deleteLater();
 }
 
 void ViewerWidget::RendererGeneratedFrameForQueue()
 {
-  QFutureWatcher<FramePtr>* watcher = static_cast<QFutureWatcher<FramePtr>*>(sender());
-  FramePtr frame = watcher->result();
-  watcher->deleteLater();
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
-  // Ignore this signal if we've paused now
-  if (IsPlaying() || prequeuing_) {
-    playback_queue_.AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+  if (!watcher->WasCancelled()) {
+    FramePtr frame = watcher->Get().value<FramePtr>();
 
-    foreach (ViewerWindow* window, windows_) {
-      window->queue()->AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+    // Ignore this signal if we've paused now
+    if (IsPlaying() || prequeuing_) {
+      playback_queue_.AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+
+      foreach (ViewerWindow* window, windows_) {
+        window->queue()->AppendTimewise({frame->timestamp(), frame}, playback_speed_);
+      }
+
+      if (prequeuing_ && playback_queue_.size() == kMaxPreQueueSize) {
+        prequeuing_ = false;
+        FinishPlayPreprocess();
+      }
     }
-
-    if (prequeuing_ && playback_queue_.size() == kMaxPreQueueSize) {
-      prequeuing_ = false;
-      FinishPlayPreprocess();
-    }
-  }
-}
-
-void ViewerWidget::HashGenerated()
-{
-  QFutureWatcher<QByteArray>* watcher = static_cast<QFutureWatcher<QByteArray>*>(sender());
-
-  if (hash_watchers_.contains(watcher)) {
-    FrameHashCache* cache = GetConnectedNode()->video_frame_cache();
-
-    QString cache_fn = cache->CachePathName(watcher->result(), GetCurrentPixelFormat());
-
-    if (QFileInfo::exists(cache_fn)) {
-      cache->SetHash(hash_watchers_.value(watcher), watcher->result());
-    }
-
-    hash_watchers_.remove(watcher);
   }
 
   watcher->deleteLater();
@@ -1211,16 +1202,6 @@ void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
   if (!(qApp->mouseButtons() & Qt::LeftButton)) {
     cache_wait_timer_.start();
   }
-
-  /*
-  QList<rational> invalidated_frames = GetConnectedNode()->video_frame_cache()->GetFrameListFromTimeRange({range});
-  foreach (const rational& r, invalidated_frames) {
-    QFutureWatcher<QByteArray>* watcher = new QFutureWatcher<QByteArray>();
-    connect(watcher, &QFutureWatcher<QByteArray>::finished, this, &ViewerWidget::HashGenerated);
-    hash_watchers_.insert(watcher, r);
-    watcher->setFuture(renderer_->Hash(r, true));
-  }
-  */
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -28,6 +28,7 @@
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "render/backend/colorprocessorcache.h"
+#include "renderticket.h"
 #include "renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -42,22 +43,26 @@ public:
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
-  void CancelQueue();
+  void SetUpdateWithGraph(bool e);
+
+  void ClearVideoQueue();
 
   /**
    * @brief Asynchronously generate a hash at a given time
    */
-  QFuture<QByteArray> Hash(const rational& time, bool block_for_update);
+  QFuture<QList<QByteArray> > Hash(const QList<rational>& times);
 
   /**
    * @brief Asynchronously generate a frame at a given time
    */
-  QFuture<FramePtr> RenderFrame(const rational& time, bool clear_queue, bool block_for_update);
+  RenderTicketPtr RenderFrame(const rational& time);
+
+  QFuture<FramePtr> RenderFrames(const QList<rational>& frames);
 
   /**
    * @brief Asynchronously generate a chunk of audio
    */
-  QFuture<SampleBufferPtr> RenderAudio(const TimeRange& r, bool block_for_update);
+  QFuture<SampleBufferPtr> RenderAudio(const TimeRange& r);
 
   void SetVideoParams(const VideoRenderingParams& params);
 
@@ -65,16 +70,10 @@ public:
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
-  void SetAutomaticAudio(bool e);
-
-  void WorkerStartedRenderingAudio(const TimeRange& r);
-
   static QList<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
 public slots:
   void NodeGraphChanged(NodeInput *source);
-
-  void UpdateInstance(OLIVE_NAMESPACE::RenderWorker* instance);
 
 protected:
   virtual RenderWorker* CreateNewWorker() = 0;
@@ -82,33 +81,15 @@ protected:
   void Close();
 
 private:
-  struct RenderPool {
-    RenderPool();
+  void CopyNodeInputValue(NodeInput* input);
+  Node *CopyNodeConnections(Node *src_node);
+  void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
-    QVector<RenderWorker*> instances;
-    int queuer;
-    QThreadPool threads;
+  void RunNextJob();
 
-    void Init(ViewerOutput *v);
-    void Queue(NodeInput* input);
-    void Close();
-    void Destroy();
-  };
-
-  RenderWorker *GetInstanceFromPool(RenderPool &pool);
+  void ProcessUpdateQueue();
 
   ViewerOutput* viewer_node_;
-
-  //RenderCancelDialog* cancel_dialog_;
-
-  RenderPool video_pool_;
-  RenderPool audio_pool_;
-  RenderPool hash_pool_;
-
-  QMutex queued_audio_lock_;
-  TimeRangeList queued_audio_;
-
-  bool auto_audio_;
 
   // VIDEO MEMBERS
   VideoRenderingParams video_params_;
@@ -116,35 +97,25 @@ private:
 
   // AUDIO MEMBERS
   AudioRenderingParams audio_params_;
-  QHash< QFutureWatcher<SampleBufferPtr>*, TimeRange > audio_jobs_;
 
-  struct ConformWaitInfo {
-    StreamPtr stream;
-    AudioRenderingParams params;
-    TimeRange affected_range;
-    rational stream_time;
+  QList<NodeInput*> graph_update_queue_;
+  QHash<Node*, Node*> copy_map_;
+  ViewerOutput* copied_viewer_node_;
 
-    bool operator==(const ConformWaitInfo& rhs) const;
+  QThreadPool pool_;
+
+  QLinkedList<RenderTicketPtr> render_queue_;
+
+  struct WorkerData {
+    RenderWorker* worker;
+    bool busy;
   };
 
-  QList<ConformWaitInfo> conform_wait_info_;
+  QVector<WorkerData> workers_;
 
-  void ListenForConformSignal(AudioStreamPtr s);
-
-  void StopListeningForConformSignal(AudioStream *s);
-
-  bool ic_from_conform_;
+  bool update_with_graph_;
 
 private slots:
-  void AudioConformUnavailable(StreamPtr stream, TimeRange range,
-                               rational stream_time, AudioRenderingParams params);
-
-  void AudioConformUpdated(OLIVE_NAMESPACE::AudioRenderingParams params);
-
-  void AudioInvalidated(const TimeRange &r);
-
-  void AudioRendered();
-
   void WorkerFinished();
 
 };

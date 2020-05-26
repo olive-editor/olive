@@ -85,7 +85,7 @@ bool ExportTask::Run()
   }
 
   // Start render process
-  Render({range}, mat, params_.audio_enabled());
+  Render({range}, mat, params_.audio_enabled(), false);
 
   bool success = true;
 

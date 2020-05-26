@@ -34,7 +34,7 @@ public:
   RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams);
 
 protected:
-  void Render(const TimeRangeList &range_to_cache, const QMatrix4x4 &mat, bool audio_enabled);
+  void Render(const TimeRangeList &range_to_cache, const QMatrix4x4 &mat, bool audio_enabled, bool use_disk_cache);
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
 

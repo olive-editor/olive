@@ -34,11 +34,8 @@ OLIVE_NAMESPACE_ENTER
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
-  auto_audio_(true),
-  ic_from_conform_(false)
+  update_with_graph_(false)
 {
-  // FIXME: Don't create in CLI mode
-  //cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
 }
 
 RenderBackend::~RenderBackend()
@@ -53,92 +50,112 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
   }
 
   if (viewer_node_) {
-    // Clear queue and wait for any currently running actions to complete
-    CancelQueue();
-
     // Delete all of our copied nodes
-    hash_pool_.Close();
-    video_pool_.Close();
-    audio_pool_.Close();
-    queued_audio_.clear();
+    pool_.clear();
+    pool_.waitForDone();
+
+    // Cancel all tickets
+    foreach (RenderTicketPtr t, render_queue_) {
+      t->Cancel();
+    }
+    render_queue_.clear();
+
+    // Delete all the nodes
+    qDeleteAll(copy_map_);
+    copy_map_.clear();
+    copied_viewer_node_ = nullptr;
 
     disconnect(viewer_node_,
                &ViewerOutput::GraphChangedFrom,
                this,
                &RenderBackend::NodeGraphChanged);
-
-    disconnect(viewer_node_->audio_playback_cache(),
-               &AudioPlaybackCache::Invalidated,
-               this,
-               &RenderBackend::AudioInvalidated);
   }
 
   // Set viewer node
   viewer_node_ = viewer_node;
 
   if (viewer_node_) {
-    // Initiate instances with new node
-    hash_pool_.Init(viewer_node_);
-    video_pool_.Init(viewer_node_);
-    audio_pool_.Init(viewer_node_);
+    // Copy graph
+    copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
+    copy_map_.insert(viewer_node_, copied_viewer_node_);
 
-    connect(viewer_node_,
-            &ViewerOutput::GraphChangedFrom,
-            this,
-            &RenderBackend::NodeGraphChanged);
+    NodeGraphChanged(viewer_node_->texture_input());
+    NodeGraphChanged(viewer_node_->samples_input());
+    ProcessUpdateQueue();
 
-    if (auto_audio_) {
-      // Listen for audio invalidation signals
-      connect(viewer_node_->audio_playback_cache(),
-              &AudioPlaybackCache::Invalidated,
+    if (update_with_graph_) {
+      connect(viewer_node_,
+              &ViewerOutput::GraphChangedFrom,
               this,
-              &RenderBackend::AudioInvalidated);
-
-      // Start caching audio
-      foreach (const TimeRange& r, viewer_node_->audio_playback_cache()->GetInvalidatedRanges()) {
-        AudioInvalidated(r);
-      }
+              &RenderBackend::NodeGraphChanged);
     }
   }
 }
 
-void RenderBackend::CancelQueue()
+void RenderBackend::SetUpdateWithGraph(bool e)
 {
-  // FIXME: Implement something better than this...
-  video_pool_.threads.waitForDone();
-  audio_pool_.threads.waitForDone();
-  hash_pool_.threads.waitForDone();
+  update_with_graph_ = e;
 }
 
-QFuture<QByteArray> RenderBackend::Hash(const rational &time, bool block_for_update)
+void RenderBackend::ClearVideoQueue()
 {
-  return QtConcurrent::run(&hash_pool_.threads,
-                           GetInstanceFromPool(hash_pool_),
-                           &RenderWorker::Hash,
-                           time,
-                           block_for_update);
+  foreach (RenderTicketPtr t, render_queue_) {
+    t->Cancel();
+  }
+  render_queue_.clear();
 }
 
-QFuture<FramePtr> RenderBackend::RenderFrame(const rational &time, bool clear_queue, bool block_for_update)
+QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
 {
-  if (clear_queue) {
-    video_pool_.threads.clear();
+  return QtConcurrent::run([this](const QList<rational> &times){
+    QList<QByteArray> hashes;
+
+    foreach (const rational& t, times) {
+      QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+      // Embed video parameters into this hash
+      hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_width()), sizeof(int));
+      hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_height()), sizeof(int));
+      hasher.addData(reinterpret_cast<const char*>(&video_params_.format()), sizeof(PixelFormat::Format));
+      hasher.addData(reinterpret_cast<const char*>(&video_params_.mode()), sizeof(RenderMode::Mode));
+
+      copied_viewer_node_->Hash(hasher, t);
+
+      hashes.append(hasher.result());
+    }
+
+    return hashes;
+  }, times);
+}
+
+RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
+{
+  if (!viewer_node_) {
+    return nullptr;
   }
 
-  return QtConcurrent::run(&video_pool_.threads,
-                           GetInstanceFromPool(video_pool_),
-                           &RenderWorker::RenderFrame,
-                           time,
-                           block_for_update);
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
+                                                          TimeRange(time, time));
+
+  render_queue_.append(ticket);
+
+  RunNextJob();
+
+  return ticket;
 }
 
-QFuture<SampleBufferPtr> RenderBackend::RenderAudio(const TimeRange &r, bool block_for_update)
+RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
 {
-  return QtConcurrent::run(&audio_pool_.threads,
-                           GetInstanceFromPool(audio_pool_),
-                           &RenderWorker::RenderAudio,
-                           r,
-                           block_for_update);
+  if (!viewer_node_) {
+    return nullptr;
+  }
+
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeAudio,
+                                                          r);
+
+  render_queue_.append(ticket);
+
+  return ticket;
 }
 
 void RenderBackend::SetVideoParams(const VideoRenderingParams &params)
@@ -156,18 +173,6 @@ void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
   video_download_matrix_ = mat;
 }
 
-void RenderBackend::SetAutomaticAudio(bool e)
-{
-  auto_audio_ = e;
-}
-
-void RenderBackend::WorkerStartedRenderingAudio(const TimeRange &r)
-{
-  queued_audio_lock_.lock();
-  queued_audio_.RemoveTimeRange(r);
-  queued_audio_lock_.unlock();
-}
-
 QList<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 {
   const int chunk_size = 2;
@@ -179,7 +184,7 @@ QList<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 
   for (int i=start_time; i<end_time; i+=chunk_size) {
     split_ranges.append(TimeRange(qMax(r.in(), rational(i)),
-                         qMin(r.out(), rational(i + chunk_size))));
+                                  qMin(r.out(), rational(i + chunk_size))));
   }
 
   return split_ranges;
@@ -187,270 +192,234 @@ QList<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 
 void RenderBackend::NodeGraphChanged(NodeInput *source)
 {
-  video_pool_.Queue(source);
-  audio_pool_.Queue(source);
-  hash_pool_.Queue(source);
-}
+  if (!graph_update_queue_.isEmpty()) {
+    // First, check if anything in our queue is a dependency of this input. If so, we should remove
+    // it and just update this input.
 
-void RenderBackend::UpdateInstance(RenderWorker *instance)
-{
-  instance->SetAvailable(false);
-  instance->ProcessQueue();
-  instance->SetVideoParams(video_params_);
-  instance->SetAudioParams(audio_params_);
-  instance->SetVideoDownloadMatrix(video_download_matrix_);
-  instance->SetAudioModeIsPreview(auto_audio_);
+    // First we need to find our copy of the input being queued
+    Node* our_copy_node = copy_map_.value(source->parentNode());
+
+    if (our_copy_node) {
+      NodeInput* our_copy = our_copy_node->GetInputWithID(source->id());
+      QList<Node*> our_copy_deps = our_copy->GetDependencies(our_copy);
+
+      for (int i=0;i<graph_update_queue_.size();i++) {
+        NodeInput* check_input = graph_update_queue_.at(i);
+        Node* check_input_our_copy = copy_map_.value(check_input->parentNode());
+
+        // If this input isn't connected anymore, it obviously won't come up as a dependency
+        if (our_copy_deps.contains(check_input_our_copy)) {
+          graph_update_queue_.removeAt(i);
+          i--;
+        }
+      }
+    }
+  }
+
+  graph_update_queue_.append(source);
 }
 
 void RenderBackend::Close()
 {
-  video_pool_.threads.clear();
-  audio_pool_.threads.clear();
-  hash_pool_.threads.clear();
+  SetViewerNode(nullptr);
 
-  CancelQueue();
-
-  video_pool_.Destroy();
-  audio_pool_.Destroy();
-  hash_pool_.Destroy();
+  for (int i=0;i<workers_.size();i++) {
+    workers_.at(i).worker->deleteLater();
+  }
+  workers_.clear();
 }
 
-RenderWorker *RenderBackend::GetInstanceFromPool(RenderPool& pool)
+void RenderBackend::RunNextJob()
 {
-  RenderWorker* instance = nullptr;
-
-  foreach (RenderWorker* worker, pool.instances) {
-    if (worker->IsAvailable()) {
-      instance = worker;
-      break;
-    }
-  }
-
-  if (!instance) {
-    if (pool.instances.size() < pool.threads.maxThreadCount()) {
-      // Can create another instance
-      instance = CreateNewWorker();
-      pool.instances.append(instance);
-
-      if (viewer_node_) {
-        instance->Init(viewer_node_);
-      }
-
-      connect(instance, &RenderWorker::FinishedJob,
-              this, &RenderBackend::WorkerFinished, Qt::QueuedConnection);
-
-      connect(instance, &RenderWorker::AudioConformUnavailable,
-              this, &RenderBackend::AudioConformUnavailable, Qt::QueuedConnection);
-    } else {
-      instance = pool.instances.at(pool.queuer % pool.instances.size());
-      pool.queuer++;
-    }
-  }
-
-  return instance;
-}
-
-void RenderBackend::ListenForConformSignal(AudioStreamPtr s)
-{
-  foreach (const ConformWaitInfo& info, conform_wait_info_) {
-    if (info.stream == s) {
-      // We've probably already connected to this one
-      return;
-    }
-  }
-
-  connect(s.get(), &AudioStream::ConformAppended, this, &RenderBackend::AudioConformUpdated);
-}
-
-void RenderBackend::StopListeningForConformSignal(AudioStream *s)
-{
-  foreach (const ConformWaitInfo& info, conform_wait_info_) {
-    if (info.stream.get() == s) {
-      // There are still conforms we're waiting for, don't disconnect
-      return;
-    }
-  }
-
-  disconnect(s, &AudioStream::ConformAppended, this, &RenderBackend::AudioConformUpdated);
-}
-
-void RenderBackend::AudioConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params)
-{
-  ConformWaitInfo info = {stream, params, range, stream_time};
-
-  if (conform_wait_info_.contains(info)) {
+  // If queue is empty, nothing to be done
+  if (render_queue_.isEmpty()) {
     return;
   }
 
-  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream);
-
-  if (audio_stream->try_start_conforming(params)) {
-
-    // Start indexing process
-    ListenForConformSignal(audio_stream);
-
-    conform_wait_info_.append(info);
-
-    ConformTask* conform_task = new ConformTask(audio_stream, params);
-
-    TaskManager::instance()->AddTask(conform_task);
-
-  } else if (audio_stream->has_conformed_version(params)) {
-
-    // Conform JUST finished, requeue this time
-    ic_from_conform_ = true;
-    AudioInvalidated(range);
-    ic_from_conform_ = false;
-
-  } else {
-
-    // A conform task is already running, so we'll just wait for it
-    ListenForConformSignal(audio_stream);
-
-    conform_wait_info_.append(info);
-
-  }
-}
-
-void RenderBackend::AudioConformUpdated(AudioRenderingParams params)
-{
-  AudioStream *stream = static_cast<AudioStream*>(sender());
-
-  for (int i=0;i<conform_wait_info_.size();i++) {
-    const ConformWaitInfo& info = conform_wait_info_.at(i);
-
-    if (info.stream.get() == stream
-        && info.params == params) {
-
-      // Make a copy so the values we use aren't corrupt
-      ConformWaitInfo copy = info;
-
-      // Remove this entry from the list
-      conform_wait_info_.removeAt(i);
-      i--;
-
-      // Send invalidate cache signal
-      ic_from_conform_ = true;
-      AudioInvalidated(copy.affected_range);
-      ic_from_conform_ = false;
-
-    }
+  // Check if params are valid
+  if (!video_params_.is_valid()
+      || !audio_params_.is_valid()) {
+    qDebug() << "Failed to run job, parameters are invalid";
+    return;
   }
 
-  StopListeningForConformSignal(stream);
-}
+  // If we have a value update queued, check if all workers are available and proceed from there
+  if (update_with_graph_ && !graph_update_queue_.isEmpty()) {
+    bool all_workers_available = true;
 
-void RenderBackend::AudioInvalidated(const TimeRange& r)
-{
-  if (!ic_from_conform_) {
-    // Cancel any ranges waiting on a conform here since obviously the contents have changed
-    for (int i=0;i<conform_wait_info_.size();i++) {
-      ConformWaitInfo& info = conform_wait_info_[i];
-
-      // FIXME: Code shamelessly copied from TimeRangeList::RemoveTimeRange()
-
-      if (r.Contains(info.affected_range)) {
-        conform_wait_info_.removeAt(i);
-        i--;
-      } else if (info.affected_range.Contains(r, false, false)) {
-        ConformWaitInfo copy = info;
-
-        info.affected_range.set_out(r.in());
-        copy.affected_range.set_in(r.out());
-
-        conform_wait_info_.append(copy);
-      } else if (info.affected_range.in() < r.in() && info.affected_range.out() > r.in()) {
-        info.affected_range.set_out(r.in());
-      } else if (info.affected_range.in() < r.out() && info.affected_range.out() > r.out()) {
-        info.affected_range.set_in(r.out());
+    foreach (const WorkerData& data, workers_) {
+      if (data.busy) {
+        all_workers_available = false;
+        break;
       }
     }
-  }
 
-  // Split into 2 second chunks, one for each thread
-  QList<TimeRange> split_ranges = SplitRangeIntoChunks(r);
-
-  foreach (const TimeRange& this_range, split_ranges) {
-
-    {
-      // Check if this range is already in the queue but hasn't started yet, in which case it'll
-      // automatically update to the parameters we have now anyway and we don't need to queue again
-      QMutexLocker locker(&queued_audio_lock_);
-      if (queued_audio_.ContainsTimeRange(this_range)) {
-        continue;
-      }
-      queued_audio_.InsertTimeRange(this_range);
-    }
-
-    // Queue this range
-    QFutureWatcher<SampleBufferPtr>* watcher = new QFutureWatcher<SampleBufferPtr>();
-    connect(watcher, &QFutureWatcher<SampleBufferPtr>::finished,
-            this, &RenderBackend::AudioRendered);
-
-    audio_jobs_.insert(watcher, this_range);
-
-    watcher->setFuture(RenderAudio(this_range, auto_audio_));
-  }
-}
-
-void RenderBackend::AudioRendered()
-{
-  QFutureWatcher<SampleBufferPtr>* watcher = static_cast<QFutureWatcher<SampleBufferPtr>*>(sender());
-
-  if (audio_jobs_.contains(watcher)) {
-    TimeRange r = audio_jobs_.take(watcher);
-
-    if (watcher->result()) {
-      viewer_node_->audio_playback_cache()->WritePCM(r, watcher->result());
+    if (all_workers_available) {
+      // Process queue
+      ProcessUpdateQueue();
     } else {
-      viewer_node_->audio_playback_cache()->WriteSilence(r);
+      return;
     }
   }
 
-  watcher->deleteLater();
+  // If we have no workers allocated, allocate them now
+  if (workers_.isEmpty()) {
+    // Allocate workers here
+    workers_.resize(pool_.maxThreadCount());
+
+    for (int i=0;i<workers_.size();i++) {
+      RenderWorker* worker = CreateNewWorker();
+
+      connect(worker, &RenderWorker::FinishedJob, this, &RenderBackend::WorkerFinished);
+
+      workers_.replace(i, {worker, false});
+    }
+  }
+
+  // Start popping jobs off the queue
+  for (int i=0;i<workers_.size();i++) {
+    if (!workers_.at(i).busy) {
+      // This worker is available, send it the job
+
+      RenderWorker* worker = workers_[i].worker;
+
+      workers_[i].busy = true;
+
+      worker->SetVideoParams(video_params_);
+      worker->SetAudioParams(audio_params_);
+      worker->SetVideoDownloadMatrix(video_download_matrix_);
+      worker->SetCopyMap(&copy_map_);
+
+      RenderTicketPtr ticket = render_queue_.takeFirst();
+
+      switch (ticket->GetType()) {
+      case RenderTicket::kTypeVideo:
+        QtConcurrent::run(worker,
+                          &RenderWorker::RenderFrame,
+                          ticket,
+                          copied_viewer_node_,
+                          ticket->GetTime().in());
+        break;
+      case RenderTicket::kTypeAudio:
+        QtConcurrent::run(worker,
+                          &RenderWorker::RenderAudio,
+                          ticket,
+                          copied_viewer_node_,
+                          ticket->GetTime());
+        break;
+      }
+
+      if (render_queue_.isEmpty()) {
+        // No more jobs, can exit here
+        break;
+      }
+    }
+  }
+}
+
+void RenderBackend::ProcessUpdateQueue()
+{
+  while (!graph_update_queue_.isEmpty()) {
+    CopyNodeInputValue(graph_update_queue_.takeFirst());
+  }
 }
 
 void RenderBackend::WorkerFinished()
 {
-  static_cast<RenderWorker*>(sender())->SetAvailable(true);
+  RenderWorker* worker = static_cast<RenderWorker*>(sender());
+
+  // Set busy state to false
+  for (int i=0;i<workers_.size();i++) {
+    if (workers_.at(i).worker == worker) {
+      workers_[i].busy = false;
+      break;
+    }
+  }
+
+  RunNextJob();
 }
 
-bool RenderBackend::ConformWaitInfo::operator==(const RenderBackend::ConformWaitInfo &rhs) const
+void RenderBackend::CopyNodeInputValue(NodeInput *input)
 {
-  return rhs.stream == stream
-      && rhs.stream_time == stream_time
-      && rhs.affected_range == affected_range;
-}
+  // Find our copy of this parameter
+  Node* our_copy_node = copy_map_.value(input->parentNode());
+  NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
 
-RenderBackend::RenderPool::RenderPool() :
-  queuer(0)
-{
-}
+  // Copy the standard/keyframe values between these two inputs
+  NodeInput::CopyValues(input,
+                        our_copy,
+                        false);
 
-void RenderBackend::RenderPool::Init(ViewerOutput* v)
-{
-  foreach (RenderWorker* instance, instances) {
-    instance->Init(v);
+  // Handle connections
+  if (input->IsConnected() || our_copy->IsConnected()) {
+    // If one of the inputs is connected, it's likely this change came from connecting or
+    // disconnecting whatever was connected to it
+
+    // We start by removing all old dependencies from the map
+    QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
+    foreach (Node* i, old_deps) {
+      copy_map_.take(copy_map_.key(i))->deleteLater();
+    }
+
+    // And clear any other edges
+    while (!our_copy->edges().isEmpty()) {
+      NodeParam::DisconnectEdge(our_copy->edges().first());
+    }
+
+    // Then we copy all node dependencies and connections (if there are any)
+    CopyNodeMakeConnection(input, our_copy);
+  }
+
+  // Call on sub-elements too
+  if (input->IsArray()) {
+    foreach (NodeInput* i, static_cast<NodeInputArray*>(input)->sub_params()) {
+      CopyNodeInputValue(i);
+    }
   }
 }
 
-void RenderBackend::RenderPool::Queue(NodeInput *input)
+Node* RenderBackend::CopyNodeConnections(Node* src_node)
 {
-  foreach (RenderWorker* worker, instances) {
-    worker->Queue(input);
+  // Check if this node is already in the map
+  Node* dst_node = copy_map_.value(src_node);
+
+  // If not, create it now
+  if (!dst_node) {
+    dst_node = src_node->copy();
+
+    if (dst_node->IsTrack()) {
+      // Hack that ensures the track type is set since we don't bother copying the whole timeline
+      static_cast<TrackOutput*>(dst_node)->set_track_type(static_cast<TrackOutput*>(src_node)->track_type());
+    }
+
+    copy_map_.insert(src_node, dst_node);
   }
+
+  // Make sure its values are copied
+  Node::CopyInputs(src_node, dst_node, false);
+
+  // Copy all connections
+  QList<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
+  QList<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
+
+  for (int i=0;i<src_node_inputs.size();i++) {
+    NodeInput* src_input = src_node_inputs.at(i);
+
+    CopyNodeMakeConnection(src_input, dst_node_inputs.at(i));
+  }
+
+  return dst_node;
 }
 
-void RenderBackend::RenderPool::Destroy()
+void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
 {
-  qDeleteAll(instances);
-  instances.clear();
-}
+  if (src_input->IsConnected()) {
+    Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
 
-void RenderBackend::RenderPool::Close()
-{
-  foreach (RenderWorker* worker, instances) {
-    worker->Close();
+    NodeOutput* corresponding_output = dst_node->GetOutputWithID(src_input->get_connected_output()->id());
+
+    NodeParam::ConnectEdge(corresponding_output,
+                           dst_input);
   }
 }
 

@@ -33,6 +33,7 @@
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
+#include "render/backend/renderticketwatcher.h"
 #include "task/cache/cache.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
@@ -194,7 +195,7 @@ private:
 
   PixelFormat::Format GetCurrentPixelFormat() const;
 
-  QFuture<FramePtr> GetFrame(const rational& t, bool clear_render_queue, bool block_update);
+  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
 
   void FinishPlayPreprocess();
 
@@ -240,9 +241,7 @@ private:
 
   bool prequeuing_;
 
-  QList< QFutureWatcher<FramePtr>* > nonqueue_watchers_;
-
-  QHash<QFutureWatcher<QByteArray>*, rational> hash_watchers_;
+  QList<RenderTicketWatcher*> nonqueue_watchers_;
 
   QTimer cache_wait_timer_;
 
@@ -288,8 +287,6 @@ private slots:
   void RendererGeneratedFrame();
 
   void RendererGeneratedFrameForQueue();
-
-  void HashGenerated();
 
   void StartBackgroundCaching();
 

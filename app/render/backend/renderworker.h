@@ -26,6 +26,7 @@
 #include "decodercache.h"
 #include "node/traverser.h"
 #include "node/output/viewer/viewer.h"
+#include "renderticket.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,14 +38,6 @@ class RenderWorker : public QObject, public NodeTraverser
 public:
   RenderWorker(RenderBackend* parent);
 
-  virtual ~RenderWorker() override;
-
-  void Init(ViewerOutput *viewer);
-  void Close();
-
-  void Queue(NodeInput* input);
-  void ProcessQueue();
-
   bool IsAvailable() const
   {
     return available_;
@@ -53,11 +46,6 @@ public:
   void SetAvailable(bool a)
   {
     available_ = a;
-  }
-
-  ViewerOutput* GetViewer() const
-  {
-    return viewer_;
   }
 
   void SetVideoParams(const VideoRenderingParams& params)
@@ -80,6 +68,11 @@ public:
     audio_mode_is_preview_ = audio_mode_is_preview;
   }
 
+  void SetCopyMap(QHash<Node*, Node*>* copy_map)
+  {
+    copy_map_ = copy_map;
+  }
+
   /**
    * @brief Return a unique ID for the image generated at this time
    *
@@ -90,7 +83,7 @@ public:
    *
    * SHA-1 hash or empty QByteArray if no viewer node is set.
    */
-  QByteArray Hash(const rational &time, bool block_for_update);
+  void Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QList<rational>& times);
 
   /**
    * @brief Render the frame at this time
@@ -103,9 +96,9 @@ public:
    * function will still return a blank frame with the same parameters. If no viewer node is set,
    * nullptr is returned.
    */
-  FramePtr RenderFrame(const rational& time, bool block_for_update);
+  void RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time);
 
-  SampleBufferPtr RenderAudio(const TimeRange& range, bool block_for_update);
+  void RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange& range);
 
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const = 0;
@@ -135,15 +128,9 @@ signals:
   void FinishedJob();
 
 private:
-  void UpdateData(bool block_for_update);
-
   NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
 
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
-
-  void CopyNodeInputValue(NodeInput* input);
-  Node *CopyNodeConnections(Node *src_node);
-  void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
   RenderBackend* parent_;
 
@@ -165,15 +152,12 @@ private:
 
   DecoderCache decoder_cache_;
 
-  ViewerOutput* viewer_;
   TimeRange audio_render_time_;
-  QList<NodeInput*> queued_updates_;
-  QHash<Node*, Node*> copy_map_;
   bool available_;
 
   bool audio_mode_is_preview_;
 
-  QMutex lock_;
+  QHash<Node*, Node*>* copy_map_;
 
 };
 

@@ -33,53 +33,14 @@ OLIVE_NAMESPACE_ENTER
 
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
-  viewer_(nullptr),
   available_(true),
   audio_mode_is_preview_(false)
 {
 }
 
-RenderWorker::~RenderWorker()
+void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time)
 {
-  Close();
-}
-
-QByteArray RenderWorker::Hash(const rational &time, bool block_for_update)
-{
-  if (!viewer_) {
-    return QByteArray();
-  }
-
-  QMutexLocker locker(&lock_);
-
-  UpdateData(block_for_update);
-
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  // Embed video parameters into this hash
-  hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_width()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_height()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&video_params_.format()), sizeof(PixelFormat::Format));
-  hasher.addData(reinterpret_cast<const char*>(&video_params_.mode()), sizeof(RenderMode::Mode));
-
-  viewer_->Hash(hasher, time);
-
-  emit FinishedJob();
-
-  return hasher.result();
-}
-
-FramePtr RenderWorker::RenderFrame(const rational &time, bool block_for_update)
-{
-  if (!viewer_) {
-    return nullptr;
-  }
-
-  QMutexLocker locker(&lock_);
-
-  UpdateData(block_for_update);
-
-  NodeValueTable table = ProcessInput(viewer_->texture_input(),
+  NodeValueTable table = ProcessInput(viewer->texture_input(),
                                       TimeRange(time, time + video_params_.time_base()));
 
   QVariant texture = table.Get(NodeParam::kTexture);
@@ -97,44 +58,20 @@ FramePtr RenderWorker::RenderFrame(const rational &time, bool block_for_update)
     TextureToFrame(texture, frame, video_download_matrix_);
   }
 
-  emit FinishedJob();
+  ticket->Finish(QVariant::fromValue(frame));
 
-  return frame;
+  FinishedJob();
 }
 
-SampleBufferPtr RenderWorker::RenderAudio(const TimeRange &range, bool block_for_update)
+void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange &range)
 {
-  if (!viewer_) {
-    return nullptr;
-  }
-
-  QMutexLocker locker(&lock_);
-
-  parent_->WorkerStartedRenderingAudio(range);
-
-  UpdateData(block_for_update);
-
-  audio_render_time_ = range;
-
-  NodeValueTable table = ProcessInput(viewer_->samples_input(), range);
+  NodeValueTable table = ProcessInput(viewer->samples_input(), range);
 
   QVariant samples = table.Get(NodeParam::kSamples);
 
-  return samples.value<SampleBufferPtr>();
-}
+  ticket->Finish(samples);
 
-void RenderWorker::UpdateData(bool block_for_update)
-{
-  // FIXME: This is pretty trashy. It works, but it's not good. Should probably be changed at some
-  //        point.
-  if (block_for_update) {
-    QMetaObject::invokeMethod(parent_,
-                              "UpdateInstance",
-                              Qt::BlockingQueuedConnection,
-                              OLIVE_NS_ARG(RenderWorker*, this));
-  } else {
-    parent_->UpdateInstance(this);
-  }
+  FinishedJob();
 }
 
 NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
@@ -188,7 +125,7 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
 
       {
         // Save waveform to file
-        Block* src_block = static_cast<Block*>(copy_map_.key(b));
+        Block* src_block = static_cast<Block*>(copy_map_->key(b));
         QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
         QDir waveform_loc = local_appdata_dir.filePath(QStringLiteral("waveform"));
         waveform_loc.mkpath(".");
@@ -442,145 +379,6 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
   }
 
   return decoder;
-}
-
-void RenderWorker::Queue(NodeInput *input)
-{
-  if (!queued_updates_.isEmpty()) {
-    // First, check if anything in our queue is a dependency of this input. If so, we should remove
-    // it and just update this input.
-
-    // First we need to find our copy of the input being queued
-    Node* our_copy_node = copy_map_.value(input->parentNode());
-
-    if (our_copy_node) {
-      NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
-      QList<Node*> our_copy_deps = our_copy->GetDependencies(our_copy);
-
-      for (int i=0;i<queued_updates_.size();i++) {
-        NodeInput* check_input = queued_updates_.at(i);
-        Node* check_input_our_copy = copy_map_.value(check_input->parentNode());
-
-        // If this input isn't connected anymore, it obviously won't come up as a dependency
-        if (our_copy_deps.contains(check_input_our_copy)) {
-          queued_updates_.removeAt(i);
-          i--;
-        }
-      }
-    }
-  }
-
-  queued_updates_.append(input);
-}
-
-void RenderWorker::ProcessQueue()
-{
-  while (!queued_updates_.isEmpty()) {
-    CopyNodeInputValue(queued_updates_.takeFirst());
-  }
-}
-
-void RenderWorker::CopyNodeInputValue(NodeInput *input)
-{
-  // Find our copy of this parameter
-  Node* our_copy_node = copy_map_.value(input->parentNode());
-  NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
-
-  // Copy the standard/keyframe values between these two inputs
-  NodeInput::CopyValues(input,
-                        our_copy,
-                        false);
-
-  // Handle connections
-  if (input->IsConnected() || our_copy->IsConnected()) {
-    // If one of the inputs is connected, it's likely this change came from connecting or
-    // disconnecting whatever was connected to it
-
-    // We start by removing all old dependencies from the map
-    QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
-    foreach (Node* i, old_deps) {
-      copy_map_.take(copy_map_.key(i))->deleteLater();
-    }
-
-    // And clear any other edges
-    while (!our_copy->edges().isEmpty()) {
-      NodeParam::DisconnectEdge(our_copy->edges().first());
-    }
-
-    // Then we copy all node dependencies and connections (if there are any)
-    CopyNodeMakeConnection(input, our_copy);
-  }
-
-  // Call on sub-elements too
-  if (input->IsArray()) {
-    foreach (NodeInput* i, static_cast<NodeInputArray*>(input)->sub_params()) {
-      CopyNodeInputValue(i);
-    }
-  }
-}
-
-Node* RenderWorker::CopyNodeConnections(Node* src_node)
-{
-  // Check if this node is already in the map
-  Node* dst_node = copy_map_.value(src_node);
-
-  // If not, create it now
-  if (!dst_node) {
-    dst_node = src_node->copy();
-
-    if (dst_node->IsTrack()) {
-      // Hack that ensures the track type is set since we don't bother copying the whole timeline
-      static_cast<TrackOutput*>(dst_node)->set_track_type(static_cast<TrackOutput*>(src_node)->track_type());
-    }
-
-    copy_map_.insert(src_node, dst_node);
-  }
-
-  // Make sure its values are copied
-  Node::CopyInputs(src_node, dst_node, false);
-
-  // Copy all connections
-  QList<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
-  QList<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
-
-  for (int i=0;i<src_node_inputs.size();i++) {
-    NodeInput* src_input = src_node_inputs.at(i);
-
-    CopyNodeMakeConnection(src_input, dst_node_inputs.at(i));
-  }
-
-  return dst_node;
-}
-
-void RenderWorker::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
-{
-  if (src_input->IsConnected()) {
-    Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
-
-    NodeOutput* corresponding_output = dst_node->GetOutputWithID(src_input->get_connected_output()->id());
-
-    NodeParam::ConnectEdge(corresponding_output,
-                           dst_input);
-  }
-}
-
-void RenderWorker::Init(ViewerOutput* viewer)
-{
-  viewer_ = static_cast<ViewerOutput*>(viewer->copy());
-  copy_map_.insert(viewer, viewer_);
-
-  Queue(viewer->texture_input());
-  Queue(viewer->samples_input());
-  ProcessQueue();
-}
-
-void RenderWorker::Close()
-{
-  // Delete all the nodes
-  qDeleteAll(copy_map_);
-  copy_map_.clear();
-
-  viewer_ = nullptr;
 }
 
 OLIVE_NAMESPACE_EXIT

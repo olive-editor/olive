@@ -34,7 +34,7 @@ RenderTask::RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams
 
 struct TimeHashFuturePair {
   rational time;
-  QFuture<QByteArray> hash_future;
+  RenderTicketPtr hash_future;
 };
 
 struct HashTimePair {
@@ -44,12 +44,12 @@ struct HashTimePair {
 
 struct HashFrameFuturePair {
   QByteArray hash;
-  QFuture<FramePtr> frame_future;
+  RenderTicketPtr frame_future;
 };
 
 struct RangeSampleFuturePair {
   TimeRange range;
-  QFuture<SampleBufferPtr> sample_future;
+  RenderTicketPtr sample_future;
 };
 
 struct HashDownloadFuturePair {
@@ -59,31 +59,42 @@ struct HashDownloadFuturePair {
 
 void RenderTask::Render(const TimeRangeList& range_to_cache,
                         const QMatrix4x4& mat,
-                        bool audio_enabled)
+                        bool audio_enabled,
+                        bool use_disk_cache)
 {
   OpenGLBackend backend;
 
-  backend.SetAutomaticAudio(false);
+  backend.moveToThread(qApp->thread());
+
   backend.SetViewerNode(viewer_);
   backend.SetVideoParams(video_params_);
   backend.SetAudioParams(audio_params_);
   backend.SetVideoDownloadMatrix(mat);
 
-  // Get hashes for each frame
-  QLinkedList<TimeHashFuturePair> hash_list;
+  // Get hashes for each frame and group likes together
+  QMap< QByteArray, QLinkedList<rational> > times_to_render;
 
   {
     QList<rational> times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(range_to_cache);
 
-    foreach (const rational& r, times) {
-      hash_list.append({r, backend.Hash(r, false)});
-    }
-  }
+    QFuture<QList<QByteArray> > hash_future = backend.Hash(times);
+    QList<QByteArray> hashes = hash_future.result();
 
-  // Determine any duplicates
-  QMap< QByteArray, QLinkedList<rational> > times_to_render;
-  foreach (const TimeHashFuturePair& i, hash_list) {
-    times_to_render[i.hash_future.result()].append(i.time);
+    // Determine any duplicates
+    int index = 0;
+    foreach (const QByteArray& hash, hashes) {
+      const rational& time = times.at(index);
+
+      if (use_disk_cache
+          && QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()))) {
+        // Already exists, no need to render it again
+        FrameDownloaded(hash, {time});
+      } else {
+        times_to_render[hash].append(time);
+      }
+
+      index++;
+    }
   }
 
   // Render all frames necessary
@@ -96,35 +107,25 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
     QMap< QByteArray, QLinkedList<rational> >::const_iterator i;
     for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
       const QByteArray& hash = i.key();
+      const rational& time = i.value().first();
 
-      if (QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()))) {
+      bool inserted = false;
 
-        // Already exists, no need to render it again
-        FrameDownloaded(hash, i.value());
-
-      } else {
-
-        const rational& time = i.value().first();
-
-        bool inserted = false;
-
-        for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
-          if (sorted_iterator->time > time) {
-            sorted_times.insert(sorted_iterator, {time, hash});
-            inserted = true;
-            break;
-          }
+      for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
+        if (sorted_iterator->time > time) {
+          sorted_times.insert(sorted_iterator, {time, hash});
+          inserted = true;
+          break;
         }
+      }
 
-        if (!inserted) {
-          sorted_times.append({time, hash});
-        }
-
+      if (!inserted) {
+        sorted_times.append({time, hash});
       }
     }
 
     foreach (const HashTimePair& p, sorted_times) {
-      render_lookup_table.append({p.hash, backend.RenderFrame(p.time, false, false)});
+      render_lookup_table.append({p.hash, backend.RenderFrame(p.time)});
     }
   }
 
@@ -134,7 +135,7 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
       QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
 
       foreach (const TimeRange& split, ranges) {
-        audio_lookup_table.append({split, backend.RenderAudio(split, false)});
+        audio_lookup_table.append({split, backend.RenderAudio(split)});
       }
     }
   }
@@ -159,8 +160,8 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
     i = render_lookup_table.begin();
 
     while (i != render_lookup_table.end()) {
-      if (i->frame_future.isFinished()) {
-        FramePtr f = i->frame_future.result();
+      if (i->frame_future->IsFinished()) {
+        FramePtr f = i->frame_future->Get().value<FramePtr>();
 
         // Start multithreaded download here
         download_futures.append({i->hash, DownloadFrame(f, i->hash)});
@@ -192,8 +193,8 @@ void RenderTask::Render(const TimeRangeList& range_to_cache,
       k = audio_lookup_table.begin();
 
       while (k != audio_lookup_table.end()) {
-        if (k->sample_future.isFinished()) {
-          AudioDownloaded(k->range, k->sample_future.result());
+        if (k->sample_future->IsFinished()) {
+          AudioDownloaded(k->range, k->sample_future->Get().value<SampleBufferPtr>());
 
           k = audio_lookup_table.erase(k);
         } else {

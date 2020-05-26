@@ -48,7 +48,7 @@ bool CacheTask::Run()
     }
   }
 
-  Render(range_to_cache, QMatrix4x4(), false);
+  Render(range_to_cache, QMatrix4x4(), false, true);
 
   download_threads_.waitForDone();
 
