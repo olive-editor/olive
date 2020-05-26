@@ -21,6 +21,7 @@
 #ifndef RENDERTICKET_H
 #define RENDERTICKET_H
 
+#include <QMutex>
 #include <QWaitCondition>
 
 #include "codec/frame.h"

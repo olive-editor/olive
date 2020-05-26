@@ -144,7 +144,7 @@ QFuture<void> ExportTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
   return QtConcurrent::run(FrameColorConvert, color_processor_, frame);
 }
 
-void ExportTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<rational> &times)
+void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
 {
   FramePtr f = rendered_frame_.value(hash);
 

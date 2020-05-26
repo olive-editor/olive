@@ -62,7 +62,7 @@ QFuture<void> CacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
   return QtConcurrent::run(&download_threads_, FrameHashCache::SaveCacheFrame, hash, frame);
 }
 
-void CacheTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<rational> &times)
+void CacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
 {
   foreach (const rational& t, times) {
     viewer()->video_frame_cache()->SetHash(t, hash);

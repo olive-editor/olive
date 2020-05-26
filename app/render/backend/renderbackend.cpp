@@ -140,7 +140,7 @@ RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
   RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
                                                           TimeRange(time, time));
 
-  render_queue_.append(ticket);
+  render_queue_.push_back(ticket);
 
   RunNextJob();
 
@@ -156,7 +156,7 @@ RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
   RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeAudio,
                                                           r);
 
-  render_queue_.append(ticket);
+  render_queue_.push_back(ticket);
 
   RunNextJob();
 
@@ -237,7 +237,7 @@ void RenderBackend::Close()
 void RenderBackend::RunNextJob()
 {
   // If queue is empty, nothing to be done
-  if (render_queue_.isEmpty()) {
+  if (render_queue_.empty()) {
     return;
   }
 
@@ -295,7 +295,8 @@ void RenderBackend::RunNextJob()
       worker->SetVideoDownloadMatrix(video_download_matrix_);
       worker->SetCopyMap(&copy_map_);
 
-      RenderTicketPtr ticket = render_queue_.takeFirst();
+      RenderTicketPtr ticket = render_queue_.front();
+      render_queue_.pop_front();
 
       switch (ticket->GetType()) {
       case RenderTicket::kTypeVideo:
@@ -316,7 +317,7 @@ void RenderBackend::RunNextJob()
         break;
       }
 
-      if (render_queue_.isEmpty()) {
+      if (render_queue_.empty()) {
         // No more jobs, can exit here
         break;
       }

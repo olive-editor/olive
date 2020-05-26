@@ -102,8 +102,8 @@ void TaskManager::AddTask(Task* t)
 
 void TaskManager::CancelTask(Task *t)
 {
-  if (failed_tasks_.contains(t)) {
-    failed_tasks_.removeOne(t);
+  if (std::find(failed_tasks_.begin(), failed_tasks_.end(), t) != failed_tasks_.end()) {
+    failed_tasks_.remove(t);
     emit TaskRemoved(t);
     t->deleteLater();
   } else {
@@ -125,7 +125,7 @@ void TaskManager::TaskFinished()
   } else {
     // Task failed, keep it so the user can see the error message
     emit TaskFailed(t);
-    failed_tasks_.append(t);
+    failed_tasks_.push_back(t);
   }
 
   watcher->deleteLater();

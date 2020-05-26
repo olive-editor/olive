@@ -119,7 +119,7 @@ private:
   /**
    * @brief Internal list of failed tasks
    */
-  QLinkedList<Task*> failed_tasks_;
+  std::list<Task*> failed_tasks_;
 
   /**
    * @brief Task thread pool

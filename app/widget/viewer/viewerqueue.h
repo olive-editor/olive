@@ -32,14 +32,14 @@ struct ViewerPlaybackFrame {
   FramePtr frame;
 };
 
-class ViewerQueue : public QLinkedList<ViewerPlaybackFrame> {
+class ViewerQueue : public std::list<ViewerPlaybackFrame> {
 public:
   ViewerQueue() = default;
 
   void AppendTimewise(const ViewerPlaybackFrame& f, int playback_speed)
   {
-    if (this->isEmpty() || (this->last().timestamp < f.timestamp) == (playback_speed > 0)) {
-      this->append(f);
+    if (this->empty() || (this->back().timestamp < f.timestamp) == (playback_speed > 0)) {
+      this->push_back(f);
     } else {
       for (iterator i=this->begin(); i!=this->end(); i++) {
         if ((i->timestamp > f.timestamp) == (playback_speed > 0)) {

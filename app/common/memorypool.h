@@ -188,7 +188,7 @@ public:
     }
 
     ~Arena() {
-      QLinkedList<Element*> copy = lent_elements_;
+      std::list<Element*> copy = lent_elements_;
       foreach (Element* e, copy) {
         e->release();
       }
@@ -211,7 +211,7 @@ public:
 
           ElementPtr e = std::make_shared<Element>(this,
                                                    reinterpret_cast<T*>(data_ + i * element_sz_));
-          lent_elements_.append(e.get());
+          lent_elements_.push_back(e.get());
           return e;
         }
       }
@@ -230,9 +230,9 @@ public:
 
       available_.replace(index, true);
 
-      lent_elements_.removeOne(e);
+      lent_elements_.remove(e);
 
-      if (lent_elements_.isEmpty()) {
+      if (lent_elements_.empty()) {
         locker.unlock();
         parent_->ArenaIsEmpty(this);
       }
@@ -281,7 +281,7 @@ public:
 
     size_t element_sz_;
 
-    QLinkedList<Element*> lent_elements_;
+    std::list<Element*> lent_elements_;
 
   };
 
@@ -301,7 +301,7 @@ public:
     }
 
     // All arenas were empty, we'll need to create a new one
-    if (arenas_.isEmpty()) {
+    if (arenas_.empty()) {
       qDebug() << "No arenas, creating new...";
     } else {
       qDebug() << "All arenas are full, creating new...";
@@ -326,7 +326,7 @@ public:
       return nullptr;
     }
 
-    arenas_.append(a);
+    arenas_.push_back(a);
     return a->Get();
   }
 
@@ -340,7 +340,7 @@ public:
 
     if (!a->GetUsageCount()) {
       qDebug() << "Removing an empty arena";
-      arenas_.removeOne(a);
+      arenas_.remove(a);
       delete a;
     }
   }
@@ -358,7 +358,7 @@ protected:
 private:
   int element_count_;
 
-  QLinkedList<Arena*> arenas_;
+  std::list<Arena*> arenas_;
 
   QMutex lock_;
 

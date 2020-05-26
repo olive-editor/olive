@@ -41,7 +41,7 @@ protected:
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
 
-  virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) = 0;
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) = 0;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
 

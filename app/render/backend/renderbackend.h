@@ -102,7 +102,7 @@ private:
 
   QThreadPool pool_;
 
-  QLinkedList<RenderTicketPtr> render_queue_;
+  std::list<RenderTicketPtr> render_queue_;
 
   struct WorkerData {
     RenderWorker* worker;
