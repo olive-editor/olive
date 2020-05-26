@@ -34,13 +34,16 @@ public:
   RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams);
 
 protected:
-  void Render(const TimeRangeList &range_to_cache, const QMatrix4x4 &mat, bool audio_enabled, bool use_disk_cache);
+  void Render(const TimeRangeList &video_range,
+              const TimeRangeList &audio_range,
+              const QMatrix4x4 &mat,
+              bool use_disk_cache);
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
 
   virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) = 0;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples);
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
 
   ViewerOutput* viewer() const
   {

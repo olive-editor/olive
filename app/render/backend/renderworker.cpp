@@ -60,7 +60,7 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
 
   ticket->Finish(QVariant::fromValue(frame));
 
-  FinishedJob();
+  emit FinishedJob();
 }
 
 void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange &range)
@@ -71,7 +71,7 @@ void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, con
 
   ticket->Finish(samples);
 
-  FinishedJob();
+  emit FinishedJob();
 }
 
 NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)

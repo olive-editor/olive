@@ -37,18 +37,20 @@ CacheTask::CacheTask(ViewerOutput* viewer, const VideoRenderingParams& vparams, 
 bool CacheTask::Run()
 {
   // Get list of invalidated ranges
-  TimeRangeList range_to_cache = viewer()->video_frame_cache()->GetInvalidatedRanges();
+  TimeRangeList video_range = viewer()->video_frame_cache()->GetInvalidatedRanges();
+  TimeRangeList audio_range = viewer()->audio_playback_cache()->GetInvalidatedRanges();
 
   // If we're caching only in-out, limit the range to that
   if (in_out_only_) {
     Sequence* s = static_cast<Sequence*>(viewer()->parent());
 
     if (s->workarea()->enabled()) {
-      range_to_cache = range_to_cache.Intersects(s->workarea()->range());
+      video_range = video_range.Intersects(s->workarea()->range());
+      audio_range = audio_range.Intersects(s->workarea()->range());
     }
   }
 
-  Render(range_to_cache, QMatrix4x4(), false, true);
+  Render(video_range, audio_range, QMatrix4x4(), true);
 
   download_threads_.waitForDone();
 
@@ -65,6 +67,11 @@ void CacheTask::FrameDownloaded(const QByteArray &hash, const QLinkedList<ration
   foreach (const rational& t, times) {
     viewer()->video_frame_cache()->SetHash(t, hash);
   }
+}
+
+void CacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+{
+  viewer()->audio_playback_cache()->WritePCM(range, samples);
 }
 
 OLIVE_NAMESPACE_EXIT

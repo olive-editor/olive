@@ -85,7 +85,17 @@ bool ExportTask::Run()
   }
 
   // Start render process
-  Render({range}, mat, params_.audio_enabled(), false);
+  TimeRangeList video_range, audio_range;
+
+  if (params_.video_enabled()) {
+    video_range.append(range);
+  }
+
+  if (params_.audio_enabled()) {
+    audio_range.append(range);
+  }
+
+  Render(video_range, audio_range, mat, false);
 
   bool success = true;
 
@@ -166,8 +176,6 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
   if (params_.has_custom_range()) {
     adjusted_range -= params_.custom_range().in();
   }
-
-  qDebug() << "Downloaded audio" << adjusted_range;
 
   audio_data_.WritePCM(adjusted_range, samples);
 }

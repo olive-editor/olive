@@ -57,12 +57,10 @@ public:
    */
   RenderTicketPtr RenderFrame(const rational& time);
 
-  QFuture<FramePtr> RenderFrames(const QList<rational>& frames);
-
   /**
    * @brief Asynchronously generate a chunk of audio
    */
-  QFuture<SampleBufferPtr> RenderAudio(const TimeRange& r);
+  RenderTicketPtr RenderAudio(const TimeRange& r);
 
   void SetVideoParams(const VideoRenderingParams& params);
 

@@ -49,7 +49,10 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     return;
   }
 
-  if (viewer_node_) {
+  ViewerOutput* old_viewer = viewer_node_;
+  viewer_node_ = viewer_node;
+
+  if (old_viewer) {
     // Delete all of our copied nodes
     pool_.clear();
     pool_.waitForDone();
@@ -61,18 +64,18 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     render_queue_.clear();
 
     // Delete all the nodes
+    foreach (Node* c, copy_map_) {
+      c->DisconnectAll();
+    }
     qDeleteAll(copy_map_);
     copy_map_.clear();
     copied_viewer_node_ = nullptr;
 
-    disconnect(viewer_node_,
+    disconnect(old_viewer,
                &ViewerOutput::GraphChangedFrom,
                this,
                &RenderBackend::NodeGraphChanged);
   }
-
-  // Set viewer node
-  viewer_node_ = viewer_node;
 
   if (viewer_node_) {
     // Copy graph
@@ -107,7 +110,7 @@ void RenderBackend::ClearVideoQueue()
 
 QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
 {
-  return QtConcurrent::run([this](const QList<rational> &times){
+  return QtConcurrent::run(&pool_, [this](const QList<rational> &times){
     QList<QByteArray> hashes;
 
     foreach (const rational& t, times) {
@@ -154,6 +157,8 @@ RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
                                                           r);
 
   render_queue_.append(ticket);
+
+  RunNextJob();
 
   return ticket;
 }
@@ -294,14 +299,16 @@ void RenderBackend::RunNextJob()
 
       switch (ticket->GetType()) {
       case RenderTicket::kTypeVideo:
-        QtConcurrent::run(worker,
+        QtConcurrent::run(&pool_,
+                          worker,
                           &RenderWorker::RenderFrame,
                           ticket,
                           copied_viewer_node_,
                           ticket->GetTime().in());
         break;
       case RenderTicket::kTypeAudio:
-        QtConcurrent::run(worker,
+        QtConcurrent::run(&pool_,
+                          worker,
                           &RenderWorker::RenderAudio,
                           ticket,
                           copied_viewer_node_,
@@ -319,9 +326,15 @@ void RenderBackend::RunNextJob()
 
 void RenderBackend::ProcessUpdateQueue()
 {
+  /*
   while (!graph_update_queue_.isEmpty()) {
     CopyNodeInputValue(graph_update_queue_.takeFirst());
   }
+  */
+
+  // FIXME: SLOW DEBUGGING CODE
+  CopyNodeInputValue(viewer_node_->texture_input());
+  CopyNodeInputValue(viewer_node_->samples_input());
 }
 
 void RenderBackend::WorkerFinished()
@@ -336,7 +349,11 @@ void RenderBackend::WorkerFinished()
     }
   }
 
-  RunNextJob();
+  if (viewer_node_) {
+    RunNextJob();
+  } else {
+    qDebug() << "Ignored job finish because no viewer";
+  }
 }
 
 void RenderBackend::CopyNodeInputValue(NodeInput *input)

@@ -44,6 +44,8 @@ protected:
 
   virtual void FrameDownloaded(const QByteArray& hash, const QLinkedList<rational>& times) override;
 
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+
 private:
   bool in_out_only_;
 

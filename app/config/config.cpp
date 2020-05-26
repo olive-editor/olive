@@ -83,7 +83,7 @@ void Config::SetDefaults()
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
   config_map_["Loop"] = false;
 
-  config_map_["AutoCache"] = true;//false;//true;
+  config_map_["AutoCache"] = true;
   config_map_["AutoCacheInterval"] = 1000;
 
   config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
