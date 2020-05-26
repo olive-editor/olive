@@ -31,6 +31,7 @@
 #include <QVBoxLayout>
 
 #include "audio/audiomanager.h"
+#include "common/power.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
@@ -558,7 +559,7 @@ int ViewerWidget::CalculateDivider()
     int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
     int long_side_of_widget = qMax(display_widget_->width(), display_widget_->height());
 
-    return qMax(1, long_side_of_video / long_side_of_widget);
+    return ceil_to_power_of_2(qMax(1, long_side_of_video / long_side_of_widget));
   }
 
   return divider_;
