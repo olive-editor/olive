@@ -132,21 +132,50 @@ void TimelineView::wheelEvent(QWheelEvent *event)
   if (HandleZoomFromScroll(event)) {
     return;
   } else {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    
     QPoint angle_delta = event->angleDelta();
 
     if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
+    
+    QWheelEvent e(
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+      event->position(),
+      event->globalPosition(),
+#else
+      event->pos(),
+      event->globalPos(),
+#endif
+      event->pixelDelta(),
+      angle_delta,
+      event->buttons(),
+      event->modifiers(),
+      event->phase(),
+      event->inverted(),
+      event->source()
+    );
 
-    QWheelEvent e(event->position(),
-                  event->globalPosition(),
-                  event->pixelDelta(),
-                  angle_delta,
-                  event->buttons(),
-                  event->modifiers(),
-                  event->phase(),
-                  event->inverted(),
-                  event->source());
+#else
+
+    Qt::Orientation orientation = event->orientation();
+
+    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+      orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
+    }
+
+    QWheelEvent e(
+      event->pos(),
+      event->globalPos(),
+      event->pixelDelta(),
+      event->angleDelta(),
+      event->delta(),
+      orientation,
+      event->buttons(),
+      event->modifiers()
+    );
+#endif
 
     QGraphicsView::wheelEvent(&e);
   }
