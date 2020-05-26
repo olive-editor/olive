@@ -149,7 +149,7 @@ void SliderBase::SetMinimumInternal(const QVariant &v)
   has_min_ = true;
 
   // Limit value by this new minimum value
-  if (value_ < min_value_) {
+  if (value_.toDouble() < min_value_.toDouble()) {
     SetValue(min_value_);
   }
 }
@@ -160,7 +160,7 @@ void SliderBase::SetMaximumInternal(const QVariant &v)
   has_max_ = true;
 
   // Limit value by this new maximum value
-  if (value_ > max_value_) {
+  if (value_.toDouble() > max_value_.toDouble()) {
     SetValue(max_value_);
   }
 }
@@ -175,11 +175,11 @@ void SliderBase::changeEvent(QEvent *e)
 
 const QVariant &SliderBase::ClampValue(const QVariant &v)
 {
-  if (has_min_ && v < min_value_) {
+  if (has_min_ && v.toDouble() < min_value_.toDouble()) {
     return min_value_;
   }
 
-  if (has_max_ && v > max_value_) {
+  if (has_max_ && v.toDouble() > max_value_.toDouble()) {
     return max_value_;
   }
 

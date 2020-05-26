@@ -238,8 +238,8 @@ void CurveView::VerticalScaleChangedEvent(double scale)
 void CurveView::wheelEvent(QWheelEvent *event)
 {
   if (WheelEventIsAZoomEvent(event)) {
-    if (event->delta() != 0) {
-      if (event->delta() > 0) {
+    if (!event->angleDelta().isNull()) {
+      if (event->angleDelta().x() + event->angleDelta().y() > 0) {
         emit ScaleChanged(GetScale() * 1.1);
         SetYScale(GetYScale() * 1.1);
       } else {

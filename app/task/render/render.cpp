@@ -73,20 +73,20 @@ void RenderTask::Render(const TimeRangeList& video_range,
   backend.SetAudioParams(audio_params_);
   backend.SetVideoDownloadMatrix(mat);
 
-  QLinkedList<RangeSampleFuturePair> audio_lookup_table;
+  std::list<RangeSampleFuturePair> audio_lookup_table;
   if (!audio_range.isEmpty()) {
     foreach (const TimeRange& r, audio_range) {
       QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
 
       foreach (const TimeRange& split, ranges) {
-        audio_lookup_table.append({split, backend.RenderAudio(split)});
+        audio_lookup_table.push_back({split, backend.RenderAudio(split)});
       }
     }
   }
 
   // Get hashes for each frame and group likes together
-  QMap< QByteArray, QLinkedList<rational> > times_to_render;
-  QLinkedList<HashFrameFuturePair> render_lookup_table;
+  QMap< QByteArray, std::list<rational> > times_to_render;
+  std::list<HashFrameFuturePair> render_lookup_table;
   if (!video_range.isEmpty()) {
 
     {
@@ -105,7 +105,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
           // Already exists, no need to render it again
           FrameDownloaded(hash, {time});
         } else {
-          times_to_render[hash].append(time);
+          times_to_render[hash].push_back(time);
         }
 
         index++;
@@ -114,14 +114,14 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     // Render all frames necessary
     {
-      QLinkedList<HashTimePair> sorted_times;
-      QLinkedList<HashTimePair>::iterator sorted_iterator;
+      std::list<HashTimePair> sorted_times;
+      std::list<HashTimePair>::iterator sorted_iterator;
 
       // Rendering is more efficient if we cache in order, so here we sort
-      QMap< QByteArray, QLinkedList<rational> >::const_iterator i;
+      QMap< QByteArray, std::list<rational> >::const_iterator i;
       for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
         const QByteArray& hash = i.key();
-        const rational& time = i.value().first();
+        const rational& time = i.value().front();
 
         bool inserted = false;
 
@@ -134,12 +134,12 @@ void RenderTask::Render(const TimeRangeList& video_range,
         }
 
         if (!inserted) {
-          sorted_times.append({time, hash});
+          sorted_times.push_back({time, hash});
         }
       }
 
       foreach (const HashTimePair& p, sorted_times) {
-        render_lookup_table.append({p.hash, backend.RenderFrame(p.time)});
+        render_lookup_table.push_back({p.hash, backend.RenderFrame(p.time)});
       }
     }
   }
@@ -149,17 +149,17 @@ void RenderTask::Render(const TimeRangeList& video_range,
   int counter = 0;
   int nb_frames = render_lookup_table.size();
 
-  QLinkedList<HashDownloadFuturePair> download_futures;
+  std::list<HashDownloadFuturePair> download_futures;
 
   // Iterators
-  QLinkedList<HashFrameFuturePair>::iterator i;
-  QLinkedList<HashDownloadFuturePair>::iterator j;
-  QLinkedList<RangeSampleFuturePair>::iterator k;
+  std::list<HashFrameFuturePair>::iterator i;
+  std::list<HashDownloadFuturePair>::iterator j;
+  std::list<RangeSampleFuturePair>::iterator k;
 
   while (!IsCancelled()
-         && (!render_lookup_table.isEmpty()
-             || !download_futures.isEmpty()
-             || !audio_lookup_table.isEmpty())) {
+         && (!render_lookup_table.empty()
+             || !download_futures.empty()
+             || !audio_lookup_table.empty())) {
 
     i = render_lookup_table.begin();
 
@@ -168,7 +168,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
         FramePtr f = i->frame_future->Get().value<FramePtr>();
 
         // Start multithreaded download here
-        download_futures.append({i->hash, DownloadFrame(f, i->hash)});
+        download_futures.push_back({i->hash, DownloadFrame(f, i->hash)});
 
         i = render_lookup_table.erase(i);
       } else {

@@ -445,7 +445,7 @@ void NodeView::wheelEvent(QWheelEvent *event)
 {
   if (event->modifiers() & Qt::ControlModifier) {
     // FIXME: Hardcoded divider (0.001)
-    qreal multiplier = 1.0 + (static_cast<qreal>(event->delta()) * 0.001);
+    qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 
     scale(multiplier, multiplier);
   } else {

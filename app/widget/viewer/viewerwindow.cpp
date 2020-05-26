@@ -102,15 +102,15 @@ void ViewerWindow::UpdateFromQueue()
 
   rational time = Timecode::timestamp_to_time(t, playback_timebase_);
 
-  while (!queue_.isEmpty()) {
-    const ViewerPlaybackFrame& pf = queue_.first();
+  while (!queue_.empty()) {
+    const ViewerPlaybackFrame& pf = queue_.front();
 
     if (pf.timestamp == time) {
       // Frame was in queue, no need to decode anything
       display_widget_->SetImage(pf.frame);
       return;
     } else {
-      queue_.removeFirst();
+      queue_.pop_front();
     }
   }
 }

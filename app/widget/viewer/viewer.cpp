@@ -441,9 +441,9 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   // Check playback queue for a frame
   if (IsPlaying()) {
 
-    while (!playback_queue_.isEmpty()) {
+    while (!playback_queue_.empty()) {
 
-      const ViewerPlaybackFrame& pf = playback_queue_.first();
+      const ViewerPlaybackFrame& pf = playback_queue_.front();
 
       if (pf.timestamp == time) {
 
@@ -454,7 +454,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       } else {
 
         // Skip this frame
-        playback_queue_.removeFirst();
+        playback_queue_.pop_front();
         RequestNextFrameForQueue();
 
       }
