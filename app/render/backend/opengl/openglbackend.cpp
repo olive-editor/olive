@@ -25,10 +25,17 @@
 OLIVE_NAMESPACE_ENTER
 
 OpenGLBackend::OpenGLBackend(QObject* parent) :
-  RenderBackend(parent),
-  proxy_(nullptr)
+  RenderBackend(parent)
 {
+  proxy_ = new OpenGLProxy();
 
+  QThread* proxy_thread = new QThread();
+  proxy_thread->start(QThread::IdlePriority);
+  proxy_->moveToThread(proxy_thread);
+
+  if (!proxy_->Init()) {
+    ClearProxy();
+  }
 }
 
 OpenGLBackend::~OpenGLBackend()
@@ -40,19 +47,6 @@ OpenGLBackend::~OpenGLBackend()
 
 RenderWorker *OpenGLBackend::CreateNewWorker()
 {
-  if (!proxy_) {
-    proxy_ = new OpenGLProxy();
-
-    QThread* proxy_thread = new QThread();
-    proxy_thread->start(QThread::IdlePriority);
-    proxy_->moveToThread(proxy_thread);
-
-    if (!proxy_->Init()) {
-      ClearProxy();
-      return nullptr;
-    }
-  }
-
   return new OpenGLWorker(this, proxy_);
 }
 

@@ -24,6 +24,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "node/output/viewer/viewer.h"
+#include "render/backend/opengl/openglbackend.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -70,6 +71,8 @@ private:
   AudioRenderingParams audio_params_;
 
   rational anchor_point_;
+
+  OpenGLBackend backend_;
 
 };
 

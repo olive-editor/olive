@@ -21,7 +21,6 @@
 #include "render.h"
 
 #include "common/timecodefunctions.h"
-#include "render/backend/opengl/openglbackend.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -62,16 +61,12 @@ void RenderTask::Render(const TimeRangeList& video_range,
                         const QMatrix4x4& mat,
                         bool use_disk_cache)
 {
-  OpenGLBackend backend;
-
-  backend.moveToThread(qApp->thread());
-
   // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
   //        way.
-  backend.SetViewerNode(viewer_);
-  backend.SetVideoParams(video_params_);
-  backend.SetAudioParams(audio_params_);
-  backend.SetVideoDownloadMatrix(mat);
+  backend_.SetViewerNode(viewer_);
+  backend_.SetVideoParams(video_params_);
+  backend_.SetAudioParams(audio_params_);
+  backend_.SetVideoDownloadMatrix(mat);
 
   std::list<RangeSampleFuturePair> audio_lookup_table;
   if (!audio_range.isEmpty()) {
@@ -79,7 +74,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
       QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
 
       foreach (const TimeRange& split, ranges) {
-        audio_lookup_table.push_back({split, backend.RenderAudio(split)});
+        audio_lookup_table.push_back({split, backend_.RenderAudio(split)});
       }
     }
   }
@@ -92,7 +87,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
     {
       QList<rational> times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
 
-      QFuture<QList<QByteArray> > hash_future = backend.Hash(times);
+      QFuture<QList<QByteArray> > hash_future = backend_.Hash(times);
       QList<QByteArray> hashes = hash_future.result();
 
       // Determine any duplicates
@@ -139,7 +134,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
       }
 
       foreach (const HashTimePair& p, sorted_times) {
-        render_lookup_table.push_back({p.hash, backend.RenderFrame(p.time)});
+        render_lookup_table.push_back({p.hash, backend_.RenderFrame(p.time)});
       }
     }
   }
@@ -205,6 +200,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
       }
     }
   }
+
+  backend_.Close();
 }
 
 void RenderTask::SetAnchorPoint(const rational &r)

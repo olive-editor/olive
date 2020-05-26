@@ -41,6 +41,8 @@ public:
 
   virtual ~RenderBackend() override;
 
+  void Close();
+
   void SetViewerNode(ViewerOutput* viewer_node);
 
   void SetUpdateWithGraph(bool e);
@@ -75,8 +77,6 @@ public slots:
 
 protected:
   virtual RenderWorker* CreateNewWorker() = 0;
-
-  void Close();
 
 private:
   void CopyNodeInputValue(NodeInput* input);
