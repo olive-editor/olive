@@ -54,6 +54,7 @@ void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+      break; // hacky if we want more parameters
     } else {
       reader->skipCurrentElement();
     }

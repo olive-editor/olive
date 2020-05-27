@@ -64,6 +64,11 @@ public:
   int using_proxy();
   void set_proxy(const int& divider, const QVector<int64_t>& index);
 
+protected:
+  virtual void LoadCustomParameters(QXmlStreamReader* reader) override;
+
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
+
 private:
   rational frame_rate_;
 

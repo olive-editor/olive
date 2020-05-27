@@ -23,6 +23,7 @@
 #include <QFile>
 
 #include "common/timecodefunctions.h"
+#include "common/xmlutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -33,6 +34,25 @@ VideoStream::VideoStream() :
   using_proxy_(0)
 {
   set_type(kVideo);
+}
+
+void VideoStream::LoadCustomParameters(QXmlStreamReader* reader)
+{
+  ImageStream::LoadCustomParameters(reader);
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("proxylevel")) {
+      set_proxy(reader->readElementText().toInt(), QVector<int64_t>());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
+  ImageStream::SaveCustomParameters(writer);
+  writer->writeTextElement("proxylevel", QString::number(using_proxy_));
+  //writer->writeTextElement("colorspace", ImageStream::colorspace());
 }
 
 QString VideoStream::description() const
