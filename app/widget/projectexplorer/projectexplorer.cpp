@@ -389,34 +389,39 @@ void ProjectExplorer::OpenContextMenuItemInNewWindow()
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  // Find video stream
-  VideoStreamPtr video_stream = nullptr;
-
-  foreach (StreamPtr s, static_cast<Footage*>(context_menu_item_)->streams()) {
-    if (s->type() == Stream::kVideo) {
-      video_stream = std::static_pointer_cast<VideoStream>(s);
-      break;
+  QList<Item*> selected = SelectedItems();
+  foreach (Item* item, selected) {
+    // Not sure if this is needed but seems safer to have
+    if (item->type() != Footage::kFootage) {
+      continue;
     }
-  }
 
-  if (!video_stream) {
-    return;
-  }
+    // Find video stream
+    VideoStreamPtr video_stream = nullptr;
 
-  int chosen_proxy_setting = a->data().toInt();
+    foreach (StreamPtr s, static_cast<Footage*>(item)->streams()) {
+      if (s->type() == Stream::kVideo) {
+        video_stream = std::static_pointer_cast<VideoStream>(s);
+        break;
+      }
+    }
 
-  if (chosen_proxy_setting != video_stream->using_proxy()) {
-    if (!a->data().toInt()) {
+    if (!video_stream) {
+      return;
+    }
 
-      // 0 means disable the proxy
-      video_stream->set_proxy(0, QVector<int64_t>());
+    int chosen_proxy_setting = a->data().toInt();
 
-    } else if (video_stream->try_start_proxy()) {
+    if (chosen_proxy_setting != video_stream->using_proxy()) {
+      if (!a->data().toInt()) {
+        // 0 means disable the proxy
+         video_stream->set_proxy(0, QVector<int64_t>());
 
-      // Start a background task for proxying
-      ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
-      TaskManager::instance()->AddTask(proxy_task);
-
+      } else if (video_stream->try_start_proxy()) {
+        // Start a background task for proxying
+         ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
+         TaskManager::instance()->AddTask(proxy_task);
+      }
     }
   }
 }
