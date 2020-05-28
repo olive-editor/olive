@@ -45,27 +45,20 @@ void VideoStream::LoadCustomParameters(QXmlStreamReader* reader)
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("proxylevel")) {
       int divider = reader->readElementText().toInt();
-      //set_proxy(divider, QVector<int64_t>());
-      QString proxy_filename = FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(Stream::footage()->filename()))
-          .append(QString::number(footage()->get_first_stream_of_type(kVideo)->index()))
-          .append('d')
-          .append(QString::number(divider));
-      printf("%s\n", proxy_filename.toStdString().c_str());
+      QString proxy_filename = generate_proxy_name(divider);
+
       if (QFileInfo::exists(proxy_filename)) {
-        printf("Exists\n");
         QFile index_file(proxy_filename);
+
         if (index_file.open(QFile::ReadOnly)) {
           QVector<int64_t> index(index_file.size() / sizeof(int64_t));
-
           index_file.read(reinterpret_cast<char *>(index.data()), index_file.size());
-
           index_file.close();
-
           set_proxy(divider, index);
-          printf("Proxy Set\n");
+          qInfo() << "Proxy set for:" << Stream::footage()->filename();
         }
       } else {
-        //
+        qInfo() << "Proxy missing for:" << Stream::footage()->filename();
       }
     } else {
       reader->skipCurrentElement();
@@ -187,6 +180,15 @@ int64_t VideoStream::get_closest_timestamp_in_frame_index(int64_t timestamp)
   }
 
   return -1;
+}
+
+QString VideoStream::generate_proxy_name(int divider)
+{
+  return FileFunctions::GetMediaIndexFilename(
+      FileFunctions::GetUniqueFileIdentifier(Stream::footage()->filename()))
+      .append(QString::number(footage()->get_first_stream_of_type(kVideo)->index()))
+      .append('d')
+      .append(QString::number(divider));
 }
 
 /*

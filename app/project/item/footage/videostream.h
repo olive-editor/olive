@@ -63,6 +63,7 @@ public:
   bool try_start_proxy();
   int using_proxy();
   void set_proxy(const int& divider, const QVector<int64_t>& index);
+  QString generate_proxy_name(int divider);
 
 protected:
   virtual void LoadCustomParameters(QXmlStreamReader* reader) override;
