@@ -21,9 +21,12 @@
 #include "videostream.h"
 
 #include <QFile>
+#include <QFileInfo>
 
 #include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
+#include "footage.h"
+#include "common/filefunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -41,7 +44,29 @@ void VideoStream::LoadCustomParameters(QXmlStreamReader* reader)
   ImageStream::LoadCustomParameters(reader);
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("proxylevel")) {
-      set_proxy(reader->readElementText().toInt(), QVector<int64_t>());
+      int divider = reader->readElementText().toInt();
+      //set_proxy(divider, QVector<int64_t>());
+      QString proxy_filename = FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(Stream::footage()->filename()))
+          .append(QString::number(footage()->get_first_stream_of_type(kVideo)->index()))
+          .append('d')
+          .append(QString::number(divider));
+      printf("%s\n", proxy_filename.toStdString().c_str());
+      if (QFileInfo::exists(proxy_filename)) {
+        printf("Exists\n");
+        QFile index_file(proxy_filename);
+        if (index_file.open(QFile::ReadOnly)) {
+          QVector<int64_t> index(index_file.size() / sizeof(int64_t));
+
+          index_file.read(reinterpret_cast<char *>(index.data()), index_file.size());
+
+          index_file.close();
+
+          set_proxy(divider, index);
+          printf("Proxy Set\n");
+        }
+      } else {
+        //
+      }
     } else {
       reader->skipCurrentElement();
     }
