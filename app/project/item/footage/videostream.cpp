@@ -70,7 +70,6 @@ void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
 {
   ImageStream::SaveCustomParameters(writer);
   writer->writeTextElement("proxylevel", QString::number(using_proxy_));
-  //writer->writeTextElement("colorspace", ImageStream::colorspace());
 }
 
 QString VideoStream::description() const
