@@ -33,7 +33,7 @@ ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
   start_time_(0)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setSpacing(0);
+  layout->setSpacing(layout->spacing() * 8);
   layout->setMargin(0);
 
   elapsed_lbl_ = new QLabel();
