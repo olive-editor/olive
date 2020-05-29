@@ -104,10 +104,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   preferences_layout->addWidget(new QLabel(tr("Format:")), row, 0);
   format_combobox_ = new QComboBox();
-  connect(format_combobox_,
-          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-          this,
-          &ExportDialog::FormatChanged);
   preferences_layout->addWidget(format_combobox_, row, 1, 1, 3);
 
   row++;
@@ -169,8 +165,13 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   }
 
   // Set defaults
-  format_combobox_->setCurrentIndex(ExportFormat::kFormatMPEG4);
   previously_selected_format_ = ExportFormat::kFormatMPEG4;
+  format_combobox_->setCurrentIndex(ExportFormat::kFormatMPEG4);
+  connect(format_combobox_,
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::FormatChanged);
+  FormatChanged(ExportFormat::kFormatMPEG4);
 
   video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
   video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
