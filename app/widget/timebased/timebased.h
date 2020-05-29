@@ -168,6 +168,7 @@ private:
   bool toggle_show_all_;
 
   double toggle_show_all_old_scale_;
+  int toggle_show_all_old_scroll_;
 
 private slots:
   void UpdateMaximumScroll();

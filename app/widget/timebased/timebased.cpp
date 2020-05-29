@@ -447,7 +447,7 @@ void TimeBasedWidget::ToggleShowAll()
 
   if (toggle_show_all_) {
     SetScale(toggle_show_all_old_scale_);
-    toggle_show_all_ = false;
+    scrollbar_->setValue(toggle_show_all_old_scroll_);
   } else {
     int w;
 
@@ -460,9 +460,13 @@ void TimeBasedWidget::ToggleShowAll()
     w = w / 10 * 9;
 
     toggle_show_all_old_scale_ = GetScale();
+    toggle_show_all_old_scroll_ = scrollbar_->value();
+
     SetScale(w / GetConnectedNode()->GetLength().toDouble());
-    toggle_show_all_ = true;
+    scrollbar_->setValue(0);
   }
+
+  toggle_show_all_ = !toggle_show_all_;
 }
 
 void TimeBasedWidget::GoToIn()
