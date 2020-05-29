@@ -29,6 +29,11 @@ RenderTask::RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams
   video_params_(vparams),
   audio_params_(aparams)
 {
+  // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
+  //        way.
+  backend_.SetViewerNode(viewer_);
+  backend_.SetVideoParams(video_params_);
+  backend_.SetAudioParams(audio_params_);
 }
 
 struct TimeHashFuturePair {
@@ -61,11 +66,6 @@ void RenderTask::Render(const TimeRangeList& video_range,
                         const QMatrix4x4& mat,
                         bool use_disk_cache)
 {
-  // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
-  //        way.
-  backend_.SetViewerNode(viewer_);
-  backend_.SetVideoParams(video_params_);
-  backend_.SetAudioParams(audio_params_);
   backend_.SetVideoDownloadMatrix(mat);
 
   std::list<RangeSampleFuturePair> audio_lookup_table;
