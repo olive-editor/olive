@@ -80,70 +80,72 @@ void RenderTask::Render(const TimeRangeList& video_range,
   }
 
   // Get hashes for each frame and group likes together
-  QMap< QByteArray, std::list<rational> > times_to_render;
+  int progress_counter = 0;
+  int nb_frames;
+
+  QMap<QByteArray, rational> sorted_times;
+
   std::list<HashFrameFuturePair> render_lookup_table;
+  QList<rational> times;
+  QList<QByteArray> hashes;
+
   if (!video_range.isEmpty()) {
 
     {
-      QList<rational> times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+      QList<QByteArray> existing_hashes;
+
+      times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+      nb_frames = times.size();
 
       QFuture<QList<QByteArray> > hash_future = backend_.Hash(times);
-      QList<QByteArray> hashes = hash_future.result();
+      hashes = hash_future.result();
 
       // Determine any duplicates
-      int index = 0;
-      foreach (const QByteArray& hash, hashes) {
+      for (int index=0;index<hashes.size();index++) {
+        const QByteArray& hash = hashes.at(index);
         const rational& time = times.at(index);
 
-        if (use_disk_cache
-            && QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()))) {
-          // Already exists, no need to render it again
-          FrameDownloaded(hash, {time});
-        } else {
-          times_to_render[hash].push_back(time);
+        bool map_contains_hash = sorted_times.contains(hash);
+
+        bool hash_exists = false;
+
+        if (use_disk_cache && !map_contains_hash) {
+          hash_exists = existing_hashes.contains(hash);
+
+          if (!hash_exists) {
+            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()));
+
+            if (hash_exists) {
+              existing_hashes.append(hash);
+            }
+          }
+
+          if (hash_exists) {
+            // Already exists, no need to render it again
+            FrameDownloaded(hash, {time});
+            progress_counter++;
+            emit ProgressChanged(static_cast<double>(progress_counter) / static_cast<double>(nb_frames));
+          }
         }
 
-        index++;
+        if (!hash_exists && (!map_contains_hash || sorted_times.value(hash) > time)) {
+          sorted_times.insert(hash, time);
+        }
       }
     }
 
     // Render all frames necessary
     {
-      std::list<HashTimePair> sorted_times;
-      std::list<HashTimePair>::iterator sorted_iterator;
 
-      // Rendering is more efficient if we cache in order, so here we sort
-      QMap< QByteArray, std::list<rational> >::const_iterator i;
-      for (i=times_to_render.constBegin(); i!=times_to_render.constEnd(); i++) {
-        const QByteArray& hash = i.key();
-        const rational& time = i.value().front();
+      QMap<QByteArray, rational>::const_iterator i;
 
-        bool inserted = false;
-
-        for (sorted_iterator=sorted_times.begin(); sorted_iterator!=sorted_times.end(); sorted_iterator++) {
-          if (sorted_iterator->time > time) {
-            sorted_times.insert(sorted_iterator, {time, hash});
-            inserted = true;
-            break;
-          }
-        }
-
-        if (!inserted) {
-          sorted_times.push_back({time, hash});
-        }
-      }
-
-      foreach (const HashTimePair& p, sorted_times) {
-        render_lookup_table.push_back({p.hash, backend_.RenderFrame(p.time)});
+      for (i=sorted_times.begin(); i!=sorted_times.end(); i++) {
+        render_lookup_table.push_back({i.key(), backend_.RenderFrame(i.value())});
       }
     }
   }
 
   // Start downloading frames that have finished
-
-  int counter = 0;
-  int nb_frames = render_lookup_table.size();
-
   std::list<HashDownloadFuturePair> download_futures;
 
   // Iterators
@@ -176,13 +178,22 @@ void RenderTask::Render(const TimeRangeList& video_range,
     while (!IsCancelled() && j != download_futures.end()) {
       if (j->download_future.isFinished()) {
         // Place it in the cache
-        FrameDownloaded(j->hash, times_to_render.value(j->hash));
+        std::list<rational> times_with_hash;
+
+        for (int k=0;k<hashes.size();k++) {
+          if (hashes.at(k) == j->hash) {
+            times_with_hash.push_back(times.at(k));
+          }
+        }
+
+        FrameDownloaded(j->hash, times_with_hash);
 
         // Signal process
-        counter++;
-        emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(nb_frames));
+        progress_counter += times_with_hash.size();
+        emit ProgressChanged(static_cast<double>(progress_counter) / static_cast<double>(nb_frames));
 
         j = download_futures.erase(j);
+
       } else {
         j++;
       }
