@@ -109,7 +109,6 @@ void NodeView::DeleteSelected()
 
     foreach (NodeEdge* edge, selected_edges) {
       new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
-      qDebug() << "Deleting edge between" << edge->output()->parentNode() << "and" << edge->input()->parentNode();
     }
 
   }

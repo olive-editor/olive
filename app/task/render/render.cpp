@@ -233,6 +233,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
   }
 
+  // `Close` will block until all jobs are done making a safe deletion
   backend_.Close();
 }
 

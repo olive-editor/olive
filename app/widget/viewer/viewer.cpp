@@ -176,7 +176,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
-  connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
+  connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
+  connect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
@@ -229,7 +230,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
-  disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
+  disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
+  disconnect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   ruler()->SetPlaybackCache(nullptr);
@@ -840,7 +842,8 @@ void ViewerWidget::StartBackgroundCaching()
     busy_ = false;
   }
 
-  if (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
+  if ((GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
+      || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())
       && Config::Current()["AutoCache"].toBool()) {
     if (cache_background_task_ || busy_viewers_) {
 
@@ -875,11 +878,11 @@ void ViewerWidget::UpdateRendererParameters()
   }
 
   GetConnectedNode()->video_frame_cache()->InvalidateAll();
+  GetConnectedNode()->audio_playback_cache()->InvalidateAll();
 
   StartBackgroundCaching();
 
   renderer_->SetVideoParams(GenerateVideoParams());
-
   renderer_->SetAudioParams(GenerateAudioParams());
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());
@@ -1190,12 +1193,17 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
   sizer_->SetZoom(action->data().toInt());
 }
 
-void ViewerWidget::ViewerInvalidatedRange(const TimeRange &range)
+void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     ForceUpdate();
   }
 
+  ViewerInvalidatedRange();
+}
+
+void ViewerWidget::ViewerInvalidatedRange()
+{
   // Restart the cache wait timer
   cache_wait_timer_.stop();
   StopAllBackgroundCacheTasks(false);

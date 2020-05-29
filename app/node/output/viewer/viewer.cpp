@@ -58,7 +58,8 @@ ViewerOutput::ViewerOutput()
   // Create UUID for this node
   uuid_ = QUuid::createUuid();
 
-  connect(this, &ViewerOutput::LengthChanged, &video_frame_cache_, &FrameHashCache::SetLength);
+  connect(this, &ViewerOutput::LengthChanged, &video_frame_cache_, &PlaybackCache::SetLength);
+  connect(this, &ViewerOutput::LengthChanged, &audio_playback_cache_, &PlaybackCache::SetLength);
 }
 
 Node *ViewerOutput::copy() const

@@ -268,7 +268,9 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerInvalidatedRange(const OLIVE_NAMESPACE::TimeRange &range);
+  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void ViewerInvalidatedRange();
 
   void UpdateStack();
 
