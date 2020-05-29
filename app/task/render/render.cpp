@@ -83,7 +83,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
   int progress_counter = 0;
   int nb_frames;
 
-  QMap<QByteArray, rational> sorted_times;
+  QMap<QByteArray, rational> times_to_render;
 
   std::list<HashFrameFuturePair> render_lookup_table;
   QList<rational> times;
@@ -105,7 +105,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
         const QByteArray& hash = hashes.at(index);
         const rational& time = times.at(index);
 
-        bool map_contains_hash = sorted_times.contains(hash);
+        bool map_contains_hash = times_to_render.contains(hash);
 
         bool hash_exists = false;
 
@@ -128,19 +128,40 @@ void RenderTask::Render(const TimeRangeList& video_range,
           }
         }
 
-        if (!hash_exists && (!map_contains_hash || sorted_times.value(hash) > time)) {
-          sorted_times.insert(hash, time);
+        if (!hash_exists && (!map_contains_hash || times_to_render.value(hash) > time)) {
+          times_to_render.insert(hash, time);
         }
       }
     }
 
     // Render all frames necessary
     {
-
       QMap<QByteArray, rational>::const_iterator i;
+      std::list<HashTimePair>::iterator j;
 
-      for (i=sorted_times.begin(); i!=sorted_times.end(); i++) {
-        render_lookup_table.push_back({i.key(), backend_.RenderFrame(i.value())});
+      std::list<HashTimePair> sorted_times;
+
+      // Rendering is generally more efficient when done sequentially, so we sort the
+      // times chronologically here
+      for (i=times_to_render.begin(); i!=times_to_render.end(); i++) {
+        bool inserted = false;
+
+        for (j=sorted_times.begin(); j!=sorted_times.end(); j++) {
+          if (j->time > i.value()) {
+            sorted_times.insert(j, {i.value(), i.key()});\
+            inserted = true;
+            break;
+          }
+        }
+
+        if (!inserted) {
+          sorted_times.push_back({i.value(), i.key()});
+        }
+      }
+
+      // Start render jobs in sorted order
+      for (j=sorted_times.begin(); j!=sorted_times.end(); j++) {
+        render_lookup_table.push_back({j->hash, backend_.RenderFrame(j->time)});
       }
     }
   }
