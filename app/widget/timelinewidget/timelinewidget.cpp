@@ -799,9 +799,15 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
   }
 
   foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
-    Block* b = track->NearestBlockBefore(playhead_time);
+    Block* b;
 
-    if (b != nullptr) {
+    if (mode == Timeline::kTrimIn) {
+      b = track->NearestBlockBeforeOrAt(playhead_time);
+    } else {
+      b = track->NearestBlockBefore(playhead_time);
+    }
+
+    if (b) {
       if (mode == Timeline::kTrimIn) {
         closest_point_to_playhead = qMax(b->in(), closest_point_to_playhead);
       } else {
@@ -812,7 +818,9 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
 
   QUndoCommand* command = new QUndoCommand();
 
-  if (closest_point_to_playhead == playhead_time) {
+  bool single_frame_mode = (!insert_gaps && closest_point_to_playhead == playhead_time);
+
+  if (single_frame_mode) {
     // Remove one frame only
     if (mode == Timeline::kTrimIn) {
       playhead_time += timebase();
@@ -845,10 +853,11 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
+  // Jump to where new cut is if applicable
   if (mode == Timeline::kTrimIn && !insert_gaps) {
-    int64_t new_time = Timecode::time_to_timestamp(closest_point_to_playhead, timebase());
-
-    SetTimeAndSignal(new_time);
+    SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
+  } else if (mode == Timeline::kTrimOut && single_frame_mode) {
+    SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
   }
 }
 
