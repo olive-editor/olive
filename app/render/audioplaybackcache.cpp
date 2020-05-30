@@ -81,6 +81,8 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     }
 
     f.close();
+
+    Validate(range);
   } else {
     qWarning() << "Failed to write PCM data to" << filename_;
   }
