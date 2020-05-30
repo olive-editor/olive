@@ -448,6 +448,8 @@ void TimeBasedWidget::ToggleShowAll()
   if (toggle_show_all_) {
     SetScale(toggle_show_all_old_scale_);
     scrollbar_->setValue(toggle_show_all_old_scroll_);
+
+    // Don't have to set toggle_show_all_ because SetScale() will automatically set this to false
   } else {
     int w;
 
@@ -464,9 +466,10 @@ void TimeBasedWidget::ToggleShowAll()
 
     SetScale(w / GetConnectedNode()->GetLength().toDouble());
     scrollbar_->setValue(0);
-  }
 
-  toggle_show_all_ = !toggle_show_all_;
+    // Must explicitly do this because SetScale() will automatically set this to false
+    toggle_show_all_ = true;
+  }
 }
 
 void TimeBasedWidget::GoToIn()
