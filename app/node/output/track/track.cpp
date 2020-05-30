@@ -225,6 +225,7 @@ QList<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
 
   foreach (Block* block, block_cache_) {
     if (block
+        && block->is_enabled()
         && block->out() > range.in()
         && block->in() < range.out()) {
       list.append(block);

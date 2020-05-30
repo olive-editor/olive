@@ -57,29 +57,68 @@ public:
   const int& Index();
   void SetIndex(const int& index);
 
+  /**
+   * @brief Returns the block that starts BEFORE (not AT) and ends AFTER (not AT) a time
+   *
+   * Catches the first block that matches `block.in < time && block.out > time` or nullptr if any
+   * block starts/ends precisely at that time or the time exceeds the track length.
+   */
   Block* BlockContainingTime(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts BEFORE a given time and ends some time AFTER or precisely AT that time
+   * @brief Returns the block that starts BEFORE a given time and ends either AFTER or AT that time
+   *
+   * @return Catches the first block that matches `block.out >= time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockBefore(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts BEFORE a given time OR the block that starts precisely at that time
+   * @brief Returns the block that starts BEFORE or AT a given time.
+   *
+   * @return Catches the first block that matches `block.out > time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockBeforeOrAt(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts either precisely AT a given time or the soonest block AFTER
+   * @brief Returns the block that starts either AT a given time or the soonest block AFTER
+   *
+   * @return Catches the first block that matches `block.in >= time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockAfterOrAt(const rational& time) const;
 
   /**
    * @brief Returns the block that starts AFTER the given time (but never AT the given time)
+   *
+   * @return Catches the first block that matches `block.in > time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockAfter(const rational& time) const;
 
+  /**
+   * @brief Returns the block that should be rendered/visible at a given time
+   *
+   * Use this for any video rendering or determining which block will actually be active at any
+   * time.
+   *
+   * @return Catches the first block that matches `block.in <= time && block.out > time`. Returns
+   * nullptr if the time exceeds the track length, the block active at this time is disabled, or
+   * if IsMuted() is true.
+   */
   Block* BlockAtTime(const rational& time) const;
+
+  /**
+   * @brief Returns a list of blocks that should be rendered/visible during a given time range
+   *
+   * Use this for audio rendering to determine all blocks that will be active throughout a range
+   * of time.
+   *
+   * @return Similar to BlockAtTime() but will match several blocks where
+   * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
+   * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
+   */
   QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
   const QList<Block *> &Blocks() const;

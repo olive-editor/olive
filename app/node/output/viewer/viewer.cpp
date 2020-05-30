@@ -130,6 +130,20 @@ rational ViewerOutput::GetLength()
   return last_length_;
 }
 
+QVector<TrackOutput *> ViewerOutput::GetUnlockedTracks() const
+{
+  QVector<TrackOutput*> tracks = GetTracks();
+
+  for (int i=0;i<tracks.size();i++) {
+    if (tracks.at(i)->IsLocked()) {
+      tracks.removeAt(i);
+      i--;
+    }
+  }
+
+  return tracks;
+}
+
 void ViewerOutput::UpdateTrackCache()
 {
   track_cache_.clear();

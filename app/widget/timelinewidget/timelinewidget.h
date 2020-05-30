@@ -425,6 +425,18 @@ private:
 
   void SetBlockLinksSelected(Block *block, bool selected);
 
+  struct EditToInfo {
+    TrackOutput* track;
+    rational nearest_time;
+    Block* nearest_block;
+  };
+
+  QVector<EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
+
+  void RippleTo(Timeline::MovementMode mode);
+
+  void EditTo(Timeline::MovementMode mode);
+
   QPoint drag_origin_;
 
   void StartRubberBandSelect(bool enable_selecting, bool select_links);
@@ -448,8 +460,6 @@ private:
   QVector<TimelineViewGhostItem*> ghost_items_;
 
   QMap<Block*, TimelineViewBlockItem*> block_items_;
-
-  void RippleEditTo(Timeline::MovementMode mode, bool insert_gaps);
 
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
 

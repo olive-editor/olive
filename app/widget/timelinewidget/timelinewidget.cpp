@@ -394,22 +394,22 @@ void TimelineWidget::DeselectAll()
 
 void TimelineWidget::RippleToIn()
 {
-  RippleEditTo(Timeline::kTrimIn, false);
+  RippleTo(Timeline::kTrimIn);
 }
 
 void TimelineWidget::RippleToOut()
 {
-  RippleEditTo(Timeline::kTrimOut, false);
+  RippleTo(Timeline::kTrimOut);
 }
 
 void TimelineWidget::EditToIn()
 {
-  RippleEditTo(Timeline::kTrimIn, true);
+  EditTo(Timeline::kTrimIn);
 }
 
 void TimelineWidget::EditToOut()
 {
-  RippleEditTo(Timeline::kTrimOut, true);
+  EditTo(Timeline::kTrimOut);
 }
 
 void TimelineWidget::SplitAtPlayhead()
@@ -785,80 +785,6 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
   }
 
   return list;
-}
-
-void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
-{
-  rational playhead_time = GetTime();
-
-  rational closest_point_to_playhead;
-  if (mode == Timeline::kTrimIn) {
-    closest_point_to_playhead = 0;
-  } else {
-    closest_point_to_playhead = RATIONAL_MAX;
-  }
-
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
-    Block* b;
-
-    if (mode == Timeline::kTrimIn) {
-      b = track->NearestBlockBeforeOrAt(playhead_time);
-    } else {
-      b = track->NearestBlockBefore(playhead_time);
-    }
-
-    if (b) {
-      if (mode == Timeline::kTrimIn) {
-        closest_point_to_playhead = qMax(b->in(), closest_point_to_playhead);
-      } else {
-        closest_point_to_playhead = qMin(b->out(), closest_point_to_playhead);
-      }
-    }
-  }
-
-  QUndoCommand* command = new QUndoCommand();
-
-  bool single_frame_mode = (!insert_gaps && closest_point_to_playhead == playhead_time);
-
-  if (single_frame_mode) {
-    // Remove one frame only
-    if (mode == Timeline::kTrimIn) {
-      playhead_time += timebase();
-    } else {
-      playhead_time -= timebase();
-    }
-  }
-
-  rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
-  rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
-  rational ripple_length = out_ripple - in_ripple;
-
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
-    GapBlock* gap = nullptr;
-    if (insert_gaps) {
-      gap = new GapBlock();
-      gap->set_length_and_media_out(ripple_length);
-      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
-    }
-
-    TrackRippleRemoveAreaCommand* ripple_command = new TrackRippleRemoveAreaCommand(track,
-                                                                                    in_ripple,
-                                                                                    out_ripple,
-                                                                                    command);
-
-    if (insert_gaps) {
-      ripple_command->SetInsert(gap);
-    }
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
-
-  // Jump to where new cut is if applicable
-  if (mode == Timeline::kTrimIn && !insert_gaps) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
-  } else if (mode == Timeline::kTrimOut && single_frame_mode) {
-    SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
-  }
 }
 
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
@@ -1297,6 +1223,181 @@ void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
       link_item->setSelected(selected);
     }
   }
+}
+
+QVector<TimelineWidget::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
+                                                                  Timeline::MovementMode mode)
+{
+  // Get list of unlocked tracks
+  QVector<TrackOutput*> tracks = GetConnectedNode()->GetUnlockedTracks();
+
+  // Create list to cache nearest times and the blocks at this point
+  QVector<EditToInfo> info_list(tracks.size());
+
+  for (int i=0;i<tracks.size();i++) {
+    EditToInfo info;
+
+    TrackOutput* track = tracks.at(i);
+    info.track = track;
+
+    Block* b;
+
+    // Determine what block is at this time (for "trim in", we want to catch blocks that start at
+    // the time, for "trim out" we don't)
+    if (mode == Timeline::kTrimIn) {
+      b = track->NearestBlockBeforeOrAt(playhead_time);
+    } else {
+      b = track->NearestBlockBefore(playhead_time);
+    }
+
+    // If we have a block here, cache how close it is to the track
+    if (b) {
+      rational this_track_closest_point;
+
+      if (mode == Timeline::kTrimIn) {
+        this_track_closest_point = b->in();
+      } else {
+        this_track_closest_point = b->out();
+      }
+
+      info.nearest_time = this_track_closest_point;
+    }
+
+    info.nearest_block = b;
+
+    info_list[i] = info;
+  }
+
+  return info_list;
+}
+
+void TimelineWidget::RippleTo(Timeline::MovementMode mode)
+{
+  rational playhead_time = GetTime();
+
+  QVector<EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
+
+  // Find each track's nearest point and determine the overall timeline's nearest point
+  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? rational() : RATIONAL_MAX;
+
+  foreach (const EditToInfo& info, tracks) {
+    if (info.nearest_block) {
+      if (mode == Timeline::kTrimIn) {
+        closest_point_to_playhead = qMax(info.nearest_time, closest_point_to_playhead);
+      } else {
+        closest_point_to_playhead = qMin(info.nearest_time, closest_point_to_playhead);
+      }
+    }
+  }
+
+  // If we're not inserting gaps and the edit point is right on the nearest in point, we enter a
+  // single-frame mode where we remove one frame only
+  if (closest_point_to_playhead == playhead_time) {
+    if (mode == Timeline::kTrimIn) {
+      playhead_time += timebase();
+    } else {
+      playhead_time -= timebase();
+    }
+  }
+
+  // For standard rippling, we can cache here the region that will be rippled out
+  rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
+  rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (const EditToInfo& info, tracks) {
+    TrackOutput* track = info.track;
+
+    // Simply remove this region
+    new TrackRippleRemoveAreaCommand(track,
+                                     in_ripple,
+                                     out_ripple,
+                                     command);
+  }
+
+  if (command->childCount() > 0) {
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+    // If we rippled, ump to where new cut is if applicable
+    if (mode == Timeline::kTrimIn) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
+    } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
+      SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
+    }
+  } else {
+    delete command;
+  }
+}
+
+void TimelineWidget::EditTo(Timeline::MovementMode mode)
+{
+  const rational playhead_time = GetTime();
+
+  // Get list of unlocked tracks
+  QVector<EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (const EditToInfo& info, tracks) {
+    TrackOutput* track = info.track;
+
+    Block* block_here = info.nearest_block;
+
+    // Check if this track's nearest time was the playhead or if there's no block here, in which
+    // case this is a no-op
+    if (!block_here || info.nearest_time == playhead_time) {
+      continue;
+    }
+
+    GapBlock* gap = nullptr;
+
+    // Resize the block at this time
+    if (mode == Timeline::kTrimIn) {
+      rational trim_length = playhead_time - block_here->in();
+
+      gap = new GapBlock();
+      gap->set_length_and_media_out(trim_length);
+      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
+
+      qDebug() << "Resizing" << block_here->length().toDouble() << "to" << (block_here->length() - trim_length).toDouble();
+
+      new BlockResizeWithMediaInCommand(block_here,
+                                        block_here->length() - trim_length,
+                                        command);
+
+      if (block_here->previous()) {
+        new TrackInsertBlockAfterCommand(track, gap, block_here->previous(), command);
+      } else {
+        new TrackPrependBlockCommand(track, gap, command);
+      }
+    } else {
+      rational trim_length = block_here->out() - playhead_time;
+
+      new BlockResizeCommand(block_here,
+                             block_here->length() - trim_length,
+                             command);
+
+      // We only need to add a gap if there's actually a block after this one, otherwise it
+      // doesn't matter
+      if (block_here->next()) {
+        gap = new GapBlock();
+        gap->set_length_and_media_out(trim_length);
+        new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
+
+        new TrackInsertBlockAfterCommand(track, gap, block_here, command);
+      }
+    }
+
+    // If a gap was added, clean the gaps on this track too
+    if (gap) {
+      new TrackCleanGapsCommand(GetConnectedNode()->track_list(track->track_type()),
+                                track->Index(),
+                                command);
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_links)

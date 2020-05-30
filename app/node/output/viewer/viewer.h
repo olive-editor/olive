@@ -85,6 +85,11 @@ public:
     return track_cache_;
   }
 
+  /**
+   * @brief Same as GetTracks() but omits tracks that are locked.
+   */
+  QVector<TrackOutput *> GetUnlockedTracks() const;
+
   NodeInput* track_input(Timeline::TrackType type) const {
     return track_inputs_.at(type);
   }
