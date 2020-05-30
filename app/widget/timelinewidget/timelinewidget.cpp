@@ -1360,8 +1360,6 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
       gap->set_length_and_media_out(trim_length);
       new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
 
-      qDebug() << "Resizing" << block_here->length().toDouble() << "to" << (block_here->length() - trim_length).toDouble();
-
       new BlockResizeWithMediaInCommand(block_here,
                                         block_here->length() - trim_length,
                                         command);
