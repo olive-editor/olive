@@ -449,7 +449,7 @@ void TimeBasedWidget::ToggleShowAll()
     SetScale(toggle_show_all_old_scale_);
     scrollbar_->setValue(toggle_show_all_old_scroll_);
 
-    // Don't have to set toggle_show_all_ because SetScale() will automatically set this to false
+    // Don't have to set toggle_show_all_ because SetScale() will automatically set it to false
   } else {
     int w;
 
