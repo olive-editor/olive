@@ -53,6 +53,8 @@ private:
 
   ViewerOutput* viewer_node_;
 
+  QHash<Footage*, int64_t> cached_timestamps_;
+
 private slots:
   void StartFootageDrag();
 

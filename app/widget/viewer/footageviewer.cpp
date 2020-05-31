@@ -23,6 +23,7 @@
 #include <QDrag>
 #include <QMimeData>
 
+#include "config/config.h"
 #include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -50,6 +51,8 @@ Footage *FootageViewerWidget::GetFootage() const
 void FootageViewerWidget::SetFootage(Footage *footage)
 {
   if (footage_) {
+    cached_timestamps_.insert(footage_, GetTimestamp());
+
     ConnectViewerNode(nullptr);
 
     NodeParam::DisconnectEdge(video_node_->output(), viewer_node_->texture_input());
@@ -83,15 +86,24 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       video_node_->SetFootage(video_stream);
       viewer_node_->set_video_params(VideoParams(video_stream->width(), video_stream->height(), video_stream->frame_rate().flipped()));
       NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
+    } else {
+      viewer_node_->set_video_params(VideoParams(Config::Current()["DefaultSequenceWidth"].toInt(),
+                                                 Config::Current()["DefaultSequenceHeight"].toInt(),
+                                                 Config::Current()["DefaultSequenceFrameRate"].value<rational>()));
     }
 
     if (audio_stream) {
       audio_node_->SetFootage(audio_stream);
       viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout()));
       NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
+    } else {
+      viewer_node_->set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
+                                                 Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
     }
 
     ConnectViewerNode(viewer_node_, footage_->project()->color_manager());
+
+    SetTimestamp(cached_timestamps_.value(footage_, 0));
   }
 }
 
