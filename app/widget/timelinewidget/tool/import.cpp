@@ -127,7 +127,7 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
         SnapPoint(snap_points_, &time_movement);
       }
 
-      time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+      time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
       track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
       rational earliest_ghost = RATIONAL_MAX;
@@ -236,11 +236,14 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
         footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
       } else {
         // Rescale stream duration to timeline timebase
-        int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
-
         // Convert to rational time
-        footage_duration = rational(dest_tb.numerator() * stream_duration,
-                                    dest_tb.denominator());
+        if (footage.footage()->workarea()->enabled()) {
+          footage_duration = footage.footage()->workarea()->range().length();
+          ghost->SetMediaIn(footage.footage()->workarea()->in());
+        } else {
+          int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
+          footage_duration = Timecode::timestamp_to_time(stream_duration, dest_tb);
+        }
       }
 
       ghost->SetIn(ghost_start);
@@ -387,6 +390,7 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
 
       ClipBlock* clip = new ClipBlock();
+      clip->set_media_in(ghost->MediaIn());
       clip->set_length_and_media_out(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
       new NodeAddCommand(dst_graph, clip, command);

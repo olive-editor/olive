@@ -26,8 +26,9 @@
 #include <QWidget>
 
 #include "core.h"
-#include "timelineandtrackview.h"
 #include "node/output/viewer/viewer.h"
+#include "timeline/timelinecommon.h"
+#include "timelineandtrackview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timebased/timebased.h"
@@ -179,7 +180,7 @@ private:
      * Validation is the process of ensuring that whatever movements the user is making are "valid" and "legal". This
      * function's validation ensures that no Ghost's in point ends up in a negative timecode.
      */
-    rational ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+    rational ValidateTimeMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
 
     /**
      * @brief Validates Ghosts that are moving vertically (track-based)
@@ -226,15 +227,11 @@ private:
     virtual void HoverMove(TimelineViewMouseEvent *event) override;
 
   protected:
-    void SetMovementAllowed(bool allowed);
-    void SetTrackMovementAllowed(bool allowed);
-    void SetTrimmingAllowed(bool allowed);
-    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event);
-    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts);
+    virtual void FinishDrag(TimelineViewMouseEvent *event);
 
-    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                Timeline::MovementMode trim_mode,
-                                bool allow_gap_trimming);
+    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                              Timeline::MovementMode trim_mode,
+                              bool allow_gap_trimming);
 
     TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode);
 
@@ -258,10 +255,33 @@ private:
 
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
 
+    const Timeline::MovementMode& drag_movement_mode() const
+    {
+      return drag_movement_mode_;
+    }
+
+    void SetMovementAllowed(bool e)
+    {
+      movement_allowed_ = e;
+    }
+
+    void SetTrimmingAllowed(bool e)
+    {
+      trimming_allowed_ = e;
+    }
+
+    void SetTrackMovementAllowed(bool e)
+    {
+      track_movement_allowed_ = e;
+    }
+
+    void SetTrimOverwriteAllowed(bool e)
+    {
+      trim_overwrite_allowed_ = e;
+    }
+
   private:
     Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
-
-    void InitiateDrag(TimelineViewMouseEvent *mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
@@ -269,13 +289,17 @@ private:
                          const QList<TimelineViewBlockItem*>& items,
                          const Timeline::MovementMode& mode);
 
-    TrackReference track_start_;
     bool movement_allowed_;
     bool trimming_allowed_;
     bool track_movement_allowed_;
+    bool trim_overwrite_allowed_;
     bool rubberband_selecting_;
 
     Timeline::TrackType drag_track_type_;
+    Timeline::MovementMode drag_movement_mode_;
+
+    TimelineViewBlockItem* clicked_item_;
+
   };
 
   class ImportTool : public Tool
@@ -332,12 +356,11 @@ private:
   public:
     RippleTool(TimelineWidget* parent);
   protected:
-    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
-    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
+    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
-    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                Timeline::MovementMode trim_mode,
-                                bool allow_gap_trimming) override;
+    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                              Timeline::MovementMode trim_mode,
+                              bool allow_gap_trimming) override;
   };
 
   class RollingTool : public PointerTool
@@ -346,12 +369,11 @@ private:
     RollingTool(TimelineWidget* parent);
 
   protected:
-    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
-    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
+    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
-    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                Timeline::MovementMode trim_mode,
-                                bool allow_gap_trimming) override;
+    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                              Timeline::MovementMode trim_mode,
+                              bool allow_gap_trimming) override;
   };
 
   class SlideTool : public PointerTool
@@ -360,11 +382,11 @@ private:
     SlideTool(TimelineWidget* parent);
 
   protected:
-    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
-    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
-    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                Timeline::MovementMode trim_mode,
-                                bool allow_gap_trimming) override;
+    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
+    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                              Timeline::MovementMode trim_mode,
+                              bool allow_gap_trimming) override;
+
   };
 
   class SlipTool : public PointerTool
@@ -374,7 +396,7 @@ private:
 
   protected:
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos) override;
-    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
+    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
   };
 
   class ZoomTool : public Tool
@@ -425,13 +447,7 @@ private:
 
   void SetBlockLinksSelected(Block *block, bool selected);
 
-  struct EditToInfo {
-    TrackOutput* track;
-    rational nearest_time;
-    Block* nearest_block;
-  };
-
-  QVector<EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
+  QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
 
   void RippleTo(Timeline::MovementMode mode);
 

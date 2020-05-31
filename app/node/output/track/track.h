@@ -21,8 +21,8 @@
 #ifndef TRACKOUTPUT_H
 #define TRACKOUTPUT_H
 
-#include "common/timelinecommon.h"
 #include "node/block/block.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 

@@ -1,4 +1,4 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -43,7 +43,7 @@ SampleBufferPtr SampleBuffer::CreateAllocated(const AudioRenderingParams &audio_
   SampleBufferPtr buffer = Create();
 
   buffer->set_audio_params(audio_params);
-  buffer->set_sample_count_per_channel(samples_per_channel);
+  buffer->set_sample_count(samples_per_channel);
   buffer->allocate();
 
   return buffer;
@@ -88,12 +88,12 @@ void SampleBuffer::set_audio_params(const AudioRenderingParams &params)
   audio_params_ = params;
 }
 
-const int &SampleBuffer::sample_count_per_channel() const
+const int &SampleBuffer::sample_count() const
 {
   return sample_count_per_channel_;
 }
 
-void SampleBuffer::set_sample_count_per_channel(const int &sample_count)
+void SampleBuffer::set_sample_count(const int &sample_count)
 {
   if (data_) {
     qWarning() << "Tried to set sample count on allocated sample buffer";

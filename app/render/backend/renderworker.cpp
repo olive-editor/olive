@@ -22,7 +22,7 @@
 
 #include <QDir>
 
-#include "audio/sumsamples.h"
+#include "audio/audiovisualwaveform.h"
 #include "common/functiontimer.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
@@ -118,61 +118,24 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
         samples_from_this_block->reverse();
       }
 
-      int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count_per_channel());
+      int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
 
       // Copy samples into destination buffer
       block_range_buffer->set(samples_from_this_block->const_data(), destination_offset, copy_length);
 
-      {
+      if (b->type() == Block::kClip) {
         // Save waveform to file
-        Block* src_block = static_cast<Block*>(copy_map_->key(b));
-        QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
-        QDir waveform_loc = local_appdata_dir.filePath(QStringLiteral("waveform"));
-        waveform_loc.mkpath(".");
-        QString wave_fn(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(src_block))));
-        QFile wave_file(wave_fn);
+        ClipBlock* src_block = static_cast<ClipBlock*>(copy_map_->key(b));
 
-        if (wave_file.open(QFile::ReadWrite)) {
-          // We use S32 as a size-compatible substitute for SampleSummer::Sum which is 4 bytes in
-          // size
-          AudioRenderingParams waveform_params(SampleSummer::kSumSampleRate,
-                                               audio_params_.channel_layout(),
-                                               SampleFormat::SAMPLE_FMT_S32);
+        AudioVisualWaveform& clip_waveform = src_block->waveform();
 
-          int chunk_size = (audio_params_.sample_rate() / waveform_params.sample_rate());
+        clip_waveform.set_channel_count(audio_params_.channel_count());
 
-          {
-            // Write metadata header
-            SampleSummer::Info info;
-            info.channels = audio_params_.channel_count();
-            wave_file.write(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
-          }
+        clip_waveform.OverwriteSamples(samples_from_this_block,
+                                       audio_params_.sample_rate(),
+                                       range_for_block.in() - b->in());
 
-          qint64 start_offset = sizeof(SampleSummer::Info) + waveform_params.time_to_bytes(range_for_block.in() - b->in());
-          qint64 length_offset = waveform_params.time_to_bytes(range_for_block.length());
-          qint64 end_offset = start_offset + length_offset;
-
-          if (wave_file.size() < end_offset) {
-            wave_file.resize(end_offset);
-          }
-
-          wave_file.seek(start_offset);
-
-          for (int i=0;i<samples_from_this_block->sample_count_per_channel();i+=chunk_size) {
-            QVector<SampleSummer::Sum> summary = SampleSummer::SumSamples(samples_from_this_block,
-                                                                          i,
-                                                                          qMin(chunk_size, samples_from_this_block->sample_count_per_channel() - i));
-
-            wave_file.write(reinterpret_cast<const char*>(summary.constData()),
-                            summary.size() * sizeof(SampleSummer::Sum));
-          }
-
-          wave_file.close();
-
-          if (src_block->type() == Block::kClip) {
-            emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
-          }
-        }
+        emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
       }
 
       NodeValueTable::Merge({merged_table, table});
@@ -212,9 +175,9 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
     return;
   }
 
-  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count_per_channel());
+  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count());
 
-  int sample_count = input_buffer->sample_count_per_channel();
+  int sample_count = input_buffer->sample_count();
 
   // FIXME: Hardcoded float sample format
   for (int i=0;i<sample_count;i++) {

@@ -42,7 +42,6 @@ set(OLIVE_SOURCES
   common/threadedobject.cpp
   common/timecodefunctions.h
   common/timecodefunctions.cpp
-  common/timelinecommon.h
   common/timerange.h
   common/timerange.cpp
   common/tohex.h

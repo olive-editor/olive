@@ -37,7 +37,7 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
   const TrackReference& track = event->GetTrack();
   TrackOutput* t = parent()->GetTrackFromReference(track);
 
-  if (t && t->IsLocked()) {
+  if (!t || t->IsLocked()) {
     return;
   }
 

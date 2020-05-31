@@ -23,9 +23,9 @@
 
 #include <QObject>
 
-#include "common/timelinecommon.h"
 #include "node/graph.h"
 #include "node/output/track/track.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 

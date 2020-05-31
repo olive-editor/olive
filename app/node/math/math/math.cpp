@@ -318,8 +318,8 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
     SampleBufferPtr samples_a = val_a.data().value<SampleBufferPtr>();
     SampleBufferPtr samples_b = val_b.data().value<SampleBufferPtr>();
 
-    int max_samples = qMax(samples_a->sample_count_per_channel(), samples_b->sample_count_per_channel());
-    int min_samples = qMin(samples_a->sample_count_per_channel(), samples_b->sample_count_per_channel());
+    int max_samples = qMax(samples_a->sample_count(), samples_b->sample_count());
+    int min_samples = qMin(samples_a->sample_count(), samples_b->sample_count());
 
     SampleBufferPtr mixed_samples = SampleBuffer::CreateAllocated(samples_a->audio_params(), max_samples);
 

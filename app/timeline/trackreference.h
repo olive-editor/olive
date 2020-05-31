@@ -21,7 +21,7 @@
 #ifndef TRACKREFERENCE_H
 #define TRACKREFERENCE_H
 
-#include "common/timelinecommon.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 

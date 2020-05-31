@@ -23,7 +23,7 @@
 
 #include <QWidget>
 
-#include "audio/sumsamples.h"
+#include "audio/audiovisualwaveform.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
@@ -39,8 +39,6 @@ public:
   //void SetData(const QString& file, const AudioRenderingParams& params);
 
   void SetViewer(AudioPlaybackCache *playback);
-
-  static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const SampleSummer::Sum *samples, int nb_samples, int channels);
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;

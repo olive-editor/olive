@@ -58,67 +58,6 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   ForceUpdate();
 }
 
-void AudioWaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const SampleSummer::Sum* samples, int nb_samples, int channels)
-{
-  int sample_index, next_sample_index = 0;
-
-  QVector<SampleSummer::Sum> summary;
-  int summary_index = -1;
-
-  int channel_height = rect.height() / channels;
-  int channel_half_height = channel_height / 2;
-
-  const QRect& viewport = painter->viewport();
-  QPoint top_left = painter->transform().map(viewport.topLeft());
-
-  int start = qMax(rect.x(), -top_left.x());
-  int end = qMin(rect.right(), -top_left.x() + viewport.width());
-
-  QVector<QLine> lines;
-
-  for (int i=start;i<end;i++) {
-    sample_index = next_sample_index;
-
-    if (sample_index == nb_samples) {
-      break;
-    }
-
-    next_sample_index = qMin(nb_samples,
-                             qFloor(static_cast<double>(SampleSummer::kSumSampleRate) * static_cast<double>(i - rect.x() + 1) / scale) * channels);
-
-    if (summary_index != sample_index) {
-      summary = SampleSummer::ReSumSamples(&samples[sample_index],
-                                           qMax(channels, next_sample_index - sample_index),
-                                           channels);
-      summary_index = sample_index;
-    }
-
-    int line_x = i;
-
-    for (int j=0;j<summary.size();j++) {
-      if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
-        int channel_bottom = rect.y() + channel_height * (j + 1);
-
-        int diff = qRound((summary.at(j).max - summary.at(j).min) * channel_half_height);
-
-        lines.append(QLine(line_x,
-                           channel_bottom - diff,
-                           line_x,
-                           channel_bottom));
-      } else{
-        int channel_mid = rect.y() + channel_height * j + channel_half_height;
-
-        lines.append(QLine(line_x,
-                           channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
-                           line_x,
-                           channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height)));
-      }
-    }
-  }
-
-  painter->drawLines(lines);
-}
-
 void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
@@ -147,15 +86,11 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
       // FIXME: Hardcoded color
       wave_painter.setPen(QColor(64, 255, 160));
 
-      int channel_height = height() / params.channel_count();
-      int channel_half_height = channel_height / 2;
-
       int drew = 0;
 
       fs.seek(params.samples_to_bytes(ScreenToUnitRounded(0)));
 
       for (int x=0; x<width() && !fs.atEnd(); x++) {
-
         int samples_len = ScreenToUnitRounded(x+1) - ScreenToUnitRounded(x);
         int max_read_size = params.samples_to_bytes(samples_len);
 
@@ -166,28 +101,12 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
           samples_len = params.bytes_to_samples(read_buffer.size());
         }
 
-        QVector<SampleSummer::Sum> samples = SampleSummer::SumSamples(reinterpret_cast<const float*>(read_buffer.constData()),
-                                                                      samples_len,
-                                                                      params.channel_count());
+        QVector<AudioVisualWaveform::SamplePerChannel> samples = AudioVisualWaveform::SumSamples(reinterpret_cast<const float*>(read_buffer.constData()),
+                                                                                       samples_len,
+                                                                                       params.channel_count());
 
         for (int i=0;i<params.channel_count();i++) {
-          if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
-            int channel_bottom = channel_height * (i + 1);
-
-            int diff = qRound((samples.at(i).max - samples.at(i).min) * channel_half_height);
-
-            wave_painter.drawLine(x,
-                                  channel_bottom - diff,
-                                  x,
-                                  channel_bottom);
-          } else {
-            int channel_mid = channel_height * i + channel_half_height;
-
-            wave_painter.drawLine(x,
-                                  channel_mid + qRound(samples.at(i).min * static_cast<float>(channel_half_height)),
-                                  x,
-                                  channel_mid + qRound(samples.at(i).max * static_cast<float>(channel_half_height)));
-          }
+          AudioVisualWaveform::DrawSample(&wave_painter, samples, x, 0, height());
 
           drew++;
         }

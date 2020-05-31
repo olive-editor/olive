@@ -23,7 +23,6 @@
 
 #include <QUuid>
 
-#include "common/timelinecommon.h"
 #include "node/block/block.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
@@ -32,6 +31,7 @@
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/videoparams.h"
+#include "timeline/timelinecommon.h"
 #include "timeline/trackreference.h"
 
 OLIVE_NAMESPACE_ENTER

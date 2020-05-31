@@ -54,8 +54,8 @@ public:
   const AudioRenderingParams& audio_params() const;
   void set_audio_params(const AudioRenderingParams& params);
 
-  const int &sample_count_per_channel() const;
-  void set_sample_count_per_channel(const int &sample_count_per_channel);
+  const int &sample_count() const;
+  void set_sample_count(const int &sample_count);
 
   float** data();
   const float** const_data() const;

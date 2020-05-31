@@ -22,8 +22,12 @@
 #define TIMELINECOMMON_H
 
 #include "common/define.h"
+#include "common/rational.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class Block;
+class TrackOutput;
 
 class Timeline {
 public:
@@ -43,6 +47,13 @@ public:
   };
 
   static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
+
+  struct EditToInfo {
+    TrackOutput* track;
+    rational nearest_time;
+    Block* nearest_block;
+  };
+
 };
 
 OLIVE_NAMESPACE_EXIT

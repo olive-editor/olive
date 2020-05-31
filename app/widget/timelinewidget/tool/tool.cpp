@@ -98,7 +98,7 @@ void AttemptSnap(const QList<double>& proposed_pts,
   }
 }
 
-rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineWidget::Tool::ValidateTimeMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     if (ghost->mode() != Timeline::kMove) {

@@ -62,7 +62,7 @@ NodeInput *ClipBlock::texture_input() const
 void ClipBlock::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   // If signal is from texture input, transform all times from media time to sequence time
-  if (from == texture_input_) {
+  if (from == texture_input_ || from == media_in_input()) {
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
 

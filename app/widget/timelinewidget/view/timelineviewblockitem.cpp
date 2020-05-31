@@ -96,29 +96,11 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 
     // Draw waveform if one is available
-    QString wave_fn = QDir(QDir(Config::Current()["DiskCachePath"].toString()).filePath("waveform")).filePath(QString::number(reinterpret_cast<quintptr>(block_)));
-    QFile wave_file(wave_fn);
-    if (wave_file.open(QFile::ReadOnly)){
-      painter->setPen(QColor(64, 64, 64));
-
-      QByteArray w = wave_file.readAll();
-
-      wave_file.close();
-
-      // Read metadata
-      SampleSummer::Info info;
-      memcpy(&info, w.data(), sizeof(SampleSummer::Info));
-
-      // Prevent divide by zero
-      if (info.channels) {
-        AudioWaveformView::DrawWaveform(painter,
-                                        rect().toRect(),
-                                        this->GetScale(),
-                                        reinterpret_cast<const SampleSummer::Sum*>(w.constData() + sizeof(SampleSummer::Info)),
-                                        (w.size() - sizeof(SampleSummer::Info)) / sizeof(SampleSummer::Sum),
-                                        info.channels);
-      }
-    }
+    painter->setPen(QColor(64, 64, 64));
+    AudioVisualWaveform::DrawWaveform(painter,
+                                      rect().toRect(),
+                                      this->GetScale(),
+                                      static_cast<ClipBlock*>(block_)->waveform());
 
     painter->setPen(Qt::white);
     painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));

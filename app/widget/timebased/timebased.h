@@ -23,8 +23,8 @@
 
 #include <QWidget>
 
-#include "common/timelinecommon.h"
 #include "node/output/viewer/viewer.h"
+#include "timeline/timelinecommon.h"
 #include "widget/resizablescrollbar/resizablescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"

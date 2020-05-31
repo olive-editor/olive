@@ -23,8 +23,8 @@
 
 #include <QVariant>
 
-#include "common/timelinecommon.h"
 #include "project/item/footage/footage.h"
+#include "timeline/timelinecommon.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewrect.h"
 

@@ -16,6 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  timeline/timelinecommon.h
   timeline/timelinecoordinate.h
   timeline/timelinecoordinate.cpp
   timeline/timelinemarker.h
