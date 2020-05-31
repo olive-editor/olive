@@ -28,7 +28,8 @@ const rational TimelineWorkArea::kResetIn = 0;
 const rational TimelineWorkArea::kResetOut = RATIONAL_MAX;
 
 TimelineWorkArea::TimelineWorkArea(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  workarea_enabled_(false)
 {
 }
 
