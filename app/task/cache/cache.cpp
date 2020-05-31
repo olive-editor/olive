@@ -71,7 +71,11 @@ void CacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational
 
 void CacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
 {
-  viewer()->audio_playback_cache()->WritePCM(range, samples);
+  if (samples) {
+    viewer()->audio_playback_cache()->WritePCM(range, samples);
+  } else {
+    viewer()->audio_playback_cache()->WriteSilence(range);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT
