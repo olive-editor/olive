@@ -561,7 +561,7 @@ int ViewerWidget::CalculateDivider()
     int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
     int long_side_of_widget = qMax(display_widget_->width(), display_widget_->height());
 
-    return ceil_to_power_of_2(qMax(1, long_side_of_video / long_side_of_widget));
+    return qMax(1, int(qPow(2, qFloor(log2(double(long_side_of_video) / double(long_side_of_widget))))));
   }
 
   return divider_;
@@ -709,14 +709,22 @@ AudioRenderingParams ViewerWidget::GenerateAudioParams() const
 
 void ViewerWidget::UpdateStack()
 {
+  rational new_tb;
+
   if (GetConnectedNode()
       && !GetConnectedNode()->texture_input()->IsConnected()
       && GetConnectedNode()->samples_input()->IsConnected()) {
     // If we have a node AND video is disconnected AND audio is connected, show waveform view
     stack_->setCurrentWidget(waveform_view_);
+    new_tb = GetConnectedNode()->audio_params().time_base();
   } else {
     // Otherwise show regular display
     stack_->setCurrentWidget(sizer_);
+    new_tb = GetConnectedNode()->video_params().time_base();
+  }
+
+  if (new_tb != timebase()) {
+    SetTimebase(new_tb);
   }
 }
 
