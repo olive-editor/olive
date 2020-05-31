@@ -65,9 +65,8 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 
     // Delete all the nodes
     foreach (Node* c, copy_map_) {
-      c->DisconnectAll();
+      c->deleteLater();
     }
-    qDeleteAll(copy_map_);
     copy_map_.clear();
     copied_viewer_node_ = nullptr;
 
