@@ -40,6 +40,7 @@ Block::Block() :
   length_input_->SetConnectable(false);
   length_input_->set_is_keyframable(false);
   AddInput(length_input_);
+  disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
   connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
 
   media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
@@ -374,17 +375,17 @@ NodeInput *Block::speed_input() const
 
 void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  // We ignore length changes since they don't have an effect on our frames
-  if (from == length_input_) {
+  if (range.out() <= in() || range.in() >= out()) {
+    // Ignore this range
     return;
   }
 
-  Node::InvalidateCache(range, from, source);
+  Node::InvalidateCache(TimeRange(qMax(range.in(), in()), qMin(range.out(), out())), from, source);
 }
 
 void Block::Hash(QCryptographicHash &, const rational &) const
 {
-  // A block does nothing by default
+  // A block does nothing by default, so we hash nothing
 }
 
 OLIVE_NAMESPACE_EXIT

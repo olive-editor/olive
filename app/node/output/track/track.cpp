@@ -503,12 +503,12 @@ void TrackOutput::SetLengthInternal(const rational &r)
   }
 
   if (r != track_length_) {
-    rational old_track_length = track_length_;
+    TimeRange invalidate_range(track_length_, r);
 
     track_length_ = r;
     emit TrackLengthChanged();
 
-    InvalidateCache(TimeRange(qMin(old_track_length, r), qMax(old_track_length, r)),
+    InvalidateCache(invalidate_range,
                     block_input_,
                     block_input_);
   }
@@ -696,7 +696,15 @@ void TrackOutput::BlockLengthChanged()
   // Assumes sender is a Block
   Block* b = static_cast<Block*>(sender());
 
+  rational old_out = b->out();
+
   UpdateInOutFrom(block_cache_.indexOf(b));
+
+  rational new_out = b->out();
+
+  TimeRange invalidate_region(qMin(old_out, new_out), track_length());
+
+  InvalidateCache(invalidate_region, block_input_, block_input_);
 }
 
 void TrackOutput::MutedInputValueChanged()

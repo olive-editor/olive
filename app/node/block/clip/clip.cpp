@@ -82,23 +82,15 @@ void ClipBlock::LengthChangedEvent(const rational &old_length, const rational &n
 void ClipBlock::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   // If signal is from texture input, transform all times from media time to sequence time
-  if (from == texture_input_ || from == media_in_input()) {
+  if (from == texture_input_) {
+    // Adjust range from media time to sequence time
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
 
-    // Ensure range actually covers this clip's area
-    if (!(end < in() || start > out())) {
-
-      // Limit cache invalidation to clip lengths
-      start = qMax(start, in());
-      end = qMin(end, out());
-
-      Node::InvalidateCache(TimeRange(start, end), from, source);
-
-    }
+    Block::InvalidateCache(TimeRange(start, end), from, source);
   } else {
     // Otherwise, pass signal along normally
-    Node::InvalidateCache(range, from, source);
+    Block::InvalidateCache(range, from, source);
   }
 }
 
