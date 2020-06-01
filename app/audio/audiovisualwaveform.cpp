@@ -69,8 +69,8 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
     qWarning() << "Failed to write samples - channel count is zero";
   }
 
-  int start_index = channels_ * qFloor(kSumSampleRate * start.toDouble());
-  int samples_length = channels_ * qFloor(kSumSampleRate * (static_cast<double>(samples->sample_count()) / static_cast<double>(sample_rate)));
+  int start_index = time_to_samples(start);
+  int samples_length = time_to_samples(static_cast<double>(samples->sample_count()) / static_cast<double>(sample_rate));
 
   int end_index = start_index + samples_length;
   if (data_.size() < end_index) {
@@ -93,16 +93,27 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
   }
 }
 
-AudioVisualWaveform AudioVisualWaveform::Cut(const rational &time)
+void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &start)
+{
+  int start_index = time_to_samples(start);
+  int end_index = start_index + sums.data_.size();
+
+  if (data_.size() < end_index) {
+    data_.resize(end_index);
+  }
+
+  memcpy(&data_[start_index],
+         sums.data_.constData(),
+         sums.data_.size() * sizeof(SamplePerChannel));
+}
+
+AudioVisualWaveform AudioVisualWaveform::Mid(const rational &time) const
 {
   int sample_index = time_to_samples(time);
 
   // Create a copy of this waveform chop the early section off
   AudioVisualWaveform copy = *this;
   copy.data_ = data_.mid(sample_index);
-
-  // Chop the latter section off too
-  data_.resize(sample_index);
 
   return copy;
 }
@@ -270,7 +281,12 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
 
 int AudioVisualWaveform::time_to_samples(const rational &time) const
 {
-  return qFloor(time.toDouble() * kSumSampleRate) * channels_;
+  return time_to_samples(time.toDouble());
+}
+
+int AudioVisualWaveform::time_to_samples(const double &time) const
+{
+  return qFloor(time * kSumSampleRate) * channels_;
 }
 
 template<typename T>

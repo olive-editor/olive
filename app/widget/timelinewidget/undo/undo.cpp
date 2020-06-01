@@ -210,6 +210,10 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     // Split the block here
     trim_in_ = static_cast<Block*>(trim_out_->copy());
 
+    if (trim_out_->type() == Block::kClip) {
+      static_cast<ClipBlock*>(trim_in_)->set_waveform(static_cast<ClipBlock*>(trim_out_)->waveform());
+    }
+
     static_cast<NodeGraph*>(track_->parent())->AddNode(trim_in_);
     Node::CopyInputs(trim_out_, trim_in_);
 
@@ -293,8 +297,14 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
     // trim_in_ is our copy and trim_out_ is our original
     track_->RippleRemoveBlock(trim_in_);
-    delete TakeNodeFromParentGraph(trim_in_);
     trim_out_->set_length_and_media_out(trim_out_old_length_);
+
+    if (trim_out_->type() == Block::kClip) {
+      static_cast<ClipBlock*>(trim_out_)->waveform().OverwriteSums(static_cast<ClipBlock*>(trim_in_)->waveform(),
+                                                                   out_ - trim_out_->in());
+    }
+
+    delete TakeNodeFromParentGraph(trim_in_);
 
   } else {
 
@@ -438,19 +448,25 @@ void BlockSplitCommand::redo_internal()
 
   rational new_part_length = block_->length() - (point_ - block_->in());
 
+  AudioVisualWaveform split_waveform;
+
+  if (block_->type() == Block::kClip) {
+    split_waveform = static_cast<ClipBlock*>(block_)->waveform().Mid(new_length_);
+  }
+
   block_->set_length_and_media_out(new_length_);
 
   new_block_->set_length_and_media_in(new_part_length);
+
+  if (block_->type() == Block::kClip) {
+    static_cast<ClipBlock*>(new_block_)->set_waveform(split_waveform);
+  }
 
   track_->InsertBlockAfter(new_block_, block_);
 
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(block_->output(), transition);
     NodeParam::ConnectEdge(new_block_->output(), transition);
-  }
-
-  if (block_->type() == Block::kClip) {
-    static_cast<ClipBlock*>(new_block_)->set_waveform(static_cast<ClipBlock*>(block_)->waveform().Cut(new_length_));
   }
 
   track_->UnblockInvalidateCache();
@@ -471,7 +487,8 @@ void BlockSplitCommand::undo_internal()
   }
 
   if (block_->type() == Block::kClip) {
-    static_cast<ClipBlock*>(block_)->waveform().Append(static_cast<ClipBlock*>(new_block_)->waveform());
+    static_cast<ClipBlock*>(block_)->waveform().OverwriteSums(static_cast<ClipBlock*>(new_block_)->waveform(),
+                                                              new_length_);
   }
 
   track_->UnblockInvalidateCache();
@@ -1006,14 +1023,6 @@ void BlockTrimCommand::redo_internal()
       }
 
     }
-
-    if (block_->type() == Block::kClip) {
-      if (mode_ == Timeline::kTrimIn) {
-        static_cast<ClipBlock*>(block_)->waveform().TrimIn(trim_diff);
-      } else {
-        static_cast<ClipBlock*>(block_)->waveform().TrimOut(trim_diff);
-      }
-    }
   } else {
     if (adjacent_) {
       // If trimming LONGER, we'll need to trim the adjacent
@@ -1022,14 +1031,6 @@ void BlockTrimCommand::redo_internal()
         adjacent_->set_length_and_media_out(adjacent_->length() + trim_diff);
       } else {
         adjacent_->set_length_and_media_in(adjacent_->length() + trim_diff);
-      }
-    }
-
-    if (block_->type() == Block::kClip) {
-      if (mode_ == Timeline::kTrimIn) {
-        static_cast<ClipBlock*>(block_)->waveform().PrependSilence(-trim_diff);
-      } else {
-        static_cast<ClipBlock*>(block_)->waveform().AppendSilence(-trim_diff);
       }
     }
   }
@@ -1051,21 +1052,12 @@ void BlockTrimCommand::undo_internal()
     if (we_created_adjacent_) {
       // If we created a gap, just remove it straight up
       track_->RippleRemoveBlock(adjacent_);
-      TakeNodeFromParentGraph(adjacent_);
-      delete adjacent_;
+      delete TakeNodeFromParentGraph(adjacent_);
       adjacent_ = nullptr;
       we_created_adjacent_ = false;
     } else if (adjacent_) {
       // If we adjusted an existing gap, unadjust here
       adjacent_->set_length_and_media_out(adjacent_->length() - trim_diff);
-    }
-
-    if (block_->type() == Block::kClip) {
-      if (mode_ == Timeline::kTrimIn) {
-        static_cast<ClipBlock*>(block_)->waveform().PrependSilence(trim_diff);
-      } else {
-        static_cast<ClipBlock*>(block_)->waveform().AppendSilence(trim_diff);
-      }
     }
   } else {
     if (adjacent_) {
@@ -1073,14 +1065,6 @@ void BlockTrimCommand::undo_internal()
       // (assume if there's no adjacent, we're at the end of the timeline and do nothing)
       if (mode_ == Timeline::kTrimIn) {
         adjacent_->set_length_and_media_out(adjacent_->length() - trim_diff);
-      }
-    }
-
-    if (block_->type() == Block::kClip) {
-      if (mode_ == Timeline::kTrimIn) {
-        static_cast<ClipBlock*>(block_)->waveform().TrimIn(-trim_diff);
-      } else {
-        static_cast<ClipBlock*>(block_)->waveform().TrimOut(-trim_diff);
       }
     }
   }
@@ -1194,8 +1178,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
     if (we_created_gap_) {
       // We made this gap, simply swap our gap back
       track_->ReplaceBlock(gap_, block_);
-      TakeNodeFromParentGraph(gap_);
-      delete gap_;
+      delete TakeNodeFromParentGraph(gap_);
       gap_ = nullptr;
     } else {
       // We must have extended an existing gap
@@ -1278,24 +1261,6 @@ void TrackSlideCommand::slide_internal(bool undo)
     if (info.mode == Timeline::kTrimIn || info.mode == Timeline::kTrimOut) {
       rational new_len = undo ? info.old_time : info.new_time;
 
-      if (info.block->type() == Block::kClip) {
-        AudioVisualWaveform& waveform = static_cast<ClipBlock*>(info.block)->waveform();
-
-        if (new_len < info.block->length()) {
-          if (info.mode == Timeline::kTrimIn) {
-            waveform.TrimIn(info.block->length() - new_len);
-          } else {
-            waveform.TrimOut(info.block->length() - new_len);
-          }
-        } else {
-          if (info.mode == Timeline::kTrimIn) {
-            waveform.PrependSilence(new_len - info.block->length());
-          } else {
-            waveform.AppendSilence(new_len - info.block->length());
-          }
-        }
-      }
-
       if (info.mode == Timeline::kTrimIn) {
         info.block->set_length_and_media_in(new_len);
       } else {
@@ -1322,8 +1287,7 @@ void TrackSlideCommand::slide_internal(bool undo)
       track->BlockInvalidateCache();
 
       track->RippleRemoveBlock(gap);
-      TakeNodeFromParentGraph(gap);
-      delete gap;
+      delete TakeNodeFromParentGraph(gap);
 
       track->UnblockInvalidateCache();
     }

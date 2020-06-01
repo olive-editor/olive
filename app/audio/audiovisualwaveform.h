@@ -69,8 +69,9 @@ public:
   void AddSum(const float* samples, int nb_samples, int nb_channels);
 
   void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start);
+  void OverwriteSums(const AudioVisualWaveform& sums, const rational& start);
 
-  AudioVisualWaveform Cut(const rational& time);
+  AudioVisualWaveform Mid(const rational& time) const;
   void Append(const AudioVisualWaveform& waveform);
   void TrimIn(const rational& time);
   void TrimOut(const rational& time);
@@ -98,6 +99,7 @@ private:
   static void ClampMinMax(SamplePerChannel &sum, T value);
 
   int time_to_samples(const rational& time) const;
+  int time_to_samples(const double& time) const;
 
   int channels_ = 0;
 

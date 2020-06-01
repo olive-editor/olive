@@ -22,6 +22,7 @@
 #define BLOCK_H
 
 #include "node/node.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -130,10 +131,16 @@ protected:
 
   virtual QList<NodeInput*> GetInputsToHash() const override;
 
+  virtual void LengthChangedEvent(const rational& old_length,
+                                  const rational& new_length,
+                                  const Timeline::MovementMode& mode);
+
   Block* previous_;
   Block* next_;
 
 private:
+  void set_length_internal(const rational &length);
+
   NodeInput* name_input_;
   NodeInput* length_input_;
   NodeInput* media_in_input_;

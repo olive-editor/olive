@@ -72,6 +72,11 @@ public:
 signals:
   void PreviewUpdated();
 
+protected:
+  virtual void LengthChangedEvent(const rational& old_length,
+                                  const rational& new_length,
+                                  const Timeline::MovementMode& mode) override;
+
 private:
   NodeInput* texture_input_;
 

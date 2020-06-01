@@ -101,7 +101,11 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
-  length_input_->set_standard_value(QVariant::fromValue(length));
+  rational old_length = this->length();
+
+  set_length_internal(length);
+
+  LengthChangedEvent(old_length, length, Timeline::kTrimOut);
 }
 
 void Block::set_length_and_media_in(const rational &length)
@@ -115,8 +119,12 @@ void Block::set_length_and_media_in(const rational &length)
   // Calculate media_in adjustment
   set_media_in(media_in() + (this->length() - length) * speed());
 
+  rational old_length = this->length();
+
   // Set the length without setting media out
-  set_length_and_media_out(length);
+  set_length_internal(length);
+
+  LengthChangedEvent(old_length, length, Timeline::kTrimIn);
 }
 
 Block *Block::previous()
@@ -244,6 +252,15 @@ QList<NodeInput *> Block::GetInputsToHash() const
   inputs.removeOne(length_input_);
 
   return inputs;
+}
+
+void Block::LengthChangedEvent(const rational &, const rational &, const Timeline::MovementMode &)
+{
+}
+
+void Block::set_length_internal(const rational &length)
+{
+  length_input_->set_standard_value(QVariant::fromValue(length));
 }
 
 void Block::LengthInputChanged()
