@@ -33,7 +33,8 @@ TrackOutput::TrackOutput() :
   track_type_(Timeline::kTrackTypeNone),
   block_invalidate_cache_stack_(0),
   index_(-1),
-  locked_(false)
+  locked_(false),
+  queued_length_change_(false)
 {
   block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
   block_input_->set_is_keyframable(false);
@@ -243,6 +244,11 @@ const QList<Block *> &TrackOutput::Blocks() const
 void TrackOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   if (block_invalidate_cache_stack_ == 0) {
+    if (queued_length_change_) {
+      queued_length_change_ = false;
+      SetLengthInternal(queued_length_);
+    }
+
     Node::InvalidateCache(TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length())), from, source);
   }
 }
@@ -487,6 +493,15 @@ int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
 
 void TrackOutput::SetLengthInternal(const rational &r)
 {
+  if (block_invalidate_cache_stack_ > 0) {
+    queued_length_change_ = true;
+  }
+
+  if (queued_length_change_) {
+    queued_length_ = r;
+    return;
+  }
+
   if (r != track_length_) {
     rational old_track_length = track_length_;
 

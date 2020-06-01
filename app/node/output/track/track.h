@@ -261,6 +261,9 @@ private:
 
   bool locked_;
 
+  bool queued_length_change_;
+  rational queued_length_;
+
 private slots:
   void BlockConnected(NodeEdgePtr edge);
 
