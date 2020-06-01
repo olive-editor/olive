@@ -241,6 +241,6 @@ OLIVE_NAMESPACE_EXIT
 
 QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange &r)
 {
-  debug.nospace() << r.in() << " - " << r.out();
+  debug.nospace() << r.in().toDouble() << " - " << r.out().toDouble();
   return debug.space();
 }
