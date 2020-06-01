@@ -59,7 +59,7 @@ void ViewerWindow::SetResolution(int width, int height)
     mat.scale(1.0f, window_ar / image_ar, 1.0f);
   }
 
-  display_widget_->SetMatrix(mat);
+  display_widget_->SetMatrixZoom(mat);
 }
 
 void ViewerWindow::Play(const int64_t& start_timestamp, const int& playback_speed, const rational &timebase)

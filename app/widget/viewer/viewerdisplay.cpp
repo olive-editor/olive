@@ -56,10 +56,22 @@ ViewerDisplayWidget::~ViewerDisplayWidget()
   ContextCleanup();
 }
 
-void ViewerDisplayWidget::SetMatrix(const QMatrix4x4 &mat)
+void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
-  matrix_ = mat;
+  translate_matrix_ = mat;
   update();
+}
+
+void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
+{
+  scale_matrix_ = mat;
+  update();
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
+{
+  QMatrix4x4 mat;
+  return scale_matrix_ * translate_matrix_ * mat;
 }
 
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
@@ -145,6 +157,13 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
     return;
   }
 
+  if (event->button() == Qt::MiddleButton) {
+    printf("Middle Button Clicked\n");
+    position_ = event->pos();
+    printf("x: %d, y:%d\n", position_.x(), position_.y());
+    return;
+  }
+
   QOpenGLWidget::mousePressEvent(event);
 
   if (event->button() == Qt::LeftButton) {
@@ -154,6 +173,23 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
+  if (event->buttons() & Qt::MiddleButton) {
+    printf("Move\n");
+    QPointF delta = event->pos() - position_;
+    delta.setX(delta.x() / width());
+    delta.setY(delta.y() / height());
+    //this->move(this->pos()+new_position);
+    //QPoint new_pos = this->pos() + delta;
+    QMatrix4x4 mat;
+    //mat.translate(static_cast<float>(new_pos.x()) / width(), static_cast<float>(-1 * new_pos.y()) / height());
+    printf("x: %f, y:%f\n", delta.x(), delta.y());
+    mat = GetMatrixTranslate();
+    mat.translate(delta.x(), -1.0f * delta.y());
+    SetMatrixTranslate(mat);
+    position_ = event-> pos();
+    return;
+  }
+
   if (gizmo_click_) {
     gizmos_->GizmoMove(event->pos(), QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
     return;
@@ -169,7 +205,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
                           static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
                           0);
 
-      pixel_pos = pixel_pos * matrix_.inverted();
+      pixel_pos = pixel_pos * GetCompleteMatrix().inverted();
 
       int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * last_loaded_buffer_->width());
       int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * last_loaded_buffer_->height());
@@ -192,6 +228,11 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   }
 
   QOpenGLWidget::mouseReleaseEvent(event);
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetMatrixTranslate()
+{
+  return translate_matrix_;
 }
 
 void ViewerDisplayWidget::initializeGL()
@@ -231,8 +272,11 @@ void ViewerDisplayWidget::paintGL()
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
+    //QMatrix4x4 mat;
+    //mat = scale_matrix_ * translate_matrix_ * mat;
+
     // Blit using the color service
-    color_service()->ProcessOpenGL(true, matrix_);
+    color_service()->ProcessOpenGL(true, GetCompleteMatrix());
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);

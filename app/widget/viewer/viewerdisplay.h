@@ -66,7 +66,9 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
-  const QMatrix4x4& GetMatrix();
+  QMatrix4x4 GetMatrixTranslate();
+
+  QMatrix4x4 GetCompleteMatrix();
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -83,7 +85,8 @@ public slots:
    *
    * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
    */
-  void SetMatrix(const QMatrix4x4& mat);
+  void SetMatrixTranslate(const QMatrix4x4& mat);
+  void SetMatrixZoom(const QMatrix4x4& mat);
 
   /**
    * @brief Enables or disables whether this color at the cursor should be emitted
@@ -158,7 +161,9 @@ private:
   /**
    * @brief Drawing matrix (defaults to identity)
    */
-  QMatrix4x4 matrix_;
+  QMatrix4x4 translate_matrix_;
+
+  QMatrix4x4 scale_matrix_;
 
 #ifdef Q_OS_LINUX
   static bool nouveau_check_done_;
@@ -177,6 +182,8 @@ private:
   rational time_;
 
   FramePtr last_loaded_buffer_;
+
+  QPoint position_;
 
 private slots:
   /**
