@@ -193,6 +193,8 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
+  void PushLengthChangeSignal();
+
 public slots:
   void SetTrackName(const QString& name);
 

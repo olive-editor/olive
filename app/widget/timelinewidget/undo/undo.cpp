@@ -1311,4 +1311,257 @@ void TrackSlideCommand::slide_internal(bool undo)
   }
 }
 
+TrackListRippleRemoveAreaCommand::TrackListRippleRemoveAreaCommand(TrackList *list, rational in, rational out, QUndoCommand *parent) :
+  UndoCommand(parent),
+  list_(list),
+  in_(in),
+  out_(out)
+{
+  all_tracks_unlocked_ = true;
+
+  foreach (TrackOutput* track, list_->GetTracks()) {
+    if (track->IsLocked()) {
+      all_tracks_unlocked_ = false;
+      continue;
+    }
+
+    TrackRippleRemoveAreaCommand* c = new TrackRippleRemoveAreaCommand(track, in, out);
+    commands_.append(c);
+    working_tracks_.append(track);
+  }
+}
+
+TrackListRippleRemoveAreaCommand::~TrackListRippleRemoveAreaCommand()
+{
+  qDeleteAll(commands_);
+}
+
+Project *TrackListRippleRemoveAreaCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(static_cast<ViewerOutput*>(list_->parent())->parent())->project();
+}
+
+void TrackListRippleRemoveAreaCommand::redo_internal()
+{
+  if (all_tracks_unlocked_) {
+    // We can optimize here by simply shifting the whole cache forward instead of re-caching
+    // everything following this time
+    foreach (TrackOutput* track, working_tracks_) {
+      track->BlockInvalidateCache();
+    }
+  }
+
+  foreach (TrackRippleRemoveAreaCommand* c, commands_) {
+    c->redo();
+  }
+
+  if (all_tracks_unlocked_) {
+    // Shift cache
+    if (list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(list_->parent())->video_frame_cache()->Shift(out_, in_);
+    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(list_->parent())->audio_playback_cache()->Shift(out_, in_);
+    }
+
+    foreach (TrackOutput* track, working_tracks_) {
+      track->UnblockInvalidateCache();
+      track->PushLengthChangeSignal();
+    }
+  }
+}
+
+void TrackListRippleRemoveAreaCommand::undo_internal()
+{
+  if (all_tracks_unlocked_) {
+    // We can optimize here by simply shifting the whole cache forward instead of re-caching
+    // everything following this time
+    foreach (TrackOutput* track, working_tracks_) {
+      track->BlockInvalidateCache();
+    }
+  }
+
+  foreach (TrackRippleRemoveAreaCommand* c, commands_) {
+    c->undo();
+  }
+
+  if (all_tracks_unlocked_) {
+    // Shift cache back
+    foreach (TrackOutput* track, working_tracks_) {
+      track->UnblockInvalidateCache();
+      track->PushLengthChangeSignal();
+    }
+
+    if (list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(list_->parent())->video_frame_cache()->Shift(in_, out_);
+    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(list_->parent())->audio_playback_cache()->Shift(in_, out_);
+    }
+  }
+}
+
+TimelineRippleRemoveAreaCommand::TimelineRippleRemoveAreaCommand(ViewerOutput *timeline, rational in, rational out, QUndoCommand *parent) :
+  UndoCommand(parent),
+  timeline_(timeline)
+{
+  for (int i=0; i<Timeline::kTrackTypeCount; i++) {
+    new TrackListRippleRemoveAreaCommand(timeline->track_list(static_cast<Timeline::TrackType>(i)),
+                                         in,
+                                         out,
+                                         this);
+  }
+}
+
+Project *TimelineRippleRemoveAreaCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(timeline_->parent())->project();
+}
+
+TrackListRippleToolCommand::TrackListRippleToolCommand(TrackList *track_list, const QList<RippleInfo> &info, const Timeline::MovementMode &movement_mode, QUndoCommand *parent) :
+  UndoCommand(parent),
+  track_list_(track_list),
+  info_(info),
+  movement_mode_(movement_mode)
+{
+  working_data_.resize(info_.size());
+
+  all_tracks_unlocked_ = (info_.size() == track_list_->GetTrackCount());
+}
+
+Project *TrackListRippleToolCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(static_cast<ViewerOutput*>(track_list_->parent())->parent())->project();
+}
+
+void TrackListRippleToolCommand::redo_internal()
+{
+  rational old_latest_pt;
+  rational earliest_pt;
+
+  if (all_tracks_unlocked_) {
+    // We can do some optimization here
+    foreach (const RippleInfo& info, info_) {
+      info.track->BlockInvalidateCache();
+    }
+
+    old_latest_pt = RATIONAL_MIN;
+    earliest_pt = RATIONAL_MAX;
+    foreach (const RippleInfo& info, info_) {
+      if (info.block) {
+        old_latest_pt = qMax(old_latest_pt, info.block->out());
+
+        if (movement_mode_ == Timeline::kTrimIn) {
+          earliest_pt = qMin(earliest_pt, info.block->in());
+        } else {
+          earliest_pt = qMin(earliest_pt, info.block->out());
+        }
+      } else {
+        old_latest_pt = qMax(old_latest_pt, info.ref_block->out());
+        earliest_pt = qMin(earliest_pt, info.ref_block->out());
+      }
+    }
+  }
+
+  for (int i=0;i<info_.size();i++) {
+    const RippleInfo& info = info_.at(i);
+
+    Block* b = info.block;
+
+    if (b) {
+      // This was a Block that already existed
+      if (info.new_length > 0) {
+        if (movement_mode_ == Timeline::kTrimIn) {
+          // We'll need to shift the media in point too
+          b->set_length_and_media_in(info.new_length);
+        } else {
+          b->set_length_and_media_out(info.new_length);
+        }
+      } else {
+        // Assume the Block was a Gap and it was reduced to zero length, remove it here
+        working_data_[i].removed_gap_after = b->previous();
+        info.track->RippleRemoveBlock(b);
+        TakeNodeFromParentGraph(b, &memory_manager_);
+      }
+    } else if (info.new_length > 0) {
+      // This is a gap we are creating
+      GapBlock* gap = new GapBlock();
+      gap->set_length_and_media_out(info.new_length);
+      static_cast<NodeGraph*>(info.ref_block->parent())->AddNode(gap);
+      working_data_[i].created_gap = gap;
+
+      info.track->InsertBlockAfter(gap, info.ref_block);
+    }
+  }
+
+  if (all_tracks_unlocked_) {
+    // We can do some optimization here
+
+    rational new_latest_pt = RATIONAL_MIN;
+    for (int i=0;i<info_.size();i++) {
+      const RippleInfo& info = info_.at(i);
+
+      if (info.block) {
+        new_latest_pt = qMax(new_latest_pt, info.block->out());
+      } else {
+        new_latest_pt = qMax(new_latest_pt, working_data_.at(i).created_gap->out());
+      }
+    }
+
+    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(track_list_->parent())->video_frame_cache()->Shift(old_latest_pt, new_latest_pt);
+    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(track_list_->parent())->audio_playback_cache()->Shift(old_latest_pt, new_latest_pt);
+    }
+
+    foreach (const RippleInfo& info, info_) {
+      info.track->UnblockInvalidateCache();
+
+      // FIXME: Untested, is this desirable behavior?
+      if (earliest_pt < new_latest_pt) {
+        info.track->InvalidateCache(TimeRange(earliest_pt, new_latest_pt),
+                                    info.track->block_input(),
+                                    info.track->block_input());
+      }
+    }
+  }
+}
+
+void TrackListRippleToolCommand::undo_internal()
+{
+  // Clean created gaps
+  for (int i=info_.size()-1; i>=0; i--) {
+    const RippleInfo& info = info_.at(i);
+
+    Block* b = info.block;
+
+    if (b) {
+      // This was a Block that already existed
+      if (info.new_length > 0) {
+        if (movement_mode_ == Timeline::kTrimIn) {
+          // We'll need to shift the media in point too
+          b->set_length_and_media_in(info.old_length);
+        } else {
+          b->set_length_and_media_out(info.old_length);
+        }
+      } else {
+        // Assume the Block was a Gap and it was reduced to zero length, remove it here
+        Block* previous_block = working_data_[i].removed_gap_after;
+
+        static_cast<NodeGraph*>(info.track->parent())->AddNode(b);
+
+        if (previous_block) {
+          info.track->InsertBlockAfter(b, previous_block);
+        } else {
+          info.track->PrependBlock(b);
+        }
+      }
+    } else if (info.new_length > 0) {
+      // We created a gap here, remove it
+      GapBlock* gap = working_data_.at(i).created_gap;
+
+      info.track->RippleRemoveBlock(gap);
+      delete TakeNodeFromParentGraph(gap);
+    }
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

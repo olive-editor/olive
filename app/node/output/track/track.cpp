@@ -244,10 +244,7 @@ const QList<Block *> &TrackOutput::Blocks() const
 void TrackOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   if (block_invalidate_cache_stack_ == 0) {
-    if (queued_length_change_) {
-      queued_length_change_ = false;
-      SetLengthInternal(queued_length_);
-    }
+    PushLengthChangeSignal();
 
     Node::InvalidateCache(TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length())), from, source);
   }
@@ -434,6 +431,14 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
     b->Hash(hash, time);
+  }
+}
+
+void TrackOutput::PushLengthChangeSignal()
+{
+  if (queued_length_change_) {
+    queued_length_change_ = false;
+    SetLengthInternal(queued_length_);
   }
 }
 

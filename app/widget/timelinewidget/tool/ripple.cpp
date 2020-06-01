@@ -103,47 +103,27 @@ void TimelineWidget::RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  // For ripple operations, all ghosts will be moving the same way
-  Timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
+  QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
+
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    TrackOutput* track = parent()->GetTrackFromReference(ghost->Track());
+
+    TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)),
+                                                Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock)),
+                                                track,
+                                                ghost->AdjustedLength(),
+                                                ghost->Length()};
+
+    info_list[track->track_type()].append(i);
+  }
 
   QUndoCommand* command = new QUndoCommand();
 
-  // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (!b) {
-      // This is a gap we are creating
-
-      // Make sure there's actually a gap being created
-      if (ghost->AdjustedLength() > 0) {
-        GapBlock* gap = new GapBlock();
-        gap->set_length_and_media_out(ghost->AdjustedLength());
-        new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), gap, command);
-
-        Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
-
-        new TrackInsertBlockAfterCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                         gap,
-                                         block_to_append_gap_to,
-                                         command);
-      }
-    } else {
-      // This was a Block that already existed
-      if (ghost->AdjustedLength() > 0) {
-        if (movement_mode == Timeline::kTrimIn) {
-          // We'll need to shift the media in point too
-          new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
-        } else {
-          new BlockResizeCommand(b, ghost->AdjustedLength(), command);
-        }
-      } else {
-        // Assume the Block was a Gap and it was reduced to zero length, remove it here
-        new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
-
-        new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
-      }
-    }
+  for (int i=0;i<info_list.size();i++) {
+    new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+                                   info_list.at(i),
+                                   drag_movement_mode(),
+                                   command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

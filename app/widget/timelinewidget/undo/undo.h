@@ -223,6 +223,84 @@ protected:
 
 };
 
+class TrackListRippleRemoveAreaCommand : public UndoCommand {
+public:
+  TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out, QUndoCommand* parent = nullptr);
+
+  virtual ~TrackListRippleRemoveAreaCommand() override;
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* list_;
+
+  QList<TrackOutput*> working_tracks_;
+
+  rational in_;
+
+  rational out_;
+
+  bool all_tracks_unlocked_;
+
+  QVector<TrackRippleRemoveAreaCommand*> commands_;
+
+};
+
+class TimelineRippleRemoveAreaCommand : public UndoCommand {
+public:
+  TimelineRippleRemoveAreaCommand(ViewerOutput* timeline, rational in, rational out, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+private:
+  ViewerOutput* timeline_;
+
+};
+
+class TrackListRippleToolCommand : public UndoCommand {
+public:
+  struct RippleInfo {
+    Block* block;
+    Block* ref_block;
+    TrackOutput* track;
+    rational new_length;
+    rational old_length;
+  };
+
+  TrackListRippleToolCommand(TrackList* track_list,
+                             const QList<RippleInfo>& info,
+                             const Timeline::MovementMode& movement_mode,
+                             QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* track_list_;
+
+  QList<RippleInfo> info_;
+  Timeline::MovementMode movement_mode_;
+
+  struct WorkingData {
+    GapBlock* created_gap;
+    Block* removed_gap_after;
+  };
+
+  QVector<WorkingData> working_data_;
+
+  QObject memory_manager_;
+
+  bool all_tracks_unlocked_;
+
+};
+
 /**
  * @brief Destructively places `block` at the in point `start`
  *

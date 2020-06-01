@@ -739,33 +739,43 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
   QUndoCommand* command = new QUndoCommand();
 
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
-    if (!track->IsLocked()) {
-      if (ripple) {
-        new TrackRippleRemoveAreaCommand(track,
-                                         GetConnectedTimelinePoints()->workarea()->in(),
-                                         GetConnectedTimelinePoints()->workarea()->out(),
-                                         command);
-      } else {
-        GapBlock* gap = new GapBlock();
+  if (ripple) {
 
-        gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
+    new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
+                                        GetConnectedTimelinePoints()->workarea()->in(),
+                                        GetConnectedTimelinePoints()->workarea()->out(),
+                                        command);
 
-        new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
-                           gap,
-                           command);
+  } else {
+    QVector<TrackOutput*> unlocked_tracks = GetConnectedNode()->GetUnlockedTracks();
 
-        new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->track_type()),
-                                   track->Index(),
-                                   gap,
-                                   GetConnectedTimelinePoints()->workarea()->in(),
-                                   command);
-      }
+    foreach (TrackOutput* track, unlocked_tracks) {
+      GapBlock* gap = new GapBlock();
+
+      gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
+
+      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+                         gap,
+                         command);
+
+      new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->track_type()),
+                                 track->Index(),
+                                 gap,
+                                 GetConnectedTimelinePoints()->workarea()->in(),
+                                 command);
     }
   }
 
   // Clear workarea after this
-  new WorkareaSetEnabledCommand(GetTimelinePointsProject(), GetConnectedTimelinePoints(), false, command);
+  new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
+                                GetConnectedTimelinePoints(),
+                                false,
+                                command);
+
+  if (ripple) {
+    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(),
+                                                 timebase()));
+  }
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -1298,6 +1308,10 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
 
+  if (tracks.isEmpty()) {
+    return;
+  }
+
   // Find each track's nearest point and determine the overall timeline's nearest point
   rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? rational() : RATIONAL_MAX;
 
@@ -1325,29 +1339,17 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
   rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
 
-  QUndoCommand* command = new QUndoCommand();
+  TimelineRippleRemoveAreaCommand* c = new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
+                                                                           in_ripple,
+                                                                           out_ripple);
 
-  foreach (const Timeline::EditToInfo& info, tracks) {
-    TrackOutput* track = info.track;
+  Core::instance()->undo_stack()->push(c);
 
-    // Simply remove this region
-    new TrackRippleRemoveAreaCommand(track,
-                                     in_ripple,
-                                     out_ripple,
-                                     command);
-  }
-
-  if (command->childCount() > 0) {
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
-
-    // If we rippled, ump to where new cut is if applicable
-    if (mode == Timeline::kTrimIn) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
-    } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
-      SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
-    }
-  } else {
-    delete command;
+  // If we rippled, ump to where new cut is if applicable
+  if (mode == Timeline::kTrimIn) {
+    SetTimeAndSignal(Timecode::time_to_timestamp(closest_point_to_playhead, timebase()));
+  } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
+    SetTimeAndSignal(Timecode::time_to_timestamp(playhead_time, timebase()));
   }
 }
 
