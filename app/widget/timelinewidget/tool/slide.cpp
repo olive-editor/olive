@@ -31,6 +31,7 @@ TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
   SetTrimOverwriteAllowed(true);
+  SetGapTrimmingAllowed(true);
 }
 
 struct TrackBlockListPair {
@@ -39,12 +40,9 @@ struct TrackBlockListPair {
 };
 
 void TimelineWidget::SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode,
-                                             bool allow_gap_trimming)
+                                             Timeline::MovementMode trim_mode)
 {
-  Q_UNUSED(allow_gap_trimming)
-
-  PointerTool::InitiateDrag(clicked_item, trim_mode, true);
+  PointerTool::InitiateDrag(clicked_item, trim_mode);
 
   // Sort blocks into tracks
   QList<TrackBlockListPair> blocks_per_track;

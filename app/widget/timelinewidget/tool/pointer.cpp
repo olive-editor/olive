@@ -42,6 +42,7 @@ TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   trimming_allowed_(true),
   track_movement_allowed_(true),
   trim_overwrite_allowed_(false),
+  gap_trimming_allowed_(false),
   rubberband_selecting_(false)
 {
 }
@@ -58,6 +59,22 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
   if (selectable_item) {
     // Cache the clip's type for use later
     drag_track_type_ = clicked_item_->Track().type();
+
+    // If we haven't started dragging yet, we'll initiate a drag here
+    // Record where the drag started in timeline coordinates
+    drag_start_ = event->GetCoordinates();
+
+    // Determine whether we're trimming or moving based on the position of the cursor
+    drag_movement_mode_ = IsCursorInTrimHandle(clicked_item_,
+                                               event->GetSceneX());
+
+    // If we're not in a trim mode, we must be in a move mode (provided the tool allows movement and
+    // the block is not a gap)
+    if (drag_movement_mode_ == Timeline::kNone
+        && movement_allowed_
+        && clicked_item_->block()->type() != Block::kGap) {
+      drag_movement_mode_ = Timeline::kMove;
+    }
 
     // If this item is already selected, no further selection needs to be made
     if (clicked_item_->isSelected()) {
@@ -100,41 +117,29 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
 void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
-
     // Process rubberband select
     parent()->MoveRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
+    return;
+  }
 
-  } else if (!dragging_) {
+  if (!dragging_) {
+
     // Now that the cursor has moved, we will assume the intention is to drag
-
-    // If we haven't started dragging yet, we'll initiate a drag here
-    // Record where the drag started in timeline coordinates
-    drag_start_ = event->GetCoordinates();
 
     // Clear snap points
     snap_points_.clear();
 
-    // Determine whether we're trimming or moving based on the position of the cursor
-    drag_movement_mode_ = IsCursorInTrimHandle(clicked_item_,
-                                               event->GetSceneX());
-
-    // If we're not in a trim mode, we must be in a move mode (provided the tool allows movement and
-    // the block is not a gap)
-    if (drag_movement_mode_ == Timeline::kNone
-        && movement_allowed_
-        && clicked_item_->block()->type() != Block::kGap) {
-      drag_movement_mode_ = Timeline::kMove;
-    }
-
     // If we're performing an action, we can initiate ghosts
     if (drag_movement_mode_ != Timeline::kNone) {
-      InitiateDrag(clicked_item_, drag_movement_mode_, false);
+      InitiateDrag(clicked_item_, drag_movement_mode_);
     }
 
     // Set dragging to true here so no matter what, the drag isn't re-initiated until it's completed
     dragging_ = true;
 
-  } else if (!parent()->ghost_items_.isEmpty()) {
+  }
+
+  if (dragging_ && !parent()->ghost_items_.isEmpty()) {
 
     // We're already dragging AND we have ghosts to work with
     ProcessDrag(event->GetCoordinates());
@@ -145,8 +150,8 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
+    // Finish rubberband select
     parent()->EndRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
-
     rubberband_selecting_ = false;
     return;
   }
@@ -158,9 +163,9 @@ void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 
     parent()->ClearGhosts();
     snap_points_.clear();
-  }
 
-  dragging_ = false;
+    dragging_ = false;
+  }
 }
 
 void TimelineWidget::PointerTool::HoverMove(TimelineViewMouseEvent *event)
@@ -391,8 +396,7 @@ Timeline::MovementMode TimelineWidget::PointerTool::IsCursorInTrimHandle(Timelin
 }
 
 void TimelineWidget::PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_item,
-                                               Timeline::MovementMode trim_mode,
-                                               bool allow_gap_trimming)
+                                               Timeline::MovementMode trim_mode)
 {
   // Get list of selected blocks
   QList<TimelineViewBlockItem*> clips = parent()->GetSelectedBlocks();
@@ -431,7 +435,7 @@ void TimelineWidget::PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_it
 
       // Some tools interpret "gap trimming" as equivalent to resizing the adjacent block. In that
       // scenario, we include the adjacent block instead.
-      if (block->type() == Block::kGap && !allow_gap_trimming) {
+      if (block->type() == Block::kGap && !gap_trimming_allowed_) {
         block = (trim_mode == Timeline::kTrimIn) ? block->previous() : block->next();
         block_mode = FlipTrimMode(trim_mode);
 

@@ -230,8 +230,7 @@ private:
     virtual void FinishDrag(TimelineViewMouseEvent *event);
 
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode,
-                              bool allow_gap_trimming);
+                              Timeline::MovementMode trim_mode);
 
     TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode);
 
@@ -280,6 +279,11 @@ private:
       trim_overwrite_allowed_ = e;
     }
 
+    void SetGapTrimmingAllowed(bool e)
+    {
+      gap_trimming_allowed_ = e;
+    }
+
   private:
     Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
 
@@ -293,6 +297,7 @@ private:
     bool trimming_allowed_;
     bool track_movement_allowed_;
     bool trim_overwrite_allowed_;
+    bool gap_trimming_allowed_;
     bool rubberband_selecting_;
 
     Timeline::TrackType drag_track_type_;
@@ -359,8 +364,7 @@ private:
     virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode,
-                              bool allow_gap_trimming) override;
+                              Timeline::MovementMode trim_mode) override;
   };
 
   class RollingTool : public PointerTool
@@ -372,8 +376,7 @@ private:
     virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode,
-                              bool allow_gap_trimming) override;
+                              Timeline::MovementMode trim_mode) override;
   };
 
   class SlideTool : public PointerTool
@@ -384,8 +387,7 @@ private:
   protected:
     virtual void FinishDrag(TimelineViewMouseEvent *event) override;
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode,
-                              bool allow_gap_trimming) override;
+                              Timeline::MovementMode trim_mode) override;
 
   };
 

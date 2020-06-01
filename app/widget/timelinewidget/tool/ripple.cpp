@@ -30,15 +30,13 @@ TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
 {
   SetMovementAllowed(false);
   SetTrimOverwriteAllowed(true);
+  SetGapTrimmingAllowed(true);
 }
 
 void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                              Timeline::MovementMode trim_mode,
-                                              bool allow_gap_trimming)
+                                              Timeline::MovementMode trim_mode)
 {
-  Q_UNUSED(allow_gap_trimming)
-
-  PointerTool::InitiateDrag(clicked_item, trim_mode, true);
+  PointerTool::InitiateDrag(clicked_item, trim_mode);
 
   if (parent()->ghost_items_.isEmpty()) {
     return;
@@ -61,6 +59,10 @@ void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_ite
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
   foreach (TrackOutput* track, parent()->GetConnectedNode()->GetTracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 
@@ -77,7 +79,7 @@ void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_ite
       Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple != nullptr) {
+      if (block_before_ripple) {
         TimelineViewGhostItem* ghost;
 
         TrackReference track_ref(track->track_type(), track->Index());
@@ -110,7 +112,7 @@ void TimelineWidget::RippleTool::FinishDrag(TimelineViewMouseEvent *event)
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    if (b == nullptr) {
+    if (!b) {
       // This is a gap we are creating
 
       // Make sure there's actually a gap being created
@@ -136,7 +138,7 @@ void TimelineWidget::RippleTool::FinishDrag(TimelineViewMouseEvent *event)
           new BlockResizeCommand(b, ghost->AdjustedLength(), command);
         }
       } else {
-        // Assumed the Block was a Gap and it was reduced to zero length, remove it here
+        // Assume the Block was a Gap and it was reduced to zero length, remove it here
         new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
 
         new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);

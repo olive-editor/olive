@@ -30,13 +30,13 @@ TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
 {
   SetMovementAllowed(false);
   SetTrimOverwriteAllowed(true);
+  SetGapTrimmingAllowed(true);
 }
 
 void TimelineWidget::RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                               Timeline::MovementMode trim_mode,
-                                               bool allow_gap_trimming)
+                                               Timeline::MovementMode trim_mode)
 {
-  PointerTool::InitiateDrag(clicked_item, trim_mode, true);
+  PointerTool::InitiateDrag(clicked_item, trim_mode);
 
   // For each ghost, we make an equivalent Ghost on the next/previous block
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
