@@ -87,6 +87,12 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
+void ViewerOutput::ShiftCache(const rational &from, const rational &to)
+{
+  video_frame_cache_.Shift(from, to);
+  audio_playback_cache_.Shift(from, to);
+}
+
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   emit GraphChangedFrom(source);

@@ -46,6 +46,8 @@ public:
 
   bool IsFullyValidated() const;
 
+  void Shift(const rational& from, const rational& to);
+
   const TimeRangeList& GetInvalidatedRanges() const
   {
     return invalidated_;
@@ -69,6 +71,8 @@ protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen);
 
   virtual void InvalidateEvent(const TimeRange& range);
+
+  virtual void ShiftEvent(const rational& from, const rational& to);
 
 private:
   TimeRangeList invalidated_;

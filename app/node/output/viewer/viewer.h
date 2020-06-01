@@ -54,6 +54,8 @@ public:
   virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
 
+  void ShiftCache(const rational& from, const rational& to);
+
   NodeInput* texture_input() const {
     return texture_input_;
   }

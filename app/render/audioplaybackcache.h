@@ -48,6 +48,9 @@ public:
 signals:
   void ParametersChanged();
 
+protected:
+  virtual void ShiftEvent(const rational& from, const rational& to) override;
+
 private:
   QString filename_;
 

@@ -185,6 +185,47 @@ void FrameHashCache::InvalidateEvent(const TimeRange &r)
   }
 }
 
+struct HashTimePair {
+  rational time;
+  QByteArray hash;
+};
+
+void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
+{
+  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+
+  // POSITIVE if moving forward ->
+  // NEGATIVE if moving backward <-
+  rational diff = to - from;
+  bool diff_is_negative = (diff < rational());
+
+  QList<HashTimePair> shifted_times;
+
+  while (i != time_hash_map_.end()) {
+    if (diff_is_negative && i.key() >= to && i.key() < from) {
+
+      // This time will be removed in the shift so we just discard it
+      i = time_hash_map_.erase(i);
+
+    } else if (i.key() >= from) {
+
+      // This time is after the from time and must be shifted
+      shifted_times.append({i.key() + diff, i.value()});
+      i = time_hash_map_.erase(i);
+
+    } else {
+
+      // Do nothing
+      i++;
+
+    }
+  }
+
+  foreach (const HashTimePair& p, shifted_times) {
+    time_hash_map_.insert(p.time, p.hash);
+  }
+}
+
 QString FrameHashCache::CachePathName(const QByteArray& hash, const PixelFormat::Format& pix_fmt)
 {
   QString ext = GetFormatExtension(pix_fmt);

@@ -111,6 +111,74 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
   }
 }
 
+void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
+{
+  QFile f(filename_);
+  if (f.open(QFile::ReadWrite)) {
+    qint64 from_offset = params_.time_to_bytes(from);
+    qint64 to_offset = params_.time_to_bytes(to);
+    qint64 chunk = qAbs(to_offset - from_offset);
+
+    QByteArray buf(chunk, Qt::Uninitialized);
+
+    if (to > from) {
+      // Shifting forwards, we must insert a new region and shift all the bytes there
+
+      // For shifting forwards, we copy bytes starting at the back so that bytes we need don't
+      // get overwritten.
+      qint64 read_offset = f.size();
+
+      f.resize(f.size() + chunk);
+
+      qint64 write_offset = f.size();
+
+      do {
+
+        // Calculate how much will be read this time
+        qint64 chunk_sz = qMin(chunk, read_offset - from_offset);
+        read_offset -= chunk_sz;
+
+        // Read that chunk
+        f.seek(read_offset);
+        f.read(buf.data(), chunk_sz);
+
+        // Write it at the destination
+        write_offset -= chunk_sz;
+        f.seek(write_offset);
+        f.write(buf.data(), chunk_sz);
+
+      } while (read_offset != from_offset);
+
+      // Replace remainder with silence
+      f.seek(from_offset);
+      buf.fill(0);
+      f.write(buf);
+
+    } else {
+      // Shifting backwards, we will shift bytes and truncate
+
+      do {
+        // Read region to be shifted
+        f.seek(from_offset);
+        qint64 read_sz = f.read(buf.data(), buf.size());
+        from_offset += read_sz;
+
+        // Write it at the destination
+        f.seek(to_offset);
+        to_offset += f.write(buf, read_sz);
+      } while (from_offset != f.size());
+
+      // Truncate
+      f.resize(f.size() - chunk);
+
+    }
+
+    f.close();
+  } else {
+    qWarning() << "Failed to write PCM data to" << filename_;
+  }
+}
+
 const QString &AudioPlaybackCache::GetCacheFilename() const
 {
   return filename_;
