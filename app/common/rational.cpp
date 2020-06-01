@@ -229,6 +229,18 @@ bool rational::operator<(const rational &rhs) const
     return false;
   }
 
+  if (rhs == RATIONAL_MAX
+      || *this == RATIONAL_MIN) {
+    // We will always wither be LESS THAN (true) or EQUAL (false)
+    return (*this != rhs);
+  }
+
+  if (*this == RATIONAL_MAX
+      || rhs == RATIONAL_MIN) {
+    // We will always be GREATER THAN (false) or EQUAL (false)
+    return false;
+  }
+
   if (!isNull() && rhs.isNull()) {
     return (numer_ * denom_ < intType(0));
   }
@@ -244,6 +256,18 @@ bool rational::operator<=(const rational &rhs) const
 {
   if (isNull() && rhs.isNull()) {
     return true;
+  }
+
+  if (rhs == RATIONAL_MAX
+      || *this == RATIONAL_MIN) {
+    // We will always wither be LESS THAN (true) or EQUAL (true)
+    return true;
+  }
+
+  if (*this == RATIONAL_MAX
+      || rhs == RATIONAL_MIN) {
+    // We will always be GREATER THAN (false) or EQUAL (true)
+    return rhs == *this;
   }
 
   if (!isNull() && rhs.isNull()) {
