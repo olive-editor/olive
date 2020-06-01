@@ -47,7 +47,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   signal_cursor_color_(false),
   gizmos_(nullptr),
   gizmo_click_(false),
-  last_loaded_buffer_(nullptr)
+  last_loaded_buffer_(nullptr),
+  zoomed_(false)
 {
 }
 
@@ -66,6 +67,16 @@ void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
 {
   scale_matrix_ = mat;
   update();
+}
+
+void ViewerDisplayWidget::SetZoomFlag(bool flag)
+{
+  zoomed_ = flag;
+  // If not scaled reset translation matrix to identity
+  if (!flag) {
+    QMatrix4x4 mat;
+    SetMatrixTranslate(mat);
+  }
 }
 
 QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
@@ -164,7 +175,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
   }
 
   // get current position in preperation for move event
-  if (event->button() == Qt::MiddleButton) {
+  if (event->button() == Qt::MiddleButton && zoomed_) {
     position_ = event->pos();
     return;
   }
@@ -178,7 +189,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if (event->buttons() & Qt::MiddleButton) {
+  if (event->buttons() & Qt::MiddleButton && zoomed_) {
     QPointF delta = event->pos() - position_;
     // scale delta to widget size
     delta.setX(delta.x() / width());

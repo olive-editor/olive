@@ -116,6 +116,8 @@ public slots:
    */
   void SetImage(FramePtr in_buffer);
 
+  void SetZoomFlag(bool flag);
+
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
@@ -178,6 +180,8 @@ private:
    * @breif Scale only matrix.
    */
   QMatrix4x4 scale_matrix_;
+
+  bool zoomed_;
 
 #ifdef Q_OS_LINUX
   static bool nouveau_check_done_;
