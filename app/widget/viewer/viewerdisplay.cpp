@@ -157,6 +157,12 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
     return;
   }
 
+  // reset translation
+  if (event->button() == Qt::MiddleButton && event->modifiers() & Qt::ControlModifier) {
+    QMatrix4x4 mat;
+    SetMatrixTranslate(mat);
+  }
+
   if (event->button() == Qt::MiddleButton) {
     printf("Middle Button Clicked\n");
     position_ = event->pos();
