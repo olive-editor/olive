@@ -163,10 +163,9 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
     SetMatrixTranslate(mat);
   }
 
+  // get current position in preperation for move event
   if (event->button() == Qt::MiddleButton) {
-    printf("Middle Button Clicked\n");
     position_ = event->pos();
-    printf("x: %d, y:%d\n", position_.x(), position_.y());
     return;
   }
 
@@ -180,18 +179,18 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (event->buttons() & Qt::MiddleButton) {
-    printf("Move\n");
     QPointF delta = event->pos() - position_;
+    // scale delta to widget size
     delta.setX(delta.x() / width());
     delta.setY(delta.y() / height());
-    //this->move(this->pos()+new_position);
-    //QPoint new_pos = this->pos() + delta;
+
     QMatrix4x4 mat;
-    //mat.translate(static_cast<float>(new_pos.x()) / width(), static_cast<float>(-1 * new_pos.y()) / height());
-    printf("x: %f, y:%f\n", delta.x(), delta.y());
     mat = GetMatrixTranslate();
+    // Have to invert y axis, possibly because of something in the OpenGL code?
     mat.translate(delta.x(), -1.0f * delta.y());
     SetMatrixTranslate(mat);
+
+    // get new start position
     position_ = event-> pos();
     return;
   }
@@ -277,9 +276,6 @@ void ViewerDisplayWidget::paintGL()
 
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
-
-    //QMatrix4x4 mat;
-    //mat = scale_matrix_ * translate_matrix_ * mat;
 
     // Blit using the color service
     color_service()->ProcessOpenGL(true, GetCompleteMatrix());

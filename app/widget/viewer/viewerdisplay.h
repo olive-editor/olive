@@ -66,8 +66,15 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
+  /**
+  * @brief Return the translation only matrix.
+  */
   QMatrix4x4 GetMatrixTranslate();
 
+  /**
+   * @brief Return the complete translation and scale matrix
+   * This must be used if you want the entire transformation pipeline (scale and translate).
+   */
   QMatrix4x4 GetCompleteMatrix();
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
@@ -86,6 +93,10 @@ public slots:
    * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
    */
   void SetMatrixTranslate(const QMatrix4x4& mat);
+ 
+  /**
+  * @brief Set the scale matrix.
+  */
   void SetMatrixZoom(const QMatrix4x4& mat);
 
   /**
@@ -159,10 +170,13 @@ private:
   OpenGLTexture texture_;
 
   /**
-   * @brief Drawing matrix (defaults to identity)
+   * @brief Translation only matrix (defaults to identity).
    */
   QMatrix4x4 translate_matrix_;
 
+  /**
+   * @breif Scale only matrix.
+   */
   QMatrix4x4 scale_matrix_;
 
 #ifdef Q_OS_LINUX
@@ -183,6 +197,9 @@ private:
 
   FramePtr last_loaded_buffer_;
 
+  /**
+   * @brief position of mouse to calculate delta from.
+   */
   QPoint position_;
 
 private slots:
