@@ -75,6 +75,8 @@ signals:
 
   void Validated(const OLIVE_NAMESPACE::TimeRange& r);
 
+  void Shifted(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
+
   void LengthChanged(const OLIVE_NAMESPACE::rational& r);
 
 protected:

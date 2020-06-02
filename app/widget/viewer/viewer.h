@@ -85,8 +85,6 @@ public:
    */
   void SetFullScreen(QScreen* screen = nullptr);
 
-  void ForceUpdate();
-
   RenderBackend* renderer() const
   {
     return renderer_;
@@ -121,6 +119,8 @@ public slots:
    * @brief Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled()
    */
   void SetSignalCursorColorEnabled(bool e);
+
+  void ForceUpdate();
 
 signals:
   /**
@@ -271,6 +271,8 @@ private slots:
   void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
 
   void ViewerInvalidatedRange();
+
+  void ViewerShiftedRange(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
 
   void UpdateStack();
 

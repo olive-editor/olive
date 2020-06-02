@@ -82,7 +82,11 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
     locker.unlock();
 
     emit Invalidated(invalidate_range);
+  } else {
+    locker.unlock();
   }
+
+  emit Shifted(from, to);
 }
 
 void PlaybackCache::Validate(const TimeRange &r)

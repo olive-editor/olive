@@ -177,6 +177,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
+  connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   connect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
@@ -231,6 +232,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
+  disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
@@ -1204,7 +1206,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
-    ForceUpdate();
+    QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
   }
 
   ViewerInvalidatedRange();
@@ -1218,6 +1220,13 @@ void ViewerWidget::ViewerInvalidatedRange()
 
   if (!(qApp->mouseButtons() & Qt::LeftButton)) {
     cache_wait_timer_.start();
+  }
+}
+
+void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
+{
+  if (GetTime() >= qMin(from, to)) {
+    QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
   }
 }
 
