@@ -105,12 +105,15 @@ void ViewerSizer::UpdateSize()
       // This container is taller than the image, scale by width
       child_size = QSize(width(), qRound(child_size.width() / aspect_ratio_));
     }
-    emit SetZoomFlag(false);
+    emit SendZoomData(false, 0);
 
   } else {
 
     float x_scale = 1.0f;
     float y_scale = 1.0f;
+    // Translation is only active if the image is bigger then the widget
+    // See ViewerDisplayWidget::SetZoomData
+    bool zoomed_in = false;
 
     int zoomed_width = qRound(width_ * static_cast<double>(zoom_) * 0.01);
     int zoomed_height = qRound(height_ * static_cast<double>(zoom_) * 0.01);
@@ -118,18 +121,20 @@ void ViewerSizer::UpdateSize()
     if (zoomed_width > width()) {
       x_scale = static_cast<double>(zoomed_width) / static_cast<double>(width());
       zoomed_width = width();
+      zoomed_in = true;
     }
 
     if (zoomed_height > height()) {
       y_scale = static_cast<double>(zoomed_height) / static_cast<double>(height());
       zoomed_height = height();
+      zoomed_in = true;
     }
 
     // Rather than make a huge surface, we still crop at our width/height and then signal a matrix
     child_matrix.scale(x_scale, y_scale, 1.0F);
 
     child_size = QSize(zoomed_width, zoomed_height);
-    emit SetZoomFlag(true);
+    emit SendZoomData(zoomed_in, zoom_);
   }
 
   widget_->resize(child_size);

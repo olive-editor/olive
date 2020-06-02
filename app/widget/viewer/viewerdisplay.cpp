@@ -48,7 +48,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   gizmos_(nullptr),
   gizmo_click_(false),
   last_loaded_buffer_(nullptr),
-  zoomed_(false)
+  zoomed_(false),
+  zoom_multiplier_(1.0)
 {
 }
 
@@ -69,13 +70,17 @@ void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
   update();
 }
 
-void ViewerDisplayWidget::SetZoomFlag(bool flag)
+void ViewerDisplayWidget::SetZoomData(bool flag, int percent)
 {
   zoomed_ = flag;
-  // If not scaled reset translation matrix to identity
+  // If the image is smaller than the conainer widget we disable translation
   if (!flag) {
     QMatrix4x4 mat;
     SetMatrixTranslate(mat);
+    zoom_multiplier_ = 1.0f;
+  }
+  else {
+    zoom_multiplier_ = 1.0 / (static_cast<double>(percent) * 0.01);
   }
 }
 
@@ -174,7 +179,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
     SetMatrixTranslate(mat);
   }
 
-  // get current position in preperation for move event
+  // If translation is enabled get current position in preperation for move event
   if (event->button() == Qt::MiddleButton && zoomed_) {
     position_ = event->pos();
     return;
@@ -189,11 +194,12 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
+  // Only allow translation if the image is larger than the container widget
   if (event->buttons() & Qt::MiddleButton && zoomed_) {
     QPointF delta = event->pos() - position_;
-    // scale delta to widget size
-    delta.setX(delta.x() / width());
-    delta.setY(delta.y() / height());
+    // scale delta to widget size and zoom level
+    delta.setX(zoom_multiplier_ * delta.x() / width());
+    delta.setY(zoom_multiplier_ * delta.y() / height());
 
     QMatrix4x4 mat;
     mat = GetMatrixTranslate();

@@ -65,7 +65,7 @@ public:
 
 signals:
   void RequestMatrix(const QMatrix4x4& matrix);
-  void SetZoomFlag(bool flag);
+  void SendZoomData(bool flag, int percent);
 
 protected:
   /**

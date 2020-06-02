@@ -116,7 +116,7 @@ public slots:
    */
   void SetImage(FramePtr in_buffer);
 
-  void SetZoomFlag(bool flag);
+  void SetZoomData(bool flag, int percent);
 
 signals:
   /**
@@ -181,8 +181,6 @@ private:
    */
   QMatrix4x4 scale_matrix_;
 
-  bool zoomed_;
-
 #ifdef Q_OS_LINUX
   static bool nouveau_check_done_;
 #endif
@@ -200,6 +198,16 @@ private:
   rational time_;
 
   FramePtr last_loaded_buffer_;
+
+  /**
+   * @brief Tells us if the image is zoomed in to be larger than the container widget.
+   */
+  bool zoomed_;
+
+  /**
+   * @brief Scale the translation so the image sticks to the mouse and we get sensible movement
+   */
+  double zoom_multiplier_;
 
   /**
    * @brief position of mouse to calculate delta from.
