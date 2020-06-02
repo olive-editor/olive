@@ -95,6 +95,10 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
 
 void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &start)
 {
+  if (sums.data_.isEmpty()) {
+    return;
+  }
+
   int start_index = time_to_samples(start);
   int end_index = start_index + sums.data_.size();
 
