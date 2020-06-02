@@ -40,6 +40,8 @@ Node::Node() :
 
 Node::~Node()
 {
+  DisconnectAll();
+
   // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
   // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
   foreach (NodeParam* param, params_) {
