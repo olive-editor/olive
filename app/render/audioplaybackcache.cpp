@@ -39,6 +39,8 @@ AudioPlaybackCache::AudioPlaybackCache()
 
 void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
 {
+  QMutexLocker locker(lock());
+
   if (params_ == params) {
     return;
   }
@@ -52,13 +54,19 @@ void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
   }
 
   // Our current audio cache is unusable, so we truncate it automatically
-  InvalidateAll();
+  TimeRange invalidate_range(0, NoLockGetLength());
+  NoLockInvalidate(invalidate_range);
+
+  locker.unlock();
 
   emit ParametersChanged();
+  emit Invalidated(invalidate_range);
 }
 
 void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples)
 {
+  QMutexLocker locker(lock());
+
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
     qint64 start_offset = params_.time_to_bytes(range.in());
@@ -82,7 +90,11 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
     f.close();
 
-    Validate(range);
+    NoLockValidate(range);
+
+    locker.unlock();
+
+    emit Validated(range);
   } else {
     qWarning() << "Failed to write PCM data to" << filename_;
   }
@@ -90,6 +102,8 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
 void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 {
+  QMutexLocker locker(lock());
+
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
     qint64 start_offset = params_.time_to_bytes(range.in());

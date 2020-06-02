@@ -21,6 +21,7 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
+#include <QMutex>
 #include <QObject>
 
 #include "common/timerange.h"
@@ -31,30 +32,41 @@ class PlaybackCache : public QObject
 {
   Q_OBJECT
 public:
-  PlaybackCache();
+  PlaybackCache() = default;
 
   void Invalidate(const TimeRange& r);
 
   void InvalidateAll();
 
-  const rational& GetLength() const
+  const rational& GetLength()
   {
-    return length_;
+    QMutexLocker locker(lock());
+
+    return NoLockGetLength();
   }
 
   void SetLength(const rational& r);
 
-  bool IsFullyValidated() const;
+  bool IsFullyValidated()
+  {
+    QMutexLocker locker(lock());
+
+    return invalidated_.isEmpty();
+  }
 
   void Shift(const rational& from, const rational& to);
 
-  const TimeRangeList& GetInvalidatedRanges() const
+  const TimeRangeList& GetInvalidatedRanges()
   {
-    return invalidated_;
+    QMutexLocker locker(lock());
+
+    return NoLockGetInvalidatedRanges();
   }
 
-  bool HasInvalidatedRanges() const
+  bool HasInvalidatedRanges()
   {
+    QMutexLocker locker(lock());
+
     return !invalidated_.isEmpty();
   }
 
@@ -68,13 +80,36 @@ signals:
 protected:
   void Validate(const TimeRange& r);
 
+  void NoLockInvalidate(const TimeRange& r);
+
+  void NoLockValidate(const TimeRange& r);
+
+  void NoLockSetLength(const rational& r);
+
+  const rational& NoLockGetLength() const
+  {
+    return length_;
+  }
+
+  const TimeRangeList& NoLockGetInvalidatedRanges()
+  {
+    return invalidated_;
+  }
+
   virtual void LengthChangedEvent(const rational& old, const rational& newlen);
 
   virtual void InvalidateEvent(const TimeRange& range);
 
   virtual void ShiftEvent(const rational& from, const rational& to);
 
+  QMutex* lock()
+  {
+    return &lock_;
+  }
+
 private:
+  QMutex lock_;
+
   TimeRangeList invalidated_;
 
   rational length_;

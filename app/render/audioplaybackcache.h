@@ -33,7 +33,8 @@ class AudioPlaybackCache : public PlaybackCache
 public:
   AudioPlaybackCache();
 
-  const AudioRenderingParams& GetParameters() const {
+  AudioRenderingParams GetParameters() {
+    QMutexLocker locker(lock());
     return params_;
   }
 

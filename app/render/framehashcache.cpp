@@ -34,25 +34,39 @@
 
 OLIVE_NAMESPACE_ENTER
 
-QByteArray FrameHashCache::GetHash(const rational &time) const
+QByteArray FrameHashCache::GetHash(const rational &time)
 {
+  QMutexLocker locker(lock());
+
   return time_hash_map_.value(time);
 }
 
 void FrameHashCache::SetHash(const rational &time, const QByteArray &hash)
 {
+  QMutexLocker locker(lock());
+
   time_hash_map_.insert(time, hash);
 
-  Validate(TimeRange(time, time + timebase_));
+  TimeRange validated_range(time, time + timebase_);
+
+  NoLockValidate(validated_range);
+
+  locker.unlock();
+
+  emit Validated(validated_range);
 }
 
 void FrameHashCache::SetTimebase(const rational &tb)
 {
+  QMutexLocker locker(lock());
+
   timebase_ = tb;
 }
 
-QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash) const
+QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
+  QMutexLocker locker(lock());
+
   QList<rational> times;
 
   QMap<rational, QByteArray>::const_iterator iterator;
@@ -68,6 +82,8 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash) const
 
 QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
+  QMutexLocker locker(lock());
+
   QList<rational> times;
 
   QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
@@ -82,11 +98,23 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
     }
   }
 
+  foreach (const rational& r, times) {
+    NoLockInvalidate(TimeRange(r, r + timebase_));
+  }
+
+  locker.unlock();
+
+  foreach (const rational& r, times) {
+    emit Invalidated(TimeRange(r, r + timebase_));
+  }
+
   return times;
 }
 
-const QMap<rational, QByteArray> &FrameHashCache::time_hash_map() const
+QMap<rational, QByteArray> FrameHashCache::time_hash_map()
 {
+  QMutexLocker locker(lock());
+
   return time_hash_map_;
 }
 
@@ -130,14 +158,18 @@ QList<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_li
   return times;
 }
 
-QList<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range) const
+QList<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range)
 {
+  QMutexLocker locker(lock());
+
   return GetFrameListFromTimeRange(range, timebase_);
 }
 
-QList<rational> FrameHashCache::GetInvalidatedFrames() const
+QList<rational> FrameHashCache::GetInvalidatedFrames()
 {
-  return GetFrameListFromTimeRange(GetInvalidatedRanges());
+  QMutexLocker locker(lock());
+
+  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges());
 }
 
 void FrameHashCache::SaveCacheFrame(const QByteArray& hash,

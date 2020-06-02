@@ -22,47 +22,41 @@
 
 OLIVE_NAMESPACE_ENTER
 
-PlaybackCache::PlaybackCache()
-{
-
-}
-
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
-  invalidated_.InsertTimeRange(r);
+  QMutexLocker locker(&lock_);
 
-  InvalidateEvent(r);
+  NoLockInvalidate(r);
+
+  locker.unlock();
 
   emit Invalidated(r);
 }
 
-void PlaybackCache::SetLength(const rational &r)
+void PlaybackCache::InvalidateAll()
 {
-  if (length_ == r) {
-    // Same length - do nothing
-    return;
-  }
+  QMutexLocker locker(&lock_);
 
-  if (r > length_) {
-    // If new length is greater, simply extend the invalidated range for now
-    invalidated_.InsertTimeRange(TimeRange(length_, r));
-  } else {
-    // If new length is smaller, removed hashes
-    invalidated_.RemoveTimeRange(TimeRange(r, length_));
-  }
+  TimeRange invalidate_range(0, length_);
 
-  LengthChangedEvent(length_, r);
+  NoLockInvalidate(invalidate_range);
 
-  length_ = r;
+  locker.unlock();
+
+  emit Invalidated(invalidate_range);
 }
 
-bool PlaybackCache::IsFullyValidated() const
+void PlaybackCache::SetLength(const rational &r)
 {
-  return invalidated_.isEmpty();
+  QMutexLocker locker(&lock_);
+
+  NoLockSetLength(r);
 }
 
 void PlaybackCache::Shift(const rational &from, const rational &to)
 {
+  QMutexLocker locker(&lock_);
+
   // An region between `from` and `to` will be inserted or spliced out
   TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
@@ -81,20 +75,57 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
 
   if (diff > rational()) {
     // If shifting forward, add this section to the invalidated region
-    Invalidate(TimeRange(from, to));
+    TimeRange invalidate_range(from, to);
+
+    NoLockInvalidate(invalidate_range);
+
+    locker.unlock();
+
+    emit Invalidated(invalidate_range);
   }
 }
 
 void PlaybackCache::Validate(const TimeRange &r)
 {
-  invalidated_.RemoveTimeRange(r);
+  QMutexLocker locker(&lock_);
+
+  NoLockValidate(r);
+
+  locker.unlock();
 
   emit Validated(r);
 }
 
-void PlaybackCache::InvalidateAll()
+void PlaybackCache::NoLockInvalidate(const TimeRange &r)
 {
-  Invalidate(TimeRange(0, length_));
+  invalidated_.InsertTimeRange(r);
+
+  InvalidateEvent(r);
+}
+
+void PlaybackCache::NoLockValidate(const TimeRange &r)
+{
+  invalidated_.RemoveTimeRange(r);
+}
+
+void PlaybackCache::NoLockSetLength(const rational &r)
+{
+  if (length_ == r) {
+    // Same length - do nothing
+    return;
+  }
+
+  if (r > length_) {
+    // If new length is greater, simply extend the invalidated range for now
+    invalidated_.InsertTimeRange(TimeRange(length_, r));
+  } else {
+    // If new length is smaller, removed hashes
+    invalidated_.RemoveTimeRange(TimeRange(r, length_));
+  }
+
+  LengthChangedEvent(length_, r);
+
+  length_ = r;
 }
 
 void PlaybackCache::LengthChangedEvent(const rational &, const rational &)

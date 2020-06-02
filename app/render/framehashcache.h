@@ -37,7 +37,7 @@ class FrameHashCache : public PlaybackCache
 public:
   FrameHashCache() = default;
 
-  QByteArray GetHash(const rational& time) const;
+  QByteArray GetHash(const rational& time);
 
   void SetHash(const rational& time, const QByteArray& hash);
 
@@ -46,14 +46,14 @@ public:
   /**
    * @brief Returns a list of frames that use a particular hash
    */
-  QList<rational> GetFramesWithHash(const QByteArray& hash) const;
+  QList<rational> GetFramesWithHash(const QByteArray& hash);
 
   /**
    * @brief Same as FramesWithHash() but also removes these frames from the map
    */
   QList<rational> TakeFramesWithHash(const QByteArray& hash);
 
-  const QMap<rational, QByteArray>& time_hash_map() const;
+  QMap<rational, QByteArray> time_hash_map();
 
   /**
    * @brief Return the path of the cached image at this time
@@ -67,8 +67,8 @@ public:
   static QString GetFormatExtension(const PixelFormat::Format& f);
 
   static QList<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
-  QList<rational> GetFrameListFromTimeRange(const TimeRangeList &range) const;
-  QList<rational> GetInvalidatedFrames() const;
+  QList<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
+  QList<rational> GetInvalidatedFrames();
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
