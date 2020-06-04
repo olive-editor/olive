@@ -187,6 +187,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
                                                                 SampleFormat::kInternalFormat));
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
+  last_length_ = rational();
   LengthChangedSlot(n->GetLength());
 
   ColorManager* using_manager;
@@ -1180,8 +1181,16 @@ void ViewerWidget::SizeChangedSlot(int width, int height)
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
-  controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
-  UpdateMinimumScale();
+  if (last_length_ != length) {
+    controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
+    UpdateMinimumScale();
+
+    if (length < last_length_ && GetTime() >= length) {
+      ForceUpdate();
+    }
+
+    last_length_ = length;
+  }
 }
 
 void ViewerWidget::SetDividerFromMenu(QAction *action)

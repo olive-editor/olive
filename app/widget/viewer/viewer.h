@@ -249,6 +249,8 @@ private:
 
   CacheTask* our_cache_background_task_;
 
+  rational last_length_;
+
   static CacheTask* cache_background_task_;
 
   static int busy_viewers_;
