@@ -73,6 +73,11 @@ public:
     copy_map_ = copy_map;
   }
 
+  void SetGeneratePreviews(bool e)
+  {
+    generate_previews_ = e;
+  }
+
   /**
    * @brief Return a unique ID for the image generated at this time
    *
@@ -127,6 +132,8 @@ signals:
 
   void FinishedJob();
 
+  void WaveformGenerated(const OLIVE_NAMESPACE::TrackOutput* track, const OLIVE_NAMESPACE::AudioVisualWaveform& samples, const OLIVE_NAMESPACE::rational& start);
+
 private:
   NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
 
@@ -156,6 +163,8 @@ private:
   bool available_;
 
   bool audio_mode_is_preview_;
+
+  bool generate_previews_;
 
   QHash<Node*, Node*>* copy_map_;
 

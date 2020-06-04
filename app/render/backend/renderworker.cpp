@@ -34,7 +34,8 @@ OLIVE_NAMESPACE_ENTER
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
-  audio_mode_is_preview_(false)
+  audio_mode_is_preview_(false),
+  generate_previews_(false)
 {
 }
 
@@ -123,22 +124,15 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
       // Copy samples into destination buffer
       block_range_buffer->set(samples_from_this_block->const_data(), destination_offset, copy_length);
 
-      if (b->type() == Block::kClip) {
-        // Save waveform to file
-        ClipBlock* src_block = static_cast<ClipBlock*>(copy_map_->key(b));
-
-        AudioVisualWaveform& clip_waveform = src_block->waveform();
-
-        clip_waveform.set_channel_count(audio_params_.channel_count());
-
-        clip_waveform.OverwriteSamples(samples_from_this_block,
-                                       audio_params_.sample_rate(),
-                                       range_for_block.in() - b->in());
-
-        emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
-      }
-
       NodeValueTable::Merge({merged_table, table});
+    }
+
+    if (generate_previews_) {
+      // Generate visual waveform in this background thread
+      AudioVisualWaveform visual_waveform;
+      visual_waveform.set_channel_count(audio_params_.channel_count());
+      visual_waveform.AddSamples(block_range_buffer, audio_params_.sample_rate());
+      emit WaveformGenerated(track, visual_waveform, range.in());
     }
 
     merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer));

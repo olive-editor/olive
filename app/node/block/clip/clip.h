@@ -21,7 +21,6 @@
 #ifndef CLIPBLOCK_H
 #define CLIPBLOCK_H
 
-#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -57,30 +56,8 @@ public:
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
-  AudioVisualWaveform& waveform()
-  {
-    return waveform_;
-  }
-
-  void set_waveform(const AudioVisualWaveform& wave)
-  {
-    waveform_ = wave;
-
-    emit PreviewUpdated();
-  }
-
-signals:
-  void PreviewUpdated();
-
-protected:
-  virtual void LengthChangedEvent(const rational& old_length,
-                                  const rational& new_length,
-                                  const Timeline::MovementMode& mode) override;
-
 private:
   NodeInput* texture_input_;
-
-  AudioVisualWaveform waveform_;
 
 };
 

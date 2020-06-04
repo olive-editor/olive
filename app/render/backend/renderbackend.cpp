@@ -94,11 +94,6 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
   }
 }
 
-void RenderBackend::SetUpdateWithGraph(bool e)
-{
-  update_with_graph_ = e;
-}
-
 void RenderBackend::ClearVideoQueue()
 {
   foreach (RenderTicketPtr t, render_queue_) {
@@ -275,6 +270,7 @@ void RenderBackend::RunNextJob()
       RenderWorker* worker = CreateNewWorker();
 
       connect(worker, &RenderWorker::FinishedJob, this, &RenderBackend::WorkerFinished);
+      connect(worker, &RenderWorker::WaveformGenerated, this, &RenderBackend::WorkerGeneratedWaveform);
 
       workers_.replace(i, {worker, false});
     }
@@ -292,6 +288,7 @@ void RenderBackend::RunNextJob()
       worker->SetVideoParams(video_params_);
       worker->SetAudioParams(audio_params_);
       worker->SetVideoDownloadMatrix(video_download_matrix_);
+      worker->SetGeneratePreviews(generate_previews_);
       worker->SetCopyMap(&copy_map_);
 
       RenderTicketPtr ticket = render_queue_.front();
@@ -351,6 +348,34 @@ void RenderBackend::WorkerFinished()
 
   if (viewer_node_) {
     RunNextJob();
+  }
+}
+
+void RenderBackend::WorkerGeneratedWaveform(const TrackOutput *copied_track, const AudioVisualWaveform& samples, const rational &r)
+{
+  TrackOutput* track = nullptr;
+
+  /*
+  if (!viewer_node_->audio_playback_cache()->JobIsCurrent(r)) {
+    return;
+  }
+  */
+
+  QHash<Node*, Node*>::const_iterator i;
+  for (i=copy_map_.constBegin(); i!=copy_map_.constEnd(); i++) {
+    if (i.value() == copied_track) {
+      track = static_cast<TrackOutput*>(i.key());
+      break;
+    }
+  }
+
+  if (track) {
+    track->waveform().set_channel_count(audio_params_.channel_count());
+    track->waveform().OverwriteSums(samples, r);
+    qDebug() << "Preview changed";
+    emit track->PreviewChanged();
+  } else {
+    qDebug() << "Failed to find track";
   }
 }
 

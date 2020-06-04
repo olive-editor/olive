@@ -63,12 +63,7 @@ const Timeline::TrackType& TrackOutput::track_type() const
   return track_type_;
 }
 
-Block::Type TrackOutput::type() const
-{
-  return kClip;
-}
-
-Block *TrackOutput::copy() const
+Node *TrackOutput::copy() const
 {
   return new TrackOutput();
 }
@@ -116,7 +111,7 @@ void TrackOutput::SetTrackHeight(const int &height)
 
 void TrackOutput::Retranslate()
 {
-  Block::Retranslate();
+  Node::Retranslate();
 
   block_input_->set_name(tr("Blocks"));
   muted_input_->set_name(tr("Muted"));

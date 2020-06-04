@@ -28,40 +28,19 @@ OLIVE_NAMESPACE_ENTER
 
 const int AudioVisualWaveform::kSumSampleRate = 200;
 
+void AudioVisualWaveform::AddSamples(SampleBufferPtr samples, int sample_rate)
+{
+  if (!channels_) {
+    qWarning() << "Failed to write samples - channel count is zero";
+  }
+
+  overwrite_samples_internal(samples, sample_rate, 0);
+}
+
 void AudioVisualWaveform::AddSum(const float *samples, int nb_samples, int nb_channels)
 {
   data_.append(SumSamples(samples, nb_samples, nb_channels));
 }
-
-/*
-void AudioVisualWaveform::AddSamples(SampleBufferPtr samples)
-{
-  if (!params_.is_valid()) {
-
-  }
-
-  int chunk_size = (audio_params_.sample_rate() / waveform_params.sample_rate());
-
-  qint64 start_offset = sizeof(SampleSummer::Info) + waveform_params.time_to_bytes(range_for_block.in() - b->in());
-  qint64 length_offset = waveform_params.time_to_bytes(range_for_block.length());
-  qint64 end_offset = start_offset + length_offset;
-
-  if (wave_file.size() < end_offset) {
-    wave_file.resize(end_offset);
-  }
-
-  wave_file.seek(start_offset);
-
-  for (int i=0;i<samples->sample_count();i+=chunk_size) {
-    QVector<Sample> summary = SumSamples(samples,
-                                         i,
-                                         qMin(chunk_size, samples->sample_count_per_channel() - i));
-
-    wave_file.write(reinterpret_cast<const char*>(summary.constData()),
-                    summary.size() * sizeof(SampleSummer::Sum));
-  }
-}
-*/
 
 void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational &start)
 {
@@ -69,28 +48,7 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
     qWarning() << "Failed to write samples - channel count is zero";
   }
 
-  int start_index = time_to_samples(start);
-  int samples_length = time_to_samples(static_cast<double>(samples->sample_count()) / static_cast<double>(sample_rate));
-
-  int end_index = start_index + samples_length;
-  if (data_.size() < end_index) {
-    data_.resize(end_index);
-  }
-
-  int chunk_size = sample_rate / kSumSampleRate;
-
-  for (int i=0; i<samples_length; i++) {
-
-    int src_index = (i * chunk_size) / channels_;
-
-    QVector<SamplePerChannel> summary = SumSamples(samples,
-                                                   src_index,
-                                                   qMin(chunk_size, samples->sample_count() - src_index));
-
-    memcpy(&data_.data()[i + start_index],
-        summary.constData(),
-        summary.size() * sizeof(SamplePerChannel));
-  }
+  overwrite_samples_internal(samples, sample_rate, time_to_samples(start));
 }
 
 void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &start)
@@ -150,10 +108,7 @@ void AudioVisualWaveform::PrependSilence(const rational &time)
   }
 
   // Fill remainder with silence
-  for (int i=0;i<added_samples;i++) {
-    data_[i].max = 0;
-    data_[i].min = 0;
-  }
+  memset(data_.data(), 0, added_samples * sizeof(SamplePerChannel));
 }
 
 void AudioVisualWaveform::AppendSilence(const rational &time)
@@ -165,10 +120,7 @@ void AudioVisualWaveform::AppendSilence(const rational &time)
   data_.resize(old_size + added_samples);
 
   // Fill remainder with silence
-  for (int i=old_size;i<data_.size();i++) {
-    data_[i].max = 0;
-    data_[i].min = 0;
-  }
+  memset(&data_[old_size], 0, (data_.size() - old_size) * sizeof(SamplePerChannel));
 }
 
 QVector<AudioVisualWaveform::SamplePerChannel> AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
@@ -245,9 +197,11 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const QVector<SamplePerC
   }
 }
 
-void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const AudioVisualWaveform &samples)
+void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const AudioVisualWaveform &samples, const rational& start_time)
 {
-  int sample_index, next_sample_index = 0;
+  int start_sample_index = samples.time_to_samples(start_time);
+  int next_sample_index = start_sample_index;
+  int sample_index;
 
   QVector<SamplePerChannel> summary;
   int summary_index = -1;
@@ -258,8 +212,6 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   int start = qMax(rect.x(), -top_left.x());
   int end = qMin(rect.right(), -top_left.x() + viewport.width());
 
-  QVector<QLine> lines;
-
   for (int i=start;i<end;i++) {
     sample_index = next_sample_index;
 
@@ -268,7 +220,7 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
     }
 
     next_sample_index = qMin(samples.nb_samples(),
-                             qFloor(static_cast<double>(kSumSampleRate) * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count());
+                             start_sample_index + qFloor(static_cast<double>(kSumSampleRate) * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count());
 
     if (summary_index != sample_index) {
       summary = AudioVisualWaveform::ReSumSamples(&samples.data_.at(sample_index),
@@ -279,8 +231,31 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
 
     DrawSample(painter, summary, i, rect.y(), rect.height());
   }
+}
 
-  painter->drawLines(lines);
+void AudioVisualWaveform::overwrite_samples_internal(SampleBufferPtr samples, int sample_rate, int start_index)
+{
+  int samples_length = time_to_samples(static_cast<double>(samples->sample_count()) / static_cast<double>(sample_rate));
+
+  int end_index = start_index + samples_length;
+  if (data_.size() < end_index) {
+    data_.resize(end_index);
+  }
+
+  int chunk_size = sample_rate / kSumSampleRate;
+
+  for (int i=0; i<samples_length; i++) {
+
+    int src_index = (i * chunk_size) / channels_;
+
+    QVector<SamplePerChannel> summary = SumSamples(samples,
+                                                   src_index,
+                                                   qMin(chunk_size, samples->sample_count() - src_index));
+
+    memcpy(&data_.data()[i + start_index],
+        summary.constData(),
+        summary.size() * sizeof(SamplePerChannel));
+  }
 }
 
 int AudioVisualWaveform::time_to_samples(const rational &time) const

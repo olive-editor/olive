@@ -59,26 +59,6 @@ NodeInput *ClipBlock::texture_input() const
   return texture_input_;
 }
 
-void ClipBlock::LengthChangedEvent(const rational &old_length, const rational &new_length, const Timeline::MovementMode &mode)
-{
-  // Positive if made longer, negative if made shorter
-  rational diff = new_length - old_length;
-
-  if (diff < rational()) {
-    if (mode == Timeline::kTrimIn) {
-      waveform().TrimIn(-diff);
-    } else {
-      waveform().TrimOut(-diff);
-    }
-  } else {
-    if (mode == Timeline::kTrimIn) {
-      waveform().PrependSilence(diff);
-    } else {
-      waveform().AppendSilence(diff);
-    }
-  }
-}
-
 void ClipBlock::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   // If signal is from texture input, transform all times from media time to sequence time

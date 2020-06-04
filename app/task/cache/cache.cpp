@@ -32,6 +32,8 @@ CacheTask::CacheTask(ViewerOutput* viewer, const VideoRenderingParams& vparams, 
   in_out_only_(in_out_only)
 {
   SetTitle(tr("Caching \"%1\"").arg(viewer->media_name()));
+
+  backend()->SetGeneratePreviews(true);
 }
 
 bool CacheTask::Run()

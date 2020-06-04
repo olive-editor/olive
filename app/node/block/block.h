@@ -28,13 +28,6 @@ OLIVE_NAMESPACE_ENTER
 
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
- *
- * This is an abstract function. Since different types of Block will provide their lengths in different ways, it's
- * necessary to subclass and override the length() function for a Block to be usable.
- *
- * When overriding Node::copy(), the derivative class should also call Block::CopyParameters() on the new Block instance
- * which will copy the block's name, length, and media in point. It does not copy any node-specific parameters like any
- * input values or connections as per standard with Node::copy().
  */
 class Block : public Node
 {

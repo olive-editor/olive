@@ -210,10 +210,6 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     // Split the block here
     trim_in_ = static_cast<Block*>(trim_out_->copy());
 
-    if (trim_out_->type() == Block::kClip) {
-      static_cast<ClipBlock*>(trim_in_)->set_waveform(static_cast<ClipBlock*>(trim_out_)->waveform());
-    }
-
     static_cast<NodeGraph*>(track_->parent())->AddNode(trim_in_);
     Node::CopyInputs(trim_out_, trim_in_);
 
@@ -298,11 +294,6 @@ void TrackRippleRemoveAreaCommand::undo_internal()
     // trim_in_ is our copy and trim_out_ is our original
     track_->RippleRemoveBlock(trim_in_);
     trim_out_->set_length_and_media_out(trim_out_old_length_);
-
-    if (trim_out_->type() == Block::kClip) {
-      static_cast<ClipBlock*>(trim_out_)->waveform().OverwriteSums(static_cast<ClipBlock*>(trim_in_)->waveform(),
-                                                                   out_ - trim_out_->in());
-    }
 
     delete TakeNodeFromParentGraph(trim_in_);
 
@@ -448,19 +439,9 @@ void BlockSplitCommand::redo_internal()
 
   rational new_part_length = block_->length() - (point_ - block_->in());
 
-  AudioVisualWaveform split_waveform;
-
-  if (block_->type() == Block::kClip) {
-    split_waveform = static_cast<ClipBlock*>(block_)->waveform().Mid(new_length_);
-  }
-
   block_->set_length_and_media_out(new_length_);
 
   new_block_->set_length_and_media_in(new_part_length);
-
-  if (block_->type() == Block::kClip) {
-    static_cast<ClipBlock*>(new_block_)->set_waveform(split_waveform);
-  }
 
   track_->InsertBlockAfter(new_block_, block_);
 
@@ -484,11 +465,6 @@ void BlockSplitCommand::undo_internal()
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(new_block_->output(), transition);
     NodeParam::ConnectEdge(block_->output(), transition);
-  }
-
-  if (block_->type() == Block::kClip) {
-    static_cast<ClipBlock*>(block_)->waveform().OverwriteSums(static_cast<ClipBlock*>(new_block_)->waveform(),
-                                                              new_length_);
   }
 
   track_->UnblockInvalidateCache();
@@ -622,102 +598,6 @@ Project *BlockSplitPreservingLinksCommand::GetRelevantProject() const
 {
   return static_cast<Sequence*>(blocks_.first()->parent())->project();
 }
-
-/*
-TrackCleanGapsCommand::TrackCleanGapsCommand(TrackList *track_list, int index, QUndoCommand *parent) :
-  UndoCommand(parent),
-  track_list_(track_list),
-  track_index_(index)
-{
-}
-
-Project *TrackCleanGapsCommand::GetRelevantProject() const
-{
-  return static_cast<Sequence*>(track_list_->GetParentGraph())->project();
-}
-
-void TrackCleanGapsCommand::redo_internal()
-{
-  GapBlock* on_gap = nullptr;
-  QList<GapBlock*> consecutive_gaps;
-
-  TrackOutput* track = track_list_->GetTrackAt(track_index_);
-
-  // We can block the IC signal because merging gaps won't actually change anything
-  track->BlockInvalidateCache();
-
-  foreach (Block* b, track->Blocks()) {
-    if (b->type() == Block::kGap) {
-      if (on_gap) {
-        consecutive_gaps.append(static_cast<GapBlock*>(b));
-      } else {
-        on_gap = static_cast<GapBlock*>(b);
-      }
-    } else if (on_gap) {
-      merged_gaps_.append({on_gap, on_gap->length(), consecutive_gaps});
-
-      // Remove each gap and add to the length of the merged
-      rational new_gap_length = on_gap->length();
-      foreach (GapBlock* gap, consecutive_gaps) {
-        track->RippleRemoveBlock(gap);
-        static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
-
-        new_gap_length += gap->length();
-      }
-      on_gap->set_length_and_media_out(new_gap_length);
-
-      // Reset state
-      on_gap = nullptr;
-      consecutive_gaps.clear();
-    }
-  }
-
-  if (on_gap) {
-    // If we're here, we found at least one or several
-    removed_end_gaps_.append(on_gap);
-    removed_end_gaps_.append(consecutive_gaps);
-
-    foreach (GapBlock* gap, removed_end_gaps_) {
-      track->RippleRemoveBlock(gap);
-      static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
-    }
-  }
-
-  track->UnblockInvalidateCache();
-}
-
-void TrackCleanGapsCommand::undo_internal()
-{
-  TrackOutput* track = track_list_->GetTrackAt(track_index_);
-
-  track->BlockInvalidateCache();
-
-  // Restored removed end gaps
-  foreach (GapBlock* gap, removed_end_gaps_) {
-    static_cast<NodeGraph*>(track->parent())->AddNode(gap);
-    track->AppendBlock(gap);
-  }
-  removed_end_gaps_.clear();
-
-  for (int i=merged_gaps_.size()-1;i>=0;i--) {
-    const MergedGap& merge_info = merged_gaps_.at(i);
-
-    merge_info.merged->set_length_and_media_out(merge_info.original_length);
-
-    GapBlock* last_gap_added = merge_info.merged;
-
-    foreach (GapBlock* gap, merge_info.removed) {
-      static_cast<NodeGraph*>(track->parent())->AddNode(gap);
-      track->InsertBlockAfter(gap, last_gap_added);
-      last_gap_added = gap;
-    }
-  }
-
-  track->UnblockInvalidateCache();
-
-  merged_gaps_.clear();
-}
-*/
 
 BlockSetSpeedCommand::BlockSetSpeedCommand(Block *block, const rational &new_speed, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -1203,7 +1083,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
   } else {
 
     // If there's no `gap_`, we must have removed the block at the end
-    invalidate_range = TimeRange(track_->length(), RATIONAL_MAX);
+    invalidate_range = TimeRange(track_->track_length(), RATIONAL_MAX);
 
     if (merged_gap_) {
       static_cast<NodeGraph*>(track_->parent())->AddNode(merged_gap_);

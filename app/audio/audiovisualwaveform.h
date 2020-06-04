@@ -66,6 +66,7 @@ public:
     return data_.constData();
   }
 
+  void AddSamples(SampleBufferPtr samples, int sample_rate);
   void AddSum(const float* samples, int nb_samples, int nb_channels);
 
   void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start);
@@ -89,7 +90,7 @@ public:
 
   static void DrawSample(QPainter* painter, const QVector<SamplePerChannel> &sample, int x, int y, int height);
 
-  static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const AudioVisualWaveform& samples);
+  static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const AudioVisualWaveform& samples, const rational &start_time);
 
 private:
   template <typename T>
@@ -97,6 +98,8 @@ private:
 
   template <typename T>
   static void ClampMinMax(SamplePerChannel &sum, T value);
+
+  void overwrite_samples_internal(SampleBufferPtr samples, int sample_rate, int start_index);
 
   int time_to_samples(const rational& time) const;
   int time_to_samples(const double& time) const;
@@ -108,5 +111,7 @@ private:
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::AudioVisualWaveform)
 
 #endif // SUMSAMPLES_H

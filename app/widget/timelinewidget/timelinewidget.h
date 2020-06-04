@@ -528,9 +528,11 @@ private slots:
    * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
    * derivatives.
    */
-  void BlockChanged();
+  void BlockRefreshed();
 
-  void PreviewUpdated();
+  void BlockUpdated();
+
+  void TrackPreviewUpdated();
 
   void UpdateHorizontalSplitters();
 

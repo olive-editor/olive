@@ -21,6 +21,7 @@
 #ifndef TRACKOUTPUT_H
 #define TRACKOUTPUT_H
 
+#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
 #include "timeline/timelinecommon.h"
 
@@ -29,7 +30,7 @@ OLIVE_NAMESPACE_ENTER
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
-class TrackOutput : public Block
+class TrackOutput : public Node
 {
   Q_OBJECT
 public:
@@ -38,9 +39,7 @@ public:
   const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 
-  virtual Type type() const override;
-
-  virtual Block* copy() const override;
+  virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -195,6 +194,11 @@ public:
 
   void PushLengthChangeSignal();
 
+  AudioVisualWaveform& waveform()
+  {
+    return waveform_;
+  }
+
 public slots:
   void SetTrackName(const QString& name);
 
@@ -233,6 +237,11 @@ signals:
    */
   void IndexChanged(int i);
 
+  /**
+   * @brief Signal emitted when preview (waveform) has changed and UI should be updated
+   */
+  void PreviewChanged();
+
 protected:
 
 private:
@@ -265,6 +274,8 @@ private:
 
   bool queued_length_change_;
   rational queued_length_;
+
+  AudioVisualWaveform waveform_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

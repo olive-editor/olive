@@ -68,6 +68,11 @@ protected:
     return job_time_;
   }
 
+  OpenGLBackend* backend()
+  {
+    return &backend_;
+  }
+
 private:
   ViewerOutput* viewer_;
 

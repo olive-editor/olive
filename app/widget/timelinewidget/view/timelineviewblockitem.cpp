@@ -97,10 +97,14 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     // Draw waveform if one is available
     painter->setPen(QColor(64, 64, 64));
-    AudioVisualWaveform::DrawWaveform(painter,
-                                      rect().toRect(),
-                                      this->GetScale(),
-                                      static_cast<ClipBlock*>(block_)->waveform());
+    TrackOutput* track = TrackOutput::TrackFromBlock(block_);
+    if (track) {
+      AudioVisualWaveform::DrawWaveform(painter,
+                                        rect().toRect(),
+                                        this->GetScale(),
+                                        track->waveform(),
+                                        block_->in());
+    }
 
     painter->setPen(Qt::white);
     painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));

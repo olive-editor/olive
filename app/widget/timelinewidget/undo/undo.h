@@ -420,37 +420,6 @@ private:
 
 };
 
-/*
-class TrackCleanGapsCommand : public UndoCommand {
-public:
-  TrackCleanGapsCommand(TrackList* track_list, int index, QUndoCommand* parent = nullptr);
-
-  virtual Project* GetRelevantProject() const override;
-
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
-
-private:
-  struct MergedGap {
-    GapBlock* merged;
-    rational original_length;
-    QList<GapBlock*> removed;
-  };
-
-  TrackList* track_list_;
-
-  int track_index_;
-
-  QObject memory_manager_;
-
-  QList<MergedGap> merged_gaps_;
-
-  QList<GapBlock*> removed_end_gaps_;
-
-};
-*/
-
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
 public:
   TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput* vo, const TimeRangeList& regions, QUndoCommand* parent = nullptr);

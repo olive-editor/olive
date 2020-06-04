@@ -552,6 +552,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
+  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
 }
 
 void Core::StartGUI(bool full_screen)

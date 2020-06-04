@@ -45,7 +45,15 @@ public:
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
-  void SetUpdateWithGraph(bool e);
+  void SetUpdateWithGraph(bool e)
+  {
+    update_with_graph_ = e;
+  }
+
+  void SetGeneratePreviews(bool e)
+  {
+    generate_previews_ = e;
+  }
 
   void ClearVideoQueue();
 
@@ -113,8 +121,12 @@ private:
 
   bool update_with_graph_;
 
+  bool generate_previews_;
+
 private slots:
   void WorkerFinished();
+
+  void WorkerGeneratedWaveform(const OLIVE_NAMESPACE::TrackOutput* copied_track, const OLIVE_NAMESPACE::AudioVisualWaveform& samples, const OLIVE_NAMESPACE::rational& start);
 
 };
 

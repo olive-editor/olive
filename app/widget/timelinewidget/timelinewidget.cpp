@@ -981,40 +981,33 @@ void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
 
 void TimelineWidget::AddBlock(Block *block, TrackReference track)
 {
-  switch (block->type()) {
-  case Block::kClip:
-  case Block::kTransition:
-  case Block::kGap:
-  {
-    // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-    TimelineViewBlockItem* item = new TimelineViewBlockItem(block);
+  // Set up clip with view parameters (clip item will automatically size its rect accordingly)
+  TimelineViewBlockItem* item = new TimelineViewBlockItem(block);
 
-    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
-    item->SetScale(GetScale());
-    item->SetTrack(track);
-    item->SetTimebase(timebase());
+  item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
+  item->SetScale(GetScale());
+  item->SetTrack(track);
+  item->SetTimebase(timebase());
 
-    // Add to list of clip items that can be iterated through
-    block_items_.insert(block, item);
+  // Add to list of clip items that can be iterated through
+  block_items_.insert(block, item);
 
-    // Add item to graphics scene
-    views_.at(track.type())->view()->scene()->addItem(item);
+  // Add item to graphics scene
+  views_.at(track.type())->view()->scene()->addItem(item);
 
-    connect(block, &Block::Refreshed, this, &TimelineWidget::BlockChanged);
-    connect(block, &Block::LinksChanged, this, &TimelineWidget::PreviewUpdated);
-    connect(block, &Block::NameChanged, this, &TimelineWidget::PreviewUpdated);
-    connect(block, &Block::EnabledChanged, this, &TimelineWidget::PreviewUpdated);
-
-    if (block->type() == Block::kClip) {
-      connect(static_cast<ClipBlock*>(block), &ClipBlock::PreviewUpdated, this, &TimelineWidget::PreviewUpdated);
-    }
-    break;
-  }
-  }
+  connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+  connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+  connect(block, &Block::NameChanged, this, &TimelineWidget::BlockUpdated);
+  connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 }
 
 void TimelineWidget::RemoveBlock(Block *block)
 {
+  disconnect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+  disconnect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::NameChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+
   delete block_items_.take(block);
 }
 
@@ -1025,11 +1018,13 @@ void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
   }
 
   connect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
+  connect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 }
 
 void TimelineWidget::RemoveTrack(TrackOutput *track)
 {
   disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
+  disconnect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 
   foreach (Block* b, track->Blocks()) {
     RemoveBlock(b);
@@ -1065,7 +1060,7 @@ void TimelineWidget::ViewSelectionChanged()
   emit SelectionChanged(selected_blocks);
 }
 
-void TimelineWidget::BlockChanged()
+void TimelineWidget::BlockRefreshed()
 {
   TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
 
@@ -1074,12 +1069,26 @@ void TimelineWidget::BlockChanged()
   }
 }
 
-void TimelineWidget::PreviewUpdated()
+void TimelineWidget::BlockUpdated()
 {
   TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
 
   if (rect) {
     rect->update();
+  }
+}
+
+void TimelineWidget::TrackPreviewUpdated()
+{
+  QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
+
+  TrackOutput* track = static_cast<TrackOutput*>(sender());
+  TrackReference track_ref(track->track_type(), track->Index());
+
+  for (i=block_items_.constBegin(); i!=block_items_.constEnd(); i++) {
+    if (i.value()->Track() == track_ref) {
+      i.value()->update();
+    }
   }
 }
 
