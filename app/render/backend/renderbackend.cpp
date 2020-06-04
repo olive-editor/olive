@@ -353,6 +353,10 @@ void RenderBackend::WorkerFinished()
 
 void RenderBackend::WorkerGeneratedWaveform(const TrackOutput *copied_track, const AudioVisualWaveform& samples, const rational &r)
 {
+  if (!viewer_node_) {
+    return;
+  }
+
   TrackOutput* track = nullptr;
 
   /*
@@ -372,7 +376,6 @@ void RenderBackend::WorkerGeneratedWaveform(const TrackOutput *copied_track, con
   if (track) {
     track->waveform().set_channel_count(audio_params_.channel_count());
     track->waveform().OverwriteSums(samples, r);
-    qDebug() << "Preview changed";
     emit track->PreviewChanged();
   } else {
     qDebug() << "Failed to find track";

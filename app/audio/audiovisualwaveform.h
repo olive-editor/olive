@@ -78,6 +78,7 @@ public:
   void TrimOut(const rational& time);
   void PrependSilence(const rational& time);
   void AppendSilence(const rational& time);
+  void Shift(const rational& from, const rational& to);
 
   // FIXME: Move to dynamic
   static const int kSumSampleRate;

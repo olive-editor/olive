@@ -57,9 +57,6 @@ ViewerOutput::ViewerOutput()
 
   // Create UUID for this node
   uuid_ = QUuid::createUuid();
-
-  connect(this, &ViewerOutput::LengthChanged, &video_frame_cache_, &PlaybackCache::SetLength);
-  connect(this, &ViewerOutput::LengthChanged, &audio_playback_cache_, &PlaybackCache::SetLength);
 }
 
 Node *ViewerOutput::copy() const
@@ -87,10 +84,24 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-void ViewerOutput::ShiftCache(const rational &from, const rational &to)
+void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 {
   video_frame_cache_.Shift(from, to);
+}
+
+void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
+{
   audio_playback_cache_.Shift(from, to);
+
+  foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
+    track->waveform().Shift(from, to);
+  }
+}
+
+void ViewerOutput::ShiftCache(const rational &from, const rational &to)
+{
+  ShiftVideoCache(from, to);
+  ShiftAudioCache(from, to);
 }
 
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
@@ -179,13 +190,14 @@ void ViewerOutput::VerifyLength()
     audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  rational timeline_length;
+  video_length = qMax(video_length, track_lists_.at(Timeline::kTrackTypeVideo)->GetTotalLength());
+  audio_length = qMax(audio_length, track_lists_.at(Timeline::kTrackTypeAudio)->GetTotalLength());
+  rational subtitle_length = track_lists_.at(Timeline::kTrackTypeSubtitle)->GetTotalLength();
 
-  foreach (TrackList* tl, track_lists_) {
-    timeline_length = qMax(timeline_length, tl->GetTotalLength());
-  }
+  video_frame_cache_.SetLength(video_length);
+  audio_playback_cache_.SetLength(audio_length);
 
-  rational real_length = qMax(timeline_length, qMax(video_length, audio_length));
+  rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
 
   if (real_length != last_length_) {
     last_length_ = real_length;

@@ -1226,6 +1226,12 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
   if (all_tracks_unlocked_) {
     // We can optimize here by simply shifting the whole cache forward instead of re-caching
     // everything following this time
+    if (list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(out_, in_);
+    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(out_, in_);
+    }
+
     foreach (TrackOutput* track, working_tracks_) {
       track->BlockInvalidateCache();
     }
@@ -1236,13 +1242,6 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
   }
 
   if (all_tracks_unlocked_) {
-    // Shift cache
-    if (list_->type() == Timeline::kTrackTypeVideo) {
-      static_cast<ViewerOutput*>(list_->parent())->video_frame_cache()->Shift(out_, in_);
-    } else if (list_->type() == Timeline::kTrackTypeAudio) {
-      static_cast<ViewerOutput*>(list_->parent())->audio_playback_cache()->Shift(out_, in_);
-    }
-
     foreach (TrackOutput* track, working_tracks_) {
       track->UnblockInvalidateCache();
       track->PushLengthChangeSignal();
@@ -1255,6 +1254,12 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
   if (all_tracks_unlocked_) {
     // We can optimize here by simply shifting the whole cache forward instead of re-caching
     // everything following this time
+    if (list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(in_, out_);
+    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(in_, out_);
+    }
+
     foreach (TrackOutput* track, working_tracks_) {
       track->BlockInvalidateCache();
     }
@@ -1265,16 +1270,9 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
   }
 
   if (all_tracks_unlocked_) {
-    // Shift cache back
     foreach (TrackOutput* track, working_tracks_) {
       track->UnblockInvalidateCache();
       track->PushLengthChangeSignal();
-    }
-
-    if (list_->type() == Timeline::kTrackTypeVideo) {
-      static_cast<ViewerOutput*>(list_->parent())->video_frame_cache()->Shift(in_, out_);
-    } else if (list_->type() == Timeline::kTrackTypeAudio) {
-      static_cast<ViewerOutput*>(list_->parent())->audio_playback_cache()->Shift(in_, out_);
     }
   }
 }
@@ -1387,9 +1385,9 @@ void TrackListRippleToolCommand::redo_internal()
     }
 
     if (track_list_->type() == Timeline::kTrackTypeVideo) {
-      static_cast<ViewerOutput*>(track_list_->parent())->video_frame_cache()->Shift(old_latest_pt, new_latest_pt);
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(old_latest_pt, new_latest_pt);
     } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
-      static_cast<ViewerOutput*>(track_list_->parent())->audio_playback_cache()->Shift(old_latest_pt, new_latest_pt);
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(old_latest_pt, new_latest_pt);
     }
 
     foreach (const RippleInfo& info, info_) {
@@ -1400,6 +1398,8 @@ void TrackListRippleToolCommand::redo_internal()
         info.track->InvalidateCache(TimeRange(earliest_pt, new_latest_pt),
                                     info.track->block_input(),
                                     info.track->block_input());
+      } else {
+        info.track->PushLengthChangeSignal();
       }
     }
   }

@@ -160,9 +160,9 @@ void TimeRangeList::InsertTimeRange(const TimeRange &range)
   append(range);
 }
 
-void TimeRangeList::RemoveTimeRange(const TimeRange &range)
+void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
 {
-  RemoveTimeRange(this, range);
+  RemoveTimeRange(this, remove);
 }
 
 void TimeRangeList::RemoveTimeRange(QList<TimeRange> *list, const TimeRange &remove)

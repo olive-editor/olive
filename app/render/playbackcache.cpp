@@ -57,6 +57,10 @@ void PlaybackCache::SetLength(const rational &r)
 
 void PlaybackCache::Shift(const rational &from, const rational &to)
 {
+  if (from == to) {
+    return;
+  }
+
   QMutexLocker locker(&lock_);
 
   // An region between `from` and `to` will be inserted or spliced out
@@ -74,6 +78,8 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
   }
 
   ShiftEvent(from, to);
+
+  length_ += diff;
 
   if (diff > rational()) {
     // If shifting forward, add this section to the invalidated region
@@ -113,12 +119,15 @@ void PlaybackCache::NoLockSetLength(const rational &r)
     return;
   }
 
+  TimeRange range_diff(length_, r);
+
   if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
-    invalidated_.InsertTimeRange(TimeRange(length_, r));
+    invalidated_.InsertTimeRange(range_diff);
   } else {
     // If new length is smaller, removed hashes
-    invalidated_.RemoveTimeRange(TimeRange(r, length_));
+    invalidated_.RemoveTimeRange(range_diff);
+    RemoveRangeFromJobs(range_diff);
   }
 
   LengthChangedEvent(length_, r);

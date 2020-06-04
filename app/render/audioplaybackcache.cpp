@@ -131,10 +131,19 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 {
+  qint64 from_offset = params_.time_to_bytes(from);
+  qint64 to_offset = params_.time_to_bytes(to);
+
+  if (from_offset == to_offset) {
+    return;
+  }
+
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
-    qint64 from_offset = params_.time_to_bytes(from);
-    qint64 to_offset = params_.time_to_bytes(to);
+    if (!f.size()) {
+      return;
+    }
+
     qint64 chunk = qAbs(to_offset - from_offset);
 
     QByteArray buf(chunk, Qt::Uninitialized);
@@ -150,7 +159,7 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 
       qint64 write_offset = f.size();
 
-      do {
+      while (read_offset != from_offset) {
 
         // Calculate how much will be read this time
         qint64 chunk_sz = qMin(chunk, read_offset - from_offset);
@@ -165,7 +174,7 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
         f.seek(write_offset);
         f.write(buf.data(), chunk_sz);
 
-      } while (read_offset != from_offset);
+      }
 
       // Replace remainder with silence
       f.seek(from_offset);
@@ -175,7 +184,7 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
     } else {
       // Shifting backwards, we will shift bytes and truncate
 
-      do {
+      while (from_offset != f.size()) {
         // Read region to be shifted
         f.seek(from_offset);
         qint64 read_sz = f.read(buf.data(), buf.size());
@@ -184,7 +193,7 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
         // Write it at the destination
         f.seek(to_offset);
         to_offset += f.write(buf, read_sz);
-      } while (from_offset != f.size());
+      }
 
       // Truncate
       f.resize(f.size() - chunk);

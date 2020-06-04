@@ -123,6 +123,42 @@ void AudioVisualWaveform::AppendSilence(const rational &time)
   memset(&data_[old_size], 0, (data_.size() - old_size) * sizeof(SamplePerChannel));
 }
 
+void AudioVisualWaveform::Shift(const rational &from, const rational &to)
+{
+  int from_index = time_to_samples(from);
+  int to_index = time_to_samples(to);
+
+  if (from_index == to_index) {
+    return;
+  }
+
+  if (from_index > to_index) {
+    // Shifting backwards <-
+    int copy_sz = data_.size() - from_index;
+
+    for (int i=0; i<copy_sz; i++) {
+      data_.replace(to_index + i, data_.at(from_index + i));
+    }
+
+    data_.resize(data_.size() - (from_index - to_index));
+  } else {
+    // Shifting forwards ->
+    int old_sz = data_.size();
+
+    int distance = (to_index - from_index);
+
+    data_.resize(data_.size() + distance);
+
+    int copy_sz = old_sz - from_index;
+
+    for (int i=0; i<copy_sz; i++) {
+      data_.replace(data_.size() - i - 1, data_.at(old_sz - i - 1));
+    }
+
+    memset(&data_[from_index], 0, distance * sizeof(SamplePerChannel));
+  }
+}
+
 QVector<AudioVisualWaveform::SamplePerChannel> AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
 {
   return SumSamplesInternal<float>(samples, nb_samples, nb_channels);

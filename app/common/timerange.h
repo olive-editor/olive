@@ -73,7 +73,7 @@ public:
 
   void InsertTimeRange(const TimeRange& range);
 
-  void RemoveTimeRange(const TimeRange& range);
+  void RemoveTimeRange(const TimeRange& remove);
 
   static void RemoveTimeRange(QList<TimeRange>* list, const TimeRange& remove);
 
