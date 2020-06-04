@@ -84,7 +84,7 @@ bool TimeRange::OverlapsWith(const TimeRange &a, bool in_inclusive, bool out_inc
   return !(overlaps_in || overlaps_out);
 }
 
-TimeRange TimeRange::CombineWith(const TimeRange &a) const
+TimeRange TimeRange::Combined(const TimeRange &a) const
 {
   return Combine(a, *this);
 }
@@ -98,10 +98,26 @@ bool TimeRange::Contains(const TimeRange &compare, bool in_inclusive, bool out_i
   return contains_in && contains_out;
 }
 
+bool TimeRange::Contains(const rational &r) const
+{
+  return r >= in_ && r < out_;
+}
+
 TimeRange TimeRange::Combine(const TimeRange &a, const TimeRange &b)
 {
   return TimeRange(qMin(a.in(), b.in()),
                    qMax(a.out(), b.out()));
+}
+
+TimeRange TimeRange::Intersected(const TimeRange &a) const
+{
+  return Intersect(a, *this);
+}
+
+TimeRange TimeRange::Intersect(const TimeRange &a, const TimeRange &b)
+{
+  return TimeRange(qMax(a.in(), b.in()),
+                   qMin(a.out(), b.out()));
 }
 
 TimeRange TimeRange::operator+(const rational &rhs) const
@@ -162,22 +178,27 @@ void TimeRangeList::InsertTimeRange(const TimeRange &range)
 
 void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
 {
-  RemoveTimeRange(this, remove);
-}
+  int sz = this->size();
 
-void TimeRangeList::RemoveTimeRange(QList<TimeRange> *list, const TimeRange &remove)
-{
-  for (int i=0;i<list->size();i++) {
-    TimeRange& compare = (*list)[i];
+  for (int i=0;i<sz;i++) {
+    TimeRange compare = (*this)[i];
 
     if (remove.Contains(compare)) {
       // This element is entirely encompassed in this range, remove it
-      list->removeAt(i);
+      this->removeAt(i);
       i--;
+      sz--;
     } else if (compare.Contains(remove, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
-      list->append(TimeRange(remove.out(), compare.out()));
-      compare.set_out(remove.in());
+      TimeRange before(compare.in(), remove.in());
+      TimeRange after(remove.out(), compare.out());
+
+      this->removeAt(i);
+      i--;
+      sz--;
+
+      InsertTimeRange(before);
+      InsertTimeRange(after);
     } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
       // This element's out point overlaps the range's in, we'll trim it
       compare.set_out(remove.in());
