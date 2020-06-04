@@ -387,6 +387,9 @@ OLIVE_NAMESPACE_EXIT
 
 QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational &r)
 {
+  return debug.space() << r.toDouble();
+  /*
   debug.nospace() << r.numerator() << "/" << r.denominator();
   return debug.space();
+  */
 }
