@@ -29,6 +29,8 @@ RenderTask::RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams
   video_params_(vparams),
   audio_params_(aparams)
 {
+  job_time_ = QDateTime::currentMSecsSinceEpoch();
+
   // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
   //        way.
   backend_.SetViewerNode(viewer_);

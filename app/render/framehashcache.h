@@ -39,7 +39,7 @@ public:
 
   QByteArray GetHash(const rational& time);
 
-  void SetHash(const rational& time, const QByteArray& hash);
+  void SetHash(const rational& time, const QByteArray& hash, const qint64 &job_time);
 
   void SetTimebase(const rational& tb);
 

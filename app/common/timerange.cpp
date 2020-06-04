@@ -162,30 +162,28 @@ void TimeRangeList::InsertTimeRange(const TimeRange &range)
 
 void TimeRangeList::RemoveTimeRange(const TimeRange &range)
 {
-  for (int i=0;i<size();i++) {
-    const TimeRange& compare = at(i);
+  RemoveTimeRange(this, range);
+}
 
-    if (range.Contains(compare)) {
+void TimeRangeList::RemoveTimeRange(QList<TimeRange> *list, const TimeRange &remove)
+{
+  for (int i=0;i<list->size();i++) {
+    TimeRange& compare = (*list)[i];
+
+    if (remove.Contains(compare)) {
       // This element is entirely encompassed in this range, remove it
-      removeAt(i);
+      list->removeAt(i);
       i--;
-    } else if (compare.Contains(range, false, false)) {
+    } else if (compare.Contains(remove, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
-      TimeRange first(compare.in(), range.in());
-      TimeRange last(range.out(), compare.out());
-
-      replace(i, first);
-      append(last);
-    } else if (compare.in() < range.in() && compare.out() > range.in()) {
+      list->append(TimeRange(remove.out(), compare.out()));
+      compare.set_out(remove.in());
+    } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
       // This element's out point overlaps the range's in, we'll trim it
-      TimeRange trimmed = compare;
-      trimmed.set_out(range.in());
-      replace(i, trimmed);
-    } else if (compare.in() < range.out() && compare.out() > range.out()) {
+      compare.set_out(remove.in());
+    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
       // This element's in point overlaps the range's out, we'll trim it
-      TimeRange trimmed = compare;
-      trimmed.set_in(range.out());
-      replace(i, trimmed);
+      compare.set_in(remove.out());
     }
   }
 }

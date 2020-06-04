@@ -65,14 +65,14 @@ QFuture<void> CacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
 void CacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
 {
   foreach (const rational& t, times) {
-    viewer()->video_frame_cache()->SetHash(t, hash);
+    viewer()->video_frame_cache()->SetHash(t, hash, job_time());
   }
 }
 
 void CacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
 {
   if (samples) {
-    viewer()->audio_playback_cache()->WritePCM(range, samples);
+    viewer()->audio_playback_cache()->WritePCM(range, samples, job_time());
   } else {
     viewer()->audio_playback_cache()->WriteSilence(range);
   }

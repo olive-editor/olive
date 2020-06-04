@@ -80,13 +80,13 @@ signals:
   void LengthChanged(const OLIVE_NAMESPACE::rational& r);
 
 protected:
-  void Validate(const TimeRange& r);
-
   void NoLockInvalidate(const TimeRange& r);
 
   void NoLockValidate(const TimeRange& r);
 
   void NoLockSetLength(const rational& r);
+
+  bool JobIsCurrent(const TimeRange& r, qint64 job_time);
 
   const rational& NoLockGetLength() const
   {
@@ -110,9 +110,18 @@ protected:
   }
 
 private:
+  void RemoveRangeFromJobs(const TimeRange& remove);
+
   QMutex lock_;
 
   TimeRangeList invalidated_;
+
+  struct JobIdentifier {
+    TimeRange range;
+    qint64 job_time;
+  };
+
+  QList<JobIdentifier> jobs_;
 
   rational length_;
 

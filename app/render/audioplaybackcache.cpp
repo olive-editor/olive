@@ -63,9 +63,13 @@ void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
   emit Invalidated(invalidate_range);
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64 &job_time)
 {
   QMutexLocker locker(lock());
+
+  if (!JobIsCurrent(range, job_time)) {
+    return;
+  }
 
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
@@ -190,6 +194,13 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
     f.close();
   } else {
     qWarning() << "Failed to write PCM data to" << filename_;
+  }
+}
+
+void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational& newlen)
+{
+  if (newlen < old) {
+    QFile(filename_).resize(params_.time_to_bytes(newlen));
   }
 }
 

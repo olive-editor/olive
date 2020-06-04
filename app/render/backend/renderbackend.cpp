@@ -351,8 +351,6 @@ void RenderBackend::WorkerFinished()
 
   if (viewer_node_) {
     RunNextJob();
-  } else {
-    qDebug() << "Ignored job finish because no viewer";
   }
 }
 

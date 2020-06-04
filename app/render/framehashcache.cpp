@@ -41,9 +41,13 @@ QByteArray FrameHashCache::GetHash(const rational &time)
   return time_hash_map_.value(time);
 }
 
-void FrameHashCache::SetHash(const rational &time, const QByteArray &hash)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time)
 {
   QMutexLocker locker(lock());
+
+  if (!JobIsCurrent(TimeRange(time, time), job_time)) {
+    return;
+  }
 
   time_hash_map_.insert(time, hash);
 

@@ -20,6 +20,8 @@
 
 #include "playbackcache.h"
 
+#include <QDateTime>
+
 OLIVE_NAMESPACE_ENTER
 
 void PlaybackCache::Invalidate(const TimeRange &r)
@@ -89,20 +91,12 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
   emit Shifted(from, to);
 }
 
-void PlaybackCache::Validate(const TimeRange &r)
-{
-  QMutexLocker locker(&lock_);
-
-  NoLockValidate(r);
-
-  locker.unlock();
-
-  emit Validated(r);
-}
-
 void PlaybackCache::NoLockInvalidate(const TimeRange &r)
 {
   invalidated_.InsertTimeRange(r);
+
+  RemoveRangeFromJobs(r);
+  jobs_.append({r, QDateTime::currentMSecsSinceEpoch()});
 
   InvalidateEvent(r);
 }
@@ -132,6 +126,20 @@ void PlaybackCache::NoLockSetLength(const rational &r)
   length_ = r;
 }
 
+bool PlaybackCache::JobIsCurrent(const TimeRange &r, qint64 job_time)
+{
+  for (int i=jobs_.size()-1; i>=0; i--) {
+    const JobIdentifier& job = jobs_.at(i);
+
+    if (job.range.Contains(r, true, r.in() != r.out())
+        && job_time >= job.job_time) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void PlaybackCache::LengthChangedEvent(const rational &, const rational &)
 {
 }
@@ -142,6 +150,31 @@ void PlaybackCache::InvalidateEvent(const TimeRange &)
 
 void PlaybackCache::ShiftEvent(const rational &, const rational &)
 {
+}
+
+void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)
+{
+  // Code shamelessly copied from TimeRangeList::RemoveTimeRange
+  for (int i=0;i<jobs_.size();i++) {
+    JobIdentifier& job = jobs_[i];
+    TimeRange& compare = job.range;
+
+    if (remove.Contains(compare)) {
+      // This element is entirely encompassed in this range, remove it
+      jobs_.removeAt(i);
+      i--;
+    } else if (compare.Contains(remove, false, false)) {
+      // The remove range is within this element, only choice is to split the element into two
+      jobs_.append({TimeRange(remove.out(), compare.out()), job.job_time});
+      compare.set_out(remove.in());
+    } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
+      // This element's out point overlaps the range's in, we'll trim it
+      compare.set_out(remove.in());
+    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
+      // This element's in point overlaps the range's out, we'll trim it
+      compare.set_in(remove.out());
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

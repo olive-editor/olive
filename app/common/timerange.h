@@ -75,6 +75,8 @@ public:
 
   void RemoveTimeRange(const TimeRange& range);
 
+  static void RemoveTimeRange(QList<TimeRange>* list, const TimeRange& remove);
+
   bool ContainsTimeRange(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
   TimeRangeList Intersects(const TimeRange& range) const;

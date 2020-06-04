@@ -63,6 +63,11 @@ protected:
 
   void SetAnchorPoint(const rational& r);
 
+  const qint64& job_time() const
+  {
+    return job_time_;
+  }
+
 private:
   ViewerOutput* viewer_;
 
@@ -73,6 +78,8 @@ private:
   rational anchor_point_;
 
   OpenGLBackend backend_;
+
+  qint64 job_time_;
 
 };
 

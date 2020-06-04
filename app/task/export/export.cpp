@@ -177,7 +177,7 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
     adjusted_range -= params_.custom_range().in();
   }
 
-  audio_data_.WritePCM(adjusted_range, samples);
+  audio_data_.WritePCM(adjusted_range, samples, job_time());
 }
 
 OLIVE_NAMESPACE_EXIT

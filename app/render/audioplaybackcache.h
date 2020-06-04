@@ -40,7 +40,7 @@ public:
 
   void SetParameters(const AudioRenderingParams& params);
 
-  void WritePCM(const TimeRange &range, SampleBufferPtr samples);
+  void WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64& job_time);
 
   void WriteSilence(const TimeRange &range);
 
@@ -51,6 +51,8 @@ signals:
 
 protected:
   virtual void ShiftEvent(const rational& from, const rational& to) override;
+
+  virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
 private:
   QString filename_;
