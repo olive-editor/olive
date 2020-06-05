@@ -39,6 +39,10 @@ void PlaybackCache::InvalidateAll()
 {
   QMutexLocker locker(lock());
 
+  if (length_.isNull()) {
+    return;
+  }
+
   TimeRange invalidate_range(0, length_);
 
   NoLockInvalidate(invalidate_range);
@@ -132,6 +136,8 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
 
 void PlaybackCache::NoLockInvalidate(const TimeRange &r)
 {
+  Q_ASSERT(r.in() != r.out());
+
   invalidated_.InsertTimeRange(r);
 
   RemoveRangeFromJobs(r);
