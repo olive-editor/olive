@@ -57,7 +57,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   divider_(Config::Current()["DefaultViewerDivider"].toInt()),
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
-  playback_is_audio_only_(false),
   prequeuing_(false),
   busy_(false),
   our_cache_background_task_(nullptr)
@@ -128,6 +127,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Ensures renderer is updated if the global pixel format is changed
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
+  connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
+
   SetAutoMaxScrollBar(true);
 }
 
@@ -152,9 +153,11 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   if (GetConnectedNode() && last_time_ != i) {
     rational time_set = Timecode::timestamp_to_time(i, timebase());
 
-    UpdateTextureFromNode(time_set);
+    if (!IsPlaying()) {
+      UpdateTextureFromNode(time_set);
 
-    PushScrubbedAudio();
+      PushScrubbedAudio();
+    }
 
     display_widget_->SetTime(time_set);
   }
@@ -226,6 +229,12 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
   Pause();
 
+  if (cache_background_task_ == our_cache_background_task_) {
+    StopAllBackgroundCacheTasks(true);
+    cache_background_task_ = nullptr;
+  }
+  cache_wait_timer_.stop();
+
   SetTimebase(rational());
 
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
@@ -249,12 +258,6 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
-
-  if (cache_background_task_ == our_cache_background_task_) {
-    StopAllBackgroundCacheTasks(true);
-    cache_background_task_ = nullptr;
-  }
-  cache_wait_timer_.stop();
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
@@ -438,12 +441,6 @@ void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
-  if (!FrameExistsAtTime(time)) {
-    // There is definitely no frame here, we can immediately flip to showing nothing
-    SetDisplayImage(nullptr, false);
-    return;
-  }
-
   // Check playback queue for a frame
   if (IsPlaying()) {
 
@@ -460,14 +457,19 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       } else {
 
         // Skip this frame
-        playback_queue_.pop_front();
-        RequestNextFrameForQueue();
+        PopOldestFrameFromPlaybackQueue();
 
       }
     }
 
     qWarning() << "Playback queue failed to keep up";
 
+  }
+
+  if (!FrameExistsAtTime(time)) {
+    // There is definitely no frame here, we can immediately flip to showing nothing
+    SetDisplayImage(nullptr, false);
+    return;
   }
 
   // Frame was not in queue, will require rendering or decoding from cache
@@ -486,6 +488,15 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     return;
   }
 
+  // If the playhead is beyond the end, restart at 0
+  if (!in_to_out_only && GetTime() >= GetConnectedNode()->GetLength()) {
+    if (speed > 0) {
+      SetTimeAndSignal(0);
+    } else {
+      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedNode()->GetLength(), timebase()));
+    }
+  }
+
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
@@ -493,13 +504,17 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   controls_->ShowPauseButton();
 
-  playback_is_audio_only_ = (stack_->currentWidget() != sizer_ || !isVisible());
+  // Attempt to fill playback queue
+  if (stack_->currentWidget() == sizer_) {
+    prequeue_length_ = DeterminePlaybackQueueSize();
 
-  if (playback_is_audio_only_) {
-    connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
-    FinishPlayPreprocess();
-  } else {
-    FillPlaybackQueue();
+    if (prequeue_length_ > 0) {
+      prequeuing_ = true;
+
+      for (int i=0; i<prequeue_length_; i++) {
+        RequestNextFrameForQueue();
+      }
+    }
   }
 
   if (!busy_) {
@@ -509,6 +524,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   StopAllBackgroundCacheTasks(false);
   cache_wait_timer_.stop();
+
+  if (!prequeuing_) {
+    FinishPlayPreprocess();
+  }
 }
 
 void ViewerWidget::PauseInternal()
@@ -518,17 +537,14 @@ void ViewerWidget::PauseInternal()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    if (playback_is_audio_only_) {
-      disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
-    } else {
-      disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-    }
+    disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::ForceUpdate);
 
     foreach (ViewerWindow* window, windows_) {
       window->Pause();
     }
 
     playback_queue_.clear();
+    playback_backup_timer_.stop();
   }
 
   prequeuing_ = false;
@@ -589,15 +605,6 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
   sender->SetColorTransform(transform);
 }
 
-void ViewerWidget::FillPlaybackQueue()
-{
-  prequeuing_ = true;
-
-  for (int i=0; i<kMaxPreQueueSize; i++) {
-    RequestNextFrameForQueue();
-  }
-}
-
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
@@ -615,7 +622,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->GetLength();
+  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength();// GetConnectedNode()->GetLength();
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
@@ -635,10 +642,6 @@ void ViewerWidget::RequestNextFrameForQueue()
 {
   rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                    timebase());
-
-  if (!FrameExistsAtTime(next_time)) {
-    return;
-  }
 
   playback_queue_next_frame_ += playback_speed_;
 
@@ -670,12 +673,13 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
     RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo, TimeRange(t, t));
     QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);
     return ticket;
+
   }
 }
 
 void ViewerWidget::FinishPlayPreprocess()
 {
-  int64_t start_time = ruler()->GetTime();
+  int64_t playback_start_time = ruler()->GetTime();
 
   QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
   if (!audio_fn.isEmpty()) {
@@ -685,15 +689,18 @@ void ViewerWidget::FinishPlayPreprocess()
                                           playback_speed_);
   }
 
-  playback_timer_.Start(start_time, playback_speed_, timebase_dbl());
+  playback_timer_.Start(playback_start_time, playback_speed_, timebase_dbl());
 
   foreach (ViewerWindow* window, windows_) {
-    window->Play(start_time, playback_speed_, timebase());
+    window->Play(playback_start_time, playback_speed_, timebase());
   }
 
-  if (!playback_is_audio_only_) {
-    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-  }
+  connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::ForceUpdate);
+
+  playback_backup_timer_.setInterval(qFloor(timebase_dbl()));
+  playback_backup_timer_.start();
+
+  PlaybackTimerUpdate();
 }
 
 VideoRenderingParams ViewerWidget::GenerateVideoParams() const
@@ -708,6 +715,31 @@ AudioRenderingParams ViewerWidget::GenerateAudioParams() const
 {
   return AudioRenderingParams(GetConnectedNode()->audio_params(),
                               SampleFormat::kInternalFormat);
+}
+
+int ViewerWidget::DeterminePlaybackQueueSize()
+{
+  int64_t end_ts;
+
+  if (playback_speed_ > 0) {
+    end_ts = Timecode::time_to_timestamp(GetConnectedNode()->video_frame_cache()->GetLength(),
+                                         timebase());
+  } else {
+    end_ts = 0;
+  }
+
+  int remaining_frames = (end_ts - GetTimestamp()) * playback_speed_;
+
+  return qMin(kMaxPreQueueSize, remaining_frames);
+}
+
+void ViewerWidget::PopOldestFrameFromPlaybackQueue()
+{
+  playback_queue_.pop_front();
+
+  if (int(playback_queue_.size()) < DeterminePlaybackQueueSize()) {
+    RequestNextFrameForQueue();
+  }
 }
 
 void ViewerWidget::UpdateStack()
@@ -836,7 +868,7 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         window->queue()->AppendTimewise({frame->timestamp(), frame}, playback_speed_);
       }
 
-      if (prequeuing_ && playback_queue_.size() == kMaxPreQueueSize) {
+      if (prequeuing_ && int(playback_queue_.size()) == prequeue_length_) {
         prequeuing_ = false;
         FinishPlayPreprocess();
       }
@@ -846,6 +878,7 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
   watcher->deleteLater();
 }
 
+//#define PRINT_INVALID_RANGES
 void ViewerWidget::StartBackgroundCaching()
 {
   if (busy_) {
@@ -853,8 +886,25 @@ void ViewerWidget::StartBackgroundCaching()
     busy_ = false;
   }
 
-  if ((GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
-      || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())
+#ifdef PRINT_INVALID_RANGES
+  if (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()) {
+    qDebug() << "Video invalid:";
+    foreach (const TimeRange& r, GetConnectedNode()->video_frame_cache()->GetInvalidatedRanges()) {
+      qDebug() << "  " << r;
+    }
+  }
+
+  if (GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges()) {
+    qDebug() << "Audio invalid:";
+    foreach (const TimeRange& r, GetConnectedNode()->audio_playback_cache()->GetInvalidatedRanges()) {
+      qDebug() << "  " << r;
+    }
+  }
+#endif
+
+  if (GetConnectedNode()
+      && (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
+          || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())
       && Config::Current()["AutoCache"].toBool()) {
     if (cache_background_task_ || busy_viewers_) {
 
@@ -1020,11 +1070,14 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
 void ViewerWidget::Play(bool in_to_out_only)
 {
-  if (in_to_out_only
-      && GetConnectedTimelinePoints()
+  if (in_to_out_only) {
+    if (GetConnectedTimelinePoints()
       && GetConnectedTimelinePoints()->workarea()->enabled()) {
-    // Jump to in point
-    SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase()));
+      // Jump to in point
+      SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase()));
+    } else {
+      in_to_out_only = false;
+    }
   }
 
   PlayInternal(1, in_to_out_only);
@@ -1167,6 +1220,12 @@ void ViewerWidget::PlaybackTimerUpdate()
     SetTimeAndSignal(current_time);
     time_changed_from_timer_ = false;
 
+  }
+
+  if (!isVisible()) {
+    while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
+      PopOldestFrameFromPlaybackQueue();
+    }
   }
 }
 

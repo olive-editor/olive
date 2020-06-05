@@ -183,8 +183,6 @@ private:
 
   void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
 
-  void FillPlaybackQueue();
-
   QString GetCachedFilenameFromTime(const rational& time);
 
   bool FrameExistsAtTime(const rational& time);
@@ -201,6 +199,10 @@ private:
 
   VideoRenderingParams GenerateVideoParams() const;
   AudioRenderingParams GenerateAudioParams() const;
+
+  int DeterminePlaybackQueueSize();
+
+  void PopOldestFrameFromPlaybackQueue();
 
   QStackedWidget* stack_;
 
@@ -222,8 +224,6 @@ private:
 
   bool play_in_to_out_only_;
 
-  bool playback_is_audio_only_;
-
   AudioWaveformView* waveform_view_;
 
   QList<ViewerWindow*> windows_;
@@ -233,6 +233,7 @@ private:
   ViewerDisplayWidget* context_menu_widget_;
 
   ViewerPlaybackTimer playback_timer_;
+  QTimer playback_backup_timer_;
 
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
@@ -250,6 +251,8 @@ private:
   CacheTask* our_cache_background_task_;
 
   rational last_length_;
+
+  int prequeue_length_;
 
   static CacheTask* cache_background_task_;
 
