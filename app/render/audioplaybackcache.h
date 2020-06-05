@@ -46,6 +46,13 @@ public:
 
   const QString& GetCacheFilename() const;
 
+  QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time)
+  {
+    QMutexLocker locker(lock());
+
+    return NoLockGetValidRanges(range, job_time);
+  }
+
 signals:
   void ParametersChanged();
 
@@ -55,6 +62,8 @@ protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
 private:
+  QList<TimeRange> NoLockGetValidRanges(const TimeRange &range, const qint64 &job_time);
+
   QString filename_;
 
   AudioRenderingParams params_;

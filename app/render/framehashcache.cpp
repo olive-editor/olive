@@ -45,7 +45,19 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
 {
   QMutexLocker locker(lock());
 
-  if (!JobIsCurrent(TimeRange(time, time), job_time)) {
+  bool is_current = false;
+
+  for (int i=jobs_.size()-1; i>=0; i--) {
+    const JobIdentifier& job = jobs_.at(i);
+
+    if (job.range.Contains(time)
+        && job_time >= job.job_time) {
+      is_current = true;
+      break;
+    }
+  }
+
+  if (!is_current) {
     return;
   }
 

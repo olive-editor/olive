@@ -67,29 +67,37 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 {
   QMutexLocker locker(lock());
 
-  if (!JobIsCurrent(range, job_time)) {
+  QList<TimeRange> valid_ranges = NoLockGetValidRanges(range, job_time);
+  if (valid_ranges.isEmpty()) {
     return;
   }
 
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
-    qint64 start_offset = params_.time_to_bytes(range.in());
-    qint64 max_len = params_.time_to_bytes(range.out());
-    qint64 write_len = max_len - start_offset;
-
     QByteArray a = samples->toPackedData();
 
-    if (f.size() < max_len) {
-      f.resize(max_len);
-    }
+    foreach (const TimeRange& r, valid_ranges) {
+      // Calculate destination offsets
+      qint64 start_offset = params_.time_to_bytes(r.in());
+      qint64 max_len = params_.time_to_bytes(r.out());
 
-    f.seek(start_offset);
-    f.write(a);
+      if (f.size() < max_len) {
+        f.resize(max_len);
+      }
 
-    if (write_len > a.size()) {
-      // Fill remaining space with silence
-      QByteArray s(write_len - a.size(), 0x00);
-      f.write(s);
+      // Calculate source offsets
+      qint64 sample_start = params_.time_to_bytes(r.in() - range.in());
+      qint64 sample_len = params_.time_to_bytes(r.length());
+      qint64 actual_write = qMin(sample_len, a.size() - sample_start);
+
+      f.seek(start_offset);
+      f.write(a.data() + sample_start, actual_write);
+
+      if (actual_write < sample_len) {
+        // Fill remaining space with silence
+        QByteArray s(sample_len - actual_write, 0x00);
+        f.write(s);
+      }
     }
 
     f.close();
@@ -211,6 +219,21 @@ void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational&
   if (newlen < old) {
     QFile(filename_).resize(params_.time_to_bytes(newlen));
   }
+}
+
+QList<TimeRange> AudioPlaybackCache::NoLockGetValidRanges(const TimeRange& range, const qint64& job_time)
+{
+  QList<TimeRange> valid_ranges;
+
+  for (int i=jobs_.size()-1;i>=0;i--) {
+    const JobIdentifier& job = jobs_.at(i);
+
+    if (job_time >= job.job_time && job.range.OverlapsWith(range)) {
+      valid_ranges.append(job.range.Intersected(range));
+    }
+  }
+
+  return valid_ranges;
 }
 
 const QString &AudioPlaybackCache::GetCacheFilename() const

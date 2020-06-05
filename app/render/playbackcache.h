@@ -84,10 +84,6 @@ protected:
 
   void NoLockValidate(const TimeRange& r);
 
-  void NoLockSetLength(const rational& r);
-
-  bool JobIsCurrent(const TimeRange& r, qint64 job_time);
-
   const rational& NoLockGetLength() const
   {
     return length_;
@@ -109,19 +105,19 @@ protected:
     return &lock_;
   }
 
-private:
-  void RemoveRangeFromJobs(const TimeRange& remove);
-
-  QMutex lock_;
-
-  TimeRangeList invalidated_;
-
   struct JobIdentifier {
     TimeRange range;
     qint64 job_time;
   };
 
   QList<JobIdentifier> jobs_;
+
+private:
+  void RemoveRangeFromJobs(const TimeRange& remove);
+
+  QMutex lock_;
+
+  TimeRangeList invalidated_;
 
   rational length_;
 

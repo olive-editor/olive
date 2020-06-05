@@ -26,7 +26,7 @@ OLIVE_NAMESPACE_ENTER
 
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
-  QMutexLocker locker(&lock_);
+  QMutexLocker locker(lock());
 
   NoLockInvalidate(r);
 
@@ -37,7 +37,7 @@ void PlaybackCache::Invalidate(const TimeRange &r)
 
 void PlaybackCache::InvalidateAll()
 {
-  QMutexLocker locker(&lock_);
+  QMutexLocker locker(lock());
 
   TimeRange invalidate_range(0, length_);
 
@@ -50,78 +50,21 @@ void PlaybackCache::InvalidateAll()
 
 void PlaybackCache::SetLength(const rational &r)
 {
-  QMutexLocker locker(&lock_);
+  QMutexLocker locker(lock());
 
-  NoLockSetLength(r);
-}
-
-void PlaybackCache::Shift(const rational &from, const rational &to)
-{
-  if (from == to) {
-    return;
-  }
-
-  QMutexLocker locker(&lock_);
-
-  // An region between `from` and `to` will be inserted or spliced out
-  TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
-
-  // Remove everything from the minimum point
-  invalidated_.RemoveTimeRange(TimeRange(qMin(from, to), RATIONAL_MAX));
-
-  // Shift everything in our ranges to shift list
-  //
-  // `diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-
-  rational diff = to - from;
-  foreach (const TimeRange& r, ranges_to_shift) {
-    invalidated_.InsertTimeRange(r + diff);
-  }
-
-  ShiftEvent(from, to);
-
-  length_ += diff;
-
-  if (diff > rational()) {
-    // If shifting forward, add this section to the invalidated region
-    TimeRange invalidate_range(from, to);
-
-    NoLockInvalidate(invalidate_range);
-
-    locker.unlock();
-
-    emit Invalidated(invalidate_range);
-  } else {
-    locker.unlock();
-  }
-
-  emit Shifted(from, to);
-}
-
-void PlaybackCache::NoLockInvalidate(const TimeRange &r)
-{
-  invalidated_.InsertTimeRange(r);
-
-  RemoveRangeFromJobs(r);
-  jobs_.append({r, QDateTime::currentMSecsSinceEpoch()});
-
-  InvalidateEvent(r);
-}
-
-void PlaybackCache::NoLockValidate(const TimeRange &r)
-{
-  invalidated_.RemoveTimeRange(r);
-}
-
-void PlaybackCache::NoLockSetLength(const rational &r)
-{
   if (length_ == r) {
     // Same length - do nothing
     return;
   }
 
+  LengthChangedEvent(length_, r);
+
   TimeRange range_diff(length_, r);
 
-  if (r > length_) {
+  if (r.isNull()) {
+    invalidated_.clear();
+    jobs_.clear();
+  } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
     invalidated_.InsertTimeRange(range_diff);
   } else {
@@ -130,23 +73,78 @@ void PlaybackCache::NoLockSetLength(const rational &r)
     RemoveRangeFromJobs(range_diff);
   }
 
-  LengthChangedEvent(length_, r);
-
+  rational old_length = length_;
   length_ = r;
+
+  locker.unlock();
+
+  if (r > old_length) {
+    emit Invalidated(range_diff);
+  } else {
+    emit Validated(range_diff);
+  }
 }
 
-bool PlaybackCache::JobIsCurrent(const TimeRange &r, qint64 job_time)
+void PlaybackCache::Shift(const rational &from, const rational &to)
 {
-  for (int i=jobs_.size()-1; i>=0; i--) {
-    const JobIdentifier& job = jobs_.at(i);
-
-    if (job.range.Contains(r, true, r.in() != r.out())
-        && job_time >= job.job_time) {
-      return true;
-    }
+  if (from == to) {
+    return;
   }
 
-  return false;
+  QMutexLocker locker(lock());
+
+  // An region between `from` and `to` will be inserted or spliced out
+  TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
+
+  // Remove everything from the minimum point
+  TimeRange remove_range = TimeRange(qMin(from, to), RATIONAL_MAX);
+  NoLockValidate(remove_range);
+  RemoveRangeFromJobs(remove_range);
+
+  // Shift everything in our ranges to shift list
+  // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
+  rational diff = to - from;
+  foreach (const TimeRange& r, ranges_to_shift) {
+    NoLockInvalidate(r + diff);
+  }
+
+  ShiftEvent(from, to);
+
+  length_ += diff;
+
+  if (diff > rational()) {
+    // If shifting forward, add this section to the invalidated region
+    NoLockInvalidate(TimeRange(from, to));
+  }
+
+  locker.unlock();
+
+  // Emit signals
+  emit Validated(remove_range);
+  foreach (const TimeRange& r, ranges_to_shift) {
+    emit Invalidated(r + diff);
+  }
+  if (diff > rational()) {
+    emit Invalidated(TimeRange(from, to));
+  }
+  emit Shifted(from, to);
+}
+
+void PlaybackCache::NoLockInvalidate(const TimeRange &r)
+{
+  invalidated_.InsertTimeRange(r);
+
+  RemoveRangeFromJobs(r);
+  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
+  jobs_.append({r, job_time});
+  qDebug() << "Creating job" << r << job_time;
+
+  InvalidateEvent(r);
+}
+
+void PlaybackCache::NoLockValidate(const TimeRange &r)
+{
+  invalidated_.RemoveTimeRange(r);
 }
 
 void PlaybackCache::LengthChangedEvent(const rational &, const rational &)
