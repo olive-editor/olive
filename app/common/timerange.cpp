@@ -181,7 +181,7 @@ void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
   int sz = this->size();
 
   for (int i=0;i<sz;i++) {
-    TimeRange compare = (*this)[i];
+    TimeRange& compare = (*this)[i];
 
     if (remove.Contains(compare)) {
       // This element is entirely encompassed in this range, remove it
