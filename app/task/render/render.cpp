@@ -83,7 +83,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
   // Get hashes for each frame and group likes together
   int progress_counter = 0;
-  int nb_frames;
+  int nb_frames = 0;
 
   QMap<QByteArray, rational> times_to_render;
 
