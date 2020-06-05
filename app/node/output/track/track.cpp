@@ -239,7 +239,7 @@ const QList<Block *> &TrackOutput::Blocks() const
 void TrackOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
   if (block_invalidate_cache_stack_ == 0) {
-    PushLengthChangeSignal();
+    PushLengthChangeSignal(true);
 
     Node::InvalidateCache(TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length())), from, source);
   }
@@ -429,11 +429,11 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-void TrackOutput::PushLengthChangeSignal()
+void TrackOutput::PushLengthChangeSignal(bool invalidate)
 {
   if (queued_length_change_) {
     queued_length_change_ = false;
-    SetLengthInternal(queued_length_);
+    SetLengthInternal(queued_length_, invalidate);
   }
 }
 
@@ -491,7 +491,7 @@ int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
   return -1;
 }
 
-void TrackOutput::SetLengthInternal(const rational &r)
+void TrackOutput::SetLengthInternal(const rational &r, bool invalidate)
 {
   if (block_invalidate_cache_stack_ > 0) {
     queued_length_change_ = true;
@@ -508,9 +508,11 @@ void TrackOutput::SetLengthInternal(const rational &r)
     track_length_ = r;
     emit TrackLengthChanged();
 
-    InvalidateCache(invalidate_range,
-                    block_input_,
-                    block_input_);
+    if (invalidate) {
+      InvalidateCache(invalidate_range,
+                      block_input_,
+                      block_input_);
+    }
   }
 }
 

@@ -192,7 +192,7 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
-  void PushLengthChangeSignal();
+  void PushLengthChangeSignal(bool invalidate = false);
 
   AudioVisualWaveform& waveform()
   {
@@ -255,7 +255,7 @@ private:
   int GetInputIndexFromCacheIndex(int cache_index);
   int GetInputIndexFromCacheIndex(Block* block);
 
-  void SetLengthInternal(const rational& r);
+  void SetLengthInternal(const rational& r, bool invalidate = true);
 
   QList<Block*> block_cache_;
 
