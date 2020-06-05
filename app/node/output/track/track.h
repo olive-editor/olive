@@ -248,6 +248,9 @@ signals:
   void PreviewChanged();
 
 protected:
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+
+  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
 private:
   void UpdateInOutFrom(int index);

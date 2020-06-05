@@ -109,6 +109,20 @@ void TrackOutput::SetTrackHeight(const int &height)
   emit TrackHeightChanged(track_height_);
 }
 
+void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
+{
+  if (reader->name() == QStringLiteral("height")) {
+    SetTrackHeight(reader->readElementText().toInt());
+  } else {
+    Node::LoadInternal(reader, xml_node_data);
+  }
+}
+
+void TrackOutput::SaveInternal(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
+}
+
 void TrackOutput::Retranslate()
 {
   Node::Retranslate();
