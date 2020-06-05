@@ -99,6 +99,8 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setPen(QColor(64, 64, 64));
     TrackOutput* track = TrackOutput::TrackFromBlock(block_);
     if (track) {
+      QMutexLocker locker(track->waveform_lock());
+
       AudioVisualWaveform::DrawWaveform(painter,
                                         rect().toRect(),
                                         this->GetScale(),

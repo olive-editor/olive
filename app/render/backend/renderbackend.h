@@ -50,9 +50,9 @@ public:
     update_with_graph_ = e;
   }
 
-  void SetGeneratePreviews(bool e)
+  void EnablePreviewGeneration(qint64 job_time)
   {
-    generate_previews_ = e;
+    preview_job_time_ = job_time;
   }
 
   void ClearVideoQueue();
@@ -121,12 +121,10 @@ private:
 
   bool update_with_graph_;
 
-  bool generate_previews_;
+  qint64 preview_job_time_;
 
 private slots:
   void WorkerFinished();
-
-  void WorkerGeneratedWaveform(const OLIVE_NAMESPACE::TrackOutput* copied_track, const OLIVE_NAMESPACE::AudioVisualWaveform& samples, const OLIVE_NAMESPACE::rational& start);
 
 };
 

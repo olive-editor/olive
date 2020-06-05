@@ -35,7 +35,7 @@ RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
   audio_mode_is_preview_(false),
-  generate_previews_(false)
+  preview_cache_(nullptr)
 {
 }
 
@@ -127,12 +127,41 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
       NodeValueTable::Merge({merged_table, table});
     }
 
-    if (generate_previews_) {
-      // Generate visual waveform in this background thread
-      AudioVisualWaveform visual_waveform;
-      visual_waveform.set_channel_count(audio_params_.channel_count());
-      visual_waveform.AddSamples(block_range_buffer, audio_params_.sample_rate());
-      emit WaveformGenerated(track, visual_waveform, range.in());
+    if (preview_cache_) {
+      // Find original track object
+      TrackOutput* original_track = nullptr;
+
+      QList<TimeRange> valid_ranges = preview_cache_->GetValidRanges(range, preview_job_time_);
+      if (!valid_ranges.isEmpty()) {
+        qDebug() << "Worker generated valid waveform for" << range << preview_cache_;
+
+        QHash<Node*, Node*>::const_iterator i;
+        for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
+          if (i.value() == track) {
+            original_track = static_cast<TrackOutput*>(i.key());
+            break;
+          }
+        }
+
+        // Generate visual waveform in this background thread
+        if (original_track) {
+          AudioVisualWaveform visual_waveform;
+          visual_waveform.set_channel_count(audio_params_.channel_count());
+          visual_waveform.AddSamples(block_range_buffer, audio_params_.sample_rate());
+
+          original_track->waveform_lock()->lock();
+
+          original_track->waveform().set_channel_count(audio_params_.channel_count());
+
+          foreach (const TimeRange& r, valid_ranges) {
+            original_track->waveform().OverwriteSums(visual_waveform, r.in(), r.in() - range.in(), r.length());
+          }
+
+          original_track->waveform_lock()->unlock();
+
+          emit original_track->PreviewChanged();
+        }
+      }
     }
 
     merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer));

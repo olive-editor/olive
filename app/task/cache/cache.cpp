@@ -33,7 +33,7 @@ CacheTask::CacheTask(ViewerOutput* viewer, const VideoRenderingParams& vparams, 
 {
   SetTitle(tr("Caching \"%1\"").arg(viewer->media_name()));
 
-  backend()->SetGeneratePreviews(true);
+  backend()->EnablePreviewGeneration(job_time());
 }
 
 bool CacheTask::Run()

@@ -199,6 +199,11 @@ public:
     return waveform_;
   }
 
+  QMutex* waveform_lock()
+  {
+    return &waveform_lock_;
+  }
+
 public slots:
   void SetTrackName(const QString& name);
 
@@ -276,6 +281,7 @@ private:
   rational queued_length_;
 
   AudioVisualWaveform waveform_;
+  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

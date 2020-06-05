@@ -73,9 +73,10 @@ public:
     copy_map_ = copy_map;
   }
 
-  void SetGeneratePreviews(bool e)
+  void EnablePreviewGeneration(AudioPlaybackCache* cache, qint64 job_time)
   {
-    generate_previews_ = e;
+    preview_cache_ = cache;
+    preview_job_time_ = job_time;
   }
 
   /**
@@ -132,7 +133,7 @@ signals:
 
   void FinishedJob();
 
-  void WaveformGenerated(const OLIVE_NAMESPACE::TrackOutput* track, const OLIVE_NAMESPACE::AudioVisualWaveform& samples, const OLIVE_NAMESPACE::rational& start);
+  void WaveformGenerated(OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange start);
 
 private:
   NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
@@ -164,7 +165,8 @@ private:
 
   bool audio_mode_is_preview_;
 
-  bool generate_previews_;
+  AudioPlaybackCache* preview_cache_;
+  qint64 preview_job_time_;
 
   QHash<Node*, Node*>* copy_map_;
 
