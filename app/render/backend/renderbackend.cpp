@@ -51,7 +51,10 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
   }
 
   ViewerOutput* old_viewer = viewer_node_;
-  viewer_node_ = viewer_node;
+  if (!viewer_node) {
+    // If setting to null, set it here before we wait for jobs to finish
+    viewer_node_ = viewer_node;
+  }
 
   if (old_viewer) {
     // Delete all of our copied nodes
@@ -70,11 +73,17 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     }
     copy_map_.clear();
     copied_viewer_node_ = nullptr;
+    graph_update_queue_.clear();
 
     disconnect(old_viewer,
                &ViewerOutput::GraphChangedFrom,
                this,
                &RenderBackend::NodeGraphChanged);
+  }
+
+  if (viewer_node) {
+    // If setting to non-null, set it now
+    viewer_node_ = viewer_node;
   }
 
   if (viewer_node_) {
