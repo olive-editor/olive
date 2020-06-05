@@ -44,6 +44,8 @@ public:
 
   void WriteSilence(const TimeRange &range);
 
+  //void SetUuid(const QUuid& id);
+
   const QString& GetCacheFilename() const;
 
   QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time)
@@ -63,6 +65,8 @@ protected:
 
 private:
   QList<TimeRange> NoLockGetValidRanges(const TimeRange &range, const qint64 &job_time);
+
+  void UpdateFilename(const QString& s);
 
   QString filename_;
 

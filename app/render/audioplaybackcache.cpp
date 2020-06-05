@@ -22,7 +22,7 @@
 
 #include <QDir>
 #include <QFile>
-#include <QRandomGenerator>
+#include <QUuid>
 
 #include "common/filefunctions.h"
 
@@ -30,11 +30,8 @@ OLIVE_NAMESPACE_ENTER
 
 AudioPlaybackCache::AudioPlaybackCache()
 {
-  // FIXME: We just use a randomly generated number, one day this should be matchable to the
-  //        project so it can be reused.
-  quint32 r = QRandomGenerator::global()->generate();
-  filename_ = QDir(FileFunctions::GetMediaCacheLocation()).filePath(QString::number(r));
-  filename_.append(QStringLiteral(".pcm"));
+  quint32 r = std::rand();
+  UpdateFilename(QString::number(r));
 }
 
 void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
@@ -137,6 +134,13 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
   }
 }
 
+/*
+void AudioPlaybackCache::SetUuid(const QUuid &id)
+{
+  UpdateFilename(id.toByteArray());
+}
+*/
+
 void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 {
   qint64 from_offset = params_.time_to_bytes(from);
@@ -234,6 +238,12 @@ QList<TimeRange> AudioPlaybackCache::NoLockGetValidRanges(const TimeRange& range
   }
 
   return valid_ranges;
+}
+
+void AudioPlaybackCache::UpdateFilename(const QString &s)
+{
+  filename_ = QDir(FileFunctions::GetMediaCacheLocation()).filePath(s);
+  filename_.append(QStringLiteral(".pcm"));
 }
 
 const QString &AudioPlaybackCache::GetCacheFilename() const
