@@ -70,7 +70,7 @@ public:
   void AddSum(const float* samples, int nb_samples, int nb_channels);
 
   void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start);
-  void OverwriteSums(const AudioVisualWaveform& sums, const rational& start);
+  void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = rational(), const rational &length = rational());
 
   AudioVisualWaveform Mid(const rational& time) const;
   void Append(const AudioVisualWaveform& waveform);

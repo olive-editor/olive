@@ -51,22 +51,29 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
   overwrite_samples_internal(samples, sample_rate, time_to_samples(start));
 }
 
-void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &start)
+void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &dest, const rational& offset, const rational& length)
 {
   if (sums.data_.isEmpty()) {
     return;
   }
 
-  int start_index = time_to_samples(start);
-  int end_index = start_index + sums.data_.size();
+  int start_index = time_to_samples(dest);
+  int sample_start = time_to_samples(offset);
+
+  int copy_len = sums.data_.size() - sample_start;
+  if (!length.isNull()) {
+    copy_len = qMin(copy_len, time_to_samples(length));
+  }
+
+  int end_index = start_index + copy_len;
 
   if (data_.size() < end_index) {
     data_.resize(end_index);
   }
 
-  memcpy(&data_[start_index],
-         sums.data_.constData(),
-         sums.data_.size() * sizeof(SamplePerChannel));
+  memcpy(reinterpret_cast<char*>(data_.data()) + start_index * sizeof(SamplePerChannel),
+         reinterpret_cast<const char*>(sums.data_.constData()) + time_to_samples(offset) * sizeof(SamplePerChannel),
+         copy_len * sizeof(SamplePerChannel));
 }
 
 AudioVisualWaveform AudioVisualWaveform::Mid(const rational &time) const
