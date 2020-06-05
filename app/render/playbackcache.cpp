@@ -137,7 +137,6 @@ void PlaybackCache::NoLockInvalidate(const TimeRange &r)
   RemoveRangeFromJobs(r);
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
   jobs_.append({r, job_time});
-  qDebug() << "Creating job" << r << job_time;
 
   InvalidateEvent(r);
 }

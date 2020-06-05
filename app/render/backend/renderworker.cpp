@@ -133,8 +133,6 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
 
       QList<TimeRange> valid_ranges = preview_cache_->GetValidRanges(range, preview_job_time_);
       if (!valid_ranges.isEmpty()) {
-        qDebug() << "Worker generated valid waveform for" << range << preview_cache_;
-
         QHash<Node*, Node*>::const_iterator i;
         for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
           if (i.value() == track) {
