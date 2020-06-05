@@ -94,6 +94,7 @@ void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
   audio_playback_cache_.Shift(from, to);
 
   foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
+    QMutexLocker locker(track->waveform_lock());
     track->waveform().Shift(from, to);
   }
 }
@@ -112,10 +113,12 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
     TimeRange invalidated_range(qMax(rational(), range.in()),
                                 qMin(GetLength(), range.out()));
 
-    if (from == texture_input_) {
-      video_frame_cache_.Invalidate(invalidated_range);
-    } else {
-      audio_playback_cache_.Invalidate(invalidated_range);
+    if (invalidated_range.in() != invalidated_range.out()) {
+      if (from == texture_input_) {
+        video_frame_cache_.Invalidate(invalidated_range);
+      } else {
+        audio_playback_cache_.Invalidate(invalidated_range);
+      }
     }
   }
 
