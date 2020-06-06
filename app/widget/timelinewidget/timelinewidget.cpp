@@ -824,50 +824,11 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
 {
-  QVector<Block*> blocks_to_split;
-  QList<Block*> blocks_to_append_gap_to;
-  QList<Block*> gaps_to_extend;
-
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
-    if (track->IsLocked()) {
-      continue;
-    }
-
-    foreach (Block* b, track->Blocks()) {
-      if (b->out() >= earliest_point) {
-        if (b->type() == Block::kClip) {
-
-          if (b->out() > earliest_point) {
-            blocks_to_split.append(b);
-          }
-
-          blocks_to_append_gap_to.append(b);
-
-        } else if (b->type() == Block::kGap) {
-
-          gaps_to_extend.append(b);
-
-        }
-
-        break;
-      }
-    }
-  }
-
-  // Extend gaps that already exist
-  foreach (Block* gap, gaps_to_extend) {
-    new BlockResizeCommand(gap, gap->length() + insert_length, command);
-  }
-
-  // Split clips here
-  new BlockSplitPreservingLinksCommand(blocks_to_split, {earliest_point}, command);
-
-  // Insert gaps that don't exist yet
-  foreach (Block* b, blocks_to_append_gap_to) {
-    GapBlock* gap = new GapBlock();
-    gap->set_length_and_media_out(insert_length);
-    new NodeAddCommand(static_cast<NodeGraph*>(GetConnectedNode()->parent()), gap, command);
-    new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(b), gap, b, command);
+  for (int i=0;i<Timeline::kTrackTypeCount;i++) {
+    new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+                            earliest_point,
+                            insert_length,
+                            command);
   }
 }
 

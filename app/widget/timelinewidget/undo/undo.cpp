@@ -1444,4 +1444,128 @@ void TrackListRippleToolCommand::undo_internal()
   }
 }
 
+TrackListInsertGaps::TrackListInsertGaps(TrackList *track_list, const rational &point, const rational &length, QUndoCommand *parent) :
+  UndoCommand(parent),
+  track_list_(track_list),
+  point_(point),
+  length_(length),
+  split_command_(nullptr)
+{
+  all_tracks_unlocked_ = true;
+
+  foreach (TrackOutput* track, track_list_->GetTracks()) {
+    if (track->IsLocked()) {
+      all_tracks_unlocked_ = false;
+      continue;
+    }
+
+    working_tracks_.append(track);
+  }
+}
+
+Project *TrackListInsertGaps::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(static_cast<ViewerOutput*>(track_list_->parent())->parent())->project();
+}
+
+void TrackListInsertGaps::redo_internal()
+{
+  if (all_tracks_unlocked_) {
+    // Optimize by shifting over since we have a constant amount of time being inserted
+    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_, point_ + length_);
+    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_, point_ + length_);
+    }
+
+    foreach (TrackOutput* track, working_tracks_) {
+      track->BlockInvalidateCache();
+    }
+  }
+
+  QVector<Block*> blocks_to_split;
+  QList<Block*> blocks_to_append_gap_to;
+
+  foreach (TrackOutput* track, working_tracks_) {
+    foreach (Block* b, track->Blocks()) {
+      if (b->type() == Block::kGap && b->in() <= point_ && b->out() >= point_) {
+        gaps_to_extend_.append(b);
+      } else if (b->type() == Block::kClip && b->out() >= point_) {
+        if (b->out() > point_) {
+          blocks_to_split.append(b);
+        }
+
+        blocks_to_append_gap_to.append(b);
+      }
+    }
+  }
+
+  foreach (Block* gap, gaps_to_extend_) {
+    gap->set_length_and_media_out(gap->length() + length_);
+  }
+
+  if (!blocks_to_split.isEmpty()) {
+    split_command_ = new BlockSplitPreservingLinksCommand(blocks_to_split, {point_});
+    split_command_->redo();
+  }
+
+  foreach (Block* block, blocks_to_append_gap_to) {
+    GapBlock* gap = new GapBlock();
+    gap->set_length_and_media_out(length_);
+    static_cast<NodeGraph*>(block->parent())->AddNode(gap);
+    TrackOutput::TrackFromBlock(block)->InsertBlockAfter(gap, block);
+    gaps_added_.append(gap);
+  }
+
+  if (all_tracks_unlocked_) {
+    foreach (TrackOutput* track, working_tracks_) {
+      track->UnblockInvalidateCache();
+      track->PushLengthChangeSignal(false);
+    }
+  }
+}
+
+void TrackListInsertGaps::undo_internal()
+{
+  if (all_tracks_unlocked_) {
+    // Optimize by shifting over since we have a constant amount of time being inserted
+    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_ + length_, point_);
+    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+      static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_ + length_, point_);
+    }
+
+    foreach (TrackOutput* track, working_tracks_) {
+      track->BlockInvalidateCache();
+    }
+  }
+
+  // Remove added gaps
+  foreach (GapBlock* gap, gaps_added_) {
+    TrackOutput::TrackFromBlock(gap)->RippleRemoveBlock(gap);
+    delete TakeNodeFromParentGraph(gap);
+  }
+  gaps_added_.clear();
+
+  // Un-split blocks
+  if (split_command_) {
+    split_command_->undo();
+    delete split_command_;
+    split_command_ = nullptr;
+  }
+
+  // Restore original length of gaps
+  foreach (Block* gap, gaps_to_extend_) {
+    gap->set_length_and_media_out(gap->length() - length_);
+  }
+  gaps_to_extend_.clear();
+
+  if (all_tracks_unlocked_) {
+    foreach (TrackOutput* track, working_tracks_) {
+      track->UnblockInvalidateCache();
+      track->PushLengthChangeSignal(false);
+    }
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

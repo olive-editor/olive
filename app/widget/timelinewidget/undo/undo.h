@@ -574,6 +574,35 @@ private:
 
 };
 
+class TrackListInsertGaps : public UndoCommand {
+public:
+  TrackListInsertGaps(TrackList* track_list, const rational& point, const rational& length, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* track_list_;
+
+  rational point_;
+
+  rational length_;
+
+  QList<TrackOutput*> working_tracks_;
+
+  bool all_tracks_unlocked_;
+
+  QList<Block*> gaps_to_extend_;
+
+  QList<GapBlock*> gaps_added_;
+
+  BlockSplitPreservingLinksCommand* split_command_;
+
+};
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEUNDOABLE_H

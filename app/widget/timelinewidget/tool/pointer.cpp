@@ -248,20 +248,10 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       InsertGapsAtGhostDestination(parent()->ghost_items_, command);
     }
 
-    /*
-    QList<TrackReference> tracks_affected;
-    */
-
     // Now we can re-add each clip
     for (int i=0;i<ghosts_moving.size();i++) {
       TimelineViewGhostItem* ghost = ghosts_moving.at(i);
       Block* block = blocks_moving.at(i);
-
-      /*
-      if (!tracks_affected.contains(ghost->GetAdjustedTrack())) {
-        tracks_affected.append(ghost->GetAdjustedTrack());
-      }
-      */
 
       if (duplicate_clips) {
         // Duplicate rather than move
@@ -275,11 +265,6 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
         // Place the copy instead of the original block
         block = static_cast<Block*>(copy);
-        /*
-      } else if (!tracks_affected.contains(ghost->Track())) {
-        // Block moved from its original position. Mark its track as affected.
-        tracks_affected.append(ghost->Track());
-        */
       }
 
       const TrackReference& track_ref = ghost->GetAdjustedTrack();
@@ -289,14 +274,6 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                  ghost->GetAdjustedIn(),
                                  command);
     }
-
-    /*
-    foreach (const TrackReference& t, tracks_affected) {
-      new TrackCleanGapsCommand(parent()->GetConnectedNode()->track_list(t.type()),
-                                t.index(),
-                                command);
-    }
-    */
 
     // FIXME: Heavy optimization since MOST of the timeline does NOT change in this time
   }
