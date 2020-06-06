@@ -70,9 +70,15 @@ void RenderTask::Render(const TimeRangeList& video_range,
 {
   backend_.SetVideoDownloadMatrix(mat);
 
+  double progress_counter = 0;
+  double total_length = 0;
+  double video_frame_sz = video_params_.time_base().toDouble();
+
   std::list<RangeSampleFuturePair> audio_lookup_table;
   if (!audio_range.isEmpty()) {
     foreach (const TimeRange& r, audio_range) {
+      total_length += r.length().toDouble();
+
       QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
 
       foreach (const TimeRange& split, ranges) {
@@ -80,10 +86,6 @@ void RenderTask::Render(const TimeRangeList& video_range,
       }
     }
   }
-
-  // Get hashes for each frame and group likes together
-  int progress_counter = 0;
-  int nb_frames = 0;
 
   QMap<QByteArray, rational> times_to_render;
 
@@ -96,8 +98,11 @@ void RenderTask::Render(const TimeRangeList& video_range,
     {
       QList<QByteArray> existing_hashes;
 
+      foreach (const TimeRange& r, video_range) {
+        total_length += r.length().toDouble();
+      }
+
       times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
-      nb_frames = times.size();
 
       QFuture<QList<QByteArray> > hash_future = backend_.Hash(times);
       hashes = hash_future.result();
@@ -125,8 +130,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
           if (hash_exists) {
             // Already exists, no need to render it again
             FrameDownloaded(hash, {time});
-            progress_counter++;
-            emit ProgressChanged(static_cast<double>(progress_counter) / static_cast<double>(nb_frames));
+            progress_counter += video_frame_sz;
+            emit ProgressChanged(progress_counter / total_length);
           }
         }
 
@@ -212,8 +217,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
         FrameDownloaded(j->hash, times_with_hash);
 
         // Signal process
-        progress_counter += times_with_hash.size();
-        emit ProgressChanged(static_cast<double>(progress_counter) / static_cast<double>(nb_frames));
+        progress_counter += times_with_hash.size() * video_frame_sz;
+        emit ProgressChanged(progress_counter / total_length);
 
         j = download_futures.erase(j);
 
@@ -227,6 +232,9 @@ void RenderTask::Render(const TimeRangeList& video_range,
     while (!IsCancelled() && k != audio_lookup_table.end()) {
       if (k->sample_future->IsFinished()) {
         AudioDownloaded(k->range, k->sample_future->Get().value<SampleBufferPtr>());
+
+        progress_counter += k->range.length().toDouble();
+        emit ProgressChanged(progress_counter / total_length);
 
         k = audio_lookup_table.erase(k);
       } else {
