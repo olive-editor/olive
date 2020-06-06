@@ -26,6 +26,7 @@
 #include "core.h"
 #include "handmovableview.h"
 #include "timelineplayhead.h"
+#include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -37,6 +38,15 @@ public:
   TimelineViewBase(QWidget* parent = nullptr);
 
   static const double kMaximumScale;
+
+  void EnableSnap(const QList<rational>& points);
+  void DisableSnap();
+  bool IsSnapped() const
+  {
+    return snapped_;
+  }
+
+  void SetSnapService(SnapService* service);
 
 public slots:
   void SetTime(const int64_t time);
@@ -89,7 +99,12 @@ private:
 
   bool limit_y_axis_;
 
+  bool snapped_;
+  QList<rational> snap_time_;
+
   rational end_time_;
+
+  SnapService* snap_service_;
 
 private slots:
   /**

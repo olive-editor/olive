@@ -1,0 +1,1 @@
+#include "snapservice.h"

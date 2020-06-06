@@ -314,16 +314,19 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
   // Determine frame movement
   rational time_movement = mouse_pos.GetFrame() - drag_start_.GetFrame();
 
-  // Perform snapping if enabled (adjusts time_movement if it's close to any potential snap points)
-  if (Core::instance()->snapping()) {
-    SnapPoint(snap_points_, &time_movement);
-  }
-
   // Validate movement (enforce all ghosts moving in legal ways)
-  // NOTE: Always do this after snapping to ensure the snap hasn't made an illegal movement.
   time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
   time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_, !trim_overwrite_allowed_);
   time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_, !trim_overwrite_allowed_);
+
+  // Perform snapping if enabled (adjusts time_movement if it's close to any potential snap points)
+  if (Core::instance()->snapping()) {
+    parent()->SnapPoint(snap_points_, &time_movement);
+
+    time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
+    time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_, !trim_overwrite_allowed_);
+    time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_, !trim_overwrite_allowed_);
+  }
 
   // Validate ghosts that are being moved (clips from other track types do NOT get moved)
   {

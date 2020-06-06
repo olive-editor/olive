@@ -122,13 +122,16 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
       rational time_movement = event->GetFrame() - drag_start_.GetFrame();
       int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
 
-      // If snapping is enabled, check for snap points
-      if (Core::instance()->snapping()) {
-        SnapPoint(snap_points_, &time_movement);
-      }
-
       time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
       track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+
+      // If snapping is enabled, check for snap points
+      if (Core::instance()->snapping()) {
+        parent()->SnapPoint(snap_points_, &time_movement);
+
+        time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
+        track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+      }
 
       rational earliest_ghost = RATIONAL_MAX;
 

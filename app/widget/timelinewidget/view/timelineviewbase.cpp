@@ -39,7 +39,9 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
   dragging_playhead_(false),
-  limit_y_axis_(false)
+  limit_y_axis_(false),
+  snapped_(false),
+  snap_service_(nullptr)
 {
   setScene(&scene_);
 
@@ -57,6 +59,26 @@ void TimelineViewBase::TimebaseChangedEvent(const rational &)
 {
   // Timebase influences position/visibility of playhead
   viewport()->update();
+}
+
+void TimelineViewBase::EnableSnap(const QList<rational> &points)
+{
+  snapped_ = true;
+  snap_time_ = points;
+
+  viewport()->update();
+}
+
+void TimelineViewBase::DisableSnap()
+{
+  snapped_ = false;
+
+  viewport()->update();
+}
+
+void TimelineViewBase::SetSnapService(SnapService *service)
+{
+  snap_service_ = service;
 }
 
 void TimelineViewBase::SetTime(const int64_t time)
@@ -91,6 +113,16 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
 
     playhead_style_.Draw(painter, QRectF(playhead_scene_left_, rect.top(), width, rect.height()));
   }
+
+  if (snapped_) {
+    painter->setPen(palette().text().color());
+
+    foreach (const rational& r, snap_time_) {
+      double x = TimeToScene(r);
+
+      painter->drawLine(x, rect.top(), x, rect.height());
+    }
+  }
 }
 
 rational TimelineViewBase::GetPlayheadTime() const
@@ -118,6 +150,17 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
 
   int64_t target_ts = qMax(static_cast<int64_t>(0), Timecode::time_to_timestamp(mouse_time, timebase()));
 
+  if (Core::instance()->snapping() && snap_service_) {
+    rational target_time = Timecode::timestamp_to_time(target_ts, timebase());
+    rational movement;
+
+    snap_service_->SnapPoint({target_time}, &movement, SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+
+    if (!movement.isNull()) {
+      target_ts = Timecode::time_to_timestamp(target_time + movement, timebase());
+    }
+  }
+
   SetTime(target_ts);
   emit TimeChanged(target_ts);
 
@@ -128,6 +171,10 @@ bool TimelineViewBase::PlayheadRelease(QMouseEvent*)
 {
   if (dragging_playhead_) {
     dragging_playhead_ = false;
+
+    if (snap_service_) {
+      snap_service_->HideSnaps();
+    }
 
     return true;
   }

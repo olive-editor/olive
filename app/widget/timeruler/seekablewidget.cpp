@@ -25,6 +25,7 @@
 #include <QtMath>
 
 #include "common/qtutils.h"
+#include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -32,7 +33,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   TimelineScaledWidget(parent),
   time_(0),
   timeline_points_(nullptr),
-  scroll_(0)
+  scroll_(0),
+  snap_service_(nullptr)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -59,6 +61,11 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
   update();
 }
 
+void SeekableWidget::SetSnapService(SnapService *service)
+{
+  snap_service_ = service;
+}
+
 const int64_t &SeekableWidget::GetTime() const
 {
   return time_;
@@ -78,6 +85,15 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (event->buttons() & Qt::LeftButton) {
     SeekToScreenPoint(event->pos().x());
+  }
+}
+
+void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+  Q_UNUSED(event)
+
+  if (snap_service_) {
+    snap_service_->HideSnaps();
   }
 }
 
@@ -133,6 +149,20 @@ int SeekableWidget::TimeToScreen(const rational &time)
 void SeekableWidget::SeekToScreenPoint(int screen)
 {
   int64_t timestamp = qMax(static_cast<int64_t>(0), ScreenToUnitRounded(screen));
+
+  if (Core::instance()->snapping() && snap_service_) {
+    rational playhead_time = Timecode::timestamp_to_time(timestamp, timebase());
+    rational movement;
+
+    snap_service_->SnapPoint({playhead_time},
+                             &movement,
+                             SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+
+    if (!movement.isNull()) {
+      timestamp = Timecode::time_to_timestamp(playhead_time + movement,
+                                              timebase());
+    }
+  }
 
   SetTime(timestamp);
 

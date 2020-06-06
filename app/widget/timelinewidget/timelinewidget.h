@@ -27,6 +27,7 @@
 
 #include "core.h"
 #include "node/output/viewer/viewer.h"
+#include "snapservice.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
@@ -40,7 +41,7 @@ OLIVE_NAMESPACE_ENTER
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteWidget
+class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteWidget, public SnapService
 {
   Q_OBJECT
 public:
@@ -92,6 +93,10 @@ public:
   void ToggleSelectedEnabled();
 
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
+
+  virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
+
+  virtual void HideSnaps() override;
 
 signals:
   void SelectionChanged(const QList<Block*>& selected_blocks);
@@ -188,17 +193,6 @@ private:
      * This function's validation ensures that no Ghost's track ends up in a negative (non-existent) track.
      */
     int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*> ghosts);
-
-    enum SnapPoints {
-      kSnapToClips = 0x1,
-      kSnapToPlayhead = 0x2,
-      kSnapAll = 0xFF
-    };
-
-    /**
-     * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
-     */
-    bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll);
 
     void GetGhostData(const QVector<TimelineViewGhostItem*>& ghosts, rational *earliest_point, rational *latest_point);
 
@@ -454,6 +448,8 @@ private:
   void RippleTo(Timeline::MovementMode mode);
 
   void EditTo(Timeline::MovementMode mode);
+
+  void ShowSnap(const QList<rational>& times);
 
   QPoint drag_origin_;
 

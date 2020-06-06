@@ -20,11 +20,13 @@
 
 #include "timelinewidget.h"
 
+#include <cfloat>
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QtMath>
 
 #include "core.h"
+#include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speedduration.h"
@@ -56,6 +58,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
+  ruler()->SetSnapService(this);
 
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
@@ -103,6 +106,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    view->SetSnapService(this);
 
     view_splitter->addWidget(tview);
 
@@ -906,6 +910,8 @@ void TimelineWidget::ClearGhosts()
 
     ghost_items_.clear();
   }
+
+  HideSnaps();
 }
 
 bool TimelineWidget::HasGhosts()
@@ -1266,7 +1272,7 @@ void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
 }
 
 QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
-                                                                  Timeline::MovementMode mode)
+                                                            Timeline::MovementMode mode)
 {
   // Get list of unlocked tracks
   QVector<TrackOutput*> tracks = GetConnectedNode()->GetUnlockedTracks();
@@ -1399,6 +1405,20 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::ShowSnap(const QList<rational> &times)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->EnableSnap(times);
+  }
+}
+
+void TimelineWidget::HideSnaps()
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->DisableSnap();
+  }
+}
+
 void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_links)
 {
   drag_origin_ = QCursor::pos();
@@ -1476,6 +1496,109 @@ void TimelineWidget::EndRubberBandSelect(bool enable_selecting, bool select_link
   rubberband_now_selected_.clear();
 
   ViewSelectionChanged();
+}
+
+struct SnapData {
+  rational time;
+  rational movement;
+};
+
+QList<SnapData> AttemptSnap(const QList<double>& screen_pt,
+                            double compare_pt,
+                            const QList<rational>& start_times,
+                            const rational& compare_time) {
+  const qreal kSnapRange = 10; // FIXME: Hardcoded number
+
+  QList<SnapData> snap_data;
+
+  for (int i=0;i<screen_pt.size();i++) {
+    // Attempt snapping to clip out point
+    if (InRange(screen_pt.at(i), compare_pt, kSnapRange)) {
+      snap_data.append({compare_time, compare_time - start_times.at(i)});
+    }
+  }
+
+  return snap_data;
+}
+
+bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
+{
+  QList<double> screen_pt;
+
+  foreach (const rational& s, start_times) {
+    screen_pt.append(TimeToScene(s + *movement));
+  }
+
+  QList<SnapData> potential_snaps;
+
+  if (snap_points & kSnapToPlayhead) {
+    rational playhead_abs_time = GetTime();
+    qreal playhead_pos = TimeToScene(playhead_abs_time);
+    potential_snaps.append(AttemptSnap(screen_pt, playhead_pos, start_times, playhead_abs_time));
+  }
+
+  if (snap_points & kSnapToClips) {
+    QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
+
+    for (i=block_items_.constBegin(); i!=block_items_.constEnd(); i++) {
+      TimelineViewBlockItem* item = i.value();
+
+      if (item) {
+        qreal rect_left = item->x();
+        qreal rect_right = rect_left + item->rect().width();
+
+        // Attempt snapping to clip in point
+        potential_snaps.append(AttemptSnap(screen_pt, rect_left, start_times, item->block()->in()));
+
+        // Attempt snapping to clip out point
+        potential_snaps.append(AttemptSnap(screen_pt, rect_right, start_times, item->block()->out()));
+      }
+    }
+  }
+
+  if ((snap_points & kSnapToMarkers) && GetConnectedTimelinePoints()) {
+    foreach (TimelineMarker* m, GetConnectedTimelinePoints()->markers()->list()) {
+      qreal marker_pos = TimeToScene(m->time().in());
+      potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().in()));
+
+      if (m->time().in() != m->time().out()) {
+        marker_pos = TimeToScene(m->time().out());
+        potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().out()));
+      }
+    }
+  }
+
+  if (potential_snaps.isEmpty()) {
+    HideSnaps();
+    return false;
+  }
+
+  int closest_snap = 0;
+  rational closest_diff = qAbs(potential_snaps.at(0).movement - *movement);
+
+  // Determine which snap point was the closest
+  for (int i=1; i<potential_snaps.size(); i++) {
+    rational this_diff = qAbs(potential_snaps.at(i).movement - *movement);
+
+    if (this_diff < closest_diff) {
+      closest_snap = i;
+      closest_diff = this_diff;
+    }
+  }
+
+  *movement = potential_snaps.at(closest_snap).movement;
+
+  // Find all points at this movement
+  QList<rational> snap_times;
+  foreach (const SnapData& data, potential_snaps) {
+    if (data.movement == *movement) {
+      snap_times.append(data.time);
+    }
+  }
+
+  ShowSnap(snap_times);
+
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -150,13 +150,13 @@ void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bo
   rational movement = cursor_frame - drag_start_point_;
 
   // Snap movement
-  bool snapped = SnapPoint(snap_points_, &movement);
+  bool snapped = parent()->SnapPoint(snap_points_, &movement);
 
   // If alt is held, our movement goes both ways (outwards)
   if (!snapped && outwards) {
     // Snap backwards too
     movement = -movement;
-    SnapPoint(snap_points_, &movement);
+    parent()->SnapPoint(snap_points_, &movement);
     // We don't need to un-neg here because outwards means all future processing will be done both pos and neg
   }
 

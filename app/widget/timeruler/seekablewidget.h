@@ -23,6 +23,7 @@
 
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
+#include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/view/timelineplayhead.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
@@ -40,6 +41,8 @@ public:
 
   void ConnectTimelinePoints(TimelinePoints* points);
 
+  void SetSnapService(SnapService* service);
+
 public slots:
   void SetTime(const int64_t &r);
 
@@ -50,6 +53,7 @@ protected:
 
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
   virtual void ScaleChangedEvent(const double&) override;
 
@@ -104,6 +108,8 @@ private:
   int text_height_;
 
   int playhead_width_;
+
+  SnapService* snap_service_;
 
 };
 

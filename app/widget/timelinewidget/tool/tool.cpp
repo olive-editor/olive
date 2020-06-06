@@ -20,9 +20,6 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
-#include <cfloat>
-
-#include "common/range.h"
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
@@ -74,28 +71,6 @@ TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoo
   }
 
   return nullptr;
-}
-
-void AttemptSnap(const QList<double>& proposed_pts,
-                 double compare_point,
-                 const QList<rational>& start_times,
-                 rational compare_time,
-                 rational* movement,
-                 double* diff) {
-  const qreal kSnapRange = 10; // FIXME: Hardcoded number
-
-  for (int i=0;i<proposed_pts.size();i++) {
-    // Attempt snapping to clip out point
-    if (InRange(proposed_pts.at(i), compare_point, kSnapRange)) {
-      double this_diff = qAbs(compare_point - proposed_pts.at(i));
-
-      if (this_diff < *diff
-          && start_times.at(i) + *movement >= 0) {
-        *movement = compare_time - start_times.at(i);
-        *diff = this_diff;
-      }
-    }
-  }
 }
 
 rational TimelineWidget::Tool::ValidateTimeMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
@@ -151,52 +126,6 @@ int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<Time
   }
 
   return movement;
-}
-
-bool TimelineWidget::Tool::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
-{
-  double diff = DBL_MAX;
-
-  QList<double> proposed_pts;
-
-  foreach (rational s, start_times) {
-    proposed_pts.append((s + *movement).toDouble() * parent()->GetScale());
-  }
-
-  if (snap_points & kSnapToPlayhead) {
-
-
-    rational playhead_abs_time = rational(parent()->GetTimestamp() * parent()->timebase().numerator(),
-                                          parent()->timebase().denominator());
-
-    qreal playhead_pos = playhead_abs_time.toDouble() * parent()->GetScale();
-
-    AttemptSnap(proposed_pts, playhead_pos, start_times, playhead_abs_time, movement, &diff);
-  }
-
-  if (snap_points & kSnapToClips) {
-    QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
-
-    while (iterator.hasNext()) {
-      iterator.next();
-
-      TimelineViewBlockItem* item = iterator.value();
-
-      if (item != nullptr) {
-        qreal rect_left = item->x();
-        qreal rect_right = rect_left + item->rect().width();
-
-        // Attempt snapping to clip in point
-        AttemptSnap(proposed_pts, rect_left, start_times, item->block()->in(), movement, &diff);
-
-        // Attempt snapping to clip out point
-        AttemptSnap(proposed_pts, rect_right, start_times, item->block()->out(), movement, &diff);
-      }
-    }
-  }
-
-
-  return (diff < DBL_MAX);
 }
 
 void TimelineWidget::Tool::GetGhostData(const QVector<TimelineViewGhostItem *> &ghosts, rational *earliest_point, rational *latest_point)
