@@ -115,7 +115,7 @@ void AudioVisualWaveform::PrependSilence(const rational &time)
   }
 
   // Fill remainder with silence
-  memset(data_.data(), 0, added_samples * sizeof(SamplePerChannel));
+  memset(reinterpret_cast<char*>(data_.data()), 0, added_samples * sizeof(SamplePerChannel));
 }
 
 void AudioVisualWaveform::AppendSilence(const rational &time)
@@ -127,7 +127,7 @@ void AudioVisualWaveform::AppendSilence(const rational &time)
   data_.resize(old_size + added_samples);
 
   // Fill remainder with silence
-  memset(&data_[old_size], 0, (data_.size() - old_size) * sizeof(SamplePerChannel));
+  memset(reinterpret_cast<char*>(&data_[old_size]), 0, (data_.size() - old_size) * sizeof(SamplePerChannel));
 }
 
 void AudioVisualWaveform::Shift(const rational &from, const rational &to)
@@ -162,7 +162,7 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
       data_.replace(data_.size() - i - 1, data_.at(old_sz - i - 1));
     }
 
-    memset(&data_[from_index], 0, distance * sizeof(SamplePerChannel));
+    memset(reinterpret_cast<char*>(&data_[from_index]), 0, distance * sizeof(SamplePerChannel));
   }
 }
 

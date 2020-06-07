@@ -40,8 +40,8 @@ public:
   AudioVisualWaveform() = default;
 
   struct SamplePerChannel {
-    qfloat16 min = 0;
-    qfloat16 max = 0;
+    qfloat16 min;
+    qfloat16 max;
   };
 
   using Sample = QVector<SamplePerChannel>;
