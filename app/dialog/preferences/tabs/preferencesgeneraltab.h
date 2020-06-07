@@ -39,12 +39,6 @@ public:
 
   virtual void Accept() override;
 
-private slots:
-  /**
-   * @brief Shows a NewSequenceDialog attached to default_sequence
-   */
-  void edit_default_sequence_settings();
-
 private:
   QComboBox* language_combobox_;
 
@@ -53,11 +47,6 @@ private:
   QCheckBox* rectified_waveforms_;
 
   FloatSlider* default_still_length_;
-
-  /**
-   * @brief A sequence we can feed to a SequenceDialog to change the defaults
-   */
-  Sequence default_sequence_;
 
 };
 

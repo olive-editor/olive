@@ -26,6 +26,8 @@
 #include <QSpinBox>
 
 #include "project/item/sequence/sequence.h"
+#include "sequencedialogparametertab.h"
+#include "sequencedialogpresettab.h"
 #include "undo/undocommand.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -93,23 +95,13 @@ public slots:
 private:
   Sequence* sequence_;
 
+  SequenceDialogPresetTab* preset_tab_;
+
+  SequenceDialogParameterTab* parameter_tab_;
+
   bool make_undoable_;
 
-  QSpinBox* video_width_field_;
-
-  QSpinBox* video_height_field_;
-
-  QComboBox* video_frame_rate_field_;
-
-  QComboBox* audio_sample_rate_field_;
-
-  QComboBox* audio_channels_field_;
-
   QLineEdit* name_field_;
-
-  QList<rational> frame_rate_list_;
-
-  QList<int> sample_rate_list_;
 
   /**
    * @brief A QUndoCommand for setting the parameters on a sequence
