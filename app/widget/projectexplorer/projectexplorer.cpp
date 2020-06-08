@@ -317,7 +317,7 @@ void ProjectExplorer::ShowContextMenu()
     }
 
     if (all_items_are_footage && all_items_have_video_streams) {
-      Menu* proxy_menu = new Menu(tr("Proxy"), &menu);
+      Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
       QList<ItemPtr> sequences = project()->get_items_of_type(Item::kSequence);
