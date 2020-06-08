@@ -170,6 +170,11 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
   return NodeValue(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));
 }
 
+NodeValue OpenGLProxy::PreCachedFrameToValue(FramePtr frame)
+{
+  return NodeValue(NodeParam::kTexture, QVariant::fromValue(texture_cache_.Get(ctx_, frame)));
+}
+
 void OpenGLProxy::Close()
 {
   shader_cache_.clear();

@@ -82,6 +82,8 @@ public slots:
                                           const OLIVE_NAMESPACE::VideoParams &params,
                                           const OLIVE_NAMESPACE::RenderMode::Mode &mode);
 
+  OLIVE_NAMESPACE::NodeValue PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
+
 private:
   QOpenGLContext* ctx_;
   QOffscreenSurface surface_;
