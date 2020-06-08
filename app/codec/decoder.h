@@ -138,7 +138,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider, bool use_proxies);
+  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider);
 
   /**
    * @brief Retrieve video frame
@@ -209,11 +209,6 @@ public:
    * A Decoder instance or nullptr if a Decoder with this ID does not exist
    */
   static DecoderPtr CreateFromID(const QString& id);
-
-  /**
-   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
-   */
-  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider);
 
   /**
    * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream

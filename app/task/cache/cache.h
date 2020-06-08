@@ -36,10 +36,9 @@ public:
             const AudioParams &aparams,
             bool in_out_only);
 
-public slots:
+protected:
   virtual bool Run() override;
 
-protected:
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
 
   virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) override;

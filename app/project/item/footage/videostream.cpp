@@ -28,9 +28,7 @@ OLIVE_NAMESPACE_ENTER
 
 VideoStream::VideoStream() :
   start_time_(0),
-  is_image_sequence_(false),
-  is_generating_proxy_(false),
-  using_proxy_(0)
+  is_image_sequence_(false)
 {
   set_type(kVideo);
 }
@@ -73,42 +71,7 @@ void VideoStream::set_image_sequence(bool e)
   is_image_sequence_ = e;
 }
 
-bool VideoStream::is_generating_proxy()
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  return is_generating_proxy_;
-}
-
-bool VideoStream::try_start_proxy()
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  if (is_generating_proxy_) {
-    return false;
-  }
-
-  is_generating_proxy_ = true;
-
-  return true;
-}
-
-int VideoStream::using_proxy()
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  return using_proxy_;
-}
-
-void VideoStream::set_proxy(const int &divider, const QVector<int64_t> &index)
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  using_proxy_ = divider;
-  frame_index_ = index;
-  is_generating_proxy_ = false;
-}
-
+/*
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
 {
   // Get rough approximation of what the timestamp would be in this timebase
@@ -143,6 +106,7 @@ int64_t VideoStream::get_closest_timestamp_in_frame_index(int64_t timestamp)
 
   return -1;
 }
+*/
 
 /*
 void VideoStream::clear_frame_index()

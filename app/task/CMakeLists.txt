@@ -18,7 +18,6 @@ add_subdirectory(cache)
 add_subdirectory(conform)
 add_subdirectory(export)
 add_subdirectory(project)
-add_subdirectory(proxy)
 add_subdirectory(render)
 
 set(OLIVE_SOURCES

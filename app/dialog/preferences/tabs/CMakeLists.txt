@@ -24,8 +24,6 @@ set(OLIVE_SOURCES
   dialog/preferences/tabs/preferencesdisktab.cpp
   dialog/preferences/tabs/preferencesappearancetab.h
   dialog/preferences/tabs/preferencesappearancetab.cpp
-  dialog/preferences/tabs/preferencesqualitytab.h
-  dialog/preferences/tabs/preferencesqualitytab.cpp
   dialog/preferences/tabs/preferencesaudiotab.h
   dialog/preferences/tabs/preferencesaudiotab.cpp
   dialog/preferences/tabs/preferenceskeyboardtab.h

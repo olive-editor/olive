@@ -41,8 +41,7 @@ void OpenGLWorker::TextureToFrame(const QVariant &texture, FramePtr frame, const
 NodeValue OpenGLWorker::FrameToTexture(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) const
 {
   FramePtr frame = decoder->RetrieveVideo(range.in(),
-                                          video_params().divider(),
-                                          render_mode() == RenderMode::kOffline);
+                                          video_params().divider());
 
   NodeValue value;
 

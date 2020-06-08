@@ -32,7 +32,7 @@ class ConformTask : public Task
 public:
   ConformTask(AudioStreamPtr stream, const AudioParams& params);
 
-public slots:
+protected:
   virtual bool Run() override;
 
 private:

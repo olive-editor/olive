@@ -62,6 +62,8 @@ public:
 
   void ClearVideoQueue();
 
+  void ProcessUpdateQueue();
+
   /**
    * @brief Asynchronously generate a hash at a given time
    */
@@ -97,8 +99,6 @@ private:
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
   void RunNextJob();
-
-  void ProcessUpdateQueue();
 
   ViewerOutput* viewer_node_;
 

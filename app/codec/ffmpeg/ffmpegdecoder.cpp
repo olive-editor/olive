@@ -135,7 +135,7 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider, bool use_proxies)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -151,51 +151,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
   int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
 
   VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
-
-  if (use_proxies && vs->using_proxy()) {
-    QString proxy_fn = GetProxyFilename(vs->using_proxy());
-
-    int64_t index_ts = vs->get_closest_timestamp_in_frame_index(target_ts);
-
-    if (target_ts > -1) {
-      // Use this timestamp instead - even if we fall through to decoding manually, it'll be more
-      // accurate than the one we calculated earlier
-      target_ts = index_ts;
-
-      QString frame_filename = GetProxyFrameFilename(target_ts, vs->using_proxy());
-
-      if (QFileInfo::exists(frame_filename)) {
-        auto in = OIIO::ImageInput::open(frame_filename.toStdString());
-
-        if (in) {
-          FramePtr copy = Frame::Create();
-          copy->set_video_params(VideoParams(vs->width(),
-                                             vs->height(),
-                                             native_pix_fmt_,
-                                             vs->using_proxy()));
-          copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
-          copy->set_sample_aspect_ratio(aspect_ratio_);
-          copy->allocate();
-
-          // We're running one "decoder" per thread already, no need to spawn more than that
-          in->threads(1);
-
-          in->read_image(PixelFormat::GetOIIOTypeDesc(native_pix_fmt_),
-                         copy->data(),
-                         OIIO::AutoStride,
-                         copy->linesize_bytes());
-
-          in->close();
-
-#if OIIO_VERSION < 10903
-          OIIO::ImageInput::destroy(in);
-#endif
-
-          return copy;
-        }
-      }
-    }
-  }
 
   FFmpegDecoderInstance* working_instance = nullptr;
   FFmpegFramePool::ElementPtr return_frame = nullptr;
@@ -667,135 +622,6 @@ void SaveCacheFrame(FFmpegDecoder* decoder,
   }
 
   av_frame_free(&frame);
-}
-
-bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
-{
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
-
-  QString proxy_filename = GetProxyFilename(divider);
-
-  if (QFileInfo::exists(proxy_filename)) {
-
-    // A proxy of this type already exists so we can do nothing
-    QFile index_file(proxy_filename);
-    if (index_file.open(QFile::ReadOnly)) {
-      QVector<int64_t> index(index_file.size() / sizeof(int64_t));
-
-      index_file.read(reinterpret_cast<char*>(index.data()),
-                      index_file.size());
-
-      index_file.close();
-
-      video_stream->set_proxy(divider, index);
-
-      return true;
-    }
-
-  }
-
-  // Iterate each frame and transcode it to EXR
-  FFmpegDecoderInstance instance(stream()->footage()->filename().toUtf8(), stream()->index());
-
-  int ret;
-
-  AVPixelFormat src_fmt = static_cast<AVPixelFormat>(instance.stream()->codecpar->format);
-  AVPixelFormat ideal_fmt = FFmpegCommon::GetCompatiblePixelFormat(src_fmt);
-  PixelFormat::Format native_fmt = GetNativePixelFormat(ideal_fmt);
-
-  int divided_width = GetScaledDimension(instance.stream()->codecpar->width, divider);
-  int divided_height = GetScaledDimension(instance.stream()->codecpar->height, divider);
-
-  SwsContext* scaler = sws_getContext(instance.stream()->codecpar->width,
-                                      instance.stream()->codecpar->height,
-                                      src_fmt,
-                                      divided_width,
-                                      divided_height,
-                                      ideal_fmt,
-                                      SWS_FAST_BILINEAR,
-                                      nullptr,
-                                      nullptr,
-                                      0);
-
-  AVPacket* pkt = av_packet_alloc();
-  QVector<int64_t> frame_index;
-  QVector< QFuture<void> > futures;
-  int finished_futures = 0;
-
-  VideoParams converted_params(divided_width,
-                               divided_height,
-                               native_fmt);
-
-  bool succeeded = false;
-
-  while (true) {
-    if (cancelled && *cancelled) {
-      break;
-    }
-
-    AVFrame* frame = av_frame_alloc();
-
-    ret = instance.GetFrame(pkt, frame);
-
-    // Handle errors
-    if (ret < 0) {
-      if (ret == AVERROR_EOF) {
-        succeeded = true;
-      } else {
-        char err_str[50];
-        av_strerror(ret, err_str, 50);
-        qWarning() << "Failed to proxy:" << ret << err_str;
-      }
-
-      av_frame_free(&frame);
-      break;
-    }
-
-    frame_index.append(frame->pts);
-
-    QFuture<void> future = QtConcurrent::run(SaveCacheFrame,
-                                             this,
-                                             scaler,
-                                             frame,
-                                             converted_params,
-                                             GetProxyFrameFilename(frame->pts, divider));
-    futures.append(future);
-
-    while (finished_futures < futures.size()) {
-      if (!futures.at(finished_futures).isFinished()) {
-        SignalProcessingProgress(frame_index.at(finished_futures));
-        break;
-      }
-
-      finished_futures++;
-    }
-  }
-
-  // Wait for all conversions to finish
-  for ( ; finished_futures<futures.size(); finished_futures++) {
-    futures[finished_futures].waitForFinished();
-    SignalProcessingProgress(frame_index.at(finished_futures));
-  }
-
-  // If succeeded, update the video stream's proxy state
-  if (succeeded) {
-    QFile index_output(proxy_filename);
-
-    if (index_output.open(QFile::WriteOnly)) {
-      index_output.write(reinterpret_cast<const char*>(frame_index.constData()),
-                         frame_index.size() * sizeof(int64_t));
-
-      index_output.close();
-    }
-
-    video_stream->set_proxy(divider, frame_index);
-  }
-
-  sws_freeContext(scaler);
-
-  av_packet_free(&pkt);
-
-  return succeeded;
 }
 
 bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams &p)

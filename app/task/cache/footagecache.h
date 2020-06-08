@@ -18,29 +18,31 @@
 
 ***/
 
-#ifndef PROXYTASK_H
-#define PROXYTASK_H
+#ifndef FOOTAGECACHETASK_H
+#define FOOTAGECACHETASK_H
 
-#include "project/item/footage/videostream.h"
-#include "task/task.h"
+#include "cache.h"
+#include "node/input/media/video/video.h"
+#include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProxyTask : public Task
+class FootageCacheTask : public CacheTask
 {
+  Q_OBJECT
 public:
-  ProxyTask(VideoStreamPtr stream, int divider);
+  FootageCacheTask(VideoStreamPtr footage, Sequence* sequence);
 
-public slots:
-  virtual bool Run() override;
+  virtual ~FootageCacheTask() override;
 
 private:
-  VideoStreamPtr stream_;
+  VideoStreamPtr footage_;
 
-  int divider_;
+  VideoInput* video_node_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROXYTASK_H
+#endif // FOOTAGECACHETASK_H

@@ -127,7 +127,7 @@ QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
       hasher.addData(reinterpret_cast<const char*>(&video_params_.format()), sizeof(PixelFormat::Format));
       hasher.addData(reinterpret_cast<const char*>(&render_mode_), sizeof(RenderMode::Mode));
 
-      copied_viewer_node_->Hash(hasher, t);
+      copied_viewer_node_->texture_input()->get_connected_node()->Hash(hasher, t);
 
       hashes.append(hasher.result());
     }

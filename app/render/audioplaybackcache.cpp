@@ -52,7 +52,9 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
 
   // Our current audio cache is unusable, so we truncate it automatically
   TimeRange invalidate_range(0, NoLockGetLength());
-  NoLockInvalidate(invalidate_range);
+  if (invalidate_range.in() != invalidate_range.out()) {
+    NoLockInvalidate(invalidate_range);
+  }
 
   locker.unlock();
 

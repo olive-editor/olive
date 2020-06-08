@@ -57,7 +57,7 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/, bool /*use_proxies*/)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/)
 {
   return nullptr;
 }
@@ -173,11 +173,6 @@ QString Decoder::GetConformedFilename(const AudioParams &params)
   index_fn.append(QString::number(params.channel_layout()));
 
   return index_fn;
-}
-
-bool Decoder::ProxyVideo(const QAtomicInt *, int )
-{
-  return false;
 }
 
 bool Decoder::ConformAudio(const QAtomicInt *, const AudioParams& )

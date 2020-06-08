@@ -42,7 +42,7 @@ public:
     return command_;
   }
 
-public slots:
+protected:
   virtual bool Run() override;
 
 private:

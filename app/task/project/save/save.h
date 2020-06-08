@@ -37,7 +37,7 @@ public:
     return project_;
   }
 
-public slots:
+protected:
   virtual bool Run() override;
 
 private:
