@@ -64,6 +64,8 @@ public:
 
   void ProcessUpdateQueue();
 
+  static QByteArray HashNode(const Node* n, const VideoParams& params, const rational& time);
+
   /**
    * @brief Asynchronously generate a hash at a given time
    */

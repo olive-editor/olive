@@ -119,17 +119,9 @@ QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
     QList<QByteArray> hashes;
 
     foreach (const rational& t, times) {
-      QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-      // Embed video parameters into this hash
-      hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_width()), sizeof(int));
-      hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_height()), sizeof(int));
-      hasher.addData(reinterpret_cast<const char*>(&video_params_.format()), sizeof(PixelFormat::Format));
-      hasher.addData(reinterpret_cast<const char*>(&render_mode_), sizeof(RenderMode::Mode));
-
-      copied_viewer_node_->texture_input()->get_connected_node()->Hash(hasher, t);
-
-      hashes.append(hasher.result());
+      hashes.append(HashNode(copied_viewer_node_->texture_input()->get_connected_node(),
+                             video_params_,
+                             t));
     }
 
     return hashes;
@@ -345,6 +337,20 @@ void RenderBackend::ProcessUpdateQueue()
   // FIXME: SLOW DEBUGGING CODE
   CopyNodeInputValue(viewer_node_->texture_input());
   CopyNodeInputValue(viewer_node_->samples_input());
+}
+
+QByteArray RenderBackend::HashNode(const Node *n, const VideoParams &params, const rational &time)
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  // Embed video parameters into this hash
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+
+  n->Hash(hasher, time);
+
+  return hasher.result();
 }
 
 void RenderBackend::WorkerFinished()
