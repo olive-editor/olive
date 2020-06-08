@@ -216,7 +216,7 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
 
   // Create a destination frame with the same parameters
   FramePtr converted = Frame::Create();
-  converted->set_video_params(VideoRenderingParams(frame->video_params().width(),
+  converted->set_video_params(VideoParams(frame->video_params().width(),
                                                    frame->video_params().height(),
                                                    dest_format));
   converted->set_timestamp(frame->timestamp());

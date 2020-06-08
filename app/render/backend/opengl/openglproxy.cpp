@@ -67,7 +67,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoRenderingParams& params)
+NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoParams& params, const RenderMode::Mode& mode)
 {
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
@@ -83,7 +83,7 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
     color_cache_.insert(colorspace_match, color_processor);
   }
 
-  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(params.mode());
+  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(mode);
 
   // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
   if (ocio_method == ColorManager::kOCIOAccurate) {
@@ -120,7 +120,7 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
       color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
     }
 
-    VideoRenderingParams frame_params = frame->video_params();
+    VideoParams frame_params = frame->video_params();
 
     // Check frame aspect ratio
     if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
@@ -136,16 +136,16 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
         new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
       }
 
-      frame_params = VideoRenderingParams(new_width,
-                                          new_height,
-                                          frame_params.format(),
-                                          frame_params.divider());
+      frame_params = VideoParams(new_width,
+                                 new_height,
+                                 frame_params.format(),
+                                 frame_params.divider());
     }
 
-    VideoRenderingParams dest_params(frame_params.width(),
-                                     frame_params.height(),
-                                     params.format(),
-                                     frame_params.divider());
+    VideoParams dest_params(frame_params.width(),
+                            frame_params.height(),
+                            params.format(),
+                            frame_params.divider());
 
     // Create destination texture
     OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, dest_params);
@@ -184,7 +184,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node,
                                      const TimeRange &range,
                                      NodeValueDatabase &input_params,
                                      NodeValueTable &output_params,
-                                     const VideoRenderingParams& params)
+                                     const VideoParams& params)
 {
   OpenGLShaderPtr shader = shader_cache_.value(node->ShaderID(input_params));
 

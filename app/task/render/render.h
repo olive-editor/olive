@@ -32,7 +32,7 @@ OLIVE_NAMESPACE_ENTER
 class RenderTask : public Task
 {
 public:
-  RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams);
+  RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
 protected:
   void Render(const TimeRangeList &video_range,
@@ -51,12 +51,12 @@ protected:
     return viewer_;
   }
 
-  VideoRenderingParams video_params() const
+  VideoParams video_params() const
   {
     return video_params_;
   }
 
-  AudioRenderingParams audio_params() const
+  AudioParams audio_params() const
   {
     return audio_params_;
   }
@@ -76,9 +76,9 @@ protected:
 private:
   ViewerOutput* viewer_;
 
-  VideoRenderingParams video_params_;
+  VideoParams video_params_;
 
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   rational anchor_point_;
 

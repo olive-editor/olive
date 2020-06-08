@@ -39,7 +39,7 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext *ctx, Fr
   return Get(ctx, frame->video_params(), frame->data(), frame->linesize_pixels());
 }
 
-OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, const VideoRenderingParams &params, const void *data, int linesize)
+OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, const VideoParams &params, const void *data, int linesize)
 {
   OpenGLTexturePtr texture = nullptr;
 
@@ -76,7 +76,7 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, co
   return ref;
 }
 
-OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext *ctx, const VideoRenderingParams &params)
+OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext *ctx, const VideoParams &params)
 {
   return Get(ctx, params, nullptr, 0);
 }

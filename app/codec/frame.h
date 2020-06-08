@@ -44,8 +44,8 @@ public:
 
   static FramePtr Create();
 
-  const VideoRenderingParams& video_params() const;
-  void set_video_params(const VideoRenderingParams& params);
+  const VideoParams& video_params() const;
+  void set_video_params(const VideoParams& params);
 
   int linesize_pixels() const;
   int linesize_bytes() const;
@@ -107,7 +107,7 @@ public:
   int allocated_size() const;
 
 private:
-  VideoRenderingParams params_;
+  VideoParams params_;
 
   QByteArray data_;
 

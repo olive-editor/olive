@@ -50,7 +50,7 @@ AudioMonitor::~AudioMonitor()
   Stop();
 }
 
-void AudioMonitor::SetParams(const AudioRenderingParams &params)
+void AudioMonitor::SetParams(const AudioParams &params)
 {
   params_ = params;
 

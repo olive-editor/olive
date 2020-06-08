@@ -48,7 +48,7 @@ public:
 
   bool at_end() const;
 
-  const AudioRenderingParams& params() const;
+  const AudioParams& params() const;
 
   void close();
 
@@ -61,7 +61,7 @@ private:
 
   qint64 calculate_max_read() const;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
   QFile file_;
 

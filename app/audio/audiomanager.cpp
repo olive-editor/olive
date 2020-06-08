@@ -148,7 +148,7 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
   }
 }
 
-void AudioManager::SetOutputParams(const AudioRenderingParams &params)
+void AudioManager::SetOutputParams(const AudioParams &params)
 {
   if (output_params_ != params) {
     output_params_ = params;
@@ -156,7 +156,7 @@ void AudioManager::SetOutputParams(const AudioRenderingParams &params)
     QMetaObject::invokeMethod(&output_manager_,
                               "SetParameters",
                               Qt::QueuedConnection,
-                              OLIVE_NS_ARG(AudioRenderingParams, params));
+                              OLIVE_NS_ARG(AudioParams, params));
 
     // Refresh output device
     SetOutputDevice(output_device_info_);

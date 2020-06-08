@@ -62,7 +62,7 @@ FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divid
   return nullptr;
 }
 
-SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
+SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioParams &/*params*/)
 {
   return nullptr;
 }
@@ -161,7 +161,7 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
+QString Decoder::GetConformedFilename(const AudioParams &params)
 {
   QString index_fn = GetIndexFilename();
 
@@ -180,12 +180,12 @@ bool Decoder::ProxyVideo(const QAtomicInt *, int )
   return false;
 }
 
-bool Decoder::ConformAudio(const QAtomicInt *, const AudioRenderingParams& )
+bool Decoder::ConformAudio(const QAtomicInt *, const AudioParams& )
 {
   return false;
 }
 
-bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
+bool Decoder::HasConformedVersion(const AudioParams &params)
 {
   if (stream()->type() != Stream::kAudio) {
     return false;

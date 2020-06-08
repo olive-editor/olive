@@ -34,7 +34,7 @@ AudioPlaybackCache::AudioPlaybackCache()
   UpdateFilename(QString::number(r));
 }
 
-void AudioPlaybackCache::SetParameters(const AudioRenderingParams &params)
+void AudioPlaybackCache::SetParameters(const AudioParams &params)
 {
   QMutexLocker locker(lock());
 

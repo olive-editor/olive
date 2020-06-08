@@ -24,7 +24,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoRenderingParams &vparams, const AudioRenderingParams &aparams) :
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
   viewer_(viewer),
   video_params_(vparams),
   audio_params_(aparams)

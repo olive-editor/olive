@@ -41,8 +41,8 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
-  void Create(QOpenGLContext* ctx, const VideoRenderingParams& params, const void *data, int linesize);
-  void Create(QOpenGLContext* ctx, const VideoRenderingParams& params);
+  void Create(QOpenGLContext* ctx, const VideoParams& params, const void *data, int linesize);
+  void Create(QOpenGLContext* ctx, const VideoParams& params);
   void Create(QOpenGLContext* ctx, FramePtr frame);
   void Create(QOpenGLContext* ctx, Frame* frame);
 
@@ -76,7 +76,7 @@ private:
 
   GLuint texture_;
 
-  VideoRenderingParams params_;
+  VideoParams params_;
 
 };
 

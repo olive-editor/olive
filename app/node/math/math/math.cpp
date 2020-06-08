@@ -374,7 +374,7 @@ NodeInput *MathNode::ProcessesSamplesFrom(const NodeValueDatabase &value) const
   return nullptr;
 }
 
-void MathNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   // This function is only used for sample+number pairing
   NodeInput* number_input = (ProcessesSamplesFrom(values) == param_a_in_) ? param_b_in_ : param_a_in_;

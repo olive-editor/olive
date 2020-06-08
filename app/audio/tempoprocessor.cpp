@@ -52,7 +52,7 @@ const double &TempoProcessor::GetSpeed() const
   return speed_;
 }
 
-bool TempoProcessor::Open(const AudioRenderingParams &params, const double& speed)
+bool TempoProcessor::Open(const AudioParams &params, const double& speed)
 {
   if (open_) {
     return true;

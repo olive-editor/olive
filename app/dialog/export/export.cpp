@@ -438,15 +438,15 @@ ExportParams ExportDialog::GenerateParams() const
 {
   RenderMode::Mode render_mode = RenderMode::kOnline;
 
-  VideoRenderingParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                           static_cast<int>(video_tab_->height_slider()->GetValue()),
-                                           video_tab_->frame_rate().flipped(),
-                                           PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
-                                           render_mode);
+  VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                  static_cast<int>(video_tab_->height_slider()->GetValue()),
+                                  video_tab_->frame_rate().flipped(),
+                                  PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
+                                  render_mode);
 
-  AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
-                                           audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SampleFormat::kInternalFormat);
+  AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
+                                  audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
+                                  SampleFormat::kInternalFormat);
 
   ExportParams params;
   params.SetFilename(filename_edit_->text());

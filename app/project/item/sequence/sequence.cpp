@@ -64,8 +64,9 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
     }
 
     if (reader->name() == QStringLiteral("video")) {
-      int video_width, video_height;
+      int video_width, video_height, preview_div;
       rational video_timebase;
+      PixelFormat::Format preview_format;
 
       while (XMLReadNextStartElement(reader)) {
         if (cancelled && *cancelled) {
@@ -78,27 +79,34 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
           video_height = reader->readElementText().toInt();
         } else if (reader->name() == QStringLiteral("timebase")) {
           video_timebase = rational::fromString(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("divider")) {
+          preview_div = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("format")) {
+          preview_format = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
         } else {
           reader->skipCurrentElement();
         }
       }
 
-      set_video_params(VideoParams(video_width, video_height, video_timebase));
+      set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format, preview_div));
     } else if (reader->name() == QStringLiteral("audio")) {
       int rate;
       uint64_t layout;
+      SampleFormat::Format format;
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("rate")) {
           rate = reader->readElementText().toInt();
         } else if (reader->name() == QStringLiteral("layout")) {
           layout = reader->readElementText().toULongLong();
+        } else if (reader->name() == QStringLiteral("format")) {
+          format = static_cast<SampleFormat::Format>(reader->readElementText().toInt());
         } else {
           reader->skipCurrentElement();
         }
       }
 
-      set_audio_params(AudioParams(rate, layout));
+      set_audio_params(AudioParams(rate, layout, format));
     } else if (reader->name() == QStringLiteral("points")) {
 
       TimelinePoints::Load(reader);
@@ -148,6 +156,8 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("width"), QString::number(video_params().width()));
   writer->writeTextElement(QStringLiteral("height"), QString::number(video_params().height()));
   writer->writeTextElement(QStringLiteral("timebase"), video_params().time_base().toString());
+  writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params().divider()));
+  writer->writeTextElement(QStringLiteral("format"), QString::number(video_params().format()));
 
   writer->writeEndElement(); // video
 
@@ -155,6 +165,7 @@ void Sequence::Save(QXmlStreamWriter *writer) const
 
   writer->writeTextElement(QStringLiteral("rate"), QString::number(audio_params().sample_rate()));
   writer->writeTextElement(QStringLiteral("layout"), QString::number(audio_params().channel_layout()));
+  writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params().format()));
 
   writer->writeEndElement(); // audio
 
@@ -228,10 +239,13 @@ void Sequence::set_audio_params(const AudioParams &params)
 void Sequence::set_default_parameters()
 {
   set_video_params(VideoParams(Config::Current()["DefaultSequenceWidth"].toInt(),
-                               Config::Current()["DefaultSequenceHeight"].toInt(),
-                               Config::Current()["DefaultSequenceFrameRate"].value<rational>()));
+                                        Config::Current()["DefaultSequenceHeight"].toInt(),
+                                        Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
+                                        static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                        Config::Current()["DefaultSequencePreviewDivider"].toInt()));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                   Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
+                                        Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
+                                        SampleFormat::kInternalFormat));
 }
 
 void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
@@ -248,7 +262,11 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
 
         // If this is a video stream, use these parameters
         if (!found_video_params && !vs->frame_rate().isNull()) {
-          set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
+          set_video_params(VideoParams(vs->width(),
+                                                vs->height(),
+                                                vs->frame_rate().flipped(),
+                                                static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                Config::Current()["DefaultSequencePreviewDivider"].toInt()));
           found_video_params = true;
         }
         break;
@@ -259,13 +277,17 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
           // something with a frame rate comes along which we'll prioritize
           ImageStream* is = static_cast<ImageStream*>(s.get());
 
-          set_video_params(VideoParams(is->width(), is->height(), video_params().time_base()));
+          set_video_params(VideoParams(is->width(),
+                                                is->height(),
+                                                video_params().time_base(),
+                                                static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                Config::Current()["DefaultSequencePreviewDivider"].toInt()));
         }
         break;
       case Stream::kAudio:
         if (!found_audio_params) {
           AudioStream* as = static_cast<AudioStream*>(s.get());
-          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
+          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), SampleFormat::kInternalFormat));
           found_audio_params = true;
         }
         break;

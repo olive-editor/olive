@@ -37,12 +37,12 @@ FramePtr Frame::Create()
   return std::make_shared<Frame>();
 }
 
-const VideoRenderingParams &Frame::video_params() const
+const VideoParams &Frame::video_params() const
 {
   return params_;
 }
 
-void Frame::set_video_params(const VideoRenderingParams &params)
+void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 

@@ -48,12 +48,12 @@ public:
     available_ = a;
   }
 
-  void SetVideoParams(const VideoRenderingParams& params)
+  void SetVideoParams(const VideoParams& params)
   {
     video_params_ = params;
   }
 
-  void SetAudioParams(const AudioRenderingParams& params)
+  void SetAudioParams(const AudioParams& params)
   {
     audio_params_ = params;
   }
@@ -71,6 +71,11 @@ public:
   void SetCopyMap(QHash<Node*, Node*>* copy_map)
   {
     copy_map_ = copy_map;
+  }
+
+  void SetRenderMode(const RenderMode::Mode& mode)
+  {
+    render_mode_ = mode;
   }
 
   void EnablePreviewGeneration(AudioPlaybackCache* cache, qint64 job_time)
@@ -117,19 +122,24 @@ protected:
 
   virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params) override;
 
-  const VideoRenderingParams& video_params() const
+  const VideoParams& video_params() const
   {
     return video_params_;
   }
 
-  const AudioRenderingParams& audio_params() const
+  const AudioParams& audio_params() const
   {
     return audio_params_;
   }
 
+  const RenderMode::Mode& render_mode() const
+  {
+    return render_mode_;
+  }
+
 signals:
   void AudioConformUnavailable(StreamPtr stream, TimeRange range,
-                               rational stream_time, AudioRenderingParams params);
+                               rational stream_time, AudioParams params);
 
   void FinishedJob();
 
@@ -142,9 +152,9 @@ private:
 
   RenderBackend* parent_;
 
-  VideoRenderingParams video_params_;
+  VideoParams video_params_;
 
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   struct CachedStill {
     NodeValue texture;
@@ -169,6 +179,8 @@ private:
   qint64 preview_job_time_;
 
   QHash<Node*, Node*>* copy_map_;
+
+  RenderMode::Mode render_mode_;
 
 };
 

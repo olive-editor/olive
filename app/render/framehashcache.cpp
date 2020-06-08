@@ -190,7 +190,7 @@ QList<rational> FrameHashCache::GetInvalidatedFrames()
 
 void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
-                                    const VideoRenderingParams& vparam)
+                                    const VideoParams& vparam)
 {
   QString fn = CachePathName(hash, vparam.format());
 
@@ -286,7 +286,7 @@ QString FrameHashCache::CachePathName(const QByteArray& hash, const PixelFormat:
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoRenderingParams &vparam)
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam)
 {
   switch (vparam.format()) {
   case PixelFormat::PIX_FMT_RGB8:

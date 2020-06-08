@@ -492,7 +492,7 @@ NodeInput* Node::ProcessesSamplesFrom(const NodeValueDatabase &) const
   return nullptr;
 }
 
-void Node::ProcessSamples(const NodeValueDatabase &, const AudioRenderingParams&, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueDatabase &, const AudioParams&, const SampleBufferPtr, SampleBufferPtr, int) const
 {
 }
 

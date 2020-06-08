@@ -50,6 +50,11 @@ public:
     update_with_graph_ = e;
   }
 
+  void SetRenderMode(RenderMode::Mode e)
+  {
+    render_mode_ = e;
+  }
+
   void EnablePreviewGeneration(qint64 job_time)
   {
     preview_job_time_ = job_time;
@@ -72,9 +77,9 @@ public:
    */
   RenderTicketPtr RenderAudio(const TimeRange& r);
 
-  void SetVideoParams(const VideoRenderingParams& params);
+  void SetVideoParams(const VideoParams& params);
 
-  void SetAudioParams(const AudioRenderingParams& params);
+  void SetAudioParams(const AudioParams& params);
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
@@ -98,11 +103,11 @@ private:
   ViewerOutput* viewer_node_;
 
   // VIDEO MEMBERS
-  VideoRenderingParams video_params_;
+  VideoParams video_params_;
   QMatrix4x4 video_download_matrix_;
 
   // AUDIO MEMBERS
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   QList<NodeInput*> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
@@ -122,6 +127,8 @@ private:
   bool update_with_graph_;
 
   qint64 preview_job_time_;
+
+  RenderMode::Mode render_mode_;
 
 private slots:
   void WorkerFinished();

@@ -33,6 +33,9 @@ ExportTask::ExportTask(ViewerOutput* viewer_node,
   params_(params)
 {
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
+
+  // Render highest quality
+  backend()->SetRenderMode(RenderMode::kOnline);
 }
 
 bool ExportTask::Run()

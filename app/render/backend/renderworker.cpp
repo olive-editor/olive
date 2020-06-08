@@ -35,7 +35,8 @@ RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
   audio_mode_is_preview_(false),
-  preview_cache_(nullptr)
+  preview_cache_(nullptr),
+  render_mode_(RenderMode::kOnline)
 {
 }
 

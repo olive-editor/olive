@@ -546,7 +546,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<SampleBufferPtr>();
-  qRegisterMetaType<AudioRenderingParams>();
+  qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
@@ -1121,19 +1121,9 @@ void Core::CacheActiveSequence(bool in_out_only)
   TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
   if (p && p->GetConnectedViewer()) {
-    // FIXME: Hardcoded divider...
-    // FIXME: Consider preventing caching the footage viewer
-    VideoRenderingParams vrp(p->GetConnectedViewer()->video_params(),
-                             PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline),
-                             RenderMode::kOffline,
-                             2);
-
-    AudioRenderingParams arp(p->GetConnectedViewer()->audio_params(),
-                             SampleFormat::kInternalFormat);
-
     CacheTask* task = new CacheTask(p->GetConnectedViewer(),
-                                    vrp,
-                                    arp,
+                                    p->GetConnectedViewer()->video_params(),
+                                    p->GetConnectedViewer()->audio_params(),
                                     in_out_only);
 
     // Stop any current auto-cache tasks

@@ -114,10 +114,13 @@ void SequenceDialog::accept()
   // Generate video and audio parameter structs from data
   VideoParams video_params = VideoParams(parameter_tab_->GetSelectedVideoWidth(),
                                          parameter_tab_->GetSelectedVideoHeight(),
-                                         video_time_base);
+                                         video_time_base,
+                                         parameter_tab_->GetSelectedPreviewFormat(),
+                                         parameter_tab_->GetSelectedPreviewResolution());
 
   AudioParams audio_params = AudioParams(audio_sample_rate,
-                                         channels);
+                                         channels,
+                                         SampleFormat::kInternalFormat);
 
   if (make_undoable_) {
 
@@ -141,7 +144,7 @@ void SequenceDialog::accept()
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
                                                            const VideoParams& video_params,
-                                                           const AudioParams& audio_params,
+                                                           const AudioParams &audio_params,
                                                            const QString& name,
                                                            QUndoCommand* parent) :
   UndoCommand(parent),

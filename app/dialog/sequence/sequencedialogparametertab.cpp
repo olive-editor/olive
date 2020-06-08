@@ -14,36 +14,62 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
+  int row = 0;
+
   // Set up video section
   QGroupBox* video_group = new QGroupBox();
   video_group->setTitle(tr("Video"));
   QGridLayout* video_layout = new QGridLayout(video_group);
-  video_layout->addWidget(new QLabel(tr("Width:")), 0, 0);
-  video_width_field_ = new QSpinBox();
-  video_width_field_->setMaximum(99999);
-  video_layout->addWidget(video_width_field_, 0, 1);
-  video_layout->addWidget(new QLabel(tr("Height:")), 1, 0);
-  video_height_field_ = new QSpinBox();
-  video_height_field_->setMaximum(99999);
-  video_layout->addWidget(video_height_field_, 1, 1);
-  video_layout->addWidget(new QLabel(tr("Frame Rate:")), 2, 0);
+  video_layout->addWidget(new QLabel(tr("Width:")), row, 0);
+  video_width_field_ = new IntegerSlider();
+  video_width_field_->SetMinimum(1);
+  video_width_field_->SetMaximum(99999);
+  connect(video_width_field_, &IntegerSlider::ValueChanged, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
+  video_layout->addWidget(video_width_field_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Height:")), row, 0);
+  video_height_field_ = new IntegerSlider();
+  video_height_field_->SetMinimum(1);
+  video_height_field_->SetMaximum(99999);
+  connect(video_height_field_, &IntegerSlider::ValueChanged, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
+  video_layout->addWidget(video_height_field_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
   video_frame_rate_field_ = new QComboBox();
-  video_layout->addWidget(video_frame_rate_field_, 2, 1);
+  video_layout->addWidget(video_frame_rate_field_, row, 1);
   layout->addWidget(video_group);
+
+  row = 0;
 
   // Set up audio section
   QGroupBox* audio_group = new QGroupBox();
   audio_group->setTitle(tr("Audio"));
   QGridLayout* audio_layout = new QGridLayout(audio_group);
-  audio_layout->addWidget(new QLabel(tr("Sample Rate:")), 0, 0);
+  audio_layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
   audio_sample_rate_field_ = new QComboBox();
-  // FIXME: No sample rate made
-  audio_layout->addWidget(audio_sample_rate_field_, 0, 1);
-  audio_layout->addWidget(new QLabel(tr("Channels:")), 1, 0);
+  audio_layout->addWidget(audio_sample_rate_field_, row, 1);
+  row++;
+  audio_layout->addWidget(new QLabel(tr("Channels:")), row, 0);
   audio_channels_field_ = new QComboBox();
-  // FIXME: No channels made
-  audio_layout->addWidget(audio_channels_field_, 1, 1);
+  audio_layout->addWidget(audio_channels_field_, row, 1);
   layout->addWidget(audio_group);
+
+  row = 0;
+
+  // Set up preview section
+  QGroupBox* preview_group = new QGroupBox();
+  preview_group->setTitle(tr("Preview"));
+  QGridLayout* preview_layout = new QGridLayout(preview_group);
+  preview_layout->addWidget(new QLabel(tr("Resolution:")), row, 0);
+  preview_resolution_field_ = new QComboBox();
+  preview_layout->addWidget(preview_resolution_field_, row, 1);
+  preview_resolution_label_ = new QLabel();
+  preview_layout->addWidget(preview_resolution_label_, row, 2);
+  row++;
+  preview_layout->addWidget(new QLabel(tr("Format:")), row, 0);
+  preview_format_field_ = new QComboBox();
+  preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
+  layout->addWidget(preview_group);
 
   // Set up available frame rates
   frame_rate_list_ = Core::SupportedFrameRates();
@@ -63,9 +89,38 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
     audio_channels_field_->addItem(Core::ChannelLayoutToString(ch_layout), QVariant::fromValue(ch_layout));
   }
 
+  // Set up preview dividers
+  divider_list_ = {1, 2, 3, 4, 6, 8, 12, 16};
+  foreach (int d, divider_list_) {
+    QString name;
+
+    if (d == 1) {
+      name = tr("Full");
+    } else {
+      name = tr("1/%1").arg(d);
+    }
+
+    preview_resolution_field_->addItem(name);
+  }
+  connect(preview_resolution_field_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
+
+  // Set up preview formats
+  for (int i=0;i<PixelFormat::PIX_FMT_COUNT;i++) {
+    PixelFormat::Format pix_fmt = static_cast<PixelFormat::Format>(i);
+
+    // We always render with an alpha channel internally
+    if (PixelFormat::FormatHasAlphaChannel(pix_fmt)
+        && PixelFormat::FormatIsFloat(pix_fmt)) {
+      preview_format_field_->addItem(PixelFormat::GetName(pix_fmt));
+
+      preview_format_list_.append(pix_fmt);
+    }
+  }
+
   // Set values based on input sequence
-  video_width_field_->setValue(sequence->video_params().width());
-  video_height_field_->setValue(sequence->video_params().height());
+  video_width_field_->SetValue(sequence->video_params().width());
+  video_height_field_->SetValue(sequence->video_params().height());
 
   int frame_rate_index = frame_rate_list_.indexOf(sequence->video_params().time_base().flipped());
   video_frame_rate_field_->setCurrentIndex(frame_rate_index);
@@ -80,21 +135,27 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
     }
   }
 
+  preview_resolution_field_->setCurrentIndex(divider_list_.indexOf(sequence->video_params().divider()));
+
+  preview_format_field_->setCurrentIndex(preview_format_list_.indexOf(sequence->video_params().format()));
+
   layout->addStretch();
 
   QPushButton* save_preset_btn = new QPushButton(tr("Save Preset"));
   connect(save_preset_btn, &QPushButton::clicked, this, &SequenceDialogParameterTab::SavePresetClicked);
   layout->addWidget(save_preset_btn);
+
+  UpdatePreviewResolutionLabel();
 }
 
 int SequenceDialogParameterTab::GetSelectedVideoWidth() const
 {
-  return video_width_field_->value();
+  return video_width_field_->GetValue();
 }
 
 int SequenceDialogParameterTab::GetSelectedVideoHeight() const
 {
-  return video_height_field_->value();
+  return video_height_field_->GetValue();
 }
 
 const rational &SequenceDialogParameterTab::GetSelectedVideoFrameRate() const
@@ -112,23 +173,48 @@ uint64_t SequenceDialogParameterTab::GetSelectedAudioChannelLayout() const
   return audio_channels_field_->currentData().toULongLong();
 }
 
+int SequenceDialogParameterTab::GetSelectedPreviewResolution() const
+{
+  return divider_list_.at(preview_resolution_field_->currentIndex());
+}
+
+PixelFormat::Format SequenceDialogParameterTab::GetSelectedPreviewFormat() const
+{
+  return preview_format_list_.at(preview_format_field_->currentIndex());
+}
+
 void SequenceDialogParameterTab::PresetChanged(const SequencePreset &preset)
 {
-  video_width_field_->setValue(preset.width);
-  video_height_field_->setValue(preset.height);
+  video_width_field_->SetValue(preset.width);
+  video_height_field_->SetValue(preset.height);
   video_frame_rate_field_->setCurrentIndex(frame_rate_list_.indexOf(preset.frame_rate));
   audio_sample_rate_field_->setCurrentIndex(sample_rate_list_.indexOf(preset.sample_rate));
   audio_channels_field_->setCurrentIndex(channel_layout_list_.indexOf(preset.channel_layout));
+  preview_resolution_field_->setCurrentIndex(divider_list_.indexOf(preset.preview_divider));
+  preview_format_field_->setCurrentIndex(preview_format_list_.indexOf(preset.preview_format));
 }
 
 void SequenceDialogParameterTab::SavePresetClicked()
 {
   emit SaveParametersAsPreset({QString(),
-                               video_width_field_->value(),
-                               video_height_field_->value(),
+                               static_cast<int>(video_width_field_->GetValue()),
+                               static_cast<int>(video_height_field_->GetValue()),
                                frame_rate_list_.at(video_frame_rate_field_->currentIndex()),
                                sample_rate_list_.at(audio_sample_rate_field_->currentIndex()),
-                               channel_layout_list_.at(audio_channels_field_->currentIndex())});
+                               channel_layout_list_.at(audio_channels_field_->currentIndex()),
+                               divider_list_.at(preview_resolution_field_->currentIndex()),
+                               preview_format_list_.at(preview_format_field_->currentIndex())});
+}
+
+void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
+{
+  VideoParams test_param(video_width_field_->GetValue(),
+                         video_height_field_->GetValue(),
+                         PixelFormat::PIX_FMT_INVALID,
+                         divider_list_.at(preview_resolution_field_->currentIndex()));
+
+  preview_resolution_label_->setText(tr("(%1x%2)").arg(QString::number(test_param.effective_width()),
+                                                       QString::number(test_param.effective_height())));
 }
 
 OLIVE_NAMESPACE_EXIT

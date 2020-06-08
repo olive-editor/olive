@@ -68,7 +68,7 @@ NodeInput *VolumeNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
   return samples_input_;
 }
 
-void VolumeNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void VolumeNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   float volume_val = values[volume_input_].Get(NodeParam::kFloat).toFloat();
 

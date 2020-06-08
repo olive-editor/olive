@@ -197,9 +197,6 @@ private:
 
   void FinishPlayPreprocess();
 
-  VideoRenderingParams GenerateVideoParams() const;
-  AudioRenderingParams GenerateAudioParams() const;
-
   int DeterminePlaybackQueueSize();
 
   void PopOldestFrameFromPlaybackQueue();
@@ -215,8 +212,6 @@ private:
   int64_t last_time_;
 
   bool color_menu_enabled_;
-
-  int divider_;
 
   ColorManager* override_color_manager_;
 
@@ -268,8 +263,6 @@ private slots:
   void UpdateRendererParameters();
 
   void ShowContextMenu(const QPoint& pos);
-
-  void SetDividerFromMenu(QAction* action);
 
   void SetZoomFromMenu(QAction* action);
 

@@ -42,8 +42,8 @@ public:
 
   void SetFilename(const QString& filename);
 
-  void EnableVideo(const VideoRenderingParams& video_params, const ExportCodec::Codec& vcodec);
-  void EnableAudio(const AudioRenderingParams& audio_params, const ExportCodec::Codec &acodec);
+  void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
+  void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
 
   void set_video_option(const QString& key, const QString& value);
   void set_video_bit_rate(const int64_t& rate);
@@ -55,7 +55,7 @@ public:
 
   bool video_enabled() const;
   const ExportCodec::Codec& video_codec() const;
-  const VideoRenderingParams& video_params() const;
+  const VideoParams& video_params() const;
   const QHash<QString, QString>& video_opts() const;
   const int64_t& video_bit_rate() const;
   const int64_t& video_max_bit_rate() const;
@@ -64,7 +64,7 @@ public:
 
   bool audio_enabled() const;
   const ExportCodec::Codec &audio_codec() const;
-  const AudioRenderingParams& audio_params() const;
+  const AudioParams& audio_params() const;
 
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
@@ -74,7 +74,7 @@ private:
 
   bool video_enabled_;
   ExportCodec::Codec video_codec_;
-  VideoRenderingParams video_params_;
+  VideoParams video_params_;
   QHash<QString, QString> video_opts_;
   int64_t video_bit_rate_;
   int64_t video_max_bit_rate_;
@@ -83,7 +83,7 @@ private:
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   rational export_length_;
 
@@ -109,7 +109,7 @@ public:
   virtual bool Open() = 0;
 
   virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioRenderingParams pcm_info,
+  virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
                           const QString& pcm_filename) = 0;
 
   virtual void Close() = 0;

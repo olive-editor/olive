@@ -69,7 +69,7 @@ NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
   return samples_input_;
 }
 
-void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   if (params.channel_count() != 2) {
     // This node currently only works for stereo audio

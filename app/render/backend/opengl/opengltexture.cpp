@@ -45,7 +45,7 @@ bool OpenGLTexture::IsCreated() const
   return (texture_);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoRenderingParams &params, const void* data, int linesize)
+void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoParams &params, const void* data, int linesize)
 {
   if (!ctx) {
     qWarning() << "OpenGLTexture::Create was passed an invalid context";
@@ -63,7 +63,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoRenderingParams &para
   CreateInternal(created_ctx_, &texture_, data, linesize);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoRenderingParams &params)
+void OpenGLTexture::Create(QOpenGLContext *ctx, const VideoParams &params)
 {
   Create(ctx, params, nullptr, 0);
 }

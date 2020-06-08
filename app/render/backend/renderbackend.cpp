@@ -35,7 +35,8 @@ RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
   update_with_graph_(false),
-  preview_job_time_(0)
+  preview_job_time_(0),
+  render_mode_(RenderMode::kOnline)
 {
 }
 
@@ -124,7 +125,7 @@ QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
       hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_width()), sizeof(int));
       hasher.addData(reinterpret_cast<const char*>(&video_params_.effective_height()), sizeof(int));
       hasher.addData(reinterpret_cast<const char*>(&video_params_.format()), sizeof(PixelFormat::Format));
-      hasher.addData(reinterpret_cast<const char*>(&video_params_.mode()), sizeof(RenderMode::Mode));
+      hasher.addData(reinterpret_cast<const char*>(&render_mode_), sizeof(RenderMode::Mode));
 
       copied_viewer_node_->Hash(hasher, t);
 
@@ -167,12 +168,12 @@ RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
   return ticket;
 }
 
-void RenderBackend::SetVideoParams(const VideoRenderingParams &params)
+void RenderBackend::SetVideoParams(const VideoParams &params)
 {
   video_params_ = params;
 }
 
-void RenderBackend::SetAudioParams(const AudioRenderingParams &params)
+void RenderBackend::SetAudioParams(const AudioParams &params)
 {
   audio_params_ = params;
 }
@@ -297,6 +298,7 @@ void RenderBackend::RunNextJob()
       worker->SetVideoParams(video_params_);
       worker->SetAudioParams(audio_params_);
       worker->SetVideoDownloadMatrix(video_download_matrix_);
+      worker->SetRenderMode(render_mode_);
       if (preview_job_time_) {
         worker->EnablePreviewGeneration(viewer_node_->audio_playback_cache(), preview_job_time_);
       }

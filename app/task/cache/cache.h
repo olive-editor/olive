@@ -32,8 +32,8 @@ class CacheTask : public RenderTask
   Q_OBJECT
 public:
   CacheTask(ViewerOutput* viewer,
-            const VideoRenderingParams &vparams,
-            const AudioRenderingParams &aparams,
+            const VideoParams &vparams,
+            const AudioParams &aparams,
             bool in_out_only);
 
 public slots:

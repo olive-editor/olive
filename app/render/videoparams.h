@@ -27,46 +27,60 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class VideoParams
-{
+class VideoParams {
 public:
   VideoParams();
-  VideoParams(const int& width, const int& height, const rational& time_base);
+  VideoParams(const int& width, const int& height, const PixelFormat::Format& format, const int& divider = 1);
+  VideoParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const int& divider = 1);
 
-  const int& width() const;
-  const int& height() const;
-  const rational& time_base() const;
+  const int& width() const
+  {
+    return width_;
+  }
 
-private:
-  int width_;
-  int height_;
-  rational time_base_;
+  const int& height() const
+  {
+    return height_;
+  }
 
-};
+  const rational& time_base() const
+  {
+    return time_base_;
+  }
 
-class VideoRenderingParams : public VideoParams {
-public:
-  VideoRenderingParams();
-  VideoRenderingParams(const int& width, const int& height, const PixelFormat::Format& format, const int& divider = 1);
-  VideoRenderingParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
-  VideoRenderingParams(const VideoParams& params, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
+  const int& divider() const
+  {
+    return divider_;
+  }
 
-  const int& divider() const;
-  const int& effective_width() const;
-  const int& effective_height() const;
+  const int& effective_width() const
+  {
+    return effective_width_;
+  }
+
+  const int& effective_height() const
+  {
+    return effective_height_;
+  }
+
+  const PixelFormat::Format& format() const
+  {
+    return format_;
+  }
 
   bool is_valid() const;
-  const PixelFormat::Format& format() const;
-  const RenderMode::Mode& mode() const;
 
-  bool operator==(const VideoRenderingParams& rhs) const;
-  bool operator!=(const VideoRenderingParams& rhs) const;
+  bool operator==(const VideoParams& rhs) const;
+  bool operator!=(const VideoParams& rhs) const;
 
 private:
   void calculate_effective_size();
 
+  int width_;
+  int height_;
+  rational time_base_;
+
   PixelFormat::Format format_;
-  RenderMode::Mode mode_;
 
   int divider_;
   int effective_width_;

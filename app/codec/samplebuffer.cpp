@@ -38,7 +38,7 @@ SampleBufferPtr SampleBuffer::Create()
   return std::make_shared<SampleBuffer>();
 }
 
-SampleBufferPtr SampleBuffer::CreateAllocated(const AudioRenderingParams &audio_params, int samples_per_channel)
+SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, int samples_per_channel)
 {
   SampleBufferPtr buffer = Create();
 
@@ -49,7 +49,7 @@ SampleBufferPtr SampleBuffer::CreateAllocated(const AudioRenderingParams &audio_
   return buffer;
 }
 
-SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioRenderingParams &audio_params, const QByteArray &bytes)
+SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioParams &audio_params, const QByteArray &bytes)
 {
   if (!audio_params.is_valid()) {
     qWarning() << "Tried to create from packed data with invalid parameters";
@@ -73,12 +73,12 @@ SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioRenderingParams &a
   return buffer;
 }
 
-const AudioRenderingParams &SampleBuffer::audio_params() const
+const AudioParams &SampleBuffer::audio_params() const
 {
   return audio_params_;
 }
 
-void SampleBuffer::set_audio_params(const AudioRenderingParams &params)
+void SampleBuffer::set_audio_params(const AudioParams &params)
 {
   if (data_) {
     qWarning() << "Tried to set parameters on allocated sample buffer";

@@ -40,12 +40,12 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   preset_tree_->addTopLevelItem(my_presets_folder_);
 
   // Add presets
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("4K UHD"), 3840, 2160));
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("1080p"), 1920, 1080));
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("720p"), 1280, 720));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("4K UHD"), 3840, 2160, 6));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("1080p"), 1920, 1080, 3));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("720p"), 1280, 720, 2));
 
-  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("NTSC"), 720, 480, rational(30000, 1001)));
-  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("PAL"), 720, 576, rational(25, 1)));
+  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("NTSC"), 720, 480, rational(30000, 1001), 1));
+  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("PAL"), 720, 576, rational(25, 1), 1));
 
   // Load custom presets
   QFile preset_file(GetCustomPresetFilename());
@@ -71,6 +71,10 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
                 p.sample_rate = reader.readElementText().toInt();
               } else if (reader.name() == QStringLiteral("chlayout")) {
                 p.channel_layout = reader.readElementText().toULongLong();
+              } else if (reader.name() == QStringLiteral("divider")) {
+                p.preview_divider = reader.readElementText().toInt();
+              } else if (reader.name() == QStringLiteral("format")) {
+                p.preview_format = static_cast<PixelFormat::Format>(reader.readElementText().toInt());
               } else {
                 reader.skipCurrentElement();
               }
@@ -111,6 +115,8 @@ SequenceDialogPresetTab::~SequenceDialogPresetTab()
       writer.writeTextElement(QStringLiteral("framerate"), p.frame_rate.toString());
       writer.writeTextElement(QStringLiteral("samplerate"), QString::number(p.sample_rate));
       writer.writeTextElement(QStringLiteral("chlayout"), QString::number(p.channel_layout));
+      writer.writeTextElement(QStringLiteral("divider"), QString::number(p.preview_divider));
+      writer.writeTextElement(QStringLiteral("format"), QString::number(p.preview_format));
 
       writer.writeEndElement(); // preset
     }
@@ -170,7 +176,7 @@ QTreeWidgetItem* SequenceDialogPresetTab::CreateFolder(const QString &name)
   return folder;
 }
 
-QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &name, int width, int height)
+QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &name, int width, int height, int divider)
 {
   QTreeWidgetItem* parent = CreateFolder(name);
   AddItem(parent, {tr("%1 23.976 FPS").arg(name),
@@ -178,35 +184,45 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                    height,
                    rational(24000, 1001),
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   AddItem(parent, {tr("%1 25 FPS").arg(name),
                    width,
                    height,
                    rational(25, 1),
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   AddItem(parent, {tr("%1 29.97 FPS").arg(name),
                    width,
                    height,
                    rational(30000, 1001),
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   AddItem(parent, {tr("%1 50 FPS").arg(name),
                    width,
                    height,
                    rational(50, 1),
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   AddItem(parent, {tr("%1 59.94 FPS").arg(name),
                    width,
                    height,
                    rational(60000, 1001),
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   return parent;
 }
 
-QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate)
+QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, int divider)
 {
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
@@ -215,13 +231,17 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                    height,
                    frame_rate,
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   AddItem(parent, {tr("%1 Widescreen").arg(name),
                    width,
                    height,
                    frame_rate,
                    48000,
-                   AV_CH_LAYOUT_STEREO});
+                   AV_CH_LAYOUT_STEREO,
+                   divider,
+                   PixelFormat::PIX_FMT_RGBA16F});
   return parent;
 }
 

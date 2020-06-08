@@ -76,7 +76,6 @@ void Config::SetDefaults()
   config_map_["AddDefaultEffectsToClips"] = true;
   config_map_["AutoscaleByDefault"] = false;
   config_map_["Autoscroll"] = AutoScroll::kPage;
-  config_map_["DefaultViewerDivider"] = 2;
   config_map_["AutoSelectDivider"] = true;
   config_map_["SetNameWithMarker"] = false;
   config_map_["RectifiedWaveforms"] = false;
@@ -110,6 +109,8 @@ void Config::SetDefaults()
   config_map_["DefaultSequenceFrameRate"] = QVariant::fromValue(rational(1001, 30000));
   config_map_["DefaultSequenceAudioFrequency"] = 48000;
   config_map_["DefaultSequenceAudioLayout"] = QVariant::fromValue(static_cast<uint64_t>(AV_CH_LAYOUT_STEREO));
+  config_map_["DefaultSequencePreviewFormat"] = PixelFormat::PIX_FMT_RGBA16F;
+  config_map_["DefaultSequencePreviewDivider"] = 3;
 
   // Online/offline settings
   config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
@@ -211,6 +212,7 @@ void Config::Save()
   }
 
   QXmlStreamWriter writer(&config_file);
+  writer.setAutoFormatting(true);
 
   writer.writeStartDocument();
 

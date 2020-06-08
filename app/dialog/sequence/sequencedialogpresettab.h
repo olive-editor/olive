@@ -28,9 +28,9 @@ signals:
 private:
   QTreeWidgetItem *CreateFolder(const QString& name);
 
-  QTreeWidgetItem *CreateHDPresetFolder(const QString& name, int width, int height);
+  QTreeWidgetItem *CreateHDPresetFolder(const QString& name, int width, int height, int divider);
 
-  QTreeWidgetItem *CreateSDPresetFolder(const QString& name, int width, int height, const rational &frame_rate);
+  QTreeWidgetItem *CreateSDPresetFolder(const QString& name, int width, int height, const rational &frame_rate, int divider);
 
   QString GetPresetName(QString start);
 

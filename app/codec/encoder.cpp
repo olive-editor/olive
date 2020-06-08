@@ -49,14 +49,14 @@ void EncodingParams::SetFilename(const QString &filename)
   filename_ = filename;
 }
 
-void EncodingParams::EnableVideo(const VideoRenderingParams &video_params, const ExportCodec::Codec &vcodec)
+void EncodingParams::EnableVideo(const VideoParams &video_params, const ExportCodec::Codec &vcodec)
 {
   video_enabled_ = true;
   video_params_ = video_params;
   video_codec_ = vcodec;
 }
 
-void EncodingParams::EnableAudio(const AudioRenderingParams &audio_params, const ExportCodec::Codec &acodec)
+void EncodingParams::EnableAudio(const AudioParams &audio_params, const ExportCodec::Codec &acodec)
 {
   audio_enabled_ = true;
   audio_params_ = audio_params;
@@ -103,7 +103,7 @@ const ExportCodec::Codec &EncodingParams::video_codec() const
   return video_codec_;
 }
 
-const VideoRenderingParams &EncodingParams::video_params() const
+const VideoParams &EncodingParams::video_params() const
 {
   return video_params_;
 }
@@ -143,7 +143,7 @@ const ExportCodec::Codec &EncodingParams::audio_codec() const
   return audio_codec_;
 }
 
-const AudioRenderingParams &EncodingParams::audio_params() const
+const AudioParams &EncodingParams::audio_params() const
 {
   return audio_params_;
 }

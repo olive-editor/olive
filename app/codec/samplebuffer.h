@@ -46,13 +46,13 @@ public:
   virtual ~SampleBuffer();
 
   static SampleBufferPtr Create();
-  static SampleBufferPtr CreateAllocated(const AudioRenderingParams& audio_params, int samples_per_channel);
-  static SampleBufferPtr CreateFromPackedData(const AudioRenderingParams& audio_params, const QByteArray& bytes);
+  static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
+  static SampleBufferPtr CreateFromPackedData(const AudioParams& audio_params, const QByteArray& bytes);
 
   DISABLE_COPY_MOVE(SampleBuffer)
 
-  const AudioRenderingParams& audio_params() const;
-  void set_audio_params(const AudioRenderingParams& params);
+  const AudioParams& audio_params() const;
+  void set_audio_params(const AudioParams& params);
 
   const int &sample_count() const;
   void set_sample_count(const int &sample_count);
@@ -82,7 +82,7 @@ private:
 
   static void destroy_sample_buffer(float*** data, int nb_channels);
 
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   int sample_count_per_channel_;
 

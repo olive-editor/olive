@@ -28,28 +28,41 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class AudioParams
-{
+class AudioParams {
 public:
-  AudioParams();
-  AudioParams(const int& sample_rate, const uint64_t& channel_layout);
+  AudioParams() :
+    sample_rate_(0),
+    channel_layout_(0),
+    format_(SampleFormat::SAMPLE_FMT_INVALID)
+  {
+  }
 
-  const int& sample_rate() const;
-  const uint64_t& channel_layout() const;
-  rational time_base() const;
+  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format) :
+    sample_rate_(sample_rate),
+    channel_layout_(channel_layout),
+    format_(format)
+  {
+  }
 
-private:
-  int sample_rate_;
+  const int& sample_rate() const
+  {
+    return sample_rate_;
+  }
 
-  uint64_t channel_layout_;
+  const uint64_t& channel_layout() const
+  {
+    return channel_layout_;
+  }
 
-};
+  rational time_base() const
+  {
+    return rational(1, sample_rate());
+  }
 
-class AudioRenderingParams : public AudioParams {
-public:
-  AudioRenderingParams();
-  AudioRenderingParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format);
-  AudioRenderingParams(const AudioParams& params, const SampleFormat::Format& format);
+  const SampleFormat::Format &format() const
+  {
+    return format_;
+  }
 
   int time_to_bytes(const double& time) const;
   int time_to_bytes(const rational& time) const;
@@ -64,17 +77,20 @@ public:
   int bits_per_sample() const;
   bool is_valid() const;
 
-  const SampleFormat::Format &format() const;
-
-  bool operator==(const AudioRenderingParams& other) const;
-  bool operator!=(const AudioRenderingParams& other) const;
+  bool operator==(const AudioParams& other) const;
+  bool operator!=(const AudioParams& other) const;
 
 private:
+  int sample_rate_;
+
+  uint64_t channel_layout_;
+
   SampleFormat::Format format_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::AudioRenderingParams)
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::AudioParams)
 
 #endif // AUDIOPARAMS_H

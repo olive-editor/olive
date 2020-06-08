@@ -84,7 +84,9 @@ QString FileFunctions::GetConfigurationLocation()
   if (IsPortable()) {
     return GetApplicationPath();
   } else {
-    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QString s = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir(s).mkpath(".");
+    return s;
   }
 }
 

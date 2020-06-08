@@ -31,7 +31,7 @@ AudioOutputDeviceProxy::~AudioOutputDeviceProxy()
   }
 }
 
-void AudioOutputDeviceProxy::SetParameters(const AudioRenderingParams &params)
+void AudioOutputDeviceProxy::SetParameters(const AudioParams &params)
 {
   params_ = params;
 }

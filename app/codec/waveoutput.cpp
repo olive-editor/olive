@@ -26,7 +26,7 @@ const int16_t kWAVIntegerFormat = 1;
 const int16_t kWAVFloatFormat = 3;
 
 WaveOutput::WaveOutput(const QString &f,
-                       const AudioRenderingParams& params) :
+                       const AudioParams& params) :
   file_(f),
   params_(params)
 {
@@ -142,7 +142,7 @@ const int& WaveOutput::data_length() const
   return data_length_;
 }
 
-const AudioRenderingParams &WaveOutput::params() const
+const AudioParams &WaveOutput::params() const
 {
   return params_;
 }

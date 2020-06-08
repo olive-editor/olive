@@ -42,7 +42,7 @@ NodeValue OpenGLWorker::FrameToTexture(DecoderPtr decoder, StreamPtr stream, con
 {
   FramePtr frame = decoder->RetrieveVideo(range.in(),
                                           video_params().divider(),
-                                          video_params().mode() == RenderMode::kOffline);
+                                          render_mode() == RenderMode::kOffline);
 
   NodeValue value;
 
@@ -53,7 +53,8 @@ NodeValue OpenGLWorker::FrameToTexture(DecoderPtr decoder, StreamPtr stream, con
                               OLIVE_NS_RETURN_ARG(NodeValue, value),
                               OLIVE_NS_ARG(FramePtr, frame),
                               OLIVE_NS_ARG(StreamPtr, stream),
-                              OLIVE_NS_CONST_ARG(VideoRenderingParams&, video_params()));
+                              OLIVE_NS_CONST_ARG(VideoParams&, video_params()),
+                              OLIVE_NS_CONST_ARG(RenderMode::Mode&, render_mode()));
   }
 
   return value;
@@ -71,7 +72,7 @@ void OpenGLWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
                               OLIVE_NS_CONST_ARG(TimeRange&, range),
                               OLIVE_NS_ARG(NodeValueDatabase&, input_params),
                               OLIVE_NS_ARG(NodeValueTable&, output_params),
-                              OLIVE_NS_CONST_ARG(VideoRenderingParams&, video_params()));
+                              OLIVE_NS_CONST_ARG(VideoParams&, video_params()));
   }
 }
 

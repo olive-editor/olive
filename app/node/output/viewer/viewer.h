@@ -76,8 +76,8 @@ public:
     return audio_params_;
   }
 
-  void set_video_params(const VideoParams& video);
-  void set_audio_params(const AudioParams& audio);
+  void set_video_params(const VideoParams &video);
+  void set_audio_params(const AudioParams &audio);
 
   rational GetLength();
 

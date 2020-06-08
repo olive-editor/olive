@@ -60,8 +60,8 @@ public:
    */
   static QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt);
 
-  static bool SaveCacheFrame(const QString& filename, char *data, const VideoRenderingParams &vparam);
-  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoRenderingParams &vparam);
+  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam);
+  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam);
   static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
 
   static QString GetFormatExtension(const PixelFormat::Format& f);

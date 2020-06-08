@@ -135,7 +135,7 @@ public:
 
   virtual bool Open() override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider, bool use_proxies) override;
-  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
+  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioParams& params) override;
   virtual void Close() override;
 
   virtual QString id() override;
@@ -144,7 +144,7 @@ public:
   virtual bool SupportsAudio() override;
 
   virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider) override;
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams& p) override;
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams& p) override;
 
 private:
   /**

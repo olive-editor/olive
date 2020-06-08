@@ -68,7 +68,7 @@ void AudioOutputManager::ResetToPushMode()
   }
 }
 
-void AudioOutputManager::SetParameters(AudioRenderingParams params)
+void AudioOutputManager::SetParameters(AudioParams params)
 {
   device_proxy_.SetParameters(params);
 }

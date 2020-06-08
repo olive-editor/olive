@@ -27,13 +27,16 @@
 
 OLIVE_NAMESPACE_ENTER
 
-CacheTask::CacheTask(ViewerOutput* viewer, const VideoRenderingParams& vparams, const AudioRenderingParams &aparams, bool in_out_only) :
+CacheTask::CacheTask(ViewerOutput* viewer, const VideoParams& vparams, const AudioParams &aparams, bool in_out_only) :
   RenderTask(viewer, vparams, aparams),
   in_out_only_(in_out_only)
 {
   SetTitle(tr("Caching \"%1\"").arg(viewer->media_name()));
 
   backend()->EnablePreviewGeneration(job_time());
+
+  // Render fastest quality
+  backend()->SetRenderMode(RenderMode::kOffline);
 }
 
 bool CacheTask::Run()

@@ -33,12 +33,12 @@ class AudioPlaybackCache : public PlaybackCache
 public:
   AudioPlaybackCache();
 
-  AudioRenderingParams GetParameters() {
+  AudioParams GetParameters() {
     QMutexLocker locker(lock());
     return params_;
   }
 
-  void SetParameters(const AudioRenderingParams& params);
+  void SetParameters(const AudioParams& params);
 
   void WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64& job_time);
 
@@ -70,7 +70,7 @@ private:
 
   QString filename_;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
 };
 

@@ -54,7 +54,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   playback_speed_(0),
   frame_cache_job_time_(0),
   color_menu_enabled_(true),
-  divider_(Config::Current()["DefaultViewerDivider"].toInt()),
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
   prequeuing_(false),
@@ -112,6 +111,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Start background renderer
   renderer_ = new OpenGLBackend(this);
   renderer_->SetUpdateWithGraph(true);
+  renderer_->SetRenderMode(RenderMode::kOffline);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
   cache_wait_timer_.setInterval(100);
@@ -186,8 +186,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
-  n->audio_playback_cache()->SetParameters(AudioRenderingParams(n->audio_params(),
-                                                                SampleFormat::kInternalFormat));
+  n->audio_playback_cache()->SetParameters(n->audio_params());
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   last_length_ = rational();
@@ -207,8 +206,6 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   foreach (ViewerWindow* window, windows_) {
     window->display_widget()->ConnectColorManager(using_manager);
   }
-
-  divider_ = CalculateDivider();
 
   UpdateRendererParameters();
 
@@ -409,7 +406,7 @@ FramePtr DecodeCachedImage(const QString &fn, const rational& time)
 
       frame = Frame::Create();
       frame->set_timestamp(time);
-      frame->set_video_params(VideoRenderingParams(input->spec().width,
+      frame->set_video_params(VideoParams(input->spec().width,
                                                    input->spec().height,
                                                    image_format));
 
@@ -558,7 +555,7 @@ void ViewerWidget::PushScrubbedAudio()
     QFile audio_src(audio_fn);
 
     if (audio_src.open(QFile::ReadOnly)) {
-      const AudioRenderingParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+      const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
       // FIXME: Hardcoded scrubbing interval (20ms)
       int size_of_sample = params.time_to_bytes(rational(20, 1000));
@@ -574,6 +571,7 @@ void ViewerWidget::PushScrubbedAudio()
   }
 }
 
+/*
 int ViewerWidget::CalculateDivider()
 {
   if (GetConnectedNode() && Config::Current()["AutoSelectDivider"].toBool()) {
@@ -585,6 +583,7 @@ int ViewerWidget::CalculateDivider()
 
   return divider_;
 }
+*/
 
 void ViewerWidget::UpdateMinimumScale()
 {
@@ -701,20 +700,6 @@ void ViewerWidget::FinishPlayPreprocess()
   playback_backup_timer_.start();
 
   PlaybackTimerUpdate();
-}
-
-VideoRenderingParams ViewerWidget::GenerateVideoParams() const
-{
-  return VideoRenderingParams(GetConnectedNode()->video_params(),
-                              GetCurrentPixelFormat(),
-                              RenderMode::kOffline,
-                              divider_);
-}
-
-AudioRenderingParams ViewerWidget::GenerateAudioParams() const
-{
-  return AudioRenderingParams(GetConnectedNode()->audio_params(),
-                              SampleFormat::kInternalFormat);
 }
 
 int ViewerWidget::DeterminePlaybackQueueSize()
@@ -914,8 +899,8 @@ void ViewerWidget::StartBackgroundCaching()
 
     } else {
       cache_background_task_ = new CacheTask(GetConnectedNode(),
-                                             GenerateVideoParams(),
-                                             GenerateAudioParams(),
+                                             GetConnectedNode()->video_params(),
+                                             GetConnectedNode()->audio_params(),
                                              false);
 
       our_cache_background_task_ = cache_background_task_;
@@ -943,8 +928,8 @@ void ViewerWidget::UpdateRendererParameters()
 
   StartBackgroundCaching();
 
-  renderer_->SetVideoParams(GenerateVideoParams());
-  renderer_->SetAudioParams(GenerateAudioParams());
+  renderer_->SetVideoParams(GetConnectedNode()->video_params());
+  renderer_->SetAudioParams(GetConnectedNode()->audio_params());
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());
 }
@@ -973,26 +958,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     menu.addSeparator();
-  }
-
-  {
-    // Playback resolution
-    Menu* playback_resolution_menu = new Menu(tr("Resolution"), &menu);
-    menu.addMenu(playback_resolution_menu);
-
-    playback_resolution_menu->addAction(tr("Full"))->setData(1);
-    int dividers[] = {2, 4, 8, 16};
-    for (int i=0;i<4;i++) {
-      playback_resolution_menu->addAction(tr("1/%1").arg(dividers[i]))->setData(dividers[i]);
-    }
-    connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
-
-    foreach (QAction* a, playback_resolution_menu->actions()) {
-      a->setCheckable(true);
-      if (a->data() == divider_) {
-        a->setChecked(true);
-      }
-    }
   }
 
   {
@@ -1250,20 +1215,6 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 
     last_length_ = length;
   }
-}
-
-void ViewerWidget::SetDividerFromMenu(QAction *action)
-{
-  int divider = action->data().toInt();
-
-  if (divider <= 0) {
-    qWarning() << "Tried to set invalid divider:" << divider;
-    return;
-  }
-
-  divider_ = divider;
-
-  UpdateRendererParameters();
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)

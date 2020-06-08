@@ -24,7 +24,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ConformTask::ConformTask(AudioStreamPtr stream, const AudioRenderingParams& params) :
+ConformTask::ConformTask(AudioStreamPtr stream, const AudioParams& params) :
   stream_(stream),
   params_(params)
 {

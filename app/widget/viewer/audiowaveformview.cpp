@@ -62,7 +62,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
-  const AudioRenderingParams& params = playback_->GetParameters();
+  const AudioParams& params = playback_->GetParameters();
 
   if (!playback_
       || playback_->GetCacheFilename().isEmpty()

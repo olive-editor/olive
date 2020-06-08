@@ -164,7 +164,7 @@ public:
    * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
    * the provided timecode or the media could not be opened.
    */
-  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
+  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioParams& params);
 
   virtual bool SupportsVideo();
   virtual bool SupportsAudio();
@@ -229,13 +229,13 @@ public:
    * All audio decoders must override this. It's not pure since video decoders don't need to use
    * this, but default behavior will abort since it should never be called.
    */
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams &params);
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams &params);
 
   /**
    * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params
    * already exists
    */
-  bool HasConformedVersion(const AudioRenderingParams& params);
+  bool HasConformedVersion(const AudioParams& params);
 
 signals:
   /**
@@ -258,7 +258,7 @@ protected:
   /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters
    */
-  QString GetConformedFilename(const AudioRenderingParams &params);
+  QString GetConformedFilename(const AudioParams &params);
 
   bool open_;
 

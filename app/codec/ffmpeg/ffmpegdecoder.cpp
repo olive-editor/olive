@@ -169,10 +169,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
         if (in) {
           FramePtr copy = Frame::Create();
-          copy->set_video_params(VideoRenderingParams(vs->width(),
-                                                      vs->height(),
-                                                      native_pix_fmt_,
-                                                      vs->using_proxy()));
+          copy->set_video_params(VideoParams(vs->width(),
+                                             vs->height(),
+                                             native_pix_fmt_,
+                                             vs->using_proxy()));
           copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
           copy->set_sample_aspect_ratio(aspect_ratio_);
           copy->allocate();
@@ -315,10 +315,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     // Create frame to return
     FramePtr copy = Frame::Create();
-    copy->set_video_params(VideoRenderingParams(vs->width(),
-                                                vs->height(),
-                                                native_pix_fmt_,
-                                                divider));
+    copy->set_video_params(VideoParams(vs->width(),
+                                       vs->height(),
+                                       native_pix_fmt_,
+                                       divider));
     copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
     copy->set_sample_aspect_ratio(aspect_ratio_);
     copy->allocate();
@@ -353,7 +353,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
   return nullptr;
 }
 
-SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
+SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioParams &params)
 {
   QMutexLocker locker(&mutex_);
 
@@ -370,7 +370,7 @@ SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rat
   WaveInput input(wav_fn);
 
   if (input.open()) {
-    const AudioRenderingParams& input_params = input.params();
+    const AudioParams& input_params = input.params();
 
     // Read bytes from wav
     QByteArray packed_data = input.read(input_params.time_to_bytes(timecode), input_params.time_to_bytes(length));
@@ -639,7 +639,7 @@ QMutex scaler_lock;
 void SaveCacheFrame(FFmpegDecoder* decoder,
                     SwsContext* scaler,
                     AVFrame* frame,
-                    VideoRenderingParams params,
+                    VideoParams params,
                     QString dst_fn)
 {
   QByteArray converted_buffer(PixelFormat::GetBufferSize(params.format(),
@@ -722,9 +722,9 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
   QVector< QFuture<void> > futures;
   int finished_futures = 0;
 
-  VideoRenderingParams converted_params(divided_width,
-                                        divided_height,
-                                        native_fmt);
+  VideoParams converted_params(divided_width,
+                               divided_height,
+                               native_fmt);
 
   bool succeeded = false;
 
@@ -798,7 +798,7 @@ bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
   return succeeded;
 }
 
-bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderingParams &p)
+bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams &p)
 {
   // Iterate through each audio frame and extract the PCM data
   AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());

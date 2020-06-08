@@ -170,7 +170,7 @@ fail:
   return success;
 }
 
-void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm_filename)
+void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
 {
   QFile pcm(pcm_filename);
   if (pcm.open(QFile::ReadOnly)) {
