@@ -63,6 +63,8 @@ public:
   static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam);
   static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam);
   static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
+  static FramePtr LoadCacheFrame(const QByteArray& hash, const PixelFormat::Format& format);
+  static FramePtr LoadCacheFrame(const QString& fn);
 
   static QString GetFormatExtension(const PixelFormat::Format& f);
 

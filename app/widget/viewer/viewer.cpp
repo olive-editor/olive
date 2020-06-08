@@ -394,38 +394,10 @@ void ViewerWidget::SetBackgroundCacheTask(CacheTask *t)
 
 FramePtr DecodeCachedImage(const QString &fn, const rational& time)
 {
-  FramePtr frame = nullptr;
+  FramePtr frame = FrameHashCache::LoadCacheFrame(fn);
 
-  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    auto input = OIIO::ImageInput::open(fn.toStdString());
-
-    if (input) {
-
-      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
-                                                                              input->spec().nchannels == kRGBAChannels);
-
-      frame = Frame::Create();
-      frame->set_timestamp(time);
-      frame->set_video_params(VideoParams(input->spec().width,
-                                                   input->spec().height,
-                                                   image_format));
-
-      frame->allocate();
-
-      input->read_image(input->spec().format,
-                        frame->data(),
-                        OIIO::AutoStride,
-                        frame->linesize_bytes());
-
-      input->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageInput::destroy(input);
-#endif
-
-    } else {
-      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
-    }
+  if (frame) {
+    frame->set_timestamp(time);
   }
 
   return frame;

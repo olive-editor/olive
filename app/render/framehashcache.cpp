@@ -205,6 +205,49 @@ void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
   SaveCacheFrame(hash, frame->data(), frame->video_params());
 }
 
+FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash, const PixelFormat::Format &format)
+{
+  return LoadCacheFrame(CachePathName(hash, format));
+}
+
+FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
+{
+  FramePtr frame = nullptr;
+
+  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
+    auto input = OIIO::ImageInput::open(fn.toStdString());
+
+    if (input) {
+
+      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
+                                                                              input->spec().nchannels == kRGBAChannels);
+
+      frame = Frame::Create();
+      frame->set_video_params(VideoParams(input->spec().width,
+                                          input->spec().height,
+                                          image_format));
+
+      frame->allocate();
+
+      input->read_image(input->spec().format,
+                        frame->data(),
+                        OIIO::AutoStride,
+                        frame->linesize_bytes());
+
+      input->close();
+
+#if OIIO_VERSION < 10903
+      OIIO::ImageInput::destroy(input);
+#endif
+
+    } else {
+      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+    }
+  }
+
+  return frame;
+}
+
 void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
 {
   if (newlen < old) {
