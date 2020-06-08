@@ -85,17 +85,20 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     if (video_stream) {
       video_node_->SetFootage(video_stream);
       viewer_node_->set_video_params(VideoParams(video_stream->width(),
-                                                          video_stream->height(),
-                                                          video_stream->frame_rate().flipped(),
-                                                          static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                                          Config::Current()["DefaultSequencePreviewDivider"].toInt()));
+                                                 video_stream->height(),
+                                                 video_stream->frame_rate().flipped(),
+                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 VideoParams::generate_auto_divider(video_stream->width(), video_stream->height())));
       NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
     } else {
-      viewer_node_->set_video_params(VideoParams(Config::Current()["DefaultSequenceWidth"].toInt(),
-                                     Config::Current()["DefaultSequenceHeight"].toInt(),
-                                     Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                                     static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                     Config::Current()["DefaultSequencePreviewDivider"].toInt()));
+      int width = Config::Current()["DefaultSequenceWidth"].toInt();
+      int height = Config::Current()["DefaultSequenceHeight"].toInt();
+
+      viewer_node_->set_video_params(VideoParams(width,
+                                                 height,
+                                                 Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
+                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 VideoParams::generate_auto_divider(width, height)));
     }
 
     if (audio_stream) {
@@ -104,8 +107,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
     } else {
       viewer_node_->set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                                                 Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
-                                                 SampleFormat::kInternalFormat));
+                                     Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
+                                     SampleFormat::kInternalFormat));
     }
 
     ConnectViewerNode(viewer_node_, footage_->project()->color_manager());

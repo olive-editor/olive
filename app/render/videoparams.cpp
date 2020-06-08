@@ -22,6 +22,8 @@
 
 #include <QtMath>
 
+#include "core.h"
+
 OLIVE_NAMESPACE_ENTER
 
 VideoParams::VideoParams() :
@@ -46,6 +48,44 @@ VideoParams::VideoParams(const int &width, const int &height, const rational &ti
   divider_(divider)
 {
   calculate_effective_size();
+}
+
+int VideoParams::generate_auto_divider(qint64 width, qint64 height)
+{
+  // Arbitrary pixel count (from 640x360)
+  const int target_res = 230400;
+
+  qint64 megapixels = width * height;
+
+  double squared_divider = double(megapixels) / double(target_res);
+  double divider = qSqrt(squared_divider);
+
+  QList<int> supported_dividers = Core::SupportedDividers();
+
+  if (divider <= supported_dividers.first()) {
+    return supported_dividers.first();
+  } else if (divider >= supported_dividers.last()) {
+    return supported_dividers.last();
+  } else {
+    for (int i=1; i<supported_dividers.size(); i++) {
+      int prev_divider = supported_dividers.at(i-1);
+      int next_divider = supported_dividers.at(i);
+
+      if (divider >= prev_divider && divider <= next_divider) {
+        double prev_diff = qAbs(prev_divider - divider);
+        double next_diff = qAbs(next_divider - divider);
+
+        if (prev_diff < next_diff) {
+          return prev_divider;
+        } else {
+          return next_divider;
+        }
+      }
+    }
+
+    // "Safe" fallback
+    return 2;
+  }
 }
 
 bool VideoParams::operator==(const VideoParams &rhs) const

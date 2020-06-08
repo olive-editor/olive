@@ -179,6 +179,11 @@ public:
   static QList<uint64_t> SupportedChannelLayouts();
 
   /**
+   * @brief Return a list of supported dividers
+   */
+  static QList<int> SupportedDividers();
+
+  /**
    * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
    */
   static QString FrameRateToString(const rational& frame_rate);

@@ -238,14 +238,17 @@ void Sequence::set_audio_params(const AudioParams &params)
 
 void Sequence::set_default_parameters()
 {
-  set_video_params(VideoParams(Config::Current()["DefaultSequenceWidth"].toInt(),
-                                        Config::Current()["DefaultSequenceHeight"].toInt(),
-                                        Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                                        static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                        Config::Current()["DefaultSequencePreviewDivider"].toInt()));
+  int width = Config::Current()["DefaultSequenceWidth"].toInt();
+  int height = Config::Current()["DefaultSequenceHeight"].toInt();
+
+  set_video_params(VideoParams(width,
+                               height,
+                               Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
+                               static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                               VideoParams::generate_auto_divider(width, height)));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                                        Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
-                                        SampleFormat::kInternalFormat));
+                   Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
+                   SampleFormat::kInternalFormat));
 }
 
 void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
@@ -263,10 +266,10 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
         // If this is a video stream, use these parameters
         if (!found_video_params && !vs->frame_rate().isNull()) {
           set_video_params(VideoParams(vs->width(),
-                                                vs->height(),
-                                                vs->frame_rate().flipped(),
-                                                static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                                Config::Current()["DefaultSequencePreviewDivider"].toInt()));
+                                       vs->height(),
+                                       vs->frame_rate().flipped(),
+                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       VideoParams::generate_auto_divider(vs->width(), vs->height())));
           found_video_params = true;
         }
         break;
@@ -278,10 +281,10 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
           ImageStream* is = static_cast<ImageStream*>(s.get());
 
           set_video_params(VideoParams(is->width(),
-                                                is->height(),
-                                                video_params().time_base(),
-                                                static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                                Config::Current()["DefaultSequencePreviewDivider"].toInt()));
+                                       is->height(),
+                                       video_params().time_base(),
+                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       VideoParams::generate_auto_divider(is->width(), is->height())));
         }
         break;
       case Stream::kAudio:

@@ -68,6 +68,8 @@ public:
     return format_;
   }
 
+  static int generate_auto_divider(qint64 width, qint64 height);
+
   bool is_valid() const;
 
   bool operator==(const VideoParams& rhs) const;

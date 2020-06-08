@@ -110,7 +110,6 @@ void Config::SetDefaults()
   config_map_["DefaultSequenceAudioFrequency"] = 48000;
   config_map_["DefaultSequenceAudioLayout"] = QVariant::fromValue(static_cast<uint64_t>(AV_CH_LAYOUT_STEREO));
   config_map_["DefaultSequencePreviewFormat"] = PixelFormat::PIX_FMT_RGBA16F;
-  config_map_["DefaultSequencePreviewDivider"] = 3;
 
   // Online/offline settings
   config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;

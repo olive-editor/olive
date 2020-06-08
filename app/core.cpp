@@ -809,6 +809,11 @@ QList<uint64_t> Core::SupportedChannelLayouts()
   return channel_layouts;
 }
 
+QList<int> Core::SupportedDividers()
+{
+  return {1, 2, 3, 4, 6, 8, 12, 16};
+}
+
 QString Core::FrameRateToString(const rational &frame_rate)
 {
   return tr("%1 FPS").arg(frame_rate.toDouble());

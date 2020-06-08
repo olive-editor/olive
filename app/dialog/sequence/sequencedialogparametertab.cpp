@@ -90,7 +90,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   }
 
   // Set up preview dividers
-  divider_list_ = {1, 2, 3, 4, 6, 8, 12, 16};
+  divider_list_ = Core::SupportedDividers();
   foreach (int d, divider_list_) {
     QString name;
 
