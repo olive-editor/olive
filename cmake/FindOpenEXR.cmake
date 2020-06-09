@@ -40,19 +40,19 @@ if(OPENEXR_INCLUDE_DIR)
            ${openexr_config_file}
            TMP
            REGEX "#define OPENEXR_VERSION_STRING.*$")
-      string(REGEX MATCHALL "[0-9.]+" OPENEXR_VERSION ${TMP})
+      string(REGEX MATCHALL "[0-9.]+" OPENEXR_VERSION "${TMP}")
 
       file(STRINGS
            ${openexr_config_file}
            TMP
            REGEX "#define OPENEXR_VERSION_MAJOR.*$")
-      string(REGEX MATCHALL "[0-9]" OPENEXR_MAJOR_VERSION ${TMP})
+      string(REGEX MATCHALL "[0-9]" OPENEXR_MAJOR_VERSION "${TMP}")
 
       file(STRINGS
            ${openexr_config_file}
            TMP
            REGEX "#define OPENEXR_VERSION_MINOR.*$")
-      string(REGEX MATCHALL "[0-9]" OPENEXR_MINOR_VERSION ${TMP})
+      string(REGEX MATCHALL "[0-9]" OPENEXR_MINOR_VERSION "${TMP}")
   endif()
 endif()
 
