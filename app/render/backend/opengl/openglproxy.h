@@ -67,22 +67,21 @@ public:
   void Close();
 
 public slots:
-  void RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node,
-                          const OLIVE_NAMESPACE::TimeRange &range,
-                          OLIVE_NAMESPACE::NodeValueDatabase &input_params,
-                          OLIVE_NAMESPACE::NodeValueTable& output_params,
-                          const OLIVE_NAMESPACE::VideoParams &params);
+  QVariant RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node,
+                              const OLIVE_NAMESPACE::TimeRange &range,
+                              OLIVE_NAMESPACE::NodeValueDatabase &input_params,
+                              const OLIVE_NAMESPACE::VideoParams &params);
 
   void TextureToBuffer(const QVariant& texture,
                        OLIVE_NAMESPACE::FramePtr frame,
                        const QMatrix4x4& matrix);
 
-  OLIVE_NAMESPACE::NodeValue FrameToValue(OLIVE_NAMESPACE::FramePtr frame,
-                                          OLIVE_NAMESPACE::StreamPtr stream,
-                                          const OLIVE_NAMESPACE::VideoParams &params,
-                                          const OLIVE_NAMESPACE::RenderMode::Mode &mode);
+  QVariant FrameToValue(OLIVE_NAMESPACE::FramePtr frame,
+                        OLIVE_NAMESPACE::StreamPtr stream,
+                        const OLIVE_NAMESPACE::VideoParams &params,
+                        const OLIVE_NAMESPACE::RenderMode::Mode &mode);
 
-  OLIVE_NAMESPACE::NodeValue PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
+  QVariant PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
 
 private:
   QOpenGLContext* ctx_;

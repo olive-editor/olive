@@ -57,6 +57,7 @@ NodeValueTable TimeInput::Value(NodeValueDatabase &value) const
 
   table.Push(NodeParam::kFloat,
              value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")),
+             this,
              QStringLiteral("time"));
 
   return table;

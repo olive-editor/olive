@@ -382,7 +382,7 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
                         false);
 
   // Handle connections
-  if (input->IsConnected() || our_copy->IsConnected()) {
+  if (input->is_connected() || our_copy->is_connected()) {
     // If one of the inputs is connected, it's likely this change came from connecting or
     // disconnecting whatever was connected to it
 
@@ -444,7 +444,7 @@ Node* RenderBackend::CopyNodeConnections(Node* src_node)
 
 void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
 {
-  if (src_input->IsConnected()) {
+  if (src_input->is_connected()) {
     Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
 
     NodeOutput* corresponding_output = dst_node->GetOutputWithID(src_input->get_connected_output()->id());

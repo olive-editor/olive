@@ -31,7 +31,7 @@ OLIVE_NAMESPACE_ENTER
 MathNode::MathNode()
 {
   method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kCombo);
-  method_in_->SetConnectable(false);
+  method_in_->set_connectable(false);
   method_in_->set_is_keyframable(false);
   AddInput(method_in_);
 
@@ -244,10 +244,12 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
     if (val_a.type() == NodeParam::kRational && val_b.type() == NodeParam::kRational && GetOperation() != kOpPower) {
       // Preserve rationals
       output.Push(NodeParam::kRational,
-                  QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(val_a.data().value<rational>(), val_b.data().value<rational>())));
+                  QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(val_a.data().value<rational>(), val_b.data().value<rational>())),
+                  this);
     } else {
       output.Push(NodeParam::kFloat,
-                  PerformAll<float, float>(RetrieveNumber(val_a), RetrieveNumber(val_b)));
+                  PerformAll<float, float>(RetrieveNumber(val_a), RetrieveNumber(val_b)),
+                  this);
     }
     break;
   }
@@ -288,7 +290,7 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   {
     QMatrix4x4 mat_a = val_a.data().value<QMatrix4x4>();
     QMatrix4x4 mat_b = val_b.data().value<QMatrix4x4>();
-    output.Push(NodeParam::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(mat_a, mat_b));
+    output.Push(NodeParam::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(mat_a, mat_b), this);
     break;
   }
 
@@ -298,7 +300,7 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
     Color col_b = val_b.data().value<Color>();
 
     // Only add and subtract are valid operations
-    output.Push(NodeParam::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(col_a, col_b)));
+    output.Push(NodeParam::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(col_a, col_b)), this);
     break;
   }
 
@@ -309,7 +311,7 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
     float num = (val_a.type() == NodeParam::kColor) ? val_b.data().toFloat() : val_a.data().toFloat();
 
     // Only multiply and divide are valid operations
-    output.Push(NodeParam::kColor, QVariant::fromValue(PerformMult<Color, float>(col, num)));
+    output.Push(NodeParam::kColor, QVariant::fromValue(PerformMult<Color, float>(col, num)), this);
     break;
   }
 
@@ -341,7 +343,7 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
       }
     }
 
-    output.Push(NodeParam::kSamples, QVariant::fromValue(mixed_samples));
+    output.Push(NodeParam::kSamples, QVariant::fromValue(mixed_samples), this);
     break;
   }
 
@@ -443,17 +445,17 @@ QVector4D MathNode::RetrieveVector(const NodeValue &val)
   }
 }
 
-void MathNode::PushVector(NodeValueTable *output, NodeParam::DataType type, const QVector4D &vec)
+void MathNode::PushVector(NodeValueTable *output, NodeParam::DataType type, const QVector4D &vec) const
 {
   switch (type) {
   case NodeParam::kVec2:
-    output->Push(type, QVector2D(vec));
+    output->Push(type, QVector2D(vec), this);
     break;
   case NodeParam::kVec3:
-    output->Push(type, QVector3D(vec));
+    output->Push(type, QVector3D(vec), this);
     break;
   case NodeParam::kVec4:
-    output->Push(type, vec);
+    output->Push(type, vec, this);
     break;
   default:
     break;

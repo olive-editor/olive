@@ -114,13 +114,15 @@ public:
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const = 0;
 
-  virtual NodeValue FrameToTexture(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) const = 0;
+  virtual QVariant FootageFrameToTexture(StreamPtr stream, FramePtr frame) const = 0;
 
-  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+  virtual QVariant CachedFrameToTexture(FramePtr frame) const = 0;
 
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
 
   virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params) override;
+
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params) = 0;
 
   const VideoParams& video_params() const
   {
@@ -146,9 +148,13 @@ signals:
   void WaveformGenerated(OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange start);
 
 private:
-  NodeValue GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
+  QVariant ProcessSamples(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in);
+
+  QVariant GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
 
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
+
+  QVariant ProcessFootage(StreamPtr stream, const TimeRange &input_time);
 
   RenderBackend* parent_;
 
@@ -157,7 +163,7 @@ private:
   AudioParams audio_params_;
 
   struct CachedStill {
-    NodeValue texture;
+    QVariant texture;
     QString colorspace;
     bool alpha_is_associated;
     int divider;

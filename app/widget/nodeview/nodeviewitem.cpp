@@ -177,7 +177,7 @@ void NodeViewItem::SetNode(Node *n)
       if (p->type() == NodeParam::kInput) {
         NodeInput* input = static_cast<NodeInput*>(p);
 
-        if (input->IsConnectable()) {
+        if (input->is_connectable()) {
           node_inputs_.append(input);
         }
       }

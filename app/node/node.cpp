@@ -321,7 +321,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
     // For a single frame, we only care about one of the times
     rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
 
-    if (input->IsConnected()) {
+    if (input->is_connected()) {
       // Traverse down this edge
       input->get_connected_node()->Hash(hash, input_time);
     } else {
@@ -689,7 +689,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs) {
-      if (input->IsConnected()) {
+      if (input->is_connected()) {
         TimeRange input_adjustment = InputTimeAdjustment(input, time);
         Node* connected = input->get_connected_node();
 
@@ -710,7 +710,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeOutput* output, outputs) {
-      if (output->IsConnected()) {
+      if (output->is_connected()) {
         foreach (NodeEdgePtr edge, output->edges()) {
           Node* input_node = edge->input()->parentNode();
 
@@ -790,7 +790,7 @@ bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
 {
   foreach (NodeParam* p, params_) {
     if (p->type() == type
-        && (p->IsConnected() || !must_be_connected)) {
+        && (p->is_connected() || !must_be_connected)) {
       return true;
     }
   }

@@ -277,10 +277,10 @@ public:
   /**
    * @brief Returns whether anything is connected to this parameter or not
    */
-  bool IsConnected() const;
+  bool is_connected() const;
 
-  bool IsConnectable() const;
-  void SetConnectable(bool connectable);
+  bool is_connectable() const;
+  void set_connectable(bool connectable);
 
   /**
    * @brief Return a list of edges (aka connections to other nodes)

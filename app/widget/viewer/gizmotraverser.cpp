@@ -22,17 +22,25 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table)
+void GizmoTraverser::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)
 {
-  if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+  // Convert footage to image/sample buffers
+  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  foreach (NodeInput* input, inputs) {
+    if (input->data_type() == NodeParam::kFootage) {
+      StreamPtr stream = ResolveStreamFromInput(input);
 
-    ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+      if (stream
+          && (stream->type() == Stream::kVideo || stream->type() == Stream::kImage)) {
+        ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
 
-    table->Push(NodeParam::kTexture, QSize(image_stream->width(),
-                                           image_stream->height()));
-
-  } else if (stream->type() == Stream::kAudio) {
-    // FIXME: Get samples
+        output_params.Push(NodeParam::kTexture,
+                           QSize(image_stream->width(), image_stream->height()),
+                           node);
+      } else if (stream->type() == Stream::kAudio) {
+        // FIXME: Do something...
+      }
+    }
   }
 }
 

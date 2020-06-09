@@ -99,7 +99,7 @@ TrackOutput* TrackList::AddTrack()
       }
     }
 
-    if (last_track && last_track->output()->IsConnected()) {
+    if (last_track && last_track->output()->is_connected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
         if (!track_input_->ContainsSubParameter(edge->input())) {
           switch (type_) {

@@ -44,7 +44,7 @@ MatrixGenerator::MatrixGenerator()
 
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
   uniform_scale_input_->set_is_keyframable(false);
-  uniform_scale_input_->SetConnectable(false);
+  uniform_scale_input_->set_connectable(false);
   connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &MatrixGenerator::UniformScaleChanged);
   AddInput(uniform_scale_input_);
 
@@ -96,7 +96,7 @@ NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
   // Push matrix output
   QMatrix4x4 mat = GenerateMatrix(value);
   NodeValueTable output = value.Merge();
-  output.Push(NodeParam::kMatrix, mat);
+  output.Push(NodeParam::kMatrix, mat, this);
   return output;
 }
 

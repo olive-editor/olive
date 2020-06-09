@@ -30,8 +30,8 @@ OLIVE_NAMESPACE_ENTER
 class NodeValue
 {
 public:
-  NodeValue() = default;
-  NodeValue(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
+  NodeValue();
+  NodeValue(const NodeParam::DataType& type, const QVariant& data, const Node* from, const QString& tag = QString());
 
   const NodeParam::DataType& type() const;
   const QVariant& data() const;
@@ -42,6 +42,7 @@ public:
 private:
   NodeParam::DataType type_;
   QVariant data_;
+  const Node* from_;
   QString tag_;
 
 };
@@ -56,9 +57,9 @@ public:
   QVariant Take(const NodeParam::DataType& type, const QString& tag = QString());
   NodeValue TakeWithMeta(const NodeParam::DataType& type, const QString& tag = QString());
   void Push(const NodeValue& value);
-  void Push(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
+  void Push(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
   void Prepend(const NodeValue& value);
-  void Prepend(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
+  void Prepend(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
   const NodeValue& At(int index) const;
   NodeValue TakeAt(int index);
   int Count() const;

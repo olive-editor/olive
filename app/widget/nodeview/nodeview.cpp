@@ -399,7 +399,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
             if (param->type() == NodeParam::kInput) {
               NodeInput* input = static_cast<NodeInput*>(param);
 
-              if (input->IsConnectable()) {
+              if (input->is_connectable()) {
                 if (input->data_type() & new_drop_edge->edge()->input()->data_type()) {
                   drop_input_ = input;
                   break;

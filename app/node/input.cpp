@@ -366,7 +366,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
 
 void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
 {
-  if (IsConnected()
+  if (is_connected()
       && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
     Node* connected = get_connected_node();
 

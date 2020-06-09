@@ -25,7 +25,7 @@ OLIVE_NAMESPACE_ENTER
 TrigonometryNode::TrigonometryNode()
 {
   method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kCombo);
-  method_in_->SetConnectable(false);
+  method_in_->set_connectable(false);
   method_in_->set_is_keyframable(false);
   AddInput(method_in_);
 
@@ -113,7 +113,7 @@ NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
     break;
   }
 
-  table.Push(NodeParam::kFloat, x);
+  table.Push(NodeParam::kFloat, x, this);
 
   return table;
 }

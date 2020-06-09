@@ -34,9 +34,11 @@ public:
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const override;
 
-  virtual NodeValue FrameToTexture(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) const override;
+  virtual QVariant FootageFrameToTexture(StreamPtr stream, FramePtr frame) const override;
 
-  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params) override;
+  virtual QVariant CachedFrameToTexture(FramePtr frame) const override;
+
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params) override;
 
 private:
   OpenGLProxy* proxy_;

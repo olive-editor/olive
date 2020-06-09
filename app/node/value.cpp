@@ -57,9 +57,16 @@ NodeValueTable NodeValueDatabase::Merge() const
   return NodeValueTable::Merge(tables_.values());
 }
 
-NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, const QString &tag) :
+NodeValue::NodeValue() :
+  type_(NodeParam::kNone),
+  from_(nullptr)
+{
+}
+
+NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, const Node *from, const QString &tag) :
   type_(type),
   data_(data),
+  from_(from),
   tag_(tag)
 {
 }
@@ -97,7 +104,7 @@ NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QSt
     return values_.at(value_index);
   }
 
-  return NodeValue(NodeParam::kNone, QVariant());
+  return NodeValue();
 }
 
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
@@ -113,7 +120,7 @@ NodeValue NodeValueTable::TakeWithMeta(const NodeParam::DataType &type, const QS
     return values_.takeAt(value_index);
   }
 
-  return NodeValue(NodeParam::kNone, QVariant());
+  return NodeValue();
 }
 
 void NodeValueTable::Push(const NodeValue &value)
@@ -121,9 +128,9 @@ void NodeValueTable::Push(const NodeValue &value)
   values_.append(value);
 }
 
-void NodeValueTable::Push(const NodeParam::DataType &type, const QVariant &data, const QString &tag)
+void NodeValueTable::Push(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
 {
-  Push(NodeValue(type, data, tag));
+  Push(NodeValue(type, data, from, tag));
 }
 
 void NodeValueTable::Prepend(const NodeValue &value)
@@ -131,9 +138,9 @@ void NodeValueTable::Prepend(const NodeValue &value)
   values_.prepend(value);
 }
 
-void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &data, const QString &tag)
+void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
 {
-  Prepend(NodeValue(type, data, tag));
+  Prepend(NodeValue(type, data, from, tag));
 }
 
 const NodeValue &NodeValueTable::At(int index) const

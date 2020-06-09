@@ -134,7 +134,7 @@ private:
 
   static float RetrieveNumber(const NodeValue& val);
 
-  static void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec);
+  void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec) const;
 
   NodeInput* method_in_;
 

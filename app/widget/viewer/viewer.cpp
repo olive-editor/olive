@@ -704,8 +704,8 @@ void ViewerWidget::UpdateStack()
   rational new_tb;
 
   if (GetConnectedNode()
-      && !GetConnectedNode()->texture_input()->IsConnected()
-      && GetConnectedNode()->samples_input()->IsConnected()) {
+      && !GetConnectedNode()->texture_input()->is_connected()
+      && GetConnectedNode()->samples_input()->is_connected()) {
     // If we have a node AND video is disconnected AND audio is connected, show waveform view
     stack_->setCurrentWidget(waveform_view_);
     new_tb = GetConnectedNode()->audio_params().time_base();

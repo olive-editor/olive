@@ -32,31 +32,31 @@ Block::Block() :
   next_(nullptr)
 {
   name_input_ = new NodeInput("name_in", NodeParam::kString);
-  name_input_->SetConnectable(false);
+  name_input_->set_connectable(false);
   name_input_->set_is_keyframable(false);
   AddInput(name_input_);
 
   length_input_ = new NodeInput("length_in", NodeParam::kRational);
-  length_input_->SetConnectable(false);
+  length_input_->set_connectable(false);
   length_input_->set_is_keyframable(false);
   AddInput(length_input_);
   disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
   connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
 
   media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
-  media_in_input_->SetConnectable(false);
+  media_in_input_->set_connectable(false);
   media_in_input_->set_is_keyframable(false);
   AddInput(media_in_input_);
 
   enabled_input_ = new NodeInput("enabled_in", NodeParam::kBoolean);
-  enabled_input_->SetConnectable(false);
+  enabled_input_->set_connectable(false);
   enabled_input_->set_is_keyframable(false);
   enabled_input_->set_standard_value(true);
   AddInput(enabled_input_);
 
   speed_input_ = new NodeInput("speed_in", NodeParam::kRational);
   speed_input_->set_standard_value(QVariant::fromValue(rational(1)));
-  speed_input_->SetConnectable(false);
+  speed_input_->set_connectable(false);
   speed_input_->set_is_keyframable(false);
   AddInput(speed_input_);
 

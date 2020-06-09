@@ -60,7 +60,7 @@ void NodeParamViewConnectedLabel::UpdateConnected()
 {
   QString connection_str;
 
-  if (input_->IsConnected()) {
+  if (input_->is_connected()) {
     connection_str = input_->get_connected_node()->Name();
   } else {
     connection_str = tr("Nothing");

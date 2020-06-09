@@ -38,41 +38,49 @@ void OpenGLWorker::TextureToFrame(const QVariant &texture, FramePtr frame, const
                             Q_ARG(const QMatrix4x4&, mat));
 }
 
-NodeValue OpenGLWorker::FrameToTexture(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) const
+QVariant OpenGLWorker::FootageFrameToTexture(StreamPtr stream, FramePtr frame) const
 {
-  FramePtr frame = decoder->RetrieveVideo(range.in(),
-                                          video_params().divider());
+  QVariant value;
 
-  NodeValue value;
-
-  if (frame) {
-    QMetaObject::invokeMethod(proxy_,
-                              "FrameToValue",
-                              Qt::BlockingQueuedConnection,
-                              OLIVE_NS_RETURN_ARG(NodeValue, value),
-                              OLIVE_NS_ARG(FramePtr, frame),
-                              OLIVE_NS_ARG(StreamPtr, stream),
-                              OLIVE_NS_CONST_ARG(VideoParams&, video_params()),
-                              OLIVE_NS_CONST_ARG(RenderMode::Mode&, render_mode()));
-  }
+  QMetaObject::invokeMethod(proxy_,
+                            "FrameToValue",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_ARG(FramePtr, frame),
+                            OLIVE_NS_ARG(StreamPtr, stream),
+                            OLIVE_NS_CONST_ARG(VideoParams&, video_params()),
+                            OLIVE_NS_CONST_ARG(RenderMode::Mode&, render_mode()));
 
   return value;
 }
 
-void OpenGLWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
+QVariant OpenGLWorker::CachedFrameToTexture(FramePtr frame) const
 {
-  RenderWorker::ProcessNodeEvent(node, range, input_params, output_params);
+  QVariant value;
 
-  if (node->GetCapabilities(input_params) & Node::kShader) {
-    QMetaObject::invokeMethod(proxy_,
-                              "RunNodeAccelerated",
-                              Qt::BlockingQueuedConnection,
-                              OLIVE_NS_CONST_ARG(Node*, node),
-                              OLIVE_NS_CONST_ARG(TimeRange&, range),
-                              OLIVE_NS_ARG(NodeValueDatabase&, input_params),
-                              OLIVE_NS_ARG(NodeValueTable&, output_params),
-                              OLIVE_NS_CONST_ARG(VideoParams&, video_params()));
-  }
+  QMetaObject::invokeMethod(proxy_,
+                            "PreCachedFrameToValue",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_ARG(FramePtr, frame));
+
+  return value;
+}
+
+QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params)
+{
+  QVariant value;
+
+  QMetaObject::invokeMethod(proxy_,
+                            "RunNodeAccelerated",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_CONST_ARG(Node*, node),
+                            OLIVE_NS_CONST_ARG(TimeRange&, range),
+                            OLIVE_NS_ARG(NodeValueDatabase&, input_params),
+                            OLIVE_NS_CONST_ARG(VideoParams&, video_params()));
+
+  return value;
 }
 
 OLIVE_NAMESPACE_EXIT

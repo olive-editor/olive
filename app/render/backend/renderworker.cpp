@@ -163,7 +163,7 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
       }
     }
 
-    merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer));
+    merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer), track);
 
     return merged_table;
 
@@ -172,13 +172,8 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
   }
 }
 
-void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)
+QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in)
 {
-  // Check if node processes samples
-  if (!(node->GetCapabilities(input_params_in) & Node::kSampleProcessor)) {
-    return;
-  }
-
   // Copy database so we can make some temporary modifications to it
   NodeValueDatabase input_params = input_params_in;
   NodeInput* sample_input = node->ProcessesSamplesFrom(input_params);
@@ -188,13 +183,13 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
 
   // If there isn't one, there's nothing to do
   if (samples_var.isNull()) {
-    return;
+    return QVariant();
   }
 
   SampleBufferPtr input_buffer = samples_var.value<SampleBufferPtr>();
 
   if (!input_buffer) {
-    return;
+    return QVariant();
   }
 
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count());
@@ -216,7 +211,7 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // If the input isn't keyframing, we don't need to update it unless it's connected, in which case it may change
-        if (input->IsConnected() || input->is_keyframing()) {
+        if (input->is_connected() || input->is_keyframing()) {
           input_params.Insert(input, ProcessInput(input, TimeRange(this_sample_time, this_sample_time)));
         }
       }
@@ -229,64 +224,85 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
                          i);
   }
 
-  output_params.Push(NodeParam::kSamples, QVariant::fromValue(output_buffer));
+  return QVariant::fromValue(output_buffer);
 }
 
-void RenderWorker::FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable *table)
+void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)
 {
-  if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+  // Convert footage to image/sample buffers
+  if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
+    QByteArray hash = RenderBackend::HashNode(node, video_params(), range.in());
 
-    ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
-    rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time.in();
-    QString colorspace_match = video_stream->get_colorspace_match_string();
+    QString fn = FrameHashCache::CachePathName(hash, video_params_.format());
 
-    NodeValue value;
-    bool found_cache = false;
+    if (QFileInfo::exists(fn)) {
+      FramePtr f = FrameHashCache::LoadCacheFrame(hash, video_params_.format());
 
-    if (still_image_cache_.contains(stream.get())) {
-      const CachedStill& cs = still_image_cache_[stream.get()];
+      QVariant cached = CachedFrameToTexture(f);
 
-      if (cs.colorspace == colorspace_match
-          && cs.alpha_is_associated == video_stream->premultiplied_alpha()
-          && cs.divider == video_params_.divider()
-          && cs.time == time_match) {
-        value = cs.texture;
-        found_cache = true;
-      } else {
-        still_image_cache_.remove(stream.get());
+      if (!cached.isNull()) {
+        output_params.Push(NodeParam::kTexture, cached, node);
+
+        // No more to do here
+        return;
       }
     }
+  }
 
-    if (!found_cache) {
+  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  foreach (NodeInput* input, inputs) {
+    if (input->data_type() == NodeParam::kFootage) {
+      TimeRange input_time = node->InputTimeAdjustment(input, range);
 
-      value = GetDataFromStream(stream, input_time);
+      StreamPtr stream = ResolveStreamFromInput(input);
 
-      still_image_cache_.insert(stream.get(), {value,
-                                               colorspace_match,
-                                               video_stream->premultiplied_alpha(),
-                                               video_params_.divider(),
-                                               time_match});
+      if (stream) {
+        QVariant v = ProcessFootage(stream, input_time);
 
+        if (!v.isNull()) {
+          if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+            output_params.Push(NodeParam::kTexture, v, node);
+          } else if (stream->type() == Stream::kAudio) {
+            output_params.Push(NodeParam::kSamples, v, node);
+          }
+        }
+      }
     }
+  }
 
-    table->Push(value);
+  // Check if node has a shader
+  if (node->GetCapabilities(input_params_in) & Node::kShader) {
+    QVariant v = ProcessShader(node, range, input_params_in);
 
-  } else if (stream->type() == Stream::kAudio) {
+    if (!v.isNull()) {
+      output_params.Push(NodeParam::kTexture, v, node);
+    }
+  }
 
-    table->Push(GetDataFromStream(stream, input_time));
+  // Check if node processes samples
+  if (node->GetCapabilities(input_params_in) & Node::kSampleProcessor) {
+    QVariant v = ProcessSamples(node, range, input_params_in);
 
+    if (!v.isNull()) {
+      output_params.Push(NodeParam::kSamples, v, node);
+    }
   }
 }
 
-NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &input_time)
+QVariant RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &input_time)
 {
   DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
   if (decoder) {
     if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
 
-      // Return a texture from the derived class
-      return FrameToTexture(decoder, stream, input_time);
+      FramePtr frame = decoder->RetrieveVideo(input_time.in(),
+                                              video_params().divider());
+
+      if (frame) {
+        // Return a texture from the derived class
+        return FootageFrameToTexture(stream, frame);
+      }
 
     } else if (stream->type() == Stream::kAudio) {
 
@@ -334,13 +350,13 @@ NodeValue RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &inp
                                                        audio_params());
 
         if (frame) {
-          return NodeValue(NodeParam::kSamples, QVariant::fromValue(frame));
+          return QVariant::fromValue(frame);
         }
       }
     }
   }
 
-  return NodeValue();
+  return QVariant();
 }
 
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
@@ -364,6 +380,54 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
   }
 
   return decoder;
+}
+
+QVariant RenderWorker::ProcessFootage(StreamPtr stream, const TimeRange &input_time)
+{
+  if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+
+    ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+    rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time.in();
+    QString colorspace_match = video_stream->get_colorspace_match_string();
+
+    QVariant value;
+    bool found_cache = false;
+
+    if (still_image_cache_.contains(stream.get())) {
+      const CachedStill& cs = still_image_cache_[stream.get()];
+
+      if (cs.colorspace == colorspace_match
+          && cs.alpha_is_associated == video_stream->premultiplied_alpha()
+          && cs.divider == video_params_.divider()
+          && cs.time == time_match) {
+        value = cs.texture;
+        found_cache = true;
+      } else {
+        still_image_cache_.remove(stream.get());
+      }
+    }
+
+    if (!found_cache) {
+
+      value = GetDataFromStream(stream, input_time);
+
+      still_image_cache_.insert(stream.get(), {value,
+                                               colorspace_match,
+                                               video_stream->premultiplied_alpha(),
+                                               video_params_.divider(),
+                                               time_match});
+
+    }
+
+    return value;
+
+  } else if (stream->type() == Stream::kAudio) {
+
+    return GetDataFromStream(stream, input_time);
+
+  }
+
+  return QVariant();
 }
 
 OLIVE_NAMESPACE_EXIT

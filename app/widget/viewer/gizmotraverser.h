@@ -31,7 +31,7 @@ public:
   GizmoTraverser() = default;
 
 protected:
-  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params) override;
 
 };
 

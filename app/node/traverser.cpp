@@ -40,24 +40,13 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     NodeValueTable table = ProcessInput(input, input_time);
 
-    // Exception for Footage types where we actually retrieve some Footage data from a decoder
-    if (input->data_type() == NodeParam::kFootage) {
-      StreamPtr stream = ResolveStreamFromInput(input);
-
-      if (stream) {
-
-        FootageProcessingEvent(stream, input_time, &table);
-
-      }
-    }
-
     database.Insert(input, table);
   }
 
   // Insert global variables
   NodeValueTable global;
-  global.Push(NodeParam::kFloat, range.in().toDouble(), QStringLiteral("time_in"));
-  global.Push(NodeParam::kFloat, range.out().toDouble(), QStringLiteral("time_out"));
+  global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
+  global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
   database.Insert(QStringLiteral("global"), global);
 
   return database;
@@ -65,7 +54,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
 NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& range)
 {
-  if (input->IsConnected()) {
+  if (input->is_connected()) {
     // Value will equal something from the connected node, follow it
     return GenerateTable(input->get_connected_node(), range);
   } else if (!input->IsArray()) {
@@ -73,7 +62,7 @@ NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& ra
     QVariant input_value = input->get_value_at_time(range.in());
 
     NodeValueTable table;
-    table.Push(input->data_type(), input_value);
+    table.Push(input->data_type(), input_value, input->parentNode());
     return table;
   }
 

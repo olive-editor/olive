@@ -88,17 +88,17 @@ int NodeParam::index()
   return parentNode()->IndexOfParameter(this);
 }
 
-bool NodeParam::IsConnected() const
+bool NodeParam::is_connected() const
 {
   return !edges_.isEmpty();
 }
 
-bool NodeParam::IsConnectable() const
+bool NodeParam::is_connectable() const
 {
   return connectable_;
 }
 
-void NodeParam::SetConnectable(bool connectable)
+void NodeParam::set_connectable(bool connectable)
 {
   connectable_ = connectable;
 }
@@ -117,7 +117,7 @@ void NodeParam::DisconnectAll()
 
 NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
-  if (!input->IsConnectable()) {
+  if (!input->is_connectable()) {
     return nullptr;
   }
 

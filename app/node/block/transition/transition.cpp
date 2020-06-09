@@ -139,11 +139,11 @@ void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
   hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
   hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
 
-  if (out_block_input_->IsConnected()) {
+  if (out_block_input_->is_connected()) {
     out_block_input_->get_connected_node()->Hash(hash, time);
   }
 
-  if (in_block_input_->IsConnected()) {
+  if (in_block_input_->is_connected()) {
     in_block_input_->get_connected_node()->Hash(hash, time);
   }
 }

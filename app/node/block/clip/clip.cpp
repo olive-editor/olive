@@ -113,7 +113,7 @@ void ClipBlock::Retranslate()
 
 void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  if (texture_input_->IsConnected()) {
+  if (texture_input_->is_connected()) {
     rational t = InputTimeAdjustment(texture_input_, TimeRange(time, time)).in();
 
     texture_input_->get_connected_node()->Hash(hash, t);

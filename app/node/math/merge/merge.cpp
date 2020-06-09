@@ -84,11 +84,11 @@ NodeInput *MergeNode::blend_in() const
 
 void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  if (base_in_->IsConnected()) {
+  if (base_in_->is_connected()) {
     base_in_->get_connected_node()->Hash(hash, time);
   }
 
-  if (blend_in_->IsConnected()) {
+  if (blend_in_->is_connected()) {
     blend_in_->get_connected_node()->Hash(hash, time);
   }
 }

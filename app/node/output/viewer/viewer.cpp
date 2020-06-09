@@ -181,14 +181,14 @@ void ViewerOutput::VerifyLength()
 
   rational video_length;
 
-  if (texture_input_->IsConnected()) {
+  if (texture_input_->is_connected()) {
     NodeValueTable t = traverser.GenerateTable(texture_input_->get_connected_node(), 0, 0);
     video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
   rational audio_length;
 
-  if (samples_input_->IsConnected()) {
+  if (samples_input_->is_connected()) {
     NodeValueTable t = traverser.GenerateTable(samples_input_->get_connected_node(), 0, 0);
     audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }

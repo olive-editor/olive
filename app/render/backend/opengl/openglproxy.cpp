@@ -67,7 +67,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoParams& params, const RenderMode::Mode& mode)
+QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoParams& params, const RenderMode::Mode& mode)
 {
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
@@ -167,12 +167,12 @@ NodeValue OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Vide
     footage_tex_ref = associated_tex_ref;
   }
 
-  return NodeValue(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));
+  return QVariant::fromValue(footage_tex_ref);
 }
 
-NodeValue OpenGLProxy::PreCachedFrameToValue(FramePtr frame)
+QVariant OpenGLProxy::PreCachedFrameToValue(FramePtr frame)
 {
-  return NodeValue(NodeParam::kTexture, QVariant::fromValue(texture_cache_.Get(ctx_, frame)));
+  return QVariant::fromValue(texture_cache_.Get(ctx_, frame));
 }
 
 void OpenGLProxy::Close()
@@ -185,10 +185,9 @@ void OpenGLProxy::Close()
   ctx_ = nullptr;
 }
 
-void OpenGLProxy::RunNodeAccelerated(const Node *node,
+QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
                                      const TimeRange &range,
                                      NodeValueDatabase &input_params,
-                                     NodeValueTable &output_params,
                                      const VideoParams& params)
 {
   OpenGLShaderPtr shader = shader_cache_.value(node->ShaderID(input_params));
@@ -426,7 +425,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node,
 
   shader->release();
 
-  output_params.Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
+  return QVariant::fromValue(output_tex);
 }
 
 void OpenGLProxy::TextureToBuffer(const QVariant& tex_in,
