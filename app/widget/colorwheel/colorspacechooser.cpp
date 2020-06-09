@@ -52,7 +52,7 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
     input_combobox_ = new QComboBox();
     layout->addWidget(input_combobox_, row, 1);
 
-    QStringList input_spaces = color_manager->ListAvailableInputColorspaces();
+    QStringList input_spaces = color_manager->ListAvailableColorspaces();
 
     foreach (const QString& s, input_spaces) {
       input_combobox_->addItem(s);

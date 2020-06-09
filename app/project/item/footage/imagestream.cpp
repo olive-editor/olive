@@ -132,7 +132,7 @@ void ImageStream::ColorConfigChanged()
 
   // Check if this colorspace is in the new config
   if (!colorspace_.isEmpty()) {
-    QStringList colorspaces = color_manager->ListAvailableInputColorspaces();
+    QStringList colorspaces = color_manager->ListAvailableColorspaces();
     if (!colorspaces.contains(colorspace_)) {
       // Set to empty if not
       colorspace_.clear();
