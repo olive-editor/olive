@@ -64,9 +64,9 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
     }
 
     if (reader->name() == QStringLiteral("video")) {
-      int video_width, video_height, preview_div;
+      int video_width = 0, video_height = 0, preview_div = 0;
       rational video_timebase;
-      PixelFormat::Format preview_format;
+      PixelFormat::Format preview_format = PixelFormat::PIX_FMT_INVALID;
 
       while (XMLReadNextStartElement(reader)) {
         if (cancelled && *cancelled) {
@@ -90,9 +90,9 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
 
       set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format, preview_div));
     } else if (reader->name() == QStringLiteral("audio")) {
-      int rate;
-      uint64_t layout;
-      SampleFormat::Format format;
+      int rate = 0;
+      uint64_t layout = 0;
+      SampleFormat::Format format = SampleFormat::SAMPLE_FMT_INVALID;
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("rate")) {
