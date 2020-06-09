@@ -844,6 +844,7 @@ BlockTrimCommand::BlockTrimCommand(TrackOutput* track, Block *block, rational ne
   mode_(mode),
   adjacent_(nullptr),
   we_created_adjacent_(false),
+  we_deleted_adjacent_(false),
   allow_nongap_trimming_(false)
 {
 }
@@ -907,10 +908,17 @@ void BlockTrimCommand::redo_internal()
     if (adjacent_) {
       // If trimming LONGER, we'll need to trim the adjacent
       // (assume if there's no adjacent, we're at the end of the timeline and do nothing)
-      if (mode_ == Timeline::kTrimIn) {
-        adjacent_->set_length_and_media_out(adjacent_->length() + trim_diff);
+      rational adjacent_length = adjacent_->length() + trim_diff;
+
+      if (adjacent_length.isNull()) {
+        // Ripple remove block
+        track_->RippleRemoveBlock(adjacent_);
+        TakeNodeFromParentGraph(adjacent_, &memory_manager_);
+        we_deleted_adjacent_ = true;
+      } else if (mode_ == Timeline::kTrimIn) {
+        adjacent_->set_length_and_media_out(adjacent_length);
       } else {
-        adjacent_->set_length_and_media_in(adjacent_->length() + trim_diff);
+        adjacent_->set_length_and_media_in(adjacent_length);
       }
     }
   }
@@ -943,8 +951,20 @@ void BlockTrimCommand::undo_internal()
     if (adjacent_) {
       // If trimmed LONGER, we adjusted an existing block
       // (assume if there's no adjacent, we're at the end of the timeline and do nothing)
-      if (mode_ == Timeline::kTrimIn) {
+      if (we_deleted_adjacent_) {
+        static_cast<NodeGraph*>(track_->parent())->AddNode(adjacent_);
+
+        if (mode_ == Timeline::kTrimIn) {
+          track_->InsertBlockBefore(adjacent_, block_);
+        } else {
+          track_->InsertBlockAfter(adjacent_, block_);
+        }
+
+        we_deleted_adjacent_ = false;
+      } else if (mode_ == Timeline::kTrimIn) {
         adjacent_->set_length_and_media_out(adjacent_->length() - trim_diff);
+      } else {
+        adjacent_->set_length_and_media_in(adjacent_->length() - trim_diff);
       }
     }
   }

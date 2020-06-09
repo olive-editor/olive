@@ -88,8 +88,11 @@ private:
 
   Block* adjacent_;
   bool we_created_adjacent_;
+  bool we_deleted_adjacent_;
 
   bool allow_nongap_trimming_;
+
+  QObject memory_manager_;
 
 };
 
