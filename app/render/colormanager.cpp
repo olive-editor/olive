@@ -210,9 +210,9 @@ QStringList ColorManager::ListAvailableLooks()
   return looks;
 }
 
-QStringList ColorManager::ListAvailableInputColorspaces()
+QStringList ColorManager::ListAvailableColorspaces()
 {
-  return ListAvailableInputColorspaces(config_);
+  return ListAvailableColorspaces(config_);
 }
 
 const QString &ColorManager::GetDefaultInputColorSpace() const
@@ -243,7 +243,7 @@ void ColorManager::SetReferenceColorSpace(const QString &s)
 
 QString ColorManager::GetCompliantColorSpace(const QString &s)
 {
-  if (ListAvailableInputColorspaces().contains(s)) {
+  if (ListAvailableColorspaces().contains(s)) {
     return s;
   } else {
     return GetDefaultInputColorSpace();
@@ -279,7 +279,7 @@ ColorTransform ColorManager::GetCompliantColorSpace(const ColorTransform &transf
 
     QString output = transform.output();
 
-    if (!ListAvailableInputColorspaces().contains(output)) {
+    if (!ListAvailableColorspaces().contains(output)) {
       output = GetDefaultInputColorSpace();
     }
 
@@ -288,7 +288,7 @@ ColorTransform ColorManager::GetCompliantColorSpace(const ColorTransform &transf
   }
 }
 
-QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)
+QStringList ColorManager::ListAvailableColorspaces(OCIO::ConstConfigRcPtr config)
 {
   QStringList spaces;
 
