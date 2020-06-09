@@ -335,6 +335,8 @@ void ProjectExplorer::ShowContextMenu()
       }
     }
 
+    Q_UNUSED(all_items_are_footage_or_sequence)
+
     if (context_menu_items_.size() == 1) {
       menu.addSeparator();
 
