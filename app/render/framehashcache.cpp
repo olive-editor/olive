@@ -134,19 +134,9 @@ QMap<rational, QByteArray> FrameHashCache::time_hash_map()
   return time_hash_map_;
 }
 
-QString FrameHashCache::GetFormatExtension(const PixelFormat::Format &f)
+QString FrameHashCache::GetFormatExtension()
 {
-  if (PixelFormat::FormatIsFloat(f)) {
-    // EXR is only fast with float buffers so we only use it for those
-    return QStringLiteral(".exr");
-  } else {
-    // FIXME: Will probably need different codec here. JPEG is the fastest and smallest by far (much
-    //        more so than TIFF or PNG) and we don't mind lossy for the offline cache, but JPEG
-    //        doesn't support >8-bit or alpha channels. JPEG2000 does, but my OIIO wasn't compiled
-    //        with it and I imagine it's not common in general. Still, this works well for now as a
-    //        prototype.
-    return QStringLiteral(".jpg");
-  }
+  return QStringLiteral(".exr");
 }
 
 QList<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
@@ -192,7 +182,7 @@ void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
                                     const VideoParams& vparam)
 {
-  QString fn = CachePathName(hash, vparam.format());
+  QString fn = CachePathName(hash);
 
   if (SaveCacheFrame(fn, data, vparam)) {
     // Register frame with the disk manager
@@ -205,9 +195,9 @@ void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
   SaveCacheFrame(hash, frame->data(), frame->video_params());
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash, const PixelFormat::Format &format)
+FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash)
 {
-  return LoadCacheFrame(CachePathName(hash, format));
+  return LoadCacheFrame(CachePathName(hash));
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
@@ -317,9 +307,9 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   }
 }
 
-QString FrameHashCache::CachePathName(const QByteArray& hash, const PixelFormat::Format& pix_fmt)
+QString FrameHashCache::CachePathName(const QByteArray& hash)
 {
-  QString ext = GetFormatExtension(pix_fmt);
+  QString ext = GetFormatExtension();
 
   QDir cache_dir(QDir(FileFunctions::GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
   cache_dir.mkpath(".");
@@ -331,91 +321,45 @@ QString FrameHashCache::CachePathName(const QByteArray& hash, const PixelFormat:
 
 bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam)
 {
-  switch (vparam.format()) {
-  case PixelFormat::PIX_FMT_RGB8:
-  case PixelFormat::PIX_FMT_RGBA8:
-  case PixelFormat::PIX_FMT_RGB16U:
-  case PixelFormat::PIX_FMT_RGBA16U:
-  {
-    // Integer types are stored in JPEG which we run through OIIO
+  Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
 
-    std::string fn_std = filename.toStdString();
+  // Floating point types are stored in EXR
+  Imf::PixelType pix_type;
 
-    auto out = OIIO::ImageOutput::create(fn_std);
-
-    if (out) {
-      // Attempt to keep this write to one thread
-      out->threads(1);
-
-      out->open(fn_std, OIIO::ImageSpec(vparam.effective_width(),
-                                        vparam.effective_height(),
-                                        PixelFormat::ChannelCount(vparam.format()),
-                                        PixelFormat::GetOIIOTypeDesc(vparam.format())));
-
-      out->write_image(PixelFormat::GetOIIOTypeDesc(vparam.format()), data);
-
-      out->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageOutput::destroy(out);
-#endif
-
-      return true;
-    } else {
-      qCritical() << "Failed to write JPEG file:" << OIIO::geterror().c_str();
-      return false;
-    }
-  }
-  case PixelFormat::PIX_FMT_RGB16F:
-  case PixelFormat::PIX_FMT_RGBA16F:
-  case PixelFormat::PIX_FMT_RGB32F:
-  case PixelFormat::PIX_FMT_RGBA32F:
-  {
-    // Floating point types are stored in EXR
-    Imf::PixelType pix_type;
-
-    if (vparam.format() == PixelFormat::PIX_FMT_RGB16F
-        || vparam.format() == PixelFormat::PIX_FMT_RGBA16F) {
-      pix_type = Imf::HALF;
-    } else {
-      pix_type = Imf::FLOAT;
-    }
-
-    Imf::Header header(vparam.effective_width(),
-                       vparam.effective_height());
-    header.channels().insert("R", Imf::Channel(pix_type));
-    header.channels().insert("G", Imf::Channel(pix_type));
-    header.channels().insert("B", Imf::Channel(pix_type));
-    header.channels().insert("A", Imf::Channel(pix_type));
-
-    header.compression() = Imf::DWAA_COMPRESSION;
-    header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
-
-    Imf::OutputFile out(filename.toUtf8(), header, 0);
-
-    int bpc = PixelFormat::BytesPerChannel(vparam.format());
-
-    size_t xs = kRGBAChannels * bpc;
-    size_t ys = vparam.effective_width() * kRGBAChannels * bpc;
-
-    Imf::FrameBuffer framebuffer;
-    framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
-    framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
-    framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
-    framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
-    out.setFrameBuffer(framebuffer);
-
-    out.writePixels(vparam.effective_height());
-
-    return true;
-  }
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
-    qCritical() << "Unable to cache invalid pixel format" << vparam.format();
-    break;
+  if (vparam.format() == PixelFormat::PIX_FMT_RGB16F
+      || vparam.format() == PixelFormat::PIX_FMT_RGBA16F) {
+    pix_type = Imf::HALF;
+  } else {
+    pix_type = Imf::FLOAT;
   }
 
-  return false;
+  Imf::Header header(vparam.effective_width(),
+                     vparam.effective_height());
+  header.channels().insert("R", Imf::Channel(pix_type));
+  header.channels().insert("G", Imf::Channel(pix_type));
+  header.channels().insert("B", Imf::Channel(pix_type));
+  header.channels().insert("A", Imf::Channel(pix_type));
+
+  header.compression() = Imf::DWAA_COMPRESSION;
+  header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
+
+  Imf::OutputFile out(filename.toUtf8(), header, 0);
+
+  int bpc = PixelFormat::BytesPerChannel(vparam.format());
+
+  size_t xs = kRGBAChannels * bpc;
+  size_t ys = vparam.effective_width() * kRGBAChannels * bpc;
+
+  Imf::FrameBuffer framebuffer;
+  framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
+  framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
+  framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
+  framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+  out.setFrameBuffer(framebuffer);
+
+  out.writePixels(vparam.effective_height());
+
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

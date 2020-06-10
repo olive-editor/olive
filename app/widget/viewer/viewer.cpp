@@ -582,9 +582,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
     QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
 
     if (!hash.isEmpty()) {
-      return GetConnectedNode()->video_frame_cache()->CachePathName(
-            hash,
-            GetCurrentPixelFormat());
+      return GetConnectedNode()->video_frame_cache()->CachePathName(hash);
     }
   }
 
@@ -638,8 +636,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
     return renderer_->RenderFrame(t);
   } else {
     // Frame has been cached, grab the frame
-    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash,
-                                                                              GetCurrentPixelFormat());
+    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
 
     RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo, TimeRange(t, t));
     QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);

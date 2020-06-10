@@ -120,7 +120,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
           hash_exists = existing_hashes.contains(hash);
 
           if (!hash_exists) {
-            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash, video_params_.format()));
+            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash));
 
             if (hash_exists) {
               existing_hashes.append(hash);

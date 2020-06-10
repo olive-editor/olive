@@ -58,15 +58,15 @@ public:
   /**
    * @brief Return the path of the cached image at this time
    */
-  static QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt);
+  static QString CachePathName(const QByteArray &hash);
 
   static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam);
   static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam);
   static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
-  static FramePtr LoadCacheFrame(const QByteArray& hash, const PixelFormat::Format& format);
+  static FramePtr LoadCacheFrame(const QByteArray& hash);
   static FramePtr LoadCacheFrame(const QString& fn);
 
-  static QString GetFormatExtension(const PixelFormat::Format& f);
+  static QString GetFormatExtension();
 
   static QList<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QList<rational> GetFrameListFromTimeRange(const TimeRangeList &range);

@@ -1112,7 +1112,7 @@ QString FFmpegDecoder::GetProxyFrameFilename(const int64_t &timestamp, const int
 {
   QString dst_fn = GetProxyFilename(divider);
   dst_fn.append(QString::number(timestamp));
-  dst_fn.append(FrameHashCache::GetFormatExtension(native_pix_fmt_));
+  dst_fn.append(FrameHashCache::GetFormatExtension());
   return dst_fn;
 }
 

@@ -233,10 +233,10 @@ void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, No
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     QByteArray hash = RenderBackend::HashNode(node, video_params(), range.in());
 
-    QString fn = FrameHashCache::CachePathName(hash, video_params_.format());
+    QString fn = FrameHashCache::CachePathName(hash);
 
     if (QFileInfo::exists(fn)) {
-      FramePtr f = FrameHashCache::LoadCacheFrame(hash, video_params_.format());
+      FramePtr f = FrameHashCache::LoadCacheFrame(hash);
 
       QVariant cached = CachedFrameToTexture(f);
 
