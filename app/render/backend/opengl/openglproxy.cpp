@@ -449,7 +449,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       OpenGLRenderFunctions::PrepareToDraw(functions_);
     }
 
-    buffer_.Attach(output_tex->texture());
+    buffer_.Attach(output_tex->texture(), true);
     buffer_.Bind();
 
     // Blit this texture through this shader
