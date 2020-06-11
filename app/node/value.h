@@ -60,7 +60,7 @@ public:
   void Push(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
   void Prepend(const NodeValue& value);
   void Prepend(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
-  const NodeValue& At(int index) const;
+  const NodeValue& at(int index) const;
   NodeValue TakeAt(int index);
   int Count() const;
   bool Has(const NodeParam::DataType& type) const;
@@ -85,9 +85,6 @@ public:
   NodeValueTable& operator[](const QString& input_id);
   NodeValueTable& operator[](const NodeInput* input);
 
-  const NodeValueTable operator[](const QString& input_id) const;
-  const NodeValueTable operator[](const NodeInput* input) const;
-
   void Insert(const QString& key, const NodeValueTable &value);
   void Insert(const NodeInput* key, const NodeValueTable& value);
 
@@ -100,6 +97,7 @@ private:
 
 OLIVE_NAMESPACE_EXIT
 
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValue)
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueTable)
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueDatabase)
 

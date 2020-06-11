@@ -62,14 +62,37 @@ void MergeNode::Retranslate()
   blend_in_->set_name(tr("Blend"));
 }
 
-Node::Capabilities MergeNode::GetCapabilities(const NodeValueDatabase &) const
+ShaderCode MergeNode::GetShaderCode(const QByteArray &shader_id) const
 {
-  return kShader;
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(ReadFileAsString(":/shaders/alphaover.frag"), QString());
 }
 
-QString MergeNode::ShaderFragmentCode(const NodeValueDatabase &) const
+NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
 {
-  return ReadFileAsString(":/shaders/alphaover.frag");
+  ShaderJob job;
+  job.InsertValue(base_in_, value);
+  job.InsertValue(blend_in_, value);
+
+  // FIXME: Check if "blend" is RGB-only, in which case it's a no-op
+
+  NodeValueTable table = value.Merge();
+
+  if (!job.GetValue(base_in_).data().isNull() || !job.GetValue(blend_in_).data().isNull()) {
+    if (job.GetValue(base_in_).data().isNull()) {
+      // We only have a blend texture, no need to alpha over
+      table.Push(job.GetValue(blend_in_));
+    } else if (job.GetValue(blend_in_).data().isNull()) {
+      // We only have a base texture, no need to alpha over
+      table.Push(job.GetValue(base_in_));
+    } else {
+      // We have both textures, push the job
+      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+    }
+  }
+
+  return table;
 }
 
 NodeInput *MergeNode::base_in() const

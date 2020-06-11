@@ -120,9 +120,15 @@ protected:
 
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
 
-  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params) override;
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params) = 0;
+  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time) override;
+
+  virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
+
+  virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
+
+  virtual bool TextureHasAlpha(const QVariant& v) const = 0;
 
   const VideoParams& video_params() const
   {
@@ -148,13 +154,7 @@ signals:
   void WaveformGenerated(OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange start);
 
 private:
-  QVariant ProcessSamples(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in);
-
-  QVariant GetDataFromStream(StreamPtr stream, const TimeRange& input_time);
-
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
-
-  QVariant ProcessFootage(StreamPtr stream, const TimeRange &input_time);
 
   RenderBackend* parent_;
 

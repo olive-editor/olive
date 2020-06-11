@@ -47,8 +47,19 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
 
   QVariant texture = table.Get(NodeParam::kTexture);
 
+  PixelFormat::Format output_format;
+  if (!texture.isNull() && TextureHasAlpha(texture)) {
+    output_format = PixelFormat::GetFormatWithAlphaChannel(video_params_.format());
+  } else {
+    output_format = PixelFormat::GetFormatWithoutAlphaChannel(video_params_.format());
+  }
+
   FramePtr frame = Frame::Create();
-  frame->set_video_params(video_params_);
+  frame->set_video_params(VideoParams(video_params_.width(),
+                                      video_params_.height(),
+                                      video_params_.time_base(),
+                                      output_format,
+                                      video_params_.divider()));
   frame->set_timestamp(time);
   frame->allocate();
 
@@ -172,10 +183,11 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
   }
 }
 
-QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in)
+QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob& job)
 {
-  // Copy database so we can make some temporary modifications to it
-  NodeValueDatabase input_params = input_params_in;
+  // FIX THIS CODE:
+  return QVariant();
+  /*
   NodeInput* sample_input = node->ProcessesSamplesFrom(input_params);
 
   // Try to find the sample buffer in the table
@@ -225,134 +237,20 @@ QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, 
   }
 
   return QVariant::fromValue(output_buffer);
+  */
 }
 
-void RenderWorker::ProcessNodeEvent(const Node *node, const TimeRange &range, NodeValueDatabase &input_params_in, NodeValueTable &output_params)
+QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
-  // Convert footage to image/sample buffers
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    QByteArray hash = RenderBackend::HashNode(node, video_params(), range.in());
+    QByteArray hash = RenderBackend::HashNode(node, video_params(), time);
 
     QString fn = FrameHashCache::CachePathName(hash);
 
     if (QFileInfo::exists(fn)) {
       FramePtr f = FrameHashCache::LoadCacheFrame(hash);
 
-      QVariant cached = CachedFrameToTexture(f);
-
-      if (!cached.isNull()) {
-        output_params.Push(NodeParam::kTexture, cached, node);
-
-        // No more to do here
-        return;
-      }
-    }
-  }
-
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
-  foreach (NodeInput* input, inputs) {
-    if (input->data_type() == NodeParam::kFootage) {
-      TimeRange input_time = node->InputTimeAdjustment(input, range);
-
-      StreamPtr stream = ResolveStreamFromInput(input);
-
-      if (stream) {
-        QVariant v = ProcessFootage(stream, input_time);
-
-        if (!v.isNull()) {
-          if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
-            output_params.Push(NodeParam::kTexture, v, node);
-          } else if (stream->type() == Stream::kAudio) {
-            output_params.Push(NodeParam::kSamples, v, node);
-          }
-        }
-      }
-    }
-  }
-
-  // Check if node has a shader
-  if (node->GetCapabilities(input_params_in) & Node::kShader) {
-    QVariant v = ProcessShader(node, range, input_params_in);
-
-    if (!v.isNull()) {
-      output_params.Push(NodeParam::kTexture, v, node);
-    }
-  }
-
-  // Check if node processes samples
-  if (node->GetCapabilities(input_params_in) & Node::kSampleProcessor) {
-    QVariant v = ProcessSamples(node, range, input_params_in);
-
-    if (!v.isNull()) {
-      output_params.Push(NodeParam::kSamples, v, node);
-    }
-  }
-}
-
-QVariant RenderWorker::GetDataFromStream(StreamPtr stream, const TimeRange &input_time)
-{
-  DecoderPtr decoder = ResolveDecoderFromInput(stream);
-
-  if (decoder) {
-    if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
-
-      FramePtr frame = decoder->RetrieveVideo(input_time.in(),
-                                              video_params().divider());
-
-      if (frame) {
-        // Return a texture from the derived class
-        return FootageFrameToTexture(stream, frame);
-      }
-
-    } else if (stream->type() == Stream::kAudio) {
-
-      // See if we have a conformed version of this audio
-      if (!decoder->HasConformedVersion(audio_params())) {
-
-        // If not, check what audio mode we're in
-        if (audio_mode_is_preview_) {
-
-          // For preview, we report the conform is missing and finish the render without it
-          // temporarily. The backend that picks up this signal will recache this section once the
-          // conform is available.
-          emit AudioConformUnavailable(decoder->stream(),
-                                       audio_render_time_,
-                                       input_time.out(),
-                                       audio_params());
-
-        } else {
-
-          // For online rendering/export, it's a waste of time to render the audio until we have
-          // all we need, so we try to handle the conform ourselves
-          AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
-
-          // Check if any other threads are conforming this audio
-          if (as->try_start_conforming(audio_params())) {
-
-            // If not, conform it ourselves
-            decoder->ConformAudio(&IsCancelled(), audio_params());
-
-          } else {
-
-            // If another thread is conforming already, hackily try to wait until it's done.
-            do {
-              QThread::msleep(1000);
-            } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
-
-          }
-        }
-
-      }
-
-
-      if (decoder->HasConformedVersion(audio_params())) {
-        SampleBufferPtr frame = decoder->RetrieveAudio(input_time.in(), input_time.length(),
-                                                       audio_params());
-
-        if (frame) {
-          return QVariant::fromValue(frame);
-        }
-      }
+      return CachedFrameToTexture(f);
     }
   }
 
@@ -382,52 +280,117 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
   return decoder;
 }
 
-QVariant RenderWorker::ProcessFootage(StreamPtr stream, const TimeRange &input_time)
+QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  if (stream->type() == Stream::kVideo || stream->type() == Stream::kImage) {
+  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+  rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time;
+  QString colorspace_match = video_stream->get_colorspace_match_string();
 
-    ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
-    rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time.in();
-    QString colorspace_match = video_stream->get_colorspace_match_string();
+  QVariant value;
+  bool found_cache = false;
 
-    QVariant value;
-    bool found_cache = false;
+  if (still_image_cache_.contains(stream.get())) {
+    const CachedStill& cs = still_image_cache_[stream.get()];
 
-    if (still_image_cache_.contains(stream.get())) {
-      const CachedStill& cs = still_image_cache_[stream.get()];
+    if (cs.colorspace == colorspace_match
+        && cs.alpha_is_associated == video_stream->premultiplied_alpha()
+        && cs.divider == video_params_.divider()
+        && cs.time == time_match) {
+      value = cs.texture;
+      found_cache = true;
+    } else {
+      still_image_cache_.remove(stream.get());
+    }
+  }
 
-      if (cs.colorspace == colorspace_match
-          && cs.alpha_is_associated == video_stream->premultiplied_alpha()
-          && cs.divider == video_params_.divider()
-          && cs.time == time_match) {
-        value = cs.texture;
-        found_cache = true;
+  if (!found_cache) {
+
+    DecoderPtr decoder = ResolveDecoderFromInput(stream);
+
+    if (decoder) {
+      FramePtr frame = decoder->RetrieveVideo(input_time,
+                                              video_params().divider());
+
+      if (frame) {
+        // Return a texture from the derived class
+        value = FootageFrameToTexture(stream, frame);
+
+        if (value.isNull()) {
+          qDebug() << "Texture from derivative was blank";
+        } else {
+          // Put this into the image cache instead
+          still_image_cache_.insert(stream.get(), {value,
+                                                   colorspace_match,
+                                                   video_stream->premultiplied_alpha(),
+                                                   video_params_.divider(),
+                                                   time_match});
+        }
       } else {
-        still_image_cache_.remove(stream.get());
+        qDebug() << "Frame from decoder was blank";
       }
     }
 
-    if (!found_cache) {
+  }
 
-      value = GetDataFromStream(stream, input_time);
+  return value;
+}
 
-      still_image_cache_.insert(stream.get(), {value,
-                                               colorspace_match,
-                                               video_stream->premultiplied_alpha(),
-                                               video_params_.divider(),
-                                               time_match});
+QVariant RenderWorker::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)
+{
+  QVariant value;
+
+  DecoderPtr decoder = ResolveDecoderFromInput(stream);
+
+  if (decoder) {
+    // See if we have a conformed version of this audio
+    if (!decoder->HasConformedVersion(audio_params())) {
+
+      // If not, check what audio mode we're in
+      if (audio_mode_is_preview_) {
+
+        // For preview, we report the conform is missing and finish the render without it
+        // temporarily. The backend that picks up this signal will recache this section once the
+        // conform is available.
+        emit AudioConformUnavailable(decoder->stream(),
+                                     audio_render_time_,
+                                     input_time.out(),
+                                     audio_params());
+
+      } else {
+
+        // For online rendering/export, it's a waste of time to render the audio until we have
+        // all we need, so we try to handle the conform ourselves
+        AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
+
+        // Check if any other threads are conforming this audio
+        if (as->try_start_conforming(audio_params())) {
+
+          // If not, conform it ourselves
+          decoder->ConformAudio(&IsCancelled(), audio_params());
+
+        } else {
+
+          // If another thread is conforming already, hackily try to wait until it's done.
+          do {
+            QThread::msleep(1000);
+          } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
+
+        }
+      }
 
     }
 
-    return value;
+    if (decoder->HasConformedVersion(audio_params())) {
+      SampleBufferPtr frame = decoder->RetrieveAudio(input_time.in(), input_time.length(),
+                                                     audio_params());
 
-  } else if (stream->type() == Stream::kAudio) {
-
-    return GetDataFromStream(stream, input_time);
-
+      if (frame) {
+        value = QVariant::fromValue(frame);
+      }
+    }
   }
 
-  return QVariant();
+  return value;
 }
 
 OLIVE_NAMESPACE_EXIT

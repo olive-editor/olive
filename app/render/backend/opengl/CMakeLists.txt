@@ -28,7 +28,6 @@ set(OLIVE_SOURCES
   render/backend/opengl/openglrenderfunctions.cpp
   render/backend/opengl/openglshader.h
   render/backend/opengl/openglshader.cpp
-  render/backend/opengl/openglshadercache.h
   render/backend/opengl/opengltexture.h
   render/backend/opengl/opengltexture.cpp
   render/backend/opengl/opengltexturecache.h

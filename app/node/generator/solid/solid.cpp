@@ -63,14 +63,21 @@ void SolidGenerator::Retranslate()
   color_input_->set_name(tr("Color"));
 }
 
-Node::Capabilities SolidGenerator::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable SolidGenerator::Value(NodeValueDatabase &value) const
 {
-  return kShader;
+  ShaderJob job;
+  job.InsertValue(color_input_, value);
+
+  NodeValueTable table = value.Merge();
+  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  return table;
 }
 
-QString SolidGenerator::ShaderFragmentCode(const NodeValueDatabase &) const
+ShaderCode SolidGenerator::GetShaderCode(const QByteArray &shader_id) const
 {
-  return ReadFileAsString(":/shaders/solid.frag");
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(ReadFileAsString(":/shaders/solid.frag"), QString());
 }
 
 OLIVE_NAMESPACE_EXIT

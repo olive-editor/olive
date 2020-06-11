@@ -212,6 +212,8 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kString:
   case kBuffer:
   case kVector:
+  case kShaderJob:
+  case kSampleJob:
   case kAny:
     break;
   }

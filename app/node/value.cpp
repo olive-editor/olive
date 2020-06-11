@@ -32,16 +32,6 @@ NodeValueTable& NodeValueDatabase::operator[](const NodeInput *input)
   return tables_[input->id()];
 }
 
-const NodeValueTable NodeValueDatabase::operator[](const QString &input_id) const
-{
-  return tables_[input_id];
-}
-
-const NodeValueTable NodeValueDatabase::operator[](const NodeInput *input) const
-{
-  return tables_[input->id()];
-}
-
 void NodeValueDatabase::Insert(const QString &key, const NodeValueTable &value)
 {
   tables_.insert(key, value);
@@ -143,7 +133,7 @@ void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &da
   Prepend(NodeValue(type, data, from, tag));
 }
 
-const NodeValue &NodeValueTable::At(int index) const
+const NodeValue &NodeValueTable::at(int index) const
 {
   return values_.at(index);
 }
@@ -209,7 +199,7 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
 
     int row_index = t.Count() - 1 - row;
 
-    merged_table.Prepend(t.At(row_index));
+    merged_table.Prepend(t.at(row_index));
   }
 
   return merged_table;

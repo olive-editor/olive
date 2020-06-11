@@ -338,7 +338,9 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   header.channels().insert("R", Imf::Channel(pix_type));
   header.channels().insert("G", Imf::Channel(pix_type));
   header.channels().insert("B", Imf::Channel(pix_type));
-  header.channels().insert("A", Imf::Channel(pix_type));
+  if (PixelFormat::FormatHasAlphaChannel(vparam.format())) {
+    header.channels().insert("A", Imf::Channel(pix_type));
+  }
 
   header.compression() = Imf::DWAA_COMPRESSION;
   header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
@@ -347,14 +349,16 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   int bpc = PixelFormat::BytesPerChannel(vparam.format());
 
-  size_t xs = kRGBAChannels * bpc;
-  size_t ys = vparam.effective_width() * kRGBAChannels * bpc;
+  size_t xs = PixelFormat::ChannelCount(vparam.format()) * bpc;
+  size_t ys = vparam.effective_width() * PixelFormat::ChannelCount(vparam.format()) * bpc;
 
   Imf::FrameBuffer framebuffer;
   framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
   framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
   framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
-  framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+  if (PixelFormat::FormatHasAlphaChannel(vparam.format())) {
+    framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+  }
   out.setFrameBuffer(framebuffer);
 
   out.writePixels(vparam.effective_height());

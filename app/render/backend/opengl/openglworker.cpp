@@ -67,7 +67,7 @@ QVariant OpenGLWorker::CachedFrameToTexture(FramePtr frame) const
   return value;
 }
 
-QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params)
+QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   QVariant value;
 
@@ -77,10 +77,15 @@ QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, N
                             Q_RETURN_ARG(QVariant, value),
                             OLIVE_NS_CONST_ARG(Node*, node),
                             OLIVE_NS_CONST_ARG(TimeRange&, range),
-                            OLIVE_NS_ARG(NodeValueDatabase&, input_params),
+                            OLIVE_NS_CONST_ARG(ShaderJob&, job),
                             OLIVE_NS_CONST_ARG(VideoParams&, video_params()));
 
   return value;
+}
+
+bool OpenGLWorker::TextureHasAlpha(const QVariant &v) const
+{
+  return PixelFormat::FormatHasAlphaChannel(v.value<OpenGLTextureCache::ReferencePtr>()->texture()->format());
 }
 
 OLIVE_NAMESPACE_EXIT

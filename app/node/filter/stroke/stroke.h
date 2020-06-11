@@ -39,8 +39,8 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
+  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual ShaderCode GetShaderCode(const QByteArray &shader_id) const override;
 
 private:
   NodeInput* tex_input_;

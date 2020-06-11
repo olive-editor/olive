@@ -142,9 +142,16 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
                                  frame_params.divider());
     }
 
+    PixelFormat::Format texture_fmt;
+    if (PixelFormat::FormatHasAlphaChannel(frame_params.format())) {
+      texture_fmt = PixelFormat::GetFormatWithAlphaChannel(params.format());
+    } else {
+      texture_fmt = PixelFormat::GetFormatWithoutAlphaChannel(params.format());
+    }
+
     VideoParams dest_params(frame_params.width(),
                             frame_params.height(),
-                            params.format(),
+                            texture_fmt,
                             frame_params.divider());
 
     // Create destination texture
@@ -175,6 +182,47 @@ QVariant OpenGLProxy::PreCachedFrameToValue(FramePtr frame)
   return QVariant::fromValue(texture_cache_.Get(ctx_, frame));
 }
 
+OpenGLShaderPtr OpenGLProxy::ResolveShaderFromCache(const Node *node, const QByteArray &shader_id)
+{
+  // Make a composite of the node ID and the shader ID (if applicable)
+  QByteArray id = node->id().toUtf8();
+  id.append(shader_id);
+  OpenGLShaderPtr shader = shader_cache_.value(id);
+
+  if (!shader) {
+    // Since we have shader code, compile it now
+    ShaderCode code = node->GetShaderCode(shader_id);
+    QString vert_code = code.vert_code();
+    QString frag_code = code.frag_code();
+
+    if (frag_code.isEmpty() && vert_code.isEmpty()) {
+      qWarning() << "No shader code found for" << node->id() << "- operation will be a no-op";
+    }
+
+    if (frag_code.isEmpty()) {
+      frag_code = OpenGLShader::CodeDefaultFragment();
+    }
+
+    if (vert_code.isEmpty()) {
+      vert_code = OpenGLShader::CodeDefaultVertex();
+    }
+
+    shader = OpenGLShader::Create();
+    if (shader
+        && shader->create()
+        && shader->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code)
+        && shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code)
+        && shader->link()) {
+      shader_cache_.insert(shader_id, shader);
+    } else {
+      qWarning() << "Failed to compile shader for" << node->id();
+      shader = nullptr;
+    }
+  }
+
+  return shader;
+}
+
 void OpenGLProxy::Close()
 {
   shader_cache_.clear();
@@ -186,184 +234,144 @@ void OpenGLProxy::Close()
 }
 
 QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
-                                     const TimeRange &range,
-                                     NodeValueDatabase &input_params,
-                                     const VideoParams& params)
+                                         const TimeRange &range,
+                                         const ShaderJob &job,
+                                         const VideoParams& params)
 {
-  OpenGLShaderPtr shader = shader_cache_.value(node->ShaderID(input_params));
+  // If this node is iterative, we'll pick up which input here
+  GLuint iterative_input = 0;
+  QList<GLuint> textures_to_bind;
+  bool input_textures_have_alpha = false;
+
+  OpenGLShaderPtr shader = ResolveShaderFromCache(node, job.GetShaderID());
 
   if (!shader) {
-    // Since we have shader code, compile it now
-
-    QString vert_code = node->ShaderVertexCode(input_params);
-    QString frag_code = node->ShaderFragmentCode(input_params);
-
-    if (frag_code.isEmpty()) {
-      frag_code = OpenGLShader::CodeDefaultFragment();
-    }
-
-    if (vert_code.isEmpty()) {
-      vert_code = OpenGLShader::CodeDefaultVertex();
-    }
-
-    shader = OpenGLShader::Create();
-    shader->create();
-    shader->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code);
-    shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code);
-    shader->link();
-
-    shader_cache_.insert(node->id(), shader);
+    return QVariant();
   }
 
-  // Create the output textures
-  QList<OpenGLTextureCache::ReferencePtr> dst_refs;
-  dst_refs.append(texture_cache_.Get(ctx_, params));
-  GLuint iterative_input = 0;
-
-  // If this node requires multiple iterations, get a texture for it too
-  if (node->ShaderIterations() > 1 && node->ShaderIterativeInput()) {
-    dst_refs.append(texture_cache_.Get(ctx_, params));
-  }
-
-  // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
   shader->bind();
 
-  unsigned int input_texture_count = 0;
+  NodeValueMap::const_iterator i;
+  for (i=job.GetValues().constBegin(); i!=job.GetValues().constEnd(); i++) {
+    // See if the shader has takes this parameter as an input
+    int variable_location = shader->uniformLocation(i.key()->id());
 
-  foreach (NodeParam* param, node->parameters()) {
-    if (param->type() == NodeParam::kInput) {
-      // See if the shader has takes this parameter as an input
-      int variable_location = shader->uniformLocation(param->id());
+    if (variable_location == -1) {
+      continue;
+    }
 
-      if (variable_location > -1) {
-        // This variable is used in the shader, let's set it to our value
+    // This variable is used in the shader, let's set it
+    const QVariant& value = i.value().data();
 
-        NodeInput* input = static_cast<NodeInput*>(param);
+    const NodeParam::DataType& data_type = (i.value().type() != NodeParam::kNone)
+        ? i.value().type()
+        : i.key()->data_type();
 
-        // Get value from database at this input
-        NodeValue meta_value = node->InputValueFromTable(input, input_params, false);
-        const QVariant& value = meta_value.data();
+    switch (data_type) {
+    case NodeInput::kInt:
+      shader->setUniformValue(variable_location, value.toInt());
+      break;
+    case NodeInput::kFloat:
+      shader->setUniformValue(variable_location, value.toFloat());
+      break;
+    case NodeInput::kVec2:
+      if (i.key()->IsArray()) {
+        QVector<NodeValue> nv = value.value< QVector<NodeValue> >();
+        QVector<QVector2D> a(nv.size());
 
-        NodeParam::DataType data_type;
-
-        if (meta_value.type() != NodeParam::kNone) {
-          // Use value's data type
-          data_type = meta_value.type();
-        } else {
-          // Fallback on null value, send the null to the parameter
-          data_type = input->data_type();
+        for (int j=0;j<a.size();j++) {
+          a[j] = nv.at(j).data().value<QVector2D>();
         }
 
-        switch (data_type) {
-        case NodeInput::kInt:
-          shader->setUniformValue(variable_location, value.toInt());
-          break;
-        case NodeInput::kFloat:
-          shader->setUniformValue(variable_location, value.toFloat());
-          break;
-        case NodeInput::kVec2:
-          if (input->IsArray()) {
-            NodeInputArray* array = static_cast<NodeInputArray*>(input);
-            QVector<QVector2D> a(array->GetSize());
+        shader->setUniformValueArray(variable_location, a.constData(), a.size());
 
-            for (int i=0;i<a.size();i++) {
-              a[i] = input_params[array->At(i)].Get(NodeParam::kVec2).value<QVector2D>();
-            }
-
-            shader->setUniformValueArray(variable_location, a.constData(), a.size());
-
-            int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(input->id()));
-            if (count_location > -1) {
-              shader->setUniformValue(count_location,
-                                      array->GetSize());
-            }
-
-          } else {
-            shader->setUniformValue(variable_location, value.value<QVector2D>());
-          }
-          break;
-        case NodeInput::kVec3:
-          shader->setUniformValue(variable_location, value.value<QVector3D>());
-          break;
-        case NodeInput::kVec4:
-          shader->setUniformValue(variable_location, value.value<QVector4D>());
-          break;
-        case NodeInput::kMatrix:
-          shader->setUniformValue(variable_location, value.value<QMatrix4x4>());
-          break;
-        case NodeInput::kCombo:
-          shader->setUniformValue(variable_location, value.value<int>());
-          break;
-        case NodeInput::kColor:
-        {
-          Color color = value.value<Color>();
-
-          shader->setUniformValue(variable_location, color.red(), color.green(), color.blue(), color.alpha());
-          break;
+        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(i.key()->id()));
+        if (count_location > -1) {
+          shader->setUniformValue(count_location, a.size());
         }
-        case NodeInput::kBoolean:
-          shader->setUniformValue(variable_location, value.toBool());
-          break;
-        case NodeInput::kFootage:
-        case NodeInput::kTexture:
-        case NodeInput::kBuffer:
-        {
-          OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
+      } else {
+        shader->setUniformValue(variable_location, value.value<QVector2D>());
+      }
+      break;
+    case NodeInput::kVec3:
+      shader->setUniformValue(variable_location, value.value<QVector3D>());
+      break;
+    case NodeInput::kVec4:
+      shader->setUniformValue(variable_location, value.value<QVector4D>());
+      break;
+    case NodeInput::kMatrix:
+      shader->setUniformValue(variable_location, value.value<QMatrix4x4>());
+      break;
+    case NodeInput::kCombo:
+      shader->setUniformValue(variable_location, value.value<int>());
+      break;
+    case NodeInput::kColor:
+    {
+      Color color = value.value<Color>();
 
-          functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
+      shader->setUniformValue(variable_location, color.red(), color.green(), color.blue(), color.alpha());
+      break;
+    }
+    case NodeInput::kBoolean:
+      shader->setUniformValue(variable_location, value.toBool());
+      break;
+    case NodeInput::kTexture:
+    {
+      OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
 
-          GLuint tex_id = texture ? texture->texture()->texture() : 0;
-          functions_->glBindTexture(GL_TEXTURE_2D, tex_id);
-
-          // Set value to bound texture
-          shader->setUniformValue(variable_location, input_texture_count);
-
-          // Set enable flag if shader wants it
-          int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(input->id()));
-          if (enable_param_location > -1) {
-            shader->setUniformValue(enable_param_location,
-                                    tex_id > 0);
-          }
-
-          if (tex_id > 0) {
-            // Set texture resolution if shader wants it
-            int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
-            if (res_param_location > -1) {
-              shader->setUniformValue(res_param_location,
-                                      static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
-                                      static_cast<GLfloat>(texture->texture()->height() * texture->texture()->divider()));
-            }
-          }
-
-          // If this texture binding is the iterative input, set it here
-          if (input == node->ShaderIterativeInput()) {
-            iterative_input = input_texture_count;
-          }
-
-          OpenGLRenderFunctions::PrepareToDraw(functions_);
-
-          input_texture_count++;
-          break;
-        }
-        case NodeInput::kSamples:
-        case NodeInput::kText:
-        case NodeInput::kRational:
-        case NodeInput::kFont:
-        case NodeInput::kFile:
-        case NodeInput::kDecimal:
-        case NodeInput::kNumber:
-        case NodeInput::kString:
-        case NodeInput::kVector:
-        case NodeInput::kNone:
-        case NodeInput::kAny:
-          break;
+      if (texture) {
+        if (PixelFormat::FormatHasAlphaChannel(texture->texture()->format())) {
+          input_textures_have_alpha = true;
         }
       }
+
+      // Set value to bound texture
+      shader->setUniformValue(variable_location, textures_to_bind.size());
+
+      // If this texture binding is the iterative input, set it here
+      if (i.key() == job.GetIterativeInput()) {
+        iterative_input = textures_to_bind.size();
+      }
+
+      GLuint tex_id = texture ? texture->texture()->texture() : 0;
+      textures_to_bind.append(tex_id);
+
+      // Set enable flag if shader wants it
+      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(i.key()->id()));
+      if (enable_param_location > -1) {
+        shader->setUniformValue(enable_param_location,
+                                tex_id > 0);
+      }
+
+      if (tex_id > 0) {
+        // Set texture resolution if shader wants it
+        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(i.key()->id()));
+        if (res_param_location > -1) {
+          shader->setUniformValue(res_param_location,
+                                  static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
+                                  static_cast<GLfloat>(texture->texture()->height() * texture->texture()->divider()));
+        }
+      }
+      break;
+    }
+    case NodeInput::kSamples:
+    case NodeInput::kText:
+    case NodeInput::kRational:
+    case NodeInput::kFont:
+    case NodeInput::kFile:
+    case NodeInput::kDecimal:
+    case NodeInput::kNumber:
+    case NodeInput::kString:
+    case NodeInput::kVector:
+    case NodeInput::kShaderJob:
+    case NodeInput::kSampleJob:
+    case NodeInput::kFootage:
+    case NodeInput::kBuffer:
+    case NodeInput::kNone:
+    case NodeInput::kAny:
+      break;
     }
   }
-
-  // Set up OpenGL parameters as necessary
-  functions_->glViewport(0, 0, params.effective_width(), params.effective_height());
 
   // Provide some standard args
   shader->setUniformValue("ove_resolution",
@@ -383,25 +391,65 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     shader->setUniformValue("ove_tprog_in", static_cast<GLfloat>(transition_node->GetInProgress(range.in())));
   }
 
+  shader->release();
+
+  // Create the output textures
+  PixelFormat::Format output_format = (input_textures_have_alpha || job.GetAlphaChannelRequired())
+      ? PixelFormat::GetFormatWithAlphaChannel(params.format())
+      : PixelFormat::GetFormatWithoutAlphaChannel(params.format());
+  VideoParams output_params(params.width(),
+                            params.height(),
+                            params.time_base(),
+                            output_format,
+                            params.divider());
+
+  int real_iteration_count;
+  if (job.GetIterationCount() > 1 && job.GetIterativeInput()) {
+    real_iteration_count = job.GetIterationCount();
+  } else {
+    real_iteration_count = 1;
+  }
+
+  OpenGLTextureCache::ReferencePtr dst_refs[2];
+  dst_refs[0] = texture_cache_.Get(ctx_, output_params);
+
+  // If this node requires multiple iterations, get a texture for it too
+  if (real_iteration_count > 1) {
+    dst_refs[1] = texture_cache_.Get(ctx_, output_params);
+  }
+
   // Some nodes use multiple iterations for optimization
-  OpenGLTextureCache::ReferencePtr output_tex;
+  OpenGLTextureCache::ReferencePtr input_tex, output_tex;
 
-  for (int iteration=0;iteration<node->ShaderIterations();iteration++) {
-    // If this is not the first iteration, set the parameter that will receive the last iteration's texture
-    OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
-    OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());
+  // Set up OpenGL parameters as necessary
+  functions_->glViewport(0, 0, params.effective_width(), params.effective_height());
 
+  // Bind all textures
+  for (int i=0; i<textures_to_bind.size(); i++) {
+    functions_->glActiveTexture(GL_TEXTURE0 + i);
+    functions_->glBindTexture(GL_TEXTURE_2D, textures_to_bind.at(i));
+    OpenGLRenderFunctions::PrepareToDraw(functions_);
+  }
+
+  for (int iteration=0; iteration<real_iteration_count; iteration++) {
     // Set iteration number
     shader->bind();
     shader->setUniformValue("ove_iteration", iteration);
     shader->release();
 
-    if (iteration > 0) {
+    // Replace iterative input
+    if (iteration == 0) {
+      output_tex = dst_refs[0];
+    } else {
+      input_tex = dst_refs[(iteration+1)%2];
+      output_tex = dst_refs[iteration%2];
+
       functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
-      functions_->glBindTexture(GL_TEXTURE_2D, source_tex->texture()->texture());
+      functions_->glBindTexture(GL_TEXTURE_2D, input_tex->texture()->texture());
+      OpenGLRenderFunctions::PrepareToDraw(functions_);
     }
 
-    buffer_.Attach(destination_tex->texture(), true);
+    buffer_.Attach(output_tex->texture());
     buffer_.Bind();
 
     // Blit this texture through this shader
@@ -409,21 +457,13 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
     buffer_.Release();
     buffer_.Detach();
-
-    // Update output reference to the last texture we wrote to
-    output_tex = destination_tex;
   }
 
   // Release any textures we bound before
-  while (input_texture_count > 0) {
-    input_texture_count--;
-
-    // Release texture here
-    functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
+  for (int i=textures_to_bind.size()-1; i>=0; i--) {
+    functions_->glActiveTexture(GL_TEXTURE0 + i);
     functions_->glBindTexture(GL_TEXTURE_2D, 0);
   }
-
-  shader->release();
 
   return QVariant::fromValue(output_tex);
 }

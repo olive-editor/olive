@@ -39,17 +39,23 @@ public:
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
-  static StreamPtr ResolveStreamFromInput(NodeInput* input);
-
 protected:
   NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
 
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
 
-  virtual void ProcessNodeEvent(const Node*,
-                                const TimeRange&,
-                                NodeValueDatabase&,
-                                NodeValueTable&) {}
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+
+  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time);
+
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+
+  virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
+
+  virtual QVariant GetCachedFrame(const Node *node, const rational &time);
+
+private:
+  void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
 
 };
 

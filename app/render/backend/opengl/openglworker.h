@@ -38,7 +38,9 @@ protected:
 
   virtual QVariant CachedFrameToTexture(FramePtr frame) const override;
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, NodeValueDatabase &input_params) override;
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
+
+  virtual bool TextureHasAlpha(const QVariant& v) const override;
 
 private:
   OpenGLProxy* proxy_;

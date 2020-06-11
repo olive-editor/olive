@@ -179,6 +179,24 @@ public:
     kCombo = 0x8000,
 
     /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated shader job needs to
+     * run. This value will usually be taken from a table and a kTexture value will be pushed to
+     * take its place.
+     */
+    kShaderJob = 0x10000,
+
+    /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated sample job needs to
+     * take place. This value will usually be taken from a table and a kSamples value will be
+     * pushed to take its place.
+     */
+    kSampleJob = 0x20000,
+
+    /**
      ****************************** BROAD IDENTIFIERS ******************************
      */
 

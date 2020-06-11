@@ -39,17 +39,10 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual QString ShaderID(const NodeValueDatabase&) const override;
-  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
-  virtual QString ShaderVertexCode(const NodeValueDatabase&input) const override;
-
-  virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const override;
-
+  virtual ShaderCode GetShaderCode(const QByteArray &shader_id) const override;
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
-  virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const override;
-  virtual void ProcessSamples(const NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual void ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   NodeInput* param_a_in() const;
   NodeInput* param_b_in() const;
@@ -133,6 +126,8 @@ private:
   static QVector4D RetrieveVector(const NodeValue& val);
 
   static float RetrieveNumber(const NodeValue& val);
+
+  static bool NumberIsNoOp(const Operation& op, const float& number);
 
   void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec) const;
 

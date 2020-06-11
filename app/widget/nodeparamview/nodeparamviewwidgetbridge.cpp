@@ -88,6 +88,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeParam::kString:
     case NodeParam::kBuffer:
     case NodeParam::kVector:
+    case NodeParam::kShaderJob:
+    case NodeParam::kSampleJob:
       break;
     case NodeParam::kInt:
     {
@@ -262,6 +264,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kString:
   case NodeParam::kVector:
   case NodeParam::kBuffer:
+  case NodeParam::kShaderJob:
+  case NodeParam::kSampleJob:
     break;
   case NodeParam::kInt:
   {
@@ -392,6 +396,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kNumber:
   case NodeParam::kString:
   case NodeParam::kBuffer:
+  case NodeParam::kShaderJob:
+  case NodeParam::kSampleJob:
   case NodeParam::kVector:
     break;
   case NodeParam::kInt:

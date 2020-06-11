@@ -38,9 +38,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     TimeRange input_time = node->InputTimeAdjustment(input, range);
 
-    NodeValueTable table = ProcessInput(input, input_time);
-
-    database.Insert(input, table);
+    database.Insert(input, ProcessInput(input, input_time));
   }
 
   // Insert global variables
@@ -84,7 +82,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
   // By this point, the node should have all the inputs it needs to render correctly
   NodeValueTable table = n->Value(database);
 
-  ProcessNodeEvent(n, range, database, table);
+  PostProcessTable(n, range, table);
 
   return table;
 }
@@ -108,9 +106,130 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const
   return table;
 }
 
-StreamPtr NodeTraverser::ResolveStreamFromInput(NodeInput *input)
+QVariant NodeTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  return input->get_standard_value().value<StreamPtr>();
+  Q_UNUSED(stream)
+  Q_UNUSED(input_time)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)
+{
+  Q_UNUSED(stream)
+  Q_UNUSED(input_time)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(time)
+
+  return QVariant();
+}
+
+void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params)
+{
+  bool got_cached_frame = false;
+
+  // Convert footage to image/sample buffers
+  QVariant cached_frame = GetCachedFrame(node, range.in());
+  if (!cached_frame.isNull()) {
+    output_params.Push(NodeParam::kTexture, cached_frame, node);
+
+    // No more to do here
+    got_cached_frame = true;
+  }
+
+  // Strip out any jobs or footage
+  QList<NodeValue> video_footage_to_retrieve;
+  QList<NodeValue> audio_footage_to_retrieve;
+  QList<NodeValue> shader_jobs_to_run;
+  QList<NodeValue> sample_jobs_to_run;
+
+  for (int i=output_params.Count()-1; i>=0; i--) {
+    const NodeValue& v = output_params.at(i);
+    QList<NodeValue>* take_this_value_list = nullptr;
+
+    if (v.type() == NodeParam::kFootage) {
+      StreamPtr s = v.data().value<StreamPtr>();
+
+      if (s) {
+        if (s->type() == Stream::kVideo
+            || s->type() == Stream::kImage) {
+          take_this_value_list = &video_footage_to_retrieve;
+        } else if (s->type() == Stream::kAudio) {
+          take_this_value_list = &audio_footage_to_retrieve;
+        }
+      }
+    } else if (v.type() == NodeParam::kShaderJob) {
+      take_this_value_list = &shader_jobs_to_run;
+    } else if (v.type() == NodeParam::kSampleJob) {
+      take_this_value_list = &sample_jobs_to_run;
+    }
+
+    if (take_this_value_list) {
+      take_this_value_list->append(output_params.TakeAt(i));
+    }
+  }
+
+  if (!got_cached_frame) {
+    // Retrieve video frames
+    foreach (const NodeValue& v, video_footage_to_retrieve) {
+      QVariant value = ProcessVideoFootage(v.data().value<StreamPtr>(), range.in());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+
+    // Run shaders
+    foreach (const NodeValue& v, shader_jobs_to_run) {
+      QVariant value = ProcessShader(node, range, v.data().value<ShaderJob>());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+  }
+
+  // Retrieve audio samples
+  foreach (const NodeValue& v, audio_footage_to_retrieve) {
+    QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+
+    if (!value.isNull()) {
+      output_params.Push(NodeParam::kSamples, value, node);
+    }
+  }
+
+  // Run any accelerated shader jobs
+  foreach (const NodeValue& v, sample_jobs_to_run) {
+    QVariant value = ProcessSamples(node, range, v.data().value<SampleJob>());
+
+    if (!value.isNull()) {
+      output_params.Push(NodeParam::kSamples, value, node);
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

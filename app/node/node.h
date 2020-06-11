@@ -35,6 +35,7 @@
 #include "node/output.h"
 #include "node/value.h"
 #include "render/audioparams.h"
+#include "render/shaderinfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -56,12 +57,6 @@ class Node : public QObject
 {
   Q_OBJECT
 public:
-  enum Capabilities {
-    kNormal = 0x0,
-    kShader = 0x1,
-    kSampleProcessor = 0x2
-  };
-
   enum CategoryID {
     kCategoryUnknown = -1,
 
@@ -177,46 +172,14 @@ public:
   QList<Node*> GetImmediateDependencies() const;
 
   /**
-   * @brief Return accelerated capabilities of this node (if any)
-   */
-  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const;
-
-  /**
-   * @brief Generate a unique identifier for the shader code (if a node can produce multiple)
-   */
-  virtual QString ShaderID(const NodeValueDatabase&) const;
-
-  /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString ShaderVertexCode(const NodeValueDatabase&) const;
-
-  /**
-   * @brief Generate hardware accelerated code for this Node
-   */
-  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const;
-
-  /**
-   * @brief Number of iterations to run the accelerated code
-   *
-   * Some code is faster if it's merely repeated on a resulting texture rather than run once on the same buffer.
-   */
-  virtual int ShaderIterations() const;
-
-  /**
-   * @brief Parameter that should receive the buffer on an iteration past the first
-   */
-  virtual NodeInput* ShaderIterativeInput() const;
-
-  /**
-   * @brief Return whether this node processes samples or not
-   */
-  virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const;
+  virtual ShaderCode GetShaderCode(const QByteArray& shader_id) const;
 
   /**
    * @brief If ProcessesSamples() is true, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
   /**
    * @brief Returns the input with the specified ID (or nullptr if it doesn't exist)
@@ -393,8 +356,6 @@ public:
 
   NodeOutput* output() const;
 
-  virtual NodeValue InputValueFromTable(NodeInput* input, NodeValueDatabase &db, bool take) const;
-
   const QPointF& GetPosition() const;
 
   void SetPosition(const QPointF& pos);
@@ -407,9 +368,9 @@ public:
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter* p, const QVector2D &scale, const QSize& viewport) const;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale, const QSize& viewport) const;
 
-  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF& p, const QVector2D &scale, const QSize& viewport);
+  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p, const QVector2D &scale, const QSize& viewport);
   virtual void GizmoMove(const QPointF& p, const QVector2D &scale, const rational &time);
   virtual void GizmoRelease();
 

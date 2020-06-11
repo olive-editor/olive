@@ -58,17 +58,21 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-Node::Capabilities VolumeNode::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable VolumeNode::Value(NodeValueDatabase &value) const
 {
-  return kSampleProcessor;
+  SampleJob job(samples_input_);
+  job.InsertValue(volume_input_, value);
+
+  NodeValueTable table = value.Merge();
+
+  if (qFuzzyCompare(job.GetValue(volume_input_).data().toDouble(), 1.0)) {
+    table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+  }
+
+  return table;
 }
 
-NodeInput *VolumeNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
-{
-  return samples_input_;
-}
-
-void VolumeNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void VolumeNode::ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   float volume_val = values[volume_input_].Get(NodeParam::kFloat).toFloat();
 
@@ -81,11 +85,6 @@ void VolumeNode::Retranslate()
 {
   samples_input_->set_name(tr("Samples"));
   volume_input_->set_name(tr("Volume"));
-}
-
-NodeInput *VolumeNode::samples_input() const
-{
-  return samples_input_;
 }
 
 OLIVE_NAMESPACE_EXIT

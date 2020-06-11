@@ -241,7 +241,7 @@ void ViewerDisplayWidget::paintGL()
 
   // Draw gizmos if we have any
   if (gizmos_) {
-    GizmoTraverser gt;
+    GizmoTraverser gt(QSize(gizmo_params_.width(), gizmo_params_.height()));
 
     rational node_time = GetGizmoTime();
 

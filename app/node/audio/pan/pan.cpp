@@ -59,17 +59,23 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-Node::Capabilities PanNode::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable PanNode::Value(NodeValueDatabase &value) const
 {
-  return kSampleProcessor;
+  // Create a sample job
+  SampleJob job(samples_input_);
+  job.InsertValue(panning_input_, value);
+
+  // Push it to our table
+  NodeValueTable table = value.Merge();
+
+  if (!qIsNull(job.GetValue(samples_input_).data().toDouble())) {
+    table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+  }
+
+  return table;
 }
 
-NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
-{
-  return samples_input_;
-}
-
-void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void PanNode::ProcessSamples(NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   if (params.channel_count() != 2) {
     // This node currently only works for stereo audio

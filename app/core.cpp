@@ -49,6 +49,7 @@
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
+#include "render/shaderinfo.h"
 #include "task/cache/cache.h"
 #include "task/project/import/import.h"
 #include "task/project/load/load.h"
@@ -542,6 +543,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<rational>();
   qRegisterMetaType<OpenGLTexturePtr>();
   qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
+  qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
@@ -553,6 +555,8 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<Color>();
   qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
   qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
+  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
 }
 
 void Core::StartGUI(bool full_screen)

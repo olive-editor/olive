@@ -89,51 +89,32 @@ void MathNode::Retranslate()
   method_in_->set_combobox_strings(operations);
 }
 
-Node::Capabilities MathNode::GetCapabilities(const NodeValueDatabase &input) const
+ShaderCode MathNode::GetShaderCode(const QByteArray &shader_id) const
 {
-  PairingCalculator calc(input[param_a_in_], input[param_b_in_]);
+  QDataStream data(shader_id);
 
-  switch (calc.GetMostLikelyPairing()) {
-  case kPairTextureColor:
-  case kPairTextureNumber:
-  case kPairTextureTexture:
-  case kPairTextureMatrix:
-    return kShader;
-  case kPairSampleNumber:
-    return kSampleProcessor;
-  default:
-    return kNormal;
-  }
-}
+  Pairing pairing;
+  NodeParam::DataType type_a;
+  NodeParam::DataType type_b;
 
-QString MathNode::ShaderID(const NodeValueDatabase &input) const
-{
-  QString method = QString::number(GetOperation());
+  data >> pairing;
+  data >> type_a;
+  data >> type_b;
 
-  PairingCalculator calc(input[param_a_in_], input[param_b_in_]);
+  QString operation, frag, vert;
 
-  QString type_a = QString::number(calc.GetMostLikelyValueA().type());
-  QString type_b = QString::number(calc.GetMostLikelyValueB().type());
-
-  return id().append(method).append(type_a).append(type_b);
-}
-
-QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
-{
-  PairingCalculator calc(input[param_a_in_], input[param_b_in_]);
-
-  NodeParam::DataType type_a = calc.GetMostLikelyValueA().type();
-  NodeParam::DataType type_b = calc.GetMostLikelyValueB().type();
-
-  QString operation;
-
-  if (calc.GetMostLikelyPairing() == kPairTextureMatrix && GetOperation() == kOpMultiply) {
+  if (pairing == kPairTextureMatrix && GetOperation() == kOpMultiply) {
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
     NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
 
     // No-op frag shader (can we return QString() instead?)
     operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
+
+    // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
+    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
+
+    vert = ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
 
   } else {
     switch (GetOperation()) {
@@ -158,7 +139,7 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
                               GetShaderVariableCall(param_b_in_->id(), type_b));
   }
 
-  return QStringLiteral("#version 150\n"
+  frag = QStringLiteral("#version 150\n"
                         "\n"
                         "uniform %1 %3;\n"
                         "uniform %2 %4;\n"
@@ -174,44 +155,8 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
                                    param_a_in_->id(),
                                    param_b_in_->id(),
                                    operation);
-}
 
-QString MathNode::ShaderVertexCode(const NodeValueDatabase &input) const
-{
-  PairingCalculator calc(input[param_a_in_], input[param_b_in_]);
-
-  if (calc.GetMostLikelyPairing() == kPairTextureMatrix && GetOperation() == kOpMultiply) {
-
-    NodeParam::DataType type_a = calc.GetMostLikelyValueA().type();
-
-    // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
-    NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
-    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
-
-    return ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
-
-  }
-
-  return QString();
-}
-
-NodeValue MathNode::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
-{
-  if (input == param_a_in_ || input == param_b_in_) {
-    PairingCalculator calc(db[param_a_in_], db[param_b_in_]);
-
-    NodeValue v = (input == param_a_in_)
-        ? calc.GetMostLikelyValueA()
-        : calc.GetMostLikelyValueB();
-
-    if (take) {
-      db[input].Remove(v);
-    }
-
-    return v;
-  }
-
-  return Node::InputValueFromTable(input, db, take);
+  return ShaderCode(frag, vert);
 }
 
 NodeValueTable MathNode::Value(NodeValueDatabase &value) const
@@ -220,12 +165,8 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   // FIXME: Add manual override for this
   PairingCalculator calc(value[param_a_in_], value[param_b_in_]);
 
-  if (!calc.FoundMostLikelyPairing()
-      || calc.GetMostLikelyPairing() == kPairSampleNumber
-      || calc.GetMostLikelyPairing() == kPairTextureTexture
-      || calc.GetMostLikelyPairing() == kPairTextureNumber
-      || calc.GetMostLikelyPairing() == kPairTextureColor
-      || calc.GetMostLikelyPairing() == kPairTextureMatrix) {
+  // Do nothing if no pairing was found
+  if (!calc.FoundMostLikelyPairing()) {
     return value.Merge();
   }
 
@@ -347,40 +288,82 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
     break;
   }
 
-  case kPairNone:
-  case kPairCount:
   case kPairTextureColor:
   case kPairTextureNumber:
   case kPairTextureTexture:
   case kPairTextureMatrix:
+  {
+    ShaderJob job;
+
+    QByteArray shader_id;
+    QDataStream shader_id_stream(&shader_id, QIODevice::WriteOnly);
+    shader_id_stream << calc.GetMostLikelyPairing();
+    shader_id_stream << val_a.type();
+    shader_id_stream << val_b.type();
+
+    job.SetShaderID(shader_id);
+
+    job.InsertValue(param_a_in_, val_a);
+    job.InsertValue(param_b_in_, val_b);
+
+    bool operation_is_noop = false;
+
+    if (calc.GetMostLikelyPairing() == kPairTextureNumber) {
+      NodeValue& number_val = val_a.type() == NodeParam::kTexture ? val_b : val_a;
+
+      if (NumberIsNoOp(GetOperation(), RetrieveNumber(number_val))) {
+        operation_is_noop = true;
+      }
+    }
+
+    if (!operation_is_noop) {
+      output.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+    } else {
+      output.Push(val_a.type() == NodeParam::kTexture ? val_a : val_b);
+    }
+    break;
+  }
+
   case kPairSampleNumber:
-    // Do nothing
+  {
+    // Queue a sample job
+    SampleJob job(val_a.type() == NodeParam::kSamples ? param_a_in_ : param_b_in_);
+
+    NodeValue& number_val = val_a.type() == NodeParam::kSamples ? val_b : val_a;
+    NodeInput* number_param = val_a.type() == NodeParam::kSamples ? param_b_in_ : param_a_in_;
+
+    float number = RetrieveNumber(number_val);
+
+    if (!NumberIsNoOp(GetOperation(), number)) {
+      job.InsertValue(number_param, NodeValue(NodeParam::kFloat, number, this));
+      output.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+    } else {
+      output.Push(val_a.type() == NodeParam::kSamples ? val_a : val_b);
+    }
+    break;
+  }
+
+  case kPairNone:
+  case kPairCount:
     break;
   }
 
   return output;
 }
 
-NodeInput *MathNode::ProcessesSamplesFrom(const NodeValueDatabase &value) const
+void MathNode::ProcessSamples(NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  PairingCalculator calc(value[param_a_in_], value[param_b_in_]);
+  // This function is only used for sample+number pairing
+  NodeValue number_val = values[param_a_in_].GetWithMeta(NodeParam::kNumber);
 
-  if (calc.GetMostLikelyPairing() == kPairSampleNumber) {
-    if (calc.GetMostLikelyValueA().type() == NodeParam::kSamples) {
-      return param_a_in_;
-    } else {
-      return param_b_in_;
+  if (number_val.type() == NodeParam::kNone) {
+    number_val = values[param_b_in_].GetWithMeta(NodeParam::kNumber);
+
+    if (number_val.type() == NodeParam::kNone) {
+      return;
     }
   }
 
-  return nullptr;
-}
-
-void MathNode::ProcessSamples(const NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
-{
-  // This function is only used for sample+number pairing
-  NodeInput* number_input = (ProcessesSamplesFrom(values) == param_a_in_) ? param_b_in_ : param_a_in_;
-  NodeValue number_val = values[number_input].GetWithMeta(NodeParam::kNumber);
   float number_flt = RetrieveNumber(number_val);
 
   for (int i=0;i<params.channel_count();i++) {
@@ -471,6 +454,27 @@ float MathNode::RetrieveNumber(const NodeValue &val)
   }
 }
 
+bool MathNode::NumberIsNoOp(const MathNode::Operation &op, const float &number)
+{
+  switch (op) {
+  case kOpAdd:
+  case kOpSubtract:
+    if (qIsNull(number)) {
+      return true;
+    }
+    break;
+  case kOpMultiply:
+  case kOpDivide:
+  case kOpPower:
+    if (qFuzzyCompare(number, 1.0f)) {
+      return true;
+    }
+    break;
+  }
+
+  return false;
+}
+
 MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b)
 {
   QVector<int> pair_likelihood_a = GetPairLikelihood(table_a);
@@ -501,8 +505,8 @@ MathNode::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, co
   }
 
   if (most_likely_pairing_ != kPairNone) {
-    most_likely_value_a_ = table_a.At(pair_likelihood_a.at(most_likely_pairing_));
-    most_likely_value_b_ = table_b.At(pair_likelihood_b.at(most_likely_pairing_));
+    most_likely_value_a_ = table_a.at(pair_likelihood_a.at(most_likely_pairing_));
+    most_likely_value_b_ = table_b.at(pair_likelihood_b.at(most_likely_pairing_));
   }
 }
 
@@ -513,7 +517,7 @@ QVector<int> MathNode::PairingCalculator::GetPairLikelihood(const NodeValueTable
   QVector<int> likelihood(kPairCount, -1);
 
   for (int i=0;i<table.Count();i++) {
-    NodeParam::DataType type = table.At(i).type();
+    NodeParam::DataType type = table.at(i).type();
 
     int weight = i;
 

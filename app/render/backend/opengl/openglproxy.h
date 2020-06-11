@@ -28,8 +28,8 @@
 #include "node/value.h"
 #include "openglcolorprocessor.h"
 #include "openglframebuffer.h"
-#include "openglshadercache.h"
 #include "opengltexturecache.h"
+#include "render/shaderinfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -69,7 +69,7 @@ public:
 public slots:
   QVariant RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node,
                               const OLIVE_NAMESPACE::TimeRange &range,
-                              OLIVE_NAMESPACE::NodeValueDatabase &input_params,
+                              const OLIVE_NAMESPACE::ShaderJob &job,
                               const OLIVE_NAMESPACE::VideoParams &params);
 
   void TextureToBuffer(const QVariant& texture,
@@ -84,6 +84,8 @@ public slots:
   QVariant PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
 
 private:
+  OpenGLShaderPtr ResolveShaderFromCache(const Node* node, const QByteArray& shader_id);
+
   QOpenGLContext* ctx_;
   QOffscreenSurface surface_;
 
@@ -95,7 +97,7 @@ private:
 
   OpenGLShaderPtr copy_pipeline_;
 
-  OpenGLShaderCache shader_cache_;
+  QHash<QByteArray, OpenGLShaderPtr> shader_cache_;
 
   OpenGLTextureCache texture_cache_;
 

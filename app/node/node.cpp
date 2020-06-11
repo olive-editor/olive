@@ -276,11 +276,11 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(const NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
 {
 }
 
-bool Node::GizmoPress(const NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &viewport)
+bool Node::GizmoPress(NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &)
 {
   return false;
 }
@@ -457,42 +457,14 @@ QList<Node *> Node::GetImmediateDependencies() const
   return GetDependenciesInternal(false, false);
 }
 
-Node::Capabilities Node::GetCapabilities(const NodeValueDatabase &) const
+ShaderCode Node::GetShaderCode(const QByteArray &shader_id) const
 {
-  return kNormal;
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(QString(), QString());
 }
 
-QString Node::ShaderID(const NodeValueDatabase &) const
-{
-  return id();
-}
-
-QString Node::ShaderVertexCode(const NodeValueDatabase &) const
-{
-  return QString();
-}
-
-QString Node::ShaderFragmentCode(const NodeValueDatabase&) const
-{
-  return QString();
-}
-
-int Node::ShaderIterations() const
-{
-  return 1;
-}
-
-NodeInput *Node::ShaderIterativeInput() const
-{
-  return nullptr;
-}
-
-NodeInput* Node::ProcessesSamplesFrom(const NodeValueDatabase &) const
-{
-  return nullptr;
-}
-
-void Node::ProcessSamples(const NodeValueDatabase &, const AudioParams&, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(NodeValueDatabase &, const AudioParams&, const SampleBufferPtr, SampleBufferPtr, int) const
 {
 }
 
@@ -750,23 +722,6 @@ bool Node::HasParamWithID(const QString &id) const
 NodeOutput *Node::output() const
 {
   return output_;
-}
-
-NodeValue Node::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
-{
-  NodeParam::DataType find_data_type = input->data_type();
-
-  // Exception for Footage types (try to get a Texture instead)
-  if (find_data_type == NodeParam::kFootage) {
-    find_data_type = NodeParam::kTexture;
-  }
-
-  // Try to get a value from it
-  if (take) {
-    return db[input].TakeWithMeta(find_data_type);
-  } else {
-    return db[input].GetWithMeta(find_data_type);
-  }
 }
 
 const QPointF &Node::GetPosition() const

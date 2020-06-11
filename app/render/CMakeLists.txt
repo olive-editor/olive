@@ -40,6 +40,7 @@ set(OLIVE_SOURCES
   render/playbackcache.h
   render/playbackcache.cpp
   render/rendermodes.h
+  render/shaderinfo.h
   render/videoparams.h
   render/videoparams.cpp
   PARENT_SCOPE
