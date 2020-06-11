@@ -559,7 +559,9 @@ void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsRectItem::mouseDoubleClickEvent(event);
 
-  SetExpanded(!IsExpanded());
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    SetExpanded(!IsExpanded());
+  }
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
