@@ -319,6 +319,9 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
       if (GetOperation() != kOpMultiply
           || number_val.data().value<QMatrix4x4>().isIdentity()) {
         operation_is_noop = true;
+      } else {
+        // It's likely an alpha channel will result from this operation
+        job.SetAlphaChannelRequired(true);
       }
     }
 
