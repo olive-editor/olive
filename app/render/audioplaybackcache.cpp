@@ -222,6 +222,10 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 
 void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational& newlen)
 {
+  if (!params_.is_valid()) {
+    return;
+  }
+
   if (newlen < old) {
     QFile(filename_).resize(params_.time_to_bytes(newlen));
   }
