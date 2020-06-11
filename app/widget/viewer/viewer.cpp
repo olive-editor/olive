@@ -114,7 +114,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_->SetRenderMode(RenderMode::kOffline);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
-  cache_wait_timer_.setInterval(100);
+  cache_wait_timer_.setInterval(2000);
   cache_wait_timer_.setSingleShot(true);
   connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
 
@@ -437,6 +437,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 
   if (!FrameExistsAtTime(time)) {
     // There is definitely no frame here, we can immediately flip to showing nothing
+    nonqueue_watchers_.clear();
     SetDisplayImage(nullptr, false);
     return;
   }
@@ -591,7 +592,7 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength();// GetConnectedNode()->GetLength();
+  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength();
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
