@@ -121,16 +121,10 @@ int AudioParams::bits_per_sample() const
 
 bool AudioParams::is_valid() const
 {
-  bool valid = (sample_rate() > 0
-                && channel_layout() > 0
-                && format_ != SampleFormat::SAMPLE_FMT_INVALID
-                && format_ != SampleFormat::SAMPLE_FMT_COUNT);
-
-  if (!valid) {
-    qWarning() << "Invalid params found:" << sample_rate() << channel_layout() << format();
-  }
-
-  return valid;
+  return (sample_rate() > 0
+          && channel_layout() > 0
+          && format_ != SampleFormat::SAMPLE_FMT_INVALID
+          && format_ != SampleFormat::SAMPLE_FMT_COUNT);
 }
 
 OLIVE_NAMESPACE_EXIT
