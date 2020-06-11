@@ -243,6 +243,11 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const QVector<SamplePerC
 void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const AudioVisualWaveform &samples, const rational& start_time)
 {
   int start_sample_index = samples.time_to_samples(start_time);
+
+  if (start_sample_index >= samples.nb_samples()) {
+    return;
+  }
+
   int next_sample_index = start_sample_index;
   int sample_index;
 
