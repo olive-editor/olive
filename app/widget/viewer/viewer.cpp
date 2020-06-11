@@ -114,7 +114,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_->SetRenderMode(RenderMode::kOffline);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
-  cache_wait_timer_.setInterval(2000);
+  cache_wait_timer_.setInterval(250);
   cache_wait_timer_.setSingleShot(true);
   connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
 
