@@ -66,10 +66,9 @@ public:
     return data_.constData();
   }
 
-  void AddSamples(SampleBufferPtr samples, int sample_rate);
   void AddSum(const float* samples, int nb_samples, int nb_channels);
 
-  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start);
+  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = rational());
   void OverwriteSums(const AudioVisualWaveform& sums, const rational& dest, const rational& offset = rational(), const rational &length = rational());
 
   AudioVisualWaveform Mid(const rational& time) const;
@@ -98,9 +97,7 @@ private:
   static QVector<SamplePerChannel> SumSamplesInternal(const T* samples, int nb_samples, int nb_channels);
 
   template <typename T>
-  static void ClampMinMax(SamplePerChannel &sum, T value);
-
-  void overwrite_samples_internal(SampleBufferPtr samples, int sample_rate, int start_index);
+  static void ExpandMinMax(SamplePerChannel &sum, T value);
 
   int time_to_samples(const rational& time) const;
   int time_to_samples(const double& time) const;
