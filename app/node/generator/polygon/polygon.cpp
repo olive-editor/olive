@@ -98,6 +98,7 @@ NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
 
   job.InsertValue(points_input_, value);
   job.InsertValue(color_input_, value);
+  job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
   table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
