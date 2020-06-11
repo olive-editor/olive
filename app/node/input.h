@@ -201,6 +201,13 @@ public:
   bool is_keyframable() const;
 
   /**
+   * @brief Returns whether the value that this input returns is always the same or is expected to change
+   *
+   * Equivalent to `!(is_connected() || is_keyframing())`
+   */
+  bool is_static() const;
+
+  /**
    * @brief Get non-keyframed value
    */
   QVariant get_standard_value() const;

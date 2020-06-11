@@ -970,6 +970,11 @@ bool NodeInput::is_keyframable() const
   return keyframable_;
 }
 
+bool NodeInput::is_static() const
+{
+  return !(this->is_connected() || this->is_keyframing());
+}
+
 QVariant NodeInput::get_standard_value() const
 {
   return combine_track_values_into_normal_value(standard_value_);
