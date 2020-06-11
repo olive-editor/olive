@@ -157,7 +157,7 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
         if (original_track) {
           AudioVisualWaveform visual_waveform;
           visual_waveform.set_channel_count(audio_params_.channel_count());
-          visual_waveform.AddSamples(block_range_buffer, audio_params_.sample_rate());
+          visual_waveform.OverwriteSamples(block_range_buffer, audio_params_.sample_rate());
 
           original_track->waveform_lock()->lock();
 
@@ -185,59 +185,32 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
 
 QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob& job)
 {
-  // FIX THIS CODE:
-  return QVariant();
-  /*
-  NodeInput* sample_input = node->ProcessesSamplesFrom(input_params);
-
-  // Try to find the sample buffer in the table
-  QVariant samples_var = input_params[sample_input].Get(NodeParam::kSamples);
-
-  // If there isn't one, there's nothing to do
-  if (samples_var.isNull()) {
+  if (!job.samples() || !job.samples()->is_allocated()) {
     return QVariant();
   }
 
-  SampleBufferPtr input_buffer = samples_var.value<SampleBufferPtr>();
+  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
+  NodeValueDatabase value_db;
 
-  if (!input_buffer) {
-    return QVariant();
-  }
-
-  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count());
-
-  int sample_count = input_buffer->sample_count();
-
-  // FIXME: Hardcoded float sample format
-  for (int i=0;i<sample_count;i++) {
+  for (int i=0;i<job.samples()->sample_count();i++) {
     // Calculate the exact rational time at this sample
-    int sample_out_of_channel = i / audio_params_.channel_count();
-    double sample_to_second = static_cast<double>(sample_out_of_channel) / static_cast<double>(audio_params_.sample_rate());
+    double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params_.sample_rate());
 
     rational this_sample_time = rational::fromDouble(range.in().toDouble() + sample_to_second);
 
     // Update all non-sample and non-footage inputs
-    foreach (NodeParam* param, node->parameters()) {
-      if (param->type() == NodeParam::kInput
-          && param != sample_input) {
-        NodeInput* input = static_cast<NodeInput*>(param);
-
-        // If the input isn't keyframing, we don't need to update it unless it's connected, in which case it may change
-        if (input->is_connected() || input->is_keyframing()) {
-          input_params.Insert(input, ProcessInput(input, TimeRange(this_sample_time, this_sample_time)));
-        }
-      }
+    NodeValueMap::const_iterator j;
+    for (j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
+      value_db.Insert(j.key(), ProcessInput(j.key(), TimeRange(this_sample_time, this_sample_time)));
     }
 
-    node->ProcessSamples(input_params,
-                         audio_params_,
-                         input_buffer,
+    node->ProcessSamples(value_db,
+                         job.samples(),
                          output_buffer,
                          i);
   }
 
   return QVariant::fromValue(output_buffer);
-  */
 }
 
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
@@ -249,6 +222,13 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 
     if (QFileInfo::exists(fn)) {
       FramePtr f = FrameHashCache::LoadCacheFrame(hash);
+
+      // The cached frame won't load with the correct divider by default, so we enforce it here
+      f->set_video_params(VideoParams(f->width() * video_params_.divider(),
+                                      f->height() * video_params_.divider(),
+                                      f->video_params().time_base(),
+                                      f->video_params().format(),
+                                      video_params_.divider()));
 
       return CachedFrameToTexture(f);
     }

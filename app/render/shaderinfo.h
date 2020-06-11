@@ -1,6 +1,7 @@
 #ifndef SHADERINFO_H
 #define SHADERINFO_H
 
+#include "codec/samplebuffer.h"
 #include "node/input.h"
 #include "node/inputarray.h"
 #include "node/value.h"
@@ -53,18 +54,33 @@ private:
 
 class SampleJob : public AcceleratedJob {
 public:
-  SampleJob(NodeInput* from = nullptr) :
-    from_(from)
+  SampleJob()
   {
+    samples_ = nullptr;
   }
 
-  NodeInput* from() const
+  SampleJob(const NodeValue& value)
   {
-    return from_;
+    samples_ = value.data().value<SampleBufferPtr>();
+  }
+
+  SampleJob(NodeInput* from, NodeValueDatabase& db)
+  {
+    samples_ = db[from].Take(NodeParam::kSamples).value<SampleBufferPtr>();
+  }
+
+  SampleBufferPtr samples() const
+  {
+    return samples_;
+  }
+
+  bool HasSamples() const
+  {
+    return samples_ && samples_->is_allocated();
   }
 
 private:
-  NodeInput* from_;
+  SampleBufferPtr samples_;
 
 };
 

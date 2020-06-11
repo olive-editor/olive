@@ -464,7 +464,7 @@ ShaderCode Node::GetShaderCode(const QByteArray &shader_id) const
   return ShaderCode(QString(), QString());
 }
 
-void Node::ProcessSamples(NodeValueDatabase &, const AudioParams&, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(NodeValueDatabase &, const SampleBufferPtr, SampleBufferPtr, int) const
 {
 }
 

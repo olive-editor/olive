@@ -308,18 +308,26 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
 
     bool operation_is_noop = false;
 
-    if (calc.GetMostLikelyPairing() == kPairTextureNumber) {
-      NodeValue& number_val = val_a.type() == NodeParam::kTexture ? val_b : val_a;
+    const NodeValue& number_val = val_a.type() == NodeParam::kTexture ? val_b : val_a;
 
+    if (calc.GetMostLikelyPairing() == kPairTextureNumber) {
       if (NumberIsNoOp(GetOperation(), RetrieveNumber(number_val))) {
+        operation_is_noop = true;
+      }
+    } else if (calc.GetMostLikelyPairing() == kPairTextureMatrix) {
+      // Only allow matrix multiplication
+      if (GetOperation() != kOpMultiply
+          || number_val.data().value<QMatrix4x4>().isIdentity()) {
         operation_is_noop = true;
       }
     }
 
-    if (!operation_is_noop) {
-      output.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
-    } else {
+    if (operation_is_noop) {
+      // Just push texture as-is
       output.Push(val_a.type() == NodeParam::kTexture ? val_a : val_b);
+    } else {
+      // Push shader job
+      output.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -327,18 +335,28 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   case kPairSampleNumber:
   {
     // Queue a sample job
-    SampleJob job(val_a.type() == NodeParam::kSamples ? param_a_in_ : param_b_in_);
-
-    NodeValue& number_val = val_a.type() == NodeParam::kSamples ? val_b : val_a;
+    const NodeValue& number_val = val_a.type() == NodeParam::kSamples ? val_b : val_a;
     NodeInput* number_param = val_a.type() == NodeParam::kSamples ? param_b_in_ : param_a_in_;
 
     float number = RetrieveNumber(number_val);
 
-    if (!NumberIsNoOp(GetOperation(), number)) {
-      job.InsertValue(number_param, NodeValue(NodeParam::kFloat, number, this));
-      output.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
-    } else {
-      output.Push(val_a.type() == NodeParam::kSamples ? val_a : val_b);
+    SampleJob job(val_a.type() == NodeParam::kSamples ? val_a : val_b);
+    job.InsertValue(number_param, NodeValue(NodeParam::kFloat, number, this));
+
+    if (job.HasSamples()) {
+      if (number_param->is_static()) {
+        if (!NumberIsNoOp(GetOperation(), number)) {
+          for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
+            for (int j=0;j<job.samples()->sample_count();j++) {
+              job.samples()->data()[i][j] = PerformAll(job.samples()->data()[i][j], number);
+            }
+          }
+        }
+
+        output.Push(NodeParam::kSamples, QVariant::fromValue(job.samples()), this);
+      } else {
+        output.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+      }
     }
     break;
   }
@@ -351,7 +369,7 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   return output;
 }
 
-void MathNode::ProcessSamples(NodeValueDatabase &values, const AudioParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   // This function is only used for sample+number pairing
   NodeValue number_val = values[param_a_in_].GetWithMeta(NodeParam::kNumber);
@@ -366,7 +384,7 @@ void MathNode::ProcessSamples(NodeValueDatabase &values, const AudioParams &para
 
   float number_flt = RetrieveNumber(number_val);
 
-  for (int i=0;i<params.channel_count();i++) {
+  for (int i=0;i<output->audio_params().channel_count();i++) {
     output->data()[i][index] = PerformAll<float, float>(input->data()[i][index], number_flt);
   }
 }

@@ -39,7 +39,7 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
-  virtual void ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   virtual void Retranslate() override;
 

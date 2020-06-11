@@ -42,7 +42,7 @@ public:
   virtual ShaderCode GetShaderCode(const QByteArray &shader_id) const override;
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
-  virtual void ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   NodeInput* param_a_in() const;
   NodeInput* param_b_in() const;

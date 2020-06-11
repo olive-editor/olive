@@ -179,7 +179,7 @@ public:
   /**
    * @brief If ProcessesSamples() is true, this is the function that will process them.
    */
-  virtual void ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
   /**
    * @brief Returns the input with the specified ID (or nullptr if it doesn't exist)

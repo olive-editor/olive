@@ -60,23 +60,33 @@ QString VolumeNode::Description() const
 
 NodeValueTable VolumeNode::Value(NodeValueDatabase &value) const
 {
-  SampleJob job(samples_input_);
+  SampleJob job(samples_input_, value);
   job.InsertValue(volume_input_, value);
 
   NodeValueTable table = value.Merge();
 
-  if (qFuzzyCompare(job.GetValue(volume_input_).data().toDouble(), 1.0)) {
-    table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+  if (job.HasSamples()) {
+    float volume_val = job.GetValue(volume_input_).data().toFloat();
+    if (volume_input_->is_static()) {
+      // Volume never changes so we can make some performance optimizations here
+      if (!qFuzzyCompare(volume_val, 1.0f)) {
+        job.samples()->transform_volume(volume_val);
+      }
+
+      table.Push(NodeParam::kSamples, QVariant::fromValue(job.samples()), this);
+    } else {
+      table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+    }
   }
 
   return table;
 }
 
-void VolumeNode::ProcessSamples(NodeValueDatabase &values, const AudioParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void VolumeNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   float volume_val = values[volume_input_].Get(NodeParam::kFloat).toFloat();
 
-  for (int i=0;i<params.channel_count();i++) {
+  for (int i=0;i<output->audio_params().channel_count();i++) {
     output->data()[i][index] = input->data()[i][index] * volume_val;
   }
 }
