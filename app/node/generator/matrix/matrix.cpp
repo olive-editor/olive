@@ -248,13 +248,14 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   // Rotation
   mat.rotate(rot, 0, 0, 1);
 
-  // Scale
+  // Scale (convert to a QVector3D so that the identity matrix is preserved if all values are 1.0f)
+  QVector3D full_scale;
   if (uniform_scale) {
-    QVector2D uniformed(scale.x(), scale.x());
-    mat.scale(uniformed);
+    full_scale = QVector3D(scale.x(), scale.x(), 1.0f);
   } else {
-    mat.scale(scale);
+    full_scale = QVector3D(scale, 1.0f);
   }
+  mat.scale(full_scale);
 
   // Anchor Point
   mat.translate(-anchor);
