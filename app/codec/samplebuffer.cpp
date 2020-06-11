@@ -193,6 +193,34 @@ void SampleBuffer::speed(double speed)
   data_ = output_data;
 }
 
+void SampleBuffer::transform_volume(float f)
+{
+  for (int i=0;i<audio_params().channel_count();i++) {
+    for (int j=0;j<sample_count_per_channel_;j++) {
+      data_[i][j] *= f;
+    }
+  }
+}
+
+void SampleBuffer::transform_volume_for_channel(int channel, float volume)
+{
+  for (int i=0;i<sample_count_per_channel_;i++) {
+    data_[channel][i] *= volume;
+  }
+}
+
+void SampleBuffer::transform_volume_for_sample(int sample_index, float volume)
+{
+  for (int i=0;i<audio_params().channel_count();i++) {
+    data_[i][sample_index] *= volume;
+  }
+}
+
+void SampleBuffer::transform_volume_for_sample_on_channel(int sample_index, int channel, float volume)
+{
+  data_[channel][sample_index] *= volume;
+}
+
 void SampleBuffer::fill(const float &f)
 {
   fill(f, 0, sample_count_per_channel_);
