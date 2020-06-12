@@ -24,6 +24,12 @@
 
 OLIVE_NAMESPACE_ENTER
 
+enum TextVerticalAlign {
+  kVerticalAlignTop,
+  kVerticalAlignCenter,
+  kVerticalAlignBottom,
+};
+
 TextGenerator::TextGenerator()
 {
   QString default_str = QStringLiteral("<html><div style='font-size:144pt; text-align: center;'>%1</div></html>").arg(tr("Sample Text"));
@@ -37,6 +43,11 @@ TextGenerator::TextGenerator()
                                NodeParam::kColor,
                                QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
   AddInput(color_input_);
+
+  valign_input_ = new NodeInput(QStringLiteral("valign_in"),
+                                NodeParam::kCombo,
+                                1);
+  AddInput(valign_input_);
 }
 
 Node *TextGenerator::copy() const
@@ -68,6 +79,7 @@ void TextGenerator::Retranslate()
 {
   text_input_->set_name(tr("Text"));
   color_input_->set_name(tr("Color"));
+  valign_input_->set_combobox_strings({tr("Top"), tr("Center"), tr("Bottom")});
 }
 
 NodeValueTable TextGenerator::Value(NodeValueDatabase &value) const
@@ -75,6 +87,7 @@ NodeValueTable TextGenerator::Value(NodeValueDatabase &value) const
   GenerateJob job;
   job.InsertValue(text_input_, value);
   job.InsertValue(color_input_, value);
+  job.InsertValue(valign_input_, value);
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
@@ -102,6 +115,20 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // Draw rich text onto image
   QPainter p(&img);
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
+
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
+  if (valign != kVerticalAlignTop) {
+    int doc_height = text_doc.size().height();
+
+    if (valign == kVerticalAlignCenter) {
+      // Center align
+      p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
+    } else {
+      // Must be bottom align
+      p.translate(0, frame->video_params().height() - doc_height);
+    }
+  }
+
   text_doc.drawContents(&p);
 
   // Transplant alpha channel to frame

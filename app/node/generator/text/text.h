@@ -48,6 +48,8 @@ private:
 
   NodeInput* color_input_;
 
+  NodeInput* valign_input_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
