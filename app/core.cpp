@@ -82,6 +82,10 @@ Core *Core::instance()
 
 bool Core::Start()
 {
+  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
+  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
+  Config::Current().SetDefaults();
+
   //
   // Parse command line arguments
   //
@@ -126,10 +130,6 @@ bool Core::Start()
 
   // Initialize task manager
   TaskManager::CreateInstance();
-
-  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
-  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
-  Config::Current().SetDefaults();
 
   // Load application config
   Config::Load();
