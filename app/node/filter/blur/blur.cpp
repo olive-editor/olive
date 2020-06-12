@@ -80,7 +80,7 @@ void BlurFilterNode::Retranslate()
   repeat_edge_pixels_input_->set_name(tr("Repeat Edge Pixels"));
 }
 
-ShaderCode BlurFilterNode::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
   return ShaderCode(ReadFileAsString(":/shaders/blur.frag"), QString());

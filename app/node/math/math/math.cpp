@@ -89,21 +89,18 @@ void MathNode::Retranslate()
   method_in_->set_combobox_strings(operations);
 }
 
-ShaderCode MathNode::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
 {
-  QDataStream data(shader_id);
+  QStringList code_id = shader_id.split('.');
 
-  Pairing pairing;
-  NodeParam::DataType type_a;
-  NodeParam::DataType type_b;
-
-  data >> pairing;
-  data >> type_a;
-  data >> type_b;
+  Operation op = static_cast<Operation>(code_id.at(0).toInt());
+  Pairing pairing = static_cast<Pairing>(code_id.at(1).toInt());
+  NodeParam::DataType type_a = static_cast<NodeParam::DataType>(code_id.at(2).toInt());
+  NodeParam::DataType type_b = static_cast<NodeParam::DataType>(code_id.at(3).toInt());
 
   QString operation, frag, vert;
 
-  if (pairing == kPairTextureMatrix && GetOperation() == kOpMultiply) {
+  if (pairing == kPairTextureMatrix && op == kOpMultiply) {
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
     NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
@@ -117,7 +114,7 @@ ShaderCode MathNode::GetShaderCode(const QByteArray &shader_id) const
     vert = ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
 
   } else {
-    switch (GetOperation()) {
+    switch (op) {
     case kOpAdd:
       operation = QStringLiteral("%1 + %2");
       break;
@@ -294,14 +291,10 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   case kPairTextureMatrix:
   {
     ShaderJob job;
-
-    QByteArray shader_id;
-    QDataStream shader_id_stream(&shader_id, QIODevice::WriteOnly);
-    shader_id_stream << calc.GetMostLikelyPairing();
-    shader_id_stream << val_a.type();
-    shader_id_stream << val_b.type();
-
-    job.SetShaderID(shader_id);
+    job.SetShaderID(QStringLiteral("%1.%2.%3.%4").arg(QString::number(GetOperation()),
+                                                      QString::number(calc.GetMostLikelyPairing()),
+                                                      QString::number(val_a.type()),
+                                                      QString::number(val_b.type())));
 
     job.InsertValue(param_a_in_, val_a);
     job.InsertValue(param_b_in_, val_b);

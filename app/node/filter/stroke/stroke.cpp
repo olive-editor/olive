@@ -106,7 +106,7 @@ NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
   return table;
 }
 
-ShaderCode StrokeFilterNode::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 

@@ -73,7 +73,7 @@ NodeValueTable SolidGenerator::Value(NodeValueDatabase &value) const
   return table;
 }
 
-ShaderCode SolidGenerator::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 

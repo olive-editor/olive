@@ -40,7 +40,7 @@ public:
   virtual void Retranslate() override;
 
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
-  virtual ShaderCode GetShaderCode(const QByteArray &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
 private:
   NodeInput* tex_input_;

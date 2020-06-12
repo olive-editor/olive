@@ -182,12 +182,11 @@ QVariant OpenGLProxy::PreCachedFrameToValue(FramePtr frame)
   return QVariant::fromValue(texture_cache_.Get(ctx_, frame));
 }
 
-OpenGLShaderPtr OpenGLProxy::ResolveShaderFromCache(const Node *node, const QByteArray &shader_id)
+OpenGLShaderPtr OpenGLProxy::ResolveShaderFromCache(const Node *node, const QString &shader_id)
 {
   // Make a composite of the node ID and the shader ID (if applicable)
-  QByteArray id = node->id().toUtf8();
-  id.append(shader_id);
-  OpenGLShaderPtr shader = shader_cache_.value(id);
+  QString full_shader_id = QStringLiteral("%1:%2").arg(node->id(), shader_id);
+  OpenGLShaderPtr shader = shader_cache_.value(full_shader_id);
 
   if (!shader) {
     // Since we have shader code, compile it now
@@ -213,7 +212,7 @@ OpenGLShaderPtr OpenGLProxy::ResolveShaderFromCache(const Node *node, const QByt
         && shader->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code)
         && shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code)
         && shader->link()) {
-      shader_cache_.insert(shader_id, shader);
+      shader_cache_.insert(full_shader_id, shader);
     } else {
       qWarning() << "Failed to compile shader for" << node->id();
       shader = nullptr;

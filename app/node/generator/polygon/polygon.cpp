@@ -85,7 +85,7 @@ void PolygonGenerator::Retranslate()
   color_input_->set_name(tr("Color"));
 }
 
-ShaderCode PolygonGenerator::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 

@@ -39,7 +39,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QByteArray &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;

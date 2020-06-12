@@ -84,7 +84,7 @@ public slots:
   QVariant PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
 
 private:
-  OpenGLShaderPtr ResolveShaderFromCache(const Node* node, const QByteArray& shader_id);
+  OpenGLShaderPtr ResolveShaderFromCache(const Node* node, const QString &shader_id);
 
   QOpenGLContext* ctx_;
   QOffscreenSurface surface_;
@@ -97,7 +97,7 @@ private:
 
   OpenGLShaderPtr copy_pipeline_;
 
-  QHash<QByteArray, OpenGLShaderPtr> shader_cache_;
+  QHash<QString, OpenGLShaderPtr> shader_cache_;
 
   OpenGLTextureCache texture_cache_;
 

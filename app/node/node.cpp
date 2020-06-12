@@ -457,7 +457,7 @@ QList<Node *> Node::GetImmediateDependencies() const
   return GetDependenciesInternal(false, false);
 }
 
-ShaderCode Node::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode Node::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 

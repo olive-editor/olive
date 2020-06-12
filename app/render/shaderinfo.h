@@ -93,12 +93,12 @@ public:
     alpha_channel_required_ = false;
   }
 
-  const QByteArray& GetShaderID() const
+  const QString& GetShaderID() const
   {
     return id_;
   }
 
-  void SetShaderID(const QByteArray& id)
+  void SetShaderID(const QString& id)
   {
     id_ = id;
   }
@@ -130,7 +130,7 @@ public:
   }
 
 private:
-  QByteArray id_;
+  QString id_;
 
   int iterations_;
 

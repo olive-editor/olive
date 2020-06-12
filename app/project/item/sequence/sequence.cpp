@@ -64,7 +64,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
     }
 
     if (reader->name() == QStringLiteral("video")) {
-      int video_width = 0, video_height = 0, preview_div = 0;
+      int video_width = 0, video_height = 0, preview_div = 1;
       rational video_timebase;
       PixelFormat::Format preview_format = PixelFormat::PIX_FMT_INVALID;
 

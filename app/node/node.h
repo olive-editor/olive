@@ -174,7 +174,7 @@ public:
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual ShaderCode GetShaderCode(const QByteArray& shader_id) const;
+  virtual ShaderCode GetShaderCode(const QString& shader_id) const;
 
   /**
    * @brief If ProcessesSamples() is true, this is the function that will process them.

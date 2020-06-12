@@ -62,7 +62,7 @@ void MergeNode::Retranslate()
   blend_in_->set_name(tr("Blend"));
 }
 
-ShaderCode MergeNode::GetShaderCode(const QByteArray &shader_id) const
+ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
