@@ -93,6 +93,19 @@ bool Frame::contains_pixel(int x, int y) const
   return (is_allocated() && x >= 0 && x < width() && y >= 0 && y < height());
 }
 
+void Frame::set_pixel(int x, int y, const Color &c)
+{
+  if (!contains_pixel(x, y)) {
+    return;
+  }
+
+  int pixel_index = y * linesize_pixels() + x;
+
+  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
+
+  c.toData(data_.data() + byte_offset, video_params().format());
+}
+
 const rational &Frame::sample_aspect_ratio() const
 {
   return sample_aspect_ratio_;

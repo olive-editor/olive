@@ -55,6 +55,7 @@ public:
 
   Color get_pixel(int x, int y) const;
   bool contains_pixel(int x, int y) const;
+  void set_pixel(int x, int y, const Color& c);
 
   const rational& sample_aspect_ratio() const;
   void set_sample_aspect_ratio(const rational& sample_aspect_ratio);

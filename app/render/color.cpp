@@ -67,15 +67,7 @@ Color Color::fromHsv(const float &h, const float &s, const float &v)
 
 Color::Color(const char *data, const PixelFormat::Format &format)
 {
-  OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(format),
-                      data,
-                      PixelFormat::GetOIIOTypeDesc(PixelFormat::PIX_FMT_RGB32F),
-                      data_,
-                      PixelFormat::FormatHasAlphaChannel(format) ? kRGBAChannels : kRGBChannels);
-
-  if (!PixelFormat::FormatHasAlphaChannel(format)) {
-    set_alpha(1.0f);
-  }
+  *this = fromData(data, format);
 }
 
 Color::Color(const QColor &c)
@@ -200,6 +192,32 @@ float Color::lightness() const
   float h, s, l;
   toHsl(&h, &s, &l);
   return l;
+}
+
+void Color::toData(char *data, const PixelFormat::Format &format) const
+{
+  OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(PixelFormat::PIX_FMT_RGB32F),
+                      data_,
+                      PixelFormat::GetOIIOTypeDesc(format),
+                      data,
+                      PixelFormat::FormatHasAlphaChannel(format) ? kRGBAChannels : kRGBChannels);
+}
+
+Color Color::fromData(const char *data, const PixelFormat::Format &format)
+{
+  Color c;
+
+  OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(format),
+                      data,
+                      PixelFormat::GetOIIOTypeDesc(PixelFormat::PIX_FMT_RGB32F),
+                      c.data_,
+                      PixelFormat::FormatHasAlphaChannel(format) ? kRGBAChannels : kRGBChannels);
+
+  if (!PixelFormat::FormatHasAlphaChannel(format)) {
+    c.set_alpha(1.0f);
+  }
+
+  return c;
 }
 
 QColor Color::toQColor() const
