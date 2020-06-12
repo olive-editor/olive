@@ -557,6 +557,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
   qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
 }
 
 void Core::StartGUI(bool full_screen)

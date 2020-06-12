@@ -84,13 +84,34 @@ private:
 
 };
 
-class ShaderJob : public AcceleratedJob {
+class GenerateJob : public AcceleratedJob {
+public:
+  GenerateJob()
+  {
+    alpha_channel_required_ = false;
+  }
+
+  bool GetAlphaChannelRequired() const
+  {
+    return alpha_channel_required_;
+  }
+
+  void SetAlphaChannelRequired(bool e)
+  {
+    alpha_channel_required_ = e;
+  }
+
+private:
+  bool alpha_channel_required_;
+
+};
+
+class ShaderJob : public GenerateJob {
 public:
   ShaderJob()
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
-    alpha_channel_required_ = false;
   }
 
   const QString& GetShaderID() const
@@ -119,24 +140,12 @@ public:
     return iterative_input_;
   }
 
-  bool GetAlphaChannelRequired() const
-  {
-    return alpha_channel_required_;
-  }
-
-  void SetAlphaChannelRequired(bool e)
-  {
-    alpha_channel_required_ = e;
-  }
-
 private:
   QString id_;
 
   int iterations_;
 
   NodeInput* iterative_input_;
-
-  bool alpha_channel_required_;
 
 };
 
@@ -169,5 +178,6 @@ OLIVE_NAMESPACE_EXIT
 
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ShaderJob)
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::SampleJob)
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::GenerateJob)
 
 #endif // SHADERINFO_H

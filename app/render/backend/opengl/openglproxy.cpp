@@ -364,6 +364,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     case NodeInput::kVector:
     case NodeInput::kShaderJob:
     case NodeInput::kSampleJob:
+    case NodeInput::kGenerateJob:
     case NodeInput::kFootage:
     case NodeInput::kBuffer:
     case NodeInput::kNone:

@@ -140,6 +140,14 @@ QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range,
   return QVariant();
 }
 
+QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
 QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
 {
   Q_UNUSED(node)
@@ -166,8 +174,9 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   QList<NodeValue> audio_footage_to_retrieve;
   QList<NodeValue> shader_jobs_to_run;
   QList<NodeValue> sample_jobs_to_run;
+  QList<NodeValue> generate_jobs_to_run;
 
-  for (int i=output_params.Count()-1; i>=0; i--) {
+  for (int i=0; i<output_params.Count(); i++) {
     const NodeValue& v = output_params.at(i);
     QList<NodeValue>* take_this_value_list = nullptr;
 
@@ -186,10 +195,13 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
       take_this_value_list = &shader_jobs_to_run;
     } else if (v.type() == NodeParam::kSampleJob) {
       take_this_value_list = &sample_jobs_to_run;
+    } else if (v.type() == NodeParam::kGenerateJob) {
+      take_this_value_list = &generate_jobs_to_run;
     }
 
     if (take_this_value_list) {
       take_this_value_list->append(output_params.TakeAt(i));
+      i--;
     }
   }
 
@@ -206,6 +218,15 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     // Run shaders
     foreach (const NodeValue& v, shader_jobs_to_run) {
       QVariant value = ProcessShader(node, range, v.data().value<ShaderJob>());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+
+    // Run generate jobs
+    foreach (const NodeValue& v, generate_jobs_to_run) {
+      QVariant value = ProcessFrameGeneration(node, v.data().value<GenerateJob>());
 
       if (!value.isNull()) {
         output_params.Push(NodeParam::kTexture, value, node);

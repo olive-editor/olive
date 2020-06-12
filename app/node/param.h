@@ -197,6 +197,15 @@ public:
     kSampleJob = 0x20000,
 
     /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated sample job needs to
+     * take place. This value will usually be taken from a table and a kSamples value will be
+     * pushed to take its place.
+     */
+    kGenerateJob = 0x40000,
+
+    /**
      ****************************** BROAD IDENTIFIERS ******************************
      */
 

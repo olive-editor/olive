@@ -126,6 +126,8 @@ protected:
 
   virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
 
+  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
+
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
   virtual bool TextureHasAlpha(const QVariant& v) const = 0;

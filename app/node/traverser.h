@@ -52,6 +52,8 @@ protected:
 
   virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
 
+  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
+
   virtual QVariant GetCachedFrame(const Node *node, const rational &time);
 
 private:

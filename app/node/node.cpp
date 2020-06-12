@@ -468,6 +468,12 @@ void Node::ProcessSamples(NodeValueDatabase &, const SampleBufferPtr, SampleBuff
 {
 }
 
+void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
+{
+  Q_UNUSED(frame)
+  Q_UNUSED(job)
+}
+
 NodeInput *Node::GetInputWithID(const QString &id) const
 {
   QList<NodeInput*> inputs = GetInputsIncludingArrays();

@@ -211,6 +211,29 @@ QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, 
   return QVariant::fromValue(output_buffer);
 }
 
+QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJob &job)
+{
+  FramePtr frame = Frame::Create();
+
+  PixelFormat::Format output_fmt;
+  if (job.GetAlphaChannelRequired()) {
+    output_fmt = PixelFormat::GetFormatWithAlphaChannel(video_params_.format());
+  } else {
+    output_fmt = PixelFormat::GetFormatWithoutAlphaChannel(video_params_.format());
+  }
+
+  frame->set_video_params(VideoParams(video_params_.width(),
+                                      video_params_.height(),
+                                      video_params_.time_base(),
+                                      output_fmt,
+                                      video_params_.divider()));
+  frame->allocate();
+
+  node->GenerateFrame(frame, job);
+
+  return CachedFrameToTexture(frame);
+}
+
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {

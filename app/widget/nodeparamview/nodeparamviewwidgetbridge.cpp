@@ -90,6 +90,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeParam::kVector:
     case NodeParam::kShaderJob:
     case NodeParam::kSampleJob:
+    case NodeParam::kGenerateJob:
       break;
     case NodeParam::kInt:
     {
@@ -266,6 +267,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kBuffer:
   case NodeParam::kShaderJob:
   case NodeParam::kSampleJob:
+  case NodeParam::kGenerateJob:
     break;
   case NodeParam::kInt:
   {
@@ -398,6 +400,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kBuffer:
   case NodeParam::kShaderJob:
   case NodeParam::kSampleJob:
+  case NodeParam::kGenerateJob:
   case NodeParam::kVector:
     break;
   case NodeParam::kInt:
@@ -453,7 +456,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeParam::kText:
   {
-    static_cast<QLineEdit*>(widgets_.first())->setText(input_->get_value_at_time(node_time).toString());
+    QLineEdit* e = static_cast<QLineEdit*>(widgets_.first());
+    int pos = e->cursorPosition();
+    e->setText(input_->get_value_at_time(node_time).toString());
+    e->setCursorPosition(pos);
     break;
   }
   case NodeParam::kBoolean:

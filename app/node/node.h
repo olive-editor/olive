@@ -27,6 +27,7 @@
 #include <QPointF>
 #include <QXmlStreamWriter>
 
+#include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "common/xmlutils.h"
@@ -177,9 +178,18 @@ public:
   virtual ShaderCode GetShaderCode(const QString& shader_id) const;
 
   /**
-   * @brief If ProcessesSamples() is true, this is the function that will process them.
+   * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+
+  /**
+   * @brief If Value() pushes a GenerateJob, override this function for the image to create
+   *
+   * @param frame
+   *
+   * The destination buffer. It will already be allocated and ready for writing to.
+   */
+  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const;
 
   /**
    * @brief Returns the input with the specified ID (or nullptr if it doesn't exist)
