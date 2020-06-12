@@ -49,6 +49,7 @@ public:
     kSolidGenerator,
     kMerge,
     kStrokeFilter,
+    kTextGenerator,
 
     // Count value
     kInternalNodeCount

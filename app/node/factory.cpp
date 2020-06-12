@@ -27,6 +27,7 @@
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
 #include "generator/solid/solid.h"
+#include "generator/text/text.h"
 #include "filter/blur/blur.h"
 #include "filter/stroke/stroke.h"
 #include "input/media/video/video.h"
@@ -201,6 +202,8 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
+  case kTextGenerator:
+    return new TextGenerator();
 
   case kInternalNodeCount:
     break;

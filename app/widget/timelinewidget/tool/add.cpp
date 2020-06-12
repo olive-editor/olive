@@ -124,8 +124,18 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
         break;
       }
-      case OLIVE_NAMESPACE::Tool::kAddableBars:
       case OLIVE_NAMESPACE::Tool::kAddableTitle:
+      {
+        Node* text = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.textgenerator"));
+
+        new NodeAddCommand(graph,
+                           text,
+                           command);
+
+        new NodeEdgeAddCommand(text->output(), clip->texture_input(), command);
+        break;
+      }
+      case OLIVE_NAMESPACE::Tool::kAddableBars:
       case OLIVE_NAMESPACE::Tool::kAddableTone:
         // Not implemented yet
         qWarning() << "Unimplemented add object:" << Core::instance()->selected_addable_object();
