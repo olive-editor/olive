@@ -81,6 +81,11 @@ void MenuShared::AddItemsForNewMenu(Menu *m)
 
 void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
 {
+  m->addAction(Core::instance()->undo_stack()->createUndoAction(m));
+  m->addAction(Core::instance()->undo_stack()->createRedoAction(m));
+
+  m->addSeparator();
+
   m->addAction(edit_cut_item_);
   m->addAction(edit_copy_item_);
   m->addAction(edit_paste_item_);

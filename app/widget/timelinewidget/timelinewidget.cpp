@@ -34,6 +34,7 @@
 #include "tool/tool.h"
 #include "trackview/trackview.h"
 #include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -1106,21 +1107,26 @@ void TimelineWidget::ShowContextMenu()
   QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
 
   if (!selected.isEmpty()) {
-    QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
-    connect(speed_duration_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialog);
+    MenuShared::instance()->AddItemsForEditMenu(&menu, true);
 
     menu.addSeparator();
+
+    QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
+    connect(speed_duration_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialog);
   }
 
-  QAction* toggle_audio_units = menu.addAction(tr("Use Audio Time Units"));
-  toggle_audio_units->setCheckable(true);
-  toggle_audio_units->setChecked(use_audio_time_units_);
-  connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
+  if (selected.isEmpty()) {
 
-  menu.addSeparator();
+    QAction* toggle_audio_units = menu.addAction(tr("Use Audio Time Units"));
+    toggle_audio_units->setCheckable(true);
+    toggle_audio_units->setChecked(use_audio_time_units_);
+    connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
 
-  QAction* properties_action = menu.addAction(tr("Properties"));
-  connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSequenceDialog);
+    menu.addSeparator();
+
+    QAction* properties_action = menu.addAction(tr("Properties"));
+    connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSequenceDialog);
+  }
 
   menu.exec(QCursor::pos());
 }
