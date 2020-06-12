@@ -62,7 +62,7 @@ void TimelineWorkArea::Load(QXmlStreamReader *reader)
 
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("enabled")) {
-      set_enabled(attr.value() != 0);
+      set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
       range_in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
