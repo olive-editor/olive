@@ -52,7 +52,7 @@ NodeView::NodeView(QWidget *parent) :
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
 
-  scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
+  scene_.setSceneRect(-100, -100, 200, 200);
 }
 
 NodeView::~NodeView()
@@ -191,6 +191,10 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::SelectBlocks(const QList<Block *> &blocks)
 {
+  if (selected_blocks_ == blocks) {
+    return;
+  }
+
   // Remove temporary associations
   foreach (Block* b, selected_blocks_) {
     if (!blocks.contains(b)) {
@@ -199,6 +203,9 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
   }
 
   selected_blocks_ = blocks;
+
+  // Block scene signals while our selection is changing a lot
+  scene_.blockSignals(true);
 
   if (filter_mode_ == kFilterShowSelectedBlocks) {
     UpdateBlockFilter();
@@ -213,6 +220,10 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
   }
 
   SelectWithDependencies(nodes);
+
+  // Stop blocking signals and send a change signal now that all of our processing is done
+  scene_.blockSignals(false);
+  SceneSelectionChangedSlot();
 
   if (!blocks.isEmpty()) {
     NodeViewItem* item = scene_.NodeToUIObject(blocks.first());
