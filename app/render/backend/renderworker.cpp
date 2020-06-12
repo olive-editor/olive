@@ -110,11 +110,9 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
 
       // Destination buffer
       NodeValueTable table = GenerateTable(b, range_for_block);
-      QVariant sample_val = table.Take(NodeParam::kSamples);
-      SampleBufferPtr samples_from_this_block;
+      SampleBufferPtr samples_from_this_block = table.Take(NodeParam::kSamples).value<SampleBufferPtr>();
 
-      if (sample_val.isNull()
-          || !(samples_from_this_block = sample_val.value<SampleBufferPtr>())) {
+      if (!samples_from_this_block) {
         // If we retrieved no samples from this block, do nothing
         continue;
       }

@@ -173,15 +173,15 @@ void SampleBuffer::speed(double speed)
     return;
   }
 
-  int max_adjusted_nb_samples = qRound(static_cast<double>(sample_count_per_channel_) * speed);
+  sample_count_per_channel_ = qRound(static_cast<double>(sample_count_per_channel_) / speed);
 
   float** input_data = data_;
   float** output_data;
 
-  allocate_sample_buffer(&output_data, audio_params_.channel_count(), max_adjusted_nb_samples);
+  allocate_sample_buffer(&output_data, audio_params_.channel_count(), sample_count_per_channel_);
 
-  for (int i=0;i<max_adjusted_nb_samples;i++) {
-    int input_index = qRound(static_cast<double>(i) * speed);
+  for (int i=0;i<sample_count_per_channel_;i++) {
+    int input_index = qFloor(static_cast<double>(i) * speed);
 
     for (int j=0;j<audio_params_.channel_count();j++) {
       output_data[j][i] = input_data[j][input_index];
