@@ -21,11 +21,11 @@
 #ifndef MATHNODE_H
 #define MATHNODE_H
 
-#include "node/node.h"
+#include "mathbase.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class MathNode : public Node
+class MathNode : public MathNodeBase
 {
 public:
   MathNode();
@@ -40,97 +40,32 @@ public:
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+
+  Operation GetOperation() const
+  {
+    return static_cast<Operation>(method_in_->get_standard_value().toInt());
+  }
+
+  void SetOperation(Operation o)
+  {
+    method_in_->set_standard_value(o);
+  }
+
+  NodeInput* param_a_in() const
+  {
+    return param_a_in_;
+  }
+
+  NodeInput* param_b_in() const
+  {
+    return param_b_in_;
+  }
+
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
   virtual void ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
-  NodeInput* param_a_in() const;
-  NodeInput* param_b_in() const;
-
-  enum Operation {
-    kOpAdd,
-    kOpSubtract,
-    kOpMultiply,
-    kOpDivide,
-    kOpPower
-  };
-
-  Operation GetOperation() const;
-  void SetOperation(Operation o);
-
 private:
-  enum Pairing {
-    kPairNone = -1,
-
-    kPairNumberNumber,
-    kPairVecVec,
-    kPairMatrixMatrix,
-    kPairColorColor,
-    kPairTextureTexture,
-
-    kPairVecNumber,
-    kPairMatrixVec,
-    kPairNumberColor,
-    kPairTextureNumber,
-    kPairTextureColor,
-    kPairTextureMatrix,
-    kPairSampleSample,
-    kPairSampleNumber,
-
-    kPairCount
-  };
-
-  class PairingCalculator {
-  public:
-    PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b);
-
-    bool FoundMostLikelyPairing() const;
-    Pairing GetMostLikelyPairing() const;
-
-    const NodeValue& GetMostLikelyValueA() const;
-    const NodeValue& GetMostLikelyValueB() const;
-
-  private:
-    static QVector<int> GetPairLikelihood(const NodeValueTable& table);
-
-    Pairing most_likely_pairing_;
-
-    NodeValue most_likely_value_a_;
-
-    NodeValue most_likely_value_b_;
-
-  };
-
-  template<typename T, typename U>
-  T PerformAll(T a, U b) const;
-
-  template<typename T, typename U>
-  T PerformMultDiv(T a, U b) const;
-
-  template<typename T, typename U>
-  T PerformAddSub(T a, U b) const;
-
-  template<typename T, typename U>
-  T PerformMult(T a, U b) const;
-
-  template<typename T, typename U>
-  T PerformAddSubMult(T a, U b) const;
-
-  template<typename T, typename U>
-  T PerformAddSubMultDiv(T a, U b) const;
-
-  static QString GetShaderUniformType(const NodeParam::DataType& type);
-
-  static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type, const QString &coord_op = QString());
-
-  static QVector4D RetrieveVector(const NodeValue& val);
-
-  static float RetrieveNumber(const NodeValue& val);
-
-  static bool NumberIsNoOp(const Operation& op, const float& number);
-
-  void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec) const;
-
   NodeInput* method_in_;
 
   NodeInput* param_a_in_;

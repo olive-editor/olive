@@ -21,11 +21,11 @@
 #ifndef VOLUMENODE_H
 #define VOLUMENODE_H
 
-#include "node/node.h"
+#include "node/math/math/mathbase.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class VolumeNode : public Node
+class VolumeNode : public MathNodeBase
 {
 public:
   VolumeNode();
