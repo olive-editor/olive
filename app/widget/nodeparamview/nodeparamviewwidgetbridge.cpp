@@ -22,7 +22,6 @@
 
 #include <QCheckBox>
 #include <QFontComboBox>
-#include <QLineEdit>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -30,6 +29,7 @@
 #include "core.h"
 #include "node/node.h"
 #include "nodeparamviewarraywidget.h"
+#include "nodeparamviewrichtext.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
@@ -146,9 +146,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeParam::kText:
     {
-      QLineEdit* line_edit = new QLineEdit();
+      NodeParamViewRichText* line_edit = new NodeParamViewRichText();
       widgets_.append(line_edit);
-      connect(line_edit, &QLineEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewRichText::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeParam::kBoolean:
@@ -336,8 +336,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   }
   case NodeParam::kText:
   {
-    // Sender is a QLineEdit
-    SetInputValue(static_cast<QLineEdit*>(sender())->text(), 0);
+    // Sender is a NodeParamViewRichText
+    SetInputValue(static_cast<NodeParamViewRichText*>(sender())->text(), 0);
     break;
   }
   case NodeParam::kBoolean:
@@ -456,10 +456,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeParam::kText:
   {
-    QLineEdit* e = static_cast<QLineEdit*>(widgets_.first());
-    int pos = e->cursorPosition();
+    NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
     e->setText(input_->get_value_at_time(node_time).toString());
-    e->setCursorPosition(pos);
     break;
   }
   case NodeParam::kBoolean:
