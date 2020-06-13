@@ -251,7 +251,9 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       QRectF input_rect = GetInputRect(i);
 
       if (highlighted_index_ == i) {
-        painter->fillRect(input_rect, QColor(255, 255, 255, 64));
+        QColor highlight_col = app_pal.color(QPalette::Text);
+        highlight_col.setAlpha(64);
+        painter->fillRect(input_rect, highlight_col);
       }
 
       painter->drawText(input_rect, Qt::AlignCenter, node_inputs_.at(i)->name());
