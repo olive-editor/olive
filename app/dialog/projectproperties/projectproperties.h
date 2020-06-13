@@ -89,8 +89,6 @@ private:
   QString ocio_config_error_;
 
   PathWidget* cache_path_;
-
-  PathWidget* proxy_path_;
   
 private slots:
   void BrowseForOCIOConfig();

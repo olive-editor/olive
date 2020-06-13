@@ -78,14 +78,6 @@ public:
     cache_path_ = cache_path;
   }
 
-  const QString& proxy_path() const {
-    return proxy_path_;
-  }
-
-  void set_proxy_path(const QString& proxy_path) {
-    proxy_path_ = proxy_path;
-  }
-
 signals:
   void NameChanged();
 
@@ -103,8 +95,6 @@ private:
   bool autorecovery_saved_;
 
   QString cache_path_;
-
-  QString proxy_path_;
 
 };
 

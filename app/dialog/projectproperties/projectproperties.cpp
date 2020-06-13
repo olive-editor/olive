@@ -91,7 +91,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     QGridLayout* paths_layout = new QGridLayout(paths_group);
 
     cache_path_ = new PathWidget(working_project_->cache_path(), this);
-    proxy_path_ = new PathWidget(working_project_->proxy_path(), this);
 
     int row = 0;
 
@@ -99,13 +98,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     paths_layout->addWidget(cache_path_->path_edit(), row, 1);
     paths_layout->addWidget(cache_path_->browse_btn(), row, 2);
     paths_layout->addWidget(cache_path_->default_box(), row, 3);
-
-    row++;
-
-    paths_layout->addWidget(new QLabel(tr("Proxy Path:")), row, 0);
-    paths_layout->addWidget(proxy_path_->path_edit(), row, 1);
-    paths_layout->addWidget(proxy_path_->browse_btn(), row, 2);
-    paths_layout->addWidget(proxy_path_->default_box(), row, 3);
 
     tabs->addTab(paths_group, tr("Paths"));
   }
@@ -141,19 +133,7 @@ void ProjectPropertiesDialog::accept()
     return;
   }
 
-  if (!proxy_path_->PathIsValid(true)) {
-    QMessageBox mb(this);
-    mb.setWindowModality(Qt::WindowModal);
-    mb.setIcon(QMessageBox::Critical);
-    mb.setWindowTitle(tr("Invalid path"));
-    mb.setText(tr("The proxy path is invalid. Please check it and try again."));
-    mb.addButton(QMessageBox::Ok);
-    mb.exec();
-    return;
-  }
-
   working_project_->set_cache_path(cache_path_->path_edit()->text());
-  working_project_->set_proxy_path(proxy_path_->path_edit()->text());
 
   // This should ripple changes throughout the program that the color config has changed, therefore must be done last
   working_project_->color_manager()->SetConfigAndDefaultInput(ocio_filename_->text(),
