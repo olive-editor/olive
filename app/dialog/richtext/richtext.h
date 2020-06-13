@@ -42,13 +42,22 @@ public:
   }
 
 private:
+  QPushButton* CreateToolbarButton(const QString &label, const QString &tooltip);
+
+  QFontDatabase font_db_;
+
   QTextEdit* text_edit_;
 
   QPushButton* bold_btn_;
   QPushButton* italic_btn_;
   QPushButton* underline_btn_;
+  QPushButton* strikeout_btn_;
   QFontComboBox* font_combo_;
   FloatSlider* size_slider_;
+  QPushButton* left_align_btn_;
+  QPushButton* center_align_btn_;
+  QPushButton* right_align_btn_;
+  QPushButton* justify_align_btn_;
 
 private slots:
   void UpdateButtons();
