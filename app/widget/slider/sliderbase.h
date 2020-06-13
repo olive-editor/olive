@@ -24,6 +24,7 @@
 #include <QStackedWidget>
 
 #include "sliderlabel.h"
+#include "sliderladder.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -55,11 +56,21 @@ public:
   void SetFormat(const QString& s);
   void ClearFormat();
 
+  void SetLadderEnabled(bool e)
+  {
+    enable_ladder_ = e;
+  }
+
+  void SetLadderElementCount(int b)
+  {
+    ladder_element_count_ = b;
+  }
+
 signals:
   void ValueChanged(QVariant v);
 
 protected:
-  const QVariant& Value();
+  const QVariant& Value() const;
 
   void SetValue(const QVariant& v);
 
@@ -101,8 +112,6 @@ private:
 
   Mode mode_;
 
-  bool dragged_;
-
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
@@ -113,12 +122,20 @@ private:
 
   QString custom_format_;
 
-private slots:
-  void LabelPressed();
+  SliderLadder* drag_ladder_;
 
+  bool enable_ladder_;
+
+  int ladder_element_count_;
+
+private slots:
   void LabelClicked();
 
-  void LabelDragged(int i);
+  void LabelDragged();
+
+  void LadderDragged(int value, double multiplier);
+
+  void LadderReleased();
 
   void LineEditConfirmed();
 

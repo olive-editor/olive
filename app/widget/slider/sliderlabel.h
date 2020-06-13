@@ -43,19 +43,17 @@ protected:
   virtual void focusInEvent(QFocusEvent *event) override;
 
 signals:
-  void dragged(int x);
+  void LabelPressed();
 
-  void drag_start();
+  void LabelMoved();
 
-  void drag_stop();
+  void LabelReleased();
 
   void focused();
 
   void RequestReset();
 
 private:
-  QPoint drag_start_;
-
   bool dragging_;
 
 };
