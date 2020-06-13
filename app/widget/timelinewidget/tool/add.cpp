@@ -57,12 +57,21 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
     // Leave as "none", which means this block can be placed on any track
     break;
   case OLIVE_NAMESPACE::Tool::kAddableCount:
+    // Return so we do nothing
     return;
   }
 
   if (add_type == Timeline::kTrackTypeNone
       || add_type == track.type()) {
     drag_start_point_ = event->GetFrame();
+
+    if (Core::instance()->snapping()) {
+      rational movement;
+      parent()->SnapPoint({drag_start_point_}, &movement);
+      if (!movement.isNull()) {
+        drag_start_point_ += movement;
+      }
+    }
 
     ghost_ = new TimelineViewGhostItem();
     ghost_->SetIn(drag_start_point_);
@@ -160,6 +169,11 @@ void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bo
   // Calculate movement
   rational movement = cursor_frame - drag_start_point_;
 
+  // Validation: Ensure in point never goes below 0
+  if (movement < -ghost_->In() || (outwards && -movement < -ghost_->In())) {
+    movement = -ghost_->In();
+  }
+
   // Snap movement
   bool snapped = parent()->SnapPoint(snap_points_, &movement);
 
@@ -169,11 +183,6 @@ void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bo
     movement = -movement;
     parent()->SnapPoint(snap_points_, &movement);
     // We don't need to un-neg here because outwards means all future processing will be done both pos and neg
-  }
-
-  // Validation: Ensure in point never goes below 0
-  if (movement < -ghost_->In() || (outwards && -movement < -ghost_->In())) {
-    movement = -ghost_->In();
   }
 
   // Make adjustment
