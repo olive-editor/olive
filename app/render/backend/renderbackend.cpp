@@ -113,15 +113,15 @@ void RenderBackend::ClearVideoQueue()
   render_queue_.clear();
 }
 
-QFuture<QList<QByteArray> > RenderBackend::Hash(const QList<rational> &times)
+QFuture<QVector<QByteArray> > RenderBackend::Hash(const QVector<rational> &times)
 {
-  return QtConcurrent::run(&pool_, [this](const QList<rational> &times){
-    QList<QByteArray> hashes;
+  return QtConcurrent::run(&pool_, [this](const QVector<rational> &times){
+    QVector<QByteArray> hashes(times.size());
 
-    foreach (const rational& t, times) {
-      hashes.append(HashNode(copied_viewer_node_->texture_input()->get_connected_node(),
-                             video_params_,
-                             t));
+    for (int i=0;i<hashes.size();i++) {
+      hashes[i] = HashNode(copied_viewer_node_->texture_input()->get_connected_node(),
+                           video_params_,
+                           times.at(i));
     }
 
     return hashes;

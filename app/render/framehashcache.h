@@ -68,9 +68,9 @@ public:
 
   static QString GetFormatExtension();
 
-  static QList<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
-  QList<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
-  QList<rational> GetInvalidatedFrames();
+  static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
+  QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
+  QVector<rational> GetInvalidatedFrames();
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;

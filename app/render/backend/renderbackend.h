@@ -69,7 +69,7 @@ public:
   /**
    * @brief Asynchronously generate a hash at a given time
    */
-  QFuture<QList<QByteArray> > Hash(const QList<rational>& times);
+  QFuture<QVector<QByteArray> > Hash(const QVector<rational> &times);
 
   /**
    * @brief Asynchronously generate a frame at a given time

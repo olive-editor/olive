@@ -139,9 +139,9 @@ QString FrameHashCache::GetFormatExtension()
   return QStringLiteral(".exr");
 }
 
-QList<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
+QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
 {
-  QList<rational> times;
+  QVector<rational> times;
 
   while (!range_list.isEmpty()) {
     const TimeRange& range = range_list.first();
@@ -164,14 +164,14 @@ QList<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_li
   return times;
 }
 
-QList<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range)
+QVector<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range)
 {
   QMutexLocker locker(lock());
 
   return GetFrameListFromTimeRange(range, timebase_);
 }
 
-QList<rational> FrameHashCache::GetInvalidatedFrames()
+QVector<rational> FrameHashCache::GetInvalidatedFrames()
 {
   QMutexLocker locker(lock());
 
