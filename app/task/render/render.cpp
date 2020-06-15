@@ -87,89 +87,25 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
   }
 
-  QMap<QByteArray, rational> times_to_render;
-
   std::list<HashFrameFuturePair> render_lookup_table;
-  QList<rational> times;
-  QList<QByteArray> hashes;
+  QVector<rational> times;
+  QVector<QByteArray> hashes;
+  std::list<HashTimePair> frame_queue;
 
   if (!video_range.isEmpty()) {
+    QList<QByteArray> existing_hashes;
 
-    {
-      QList<QByteArray> existing_hashes;
-
-      foreach (const TimeRange& r, video_range) {
-        total_length += r.length().toDouble();
-      }
-
-      times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
-
-      QFuture<QList<QByteArray> > hash_future = backend_.Hash(times);
-      hashes = hash_future.result();
-
-      // Determine any duplicates
-      for (int index=0;index<hashes.size();index++) {
-        const QByteArray& hash = hashes.at(index);
-        const rational& time = times.at(index);
-
-        bool map_contains_hash = times_to_render.contains(hash);
-
-        bool hash_exists = false;
-
-        if (use_disk_cache && !map_contains_hash) {
-          hash_exists = existing_hashes.contains(hash);
-
-          if (!hash_exists) {
-            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(hash));
-
-            if (hash_exists) {
-              existing_hashes.append(hash);
-            }
-          }
-
-          if (hash_exists) {
-            // Already exists, no need to render it again
-            FrameDownloaded(hash, {time});
-            progress_counter += video_frame_sz;
-            emit ProgressChanged(progress_counter / total_length);
-          }
-        }
-
-        if (!hash_exists && (!map_contains_hash || times_to_render.value(hash) > time)) {
-          times_to_render.insert(hash, time);
-        }
-      }
+    foreach (const TimeRange& r, video_range) {
+      total_length += r.length().toDouble();
     }
 
-    // Render all frames necessary
-    {
-      QMap<QByteArray, rational>::const_iterator i;
-      std::list<HashTimePair>::iterator j;
+    times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
 
-      std::list<HashTimePair> sorted_times;
+    QFuture<QVector<QByteArray> > hash_future = backend_.Hash(times);
+    hashes = hash_future.result();
 
-      // Rendering is generally more efficient when done sequentially, so we sort the
-      // times chronologically here
-      for (i=times_to_render.begin(); i!=times_to_render.end(); i++) {
-        bool inserted = false;
-
-        for (j=sorted_times.begin(); j!=sorted_times.end(); j++) {
-          if (j->time > i.value()) {
-            sorted_times.insert(j, {i.value(), i.key()});\
-            inserted = true;
-            break;
-          }
-        }
-
-        if (!inserted) {
-          sorted_times.push_back({i.value(), i.key()});
-        }
-      }
-
-      // Start render jobs in sorted order
-      for (j=sorted_times.begin(); j!=sorted_times.end(); j++) {
-        render_lookup_table.push_back({j->hash, backend_.RenderFrame(j->time)});
-      }
+    for (int i=0;i<times.size();i++) {
+      frame_queue.push_back({times.at(i), hashes.at(i)});
     }
   }
 
@@ -181,10 +117,56 @@ void RenderTask::Render(const TimeRangeList& video_range,
   std::list<HashDownloadFuturePair>::iterator j;
   std::list<RangeSampleFuturePair>::iterator k;
 
+  std::list<QByteArray> running_hashes;
+  std::list<QByteArray> existing_hashes;
+
   while (!IsCancelled()
          && (!render_lookup_table.empty()
+             || !frame_queue.empty()
              || !download_futures.empty()
              || !audio_lookup_table.empty())) {
+
+    if (!frame_queue.empty()) {
+      // Pop another frame off the frame queue
+      const HashTimePair& p = frame_queue.front();
+
+      // Check if we're already rendering this hash
+      bool rendering_hash = (std::find(running_hashes.begin(), running_hashes.end(), p.hash) != running_hashes.end());
+
+      // Skip this hash if we're already rendering it
+      if (!rendering_hash) {
+        // Check if this frame already exists (has already been rendered previously or during this job)
+        bool hash_exists = false;
+
+        if (use_disk_cache) {
+          bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
+
+          if (!hash_exists) {
+            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(p.hash));
+
+            if (hash_exists) {
+              existing_hashes.push_back(p.hash);
+            }
+          }
+
+          if (hash_exists) {
+            // Already exists, no need to render it again
+            FrameDownloaded(p.hash, {p.time});
+            progress_counter += video_frame_sz;
+            emit ProgressChanged(progress_counter / total_length);
+          }
+        }
+
+        // If no existing disk cache was found, queue it now
+        if (!hash_exists) {
+          render_lookup_table.push_back({p.hash, backend_.RenderFrame(p.time)});
+          running_hashes.push_back(p.hash);
+        }
+      }
+
+      // Remove first element
+      frame_queue.pop_front();
+    }
 
     i = render_lookup_table.begin();
 
@@ -215,6 +197,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
         }
 
         FrameDownloaded(j->hash, times_with_hash);
+
+        existing_hashes.push_back(j->hash);
 
         // Signal process
         progress_counter += times_with_hash.size() * video_frame_sz;
