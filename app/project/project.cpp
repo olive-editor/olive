@@ -132,6 +132,11 @@ void Project::set_filename(const QString &s)
 {
   filename_ = s;
 
+#ifdef Q_OS_WINDOWS
+  // Prevents filenames
+  filename_.replace('/', '\\');
+#endif
+
   emit NameChanged();
 }
 
