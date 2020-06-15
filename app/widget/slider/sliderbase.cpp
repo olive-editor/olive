@@ -36,6 +36,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   has_min_(false),
   has_max_(false),
   mode_(mode),
+  dragged_diff_(0),
   require_valid_input_(true),
   tristate_(false),
   drag_ladder_(nullptr),
