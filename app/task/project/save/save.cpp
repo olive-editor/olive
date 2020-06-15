@@ -20,8 +20,11 @@
 
 #include "save.h"
 
+#include <QDir>
 #include <QFile>
 #include <QXmlStreamWriter>
+
+#include "common/filefunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -33,7 +36,10 @@ ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
 
 bool ProjectSaveTask::Run()
 {
-  QFile project_file(project_->filename());
+  // File to temporarily save to (ensures we can't half-write the user's main file and crash)
+  QString temp_save = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("tempsv"));
+
+  QFile project_file(temp_save);
 
   if (project_file.open(QFile::WriteOnly | QFile::Text)) {
     QXmlStreamWriter writer(&project_file);
@@ -53,7 +59,20 @@ bool ProjectSaveTask::Run()
 
     project_file.close();
 
-    return true;
+    if (writer.hasError()) {
+      SetError(tr("Failed to write XML data"));
+      return false;
+    }
+
+    // Save was successful, we can now rewrite the original file
+    QFile original(project_->filename());
+    if ((!original.exists() || original.remove())
+        && QFile::copy(temp_save, project_->filename())) {
+      return true;
+    } else {
+      SetError(tr("Failed to write to \"%1\".").arg(project_->filename()));
+      return false;
+    }
   } else {
     SetError(tr("Failed to open file \"%1\" for writing.").arg(project_->filename()));
     return false;
