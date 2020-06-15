@@ -410,9 +410,14 @@ void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
+  bool frame_exists_at_time = FrameExistsAtTime(time);
+
   // Check playback queue for a frame
   if (IsPlaying()) {
 
+    // We still run the playback queue even when FrameExistsAtTime returns false because we might be
+    // playing backwards and about to start showing frames, so the queue should be prepared for
+    // that.
     while (!playback_queue_.empty()) {
 
       const ViewerPlaybackFrame& pf = playback_queue_.front();
@@ -431,11 +436,14 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
       }
     }
 
-    qWarning() << "Playback queue failed to keep up";
+    // Only show warning if frame actually exists
+    if (frame_exists_at_time) {
+      qWarning() << "Playback queue failed to keep up";
+    }
 
   }
 
-  if (!FrameExistsAtTime(time)) {
+  if (!frame_exists_at_time) {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
     SetDisplayImage(nullptr, false);
