@@ -29,6 +29,7 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 {
   // Set ViewerWidget as the central widget
   FootageViewerWidget* fvw = new FootageViewerWidget();
+  fvw->SetAutoCacheEnabled(false);
   connect(fvw, &FootageViewerWidget::RequestScopePanel, this, &FootageViewerPanel::CreateScopePanel);
   SetTimeBasedWidget(fvw);
 

@@ -122,6 +122,8 @@ public slots:
 
   void ForceUpdate();
 
+  void SetAutoCacheEnabled(bool e);
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -248,6 +250,8 @@ private:
   rational last_length_;
 
   int prequeue_length_;
+
+  bool autocache_;
 
   static CacheTask* cache_background_task_;
 

@@ -58,7 +58,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   time_changed_from_timer_(false),
   prequeuing_(false),
   busy_(false),
-  our_cache_background_task_(nullptr)
+  our_cache_background_task_(nullptr),
+  autocache_(true)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -114,7 +115,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_->SetRenderMode(RenderMode::kOffline);
 
   // Setup cache wait timer (waits a few seconds of inactivity before caching)
-  cache_wait_timer_.setInterval(250);
+  cache_wait_timer_.setInterval(Config::Current()["AutoCacheInterval"].toInt());
   cache_wait_timer_.setSingleShot(true);
   connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
 
@@ -367,6 +368,18 @@ void ViewerWidget::ForceUpdate()
 {
   // Hack that forces the viewer to update
   UpdateTextureFromNode(GetTime());
+}
+
+void ViewerWidget::SetAutoCacheEnabled(bool e)
+{
+  autocache_ = e;
+
+  if (autocache_) {
+    StartBackgroundCaching();
+  } else if (cache_background_task_ == our_cache_background_task_) {
+    StopAllBackgroundCacheTasks(false);
+    cache_background_task_ = nullptr;
+  }
 }
 
 void ViewerWidget::SetGizmos(Node *node)
@@ -865,10 +878,10 @@ void ViewerWidget::StartBackgroundCaching()
   }
 #endif
 
-  if (GetConnectedNode()
+  if (autocache_
+      && GetConnectedNode()
       && (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
-          || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())
-      && Config::Current()["AutoCache"].toBool()) {
+          || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())) {
     if (cache_background_task_ || busy_viewers_) {
 
       // Something else is caching right now, we don't want to do multiple at once so we'll check
@@ -983,6 +996,16 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     connect(scopes_menu, &Menu::triggered, this, &ViewerWidget::ContextMenuScopeTriggered);
+  }
+
+  menu.addSeparator();
+
+  {
+    // Auto-cache
+    QAction* autocache_action = menu.addAction(tr("Auto-Cache"));
+    autocache_action->setCheckable(true);
+    autocache_action->setChecked(autocache_);
+    connect(autocache_action, &QAction::triggered, this, &ViewerWidget::SetAutoCacheEnabled);
   }
 
   menu.addSeparator();
