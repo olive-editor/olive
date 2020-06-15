@@ -938,7 +938,10 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
-  cache_target_time_ = target_ts;
+  // CacheCouldContainTime uses cache_target_time_, so we'll temporarily set it to the last frame's TS
+  if (!cached_frames_.isEmpty()) {
+    cache_target_time_ = cached_frames_.last()->timestamp();
+  }
 
   // If the frame wasn't in the frame cache, see if this frame cache is too old to use
   if (!CacheCouldContainTime(target_ts)) {
@@ -951,6 +954,8 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
 
     still_seeking = true;
   }
+
+  cache_target_time_ = target_ts;
 
   int ret;
   AVPacket* pkt = av_packet_alloc();
@@ -1232,7 +1237,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
 
   // Handle format context error
   if (error_code != 0) {
-    qDebug() << "Failed to open input:" << filename << error_code;
+    qCritical() << "Failed to open input:" << filename << error_code;
     ClearResources();
     return;
   }
@@ -1242,7 +1247,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
 
   // Handle get stream information error
   if (error_code < 0) {
-    qDebug() << "Failed to find stream info:" << error_code;
+    qCritical() << "Failed to find stream info:" << error_code;
     ClearResources();
     return;
   }
@@ -1279,7 +1284,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   }
 
   // Set multithreading setting
-  error_code = av_dict_set(&opts_, "threads", "auto", 0);
+  error_code = av_dict_set(&opts_, "threads", "1", 0);
 
   // Handle failure to set multithreaded decoding
   if (error_code < 0) {
@@ -1291,7 +1296,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   if (error_code < 0) {
     char buf[50];
     av_strerror(error_code, buf, 50);
-    qDebug() << "Failed to open codec" << codec->id << error_code << buf;
+    qCritical() << "Failed to open codec" << codec->id << error_code << buf;
     ClearResources();
     return;
   }
