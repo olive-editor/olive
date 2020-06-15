@@ -208,8 +208,6 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     window->display_widget()->ConnectColorManager(using_manager);
   }
 
-  UpdateRendererParameters();
-
   UpdateStack();
 
   if (GetConnectedTimelinePoints()) {
@@ -217,10 +215,10 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
   }
 
+  UpdateRendererParameters();
+
   // Set texture to new texture (or null if no viewer node is available)
   ForceUpdate();
-
-  StartBackgroundCaching();
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
@@ -917,8 +915,6 @@ void ViewerWidget::UpdateRendererParameters()
   GetConnectedNode()->video_frame_cache()->InvalidateAll();
   GetConnectedNode()->audio_playback_cache()->InvalidateAll();
 
-  StartBackgroundCaching();
-
   renderer_->SetVideoParams(GetConnectedNode()->video_params());
   renderer_->SetAudioParams(GetConnectedNode()->audio_params());
 
@@ -1239,7 +1235,7 @@ void ViewerWidget::ViewerInvalidatedRange()
   StopAllBackgroundCacheTasks(false);
 
   if (!(qApp->mouseButtons() & Qt::LeftButton)) {
-    cache_wait_timer_.start();
+    StartBackgroundCaching();
   }
 }
 
