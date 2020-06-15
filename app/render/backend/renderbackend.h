@@ -87,7 +87,7 @@ public:
 
   void SetVideoDownloadMatrix(const QMatrix4x4& mat);
 
-  static QList<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
+  static std::list<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
 public slots:
   void NodeGraphChanged(NodeInput *source);

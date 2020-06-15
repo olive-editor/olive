@@ -74,16 +74,14 @@ void RenderTask::Render(const TimeRangeList& video_range,
   double total_length = 0;
   double video_frame_sz = video_params_.time_base().toDouble();
 
+  std::list<TimeRange> audio_queue;
   std::list<RangeSampleFuturePair> audio_lookup_table;
   if (!audio_range.isEmpty()) {
     foreach (const TimeRange& r, audio_range) {
       total_length += r.length().toDouble();
 
-      QList<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
-
-      foreach (const TimeRange& split, ranges) {
-        audio_lookup_table.push_back({split, backend_.RenderAudio(split)});
-      }
+      std::list<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
+      audio_queue.insert(audio_queue.end(), ranges.begin(), ranges.end());
     }
   }
 
@@ -123,6 +121,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
   while (!IsCancelled()
          && (!render_lookup_table.empty()
              || !frame_queue.empty()
+             || !audio_queue.empty()
              || !download_futures.empty()
              || !audio_lookup_table.empty())) {
 
@@ -166,6 +165,11 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
       // Remove first element
       frame_queue.pop_front();
+    }
+
+    if (!audio_queue.empty()) {
+      audio_lookup_table.push_back({audio_queue.front(), backend_.RenderAudio(audio_queue.front())});
+      audio_queue.pop_front();
     }
 
     i = render_lookup_table.begin();

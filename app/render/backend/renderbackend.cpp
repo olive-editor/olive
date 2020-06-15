@@ -175,18 +175,19 @@ void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
   video_download_matrix_ = mat;
 }
 
-QList<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
+std::list<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 {
+  // FIXME: Magic number
   const int chunk_size = 2;
 
-  QList<TimeRange> split_ranges;
+  std::list<TimeRange> split_ranges;
 
   int start_time = qFloor(r.in().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
   int end_time = qCeil(r.out().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
 
   for (int i=start_time; i<end_time; i+=chunk_size) {
-    split_ranges.append(TimeRange(qMax(r.in(), rational(i)),
-                                  qMin(r.out(), rational(i + chunk_size))));
+    split_ranges.push_back(TimeRange(qMax(r.in(), rational(i)),
+                                     qMin(r.out(), rational(i + chunk_size))));
   }
 
   return split_ranges;
