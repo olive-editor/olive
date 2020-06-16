@@ -269,6 +269,10 @@ void NodeView::Paste()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   if (!pasted_nodes.isEmpty()) {
+    foreach (Node* n, pasted_nodes) {
+      AssociateNodeWithSelectedBlocks(n);
+    }
+
     AttachNodesToCursor(pasted_nodes);
   }
 }
