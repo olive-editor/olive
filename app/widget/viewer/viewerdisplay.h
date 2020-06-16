@@ -30,6 +30,7 @@
 #include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
+#include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
@@ -117,6 +118,8 @@ public slots:
   void SetImage(FramePtr in_buffer);
 
   void SetZoomData(bool flag, int percent);
+
+  void ToolChanged(Tool::Item tool);
 
 signals:
   /**
@@ -213,6 +216,8 @@ private:
    * @brief position of mouse to calculate delta from.
    */
   QPoint position_;
+
+  bool hand_tool_;
 
 private slots:
   /**

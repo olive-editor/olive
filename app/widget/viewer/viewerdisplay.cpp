@@ -35,6 +35,7 @@
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/pixelformat.h"
+#include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -51,6 +52,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   zoomed_(false),
   zoom_multiplier_(1.0)
 {
+  connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
+
+  ToolChanged(Core::instance()->tool());
 }
 
 ViewerDisplayWidget::~ViewerDisplayWidget()
@@ -81,6 +85,17 @@ void ViewerDisplayWidget::SetZoomData(bool flag, int percent)
   }
   else {
     zoom_multiplier_ = 1.0 / (static_cast<double>(percent) * 0.01);
+  }
+}
+
+void ViewerDisplayWidget::ToolChanged(Tool::Item tool)
+{
+  if (tool == Tool::kHand) {
+    hand_tool_ = true;
+    setCursor(Qt::OpenHandCursor);
+  } else {
+    hand_tool_ = false;
+    unsetCursor();
   }
 }
 
@@ -180,7 +195,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
   }
 
   // If translation is enabled get current position in preperation for move event
-  if (event->button() == Qt::MiddleButton && zoomed_) {
+  if ((event->button() == Qt::MiddleButton || hand_tool_) && zoomed_) {
     position_ = event->pos();
     return;
   }
@@ -195,7 +210,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
   // Only allow translation if the image is larger than the container widget
-  if (event->buttons() & Qt::MiddleButton && zoomed_) {
+  if ((event->buttons() & Qt::MiddleButton || hand_tool_) && zoomed_) {
     QPointF delta = event->pos() - position_;
     // scale delta to widget size and zoom level
     delta.setX(zoom_multiplier_ * delta.x() / width());
