@@ -103,6 +103,8 @@ public slots:
   void SetDefaultLayout();
 
 protected:
+  virtual void showEvent(QShowEvent* e) override;
+
   virtual void closeEvent(QCloseEvent* e) override;
 
 #ifdef Q_OS_WINDOWS
@@ -166,6 +168,10 @@ private slots:
   void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 
   void StatusBarDoubleClicked();
+
+#ifdef Q_OS_LINUX
+  void ShowNouveauWarning();
+#endif
 
 };
 

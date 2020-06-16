@@ -38,10 +38,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-#ifdef Q_OS_LINUX
-bool ViewerDisplayWidget::nouveau_check_done_ = false;
-#endif
-
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
   signal_cursor_color_(false),
@@ -199,21 +195,6 @@ void ViewerDisplayWidget::initializeGL()
   ManagedDisplayWidget::initializeGL();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerDisplayWidget::ContextCleanup, Qt::DirectConnection);
-
-#ifdef Q_OS_LINUX
-  if (!nouveau_check_done_) {
-    const char* vendor = reinterpret_cast<const char*>(context()->functions()->glGetString(GL_VENDOR));
-
-    if (!strcmp(vendor, "nouveau")) {
-      // Working with Qt widgets in this function segfaults, so we queue the messagebox for later
-      QMetaObject::invokeMethod(this,
-                                "ShowNouveauWarning",
-                                Qt::QueuedConnection);
-    }
-
-    nouveau_check_done_ = true;
-  }
-#endif
 }
 
 void ViewerDisplayWidget::paintGL()
@@ -304,18 +285,6 @@ rational ViewerDisplayWidget::GetGizmoTime()
 {
   return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
 }
-
-#ifdef Q_OS_LINUX
-void ViewerDisplayWidget::ShowNouveauWarning()
-{
-  QMessageBox::warning(this,
-                       tr("Driver Warning"),
-                       tr("Olive has detected your system is using the Nouveau graphics driver.\n\nThis driver is "
-                          "known to have stability and performance issues with Olive. It is highly recommended "
-                          "you install the proprietary NVIDIA driver before continuing to use Olive."),
-                       QMessageBox::Ok);
-}
-#endif
 
 void ViewerDisplayWidget::ContextCleanup()
 {
