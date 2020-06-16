@@ -180,11 +180,12 @@ QVector<rational> FrameHashCache::GetInvalidatedFrames()
 
 void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
-                                    const VideoParams& vparam)
+                                    const VideoParams& vparam,
+                                    int linesize_bytes)
 {
   QString fn = CachePathName(hash);
 
-  if (SaveCacheFrame(fn, data, vparam)) {
+  if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     DiskManager::instance()->CreatedFile(fn, hash);
   }
@@ -192,7 +193,7 @@ void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
 
 void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
 {
-  SaveCacheFrame(hash, frame->data(), frame->video_params());
+  SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash)
@@ -319,7 +320,7 @@ QString FrameHashCache::CachePathName(const QByteArray& hash)
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam)
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
 {
   Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
 
@@ -350,7 +351,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   int bpc = PixelFormat::BytesPerChannel(vparam.format());
 
   size_t xs = PixelFormat::ChannelCount(vparam.format()) * bpc;
-  size_t ys = vparam.effective_width() * PixelFormat::ChannelCount(vparam.format()) * bpc;
+  size_t ys = linesize_bytes;
 
   Imf::FrameBuffer framebuffer;
   framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));

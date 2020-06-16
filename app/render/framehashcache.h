@@ -60,8 +60,8 @@ public:
    */
   static QString CachePathName(const QByteArray &hash);
 
-  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam);
-  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam);
+  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
+  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
   static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
   static FramePtr LoadCacheFrame(const QByteArray& hash);
   static FramePtr LoadCacheFrame(const QString& fn);

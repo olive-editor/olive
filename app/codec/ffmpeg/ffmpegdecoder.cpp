@@ -617,7 +617,7 @@ void SaveCacheFrame(FFmpegDecoder* decoder,
             &converted_linesize);
   scaler_lock.unlock();
 
-  if (!FrameHashCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params)) {
+  if (!FrameHashCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params, converted_linesize)) {
     qCritical() <<" Failed to save cache frame" << dst_fn;
   }
 
