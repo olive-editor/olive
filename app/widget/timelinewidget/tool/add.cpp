@@ -105,7 +105,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->AdjustedLength());
-      clip->set_block_name(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
+      clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 

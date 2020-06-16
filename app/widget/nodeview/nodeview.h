@@ -176,11 +176,6 @@ private slots:
   void AutoPositionDescendents();
 
   /**
-   * @brief Receiver for labelling a node from the context menu
-   */
-  void ContextMenuLabelNode();
-
-  /**
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);

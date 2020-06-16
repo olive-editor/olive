@@ -396,7 +396,7 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
       ClipBlock* clip = new ClipBlock();
       clip->set_media_in(ghost->MediaIn());
       clip->set_length_and_media_out(ghost->Length());
-      clip->set_block_name(footage_stream->footage()->name());
+      clip->SetLabel(footage_stream->footage()->name());
       new NodeAddCommand(dst_graph, clip, command);
 
       switch (footage_stream->type()) {

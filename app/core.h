@@ -207,6 +207,11 @@ public:
   static void SetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference, const QVariant& value);
 
   /**
+   * @brief Show a dialog to the user to rename a set of nodes
+   */
+  void LabelNodes(const QList<Node*>& nodes) const;
+
+  /**
    * @brief Create a new sequence named appropriately for the active project
    */
   SequencePtr CreateNewSequenceForProject(Project *project) const;

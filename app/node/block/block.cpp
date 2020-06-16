@@ -31,11 +31,6 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
-  name_input_ = new NodeInput("name_in", NodeParam::kString);
-  name_input_->set_connectable(false);
-  name_input_->set_is_keyframable(false);
-  AddInput(name_input_);
-
   length_input_ = new NodeInput("length_in", NodeParam::kRational);
   length_input_->set_connectable(false);
   length_input_->set_is_keyframable(false);
@@ -195,18 +190,6 @@ void Block::set_enabled(bool e)
   emit EnabledChanged();
 }
 
-QString Block::block_name() const
-{
-  return name_input_->get_standard_value().toString();
-}
-
-void Block::set_block_name(const QString &name)
-{
-  name_input_->set_standard_value(name);
-
-  emit NameChanged();
-}
-
 rational Block::SequenceToMediaTime(const rational &sequence_time) const
 {
   // These constants are not considered "values" per se, so we don't modify them
@@ -351,7 +334,6 @@ void Block::Retranslate()
 {
   Node::Retranslate();
 
-  name_input_->set_name(tr("Name"));
   length_input_->set_name(tr("Length"));
   media_in_input_->set_name(tr("Media In"));
   enabled_input_->set_name(tr("Enabled"));

@@ -965,7 +965,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 
   connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
   connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-  connect(block, &Block::NameChanged, this, &TimelineWidget::BlockUpdated);
+  connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
   connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 }
 
@@ -973,7 +973,7 @@ void TimelineWidget::RemoveBlock(Block *block)
 {
   disconnect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
   disconnect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-  disconnect(block, &Block::NameChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
   delete block_items_.take(block);

@@ -490,15 +490,13 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   if (itemAt(pos) && !selected.isEmpty()) {
 
-    if (selected.size() == 1) {
+    // Label node action
+    QAction* label_action = m.addAction(tr("Label"));
+    connect(label_action, &QAction::triggered, this, [this](){
+      Core::instance()->LabelNodes(scene_.GetSelectedNodes());
+    });
 
-      // Label node action
-      QAction* label_action = m.addAction(tr("Label"));
-      connect(label_action, &QAction::triggered, this, &NodeView::ContextMenuLabelNode);
-
-      m.addSeparator();
-
-    }
+    m.addSeparator();
 
     // Auto-position action
     QAction* autopos = m.addAction(tr("Auto-Position"));
@@ -588,30 +586,6 @@ void NodeView::AutoPositionDescendents()
 
   foreach (Node* n, selected) {
     scene_.ReorganizeFrom(n);
-  }
-}
-
-void NodeView::ContextMenuLabelNode()
-{
-  QList<Node*> nodes = scene_.GetSelectedNodes();
-
-  if (nodes.isEmpty()) {
-    return;
-  }
-
-  Node* n = nodes.first();
-
-  bool ok;
-
-  QString s = QInputDialog::getText(this,
-                                    tr("Label Node"),
-                                    tr("Set node label"),
-                                    QLineEdit::Normal,
-                                    n->GetLabel(),
-                                    &ok);
-
-  if (ok) {
-    n->SetLabel(s);
   }
 }
 

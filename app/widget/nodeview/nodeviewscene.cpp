@@ -291,10 +291,12 @@ bool NodeViewScene::GetEdgesAreCurved() const
 
 void NodeViewScene::SetEdgesAreCurved(bool curved)
 {
-  curved_edges_ = curved;
+  if (curved_edges_ != curved) {
+    curved_edges_ = curved;
 
-  foreach (NodeViewEdge* e, edge_map_) {
-    e->SetCurved(curved_edges_);
+    foreach (NodeViewEdge* e, edge_map_) {
+      e->SetCurved(curved_edges_);
+    }
   }
 }
 

@@ -27,6 +27,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
 
@@ -968,6 +969,38 @@ QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &
 void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
 {
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
+}
+
+void Core::LabelNodes(const QList<Node *> &nodes) const
+{
+  if (nodes.isEmpty()) {
+    return;
+  }
+
+  bool ok;
+
+  QString start_label = nodes.first()->GetLabel();
+
+  for (int i=1; i<nodes.size(); i++) {
+    if (nodes.at(i)->GetLabel() != start_label) {
+      // Not all the nodes share the same name, so we'll start with a blank one
+      start_label.clear();
+      break;
+    }
+  }
+
+  QString s = QInputDialog::getText(main_window_,
+                                    tr("Label Node"),
+                                    tr("Set node label"),
+                                    QLineEdit::Normal,
+                                    start_label,
+                                    &ok);
+
+  if (ok) {
+    foreach (Node* n, nodes) {
+      n->SetLabel(s);
+    }
+  }
 }
 
 SequencePtr Core::CreateNewSequenceForProject(Project* project) const

@@ -72,9 +72,6 @@ public:
   bool is_enabled() const;
   void set_enabled(bool e);
 
-  QString block_name() const;
-  void set_block_name(const QString& name);
-
   static bool Link(Block* a, Block* b);
   static void Link(const QList<Block*>& blocks);
   static bool Unlink(Block* a, Block* b);
@@ -109,8 +106,6 @@ signals:
 
   void LinksChanged();
 
-  void NameChanged();
-
   void EnabledChanged();
 
 protected:
@@ -134,7 +129,6 @@ protected:
 private:
   void set_length_internal(const rational &length);
 
-  NodeInput* name_input_;
   NodeInput* length_input_;
   NodeInput* media_in_input_;
   NodeInput* speed_input_;

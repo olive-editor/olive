@@ -122,12 +122,12 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     int text_top = TrackOutput::GetTrackHeightMinimum() / 2 - painter->fontMetrics().height() / 2;
     QRectF text_rect = rect();
     text_rect.adjust(0, text_top, 0, 0);
-    painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->block_name());
+    painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->GetLabel());
 
     // Linked clips are underlined
     if (block_->HasLinks()) {
       QFontMetrics fm = painter->fontMetrics();
-      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->block_name()));
+      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->GetLabel()));
 
       QPointF underline_start = rect().topLeft() + QPointF(0, text_top + fm.height());
       QPointF underline_end = underline_start + QPointF(text_width, 0);
