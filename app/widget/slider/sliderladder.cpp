@@ -156,9 +156,7 @@ void SliderLadder::TimerUpdate()
 #endif
 
   int target = active_element_->y() + active_element_->height() / 2;
-  qDebug() << "Lerping" << relative_y_ << "to" << target << QDateTime::currentMSecsSinceEpoch();
   relative_y_ = lerp(relative_y_, static_cast<float>(target), 0.1f);
-  qDebug() << "  Relative Y:" << relative_y_;
 
   if (!x_mvmt && !y_mvmt) {
     return;
