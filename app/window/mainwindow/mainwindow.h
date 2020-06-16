@@ -70,11 +70,26 @@ public:
 
   CurvePanel* AppendCurvePanel();
 
-#ifdef Q_OS_WINDOWS
-  void SetTaskbarButtonState(TBPFLAG flags);
+  enum ProgressStatus {
+    kProgressNone,
+    kProgressShow,
+    kProgressError
+  };
 
-  void SetTaskbarButtonProgress(int value, int max);
-#endif
+  /**
+   * @brief Where applicable, show progress on an operating system level
+   *
+   * * For Windows, this is shown as progress in the taskbar.
+   * * For macOS, this is shown as progress in the dock.
+   */
+  void SetApplicationProgressStatus(ProgressStatus status);
+
+  /**
+   * @brief If SetApplicationProgressStatus is set to kShowProgress, set the value with this
+   *
+   * Expects a percentage (0-100 inclusive).
+   */
+  void SetApplicationProgressValue(int value);
 
 public slots:
   void ProjectOpen(Project *p);

@@ -191,22 +191,6 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
   return false;
 }
 
-#ifdef Q_OS_WINDOWS
-void MainWindow::SetTaskbarButtonState(TBPFLAG flags)
-{
-  if (taskbar_interface_) {
-    taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), flags);
-  }
-}
-
-void MainWindow::SetTaskbarButtonProgress(int value, int max)
-{
-  if (taskbar_interface_) {
-    taskbar_interface_->SetProgressValue(reinterpret_cast<HWND>(this->winId()), value, max);
-  }
-}
-#endif
-
 void MainWindow::FolderOpen(Project* p, Item *i, bool floating)
 {
   ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
@@ -354,6 +338,37 @@ void MainWindow::ProjectClose(Project *p)
       CloseSequence(seq);
     }
   }
+}
+
+void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
+{
+#if defined(Q_OS_WINDOWS)
+  if (taskbar_interface_) {
+    switch (status) {
+    case kProgressShow:
+      taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NORMAL);
+      break;
+    case kProgressNone:
+      taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NOPROGRESS);
+      break;
+    case kProgressError:
+      taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_ERROR);
+      break;
+    }
+  }
+
+#elif defined(Q_OS_MAC)
+#endif
+}
+
+void MainWindow::SetApplicationProgressValue(int value)
+{
+#if defined(Q_OS_WINDOWS)
+  if (taskbar_interface_) {
+    taskbar_interface_->SetProgressValue(reinterpret_cast<HWND>(this->winId()), value, 100);
+  }
+#elif defined(Q_OS_MAC)
+#endif
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)

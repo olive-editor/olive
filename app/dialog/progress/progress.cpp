@@ -68,18 +68,14 @@ void ProgressDialog::showEvent(QShowEvent *e)
 
   elapsed_timer_lbl_->Start();
 
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
-#endif
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressShow);
 }
 
 void ProgressDialog::closeEvent(QCloseEvent *e)
 {
   QDialog::closeEvent(e);
 
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NOPROGRESS);
-#endif
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressNone);
 }
 
 void ProgressDialog::SetProgress(double value)
@@ -89,16 +85,12 @@ void ProgressDialog::SetProgress(double value)
   bar_->setValue(percent);
   elapsed_timer_lbl_->SetProgress(value);
 
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonProgress(percent, 100);
-#endif
+  Core::instance()->main_window()->SetApplicationProgressValue(percent);
 }
 
 void ProgressDialog::ShowErrorMessage(const QString &title, const QString &message)
 {
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
-#endif
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressError);
 
   QMessageBox b(this);
   b.setIcon(QMessageBox::Critical);
