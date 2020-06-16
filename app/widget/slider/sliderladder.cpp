@@ -27,6 +27,7 @@
 #include <QVBoxLayout>
 
 #include "common/clamp.h"
+#include "common/lerp.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -62,6 +63,9 @@ SliderLadder::SliderLadder(double start_val, double drag_multiplier, int nb_oute
     elements_.first()->SetMultiplierVisible(false);
   }
 
+  drag_timer_.setInterval(10);
+  connect(&drag_timer_, &QTimer::timeout, this, &SliderLadder::TimerUpdate);
+
 #if defined(Q_OS_MAC)
   CGAssociateMouseAndMouseCursorPosition(false);
   CGDisplayHideCursor(kCGDirectMainDisplay);
@@ -90,34 +94,6 @@ void SliderLadder::SetValue(double val)
   }
 }
 
-void SliderLadder::mouseMoveEvent(QMouseEvent *event)
-{
-  Q_UNUSED(event)
-
-  int32_t x_mvmt, y_mvmt;
-
-  // Keep cursor in the same position
-#if defined(Q_OS_MAC)
-  CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
-#else
-  QPoint current_pos = QCursor::pos();
-
-  x_mvmt = current_pos.x() - drag_start_.x();
-  y_mvmt = current_pos.y() - drag_start_.y();
-
-  QCursor::setPos(drag_start_);
-#endif
-
-  // Determine which element we're in
-  relative_y_ = clamp(relative_y_ + y_mvmt,
-                      elements_.first()->y(),
-                      elements_.last()->y() + elements_.last()->height() - 1);
-
-  SetActiveElement();
-
-  emit DraggedByValue(x_mvmt, active_element_->GetMultiplier());
-}
-
 void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
 {
   Q_UNUSED(event)
@@ -130,6 +106,7 @@ void SliderLadder::showEvent(QShowEvent *event)
   QWidget::showEvent(event);
 
   QMetaObject::invokeMethod(this, "InitRelativeY", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(&drag_timer_, "start", Qt::QueuedConnection);
 }
 
 void SliderLadder::SetActiveElement()
@@ -148,6 +125,7 @@ void SliderLadder::SetActiveElement()
         // This is the element!
         active_element_ = ele;
         active_element_->SetHighlighted(true);
+        relative_y_ = active_element_->y() + active_element_->height() / 2;
         break;
       }
     }
@@ -159,6 +137,43 @@ void SliderLadder::InitRelativeY()
   relative_y_ = QCursor::pos().y() - this->y();
 
   SetActiveElement();
+}
+
+void SliderLadder::TimerUpdate()
+{
+  int32_t x_mvmt, y_mvmt;
+
+  // Keep cursor in the same position
+#if defined(Q_OS_MAC)
+  CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
+#else
+  QPoint current_pos = QCursor::pos();
+
+  x_mvmt = current_pos.x() - drag_start_.x();
+  y_mvmt = current_pos.y() - drag_start_.y();
+
+  QCursor::setPos(drag_start_);
+#endif
+
+  int target = active_element_->y() + active_element_->height() / 2;
+  qDebug() << "Lerping" << relative_y_ << "to" << target << QDateTime::currentMSecsSinceEpoch();
+  relative_y_ = lerp(relative_y_, static_cast<float>(target), 0.1f);
+  qDebug() << "  Relative Y:" << relative_y_;
+
+  if (!x_mvmt && !y_mvmt) {
+    return;
+  }
+
+  // Determine which element we're in
+  relative_y_ = clamp(relative_y_ + y_mvmt,
+                      static_cast<float>(elements_.first()->y()),
+                      static_cast<float>(elements_.last()->y() + elements_.last()->height() - 1));
+
+  SetActiveElement();
+
+  if (qAbs(x_mvmt) > qAbs(y_mvmt)) {
+    emit DraggedByValue(x_mvmt, active_element_->GetMultiplier());
+  }
 }
 
 SliderLadderElement::SliderLadderElement(const double &multiplier, QWidget *parent) :

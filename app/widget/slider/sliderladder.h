@@ -22,6 +22,7 @@
 #define SLIDERLADDER_H
 
 #include <QLabel>
+#include <QTimer>
 #include <QWidget>
 
 #include "common/define.h"
@@ -70,8 +71,6 @@ public:
   void SetValue(double val);
 
 protected:
-  virtual void mouseMoveEvent(QMouseEvent *event) override;
-
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
   virtual void showEvent(QShowEvent *event) override;
@@ -92,10 +91,14 @@ private:
 
   SliderLadderElement* active_element_;
 
-  int relative_y_;
+  float relative_y_;
+
+  QTimer drag_timer_;
 
 private slots:
   void InitRelativeY();
+
+  void TimerUpdate();
 
 };
 
