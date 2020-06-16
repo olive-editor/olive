@@ -20,6 +20,8 @@
 
 #include "clickablelabel.h"
 
+#include <QMouseEvent>
+
 OLIVE_NAMESPACE_ENTER
 
 ClickableLabel::ClickableLabel(const QString &text, QWidget *parent) :
@@ -32,16 +34,18 @@ ClickableLabel::ClickableLabel(QWidget *parent) :
 {
 }
 
-void ClickableLabel::mouseReleaseEvent(QMouseEvent *)
+void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (underMouse()) {
+  if (event->button() == Qt::LeftButton && underMouse()) {
     emit MouseClicked();
   }
 }
 
-void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *)
+void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  emit MouseDoubleClicked();
+  if (event->button() == Qt::LeftButton) {
+    emit MouseDoubleClicked();
+  }
 }
 
 OLIVE_NAMESPACE_EXIT
