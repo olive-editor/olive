@@ -49,7 +49,8 @@ Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
   case Stream::kAudio:
     return Timeline::kTrackTypeAudio;
   case Stream::kSubtitle:
-    return Timeline::kTrackTypeSubtitle;
+    // Temporarily disabled until we figure out a better thing to do with this
+    //return Timeline::kTrackTypeSubtitle;
   case Stream::kUnknown:
   case Stream::kData:
   case Stream::kAttachment:
