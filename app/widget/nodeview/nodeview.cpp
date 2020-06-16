@@ -36,7 +36,8 @@ NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
   graph_(nullptr),
   drop_edge_(nullptr),
-  filter_mode_(kFilterShowSelectedBlocks)
+  filter_mode_(kFilterShowSelectedBlocks),
+  scale_(1.0)
 {
   setScene(&scene_);
   SetDefaultDragMode(RubberBandDrag);
@@ -457,7 +458,12 @@ void NodeView::wheelEvent(QWheelEvent *event)
     // FIXME: Hardcoded divider (0.001)
     qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 
-    scale(multiplier, multiplier);
+    double test_scale = scale_ * multiplier;
+
+    if (test_scale > 0.1) {
+      scale(multiplier, multiplier);
+      scale_ = test_scale;
+    }
   } else {
     QWidget::wheelEvent(event);
   }

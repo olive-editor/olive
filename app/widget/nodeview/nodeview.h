@@ -132,6 +132,8 @@ private:
 
   FilterMode filter_mode_;
 
+  double scale_;
+
 private slots:
   void ValidateFilter();
 
