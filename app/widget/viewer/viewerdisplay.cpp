@@ -52,7 +52,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   zoomed_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
-
+  // Initilises hand_tool_ based on currently selected tool.
   ToolChanged(Core::instance()->tool());
 }
 
@@ -76,9 +76,9 @@ void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
 void ViewerDisplayWidget::IsZoomed(bool flag)
 {
   zoomed_ = flag;
-  // If the image is smaller than the container widget we disable translation
+  // If the image is smaller than the container widget we reset the translation.
   if (!flag) {
-    QMatrix4x4 mat;
+    QMatrix4x4 mat; // defaults to identity matrix.
     SetMatrixTranslate(mat);
   }
 }
@@ -97,6 +97,7 @@ void ViewerDisplayWidget::ToolChanged(Tool::Item tool)
 QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
 {
   QMatrix4x4 mat;
+  // Images is scaled, the translated.
   return translate_matrix_ * scale_matrix_ * mat;
 }
 
@@ -183,13 +184,13 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
     return;
   }
 
-  // reset translation
+  // Reset translation.
   if (event->button() == Qt::MiddleButton && event->modifiers() & Qt::ControlModifier) {
-    QMatrix4x4 mat;
+    QMatrix4x4 mat; // Identity matrix
     SetMatrixTranslate(mat);
   }
 
-  // If translation is enabled get current position in preperation for move event
+  // If translation is enabled get current position in preperation for move event.
   if ((event->button() == Qt::MiddleButton || hand_tool_) && zoomed_) {
     position_ = event->pos();
     return;

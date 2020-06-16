@@ -117,8 +117,17 @@ public slots:
    */
   void SetImage(FramePtr in_buffer);
 
+  /**
+   * @brief Set zoomed_ flag if the viewersizer has zoomed the image to be larger than the widget.
+   *
+   * If the image is smaller than the widget the translation is reset so the image is centered.
+   */
   void IsZoomed(bool flag);
 
+  /**
+   * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
+   * normal type.
+   */
   void ToolChanged(Tool::Item tool);
 
 signals:
@@ -208,10 +217,13 @@ private:
   bool zoomed_;
 
   /**
-   * @brief position of mouse to calculate delta from.
+   * @brief Position of mouse to calculate delta from.
    */
   QPoint position_;
 
+  /**
+   * @brief Set if the hand tool is selected.
+   */
   bool hand_tool_;
 
 private slots:
