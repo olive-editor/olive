@@ -22,24 +22,14 @@
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::EditTool::EditTool(TimelineWidget* parent) :
-  BeamTool(parent)
+TimelineWidget::BeamTool::BeamTool(TimelineWidget *parent) :
+  Tool(parent)
 {
 }
 
-void TimelineWidget::EditTool::MousePress(TimelineViewMouseEvent *event)
+void TimelineWidget::BeamTool::HoverMove(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
-}
-
-void TimelineWidget::EditTool::MouseMove(TimelineViewMouseEvent *event)
-{
-  Q_UNUSED(event)
-}
-
-void TimelineWidget::EditTool::MouseRelease(TimelineViewMouseEvent *event)
-{
-  Q_UNUSED(event)
+  parent()->SetViewBeamCursor(event->GetCoordinates(true));
 }
 
 OLIVE_NAMESPACE_EXIT

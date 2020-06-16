@@ -141,21 +141,21 @@ void TimelineView::wheelEvent(QWheelEvent *event)
     }
     
     QWheelEvent e(
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-      event->position(),
-      event->globalPosition(),
-#else
-      event->pos(),
-      event->globalPos(),
-#endif
-      event->pixelDelta(),
-      angle_delta,
-      event->buttons(),
-      event->modifiers(),
-      event->phase(),
-      event->inverted(),
-      event->source()
-    );
+      #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+          event->position(),
+          event->globalPosition(),
+      #else
+          event->pos(),
+          event->globalPos(),
+      #endif
+          event->pixelDelta(),
+          angle_delta,
+          event->buttons(),
+          event->modifiers(),
+          event->phase(),
+          event->inverted(),
+          event->source()
+          );
 
 #else
 
@@ -166,15 +166,15 @@ void TimelineView::wheelEvent(QWheelEvent *event)
     }
 
     QWheelEvent e(
-      event->pos(),
-      event->globalPos(),
-      event->pixelDelta(),
-      event->angleDelta(),
-      event->delta(),
-      orientation,
-      event->buttons(),
-      event->modifiers()
-    );
+          event->pos(),
+          event->globalPos(),
+          event->pixelDelta(),
+          event->angleDelta(),
+          event->delta(),
+          orientation,
+          event->buttons(),
+          event->modifiers()
+          );
 #endif
 
     QGraphicsView::wheelEvent(&e);
@@ -244,6 +244,26 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
   }
 }
 
+void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
+{
+  TimelineViewBase::drawForeground(painter, rect);
+
+  if (show_beam_cursor_
+      && connected_track_list_
+      && cursor_coord_.GetTrack().type() == connected_track_list_->type()
+      && cursor_coord_.GetTrack().index() < connected_track_list_->GetTrackCount()) {
+    painter->setPen(Qt::gray);
+
+    double cursor_x = TimeToScene(cursor_coord_.GetFrame());
+    int track_index = cursor_coord_.GetTrack().index();
+
+    painter->drawLine(cursor_x,
+                      GetTrackY(track_index),
+                      cursor_x,
+                      GetTrackHeight(track_index));
+  }
+}
+
 void TimelineView::ToolChangedEvent(Tool::Item tool)
 {
   switch (tool) {
@@ -260,6 +280,12 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
     break;
   default:
     unsetCursor();
+  }
+
+  // Hide/show cursor if necessary
+  if (show_beam_cursor_) {
+    show_beam_cursor_ = false;
+    viewport()->update();
   }
 }
 
@@ -396,6 +422,20 @@ void TimelineView::ConnectTrackList(TrackList *list)
 
   if (connected_track_list_) {
     connect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
+  }
+}
+
+void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
+{
+  bool update_required = true;/*(coord.GetTrack().type() == connected_track_list_->type()
+                          || cursor_coord_.GetTrack().type() == connected_track_list_->type()
+                          || !show_beam_cursor_);*/
+
+  show_beam_cursor_ = true;
+  cursor_coord_ = coord;
+
+  if (update_required) {
+    viewport()->update();
   }
 }
 

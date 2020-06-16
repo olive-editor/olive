@@ -1241,6 +1241,13 @@ void TimelineWidget::UpdateViewTimebases()
   }
 }
 
+void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->SetBeamCursor(coord);
+  }
+}
+
 void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
 {
   TimelineViewBlockItem* link_item;
