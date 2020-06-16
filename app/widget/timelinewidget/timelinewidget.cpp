@@ -1113,6 +1113,20 @@ void TimelineWidget::ShowContextMenu()
 
     QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
     connect(speed_duration_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialog);
+
+    menu.addSeparator();
+
+    QAction* properties_action = menu.addAction(tr("Properties"));
+    connect(properties_action, &QAction::triggered, this, [this](){
+      QList<TimelineViewBlockItem*> block_items = GetSelectedBlocks();
+      QList<Node*> nodes;
+
+      foreach (TimelineViewBlockItem* i, block_items) {
+        nodes.append(i->block());
+      }
+
+      Core::instance()->LabelNodes(nodes);
+    });
   }
 
   if (selected.isEmpty()) {
