@@ -79,7 +79,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
   connect(sizer_, &ViewerSizer::RequestMatrix, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
-  connect(sizer_, &ViewerSizer::SendZoomData, display_widget_, &ViewerDisplayWidget::SetZoomData);
+  connect(sizer_, &ViewerSizer::IsZoomed, display_widget_, &ViewerDisplayWidget::IsZoomed);
   sizer_->SetWidget(display_widget_);
 
   // Create waveform view when audio is connected and video isn't

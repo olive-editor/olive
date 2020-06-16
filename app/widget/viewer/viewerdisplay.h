@@ -117,7 +117,7 @@ public slots:
    */
   void SetImage(FramePtr in_buffer);
 
-  void SetZoomData(bool flag, int percent);
+  void IsZoomed(bool flag);
 
   void ToolChanged(Tool::Item tool);
 
@@ -206,11 +206,6 @@ private:
    * @brief Tells us if the image is zoomed in to be larger than the container widget.
    */
   bool zoomed_;
-
-  /**
-   * @brief Scale the translation so the image sticks to the mouse and we get sensible movement
-   */
-  double zoom_multiplier_;
 
   /**
    * @brief position of mouse to calculate delta from.

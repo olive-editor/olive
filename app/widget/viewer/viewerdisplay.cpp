@@ -49,8 +49,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   gizmos_(nullptr),
   gizmo_click_(false),
   last_loaded_buffer_(nullptr),
-  zoomed_(false),
-  zoom_multiplier_(1.0)
+  zoomed_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
@@ -74,17 +73,13 @@ void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
   update();
 }
 
-void ViewerDisplayWidget::SetZoomData(bool flag, int percent)
+void ViewerDisplayWidget::IsZoomed(bool flag)
 {
   zoomed_ = flag;
-  // If the image is smaller than the conainer widget we disable translation
+  // If the image is smaller than the container widget we disable translation
   if (!flag) {
     QMatrix4x4 mat;
     SetMatrixTranslate(mat);
-    zoom_multiplier_ = 1.0f;
-  }
-  else {
-    zoom_multiplier_ = 1.0 / (static_cast<double>(percent) * 0.01);
   }
 }
 
@@ -102,7 +97,7 @@ void ViewerDisplayWidget::ToolChanged(Tool::Item tool)
 QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
 {
   QMatrix4x4 mat;
-  return scale_matrix_ * translate_matrix_ * mat;
+  return translate_matrix_ * scale_matrix_ * mat;
 }
 
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
@@ -212,9 +207,9 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   // Only allow translation if the image is larger than the container widget
   if ((event->buttons() & Qt::MiddleButton || hand_tool_) && zoomed_) {
     QPointF delta = event->pos() - position_;
-    // scale delta to widget size and zoom level
-    delta.setX(zoom_multiplier_ * delta.x() / width());
-    delta.setY(zoom_multiplier_ * delta.y() / height());
+    // scale delta to widget size
+    delta.setX(2 * delta.x() / width());
+    delta.setY(2 * delta.y() / height());
 
     QMatrix4x4 mat;
     mat = GetMatrixTranslate();

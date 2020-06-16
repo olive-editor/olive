@@ -105,7 +105,7 @@ void ViewerSizer::UpdateSize()
       // This container is taller than the image, scale by width
       child_size = QSize(width(), qRound(child_size.width() / aspect_ratio_));
     }
-    emit SendZoomData(false, 0);
+    emit IsZoomed(false);
 
   } else {
 
@@ -134,7 +134,7 @@ void ViewerSizer::UpdateSize()
     child_matrix.scale(x_scale, y_scale, 1.0F);
 
     child_size = QSize(zoomed_width, zoomed_height);
-    emit SendZoomData(zoomed_in, zoom_);
+    emit IsZoomed(zoomed_in);
   }
 
   widget_->resize(child_size);
