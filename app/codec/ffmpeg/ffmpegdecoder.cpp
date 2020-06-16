@@ -1284,7 +1284,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   }
 
   // Set multithreading setting
-  error_code = av_dict_set(&opts_, "threads", "1", 0);
+  error_code = av_dict_set(&opts_, "threads", "auto", 0);
 
   // Handle failure to set multithreaded decoding
   if (error_code < 0) {
