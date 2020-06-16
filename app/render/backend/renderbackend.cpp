@@ -349,7 +349,9 @@ QByteArray RenderBackend::HashNode(const Node *n, const VideoParams &params, con
   hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
   hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
 
-  n->Hash(hasher, time);
+  if (n) {
+    n->Hash(hasher, time);
+  }
 
   return hasher.result();
 }
