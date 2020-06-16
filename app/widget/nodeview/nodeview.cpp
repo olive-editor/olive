@@ -53,7 +53,10 @@ NodeView::NodeView(QWidget *parent) :
 
   SetFlowDirection(NodeViewCommon::kTopToBottom);
 
-  scene_.setSceneRect(-100, -100, 200, 200);
+  // Set massive scene rect and hide the scrollbars to create an "infinite space" effect
+  scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 NodeView::~NodeView()
