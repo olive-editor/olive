@@ -893,6 +893,12 @@ void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)
   if (GetConnectedNode() && active_tool_ != nullptr) {
     active_tool_->MousePress(event);
   }
+
+  if (event->GetButton() != Qt::LeftButton) {
+    // Suspend tool immediately if the cursor isn't the primary button
+    active_tool_->MouseRelease(event);
+    active_tool_ = nullptr;
+  }
 }
 
 void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)

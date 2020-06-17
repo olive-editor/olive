@@ -134,7 +134,9 @@ bool TimelineViewBase::PlayheadPress(QMouseEvent *event)
 {
   QPointF scene_pos = mapToScene(event->pos());
 
-  dragging_playhead_ = (scene_pos.x() >= playhead_scene_left_ && scene_pos.x() < playhead_scene_right_);
+  dragging_playhead_ = (event->button() == Qt::LeftButton
+                        && scene_pos.x() >= playhead_scene_left_
+                        && scene_pos.x() < playhead_scene_right_);
 
   return dragging_playhead_;
 }
