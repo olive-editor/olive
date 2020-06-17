@@ -650,6 +650,7 @@ void MainWindow::showEvent(QShowEvent *e)
   context.create();
   context.makeCurrent(&surface);
   const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
+  qDebug() << "Using graphics driver:" << vendor;
   if (!strcmp(vendor, "nouveau")) {
     QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
   }
