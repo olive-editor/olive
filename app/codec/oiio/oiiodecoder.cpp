@@ -379,7 +379,7 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
 
   is_rgba_ = (spec.nchannels == kRGBAChannels);
 
-  pix_fmt_ = GetFormatFromOIIOBasetype(spec.format);
+  pix_fmt_ = GetFormatFromOIIOBasetype(spec);
 
   if (pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
