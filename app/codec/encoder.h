@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QString>
+#include <QXmlStreamWriter>
 
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
@@ -68,6 +69,8 @@ public:
 
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
+
+  virtual void Save(QXmlStreamWriter* writer) const;
 
 private:
   QString filename_;

@@ -100,4 +100,26 @@ QMatrix4x4 ExportParams::GenerateMatrix(ExportParams::VideoScalingMethod method,
   return preview_matrix;
 }
 
+void ExportParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement(QStringLiteral("export"));
+
+  writer->writeTextElement(QStringLiteral("encoder"), encoder_id_);
+
+  writer->writeTextElement(QStringLiteral("vscale"), QString::number(video_scaling_method_));
+
+  writer->writeTextElement(QStringLiteral("range"), QString::number(has_custom_range_));
+
+  writer->writeTextElement(QStringLiteral("customrangein"), custom_range_.in().toString());
+
+  writer->writeTextElement(QStringLiteral("customrangeout"), custom_range_.out().toString());
+
+  // FIXME: Change this when color chains are implemented
+  writer->writeTextElement(QStringLiteral("color"), color_transform_.output());
+
+  EncodingParams::Save(writer);
+
+  writer->writeEndElement(); // export
+}
+
 OLIVE_NAMESPACE_EXIT

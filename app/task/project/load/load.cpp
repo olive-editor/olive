@@ -70,6 +70,8 @@ bool ProjectLoadTask::Run()
 
     project_file.close();
 
+    emit ProgressChanged(1);
+
     if (reader.hasError()) {
       SetError(reader.errorString());
       return false;

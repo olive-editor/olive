@@ -56,6 +56,8 @@ public:
                                    int source_width, int source_height,
                                    int dest_width, int dest_height);
 
+  virtual void Save(QXmlStreamWriter* writer) const override;
+
 private:
   QString encoder_id_;
 

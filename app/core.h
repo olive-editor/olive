@@ -66,12 +66,14 @@ public:
    */
   static Core* instance();
 
+  int execute(QCoreApplication *a);
+
   /**
    * @brief Start Olive Core
    *
    * Main application launcher. Parses command line arguments and constructs main window (if entering a GUI mode).
    */
-  bool Start();
+  void Start();
 
   /**
    * @brief Stop Olive Core
@@ -406,11 +408,6 @@ private:
   void PushRecentlyOpenedProject(const QString &s);
 
   /**
-   * @brief Internal project open
-   */
-  void OpenProjectInternal(const QString& filename);
-
-  /**
    * @brief Declare custom types/classes for Qt's signal/slot system
    *
    * Qt's signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain
@@ -506,6 +503,15 @@ private slots:
   bool ConfirmImageSequence(const QString &filename);
 
   void ProjectWasModified(bool e);
+
+  bool StartHeadlessExport();
+
+  void OpenStartupProject();
+
+  /**
+   * @brief Internal project open
+   */
+  void OpenProjectInternal(const QString& filename);
 
 };
 

@@ -23,9 +23,15 @@
 OLIVE_NAMESPACE_ENTER
 
 CLITaskDialog::CLITaskDialog(Task *task, QObject* parent) :
-  CLIProgressDialog(task->GetTitle(), parent)
+  CLIProgressDialog(task->GetTitle(), parent),
+  task_(task)
 {
-  // FIXME: Still developing this, don't try to use
+  connect(task_, &Task::ProgressChanged, this, &CLITaskDialog::SetProgress);
+}
+
+bool CLITaskDialog::Run()
+{
+  return task_->Start();
 }
 
 OLIVE_NAMESPACE_EXIT

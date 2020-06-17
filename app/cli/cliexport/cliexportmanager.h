@@ -18,35 +18,19 @@
 
 ***/
 
-#ifndef CLIPROGRESSDIALOG_H
-#define CLIPROGRESSDIALOG_H
+#ifndef CLIEXPORTMANAGER_H
+#define CLIEXPORTMANAGER_H
 
-#include <QObject>
-#include <QTimer>
-
-#include "common/define.h"
+#include "task/export/export.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class CLIProgressDialog : public QObject
+class CLIExportManager : public QObject
 {
 public:
-  CLIProgressDialog(const QString &title, QObject* parent = nullptr);
-
-public slots:
-  void SetProgress(double p);
-
-private:
-  void Update();
-
-  QString title_;
-
-  double progress_;
-
-  bool drawn_;
-
+  CLIExportManager();
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // CLIPROGRESSDIALOG_H
+#endif // CLIEXPORTMANAGER_H

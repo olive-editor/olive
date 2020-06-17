@@ -81,17 +81,16 @@ Core *Core::instance()
   return &instance_;
 }
 
-bool Core::Start()
+int Core::execute(QCoreApplication* a)
 {
-  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
-  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
-  Config::Current().SetDefaults();
+  int exit_code = 1;
+
+  // Start core
+  OLIVE_NAMESPACE::Core::instance()->Start();
 
   //
   // Parse command line arguments
   //
-
-  QCoreApplication* app = QCoreApplication::instance();
 
   QCommandLineParser parser;
   parser.addHelpOption();
@@ -111,7 +110,7 @@ bool Core::Start()
   parser.addOption(headless_export_option);
 
   // Parse options
-  parser.process(*app);
+  parser.process(*a);
 
   QStringList args = parser.positionalArguments();
 
@@ -119,6 +118,44 @@ bool Core::Start()
   if (!args.isEmpty()) {
     startup_project_ = args.first();
   }
+
+  gui_active_ = !parser.isSet(headless_export_option);
+
+  if (gui_active_) {
+
+    // Start GUI
+    StartGUI(parser.isSet(fullscreen_option));
+
+    // If we have a startup
+    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
+
+    // Run application loop and receive exit code
+    exit_code = a->exec();
+
+  } else {
+
+    if (parser.isSet(headless_export_option)) {
+      // Start a headless export
+      if (StartHeadlessExport()) {
+        exit_code = 0;
+      }
+    }
+
+  }
+
+
+
+  // Clear core memory
+  OLIVE_NAMESPACE::Core::instance()->Stop();
+
+  return exit_code;
+}
+
+void Core::Start()
+{
+  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
+  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
+  Config::Current().SetDefaults();
 
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
@@ -141,53 +178,6 @@ bool Core::Start()
   //
 
   qInfo() << "Using Qt version:" << qVersion();
-
-  gui_active_ = !parser.isSet(headless_export_option);
-
-  if (gui_active_) {
-
-    // Start GUI
-    StartGUI(parser.isSet(fullscreen_option));
-
-    // Load startup project
-    if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
-      QMessageBox::warning(main_window(),
-                           tr("Failed to open startup file"),
-                           tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
-                           QMessageBox::Ok);
-
-      startup_project_.clear();
-    }
-
-    if (startup_project_.isEmpty()) {
-      // If no load project is set, create a new one on open
-      CreateNewProject();
-    } else {
-      OpenProjectInternal(startup_project_);
-    }
-
-    return true;
-
-  } else {
-
-    if (parser.isSet(headless_export_option)) {
-
-      if (startup_project_.isEmpty()) {
-        qCritical().noquote() << tr("You must specify a project file to export");
-      } else {
-        OpenProjectInternal(startup_project_);
-
-        qDebug() << "Ready for exporting!";
-
-        return true;
-      }
-
-    }
-
-    // Error fallback
-    return false;
-
-  }
 }
 
 void Core::Stop()
@@ -539,6 +529,106 @@ void Core::ProjectWasModified(bool e)
   }
 }
 
+bool Core::StartHeadlessExport()
+{
+  if (startup_project_.isEmpty()) {
+    qCritical().noquote() << tr("You must specify a project file to export");
+    return false;
+  }
+
+  if (!QFileInfo::exists(startup_project_)) {
+    qCritical().noquote() << tr("Specified project does not exist");
+    return false;
+  }
+
+  // Start a load task and try running it
+  ProjectLoadTask plm(startup_project_);
+  CLITaskDialog task_dialog(&plm);
+
+  if (task_dialog.Run()) {
+    ProjectPtr p = plm.GetLoadedProjects().first();
+    QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
+
+    // Check if this project contains sequences
+    if (items.isEmpty()) {
+      qCritical().noquote() << tr("Project contains no sequences, nothing to export");
+      return false;
+    }
+
+    SequencePtr sequence = nullptr;
+
+    // Check if this project contains multiple sequences
+    if (items.size() > 1) {
+      qInfo().noquote() << tr("This project has multiple sequences. Which do you wish to export?");
+      for (int i=0;i<items.size();i++) {
+        std::cout << "[" << i << "] " << items.at(i)->name().toStdString();
+      }
+
+      QTextStream stream(stdin);
+      QString sequence_read;
+      int sequence_index = -1;
+      QString quit_code = QStringLiteral("q");
+      std::string prompt = tr("Enter number (or %1 to cancel): ").arg(quit_code).toStdString();
+      forever {
+        std::cout << prompt;
+
+        stream.readLineInto(&sequence_read);
+
+        if (!QString::compare(sequence_read, quit_code, Qt::CaseInsensitive)) {
+          return false;
+        }
+
+        bool ok;
+        sequence_index = sequence_read.toInt(&ok);
+
+        if (ok && sequence_index >= 0 && sequence_index < items.size()) {
+          break;
+        } else {
+          qCritical().noquote() << tr("Invalid sequence number");
+        }
+      }
+
+      sequence = std::static_pointer_cast<Sequence>(items.at(sequence_index));
+    } else {
+      sequence = std::static_pointer_cast<Sequence>(items.first());
+    }
+
+    ExportParams params;
+    ExportTask export_task(sequence->viewer_output(), p->color_manager(), params);
+    CLITaskDialog export_dialog(&export_task);
+    if (export_dialog.Run()) {
+      qInfo().noquote() << tr("Export succeeded");
+      return true;
+    } else {
+      qInfo().noquote() << tr("Export failed: %1").arg(export_task.GetError());
+      return false;
+    }
+  } else {
+    qCritical().noquote() << tr("Project failed to load: %1").arg(plm.GetError());
+    return false;
+  }
+}
+
+void Core::OpenStartupProject()
+{
+  // Load startup project
+  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+    QMessageBox::warning(main_window_,
+                         tr("Failed to open startup file"),
+                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                         QMessageBox::Ok);
+
+    startup_project_.clear();
+  }
+
+  if (startup_project_.isEmpty()) {
+    // If no load project is set, create a new one on open
+    CreateNewProject();
+  } else {
+    OpenProjectInternal(startup_project_);
+  }
+}
+
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<rational>();
@@ -559,6 +649,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
 }
 
 void Core::StartGUI(bool full_screen)
@@ -877,6 +968,11 @@ bool Core::SaveProjectAs(ProjectPtr p)
                                             GetProjectFilter());
 
   if (!fn.isEmpty()) {
+    QString extension(QStringLiteral(".ove"));
+    if (!fn.endsWith(extension, Qt::CaseInsensitive)) {
+      fn.append(extension);
+    }
+
     p->set_filename(fn);
 
     SaveProjectInternal(p);
@@ -927,7 +1023,7 @@ void Core::OpenProjectInternal(const QString &filename)
 
     //connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
 
-    CLITaskDialog task_dialog(plm);
+
 
   }
 }
