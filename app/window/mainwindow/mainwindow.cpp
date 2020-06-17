@@ -417,6 +417,18 @@ void MainWindow::StatusBarDoubleClicked()
   task_man_panel_->raise();
 }
 
+#ifdef Q_OS_LINUX
+void MainWindow::ShowNouveauWarning()
+{
+  QMessageBox::warning(this,
+                       tr("Driver Warning"),
+                       tr("Olive has detected your system is using the Nouveau graphics driver.\n\nThis driver is "
+                          "known to have stability and performance issues with Olive. It is highly recommended "
+                          "you install the proprietary NVIDIA driver before continuing to use Olive."),
+                       QMessageBox::Ok);
+}
+#endif
+
 void MainWindow::UpdateTitle()
 {
   if (Core::instance()->GetActiveProject()) {
@@ -630,6 +642,24 @@ void MainWindow::SetDefaultLayout()
   resizeDocks({node_panel_, project_panels_.first()},
   {height()/2, height()/2},
               Qt::Vertical);
+}
+
+void MainWindow::showEvent(QShowEvent *e)
+{
+  QMainWindow::showEvent(e);
+
+#ifdef Q_OS_LINUX
+  // Check for nouveau since that driver really doesn't work with Olive
+  QOffscreenSurface surface;
+  surface.create();
+  QOpenGLContext context;
+  context.create();
+  context.makeCurrent(&surface);
+  const char* vendor = reinterpret_cast<const char*>(context.functions()->glGetString(GL_VENDOR));
+  if (!strcmp(vendor, "nouveau")) {
+    QMetaObject::invokeMethod(this, "ShowNouveauWarning", Qt::QueuedConnection);
+  }
+#endif
 }
 
 template<typename T>

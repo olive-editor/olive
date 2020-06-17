@@ -160,10 +160,6 @@ private:
    */
   QMatrix4x4 matrix_;
 
-#ifdef Q_OS_LINUX
-  static bool nouveau_check_done_;
-#endif
-
   bool signal_cursor_color_;
 
   ViewerSafeMarginInfo safe_margin_;
@@ -183,13 +179,6 @@ private slots:
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
    */
   void ContextCleanup();
-
-#ifdef Q_OS_LINUX
-  /**
-   * @brief Shows warning messagebox if Nouveau is detected
-   */
-  void ShowNouveauWarning();
-#endif
 
 };
 
