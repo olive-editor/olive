@@ -86,23 +86,5 @@ int main(int argc, char *argv[]) {
   avfilter_register_all();
 #endif
 
-  int exit_code;
-
-  // Start core
-  if (OLIVE_NAMESPACE::Core::instance()->Start()) {
-
-    // Run application loop and receive exit code
-    exit_code = a.exec();
-
-  } else {
-
-    // Core failed to start, exit now
-    exit_code = 1;
-
-  }
-
-  // Clear core memory
-  OLIVE_NAMESPACE::Core::instance()->Stop();
-
-  return exit_code;
+  return OLIVE_NAMESPACE::Core::instance()->execute(&a);
 }

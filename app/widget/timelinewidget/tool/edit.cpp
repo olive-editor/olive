@@ -23,7 +23,7 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::EditTool::EditTool(TimelineWidget* parent) :
-  Tool(parent)
+  BeamTool(parent)
 {
 }
 

@@ -244,14 +244,16 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
     if (QFileInfo::exists(fn)) {
       FramePtr f = FrameHashCache::LoadCacheFrame(hash);
 
-      // The cached frame won't load with the correct divider by default, so we enforce it here
-      f->set_video_params(VideoParams(f->width() * video_params_.divider(),
-                                      f->height() * video_params_.divider(),
-                                      f->video_params().time_base(),
-                                      f->video_params().format(),
-                                      video_params_.divider()));
+      if (f) {
+        // The cached frame won't load with the correct divider by default, so we enforce it here
+        f->set_video_params(VideoParams(f->width() * video_params_.divider(),
+                                        f->height() * video_params_.divider(),
+                                        f->video_params().time_base(),
+                                        f->video_params().format(),
+                                        video_params_.divider()));
 
-      return CachedFrameToTexture(f);
+        return CachedFrameToTexture(f);
+      }
     }
   }
 
@@ -316,9 +318,7 @@ QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &inp
         // Return a texture from the derived class
         value = FootageFrameToTexture(stream, frame);
 
-        if (value.isNull()) {
-          qDebug() << "Texture from derivative was blank";
-        } else {
+        if (!value.isNull()) {
           // Put this into the image cache instead
           still_image_cache_.insert(stream.get(), {value,
                                                    colorspace_match,
@@ -326,8 +326,6 @@ QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &inp
                                                    video_params_.divider(),
                                                    time_match});
         }
-      } else {
-        qDebug() << "Frame from decoder was blank";
       }
     }
 

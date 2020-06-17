@@ -18,34 +18,18 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
-#define NODEPARAMVIEWCONNECTEDLABEL_H
-
-#include "node/input.h"
-#include "widget/clickablelabel/clickablelabel.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewConnectedLabel : public QWidget {
-  Q_OBJECT
-public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+TimelineWidget::BeamTool::BeamTool(TimelineWidget *parent) :
+  Tool(parent)
+{
+}
 
-signals:
-  void ConnectionClicked();
-
-private slots:
-  void UpdateConnected();
-
-  void ShowLabelContextMenu();
-
-private:
-  ClickableLabel* connected_to_lbl_;
-
-  NodeInput* input_;
-
-};
+void TimelineWidget::BeamTool::HoverMove(TimelineViewMouseEvent *event)
+{
+  parent()->SetViewBeamCursor(event->GetCoordinates(true));
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // NODEPARAMVIEWCONNECTEDLABEL_H

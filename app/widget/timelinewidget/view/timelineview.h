@@ -61,6 +61,8 @@ public:
 
   void ConnectTrackList(TrackList* list);
 
+  void SetBeamCursor(const TimelineCoordinate& coord);
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -88,6 +90,7 @@ protected:
   virtual void dropEvent(QDropEvent *event) override;
 
   virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   virtual void ToolChangedEvent(Tool::Item tool) override;
 
@@ -110,6 +113,10 @@ private:
   void UserSetTime(const int64_t& time);
 
   void UpdatePlayheadRect();
+
+  bool show_beam_cursor_;
+
+  TimelineCoordinate cursor_coord_;
 
   TrackList* connected_track_list_;
 

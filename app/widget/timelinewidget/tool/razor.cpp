@@ -23,7 +23,7 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::RazorTool::RazorTool(TimelineWidget* parent) :
-  Tool(parent)
+  BeamTool(parent)
 {
 }
 

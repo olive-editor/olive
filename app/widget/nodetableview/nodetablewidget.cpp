@@ -18,34 +18,32 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
-#define NODEPARAMVIEWCONNECTEDLABEL_H
+#include "nodetablewidget.h"
 
-#include "node/input.h"
-#include "widget/clickablelabel/clickablelabel.h"
+#include <QVBoxLayout>
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewConnectedLabel : public QWidget {
-  Q_OBJECT
-public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+NodeTableWidget::NodeTableWidget(QWidget* parent) :
+  TimeBasedWidget(parent)
+{
+  QVBoxLayout* layout = new QVBoxLayout(this);
+  layout->setSpacing(0);
+  layout->setMargin(0);
 
-signals:
-  void ConnectionClicked();
+  view_ = new NodeTableView();
+  layout->addWidget(view_);
+}
 
-private slots:
-  void UpdateConnected();
-
-  void ShowLabelContextMenu();
-
-private:
-  ClickableLabel* connected_to_lbl_;
-
-  NodeInput* input_;
-
-};
+void NodeTableWidget::SetNodes(const QList<Node *> &nodes)
+{
+  if (nodes.isEmpty()) {
+    view_->clear();
+  } else if (nodes.size() == 1) {
+    view_->SetNode(nodes.first(), rational());
+  } else {
+    view_->SetMultipleNodeMessage();
+  }
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // NODEPARAMVIEWCONNECTEDLABEL_H

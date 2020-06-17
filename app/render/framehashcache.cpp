@@ -206,34 +206,51 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   FramePtr frame = nullptr;
 
   if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    auto input = OIIO::ImageInput::open(fn.toStdString());
+    Imf::InputFile file(fn.toUtf8(), 0);
 
-    if (input) {
+    Imath::Box2i dw = file.header().dataWindow();
+    Imf::PixelType pix_type = file.header().channels().begin().channel().type;
+    int width = dw.max.x - dw.min.x + 1;
+    int height = dw.max.y - dw.min.y + 1;
+    bool has_alpha = file.header().channels().findChannel("A");
 
-      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
-                                                                              input->spec().nchannels == kRGBAChannels);
-
-      frame = Frame::Create();
-      frame->set_video_params(VideoParams(input->spec().width,
-                                          input->spec().height,
-                                          image_format));
-
-      frame->allocate();
-
-      input->read_image(input->spec().format,
-                        frame->data(),
-                        OIIO::AutoStride,
-                        frame->linesize_bytes());
-
-      input->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageInput::destroy(input);
-#endif
-
+    PixelFormat::Format image_format;
+    if (pix_type == Imf::HALF) {
+      if (has_alpha) {
+        image_format = PixelFormat::PIX_FMT_RGBA16F;
+      } else {
+        image_format = PixelFormat::PIX_FMT_RGB16F;
+      }
     } else {
-      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+      if (has_alpha) {
+        image_format = PixelFormat::PIX_FMT_RGBA32F;
+      } else {
+        image_format = PixelFormat::PIX_FMT_RGB32F;
+      }
     }
+
+    frame = Frame::Create();
+    frame->set_video_params(VideoParams(width,
+                                        height,
+                                        image_format));
+
+    frame->allocate();
+
+    int bpc = PixelFormat::BytesPerChannel(image_format);
+
+    size_t xs = PixelFormat::ChannelCount(image_format) * bpc;
+    size_t ys = frame->linesize_bytes();
+
+    Imf::FrameBuffer framebuffer;
+    framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
+    framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
+    framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
+    if (has_alpha) {
+      framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
+    }
+
+    file.setFrameBuffer(framebuffer);
+    file.readPixels(dw.min.y, dw.max.y);
   }
 
   return frame;

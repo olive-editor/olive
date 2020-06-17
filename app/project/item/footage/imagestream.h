@@ -21,6 +21,7 @@
 #ifndef IMAGESTREAM_H
 #define IMAGESTREAM_H
 
+#include "render/pixelformat.h"
 #include "stream.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -36,11 +37,35 @@ public:
 
   virtual QString description() const override;
 
-  const int& width() const;
-  void set_width(const int& width);
+  const int& width() const
+  {
+    return width_;
+  }
 
-  const int& height() const;
-  void set_height(const int& height);
+  void set_width(const int& width)
+  {
+    width_ = width;
+  }
+
+  const int& height() const
+  {
+    return height_;
+  }
+
+  void set_height(const int& height)
+  {
+    height_ = height;
+  }
+
+  const PixelFormat::Format& format() const
+  {
+    return format_;
+  }
+
+  void set_format(const PixelFormat::Format& format)
+  {
+    format_ = format;
+  }
 
   bool premultiplied_alpha() const;
   void set_premultiplied_alpha(bool e);
@@ -62,6 +87,8 @@ private:
   int height_;
   bool premultiplied_alpha_;
   QString colorspace_;
+
+  PixelFormat::Format format_;
 
 private slots:
   void ColorConfigChanged();

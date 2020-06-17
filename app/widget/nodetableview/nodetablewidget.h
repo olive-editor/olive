@@ -18,34 +18,26 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
-#define NODEPARAMVIEWCONNECTEDLABEL_H
+#ifndef NODETABLEWIDGET_H
+#define NODETABLEWIDGET_H
 
-#include "node/input.h"
-#include "widget/clickablelabel/clickablelabel.h"
+#include "nodetableview.h"
+#include "widget/timebased/timebased.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewConnectedLabel : public QWidget {
-  Q_OBJECT
+class NodeTableWidget : public TimeBasedWidget
+{
 public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+  NodeTableWidget(QWidget* parent = nullptr);
 
-signals:
-  void ConnectionClicked();
-
-private slots:
-  void UpdateConnected();
-
-  void ShowLabelContextMenu();
+  void SetNodes(const QList<Node*>& nodes);
 
 private:
-  ClickableLabel* connected_to_lbl_;
-
-  NodeInput* input_;
+  NodeTableView* view_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // NODEPARAMVIEWCONNECTEDLABEL_H
+#endif // NODETABLEWIDGET_H

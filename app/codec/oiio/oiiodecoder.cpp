@@ -117,6 +117,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 
   image_stream->set_width(in->spec().width);
   image_stream->set_height(in->spec().height);
+  image_stream->set_format(GetFormatFromOIIOBasetype(in->spec()));
 
   // Images will always have just one stream
   image_stream->set_index(0);
@@ -278,6 +279,23 @@ void OIIODecoder::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
 #endif
 }
 
+PixelFormat::Format OIIODecoder::GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec)
+{
+  bool has_alpha = (spec.nchannels == kRGBAChannels);
+
+  if (spec.format == OIIO::TypeDesc::UINT8) {
+    return has_alpha ? PixelFormat::PIX_FMT_RGBA8 : PixelFormat::PIX_FMT_RGB8;
+  } else if (spec.format == OIIO::TypeDesc::UINT16) {
+    return has_alpha ? PixelFormat::PIX_FMT_RGBA16U : PixelFormat::PIX_FMT_RGB16U;
+  } else if (spec.format == OIIO::TypeDesc::HALF) {
+    return has_alpha ? PixelFormat::PIX_FMT_RGBA16F : PixelFormat::PIX_FMT_RGB16F;
+  } else if (spec.format == OIIO::TypeDesc::FLOAT) {
+    return has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F;
+  } else {
+    return PixelFormat::PIX_FMT_INVALID;
+  }
+}
+
 bool OIIODecoder::FileTypeIsSupported(const QString& fn)
 {
   // We prioritize OIIO over FFmpeg to pick up still images more effectively, but some OIIO decoders (notably OpenJPEG)
@@ -361,16 +379,9 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
 
   is_rgba_ = (spec.nchannels == kRGBAChannels);
 
-  // Weirdly, switch statement doesn't work correctly here
-  if (spec.format == OIIO::TypeDesc::UINT8) {
-    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA8 : PixelFormat::PIX_FMT_RGB8;
-  } else if (spec.format == OIIO::TypeDesc::UINT16) {
-    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA16U : PixelFormat::PIX_FMT_RGB16U;
-  } else if (spec.format == OIIO::TypeDesc::HALF) {
-    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA16F : PixelFormat::PIX_FMT_RGB16F;
-  } else if (spec.format == OIIO::TypeDesc::FLOAT) {
-    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F;
-  } else {
+  pix_fmt_ = GetFormatFromOIIOBasetype(spec);
+
+  if (pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
   }

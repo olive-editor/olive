@@ -18,34 +18,25 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
-#define NODEPARAMVIEWCONNECTEDLABEL_H
+#ifndef NODETABLETRAVERSER_H
+#define NODETABLETRAVERSER_H
 
-#include "node/input.h"
-#include "widget/clickablelabel/clickablelabel.h"
+#include "node/traverser.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewConnectedLabel : public QWidget {
-  Q_OBJECT
+class NodeTableTraverser : public NodeTraverser
+{
 public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+  NodeTableTraverser() = default;
 
-signals:
-  void ConnectionClicked();
+protected:
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
 
-private slots:
-  void UpdateConnected();
-
-  void ShowLabelContextMenu();
-
-private:
-  ClickableLabel* connected_to_lbl_;
-
-  NodeInput* input_;
+  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time);
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // NODEPARAMVIEWCONNECTEDLABEL_H
+#endif // NODETABLETRAVERSER_H

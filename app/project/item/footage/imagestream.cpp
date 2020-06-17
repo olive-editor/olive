@@ -72,26 +72,6 @@ QString ImageStream::description() const
                                                                         QString::number(height()));
 }
 
-const int &ImageStream::width() const
-{
-  return width_;
-}
-
-void ImageStream::set_width(const int &width)
-{
-  width_ = width;
-}
-
-const int &ImageStream::height() const
-{
-  return height_;
-}
-
-void ImageStream::set_height(const int &height)
-{
-  height_ = height;
-}
-
 bool ImageStream::premultiplied_alpha() const
 {
   return premultiplied_alpha_;

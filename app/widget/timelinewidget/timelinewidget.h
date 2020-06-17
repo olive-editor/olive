@@ -209,6 +209,15 @@ private:
 
   };
 
+  class BeamTool : public Tool
+  {
+  public:
+    BeamTool(TimelineWidget *parent);
+
+    virtual void HoverMove(TimelineViewMouseEvent *event) override;
+
+  };
+
   class PointerTool : public Tool
   {
   public:
@@ -327,7 +336,7 @@ private:
 
   };
 
-  class EditTool : public Tool
+  class EditTool : public BeamTool
   {
   public:
     EditTool(TimelineWidget* parent);
@@ -337,7 +346,7 @@ private:
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
   };
 
-  class RazorTool : public Tool
+  class RazorTool : public BeamTool
   {
   public:
     RazorTool(TimelineWidget* parent);
@@ -497,6 +506,8 @@ private:
   void AddGhost(TimelineViewGhostItem* ghost);
 
   void UpdateViewTimebases();
+
+  void SetViewBeamCursor(const TimelineCoordinate& coord);
 
 private slots:
   void ViewMousePressed(TimelineViewMouseEvent* event);

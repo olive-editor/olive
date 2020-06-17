@@ -61,24 +61,9 @@ NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, cons
 {
 }
 
-const NodeParam::DataType &NodeValue::type() const
-{
-  return type_;
-}
-
-const QString &NodeValue::tag() const
-{
-  return tag_;
-}
-
 bool NodeValue::operator==(const NodeValue &rhs) const
 {
   return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
-}
-
-const QVariant &NodeValue::data() const
-{
-  return data_;
 }
 
 QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag) const

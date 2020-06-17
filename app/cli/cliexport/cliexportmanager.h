@@ -18,34 +18,19 @@
 
 ***/
 
-#ifndef NODEPARAMVIEWCONNECTEDLABEL_H
-#define NODEPARAMVIEWCONNECTEDLABEL_H
+#ifndef CLIEXPORTMANAGER_H
+#define CLIEXPORTMANAGER_H
 
-#include "node/input.h"
-#include "widget/clickablelabel/clickablelabel.h"
+#include "task/export/export.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewConnectedLabel : public QWidget {
-  Q_OBJECT
+class CLIExportManager : public QObject
+{
 public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
-
-signals:
-  void ConnectionClicked();
-
-private slots:
-  void UpdateConnected();
-
-  void ShowLabelContextMenu();
-
-private:
-  ClickableLabel* connected_to_lbl_;
-
-  NodeInput* input_;
-
+  CLIExportManager();
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // NODEPARAMVIEWCONNECTEDLABEL_H
+#endif // CLIEXPORTMANAGER_H

@@ -27,9 +27,10 @@ OLIVE_NAMESPACE_ENTER
 CLIProgressDialog::CLIProgressDialog(const QString& title, QObject *parent) :
   QObject(parent),
   title_(title),
-  progress_(0),
+  progress_(-1),
   drawn_(false)
 {
+  SetProgress(0);
 }
 
 void CLIProgressDialog::Update()
@@ -68,7 +69,7 @@ void CLIProgressDialog::Update()
   std::cout << "[";
 
   // Get UI bar progress
-  int bar_prog = qRound(progress_ * 0.01 * progress_bar_columns);
+  int bar_prog = qRound(progress_ * progress_bar_columns);
 
   // Draw filled in bar
   for (int i=0;i<bar_prog;i++) {
@@ -90,10 +91,10 @@ void CLIProgressDialog::Update()
     std::cout << " ";
   }
 
-  std::cout << progress_ << "% " << std::flush;
+  std::cout << qRound(progress_ * 100.0) << "% " << std::endl << std::flush;
 }
 
-void CLIProgressDialog::SetProgress(int p)
+void CLIProgressDialog::SetProgress(double p)
 {
   if (progress_ != p) {
     progress_ = p;
