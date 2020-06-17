@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
   node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
   footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
+  table_panel_ = PanelManager::instance()->CreatePanel<NodeTablePanel>(this);
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
   pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
   AppendProjectPanel();
@@ -82,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   // Make connections to sequence viewer
   connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
+  connect(node_panel_, &NodePanel::SelectionChanged, table_panel_, &NodeTablePanel::SetNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
@@ -589,6 +591,10 @@ void MainWindow::SetDefaultLayout()
   param_panel_->show();
   tabifyDockWidget(footage_viewer_panel_, param_panel_);
   footage_viewer_panel_->raise();
+
+  table_panel_->hide();
+  table_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, table_panel_);
 
   sequence_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);

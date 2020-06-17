@@ -30,6 +30,7 @@
 #include "panel/param/param.h"
 #include "panel/project/project.h"
 #include "panel/scope/scope.h"
+#include "panel/table/table.h"
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
@@ -145,6 +146,7 @@ private:
   QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
+  NodeTablePanel* table_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;

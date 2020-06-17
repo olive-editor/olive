@@ -458,6 +458,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
         video_stream->set_width(avstream->codecpar->width);
         video_stream->set_height(avstream->codecpar->height);
+        video_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
         video_stream->set_frame_rate(av_guess_frame_rate(fmt_ctx, avstream, nullptr));
         video_stream->set_start_time(avstream->start_time);
 

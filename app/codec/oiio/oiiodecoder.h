@@ -57,6 +57,8 @@ public:
 
   static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
 
+  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
+
 private:
 #if OIIO_VERSION < 10903
   OIIO::ImageInput* image_;
