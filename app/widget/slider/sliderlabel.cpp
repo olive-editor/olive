@@ -24,10 +24,6 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-#ifdef Q_OS_MAC
-#include <ApplicationServices/ApplicationServices.h>
-#endif
-
 OLIVE_NAMESPACE_ENTER
 
 SliderLabel::SliderLabel(QWidget *parent) :

@@ -133,7 +133,7 @@ private slots:
 
   void LabelDragged();
 
-  void LadderDragged(int value, double multiplier);
+  void LadderDragged(double value, double multiplier);
 
   void LadderReleased();
 

@@ -26,16 +26,18 @@
 #include <QtMath>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_MAC
+#include <ApplicationServices/ApplicationServices.h>
+#endif
+
 #include "common/clamp.h"
 #include "common/lerp.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SliderLadder::SliderLadder(double start_val, double drag_multiplier, int nb_outer_values, QWidget* parent) :
+SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
   QFrame(parent, Qt::Popup),
-  start_val_(start_val),
-  active_element_(nullptr),
-  relative_y_(-1)
+  y_mobility_(0)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -48,14 +50,17 @@ SliderLadder::SliderLadder(double start_val, double drag_multiplier, int nb_oute
     elements_.append(new SliderLadderElement(qPow(10, i + 1) * drag_multiplier));
   }
 
-  elements_.append(new SliderLadderElement(drag_multiplier));
+  // Create center entry
+  SliderLadderElement* start_element = new SliderLadderElement(drag_multiplier);
+  active_element_ = elements_.size();
+  start_element->SetHighlighted(true);
+  elements_.append(start_element);
 
   for (int i=0;i<nb_outer_values;i++) {
     elements_.append(new SliderLadderElement(qPow(10, - i - 1) * drag_multiplier));
   }
 
   foreach (SliderLadderElement* e, elements_) {
-    e->SetValue(start_val_);
     layout->addWidget(e);
   }
 
@@ -87,10 +92,10 @@ SliderLadder::~SliderLadder()
 #endif
 }
 
-void SliderLadder::SetValue(double val)
+void SliderLadder::SetValue(const QString &s)
 {
   foreach (SliderLadderElement* e, elements_) {
-    e->SetValue(val);
+    e->SetValue(s);
   }
 }
 
@@ -105,38 +110,7 @@ void SliderLadder::showEvent(QShowEvent *event)
 {
   QWidget::showEvent(event);
 
-  QMetaObject::invokeMethod(this, "InitRelativeY", Qt::QueuedConnection);
-  QMetaObject::invokeMethod(&drag_timer_, "start", Qt::QueuedConnection);
-}
-
-void SliderLadder::SetActiveElement()
-{
-  if (!active_element_
-      || relative_y_ < active_element_->y()
-      || relative_y_ >= active_element_->y() + active_element_->height()) {
-    if (active_element_) {
-      // Un-highlight active element if one is set
-      active_element_->SetHighlighted(false);
-    }
-
-    // Find new active element
-    foreach (SliderLadderElement* ele, elements_) {
-      if (relative_y_ >= ele->y() && relative_y_ < ele->y() + ele->height()) {
-        // This is the element!
-        active_element_ = ele;
-        active_element_->SetHighlighted(true);
-        relative_y_ = active_element_->y() + active_element_->height() / 2;
-        break;
-      }
-    }
-  }
-}
-
-void SliderLadder::InitRelativeY()
-{
-  relative_y_ = QCursor::pos().y() - this->y();
-
-  SetActiveElement();
+  drag_timer_.start();
 }
 
 void SliderLadder::TimerUpdate()
@@ -155,22 +129,45 @@ void SliderLadder::TimerUpdate()
   QCursor::setPos(drag_start_);
 #endif
 
-  int target = active_element_->y() + active_element_->height() / 2;
-  relative_y_ = lerp(relative_y_, static_cast<float>(target), 0.1f);
+  int y_threshold = fontMetrics().height() / 2;
 
-  if (!x_mvmt && !y_mvmt) {
-    return;
-  }
+  if (qAbs(y_mvmt) > qAbs(x_mvmt)
+      || qApp->keyboardModifiers() & Qt::ControlModifier) {
+    // Movement is vertical
+    y_mobility_ += y_mvmt;
 
-  // Determine which element we're in
-  relative_y_ = clamp(relative_y_ + y_mvmt,
-                      static_cast<float>(elements_.first()->y()),
-                      static_cast<float>(elements_.last()->y() + elements_.last()->height() - 1));
+    if (qAbs(y_mobility_) > y_threshold) {
+      int new_active_element;
 
-  SetActiveElement();
+      if (y_mvmt < 0) {
+        // Movement is UP
+        new_active_element = active_element_ - 1;
+      } else {
+        // Movement is DOWN
+        new_active_element = active_element_ + 1;
+      }
 
-  if (qAbs(x_mvmt) > qAbs(y_mvmt)) {
-    emit DraggedByValue(x_mvmt, active_element_->GetMultiplier());
+      // Check if the proposed element is valid
+      if (new_active_element >= 0 && new_active_element < elements_.size()) {
+        elements_.at(active_element_)->SetHighlighted(false);
+
+        active_element_ = new_active_element;
+
+        elements_.at(active_element_)->SetHighlighted(true);
+      }
+
+      y_mobility_ = 0;
+    }
+  } else {
+    // Movement is horizontal
+    emit DraggedByValue(x_mvmt , elements_.at(active_element_)->GetMultiplier());
+
+    // Reduce Y mobility
+    if (y_mobility_ > 0) {
+      y_mobility_--;
+    } else if (y_mobility_ < 0) {
+      y_mobility_++;
+    }
   }
 }
 
@@ -210,7 +207,7 @@ void SliderLadderElement::SetHighlighted(bool e)
   UpdateLabel();
 }
 
-void SliderLadderElement::SetValue(double value)
+void SliderLadderElement::SetValue(const QString &value)
 {
   value_ = value;
 
@@ -230,13 +227,13 @@ void SliderLadderElement::UpdateLabel()
     QString val_text;
 
     if (highlighted_) {
-      val_text = QString::number(value_);
+      val_text = value_;
     }
 
     label_->setText(QStringLiteral("%1\n%2").arg(QString::number(multiplier_),
                                                  val_text));
   } else {
-    label_->setText(QString::number(value_));
+    label_->setText(value_);
   }
 }
 

@@ -250,7 +250,8 @@ void SliderBase::LabelDragged()
     break;
   case kInteger:
   case kFloat:
-    drag_ladder_ = new SliderLadder(value_.toDouble(), drag_multiplier_, enable_ladder_ ? ladder_element_count_ : 0);
+    drag_ladder_ = new SliderLadder(drag_multiplier_, enable_ladder_ ? ladder_element_count_ : 0);
+    drag_ladder_->SetValue(ValueToString(value_));
     drag_ladder_->show();
 
     QPoint label_global_pos = label_->mapToGlobal(label_->pos());
@@ -263,7 +264,7 @@ void SliderBase::LabelDragged()
   }
 }
 
-void SliderBase::LadderDragged(int value, double multiplier)
+void SliderBase::LadderDragged(double value, double multiplier)
 {
   switch (mode_) {
   case kString:
@@ -272,7 +273,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
   case kInteger:
   case kFloat:
   {
-    dragged_diff_ += static_cast<double>(value) * drag_multiplier_ * multiplier;
+    dragged_diff_ += value * drag_multiplier_ * multiplier;
 
     double drag_val = AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
 
@@ -291,7 +292,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
     }
 
     UpdateLabel(temp_dragged_value_);
-    drag_ladder_->SetValue(temp_dragged_value_.toDouble());
+    drag_ladder_->SetValue(ValueToString(temp_dragged_value_));
     emit ValueChanged(temp_dragged_value_);
     break;
   }
