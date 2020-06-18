@@ -103,6 +103,8 @@ void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
+  drag_timer_.stop();
+
   emit Released();
 }
 
