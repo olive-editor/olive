@@ -33,8 +33,15 @@ public:
 
   void SetNodes(const QList<Node*>& nodes);
 
+protected:
+  virtual void TimeChangedEvent(const int64_t& ts) override;
+
 private:
+  void UpdateView();
+
   NodeTableView* view_;
+
+  Node* node_;
 
 };
 

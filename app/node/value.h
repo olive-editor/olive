@@ -108,12 +108,19 @@ public:
 
   using const_iterator = QHash<QString, NodeValueTable>::const_iterator;
 
-  inline QHash<QString, NodeValueTable>::const_iterator begin() const {
+  inline QHash<QString, NodeValueTable>::const_iterator begin() const
+  {
     return tables_.cbegin();
   }
 
-  inline QHash<QString, NodeValueTable>::const_iterator end() const {
+  inline QHash<QString, NodeValueTable>::const_iterator end() const
+  {
     return tables_.cend();
+  }
+
+  inline bool contains(const QString& s) const
+  {
+    return tables_.contains(s);
   }
 
 private:

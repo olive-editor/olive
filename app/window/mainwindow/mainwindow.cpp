@@ -86,7 +86,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(node_panel_, &NodePanel::SelectionChanged, table_panel_, &NodeTablePanel::SetNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
+  connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::FoundGizmos, sequence_viewer_panel_, &SequenceViewerPanel::SetGizmos);
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
@@ -518,6 +520,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
+  connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
   connect(panel, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectBlocks);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
