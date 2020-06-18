@@ -285,8 +285,13 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      if (operation != kOpMultiply
-          || number_val.data().value<QMatrix4x4>().isIdentity()) {
+      bool matrix_is_identity = false;
+
+      // FIXME: The matrix in the shader is transformed around footage+sequence resolution so we
+      //        need to do that here to determine if the matrix is truly identity. But to do that,
+      //        we need access to the texture parameters which is currently not possible.
+
+      if (operation != kOpMultiply || matrix_is_identity) {
         operation_is_noop = true;
       } else {
         // It's likely an alpha channel will result from this operation
