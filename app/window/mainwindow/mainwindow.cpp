@@ -118,7 +118,7 @@ void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
   }
 
   foreach (Sequence* sequence, info.open_sequences()) {
-    OpenSequence(sequence, false);
+    OpenSequence(sequence, info.open_sequences().size() == 1);
   }
 
   restoreState(info.state());
