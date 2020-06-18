@@ -33,33 +33,17 @@ class SliderLabel : public QLabel
 public:
   SliderLabel(QWidget* parent);
 
-  void CancelDrag()
-  {
-    dragging_ = false;
-  }
-
 protected:
   virtual void mousePressEvent(QMouseEvent *ev) override;
-
-  virtual void mouseMoveEvent(QMouseEvent *ev) override;
-
-  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 
   virtual void focusInEvent(QFocusEvent *event) override;
 
 signals:
   void LabelPressed();
 
-  void LabelMoved();
-
-  void LabelReleased();
-
   void focused();
 
   void RequestReset();
-
-private:
-  bool dragging_;
 
 };
 

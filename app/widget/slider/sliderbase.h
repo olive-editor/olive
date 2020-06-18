@@ -56,11 +56,6 @@ public:
   void SetFormat(const QString& s);
   void ClearFormat();
 
-  void SetLadderEnabled(bool e)
-  {
-    enable_ladder_ = e;
-  }
-
   void SetLadderElementCount(int b)
   {
     ladder_element_count_ = b;
@@ -97,6 +92,8 @@ private:
 
   QString GetFormat() const;
 
+  void RepositionLadder();
+
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;
@@ -124,16 +121,16 @@ private:
 
   SliderLadder* drag_ladder_;
 
-  bool enable_ladder_;
-
   int ladder_element_count_;
 
+  bool dragged_;
+
 private slots:
-  void LabelClicked();
+  void ShowEditor();
 
-  void LabelDragged();
+  void LabelPressed();
 
-  void LadderDragged(double value, double multiplier);
+  void LadderDragged(int value, double multiplier);
 
   void LadderReleased();
 

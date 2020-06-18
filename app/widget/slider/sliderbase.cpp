@@ -40,8 +40,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   require_valid_input_(true),
   tristate_(false),
   drag_ladder_(nullptr),
-  enable_ladder_(false),
-  ladder_element_count_(2)
+  ladder_element_count_(0),
+  dragged_(false)
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
@@ -52,9 +52,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   editor_ = new FocusableLineEdit(this);
   addWidget(editor_);
 
-  connect(label_, &SliderLabel::LabelMoved, this, &SliderBase::LabelDragged);
-  connect(label_, &SliderLabel::LabelReleased, this, &SliderBase::LabelClicked);
-  connect(label_, &SliderLabel::focused, this, &SliderBase::LabelClicked);
+  connect(label_, &SliderLabel::LabelPressed, this, &SliderBase::LabelPressed);
+  connect(label_, &SliderLabel::focused, this, &SliderBase::ShowEditor);
   connect(label_, &SliderLabel::RequestReset, this, &SliderBase::ResetValue);
   connect(editor_, &FocusableLineEdit::Confirmed, this, &SliderBase::LineEditConfirmed);
   connect(editor_, &FocusableLineEdit::Cancelled, this, &SliderBase::LineEditCancelled);
@@ -201,6 +200,22 @@ QString SliderBase::GetFormat() const
   }
 }
 
+void SliderBase::RepositionLadder()
+{
+  QPoint label_global_pos = label_->mapToGlobal(label_->pos());
+  int text_width = QFontMetricsWidth(label_->fontMetrics(), label_->text());
+  QPoint ladder_pos(label_global_pos.x(),
+                    label_global_pos.y() + label_->height() / 2 - drag_ladder_->height() / 2);
+
+  if (ladder_element_count_ > 0) {
+    ladder_pos.setX(ladder_pos.x() + text_width + QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("H")));
+  } else {
+    ladder_pos.setX(ladder_pos.x() + text_width / 2 - drag_ladder_->width() / 2);
+  }
+
+  drag_ladder_->move(ladder_pos);
+}
+
 void SliderBase::UpdateLabel(const QVariant &v)
 {
   if (tristate_) {
@@ -226,23 +241,21 @@ QVariant SliderBase::StringToValue(const QString &s, bool *ok)
   return s;
 }
 
-void SliderBase::LabelClicked()
+void SliderBase::ShowEditor()
 {
-  if (!drag_ladder_) {
-    // This was a simple click
-    // Load label's text into editor
-    editor_->setText(ValueToString(value_));
+  // This was a simple click
+  // Load label's text into editor
+  editor_->setText(ValueToString(value_));
 
-    // Show editor
-    setCurrentWidget(editor_);
+  // Show editor
+  setCurrentWidget(editor_);
 
-    // Select all text in the editor
-    editor_->setFocus();
-    editor_->selectAll();
-  }
+  // Select all text in the editor
+  editor_->setFocus();
+  editor_->selectAll();
 }
 
-void SliderBase::LabelDragged()
+void SliderBase::LabelPressed()
 {
   switch (mode_) {
   case kString:
@@ -250,24 +263,24 @@ void SliderBase::LabelDragged()
     break;
   case kInteger:
   case kFloat:
-    drag_ladder_ = new SliderLadder(drag_multiplier_, enable_ladder_ ? ladder_element_count_ : 0);
+  {
+    drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_);
     drag_ladder_->SetValue(ValueToString(value_));
     drag_ladder_->show();
 
-    QPoint label_global_pos = label_->mapToGlobal(label_->pos());
-    drag_ladder_->move(label_global_pos.x() + QFontMetricsWidth(label_->fontMetrics(), label_->text()) / 2 - drag_ladder_->width() / 2,
-                       label_global_pos.y() + label_->height() / 2 - drag_ladder_->height() / 2);
+    RepositionLadder();
 
     connect(drag_ladder_, &SliderLadder::DraggedByValue, this, &SliderBase::LadderDragged);
     connect(drag_ladder_, &SliderLadder::Released, this, &SliderBase::LadderReleased);
-
-    label_->CancelDrag();
     break;
+  }
   }
 }
 
-void SliderBase::LadderDragged(double value, double multiplier)
+void SliderBase::LadderDragged(int value, double multiplier)
 {
+  dragged_ = true;
+
   switch (mode_) {
   case kString:
     // No dragging supported for strings
@@ -294,7 +307,10 @@ void SliderBase::LadderDragged(double value, double multiplier)
     }
 
     UpdateLabel(temp_dragged_value_);
+
     drag_ladder_->SetValue(ValueToString(temp_dragged_value_));
+    RepositionLadder();
+
     emit ValueChanged(temp_dragged_value_);
     break;
   }
@@ -307,20 +323,26 @@ void SliderBase::LadderReleased()
   drag_ladder_ = nullptr;
   dragged_diff_ = 0;
 
-  // This was a drag
-  switch (mode_) {
-  case kString:
-    // No-op
-    break;
-  case kInteger:
-    SetValue(temp_dragged_value_.toInt());
-    break;
-  case kFloat:
-    SetValue(temp_dragged_value_.toDouble());
-    break;
-  }
+  if (dragged_) {
+    // This was a drag
+    switch (mode_) {
+    case kString:
+      // No-op
+      break;
+    case kInteger:
+      SetValue(temp_dragged_value_.toInt());
+      break;
+    case kFloat:
+      SetValue(temp_dragged_value_.toDouble());
+      break;
+    }
 
-  emit ValueChanged(value_);
+    emit ValueChanged(value_);
+
+    dragged_ = false;
+  } else {
+    ShowEditor();
+  }
 }
 
 void SliderBase::LineEditConfirmed()

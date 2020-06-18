@@ -50,7 +50,6 @@ RichTextDialog::RichTextDialog(const QString &start, QWidget* parent) :
   toolbar_layout->addWidget(font_combo_);
   size_slider_ = new FloatSlider();
   size_slider_->SetMinimum(0.1);
-  size_slider_->SetLadderEnabled(true);
   size_slider_->SetLadderElementCount(1);
   size_slider_->setToolTip(tr("Font Size"));
   toolbar_layout->addWidget(size_slider_);

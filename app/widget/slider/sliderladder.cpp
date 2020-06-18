@@ -131,6 +131,10 @@ void SliderLadder::TimerUpdate()
   QCursor::setPos(drag_start_);
 #endif
 
+  if (!x_mvmt && !y_mvmt) {
+    return;
+  }
+
   int y_threshold = fontMetrics().height() / 2;
 
   if (qAbs(y_mvmt) > qAbs(x_mvmt)
