@@ -50,10 +50,14 @@ private slots:
 
   void SetProgressBarValue(double d);
 
+  void ConnectedTaskDeleted();
+
 private:
   TaskManager* manager_;
 
   QProgressBar* bar_;
+
+  Task* connected_task_;
 
 };
 
