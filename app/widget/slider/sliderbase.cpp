@@ -260,6 +260,8 @@ void SliderBase::LabelDragged()
 
     connect(drag_ladder_, &SliderLadder::DraggedByValue, this, &SliderBase::LadderDragged);
     connect(drag_ladder_, &SliderLadder::Released, this, &SliderBase::LadderReleased);
+
+    label_->CancelDrag();
     break;
   }
 }
