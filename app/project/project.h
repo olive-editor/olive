@@ -26,6 +26,7 @@
 
 #include "render/colormanager.h"
 #include "project/item/folder/folder.h"
+#include "window/mainwindow/mainwindowlayoutinfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -46,7 +47,7 @@ class Project : public QObject
 public:
   Project();
 
-  void Load(QXmlStreamReader* reader, const QAtomicInt* cancelled);
+  void Load(QXmlStreamReader* reader, MainWindowLayoutInfo *layout, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter* writer) const;
 

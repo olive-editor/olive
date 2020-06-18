@@ -151,6 +151,30 @@ int Core::execute(QCoreApplication* a)
   return exit_code;
 }
 
+void Core::DeclareTypesForQt()
+{
+  qRegisterMetaType<rational>();
+  qRegisterMetaType<OpenGLTexturePtr>();
+  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
+  qRegisterMetaType<NodeValue>();
+  qRegisterMetaType<NodeValueTable>();
+  qRegisterMetaType<NodeValueDatabase>();
+  qRegisterMetaType<FramePtr>();
+  qRegisterMetaType<SampleBufferPtr>();
+  qRegisterMetaType<AudioParams>();
+  qRegisterMetaType<NodeKeyframe::Type>();
+  qRegisterMetaType<Decoder::RetrieveState>();
+  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
+  qRegisterMetaType<Color>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
+  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
+  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
+  qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
+}
+
 void Core::Start()
 {
   // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
@@ -480,9 +504,11 @@ void Core::AddOpenProject(ProjectPtr p)
 void Core::AddOpenProjectFromTask(Task *task)
 {
   QList<ProjectPtr> projects = static_cast<ProjectLoadTask*>(task)->GetLoadedProjects();
+  QList<MainWindowLayoutInfo> layouts = static_cast<ProjectLoadTask*>(task)->GetLoadedLayouts();
 
-  foreach (ProjectPtr p, projects) {
-    AddOpenProject(p);
+  for (int i=0; i<projects.size(); i++) {
+    AddOpenProject(projects.at(i));
+    main_window_->LoadLayout(layouts.at(i));
   }
 }
 
@@ -627,29 +653,6 @@ void Core::OpenStartupProject()
   } else {
     OpenProjectInternal(startup_project_);
   }
-}
-
-void Core::DeclareTypesForQt()
-{
-  qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
-  qRegisterMetaType<NodeValue>();
-  qRegisterMetaType<NodeValueTable>();
-  qRegisterMetaType<NodeValueDatabase>();
-  qRegisterMetaType<FramePtr>();
-  qRegisterMetaType<SampleBufferPtr>();
-  qRegisterMetaType<AudioParams>();
-  qRegisterMetaType<NodeKeyframe::Type>();
-  qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
-  qRegisterMetaType<Color>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
-  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
-  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
 }
 
 void Core::StartGUI(bool full_screen)
@@ -1011,21 +1014,11 @@ void Core::OpenProjectInternal(const QString &filename)
 
   ProjectLoadTask* plm = new ProjectLoadTask(filename);
 
-  if (gui_active_) {
+  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
 
-    TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
 
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
-
-    task_dialog->open();
-
-  } else {
-
-    //connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
-
-
-
-  }
+  task_dialog->open();
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)

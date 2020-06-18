@@ -23,6 +23,7 @@
 
 #include "project/project.h"
 #include "task/task.h"
+#include "window/mainwindow/mainwindowlayoutinfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -32,9 +33,14 @@ class ProjectLoadTask : public Task
 public:
   ProjectLoadTask(const QString& filename);
 
-  const QList<ProjectPtr>& GetLoadedProjects()
+  const QList<ProjectPtr>& GetLoadedProjects() const
   {
     return projects_;
+  }
+
+  const QList<MainWindowLayoutInfo>& GetLoadedLayouts() const
+  {
+    return layout_info_;
   }
 
 protected:
@@ -42,6 +48,8 @@ protected:
 
 private:
   QList<ProjectPtr> projects_;
+
+  QList<MainWindowLayoutInfo> layout_info_;
 
   QString filename_;
 

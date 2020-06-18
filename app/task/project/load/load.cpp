@@ -51,13 +51,16 @@ bool ProjectLoadTask::Run()
 
             project->set_filename(filename_);
 
-            project->Load(&reader, &IsCancelled());
+            MainWindowLayoutInfo layout;
+
+            project->Load(&reader, &layout, &IsCancelled());
 
             // Ensure project is in main thread
             moveToThread(qApp->thread());
 
             if (!IsCancelled()) {
               projects_.append(project);
+              layout_info_.append(layout);
             }
           } else {
             reader.skipCurrentElement();

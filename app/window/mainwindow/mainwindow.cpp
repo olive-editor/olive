@@ -111,43 +111,37 @@ MainWindow::~MainWindow()
 #endif
 }
 
-void MainWindow::LoadLayout(QXmlStreamReader *reader, XMLNodeData &xml_data)
+void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
 {
-  QMetaObject::invokeMethod(this,
-                            "LoadLayoutInternal",
-                            Qt::BlockingQueuedConnection,
-                            Q_ARG(QXmlStreamReader*, reader),
-                            Q_ARG(XMLNodeData*, &xml_data));
+  foreach (Folder* folder, info.open_folders()) {
+    FolderOpen(folder->project(), folder, true);
+  }
+
+  foreach (Sequence* sequence, info.open_sequences()) {
+    OpenSequence(sequence, false);
+  }
+
+  restoreState(info.state());
 }
 
-void MainWindow::SaveLayout(QXmlStreamWriter *writer) const
+MainWindowLayoutInfo MainWindow::SaveLayout() const
 {
-  writer->writeStartElement(QStringLiteral("layout"));
-
-  writer->writeStartElement(QStringLiteral("folders"));
+  MainWindowLayoutInfo info;
 
   foreach (ProjectPanel* panel, folder_panels_) {
-    writer->writeTextElement(QStringLiteral("folder"),
-                             QString::number(reinterpret_cast<quintptr>(panel->get_root_index().internalPointer())));
+    info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
   }
-
-  writer->writeEndElement(); // folders
-
-  writer->writeStartElement(QStringLiteral("timeline"));
 
   foreach (TimelinePanel* panel, timeline_panels_) {
-    writer->writeTextElement(QStringLiteral("sequence"),
-                             QString::number(reinterpret_cast<quintptr>(panel->GetConnectedViewer())));
+    info.add_sequence(static_cast<Sequence*>(panel->GetConnectedViewer()->parent()));
   }
 
-  writer->writeEndElement(); // timeline
+  info.set_state(saveState());
 
-  writer->writeTextElement(QStringLiteral("state"), QString(saveState().toBase64()));
-
-  writer->writeEndElement(); // layout
+  return info;
 }
 
-void MainWindow::OpenSequence(Sequence *sequence)
+void MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 {
   // See if this sequence is already open, and switch to it if so
   foreach (TimelinePanel* tl, timeline_panels_) {
@@ -164,11 +158,14 @@ void MainWindow::OpenSequence(Sequence *sequence)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
+    enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence->viewer_output());
 
-  TimelineFocused(sequence->viewer_output());
+  if (enable_focus) {
+    TimelineFocused(sequence->viewer_output());
+  }
 }
 
 void MainWindow::CloseSequence(Sequence *sequence)
@@ -465,53 +462,6 @@ void MainWindow::FloatingPanelCloseRequested()
 
   list->removeOne(panel);
   panel->deleteLater();
-}
-
-void MainWindow::LoadLayoutInternal(QXmlStreamReader *reader, XMLNodeData *xml_data)
-{
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("folders")) {
-
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("folder")) {
-          quintptr item_id = reader->readElementText().toULongLong();
-
-          Item* open_item = xml_data->item_ptrs.value(item_id);
-
-          if (open_item) {
-            FolderOpen(open_item->project(), open_item, true);
-          }
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-    } else if (reader->name() == QStringLiteral("timeline")) {
-
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("sequence")) {
-          quintptr item_id = reader->readElementText().toULongLong();
-
-          Sequence* open_seq = dynamic_cast<Sequence*>(xml_data->item_ptrs.value(item_id));
-
-          if (open_seq) {
-            OpenSequence(open_seq);
-          }
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-    } else if (reader->name() == QStringLiteral("state")) {
-
-      QByteArray state = QByteArray::fromBase64(reader->readElementText().toLatin1());
-
-      restoreState(state);
-
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()

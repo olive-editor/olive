@@ -149,7 +149,7 @@ void Sequence::Save(QXmlStreamWriter *writer) const
 
   writer->writeAttribute(QStringLiteral("name"), name());
 
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(viewer_output_)));
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
   writer->writeStartElement(QStringLiteral("video"));
 
