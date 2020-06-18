@@ -20,6 +20,7 @@
 
 #include "nodetableview.h"
 
+#include <QCheckBox>
 #include <QHeaderView>
 
 #include "node/param.h"
@@ -31,7 +32,12 @@ NodeTableView::NodeTableView(QWidget* parent) :
   QTreeWidget(parent)
 {
   setColumnCount(3);
-  setHeaderLabels({tr("Type"), tr("Value"), tr("Source")});
+  setHeaderLabels({tr("Type"),
+                   tr("Source"),
+                   tr("R/X"),
+                   tr("G/Y"),
+                   tr("B/Z"),
+                   tr("A/W")});
 }
 
 void NodeTableView::SetNode(Node *n, const rational &time)
@@ -60,41 +66,41 @@ void NodeTableView::SetNode(Node *n, const rational &time)
     for (int j=table.Count()-1; j>=0; j--) {
       const NodeValue& value = table.at(j);
 
-      QString value_str = NodeInput::ValueToString(value.type(), value.data());
+      // Create item
+      QTreeWidgetItem* sub_item = new QTreeWidgetItem();
+      top_item->addChild(sub_item);
 
+      // Set data type name
+      sub_item->setText(0, NodeParam::GetPrettyDataTypeName(value.type()));
+
+      // Determine source
       QString source_name;
       if (value.source()) {
         source_name = value.source()->Name();
       } else {
         source_name = tr("(unknown)");
       }
+      sub_item->setText(1, source_name);
 
-      QTreeWidgetItem* sub_item = new QTreeWidgetItem();
-      sub_item->setText(0, NodeParam::GetPrettyDataTypeName(value.type()));
-      sub_item->setText(1, value_str);
-      sub_item->setText(2, source_name);
-      top_item->addChild(sub_item);
+      switch (value.type()) {
+      case NodeParam::kTexture:
+      {
+        // NodeTableTraverser puts video params in here
+        VideoParams p = value.data().value<VideoParams>();
+        int channel_count = PixelFormat::ChannelCount(p.format());
 
-      // Special cases
-      if (value.type() == NodeParam::kTexture) {
-        // NodeTableTraverser converts footage to VideoParams
-        QTreeWidgetItem* red_channel = new QTreeWidgetItem();
-        red_channel->setText(0, tr("Red"));
-        sub_item->addChild(red_channel);
-
-        QTreeWidgetItem* green_channel = new QTreeWidgetItem();
-        green_channel->setText(0, tr("Green"));
-        sub_item->addChild(green_channel);
-
-        QTreeWidgetItem* blue_channel = new QTreeWidgetItem();
-        blue_channel->setText(0, tr("Blue"));
-        sub_item->addChild(blue_channel);
-
-        if (PixelFormat::FormatHasAlphaChannel(value.data().value<VideoParams>().format())) {
-          QTreeWidgetItem* alpha_channel = new QTreeWidgetItem();
-          alpha_channel->setText(0, tr("Alpha"));
-          sub_item->addChild(alpha_channel);
+        for (int k=0;k<channel_count;k++) {
+          this->setItemWidget(sub_item, 2 + k, new QCheckBox());
         }
+        break;
+      }
+      default:
+      {
+        QVector<QVariant> split_values = input->split_normal_value_into_track_values(value.data());
+        for (int k=0;k<split_values.size();k++) {
+          sub_item->setText(2 + k, NodeInput::ValueToString(value.type(), split_values.at(k)));
+        }
+      }
       }
     }
   }
