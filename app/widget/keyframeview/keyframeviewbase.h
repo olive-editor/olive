@@ -64,6 +64,8 @@ protected:
 
   void SetYAxisEnabled(bool e);
 
+  void SetKeyframeTrackVisible(int track, bool visible);
+
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
@@ -99,6 +101,8 @@ private:
   double y_scale_;
 
   bool currently_autoselecting_;
+
+  QList<int> hidden_tracks_;
 
 private slots:
   void ShowContextMenu();

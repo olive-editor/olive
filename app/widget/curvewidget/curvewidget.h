@@ -21,6 +21,7 @@
 #ifndef CURVEWIDGET_H
 #define CURVEWIDGET_H
 
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QWidget>
@@ -86,6 +87,8 @@ private:
   NodeParamViewWidgetBridge* bridge_;
 
   NodeParamViewKeyframeControl* key_control_;
+
+  QList<QCheckBox*> checkboxes_;
 
 private slots:
   void SelectionChanged();

@@ -117,11 +117,16 @@ void CurveWidget::SetInput(NodeInput *input)
 {
   if (bridge_) {
     foreach (QWidget* bridge_widget, bridge_->widgets()) {
-      delete bridge_widget;
+      bridge_widget->deleteLater();
     }
-    delete bridge_;
+    bridge_->deleteLater();
     bridge_ = nullptr;
   }
+
+  foreach (QCheckBox* box, checkboxes_) {
+    box->deleteLater();
+  }
+  checkboxes_.clear();
 
   if (input_) {
     disconnect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
@@ -142,7 +147,15 @@ void CurveWidget::SetInput(NodeInput *input)
 
     for (int i=0;i<bridge_->widgets().size();i++) {
       // Insert between two stretches to center the widget
-      widget_bridge_layout_->insertWidget(2 + i, bridge_->widgets().at(i));
+      QCheckBox* checkbox = new QCheckBox();
+      checkbox->setChecked(true);
+      widget_bridge_layout_->insertWidget(2 + i*2, checkbox);
+      checkboxes_.append(checkbox);
+      connect(checkbox, &QCheckBox::clicked, this, [this](bool e){
+        view_->SetTrackVisible(checkboxes_.indexOf(static_cast<QCheckBox*>(sender())), e);
+      });
+
+      widget_bridge_layout_->insertWidget(2 + i*2 + 1, bridge_->widgets().at(i));
     }
 
     connect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);

@@ -39,6 +39,8 @@ public:
 
   void SetTrackCount(int count);
 
+  void SetTrackVisible(int track, bool visible);
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
 
@@ -75,6 +77,8 @@ private:
   QList<QGraphicsLineItem*> lines_;
 
   QList<BezierControlPointItem*> bezier_control_points_;
+
+  QVector<bool> track_visible_;
 
   int track_count_;
 

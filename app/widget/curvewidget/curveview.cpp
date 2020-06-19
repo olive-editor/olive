@@ -61,6 +61,16 @@ void CurveView::Clear()
 void CurveView::SetTrackCount(int count)
 {
   track_count_ = count;
+
+  track_visible_.resize(track_count_);
+  track_visible_.fill(true);
+}
+
+void CurveView::SetTrackVisible(int track, bool visible)
+{
+  track_visible_[track] = visible;
+
+  SetKeyframeTrackVisible(track, visible);
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -116,6 +126,10 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   // Draw keyframe lines
 
   for (int j=0;j<track_count_;j++) {
+    if (!track_visible_.at(j)) {
+      continue;
+    }
+
     painter->setPen(QPen(GetKeyframeColor(j), qMax(1, fontMetrics().height() / 4)));
     QList<NodeKeyframe*> keys = GetKeyframesSortedByTime(j);
 
@@ -239,12 +253,33 @@ void CurveView::wheelEvent(QWheelEvent *event)
 {
   if (WheelEventIsAZoomEvent(event)) {
     if (!event->angleDelta().isNull()) {
+      bool only_vertical = false;
+      bool only_horizontal = false;
+
+      if (event->modifiers() & Qt::ShiftModifier) {
+        if (event->modifiers() & Qt::AltModifier) {
+          only_horizontal = true;
+        } else {
+          only_vertical = true;
+        }
+      }
+
       if (event->angleDelta().x() + event->angleDelta().y() > 0) {
-        emit ScaleChanged(GetScale() * 1.1);
-        SetYScale(GetYScale() * 1.1);
+        if (!only_vertical) {
+          emit ScaleChanged(GetScale() * 1.1);
+        }
+
+        if (!only_horizontal) {
+          SetYScale(GetYScale() * 1.1);
+        }
       } else {
-        emit ScaleChanged(GetScale() * 0.9);
-        SetYScale(GetYScale() * 0.9);
+        if (!only_vertical) {
+          emit ScaleChanged(GetScale() * 0.9);
+        }
+
+        if (!only_horizontal) {
+          SetYScale(GetYScale() *0.9);
+        }
       }
     }
   } else {
