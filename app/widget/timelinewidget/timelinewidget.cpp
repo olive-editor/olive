@@ -1584,9 +1584,9 @@ bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, 
 
   // Find all points at this movement
   QList<rational> snap_times;
-  foreach (const SnapData& data, potential_snaps) {
-    if (data.movement == *movement) {
-      snap_times.append(data.time);
+  foreach (const SnapData& d, potential_snaps) {
+    if (d.movement == *movement) {
+      snap_times.append(d.time);
     }
   }
 

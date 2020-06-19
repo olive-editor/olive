@@ -90,11 +90,11 @@ void AudioMonitor::Stop()
   }
 }
 
-void AudioMonitor::OutputPushed(const QByteArray &data)
+void AudioMonitor::OutputPushed(const QByteArray &d)
 {
   QVector<double> v(params_.channel_count(), 0);
 
-  BytesToSampleSummary(data, v);
+  BytesToSampleSummary(d, v);
 
   PushValue(v);
 

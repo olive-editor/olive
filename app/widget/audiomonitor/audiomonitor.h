@@ -45,7 +45,7 @@ public slots:
 
   void Stop();
 
-  void OutputPushed(const QByteArray& data);
+  void OutputPushed(const QByteArray& d);
 
 protected:
   //virtual void paintEvent(QPaintEvent* event) override;
