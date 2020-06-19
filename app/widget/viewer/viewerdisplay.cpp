@@ -313,6 +313,25 @@ void ViewerDisplayWidget::paintGL()
 
   }
 
+  /*
+  * Get matrix elements (roughly) as below in column major order
+  *
+  * | Sx 0  0  Tx |
+  * | 0  Sy 0  Ty |
+  * | 0  0  Sz Tz |
+  * | 0  0  0  1  |
+  */
+  float *data = GetCompleteMatrix().data();
+  QTransform world;
+  // Move corner of canvas to correct point
+  world.translate(width() * 0.5 - width() * *(data)*0.5,
+                  height() * 0.5 - height() * *(data + 5) * 0.5);
+  // Scale
+  world.scale(*(data), *(data + 5));
+  // Translate for mouse movement
+  world.translate(*(data + 12) * width() * 0.5 / *(data),
+                  *(data + 13) * height() * -0.5 / *(data + 5));
+
   // Draw gizmos if we have any
   if (gizmos_) {
     GizmoTraverser gt(QSize(gizmo_params_.width(), gizmo_params_.height()));
@@ -322,19 +341,16 @@ void ViewerDisplayWidget::paintGL()
     gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
     QPainter p(this);
+    p.setWorldTransform(world);
     gizmos_->DrawGizmos(gizmo_db_, &p, QVector2D(GetTexturePosition(size())), size());
   }
 
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
     QPainter p(this);
-    float* data = GetCompleteMatrix().data();
-    QMatrix mat;
-    mat.translate(data[12], data[13]);
-    mat.scale(data[0], data[5]);
-    //p.setTransform(GetCompleteMatrix().toTransform());
-    
-    printf("Data[12]: %f\n", *(data+12));
+    p.setWorldTransform(world);
+
+
     p.setPen(Qt::lightGray);
     p.setBrush(Qt::NoBrush);
 
@@ -352,14 +368,8 @@ void ViewerDisplayWidget::paintGL()
         y = height() / 2 - h / 2;
       }
     }
-    QRect rect1(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
-    //p.drawRect(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
-    // scale translation by width(), height() and halve
-    // scale should already be correct, but needs offsetting
-    rect1.translate(*(data + 12)*width()*0.5, *(data + 13)*height()*-0.5);
-    rect1.setWidth(rect1.width() * *(data));
-    rect1.setHeight(rect1.height() * *(data + 5));
-    p.drawRect(rect1);
+
+    p.drawRect(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
     p.drawRect(w / 10 + x, h / 10 + y, w / 10 * 8, h / 10 * 8);
 
     int cross = qMin(w, h) / 32;
