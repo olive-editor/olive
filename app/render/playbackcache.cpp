@@ -71,6 +71,7 @@ void PlaybackCache::SetLength(const rational &r)
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
     invalidated_.InsertTimeRange(range_diff);
+    jobs_.append({range_diff, QDateTime::currentMSecsSinceEpoch()});
   } else {
     // If new length is smaller, removed hashes
     invalidated_.RemoveTimeRange(range_diff);

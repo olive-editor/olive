@@ -49,8 +49,6 @@ private:
 
   QHash<rational, FramePtr> time_map_;
 
-  QList< QFuture<bool> > write_frame_futures_;
-
   ColorManager* color_manager_;
 
   ExportParams params_;
