@@ -328,6 +328,13 @@ void ViewerDisplayWidget::paintGL()
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
     QPainter p(this);
+    float* data = GetCompleteMatrix().data();
+    QMatrix mat;
+    mat.translate(data[12], data[13]);
+    mat.scale(data[0], data[5]);
+    //p.setTransform(GetCompleteMatrix().toTransform());
+    
+    printf("Data[12]: %f\n", *(data+12));
     p.setPen(Qt::lightGray);
     p.setBrush(Qt::NoBrush);
 
@@ -345,8 +352,14 @@ void ViewerDisplayWidget::paintGL()
         y = height() / 2 - h / 2;
       }
     }
-
-    p.drawRect(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
+    QRect rect1(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
+    //p.drawRect(w / 20 + x, h / 20 + y, w / 10 * 9, h / 10 * 9);
+    // scale translation by width(), height() and halve
+    // scale should already be correct, but needs offsetting
+    rect1.translate(*(data + 12)*width()*0.5, *(data + 13)*height()*-0.5);
+    rect1.setWidth(rect1.width() * *(data));
+    rect1.setHeight(rect1.height() * *(data + 5));
+    p.drawRect(rect1);
     p.drawRect(w / 10 + x, h / 10 + y, w / 10 * 8, h / 10 * 8);
 
     int cross = qMin(w, h) / 32;
