@@ -41,6 +41,15 @@ public:
 
   virtual ~OpenGLProxy() override;
 
+  static void CreateInstance();
+
+  static void DestroyInstance();
+
+  static OpenGLProxy* instance()
+  {
+    return instance_;
+  }
+
   /**
    * @brief Initialize OpenGL instance in whatever thread this object is a part of
    *
@@ -100,6 +109,8 @@ private:
   QHash<QString, OpenGLShaderPtr> shader_cache_;
 
   OpenGLTextureCache texture_cache_;
+
+  static OpenGLProxy* instance_;
 
 private slots:
   void FinishInit();

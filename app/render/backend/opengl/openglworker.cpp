@@ -22,15 +22,14 @@
 
 OLIVE_NAMESPACE_ENTER
 
-OpenGLWorker::OpenGLWorker(RenderBackend *parent, OpenGLProxy* proxy) :
-  RenderWorker(parent),
-  proxy_(proxy)
+OpenGLWorker::OpenGLWorker(RenderBackend *parent) :
+  RenderWorker(parent)
 {
 }
 
 void OpenGLWorker::TextureToFrame(const QVariant &texture, FramePtr frame, const QMatrix4x4& mat) const
 {
-  QMetaObject::invokeMethod(proxy_,
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
                             "TextureToBuffer",
                             Qt::BlockingQueuedConnection,
                             Q_ARG(const QVariant&, texture),
@@ -42,7 +41,7 @@ QVariant OpenGLWorker::FootageFrameToTexture(StreamPtr stream, FramePtr frame) c
 {
   QVariant value;
 
-  QMetaObject::invokeMethod(proxy_,
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
                             "FrameToValue",
                             Qt::BlockingQueuedConnection,
                             Q_RETURN_ARG(QVariant, value),
@@ -58,7 +57,7 @@ QVariant OpenGLWorker::CachedFrameToTexture(FramePtr frame) const
 {
   QVariant value;
 
-  QMetaObject::invokeMethod(proxy_,
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
                             "PreCachedFrameToValue",
                             Qt::BlockingQueuedConnection,
                             Q_RETURN_ARG(QVariant, value),
@@ -71,7 +70,7 @@ QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, c
 {
   QVariant value;
 
-  QMetaObject::invokeMethod(proxy_,
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
                             "RunNodeAccelerated",
                             Qt::BlockingQueuedConnection,
                             Q_RETURN_ARG(QVariant, value),

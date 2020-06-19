@@ -33,6 +33,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+OpenGLProxy* OpenGLProxy::instance_ = nullptr;
+
 OpenGLProxy::OpenGLProxy(QObject *parent) :
   QObject(parent),
   ctx_(nullptr),
@@ -46,6 +48,30 @@ OpenGLProxy::~OpenGLProxy()
   Close();
 
   surface_.destroy();
+}
+
+void OpenGLProxy::CreateInstance()
+{
+  instance_ = new OpenGLProxy();
+
+  QThread* proxy_thread = new QThread();
+  proxy_thread->start(QThread::IdlePriority);
+  instance_->moveToThread(proxy_thread);
+
+  if (!instance_->Init()) {
+    DestroyInstance();
+  }
+}
+
+void OpenGLProxy::DestroyInstance()
+{
+  if (instance_) {
+    instance_->thread()->quit();
+    instance_->thread()->wait();
+    instance_->thread()->deleteLater();
+    instance_->deleteLater();
+    instance_ = nullptr;
+  }
 }
 
 bool OpenGLProxy::Init()
