@@ -177,18 +177,21 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     if (viewer) {
       SetTimebase(viewer->video_params().time_base());
 
+      rational time = Timecode::timestamp_to_time(this->GetTimestamp(), timebase());
+
       // Set viewer as a time target
       keyframe_view_->SetTimeTarget(viewer);
 
       foreach (NodeParamViewItem* item, items_) {
         item->SetTimeTarget(viewer);
+        item->SetTime(time);
       }
 
       emit TimeTargetChanged(viewer);
     }
 
     // Forces the scroll to update to this time
-    keyframe_view_->SetTime(ruler()->GetTime());
+    keyframe_view_->SetTime(GetTimestamp());
   }
 }
 
@@ -239,7 +242,7 @@ void NodeParamView::DeleteSelected()
 
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 {
-  rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());
+  rational time = Timecode::timestamp_to_time(timestamp, timebase());
 
   foreach (NodeParamViewItem* item, items_) {
     item->SetTime(time);
