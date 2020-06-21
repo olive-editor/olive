@@ -175,6 +175,28 @@ FramePtr ViewerDisplayWidget::last_loaded_buffer() const
   return last_loaded_buffer_;
 }
 
+QTransform ViewerDisplayWidget::GenerateWorldTransform()
+{
+  /*
+   * Get matrix elements (roughly) as below in column major order
+   *
+   * | Sx 0  0  Tx |
+   * | 0  Sy 0  Ty |
+   * | 0  0  Sz Tz |
+   * | 0  0  0  1  |
+   */
+  float *data = GetCompleteMatrix().data();
+  QTransform world;
+  // Move corner of canvas to correct point
+  world.translate(width() * 0.5 - width() * *(data)*0.5, height() * 0.5 - height() * *(data + 5) * 0.5);
+  // Scale
+  world.scale(*(data), *(data + 5));
+  // Translate for mouse movement
+  world.translate(*(data + 12) * width() * 0.5 / *(data), *(data + 13) * height() * -0.5 / *(data + 5));
+
+  return world;
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (gizmos_
@@ -313,24 +335,7 @@ void ViewerDisplayWidget::paintGL()
 
   }
 
-  /*
-  * Get matrix elements (roughly) as below in column major order
-  *
-  * | Sx 0  0  Tx |
-  * | 0  Sy 0  Ty |
-  * | 0  0  Sz Tz |
-  * | 0  0  0  1  |
-  */
-  float *data = GetCompleteMatrix().data();
-  QTransform world;
-  // Move corner of canvas to correct point
-  world.translate(width() * 0.5 - width() * *(data)*0.5,
-                  height() * 0.5 - height() * *(data + 5) * 0.5);
-  // Scale
-  world.scale(*(data), *(data + 5));
-  // Translate for mouse movement
-  world.translate(*(data + 12) * width() * 0.5 / *(data),
-                  *(data + 13) * height() * -0.5 / *(data + 5));
+  QTransform world = GenerateWorldTransform();
 
   // Draw gizmos if we have any
   if (gizmos_) {

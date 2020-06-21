@@ -87,6 +87,12 @@ public:
 
   FramePtr last_loaded_buffer() const;
 
+  /**
+   * @brief Return a QTransform that contains all the scale and translation data (inc. mouse drags)
+   * that can be used to set the world transform for a QPainter.
+   */
+  QTransform GenerateWorldTransform();
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
