@@ -39,7 +39,6 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
   dragging_playhead_(false),
-  limit_y_axis_(false),
   snapped_(false),
   snap_service_(nullptr)
 {
@@ -269,12 +268,6 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
 bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
-}
-
-void TimelineViewBase::SetLimitYAxis(bool)
-{
-  limit_y_axis_ = true;
-  UpdateSceneRect();
 }
 
 OLIVE_NAMESPACE_EXIT

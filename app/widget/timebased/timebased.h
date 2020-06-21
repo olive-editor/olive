@@ -52,6 +52,8 @@ public:
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
+  TimeRuler* ruler() const;
+
 public slots:
   void SetTimestamp(int64_t timestamp);
 
@@ -88,8 +90,6 @@ public slots:
   void GoToIn();
 
   void GoToOut();
-
-  TimeRuler* ruler() const;
 
 protected slots:
   void SetTimeAndSignal(const int64_t& t);

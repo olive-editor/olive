@@ -73,8 +73,6 @@ protected:
 
   bool WheelEventIsAZoomEvent(QWheelEvent* event);
 
-  void SetLimitYAxis(bool e);
-
   rational GetPlayheadTime() const;
 
   bool PlayheadPress(QMouseEvent* event);
@@ -96,8 +94,6 @@ private:
   bool dragging_playhead_;
 
   QGraphicsScene scene_;
-
-  bool limit_y_axis_;
 
   bool snapped_;
   QList<rational> snap_time_;

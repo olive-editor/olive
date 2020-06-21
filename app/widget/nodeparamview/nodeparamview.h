@@ -47,8 +47,6 @@ public:
 signals:
   void InputDoubleClicked(NodeInput* input);
 
-  void TimeTargetChanged(Node* target);
-
   void RequestSelectNode(const QList<Node*>& target);
 
   void OpenedNode(Node* n);
@@ -64,6 +62,11 @@ protected:
   virtual void TimebaseChangedEvent(const rational&) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
+  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+
+  virtual void ConnectNodeInternal(ViewerOutput* n) override;
+  virtual void DisconnectNodeInternal(ViewerOutput* n) override;
+
 private:
   void UpdateItemTime(const int64_t &timestamp);
 
@@ -77,14 +80,16 @@ private:
 
   QScrollBar* vertical_scrollbar_;
 
-  QGraphicsRectItem* bottom_item_;
-
   int last_scroll_val_;
+
+  QWidget* param_widget_area_;
 
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
-  void ForceKeyframeViewToScroll(int min, int max);
+  void ForceKeyframeViewToScroll();
+
+  void PlaceKeyframesOnView();
 
 };
 

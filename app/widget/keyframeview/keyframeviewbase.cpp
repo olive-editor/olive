@@ -101,14 +101,18 @@ void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 
 KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 {
-  KeyframeViewItem* item = new KeyframeViewItem(key);
-  item->SetTimeTarget(GetTimeTarget());
-  item->SetScale(GetScale());
-  item_map_.insert(key.get(), item);
-  scene()->addItem(item);
+  KeyframeViewItem* item = item_map_.value(key.get());
 
-  if (hidden_tracks_.contains(key->track())) {
-    item->setVisible(false);
+  if (!item) {
+    item = new KeyframeViewItem(key);
+    item->SetTimeTarget(GetTimeTarget());
+    item->SetScale(GetScale());
+    item_map_.insert(key.get(), item);
+    scene()->addItem(item);
+
+    if (hidden_tracks_.contains(key->track())) {
+      item->setVisible(false);
+    }
   }
 
   return item;

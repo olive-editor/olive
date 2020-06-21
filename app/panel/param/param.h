@@ -41,8 +41,6 @@ public slots:
   virtual void DeleteSelected() override;
 
 signals:
-  void TimeTargetChanged(Node* node);
-
   void RequestSelectNode(const QList<Node*>& target);
 
   void FoundGizmos(Node* node);

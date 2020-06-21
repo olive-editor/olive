@@ -29,7 +29,6 @@ ParamPanel::ParamPanel(QWidget* parent) :
 {
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
-  connect(view, &NodeParamView::TimeTargetChanged, this, &ParamPanel::TimeTargetChanged);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::OpenedNode, this, &ParamPanel::OpeningNode);
   connect(view, &NodeParamView::ClosedNode, this, &ParamPanel::ClosingNode);
@@ -104,7 +103,6 @@ void ParamPanel::CreateCurvePanel(NodeInput *input)
 
   connect(view, &NodeParamView::TimebaseChanged, panel, &CurvePanel::SetTimebase);
   connect(view, &NodeParamView::TimeChanged, panel, &CurvePanel::SetTimestamp);
-  connect(view, &NodeParamView::TimeTargetChanged, panel, &CurvePanel::SetTimeTarget);
   connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::SetTimestamp);
   connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::TimeChanged);
   connect(panel, &CurvePanel::CloseRequested, this, &ParamPanel::ClosingCurvePanel);
