@@ -271,8 +271,10 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
       QVector3D pixel_pos(static_cast<float>(event->x()) / static_cast<float>(width()) * 2.0f - 1.0f,
                           static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
                           0);
+      QMatrix4x4 transform = GetCompleteMatrix();
+      *(transform.data() + 13) = *(transform.data() + 13) * -1.0f;
 
-      pixel_pos = pixel_pos * GetCompleteMatrix().inverted();
+      pixel_pos = transform.inverted() * pixel_pos;
 
       int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * last_loaded_buffer_->width());
       int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * last_loaded_buffer_->height());
