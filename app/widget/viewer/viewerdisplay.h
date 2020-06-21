@@ -93,6 +93,8 @@ public:
    */
   QTransform GenerateWorldTransform();
 
+  QPoint TransformViewerSpaceToGizmoSpace(QPoint pos);
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with

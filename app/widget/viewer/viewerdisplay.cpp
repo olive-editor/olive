@@ -197,10 +197,20 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
   return world;
 }
 
+QPoint ViewerDisplayWidget::TransformViewerSpaceToGizmoSpace(QPoint pos)
+{
+  /*
+  * Inversion will only fail is the viewer has been scaled by 0 in any direction
+  * which I think should never happen. Also I don't know what we'd do if it does.
+  */
+  return pos * GenerateWorldTransform().inverted();
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (gizmos_
-      && gizmos_->GizmoPress(gizmo_db_, event->pos(), QVector2D(GetTexturePosition(size())), size())) {
+      && gizmos_->GizmoPress(gizmo_db_, TransformViewerSpaceToGizmoSpace(event->pos()),
+          QVector2D(GetTexturePosition(size())), size())) {
     gizmo_click_ = true;
     gizmo_drag_time_ = GetGizmoTime();
     return;
@@ -246,7 +256,9 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   }
 
   if (gizmo_click_) {
-    gizmos_->GizmoMove(event->pos(), QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
+    gizmos_->GizmoMove(TransformViewerSpaceToGizmoSpace(event->pos()),
+        QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
+    update();
     return;
   }
 
