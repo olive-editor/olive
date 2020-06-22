@@ -104,7 +104,7 @@ QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
 
 QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrixFlippedYTranslation() {
   QMatrix4x4 mat;
-  // Images is scaled, then translated.
+  // Image is scaled, then translated.
   mat =  translate_matrix_ * scale_matrix_ * mat;
   // Y translation is flipped for OpenGL usage
   *(mat.data() + 13) = *(mat.data() + 13) * -1.0f;
@@ -210,8 +210,8 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
 QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
 {
   /*
-  * Inversion will only fail is the viewer has been scaled by 0 in any direction
-  * which I think should never happen. Also I don't know what we'd do if it does.
+  * Inversion will only fail if the viewer has been scaled by 0 in any direction
+  * which I think should never happen.
   */
   return pos * GenerateWorldTransform().inverted();
 }
@@ -252,7 +252,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   // Only allow translation if the image is larger than the container widget
   if ((event->buttons() & Qt::MiddleButton || hand_tool_clicked_) && zoomed_) {
     QPointF delta = event->pos() - position_;
-    // scale delta to widget size
+    // Scale delta to widget size
     delta.setX(2 * delta.x() / width());
     delta.setY(2 * delta.y() / height());
 
@@ -262,7 +262,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
     mat.translate(delta.x(), delta.y());
     SetMatrixTranslate(mat);
 
-    // get new start position
+    // Get new start position
     position_ = event-> pos();
     return;
   }
@@ -380,7 +380,6 @@ void ViewerDisplayWidget::paintGL()
   if (safe_margin_.is_enabled()) {
     QPainter p(this);
     p.setWorldTransform(world);
-
 
     p.setPen(Qt::lightGray);
     p.setBrush(Qt::NoBrush);
