@@ -147,8 +147,10 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   view_splitter->setSizes({INT_MAX, INT_MAX});
 
   // FIXME: Magic number
-  SetMaximumScale(TimelineViewBase::kMaximumScale);
   SetScale(90.0);
+
+  SetMaximumScale(TimelineViewBase::kMaximumScale);
+  SetAutoSetTimebase(false);
 }
 
 TimelineWidget::~TimelineWidget()

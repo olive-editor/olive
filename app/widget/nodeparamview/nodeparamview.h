@@ -64,9 +64,6 @@ protected:
 
   virtual void ConnectedNodeChanged(ViewerOutput* n) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput* n) override;
-  virtual void DisconnectNodeInternal(ViewerOutput* n) override;
-
 private:
   void UpdateItemTime(const int64_t &timestamp);
 

@@ -208,18 +208,6 @@ void NodeParamView::ConnectedNodeChanged(ViewerOutput *n)
   }
 }
 
-void NodeParamView::ConnectNodeInternal(ViewerOutput *n)
-{
-  SetTimebase(n->video_params().time_base());
-}
-
-void NodeParamView::DisconnectNodeInternal(ViewerOutput *n)
-{
-  Q_UNUSED(n)
-
-  SetTimebase(rational());
-}
-
 const QList<Node *> &NodeParamView::nodes()
 {
   return nodes_;

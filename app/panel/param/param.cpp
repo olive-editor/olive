@@ -30,8 +30,6 @@ ParamPanel::ParamPanel(QWidget* parent) :
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
-  connect(view, &NodeParamView::OpenedNode, this, &ParamPanel::OpeningNode);
-  connect(view, &NodeParamView::ClosedNode, this, &ParamPanel::ClosingNode);
   connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
   SetTimeBasedWidget(view);
 
@@ -50,13 +48,7 @@ void ParamPanel::SetTimestamp(const int64_t &timestamp)
   TimeBasedPanel::SetTimestamp(timestamp);
 
   // Ensure all CurvePanels are updated with this time too
-  QHash<NodeInput*, CurvePanel*>::const_iterator i;
-
-  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
-    if (i.value() && i.value() != sender()) {
-      i.value()->SetTimestamp(timestamp);
-    }
-  }
+  ParamViewTimeChanged(timestamp);
 }
 
 void ParamPanel::DeleteSelected()
@@ -97,50 +89,51 @@ void ParamPanel::CreateCurvePanel(NodeInput *input)
   panel = Core::instance()->main_window()->AppendCurvePanel();
 
   panel->SetInput(input);
-  panel->SetTimebase(view->timebase());
+  panel->ConnectViewerNode(view->GetConnectedNode());
   panel->SetTimestamp(view->GetTimestamp());
-  panel->SetTimeTarget(view->GetTimeTarget());
 
-  connect(view, &NodeParamView::TimebaseChanged, panel, &CurvePanel::SetTimebase);
-  connect(view, &NodeParamView::TimeChanged, panel, &CurvePanel::SetTimestamp);
-  connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::SetTimestamp);
-  connect(panel, &CurvePanel::TimeChanged, view, &NodeParamView::TimeChanged);
+  connect(view, &NodeParamView::TimeChanged, this, &ParamPanel::ParamViewTimeChanged);
+  connect(panel, &CurvePanel::TimeChanged, this, &ParamPanel::CurvePanelTimeChanged);
   connect(panel, &CurvePanel::CloseRequested, this, &ParamPanel::ClosingCurvePanel);
 
   open_curve_panels_.insert(input, panel);
-}
-
-void ParamPanel::OpeningNode(Node *n)
-{
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
-    if (open_curve_panels_.contains(i)) {
-      // We had a CurvePanel open for this input that was closed in ClosingNode(), re-open it
-      CreateCurvePanel(i);
-    }
-  }
-}
-
-void ParamPanel::ClosingNode(Node *n)
-{
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
-    CurvePanel* panel = open_curve_panels_.value(i);
-
-    // Close the panel (this also destroys it), but keep a reference in the hash
-    if (panel) {
-      panel->close();
-      open_curve_panels_.insert(i, nullptr);
-    }
-  }
 }
 
 void ParamPanel::ClosingCurvePanel()
 {
   CurvePanel* panel = static_cast<CurvePanel*>(sender());
   open_curve_panels_.remove(panel->GetInput());
+}
+
+void ParamPanel::ParamViewTimeChanged(const int64_t &time)
+{
+  // Ensure all CurvePanels are updated with this time too
+  QHash<NodeInput*, CurvePanel*>::const_iterator i;
+
+  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
+    // If connected viewers are the same, set the timestamp
+    if (i.value()->GetConnectedViewer() == GetConnectedViewer()) {
+      i.value()->SetTimestamp(time);
+    }
+  }
+}
+
+void ParamPanel::CurvePanelTimeChanged(const int64_t &time)
+{
+  GetTimeBasedWidget()->SetTimestamp(time);
+  emit GetTimeBasedWidget()->TimeChanged(time);
+
+  CurvePanel* src = static_cast<CurvePanel*>(sender());
+
+  // Ensure all CurvePanels are updated with this time too
+  QHash<NodeInput*, CurvePanel*>::const_iterator i;
+
+  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
+    // If connected viewers are the same and the panel isn't the source, set the timestamp
+    if (i.value() != src && i.value()->GetConnectedViewer() == src->GetConnectedViewer()) {
+      i.value()->SetTimestamp(time);
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

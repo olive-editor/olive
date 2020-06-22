@@ -59,6 +59,8 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node* target) override;
 
+  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+
 private:
   void UpdateInputLabel();
 

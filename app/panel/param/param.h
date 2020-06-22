@@ -51,14 +51,15 @@ protected:
 private slots:
   void CreateCurvePanel(NodeInput* input);
 
-  void OpeningNode(Node* n);
-
-  void ClosingNode(Node* n);
-
   void ClosingCurvePanel();
 
 private:
   QHash<NodeInput*, CurvePanel*> open_curve_panels_;
+
+private slots:
+  void ParamViewTimeChanged(const int64_t& time);
+
+  void CurvePanelTimeChanged(const int64_t& time);
 
 };
 
