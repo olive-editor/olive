@@ -207,7 +207,7 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
   return world;
 }
 
-QPoint ViewerDisplayWidget::TransformViewerSpaceToGizmoSpace(QPoint pos)
+QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
 {
   /*
   * Inversion will only fail is the viewer has been scaled by 0 in any direction
@@ -219,7 +219,7 @@ QPoint ViewerDisplayWidget::TransformViewerSpaceToGizmoSpace(QPoint pos)
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton && gizmos_
-      && gizmos_->GizmoPress(gizmo_db_, TransformViewerSpaceToGizmoSpace(event->pos()),
+      && gizmos_->GizmoPress(gizmo_db_, TransformViewerSpaceToBufferSpace(event->pos()),
           QVector2D(GetTexturePosition(size())), size())) {
     gizmo_click_ = true;
     gizmo_drag_time_ = GetGizmoTime();
@@ -268,7 +268,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   }
 
   if (gizmo_click_) {
-    gizmos_->GizmoMove(TransformViewerSpaceToGizmoSpace(event->pos()),
+    gizmos_->GizmoMove(TransformViewerSpaceToBufferSpace(event->pos()),
         QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
     update();
     return;
