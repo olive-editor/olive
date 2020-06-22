@@ -78,6 +78,12 @@ public:
    */
   QMatrix4x4 GetCompleteMatrix();
 
+  /**
+   * @brief Return the complete translation and scale matrix but with the Y translation flipped
+   * as OpenGL stores textures "upside down".
+   */
+  QMatrix4x4 GetCompleteMatrixFlippedYTranslation();
+
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
@@ -233,6 +239,11 @@ private:
    * @brief Set if the hand tool is selected.
    */
   bool hand_tool_;
+
+  /**
+   * @brief Set if the hand tool is selected and viewer is clicked.
+   */
+  bool hand_tool_clicked_;
 
 private slots:
   /**
