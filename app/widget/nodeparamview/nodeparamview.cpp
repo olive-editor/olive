@@ -55,6 +55,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Set up scroll area layout
   param_layout_ = new QVBoxLayout(param_widget_area_);
   param_layout_->setSpacing(0);
+
+  // KeyframeView is offset by a ruler, so to stay synchronized with it, we should be too
   param_layout_->setContentsMargins(0, ruler()->height(), 0, 0);
 
   // Add a stretch to allow empty space at the bottom of the layout
@@ -161,6 +163,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
         found_gizmos = true;
       }
     }
+
+    UpdateItemTime(GetTimestamp());
 
     QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
   }

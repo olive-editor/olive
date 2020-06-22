@@ -44,6 +44,10 @@ public:
 
   void SetScale(const double& scale);
 
+  void SetScaleFromDimensions(double viewport_width, double content_width);
+  static double CalculateScaleFromDimensions(double viewport_sz, double content_sz);
+  static double CalculatePaddingFromDimensionScale(double viewport_sz);
+
 protected:
   double TimeToScene(const rational& time);
   rational SceneToTime(const double &x, bool round = false);
@@ -66,6 +70,8 @@ private:
   double min_scale_;
 
   double max_scale_;
+
+  static const int kCalculateDimensionsPadding;
 
 };
 

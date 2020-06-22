@@ -23,9 +23,10 @@
 
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
-#include "widget/timetarget/timetarget.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
+#include "widget/menu/menu.h"
 #include "widget/timelinewidget/view/timelineviewbase.h"
+#include "widget/timetarget/timetarget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,9 +37,6 @@ public:
   KeyframeViewBase(QWidget* parent = nullptr);
 
   virtual void Clear();
-
-  const double& GetYScale() const;
-  void SetYScale(const double& y_scale);
 
   void DeleteSelected();
 
@@ -54,17 +52,15 @@ protected:
 
   virtual void ScaleChangedEvent(const double& scale) override;
 
-  virtual void VerticalScaleChangedEvent(double scale);
-
   const QMap<NodeKeyframe*, KeyframeViewItem*>& item_map() const;
 
   virtual void KeyframeAboutToBeRemoved(NodeKeyframe* key);
 
   virtual void TimeTargetChangedEvent(Node*) override;
 
-  void SetYAxisEnabled(bool e);
-
   void SetKeyframeTrackVisible(int track, bool visible);
+
+  virtual void ContextMenuEvent(Menu &m);
 
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
@@ -95,10 +91,6 @@ private:
   QPointF dragging_bezier_point_opposing_start_;
 
   QVector<KeyframeItemAndTime> selected_keys_;
-
-  bool y_axis_enabled_;
-
-  double y_scale_;
 
   bool currently_autoselecting_;
 

@@ -169,6 +169,8 @@ void CurveWidget::SetInput(NodeInput *input)
   }
 
   UpdateInputLabel();
+
+  QMetaObject::invokeMethod(view_, "ZoomToFit", Qt::QueuedConnection);
 }
 
 const double &CurveWidget::GetVerticalScale()

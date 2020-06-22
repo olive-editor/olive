@@ -482,12 +482,12 @@ void TimeBasedWidget::ToggleShowAll()
       w = timeline_views_.first()->width();
     }
 
-    w = w / 10 * 9;
+
 
     toggle_show_all_old_scale_ = GetScale();
     toggle_show_all_old_scroll_ = scrollbar_->value();
 
-    SetScale(w / GetConnectedNode()->GetLength().toDouble());
+    SetScaleFromDimensions(w, GetConnectedNode()->GetLength().toDouble());
     scrollbar_->setValue(0);
 
     // Must explicitly do this because SetScale() will automatically set this to false
