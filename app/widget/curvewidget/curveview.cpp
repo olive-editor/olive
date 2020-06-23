@@ -404,8 +404,13 @@ void CurveView::ZoomToFit()
   double max_val = DBL_MIN;
 
   for (i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
-    min_time = qMin(i.key()->time(), min_time);
-    max_time = qMax(i.key()->time(), max_time);
+    rational transformed_time = GetAdjustedTime(i.key()->parent()->parentNode(),
+                                                GetTimeTarget(),
+                                                i.key()->time(),
+                                                NodeParam::kOutput);
+
+    min_time = qMin(transformed_time, min_time);
+    max_time = qMax(transformed_time, max_time);
 
     min_val = qMin(i.key()->value().toDouble(), min_val);
     max_val = qMax(i.key()->value().toDouble(), max_val);
