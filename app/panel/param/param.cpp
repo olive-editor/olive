@@ -88,9 +88,9 @@ void ParamPanel::CreateCurvePanel(NodeInput *input)
 
   panel = Core::instance()->main_window()->AppendCurvePanel();
 
-  panel->SetInput(input);
   panel->ConnectViewerNode(view->GetConnectedNode());
   panel->SetTimestamp(view->GetTimestamp());
+  panel->SetInput(input);
 
   connect(view, &NodeParamView::TimeChanged, this, &ParamPanel::ParamViewTimeChanged);
   connect(panel, &CurvePanel::TimeChanged, this, &ParamPanel::CurvePanelTimeChanged);
