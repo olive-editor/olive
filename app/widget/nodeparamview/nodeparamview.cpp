@@ -23,9 +23,12 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
+#include <QMainWindow>
+#include <QDockWidget>
 
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "widget/nodeparamview/nodeitemdock.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -55,6 +58,16 @@ NodeParamView::NodeParamView(QWidget *parent) :
   param_layout_ = new QVBoxLayout(param_widget_area);
   param_layout_->setSpacing(0);
   param_layout_->setMargin(0);
+
+  dock_ = new QMainWindow();
+  dock_->setDockOptions(QMainWindow::AnimatedDocks);
+  // Create empty central widget - we don't actually want a central widget (so we set its maximum
+  // size to 0,0) but some of Qt's docking/undocking fails without it
+  QWidget* centralWidget = new QWidget(this);
+  centralWidget->setMaximumSize(QSize(0, 0));
+  dock_->setCentralWidget(centralWidget);
+  // dock_->setWindowTitle("Window");
+  param_layout_->addWidget(dock_);
 
   // Add a stretch to allow empty space at the bottom of the layout
   param_layout_->addStretch();
@@ -124,15 +137,24 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 {
   ConnectViewerNode(nullptr);
 
+  foreach(Node * node, nodes) {
+      if (nodes_.contains(node)) {
+        nodes.removeOne(node);
+        continue;
+      } else {
+        nodes_.append(node);
+      }
+  }
+
   // If we already have item widgets, delete them all now
-  foreach (NodeParamViewItem* item, items_) {
+  /*foreach (NodeParamViewItem* item, items_) {
     emit ClosedNode(item->GetNode());
     emit FoundGizmos(nullptr);
     delete item;
   }
   items_.clear();
   emit TimeTargetChanged(nullptr);
-
+  */
   // Reset keyframe view
   SetTimebase(rational());
   keyframe_view_->Clear();
@@ -145,16 +167,31 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     bool found_gizmos = false;
 
     foreach (Node* node, nodes_) {
+      QString title;
+      if (node->GetLabel().isEmpty()) {
+        title = node->Name();
+      } else {
+        title = tr("%1 (%2)").arg(node->GetLabel(), node->Name());
+      }
+      NodeItemDock* item_dock = new NodeItemDock(title, dock_);
+      // item_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+      item_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+      item_dock->setAttribute(Qt::WA_DeleteOnClose);
+      // item_dock->setWindowTitle(node->Name());
+
       NodeParamViewItem* item = new NodeParamViewItem(node);
 
+      item_dock->setWidget(item);
+      dock_->addDockWidget(Qt::LeftDockWidgetArea, item_dock);
       // Insert the widget before the stretch
-      param_layout_->insertWidget(param_layout_->count() - 1, item);
+      //param_layout_->insertWidget(param_layout_->count() - 1, item);
 
       connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
       connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
       connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
       connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
       connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
+      connect(item_dock, &NodeItemDock::Closed, this, &NodeParamView::RemoveNodeItem);
 
       items_.append(item);
 
@@ -256,6 +293,15 @@ void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
   Q_UNUSED(min)
 
   bottom_item_->setY(keyframe_view_->viewport()->height() + max);
+}
+
+void NodeParamView::RemoveNodeItem(Node *node) {
+  printf("remove: %s\n", node->id().toStdString().c_str());
+  foreach (NodeParamViewItem* item, items_) {
+    if (item->GetNode() == node) {
+      items_.removeOne(item);
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

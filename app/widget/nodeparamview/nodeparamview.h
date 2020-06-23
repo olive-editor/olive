@@ -23,6 +23,7 @@
 
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QMainWindow>
 
 #include "node/node.h"
 #include "nodeparamviewitem.h"
@@ -81,10 +82,14 @@ private:
 
   int last_scroll_val_;
 
+  QMainWindow* dock_;
+
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
   void ForceKeyframeViewToScroll(int min, int max);
+
+  void RemoveNodeItem(Node* node);
 
 };
 

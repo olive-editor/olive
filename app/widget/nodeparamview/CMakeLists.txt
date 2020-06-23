@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/nodeparamview/nodeitemdock.h
+  widget/nodeparamview/nodeitemdock.cpp
   widget/nodeparamview/nodeparamview.h
   widget/nodeparamview/nodeparamview.cpp
   widget/nodeparamview/nodeparamviewarraywidget.h
