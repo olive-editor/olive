@@ -138,7 +138,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   ConnectViewerNode(nullptr);
 
     foreach (Node* newNode, nodes) {
-      if (!nodes_.contains(newNode)) {
+      if (!nodes_.contains(newNode) && newNode->GetBookmark()) {
         nodes_.append(newNode);
       }
       else {
@@ -296,6 +296,7 @@ void NodeParamView::RemoveNodeItem(Node *node) {
     }
   }
 
+  node->SetBookmark(false);
   nodes_.removeOne(node);
 }
 

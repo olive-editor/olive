@@ -376,6 +376,10 @@ public:
 
   QList<NodeOutput*> GetOutputs() const;
 
+  void SetBookmark(bool bookmark);
+
+  bool GetBookmark();
+
   virtual bool HasGizmos() const;
 
   virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale, const QSize& viewport) const;
@@ -475,6 +479,8 @@ private:
    * @brief Custom user label for node
    */
   QString label_;
+
+  bool bookmark_;
 
 };
 

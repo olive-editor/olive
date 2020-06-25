@@ -32,7 +32,8 @@
 OLIVE_NAMESPACE_ENTER
 
 Node::Node() :
-  can_be_deleted_(true)
+  can_be_deleted_(true),
+  bookmark_(false)
 {
   output_ = new NodeOutput("node_out");
   AddParameter(output_);
@@ -269,6 +270,16 @@ QList<NodeOutput *> Node::GetOutputs() const
 {
   // The current design only uses one output per node. This function returns a list just in case that changes.
   return {output_};
+}
+
+void Node::SetBookmark(bool bookmark)
+{
+  bookmark_ = bookmark;
+}
+
+bool Node::GetBookmark()
+{
+  return bookmark_;
 }
 
 bool Node::HasGizmos() const

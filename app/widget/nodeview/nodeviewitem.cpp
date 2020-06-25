@@ -398,8 +398,8 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     return;
 
-  } else {
-
+  }else {
+    if (node_ && event->modifiers() & Qt::ShiftModifier) node_->SetBookmark(true);
     // We aren't using any override behaviors, switch back to standard click behavior
     standard_click_ = true;
 
