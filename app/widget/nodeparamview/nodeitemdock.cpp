@@ -4,16 +4,13 @@
 OLIVE_NAMESPACE_ENTER
 
 NodeItemDock::NodeItemDock(Node* node, QWidget *parent) :
-    QDockWidget(parent),
-    node_(node)
+  QDockWidget(parent),
+  node_(node)
 {
   titlebar_ = new NodeItemDockTitle(node_, this);
   this->setTitleBarWidget(titlebar_);
 
   connect(titlebar_->ReturnCloseButton(), SIGNAL(clicked()), this, SLOT(Close()));
-
-  //connect(titlebar_->ReturnCollapseButton(), SIGNAL(clicked()), static_cast<NodeParamViewItem*>(this->widget())->GetBody(), SLOT(setVisible()));
-
 }
 
 NodeItemDockTitle* NodeItemDock::GetTitleBar()
@@ -27,15 +24,9 @@ void NodeItemDock::Close()
   this->close();
 }
 
-void NodeItemDock::closeEvent(QCloseEvent *event) {
-  emit Closed(static_cast<NodeParamViewItem *>(this->widget())->GetNode());
-
-  QDockWidget::closeEvent(event);
-}
-
 NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
-    QWidget(parent),
-    node_(node)
+  QWidget(parent),
+  node_(node)
 {
   QVBoxLayout* main_layout = new QVBoxLayout(this);
   main_layout->setSpacing(0);
@@ -63,11 +54,6 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   Retranslate();
 }
 
-void NodeItemDockTitle::SetNode(Node* node)
-{
-  node_ = node;
-}
-
 QPushButton* NodeItemDockTitle::ReturnCloseButton()
 {
   return close_button_;
@@ -83,7 +69,6 @@ void NodeItemDockTitle::Retranslate() {
 
   if (node_->GetLabel().isEmpty()) {
     title_bar_lbl_->setText(node_->Name());
-    //title_bar_lbl_->setText("Test");
   } else {
     title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
   }

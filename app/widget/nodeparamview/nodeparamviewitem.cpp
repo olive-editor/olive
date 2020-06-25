@@ -28,7 +28,7 @@
 #include "core.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
-#include "nodeitemdock.h"
+
 
 OLIVE_NAMESPACE_ENTER
 
@@ -57,7 +57,6 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
-  //connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
 
   main_layout->addWidget(body_);
 

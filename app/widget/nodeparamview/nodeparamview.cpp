@@ -137,14 +137,14 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 {
   ConnectViewerNode(nullptr);
 
-    foreach (Node* newNode, nodes) {
-      if (!nodes_.contains(newNode) && newNode->GetBookmark()) {
-        nodes_.append(newNode);
-      }
-      else {
-        nodes.removeAll(newNode);
-      }
+  foreach (Node* newNode, nodes) {
+    if (!nodes_.contains(newNode) && newNode->GetBookmark()) {
+      nodes_.append(newNode);
     }
+    else {
+      nodes.removeAll(newNode);
+    }
+  }
  
 
   // If we already have item widgets, delete them all now
@@ -289,7 +289,6 @@ void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
 }
 
 void NodeParamView::RemoveNodeItem(Node *node) {
-  printf("remove: %s\n", node->id().toStdString().c_str());
   foreach (NodeParamViewItem* item, items_) {
     if (item->GetNode() == node) {
       items_.removeOne(item);

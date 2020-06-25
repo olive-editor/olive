@@ -14,48 +14,87 @@ OLIVE_NAMESPACE_ENTER
 class NodeItemDockTitle : public QWidget {
   Q_OBJECT
 
-  public:
-    NodeItemDockTitle(Node* node, QWidget *parent = nullptr);
-    void SetNode(Node* node);
-    QPushButton* ReturnCloseButton();
-    CollapseButton* ReturnCollapseButton();
+public:
+  NodeItemDockTitle(Node* node, QWidget *parent = nullptr);
+
+  /**
+   * @brief Return a pointer to the close button
+   */
+  QPushButton* ReturnCloseButton();
+
+  /**
+   * @brief Return a pointer to the collapse button
+   */
+  CollapseButton* ReturnCollapseButton();
 
 
-  private:
-    bool eventFilter(QObject *pObject, QEvent *pEvent);
+private:
+  /**
+   * @brief Custom event filter to pass mouse events onto the QDockWidget
+   */
+  bool eventFilter(QObject *pObject, QEvent *pEvent);
 
-    NodeParamViewItemTitleBar *title_bar_;
+  /**
+   * @brief Title bar base widget
+   */
+  NodeParamViewItemTitleBar *title_bar_;
 
-    QLabel* title_bar_lbl_;
+  /**
+   * @brief QDockWidget's label, either node type or custom label set by the user
+   */
+  QLabel* title_bar_lbl_;
 
-    CollapseButton* title_bar_collapse_btn_;
+  /**
+   * @brief Button to collapse the contents of the QDockWidget
+   */
+  CollapseButton* title_bar_collapse_btn_;
 
-    QPushButton* close_button_;
+  /**
+   * @brief Button to close the QDockwidget
+   */
+  QPushButton* close_button_;
 
-    Node* node_;
+  /**
+   * @brief Node asscoiated with the QDockWidget
+   */
+  Node* node_;
 
-  private slots:
-    void Retranslate();
+private slots:
+  void Retranslate();
 };
 
 class NodeItemDock : public QDockWidget {
   Q_OBJECT
 
- public:
+public:
   NodeItemDock(Node *node, QWidget *parent = nullptr);
+
+  /**
+   * @brief Return a pointer to the title bar widget
+   */
   NodeItemDockTitle *GetTitleBar();
 
- signals:
+signals:
+  /**
+   * @brief Connected to NodeParamView RemoveNode. This cleans everything up when a dock item is removed
+   */ 
   void Closed(Node *node);
 
- protected:
-  void closeEvent(QCloseEvent *event);
-
- private:
+private:
+  /**
+   * @brief Node associated with this dock item
+   */
   Node *node_;
+
+  /**
+   * @brief Custom title bar for a NodeItemDock
+   */
   NodeItemDockTitle *titlebar_;
 
- private slots:
+private slots:
+  /**
+   * @brief Connected to the close button on the titlebar. Closes the widget.
+   */
   void Close();
 };
 

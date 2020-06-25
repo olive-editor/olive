@@ -480,6 +480,9 @@ private:
    */
   QString label_;
 
+  /**
+   * @brief Flags whether a node should be bookmarked or not
+   */
   bool bookmark_;
 
 };
