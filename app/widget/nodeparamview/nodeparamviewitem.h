@@ -129,12 +129,6 @@ protected:
   virtual void changeEvent(QEvent *e) override;
 
 private:
-  NodeParamViewItemTitleBar* title_bar_;
-
-  QLabel* title_bar_lbl_;
-
-  CollapseButton* title_bar_collapse_btn_;
-
   NodeParamViewItemBody* body_;
 
   Node* node_;

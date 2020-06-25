@@ -169,7 +169,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       item_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
       item_dock->setAttribute(Qt::WA_DeleteOnClose);
 
-      NodeParamViewItem* item = new NodeParamViewItem(node);
+      NodeParamViewItem* item = new NodeParamViewItem(node, item_dock);
       item_dock->setWidget(item);
 
       dock_->addDockWidget(Qt::LeftDockWidgetArea, item_dock);
@@ -180,6 +180,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
       connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
       connect(item_dock, &NodeItemDock::Closed, this, &NodeParamView::RemoveNodeItem);
+
+      item_dock->widget();
 
       items_.append(item);
 

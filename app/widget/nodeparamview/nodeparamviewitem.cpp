@@ -39,22 +39,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QVBoxLayout* main_layout = new QVBoxLayout(this);
   main_layout->setSpacing(0);
   main_layout->setMargin(0);
-  
-  // Create title bar widget
-  title_bar_ = new NodeParamViewItemTitleBar(this);
-  title_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
-  QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
-
-  title_bar_collapse_btn_ = new CollapseButton();
-  title_bar_layout->addWidget(title_bar_collapse_btn_);
-
-  title_bar_lbl_ = new QLabel(title_bar_);
-  title_bar_layout->addWidget(title_bar_lbl_);
-  
-  // Add title bar to widget
-  main_layout->addWidget(title_bar_);
-  
   // Create and add contents widget
   QVector<NodeInput*> inputs;
 
@@ -71,7 +56,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
-  connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
+  //connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
   main_layout->addWidget(body_);
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
@@ -113,13 +98,13 @@ void NodeParamViewItem::changeEvent(QEvent *e)
 void NodeParamViewItem::Retranslate()
 {
   node_->Retranslate();
-
+  /*
   if (node_->GetLabel().isEmpty()) {
     title_bar_lbl_->setText(node_->Name());
   } else {
     title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
   }
-
+  */
   body_->Retranslate();
 }
 
