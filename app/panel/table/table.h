@@ -28,6 +28,7 @@ OLIVE_NAMESPACE_ENTER
 
 class NodeTablePanel : public TimeBasedPanel
 {
+  Q_OBJECT
 public:
   NodeTablePanel(QWidget* parent);
 

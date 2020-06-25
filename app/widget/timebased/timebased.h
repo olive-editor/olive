@@ -52,6 +52,8 @@ public:
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
+  TimeRuler* ruler() const;
+
 public slots:
   void SetTimestamp(int64_t timestamp);
 
@@ -89,8 +91,6 @@ public slots:
 
   void GoToOut();
 
-  TimeRuler* ruler() const;
-
 protected slots:
   void SetTimeAndSignal(const int64_t& t);
 
@@ -126,6 +126,12 @@ protected slots:
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
    */
   void CenterScrollOnPlayhead();
+
+  /**
+   * @brief By default, TimeBasedWidget will set the timebase to the viewer node's video timebase.
+   * Set this to false if you want to set your own timebase.
+   */
+  void SetAutoSetTimebase(bool e);
 
 signals:
   void TimeChanged(const int64_t&);
@@ -169,6 +175,8 @@ private:
 
   double toggle_show_all_old_scale_;
   int toggle_show_all_old_scroll_;
+
+  bool auto_set_timebase_;
 
 private slots:
   void UpdateMaximumScroll();

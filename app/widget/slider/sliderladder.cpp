@@ -131,14 +131,15 @@ void SliderLadder::TimerUpdate()
   QCursor::setPos(drag_start_);
 #endif
 
-  int y_threshold = fontMetrics().height() / 2;
+  if (!x_mvmt && !y_mvmt) {
+    return;
+  }
 
-  if (qAbs(y_mvmt) > qAbs(x_mvmt)
-      || qApp->keyboardModifiers() & Qt::ControlModifier) {
+  if (qApp->keyboardModifiers() & Qt::ControlModifier) {
     // Movement is vertical
     y_mobility_ += y_mvmt;
 
-    if (qAbs(y_mobility_) > y_threshold) {
+    if (qAbs(y_mobility_) > fontMetrics().height()) {
       int new_active_element;
 
       if (y_mvmt < 0) {
@@ -161,15 +162,9 @@ void SliderLadder::TimerUpdate()
       y_mobility_ = 0;
     }
   } else {
-    // Movement is horizontal
-    emit DraggedByValue(x_mvmt , elements_.at(active_element_)->GetMultiplier());
+    y_mobility_ = 0;
 
-    // Reduce Y mobility
-    if (y_mobility_ > 0) {
-      y_mobility_--;
-    } else if (y_mobility_ < 0) {
-      y_mobility_++;
-    }
+    emit DraggedByValue(x_mvmt + y_mvmt, elements_.at(active_element_)->GetMultiplier());
   }
 }
 

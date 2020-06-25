@@ -93,11 +93,9 @@ void RenderTask::Render(const TimeRangeList& video_range,
   if (!video_range.isEmpty()) {
     QList<QByteArray> existing_hashes;
 
-    foreach (const TimeRange& r, video_range) {
-      total_length += r.length().toDouble();
-    }
-
     times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+
+    total_length += video_frame_sz * times.size();
 
     QFuture<QVector<QByteArray> > hash_future = backend_.Hash(times);
     hashes = hash_future.result();
@@ -125,7 +123,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
              || !download_futures.empty()
              || !audio_lookup_table.empty())) {
 
-    if (!frame_queue.empty()) {
+    if (!IsCancelled() && !frame_queue.empty()) {
       // Pop another frame off the frame queue
       const HashTimePair& p = frame_queue.front();
 
@@ -138,11 +136,14 @@ void RenderTask::Render(const TimeRangeList& video_range,
         bool hash_exists = false;
 
         if (use_disk_cache) {
-          bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
+          // Check if this hash is in our "existing hashes" list
+          hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
 
+          // If not, check if it's in the filesystem
           if (!hash_exists) {
             hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(p.hash));
 
+            // If so, add it to the list so we don't have to check the filesystem again later
             if (hash_exists) {
               existing_hashes.push_back(p.hash);
             }
@@ -167,7 +168,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
       frame_queue.pop_front();
     }
 
-    if (!audio_queue.empty()) {
+    if (!IsCancelled() && !audio_queue.empty()) {
       audio_lookup_table.push_back({audio_queue.front(), backend_.RenderAudio(audio_queue.front())});
       audio_queue.pop_front();
     }
@@ -194,9 +195,9 @@ void RenderTask::Render(const TimeRangeList& video_range,
         // Place it in the cache
         std::list<rational> times_with_hash;
 
-        for (int k=0;k<hashes.size();k++) {
-          if (hashes.at(k) == j->hash) {
-            times_with_hash.push_back(times.at(k));
+        for (int hash_index=0;hash_index<hashes.size();hash_index++) {
+          if (hashes.at(hash_index) == j->hash) {
+            times_with_hash.push_back(times.at(hash_index));
           }
         }
 

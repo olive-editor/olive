@@ -81,13 +81,15 @@ QString NodeInput::name()
 
 void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  {
+    XMLAttributeLoop(reader, attr) {
+      if (cancelled && *cancelled) {
+        return;
+      }
 
-    if (attr.name() == QStringLiteral("keyframing")) {
-      set_is_keyframing(attr.value() == QStringLiteral("1"));
+      if (attr.name() == QStringLiteral("keyframing")) {
+        set_is_keyframing(attr.value() == QStringLiteral("1"));
+      }
     }
   }
 

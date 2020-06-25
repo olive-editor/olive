@@ -107,6 +107,7 @@ else()
     -Wall
     -Wextra
     -Wno-unused-parameter
+    -Wshadow
   )
 endif()
 

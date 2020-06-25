@@ -50,13 +50,13 @@ Menu::Menu(const QString &s, QWidget *parent) :
   Init();
 }
 
-QAction *Menu::AddActionWithData(const QString &text, const QVariant &data, const QVariant &compare)
+QAction *Menu::AddActionWithData(const QString &text, const QVariant &d, const QVariant &compare)
 {
   QAction* a = addAction(text);
 
-  a->setData(data);
+  a->setData(d);
   a->setCheckable(true);
-  a->setChecked(data == compare);
+  a->setChecked(d == compare);
 
   return a;
 }

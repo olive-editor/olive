@@ -37,7 +37,7 @@ Project::Project() :
   root_.set_project(this);
 }
 
-void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
+void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const QAtomicInt* cancelled)
 {
   XMLNodeData xml_node_data;
 
@@ -62,7 +62,12 @@ void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
 
     } else if (reader->name() == QStringLiteral("layout")) {
 
-      Core::instance()->main_window()->LoadLayout(reader, xml_node_data);
+      // Since the main window's functions have to occur in the GUI thread (and we're likely
+      // loading in a secondary thread), we load all necessary data into a separate struct so we
+      // can continue loading and queue it with the main window so it can handle the data
+      // appropriately in its own thread.
+
+      *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
 
     } else {
       reader->skipCurrentElement();
@@ -93,7 +98,8 @@ void Project::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // colormanagement
 
   // Save main window project layout
-  Core::instance()->main_window()->SaveLayout(writer);
+  MainWindowLayoutInfo main_window_info = Core::instance()->main_window()->SaveLayout();
+  main_window_info.toXml(writer);
 
   writer->writeEndElement(); // project
 }

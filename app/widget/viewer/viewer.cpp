@@ -168,15 +168,6 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
 void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  if (!n->video_params().time_base().isNull()) {
-    SetTimebase(n->video_params().time_base());
-  } else if (n->audio_params().sample_rate() > 0) {
-    SetTimebase(n->audio_params().time_base());
-  } else {
-    SetTimebase(rational());
-  }
-
-  connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
@@ -231,9 +222,6 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   }
   cache_wait_timer_.stop();
 
-  SetTimebase(rational());
-
-  disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);

@@ -129,12 +129,20 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
 
 void ViewerOutput::set_video_params(const VideoParams &video)
 {
+  bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
+  bool timebase_changed = video_params_.time_base() != video.time_base();
+
   video_params_ = video;
 
-  video_frame_cache_.SetTimebase(video_params_.time_base());
+  if (size_changed) {
+    emit SizeChanged(video_params_.width(), video_params_.height());
+  }
 
-  emit SizeChanged(video_params_.width(), video_params_.height());
-  emit TimebaseChanged(video_params_.time_base());
+  if (timebase_changed) {
+    video_frame_cache_.SetTimebase(video_params_.time_base());
+    emit TimebaseChanged(video_params_.time_base());
+  }
+
   emit ParamsChanged();
 }
 

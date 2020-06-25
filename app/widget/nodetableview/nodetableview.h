@@ -36,6 +36,9 @@ public:
 
   void SetMultipleNodeMessage();
 
+private:
+  Node* last_set_node_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

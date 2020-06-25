@@ -231,10 +231,13 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const QVector<SamplePerC
   int channel_half_height = channel_height / 2;
 
   for (int i=0;i<sample.size();i++) {
+    qfloat16 max = qMin(sample.at(i).max, static_cast<qfloat16>(1.0f));
+    qfloat16 min = qMax(sample.at(i).min, static_cast<qfloat16>(-1.0));
+
     if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
       int channel_bottom = y + channel_height * (i + 1);
 
-      int diff = qRound((sample.at(i).max - sample.at(i).min) * channel_half_height);
+      int diff = qRound((max - min) * channel_half_height);
 
       painter->drawLine(x,
                         channel_bottom - diff,
@@ -244,9 +247,9 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const QVector<SamplePerC
       int channel_mid = y + channel_height * i + channel_half_height;
 
       painter->drawLine(x,
-                        channel_mid + qRound(sample.at(i).min * static_cast<float>(channel_half_height)),
+                        channel_mid + qRound(min * static_cast<float>(channel_half_height)),
                         x,
-                        channel_mid + qRound(sample.at(i).max * static_cast<float>(channel_half_height)));
+                        channel_mid + qRound(max * static_cast<float>(channel_half_height)));
     }
   }
 }

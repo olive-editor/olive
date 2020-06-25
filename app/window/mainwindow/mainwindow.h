@@ -23,6 +23,7 @@
 
 #include <QMainWindow>
 
+#include "mainwindowlayoutinfo.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -55,11 +56,11 @@ public:
 
   virtual ~MainWindow() override;
 
-  void LoadLayout(QXmlStreamReader* reader, XMLNodeData& xml_data);
+  void LoadLayout(const MainWindowLayoutInfo &info);
 
-  void SaveLayout(QXmlStreamWriter* writer) const;
+  MainWindowLayoutInfo SaveLayout() const;
 
-  void OpenSequence(Sequence* sequence);
+  void OpenSequence(Sequence* sequence, bool enable_focus = true);
 
   void CloseSequence(Sequence* sequence);
 
@@ -166,8 +167,6 @@ private slots:
   void ProjectCloseRequested();
 
   void FloatingPanelCloseRequested();
-
-  void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
 
   void StatusBarDoubleClicked();
 

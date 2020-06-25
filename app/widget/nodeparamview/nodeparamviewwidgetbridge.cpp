@@ -96,7 +96,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       IntegerSlider* slider = new IntegerSlider();
       slider->SetDefaultValue(input_->GetDefaultValue());
-      slider->SetLadderEnabled(true);
+      slider->SetLadderElementCount(2);
       widgets_.append(slider);
       connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -373,7 +373,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
   for (int i=0;i<count;i++) {
     FloatSlider* fs = new FloatSlider();
     fs->SetDefaultValue(input_->GetDefaultValueForTrack(i));
-    fs->SetLadderEnabled(true);
+    fs->SetLadderElementCount(2);
     widgets_.append(fs);
     connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }

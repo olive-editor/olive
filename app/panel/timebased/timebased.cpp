@@ -125,6 +125,10 @@ TimeRuler *TimeBasedPanel::ruler() const
 
 void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
+  if (widget_->GetConnectedNode() == node) {
+    return;
+  }
+
   if (widget_->GetConnectedNode()) {
     disconnect(widget_->GetConnectedNode(), &ViewerOutput::MediaNameChanged, this, &TimeBasedPanel::SetSubtitle);
   }

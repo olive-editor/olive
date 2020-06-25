@@ -44,7 +44,12 @@ void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
-  return NodeValueTable::Merge(tables_.values());
+  QHash<QString, NodeValueTable> copy = tables_;
+
+  // Kinda hacky, but we don't need this table to slipstream
+  copy.remove(QStringLiteral("global"));
+
+  return NodeValueTable::Merge(copy.values());
 }
 
 NodeValue::NodeValue() :
@@ -176,7 +181,6 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   NodeValueTable merged_table;
 
   // Slipstreams all tables together
-  // FIXME: I don't actually know if this is the right approach...
   foreach (const NodeValueTable& t, tables) {
     if (row >= t.Count()) {
       continue;

@@ -29,7 +29,8 @@
 OLIVE_NAMESPACE_ENTER
 
 NodeTableView::NodeTableView(QWidget* parent) :
-  QTreeWidget(parent)
+  QTreeWidget(parent),
+  last_set_node_(nullptr)
 {
   setColumnCount(3);
   setHeaderLabels({tr("Type"),
@@ -42,10 +43,22 @@ NodeTableView::NodeTableView(QWidget* parent) :
 
 void NodeTableView::SetNode(Node *n, const rational &time)
 {
-  clear();
+  if (last_set_node_ != n) {
+    // Clear everything if the node has changed
+    clear();
+  }
+  last_set_node_ = n;
 
   NodeTableTraverser traverser;
   NodeValueDatabase db = traverser.GenerateDatabase(n, TimeRange(time, time));
+
+  // Remove top items if necessary
+  for (int i=0;i<this->topLevelItemCount();i++) {
+    if (!db.contains(this->topLevelItem(i)->data(0, Qt::UserRole).toString())) {
+      delete this->takeTopLevelItem(i);
+      i--;
+    }
+  }
 
   NodeValueDatabase::const_iterator i;
 
@@ -58,17 +71,40 @@ void NodeTableView::SetNode(Node *n, const rational &time)
       continue;
     }
 
-    QTreeWidgetItem* top_item = new QTreeWidgetItem();
-    top_item->setText(0, input->name());
-    top_item->setFirstColumnSpanned(true);
-    this->addTopLevelItem(top_item);
+    QTreeWidgetItem* top_item = nullptr;
 
-    for (int j=table.Count()-1; j>=0; j--) {
-      const NodeValue& value = table.at(j);
+    for (int j=0;j<this->topLevelItemCount();j++) {
+      QTreeWidgetItem* compare = this->topLevelItem(j);
+
+      if (compare->data(0, Qt::UserRole).toString() == input->id()) {
+        top_item = compare;
+        break;
+      }
+    }
+
+    if (!top_item) {
+      top_item = new QTreeWidgetItem();
+      top_item->setText(0, input->name());
+      top_item->setData(0, Qt::UserRole, input->id());
+      top_item->setFirstColumnSpanned(true);
+      this->addTopLevelItem(top_item);
+    }
+
+    // Create children if necessary
+    while (top_item->childCount() < table.Count())  {
+      top_item->addChild(new QTreeWidgetItem());
+    }
+
+    // Remove children if necessary
+    while (top_item->childCount() > table.Count()) {
+      delete top_item->takeChild(top_item->childCount() - 1);
+    }
+
+    for (int j=0;j<table.Count();j++) {
+      const NodeValue& value = table.at(table.Count() - 1 - j);
 
       // Create item
-      QTreeWidgetItem* sub_item = new QTreeWidgetItem();
-      top_item->addChild(sub_item);
+      QTreeWidgetItem* sub_item = top_item->child(j);
 
       // Set data type name
       sub_item->setText(0, NodeParam::GetPrettyDataTypeName(value.type()));

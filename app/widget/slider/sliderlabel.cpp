@@ -27,8 +27,7 @@
 OLIVE_NAMESPACE_ENTER
 
 SliderLabel::SliderLabel(QWidget *parent) :
-  QLabel(parent),
-  dragging_(false)
+  QLabel(parent)
 {
   QPalette p = palette();
 
@@ -55,23 +54,7 @@ void SliderLabel::mousePressEvent(QMouseEvent *e)
   if (e->modifiers() & Qt::AltModifier) {
     emit RequestReset();
   } else {
-    dragging_ = true;
     emit LabelPressed();
-  }
-}
-
-void SliderLabel::mouseMoveEvent(QMouseEvent *)
-{
-  if (dragging_) {
-    emit LabelMoved();
-  }
-}
-
-void SliderLabel::mouseReleaseEvent(QMouseEvent *)
-{
-  if (dragging_) {
-    emit LabelReleased();
-    dragging_ = false;
   }
 }
 

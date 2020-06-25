@@ -23,7 +23,8 @@
 OLIVE_NAMESPACE_ENTER
 
 KeyframeView::KeyframeView(QWidget *parent) :
-  KeyframeViewBase(parent)
+  KeyframeViewBase(parent),
+  max_scroll_(0)
 {
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
@@ -33,6 +34,12 @@ void KeyframeView::wheelEvent(QWheelEvent *event)
   if (!HandleZoomFromScroll(event)) {
     KeyframeViewBase::wheelEvent(event);
   }
+}
+
+void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
+{
+  rect.setY(0);
+  rect.setHeight(max_scroll_);
 }
 
 void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
