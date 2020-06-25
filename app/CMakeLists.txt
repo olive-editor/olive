@@ -125,7 +125,7 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-  ${OPENEXR_INCLUDE_DIRS}
+  ${OPENEXR_INCLUDE_DIR}
 )
 
 # Set link libraries
