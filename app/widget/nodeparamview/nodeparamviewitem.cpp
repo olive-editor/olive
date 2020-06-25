@@ -35,10 +35,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QWidget(parent),
   node_(node)
 {
+  
   QVBoxLayout* main_layout = new QVBoxLayout(this);
   main_layout->setSpacing(0);
   main_layout->setMargin(0);
-
+  
   // Create title bar widget
   title_bar_ = new NodeParamViewItemTitleBar(this);
   title_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -50,10 +51,10 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
 
   title_bar_lbl_ = new QLabel(title_bar_);
   title_bar_layout->addWidget(title_bar_lbl_);
-
+  
   // Add title bar to widget
   main_layout->addWidget(title_bar_);
-
+  
   // Create and add contents widget
   QVector<NodeInput*> inputs;
 

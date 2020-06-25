@@ -137,14 +137,15 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 {
   ConnectViewerNode(nullptr);
 
-  foreach(Node * node, nodes) {
-      if (nodes_.contains(node)) {
-        nodes.removeOne(node);
-        continue;
-      } else {
-        nodes_.append(node);
+    foreach (Node* newNode, nodes) {
+      if (!nodes_.contains(newNode)) {
+        nodes_.append(newNode);
       }
-  }
+      else {
+        nodes.removeAll(newNode);
+      }
+    }
+ 
 
   // If we already have item widgets, delete them all now
   /*foreach (NodeParamViewItem* item, items_) {
@@ -159,32 +160,19 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   SetTimebase(rational());
   keyframe_view_->Clear();
 
-  // Set the internal list to the one we've received
-  nodes_ = nodes;
-
   if (!nodes_.isEmpty()) {
     // For each node, create a widget
     bool found_gizmos = false;
 
-    foreach (Node* node, nodes_) {
-      QString title;
-      if (node->GetLabel().isEmpty()) {
-        title = node->Name();
-      } else {
-        title = tr("%1 (%2)").arg(node->GetLabel(), node->Name());
-      }
-      NodeItemDock* item_dock = new NodeItemDock(title, dock_);
-      // item_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    foreach (Node* node, nodes) {
+      NodeItemDock* item_dock = new NodeItemDock(node, dock_);
       item_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
       item_dock->setAttribute(Qt::WA_DeleteOnClose);
-      // item_dock->setWindowTitle(node->Name());
 
       NodeParamViewItem* item = new NodeParamViewItem(node);
-
       item_dock->setWidget(item);
+
       dock_->addDockWidget(Qt::LeftDockWidgetArea, item_dock);
-      // Insert the widget before the stretch
-      //param_layout_->insertWidget(param_layout_->count() - 1, item);
 
       connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
       connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
@@ -302,6 +290,8 @@ void NodeParamView::RemoveNodeItem(Node *node) {
       items_.removeOne(item);
     }
   }
+
+  nodes_.removeOne(node);
 }
 
 OLIVE_NAMESPACE_EXIT
