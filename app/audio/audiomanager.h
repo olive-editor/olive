@@ -102,8 +102,8 @@ private:
   QList<QAudioDeviceInfo> input_devices_;
   QList<QAudioDeviceInfo> output_devices_;
 
-  QFutureWatcher< QList<QAudioDeviceInfo> > input_watcher_;
-  QFutureWatcher< QList<QAudioDeviceInfo> > output_watcher_;
+  bool is_refreshing_inputs_;
+  bool is_refreshing_outputs_;
 
   static AudioManager* instance_;
 
