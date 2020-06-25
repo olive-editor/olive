@@ -123,6 +123,7 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   int bottom = height() - 1;
   p.setPen(palette().text().color());
   p.drawLine(0, bottom, width(), bottom);
+  p.drawLine(0, 0, width(), 0);
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :
