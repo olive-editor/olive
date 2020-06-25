@@ -18,6 +18,7 @@ class NodeItemDockTitle : public QWidget {
     NodeItemDockTitle(Node* node, QWidget *parent = nullptr);
     void SetNode(Node* node);
     QPushButton* ReturnCloseButton();
+    CollapseButton* ReturnCollapseButton();
 
 
   private:
@@ -25,11 +26,11 @@ class NodeItemDockTitle : public QWidget {
 
     NodeParamViewItemTitleBar *title_bar_;
 
-    QLabel *title_bar_lbl_;
+    QLabel* title_bar_lbl_;
 
-    CollapseButton *title_bar_collapse_btn_;
+    CollapseButton* title_bar_collapse_btn_;
 
-    QPushButton *close_button_;
+    QPushButton* close_button_;
 
     Node* node_;
 
@@ -42,6 +43,7 @@ class NodeItemDock : public QDockWidget {
 
  public:
   NodeItemDock(Node *node, QWidget *parent = nullptr);
+  NodeItemDockTitle *GetTitleBar();
 
  signals:
   void Closed(Node *node);

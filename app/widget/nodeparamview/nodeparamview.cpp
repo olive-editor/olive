@@ -181,6 +181,9 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
       connect(item_dock, &NodeItemDock::Closed, this, &NodeParamView::RemoveNodeItem);
 
+      connect(static_cast<CollapseButton*>(item_dock->GetTitleBar()->ReturnCollapseButton()), &CollapseButton::toggled,
+              static_cast<NodeParamViewItem*>(item_dock->widget())->GetBody(), &NodeParamViewItem::setVisible);
+
       item_dock->widget();
 
       items_.append(item);

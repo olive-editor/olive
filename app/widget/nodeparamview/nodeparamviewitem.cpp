@@ -28,6 +28,7 @@
 #include "core.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
+#include "nodeitemdock.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -57,6 +58,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
   //connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
+
   main_layout->addWidget(body_);
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
@@ -79,6 +81,11 @@ void NodeParamViewItem::SetTime(const rational &time)
 Node *NodeParamViewItem::GetNode() const
 {
   return node_;
+}
+
+NodeParamViewItemBody* NodeParamViewItem::GetBody()
+{
+  return body_;
 }
 
 void NodeParamViewItem::SignalAllKeyframes()

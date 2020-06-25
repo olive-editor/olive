@@ -111,6 +111,8 @@ public:
 
   Node* GetNode() const;
 
+  NodeParamViewItemBody* GetBody();
+
 public slots:
   void SignalAllKeyframes();
 

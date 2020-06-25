@@ -11,6 +11,14 @@ NodeItemDock::NodeItemDock(Node* node, QWidget *parent) :
   this->setTitleBarWidget(titlebar_);
 
   connect(titlebar_->ReturnCloseButton(), SIGNAL(clicked()), this, SLOT(Close()));
+
+  //connect(titlebar_->ReturnCollapseButton(), SIGNAL(clicked()), static_cast<NodeParamViewItem*>(this->widget())->GetBody(), SLOT(setVisible()));
+
+}
+
+NodeItemDockTitle* NodeItemDock::GetTitleBar()
+{
+    return titlebar_;
 }
 
 void NodeItemDock::Close() 
@@ -63,6 +71,11 @@ void NodeItemDockTitle::SetNode(Node* node)
 QPushButton* NodeItemDockTitle::ReturnCloseButton()
 {
   return close_button_;
+}
+
+CollapseButton* NodeItemDockTitle::ReturnCollapseButton() 
+{
+    return title_bar_collapse_btn_;
 }
 
 void NodeItemDockTitle::Retranslate() {
