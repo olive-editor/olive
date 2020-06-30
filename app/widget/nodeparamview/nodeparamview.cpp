@@ -140,6 +140,16 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   ConnectViewerNode(nullptr);
 
+  foreach(NodeParamViewItem * item, items_) {
+    if (nodes.contains(item->GetNode())) {
+      item->SetActive(true);
+      item->update();
+    } else {
+      item->SetActive(false);
+      item->update();
+    }
+  }
+
   foreach (Node* newNode, nodes) {
     if (!nodes_.contains(newNode) && newNode->GetBookmark()) {
       nodes_.append(newNode);

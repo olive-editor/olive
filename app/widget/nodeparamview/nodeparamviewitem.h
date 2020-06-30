@@ -113,6 +113,10 @@ public:
 
   NodeParamViewItemBody* GetBody();
 
+  void SetActive(bool actvie);
+
+  bool GetActive();
+
 public slots:
   void SignalAllKeyframes();
 
@@ -130,12 +134,16 @@ signals:
 protected:
   virtual void changeEvent(QEvent *e) override;
 
+  virtual void paintEvent(QPaintEvent* event) override;
+
 private:
   NodeParamViewItemBody* body_;
 
   Node* node_;
 
   rational time_;
+
+  bool active_;
 
 private slots:
   void Retranslate();

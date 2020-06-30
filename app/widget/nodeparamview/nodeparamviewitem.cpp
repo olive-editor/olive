@@ -36,9 +36,9 @@ OLIVE_NAMESPACE_ENTER
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QWidget(parent),
-  node_(node)
+  node_(node),
+  active_(true)
 {
-  
   QVBoxLayout* main_layout = new QVBoxLayout(this);
   main_layout->setSpacing(0);
   main_layout->setMargin(0);
@@ -84,9 +84,34 @@ Node *NodeParamViewItem::GetNode() const
   return node_;
 }
 
+void NodeParamViewItem::paintEvent(QPaintEvent* event) {
+  QWidget::paintEvent(event);
+
+  QPainter p(this);
+  Node* node = GetNode();
+  Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
+      .arg(node->Category().first())].value<Color>();
+
+  // Draw border
+  if (GetActive()) {
+    p.setPen(node_color.toQColor());
+    p.drawRect(0, 0, width() - 1, height() - 1);
+  }
+}
+
 NodeParamViewItemBody* NodeParamViewItem::GetBody()
 {
   return body_;
+}
+
+void NodeParamViewItem::SetActive(bool active)
+{
+  active_ = active;
+}
+
+bool NodeParamViewItem::GetActive()
+{
+  return active_;
 }
 
 void NodeParamViewItem::SignalAllKeyframes()
@@ -119,6 +144,8 @@ void NodeParamViewItem::Retranslate()
 NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
   QWidget(parent)
 {
+  // Probably better to do in the style sheet
+  this->setStyleSheet("background-color: #404040");
 }
 
 void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
@@ -133,8 +160,9 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   // Draw bottom border using text color
   int bottom = height() - 1;
   p.setPen(node_color.toQColor());
-  p.drawLine(0, bottom, width(), bottom);
+  //p.drawLine(0, bottom, width(), bottom);
   p.drawLine(0, 0, width(), 0);
+  p.drawLine(0, 1, width(), 1);
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :
