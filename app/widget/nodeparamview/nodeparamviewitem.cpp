@@ -26,7 +26,9 @@
 #include <QPainter>
 
 #include "core.h"
+#include "config/config.h"
 #include "nodeparamviewundo.h"
+#include "nodeitemdock.h"
 #include "project/item/sequence/sequence.h"
 
 
@@ -124,10 +126,13 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   QWidget::paintEvent(event);
 
   QPainter p(this);
+  Node* node = static_cast<NodeItemDockTitle*>(parent())->GetNode();
+  Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
+      .arg(node->Category().first())].value<Color>();
 
   // Draw bottom border using text color
   int bottom = height() - 1;
-  p.setPen(palette().text().color());
+  p.setPen(node_color.toQColor());
   p.drawLine(0, bottom, width(), bottom);
   p.drawLine(0, 0, width(), 0);
 }

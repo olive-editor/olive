@@ -27,6 +27,11 @@ public:
    */
   CollapseButton* ReturnCollapseButton();
 
+  /**
+   * @brief Return a pointer to the corresponding node
+   */
+  Node* GetNode();
+
 
 private:
   /**

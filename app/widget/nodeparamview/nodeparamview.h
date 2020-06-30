@@ -80,6 +80,8 @@ private:
 
   int last_scroll_val_;
 
+  QWidget* param_widget_area_;
+
   QMainWindow* dock_;
 
 

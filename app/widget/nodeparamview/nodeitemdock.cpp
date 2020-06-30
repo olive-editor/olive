@@ -64,6 +64,11 @@ CollapseButton* NodeItemDockTitle::ReturnCollapseButton()
     return title_bar_collapse_btn_;
 }
 
+Node* NodeItemDockTitle::GetNode()
+{
+  return node_;
+}
+
 void NodeItemDockTitle::Retranslate() {
   node_->Retranslate();
 
