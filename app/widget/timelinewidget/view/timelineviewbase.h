@@ -48,6 +48,9 @@ public:
 
   void SetSnapService(SnapService* service);
 
+  const double& GetYScale() const;
+  void SetYScale(const double& y_scale);
+
 public slots:
   void SetTime(const int64_t time);
 
@@ -69,11 +72,11 @@ protected:
 
   virtual void SceneRectUpdateEvent(QRectF&){}
 
+  virtual void VerticalScaleChangedEvent(double scale);
+
   bool HandleZoomFromScroll(QWheelEvent* event);
 
   bool WheelEventIsAZoomEvent(QWheelEvent* event);
-
-  void SetLimitYAxis(bool e);
 
   rational GetPlayheadTime() const;
 
@@ -82,6 +85,16 @@ protected:
   bool PlayheadRelease(QMouseEvent* event);
 
   virtual void TimebaseChangedEvent(const rational &) override;
+
+  bool IsYAxisEnabled() const
+  {
+    return y_axis_enabled_;
+  }
+
+  void SetYAxisEnabled(bool e)
+  {
+    y_axis_enabled_ = e;
+  }
 
 private:
   qreal GetPlayheadX();
@@ -97,14 +110,16 @@ private:
 
   QGraphicsScene scene_;
 
-  bool limit_y_axis_;
-
   bool snapped_;
   QList<rational> snap_time_;
 
   rational end_time_;
 
   SnapService* snap_service_;
+
+  bool y_axis_enabled_;
+
+  double y_scale_;
 
 private slots:
   /**

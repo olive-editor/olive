@@ -31,11 +31,21 @@ class KeyframeView : public KeyframeViewBase
 public:
   KeyframeView(QWidget* parent = nullptr);
 
+  void SetMaxScroll(int i)
+  {
+    max_scroll_ = i;
+  }
+
 protected:
   virtual void wheelEvent(QWheelEvent* event) override;
 
+  virtual void SceneRectUpdateEvent(QRectF& rect) override;
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key, int y);
+
+private:
+  int max_scroll_;
 
 };
 

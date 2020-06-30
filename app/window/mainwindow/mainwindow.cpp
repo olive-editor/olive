@@ -129,11 +129,15 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
   MainWindowLayoutInfo info;
 
   foreach (ProjectPanel* panel, folder_panels_) {
-    info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
+    if (panel->project()) {
+      info.add_folder(static_cast<Folder*>(panel->get_root_index().internalPointer()));
+    }
   }
 
   foreach (TimelinePanel* panel, timeline_panels_) {
-    info.add_sequence(static_cast<Sequence*>(panel->GetConnectedViewer()->parent()));
+    if (panel->GetConnectedViewer()) {
+      info.add_sequence(static_cast<Sequence*>(panel->GetConnectedViewer()->parent()));
+    }
   }
 
   info.set_state(saveState());
@@ -518,6 +522,7 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
 void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
+  param_panel_->ConnectViewerNode(viewer);
 
   Sequence* seq = nullptr;
 

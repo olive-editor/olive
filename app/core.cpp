@@ -181,6 +181,9 @@ void Core::Start()
   //               the fact that some of the config paths set by default rely on the app name having been set (in main())
   Config::Current().SetDefaults();
 
+  // Load application config
+  Config::Load();
+
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
 
@@ -193,9 +196,8 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Load application config
-  Config::Load();
-
+  // Initialize OpenGL service
+  OpenGLProxy::CreateInstance();
 
   //
   // Start application
@@ -222,6 +224,8 @@ void Core::Stop()
       recent_projects_file.close();
     }
   }
+
+  OpenGLProxy::DestroyInstance();
 
   MenuShared::DestroyInstance();
 

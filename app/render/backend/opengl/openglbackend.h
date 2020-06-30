@@ -36,11 +36,6 @@ public:
 protected:
   virtual RenderWorker* CreateNewWorker() override;
 
-private:
-  void ClearProxy();
-
-  OpenGLProxy* proxy_;
-
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -46,18 +46,21 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // Set up scroll area for params
   QScrollArea* scroll_area = new QScrollArea();
+  scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scroll_area->setWidgetResizable(true);
   splitter->addWidget(scroll_area);
 
   // Param widget
-  QWidget* param_widget_area = new QWidget();
-  scroll_area->setWidget(param_widget_area);
+  param_widget_area_ = new QWidget();
+  scroll_area->setWidget(param_widget_area_);
 
   // Set up scroll area layout
-  param_layout_ = new QVBoxLayout(param_widget_area);
+  param_layout_ = new QVBoxLayout(param_widget_area_);
   param_layout_->setSpacing(0);
-  param_layout_->setMargin(0);
+
+  // KeyframeView is offset by a ruler, so to stay synchronized with it, we should be too
+  param_layout_->setContentsMargins(0, ruler()->height(), 0, 0);
 
   dock_ = new QMainWindow();
   dock_->setDockOptions(QMainWindow::AnimatedDocks);
@@ -86,7 +89,6 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ConnectTimelineView(keyframe_view_);
   connect(keyframe_view_, &KeyframeView::RequestCenterScrollOnPlayhead, this, &NodeParamView::CenterScrollOnPlayhead);
-  bottom_item_ = keyframe_view_->scene()->addRect(0, 0, 1, 1);
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
@@ -135,6 +137,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
 void NodeParamView::SetNodes(QList<Node *> nodes)
 {
+
   ConnectViewerNode(nullptr);
 
   foreach (Node* newNode, nodes) {
@@ -147,17 +150,19 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   }
  
 
+
   // If we already have item widgets, delete them all now
   /*foreach (NodeParamViewItem* item, items_) {
     emit ClosedNode(item->GetNode());
     emit FoundGizmos(nullptr);
-    delete item;
+    item->deleteLater();
   }
   items_.clear();
+
   emit TimeTargetChanged(nullptr);
   */
+
   // Reset keyframe view
-  SetTimebase(rational());
   keyframe_view_->Clear();
 
   if (!nodes_.isEmpty()) {
@@ -188,10 +193,6 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       items_.append(item);
 
-      QMetaObject::invokeMethod(item,
-                                "SignalAllKeyframes",
-                                Qt::QueuedConnection);
-
       emit OpenedNode(node);
 
       if (!found_gizmos && node->HasGizmos()) {
@@ -200,25 +201,9 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       }
     }
 
-    ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();
+    UpdateItemTime(GetTimestamp());
 
-    ConnectViewerNode(viewer);
-
-    if (viewer) {
-      SetTimebase(viewer->video_params().time_base());
-
-      // Set viewer as a time target
-      keyframe_view_->SetTimeTarget(viewer);
-
-      foreach (NodeParamViewItem* item, items_) {
-        item->SetTimeTarget(viewer);
-      }
-
-      emit TimeTargetChanged(viewer);
-    }
-
-    // Forces the scroll to update to this time
-    keyframe_view_->SetTime(ruler()->GetTime());
+    QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
   }
 }
 
@@ -241,6 +226,8 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
   TimeBasedWidget::TimebaseChangedEvent(timebase);
 
   keyframe_view_->SetTimebase(timebase);
+
+  UpdateItemTime(GetTimestamp());
 }
 
 void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
@@ -250,6 +237,16 @@ void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
   keyframe_view_->SetTime(timestamp);
 
   UpdateItemTime(timestamp);
+}
+
+void NodeParamView::ConnectedNodeChanged(ViewerOutput *n)
+{
+  // Set viewer as a time target
+  keyframe_view_->SetTimeTarget(n);
+
+  foreach (NodeParamViewItem* item, items_) {
+    item->SetTimeTarget(n);
+  }
 }
 
 const QList<Node *> &NodeParamView::nodes()
@@ -269,7 +266,7 @@ void NodeParamView::DeleteSelected()
 
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 {
-  rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());
+  rational time = Timecode::timestamp_to_time(timestamp, timebase());
 
   foreach (NodeParamViewItem* item, items_) {
     item->SetTime(time);
@@ -281,11 +278,16 @@ void NodeParamView::ItemRequestedTimeChanged(const rational &time)
   SetTimeAndSignal(Timecode::time_to_timestamp(time, keyframe_view_->timebase()));
 }
 
-void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
+void NodeParamView::ForceKeyframeViewToScroll()
 {
-  Q_UNUSED(min)
+  keyframe_view_->SetMaxScroll(param_widget_area_->height() - ruler()->height());
+}
 
-  bottom_item_->setY(keyframe_view_->viewport()->height() + max);
+void NodeParamView::PlaceKeyframesOnView()
+{
+  foreach (NodeParamViewItem* item, items_) {
+    QMetaObject::invokeMethod(item, "SignalAllKeyframes", Qt::QueuedConnection);
+  }
 }
 
 void NodeParamView::RemoveNodeItem(Node *node) {
