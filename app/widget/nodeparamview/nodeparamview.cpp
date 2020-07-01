@@ -306,6 +306,7 @@ void NodeParamView::RemoveNodeItem(Node *node) {
   foreach (NodeParamViewItem* item, items_) {
     if (item->GetNode() == node) {
       items_.removeOne(item);
+      item->deleteLater();
     }
   }
 
