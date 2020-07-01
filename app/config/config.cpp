@@ -85,7 +85,7 @@ void Config::SetDefaults()
   config_map_["AutoCacheInterval"] = 250;
 
   config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
-  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.25f));
+  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.38f, 0.38f, 0.38f));
   config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
   config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.75f));
   config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.75f));
