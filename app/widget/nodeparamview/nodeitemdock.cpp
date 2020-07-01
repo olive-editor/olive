@@ -63,6 +63,9 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
 
   // Add title bar to widget
   main_layout->addWidget(title_bar_);
+
+  connect(node_, &Node::LabelChanged, this, &NodeItemDockTitle::Retranslate);
+
   Retranslate();
 }
 
