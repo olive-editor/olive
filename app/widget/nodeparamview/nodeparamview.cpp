@@ -73,7 +73,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
   param_layout_->addWidget(dock_);
 
   // Add a stretch to allow empty space at the bottom of the layout
-  param_layout_->addStretch();
+  // Overly large number to force everthing to compress
+  param_layout_->addStretch(10000);
 
   // Set up keyframe view
   QWidget* keyframe_area = new QWidget();
@@ -148,6 +149,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       item->SetActive(false);
       item->update();
     }
+    static_cast<NodeItemDock*>(item->parent())->GetTitleBar()->update();
   }
 
   foreach (Node* newNode, nodes) {

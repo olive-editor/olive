@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include <QEvent>
 #include <QToolBar>
+#include <QPaintEvent>
 
 #include "common/define.h"
 #include "node/node.h"
@@ -32,6 +33,9 @@ public:
    */
   Node* GetNode();
 
+protected:
+  virtual void paintEvent(QPaintEvent *event) override;
+
 
 private:
   /**
@@ -42,7 +46,7 @@ private:
   /**
    * @brief Title bar base widget
    */
-  NodeParamViewItemTitleBar *title_bar_;
+  QWidget* title_bar_;
 
   /**
    * @brief QDockWidget's label, either node type or custom label set by the user

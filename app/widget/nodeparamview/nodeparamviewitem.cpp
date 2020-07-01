@@ -92,10 +92,15 @@ void NodeParamViewItem::paintEvent(QPaintEvent* event) {
   Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
       .arg(node->Category().first())].value<Color>();
 
-  // Draw border
+  // Draw border minus the top
   if (GetActive()) {
     p.setPen(node_color.toQColor());
-    p.drawRect(0, 0, width() - 1, height() - 1);
+    int bottom = height() - 1;
+    int left = width() - 1;
+    p.drawLine(0, 0, 0, bottom);
+    p.drawLine(0, bottom, left, bottom);
+    p.drawLine(left, bottom, left, 0);
+
   }
 }
 
