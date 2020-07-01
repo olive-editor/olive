@@ -23,6 +23,7 @@
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <QtMath>
+#include <limits>
 
 #include "common/qtutils.h"
 
@@ -400,8 +401,8 @@ void CurveView::ZoomToFit()
   rational min_time = RATIONAL_MAX;
   rational max_time = RATIONAL_MIN;
 
-  double min_val = DBL_MAX;
-  double max_val = DBL_MIN;
+  double min_val = std::numeric_limits<double>::max();
+  double max_val = std::numeric_limits<double>::min();
 
   for (i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
     rational transformed_time = GetAdjustedTime(i.key()->parent()->parentNode(),
