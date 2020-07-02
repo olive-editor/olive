@@ -69,12 +69,11 @@ NodeParamView::NodeParamView(QWidget *parent) :
   QWidget* centralWidget = new QWidget(this);
   centralWidget->setMaximumSize(QSize(0, 0));
   dock_->setCentralWidget(centralWidget);
-  // dock_->setWindowTitle("Window");
   param_layout_->addWidget(dock_);
 
   // Add a stretch to allow empty space at the bottom of the layout
   // Overly large number to force everthing to compress
-  param_layout_->addStretch(10000);
+  param_layout_->addStretch(9999999);
 
   // Set up keyframe view
   QWidget* keyframe_area = new QWidget();
@@ -141,17 +140,18 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   ConnectViewerNode(nullptr);
 
+  // Redraw dock widgets to highlight the selected nodes 9if they already exist).
   foreach(NodeParamViewItem * item, items_) {
     if (nodes.contains(item->GetNode())) {
       item->SetActive(true);
-      item->update();
     } else {
       item->SetActive(false);
-      item->update();
     }
+    item->update();
     static_cast<NodeItemDock*>(item->parent())->GetTitleBar()->update();
   }
 
+  // Remove from nodes any node that is already bookmarked or hasn't been flagged to be bookmarked.
   foreach (Node* newNode, nodes) {
     if (!nodes_.contains(newNode) && newNode->GetBookmark()) {
       nodes_.append(newNode);
@@ -200,8 +200,6 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       connect(static_cast<CollapseButton*>(item_dock->GetTitleBar()->ReturnCollapseButton()), &CollapseButton::toggled,
               static_cast<NodeParamViewItem*>(item_dock->widget())->GetBody(), &NodeParamViewItem::setVisible);
-
-      item_dock->widget();
 
       items_.append(item);
 

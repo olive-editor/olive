@@ -136,38 +136,7 @@ void NodeParamViewItem::changeEvent(QEvent *e)
 void NodeParamViewItem::Retranslate()
 {
   node_->Retranslate();
-  /*
-  if (node_->GetLabel().isEmpty()) {
-    title_bar_lbl_->setText(node_->Name());
-  } else {
-    title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
-  }
-  */
   body_->Retranslate();
-}
-
-NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
-  QWidget(parent)
-{
-  // Probably better to do in the style sheet
-  this->setStyleSheet("background-color: #404040");
-}
-
-void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
-{
-  QWidget::paintEvent(event);
-
-  QPainter p(this);
-  Node* node = static_cast<NodeItemDockTitle*>(parent())->GetNode();
-  Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
-      .arg(node->Category().first())].value<Color>();
-
-  // Draw bottom border using text color
-  int bottom = height() - 1;
-  p.setPen(node_color.toQColor());
-  //p.drawLine(0, bottom, width(), bottom);
-  p.drawLine(0, 0, width(), 0);
-  p.drawLine(0, 1, width(), 1);
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :

@@ -14,12 +14,12 @@ NodeItemDock::NodeItemDock(Node* node, QWidget *parent) :
   titlebar_ = new NodeItemDockTitle(node_, this);
   this->setTitleBarWidget(titlebar_);
 
-  connect(titlebar_->ReturnCloseButton(), SIGNAL(clicked()), this, SLOT(Close()));
+  connect(titlebar_->ReturnCloseButton(), &QPushButton::clicked, this, &NodeItemDock::Close);
 }
 
 NodeItemDockTitle* NodeItemDock::GetTitleBar()
 {
-    return titlebar_;
+  return titlebar_;
 }
 
 void NodeItemDock::Close() 
@@ -72,8 +72,8 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
 void NodeItemDockTitle::paintEvent(QPaintEvent* event) {
   //QWidget::paintEvent(event);
   QPainter p(this);
-  //Node* node = static_cast<NodeItemDockTitle*>(parent())->GetNode();
-  Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1").arg(node_->Category().first())].value<Color>();
+  Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
+      .arg(node_->Category().first())].value<Color>();
 
   int bottom = height() - 1;
   p.setPen(node_color.toQColor());
@@ -102,7 +102,7 @@ QPushButton* NodeItemDockTitle::ReturnCloseButton()
 
 CollapseButton* NodeItemDockTitle::ReturnCollapseButton() 
 {
-    return title_bar_collapse_btn_;
+  return title_bar_collapse_btn_;
 }
 
 Node* NodeItemDockTitle::GetNode()

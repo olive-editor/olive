@@ -36,14 +36,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewItemTitleBar : public QWidget {
-public:
-  NodeParamViewItemTitleBar(QWidget* parent = nullptr);
-
-protected:
-  virtual void paintEvent(QPaintEvent *event) override;
-};
-
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
