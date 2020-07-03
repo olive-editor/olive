@@ -400,7 +400,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
   }else {
     if (node_ && event->modifiers() & Qt::ShiftModifier) {
-      node_->SetBookmark(true);
+      SetExpanded(!IsExpanded());
     }
     // We aren't using any override behaviors, switch back to standard click behavior
     standard_click_ = true;
@@ -564,8 +564,12 @@ void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
   QGraphicsRectItem::mouseDoubleClickEvent(event);
 
   if (!(event->modifiers() & Qt::ControlModifier)) {
-    SetExpanded(!IsExpanded());
+    node_->SetBookmark(true);
   }
+
+  // Force reselction of node to trigger docking
+  this->setSelected(false);
+  this->setSelected(true);
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
