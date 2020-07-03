@@ -64,16 +64,12 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   dock_ = new QMainWindow();
   dock_->setDockOptions(QMainWindow::AnimatedDocks);
-  // Create empty central widget - we don't actually want a central widget (so we set its maximum
-  // size to 0,0) but some of Qt's docking/undocking fails without it
-  QWidget* centralWidget = new QWidget(this);
-  centralWidget->setMaximumSize(QSize(0, 0));
-  dock_->setCentralWidget(centralWidget);
+
   param_layout_->addWidget(dock_);
 
   // Add a stretch to allow empty space at the bottom of the layout
   // Overly large number to force everthing to compress
-  param_layout_->addStretch(9999999);
+  param_layout_->addStretch(INT_MAX);
 
   // Set up keyframe view
   QWidget* keyframe_area = new QWidget();

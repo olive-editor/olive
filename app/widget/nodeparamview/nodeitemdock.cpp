@@ -56,7 +56,7 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
 
   title_bar_layout->addStretch();
 
-  close_button_ = new QPushButton("x", title_bar_);
+  close_button_ = new QPushButton("X", title_bar_);
   close_button_->setContentsMargins(0, 0, 0, 0);
   close_button_->setFixedSize(20, 20);
   title_bar_layout->addWidget(close_button_);
@@ -78,18 +78,18 @@ void NodeItemDockTitle::paintEvent(QPaintEvent* event) {
   int bottom = height() - 1;
   p.setPen(node_color.toQColor());
   // Draw double thickness top border
-  p.drawLine(0, 0, width(), 0);
-  p.drawLine(0, 1, width(), 1);
+  p.drawLine(1, 0, width() - 2, 0);
+  p.drawLine(1, 1, width() - 2, 1);
   
   // if active draw the sides
   bool flag = static_cast<NodeParamViewItem*>(static_cast<NodeItemDock*>(parent())->widget())->GetActive();
   if (flag) {
-    p.drawLine(0, 0, 0, height());
-    p.drawLine(width()-1, 0, width()-1, height());
+    p.drawLine(1, 0, 2, height());
+    p.drawLine(width()-2, 0, width()-2,  height());
 
     // If collapsed draw the bottom of the header
     if (!title_bar_collapse_btn_->isChecked()) {
-      p.drawLine(0, bottom, width(), bottom);
+      p.drawLine(2, bottom, width()-3, bottom);
     }
   }
   
