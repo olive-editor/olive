@@ -398,6 +398,13 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     return;
 
+  } else if (event->button() & Qt::RightButton) {
+    // If shift is not held deselect all nodes
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+      this->scene()->clearSelection();
+    }
+    // Select current node
+    this->setSelected(true);
   } else {
 
     // We aren't using any override behaviors, switch back to standard click behavior
