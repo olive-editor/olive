@@ -83,6 +83,9 @@ protected:
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
+public slots:
+  void CenterNode(Node* node);
+
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
@@ -179,7 +182,6 @@ private slots:
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
-
 };
 
 OLIVE_NAMESPACE_EXIT

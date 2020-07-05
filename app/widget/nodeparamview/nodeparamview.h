@@ -56,6 +56,8 @@ signals:
 
   void FoundGizmos(Node* n);
 
+  void CenterNode(Node* node);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 

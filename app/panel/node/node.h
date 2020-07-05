@@ -61,6 +61,8 @@ signals:
    */
   void SelectionChanged(QList<Node*> selected_nodes);
 
+  void CenterNode(Node* node);
+
 private:
   virtual void Retranslate() override;
 

@@ -45,6 +45,8 @@ signals:
 
   void FoundGizmos(Node* node);
 
+  void CenterNode(Node* node);
+
 protected:
   virtual void Retranslate() override;
 

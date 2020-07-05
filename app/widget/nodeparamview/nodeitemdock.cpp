@@ -15,6 +15,7 @@ NodeItemDock::NodeItemDock(Node* node, QWidget *parent) :
   this->setTitleBarWidget(titlebar_);
 
   connect(titlebar_->ReturnCloseButton(), &QPushButton::clicked, this, &NodeItemDock::Close);
+  connect(titlebar_->GetCenterButton(), &QPushButton::clicked, this, &NodeItemDock::SendNodeToCenter);
 }
 
 NodeItemDockTitle* NodeItemDock::GetTitleBar()
@@ -26,6 +27,11 @@ void NodeItemDock::Close()
 {
   emit Closed(node_);
   this->close();
+}
+
+void NodeItemDock::SendNodeToCenter()
+{
+  emit CenterNode(node_);
 }
 
 NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
@@ -53,6 +59,11 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   title_bar_lbl_ = new QLabel(title_bar_);
   title_bar_lbl_->setMargin(0);
   title_bar_layout->addWidget(title_bar_lbl_);
+
+  center_button_ = new QPushButton("C", title_bar_);
+  center_button_->setContentsMargins(0, 0, 0, 0);
+  center_button_->setFixedSize(20, 20);
+  title_bar_layout->addWidget(center_button_);
 
   title_bar_layout->addStretch();
 
@@ -103,6 +114,11 @@ QPushButton* NodeItemDockTitle::ReturnCloseButton()
 CollapseButton* NodeItemDockTitle::ReturnCollapseButton() 
 {
   return title_bar_collapse_btn_;
+}
+
+QPushButton* NodeItemDockTitle::GetCenterButton()
+{
+  return center_button_;
 }
 
 Node* NodeItemDockTitle::GetNode()

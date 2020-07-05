@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::FoundGizmos, sequence_viewer_panel_, &SequenceViewerPanel::SetGizmos);
+  connect(param_panel_, &ParamPanel::CenterNode, node_panel_, &NodePanel::CenterNode);
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);

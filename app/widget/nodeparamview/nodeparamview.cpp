@@ -196,6 +196,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       connect(static_cast<CollapseButton*>(item_dock->GetTitleBar()->ReturnCollapseButton()), &CollapseButton::toggled,
               static_cast<NodeParamViewItem*>(item_dock->widget())->GetBody(), &NodeParamViewItem::setVisible);
+      connect(item_dock, &NodeItemDock::CenterNode, this, &NodeParamView::CenterNode);
 
       items_.append(item);
 

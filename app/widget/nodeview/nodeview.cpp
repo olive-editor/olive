@@ -985,4 +985,9 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
   }
 }
 
+void NodeView::CenterNode(Node* node)
+{
+  centerOn(scene_.NodeToUIObject(node));
+}
+
 OLIVE_NAMESPACE_EXIT

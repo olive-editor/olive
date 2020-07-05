@@ -30,6 +30,7 @@ NodePanel::NodePanel(QWidget *parent) :
 
   // Connect node view signals to this panel
   connect(node_view_, SIGNAL(SelectionChanged(QList<Node*>)), this, SIGNAL(SelectionChanged(QList<Node*>)));
+  connect(this, &NodePanel::CenterNode, node_view_, &NodeView::CenterNode);
 
   // Set it as the main widget of this panel
   SetWidgetWithPadding(node_view_);

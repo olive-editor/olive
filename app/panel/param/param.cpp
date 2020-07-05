@@ -31,6 +31,7 @@ ParamPanel::ParamPanel(QWidget* parent) :
   connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
+  connect(view, &NodeParamView::CenterNode, this, &ParamPanel::CenterNode);
   SetTimeBasedWidget(view);
 
   Retranslate();

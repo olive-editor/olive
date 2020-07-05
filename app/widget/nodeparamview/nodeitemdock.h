@@ -28,6 +28,8 @@ public:
    */
   CollapseButton* ReturnCollapseButton();
 
+  QPushButton* GetCenterButton();
+
   /**
    * @brief Return a pointer to the corresponding node
    */
@@ -63,6 +65,8 @@ private:
    */
   QPushButton* close_button_;
 
+  QPushButton* center_button_;
+
   /**
    * @brief Node asscoiated with the QDockWidget
    */
@@ -89,6 +93,8 @@ signals:
    */ 
   void Closed(Node *node);
 
+  void CenterNode(Node* node);
+
 private:
   /**
    * @brief Node associated with this dock item
@@ -105,6 +111,8 @@ private slots:
    * @brief Connected to the close button on the titlebar. Closes the widget.
    */
   void Close();
+
+  void SendNodeToCenter();
 };
 
 OLIVE_NAMESPACE_EXIT
