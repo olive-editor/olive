@@ -195,27 +195,37 @@ std::list<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 
 void RenderBackend::NodeGraphChanged(NodeInput *source)
 {
-  if (!graph_update_queue_.isEmpty()) {
-    // First, check if anything in our queue is a dependency of this input. If so, we should remove
-    // it and just update this input.
+  // We need to determine:
+  // - If we don't have this input, assume that it's coming soon and ignore it
+  // - If we do, is this input a child of another input we're already copying?
+  // - Or are any of the queued inputs children of this one?
 
-    // First we need to find our copy of the input being queued
-    Node* our_copy_node = copy_map_.value(source->parentNode());
+  // First we need to find our copy of the input being queued
+  Node* our_copy_node = copy_map_.value(source->parentNode());
 
-    if (our_copy_node) {
-      NodeInput* our_copy = our_copy_node->GetInputWithID(source->id());
-      QList<Node*> our_copy_deps = our_copy->GetDependencies(our_copy);
+  // If we don't have this node yet, assume it's coming in a later copy in which case it'll be
+  // copied then
+  if (!our_copy_node) {
+    // Assert that there are updates coming
+    Q_ASSERT(!graph_update_queue_.isEmpty());
+    return;
+  }
 
-      for (int i=0;i<graph_update_queue_.size();i++) {
-        NodeInput* check_input = graph_update_queue_.at(i);
-        Node* check_input_our_copy = copy_map_.value(check_input->parentNode());
+  // If we're here, we must have this node. Determine if we're already copying a "parent" of this
+  for (int i=0; i<graph_update_queue_.size(); i++) {
+    NodeInput* queued_input = graph_update_queue_.at(i);
 
-        // If this input isn't connected anymore, it obviously won't come up as a dependency
-        if (our_copy_deps.contains(check_input_our_copy)) {
-          graph_update_queue_.removeAt(i);
-          i--;
-        }
-      }
+    // Check if this dependency graph is already queued
+    if (source->parentNode()->OutputsTo(queued_input, true)) {
+      // In which case, no further copy is necessary
+      return;
+    }
+
+    // Check if this input supersedes an already queued input
+    if (queued_input->parentNode()->OutputsTo(source, true)) {
+      // In which case, we don't need to queue it and can queue our own
+      graph_update_queue_.removeAt(i);
+      i--;
     }
   }
 
@@ -329,15 +339,9 @@ void RenderBackend::RunNextJob()
 
 void RenderBackend::ProcessUpdateQueue()
 {
-  /*
   while (!graph_update_queue_.isEmpty()) {
     CopyNodeInputValue(graph_update_queue_.takeFirst());
   }
-  */
-
-  // FIXME: SLOW DEBUGGING CODE
-  CopyNodeInputValue(viewer_node_->texture_input());
-  CopyNodeInputValue(viewer_node_->samples_input());
 }
 
 QByteArray RenderBackend::HashNode(const Node *n, const VideoParams &params, const rational &time)

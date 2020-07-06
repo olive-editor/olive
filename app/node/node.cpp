@@ -537,6 +537,25 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
   return false;
 }
 
+bool Node::OutputsTo(NodeInput *input, bool recursively) const
+{
+  QList<NodeOutput*> outputs = GetOutputs();
+
+  foreach (NodeOutput* output, outputs) {
+    foreach (NodeEdgePtr edge, output->edges()) {
+      NodeInput* connected = edge->input();
+
+      if (connected == input) {
+        return true;
+      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   QList<NodeInput*> inputs = GetInputsIncludingArrays();

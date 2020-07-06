@@ -43,6 +43,11 @@ public:
 
   void Close();
 
+  ViewerOutput* GetViewerNode() const
+  {
+    return viewer_node_;
+  }
+
   void SetViewerNode(ViewerOutput* viewer_node);
 
   void SetUpdateWithGraph(bool e)
@@ -80,6 +85,16 @@ public:
    * @brief Asynchronously generate a chunk of audio
    */
   RenderTicketPtr RenderAudio(const TimeRange& r);
+
+  const VideoParams& GetVideoParams() const
+  {
+    return video_params_;
+  }
+
+  const AudioParams& GetAudioParams() const
+  {
+    return audio_params_;
+  }
 
   void SetVideoParams(const VideoParams& params);
 

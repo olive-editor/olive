@@ -32,7 +32,10 @@ OLIVE_NAMESPACE_ENTER
 class RenderTask : public Task
 {
 public:
+  RenderTask(RenderBackend* backend);
   RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
+
+  virtual ~RenderTask() override;
 
 protected:
   void Render(const TimeRangeList &video_range,
@@ -48,17 +51,17 @@ protected:
 
   ViewerOutput* viewer() const
   {
-    return viewer_;
+    return backend_->GetViewerNode();
   }
 
   VideoParams video_params() const
   {
-    return video_params_;
+    return backend_->GetVideoParams();
   }
 
   AudioParams audio_params() const
   {
-    return audio_params_;
+    return backend_->GetAudioParams();
   }
 
   void SetAnchorPoint(const rational& r);
@@ -68,21 +71,17 @@ protected:
     return job_time_;
   }
 
-  OpenGLBackend* backend()
+  RenderBackend* backend()
   {
-    return &backend_;
+    return backend_;
   }
 
 private:
-  ViewerOutput* viewer_;
-
-  VideoParams video_params_;
-
-  AudioParams audio_params_;
-
   rational anchor_point_;
 
-  OpenGLBackend backend_;
+  RenderBackend* backend_;
+
+  bool backend_is_ours_;
 
   qint64 job_time_;
 

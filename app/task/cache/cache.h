@@ -31,6 +31,7 @@ class CacheTask : public RenderTask
 {
   Q_OBJECT
 public:
+  CacheTask(RenderBackend* backend, bool in_out_only);
   CacheTask(ViewerOutput* viewer,
             const VideoParams &vparams,
             const AudioParams &aparams,
@@ -46,6 +47,8 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
 
 private:
+  void Init();
+
   bool in_out_only_;
 
   QThreadPool download_threads_;

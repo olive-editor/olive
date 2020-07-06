@@ -24,18 +24,31 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
-  viewer_(viewer),
-  video_params_(vparams),
-  audio_params_(aparams)
+RenderTask::RenderTask(RenderBackend *backend) :
+  backend_(backend)
 {
   job_time_ = QDateTime::currentMSecsSinceEpoch();
 
-  // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
-  //        way.
-  backend_.SetViewerNode(viewer_);
-  backend_.SetVideoParams(video_params_);
-  backend_.SetAudioParams(audio_params_);
+  backend_is_ours_ = false;
+}
+
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams)
+{
+  job_time_ = QDateTime::currentMSecsSinceEpoch();
+
+  backend_ = new OpenGLBackend();
+  backend_->SetViewerNode(viewer);
+  backend_->SetVideoParams(vparams);
+  backend_->SetAudioParams(aparams);
+
+  backend_is_ours_ = true;
+}
+
+RenderTask::~RenderTask()
+{
+  if (backend_is_ours_) {
+    backend_->deleteLater();
+  }
 }
 
 struct TimeHashFuturePair {
@@ -68,11 +81,11 @@ void RenderTask::Render(const TimeRangeList& video_range,
                         const QMatrix4x4& mat,
                         bool use_disk_cache)
 {
-  backend_.SetVideoDownloadMatrix(mat);
+  backend_->SetVideoDownloadMatrix(mat);
 
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params_.time_base().toDouble();
+  double video_frame_sz = video_params().time_base().toDouble();
 
   std::list<TimeRange> audio_queue;
   std::list<RangeSampleFuturePair> audio_lookup_table;
@@ -93,11 +106,11 @@ void RenderTask::Render(const TimeRangeList& video_range,
   if (!video_range.isEmpty()) {
     QList<QByteArray> existing_hashes;
 
-    times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
 
     total_length += video_frame_sz * times.size();
 
-    QFuture<QVector<QByteArray> > hash_future = backend_.Hash(times);
+    QFuture<QVector<QByteArray> > hash_future = backend_->Hash(times);
     hashes = hash_future.result();
 
     for (int i=0;i<times.size();i++) {
@@ -141,7 +154,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
           // If not, check if it's in the filesystem
           if (!hash_exists) {
-            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(p.hash));
+            hash_exists = QFileInfo::exists(viewer()->video_frame_cache()->CachePathName(p.hash));
 
             // If so, add it to the list so we don't have to check the filesystem again later
             if (hash_exists) {
@@ -159,7 +172,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
         // If no existing disk cache was found, queue it now
         if (!hash_exists) {
-          render_lookup_table.push_back({p.hash, backend_.RenderFrame(p.time)});
+          render_lookup_table.push_back({p.hash, backend_->RenderFrame(p.time)});
           running_hashes.push_back(p.hash);
         }
       }
@@ -169,7 +182,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
 
     if (!IsCancelled() && !audio_queue.empty()) {
-      audio_lookup_table.push_back({audio_queue.front(), backend_.RenderAudio(audio_queue.front())});
+      audio_lookup_table.push_back({audio_queue.front(), backend_->RenderAudio(audio_queue.front())});
       audio_queue.pop_front();
     }
 
@@ -233,7 +246,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
   }
 
   // `Close` will block until all jobs are done making a safe deletion
-  backend_.Close();
+  backend_->Close();
 }
 
 void RenderTask::SetAnchorPoint(const rational &r)

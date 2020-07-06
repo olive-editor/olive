@@ -27,16 +27,18 @@
 
 OLIVE_NAMESPACE_ENTER
 
+CacheTask::CacheTask(RenderBackend *backend, bool in_out_only) :
+  RenderTask(backend),
+  in_out_only_(in_out_only)
+{
+  Init();
+}
+
 CacheTask::CacheTask(ViewerOutput* viewer, const VideoParams& vparams, const AudioParams &aparams, bool in_out_only) :
   RenderTask(viewer, vparams, aparams),
   in_out_only_(in_out_only)
 {
-  SetTitle(tr("Caching \"%1\"").arg(viewer->media_name()));
-
-  backend()->EnablePreviewGeneration(job_time());
-
-  // Render fastest quality
-  backend()->SetRenderMode(RenderMode::kOffline);
+  Init();
 }
 
 bool CacheTask::Run()
@@ -81,6 +83,16 @@ void CacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
   } else {
     viewer()->audio_playback_cache()->WriteSilence(range);
   }
+}
+
+void CacheTask::Init()
+{
+  SetTitle(tr("Caching \"%1\"").arg(viewer()->media_name()));
+
+  backend()->EnablePreviewGeneration(job_time());
+
+  // Render fastest quality
+  backend()->SetRenderMode(RenderMode::kOffline);
 }
 
 OLIVE_NAMESPACE_EXIT

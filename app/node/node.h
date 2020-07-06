@@ -221,6 +221,11 @@ public:
   bool OutputsTo(const QString& id, bool recursively) const;
 
   /**
+   * @brief Same as OutputsTo(Node*), but for a specific node input rather than just a node.
+   */
+  bool OutputsTo(NodeInput* input, bool recursively) const;
+
+  /**
    * @brief Returns whether this node ever receives an input from a particular node instance
    */
   bool InputsFrom(Node* n, bool recursively) const;
