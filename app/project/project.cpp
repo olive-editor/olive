@@ -41,6 +41,9 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
 {
   XMLNodeData xml_node_data;
 
+  // Set project filename (hacky)
+  xml_node_data.real_project_url = static_cast<QFile*>(reader->device())->fileName();
+
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("folder")) {
 
@@ -69,8 +72,16 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
 
       *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
 
+    } else if (reader->name() == QStringLiteral("url")) {
+
+      // This should be read in before most other elements
+      xml_node_data.saved_project_url = reader->readElementText();
+
     } else {
+
+      // Skip this
       reader->skipCurrentElement();
+
     }
   }
 

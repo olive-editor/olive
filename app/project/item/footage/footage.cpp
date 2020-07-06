@@ -21,6 +21,7 @@
 #include "footage.h"
 
 #include <QCoreApplication>
+#include <QDir>
 
 #include "codec/decoder.h"
 #include "common/xmlutils.h"
@@ -49,6 +50,27 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
       set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("filename")) {
       set_filename(attr.value().toString());
+    }
+  }
+
+  // Validate filename
+  if (!QFileInfo::exists(filename_)) {
+    // Absolute filename does not exist, use some heuristics to try relocating the file
+
+    if (xml_node_data.real_project_url != xml_node_data.saved_project_url) {
+      // Project path has changed, check if the file we're looking for is the same relative to the
+      // new project path
+      QDir saved_dir(QFileInfo(xml_node_data.saved_project_url).dir());
+      QDir true_dir(QFileInfo(xml_node_data.real_project_url).dir());
+
+      QString relative_filename = saved_dir.relativeFilePath(filename_);
+      QString transformed_abs_filename = true_dir.filePath(relative_filename);
+
+      if (QFileInfo::exists(transformed_abs_filename)) {
+        // Use this file instead
+        qInfo() << "Footage" << filename_ << "doesn't exist, using relative file" << transformed_abs_filename;
+        set_filename(transformed_abs_filename);
+      }
     }
   }
 

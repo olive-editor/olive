@@ -64,6 +64,9 @@ struct XMLNodeData {
   QList<BlockLink> block_links;
   QHash<quintptr, Item*> item_ptrs;
 
+  QString real_project_url;
+  QString saved_project_url;
+
 };
 
 void XMLConnectNodes(const XMLNodeData& xml_node_data, QUndoCommand* command = nullptr);
