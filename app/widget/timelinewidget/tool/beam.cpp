@@ -29,7 +29,20 @@ TimelineWidget::BeamTool::BeamTool(TimelineWidget *parent) :
 
 void TimelineWidget::BeamTool::HoverMove(TimelineViewMouseEvent *event)
 {
-  parent()->SetViewBeamCursor(event->GetCoordinates(true));
+  parent()->SetViewBeamCursor(ValidatedCoordinate(event->GetCoordinates(true)));
+}
+
+TimelineCoordinate TimelineWidget::BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
+{
+  if (Core::instance()->snapping()) {
+    rational movement;
+    parent()->SnapPoint({coord.GetFrame()}, &movement);
+    if (!movement.isNull()) {
+      coord.SetFrame(coord.GetFrame() + movement);
+    }
+  }
+
+  return coord;
 }
 
 OLIVE_NAMESPACE_EXIT

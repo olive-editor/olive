@@ -37,6 +37,7 @@ OLIVE_NAMESPACE_ENTER
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
+  show_beam_cursor_(false),
   connected_track_list_(nullptr)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
@@ -426,9 +427,8 @@ void TimelineView::ConnectTrackList(TrackList *list)
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
 {
-  bool update_required = true;/*(coord.GetTrack().type() == connected_track_list_->type()
-                          || cursor_coord_.GetTrack().type() == connected_track_list_->type()
-                          || !show_beam_cursor_);*/
+  bool update_required = coord.GetTrack().type() == connected_track_list_->type()
+                          || cursor_coord_.GetTrack().type() == connected_track_list_->type();
 
   show_beam_cursor_ = true;
   cursor_coord_ = coord;

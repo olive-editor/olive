@@ -216,6 +216,9 @@ private:
 
     virtual void HoverMove(TimelineViewMouseEvent *event) override;
 
+  protected:
+    TimelineCoordinate ValidatedCoordinate(TimelineCoordinate coord);
+
   };
 
   class PointerTool : public Tool
@@ -415,7 +418,7 @@ private:
 
   };
 
-  class AddTool : public Tool
+  class AddTool : public BeamTool
   {
   public:
     AddTool(TimelineWidget* parent);

@@ -27,7 +27,7 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
-  Tool(parent),
+  BeamTool(parent),
   ghost_(nullptr)
 {
 }
@@ -63,15 +63,7 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
 
   if (add_type == Timeline::kTrackTypeNone
       || add_type == track.type()) {
-    drag_start_point_ = event->GetFrame();
-
-    if (Core::instance()->snapping()) {
-      rational movement;
-      parent()->SnapPoint({drag_start_point_}, &movement);
-      if (!movement.isNull()) {
-        drag_start_point_ += movement;
-      }
-    }
+    drag_start_point_ = ValidatedCoordinate(event->GetCoordinates(true)).GetFrame();
 
     ghost_ = new TimelineViewGhostItem();
     ghost_->SetIn(drag_start_point_);
