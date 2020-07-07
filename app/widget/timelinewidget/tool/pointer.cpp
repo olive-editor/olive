@@ -497,11 +497,6 @@ bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
   return true;
 }
 
-rational GetEarliestPointForClip(Block* block)
-{
-  return qMax(rational(0), block->in() - block->media_in());
-}
-
 rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
                                                          const QVector<TimelineViewGhostItem *> ghosts,
                                                          bool prevent_overwriting)
@@ -516,41 +511,43 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
     rational earliest_in = RATIONAL_MIN;
     rational latest_in = ghost->Out();
 
-    if (block->type() == Block::kTransition) {
-      // For transitions, validate with the attached block
-      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
-
-      if (transition->connected_in_block() && transition->connected_out_block()) {
-        // Here, we try to get the latest earliest point for both the in and out blocks, we do in here and out will
-        // be calculated later
-        earliest_in = GetEarliestPointForClip(transition->connected_in_block());
-
-        // We set the block to the out block since that will be before the in block and will be the one we use to
-        // prevent overwriting since we're trimming the in side of this transition
-        block = transition->connected_out_block();
-
-        latest_in = transition->in() + transition->out_offset();
-      } else {
-        // Use whatever block is attached
-        block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
-      }
-    }
-
-    earliest_in = qMax(earliest_in, GetEarliestPointForClip(block));
-
     if (!ghost->CanHaveZeroLength()) {
       latest_in -= parent()->timebase();
     }
 
-    if (prevent_overwriting) {
-      // Look for a Block in the way
-      Block* prev = block->previous();
-      while (prev != nullptr) {
-        if (prev->type() == Block::kClip) {
-          earliest_in = qMax(earliest_in, prev->out());
-          break;
+    if (block) {
+      /* FIXME: Rewrite transition logic
+      if (block->type() == Block::kTransition) {
+        // For transitions, validate with the attached block
+        TransitionBlock* transition = static_cast<TransitionBlock*>(block);
+
+        if (transition->connected_in_block() && transition->connected_out_block()) {
+          // Here, we try to get the latest earliest point for both the in and out blocks, we do in here and out will
+          // be calculated later
+          earliest_in = GetEarliestPointForClip(transition->connected_in_block());
+
+          // We set the block to the out block since that will be before the in block and will be the one we use to
+          // prevent overwriting since we're trimming the in side of this transition
+          block = transition->connected_out_block();
+
+          latest_in = transition->in() + transition->out_offset();
+        } else {
+          // Use whatever block is attached
+          block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
         }
-        prev = prev->previous();
+      }
+      */
+
+      if (prevent_overwriting) {
+        // Look for a Block in the way
+        Block* prev = block->previous();
+        while (prev != nullptr) {
+          if (prev->type() == Block::kClip) {
+            earliest_in = qMax(earliest_in, prev->out());
+            break;
+          }
+          prev = prev->previous();
+        }
       }
     }
 
@@ -586,33 +583,38 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
 
     rational latest_out = RATIONAL_MAX;
 
-    if (block->type() == Block::kTransition) {
-      // For transitions, validate with the attached block
-      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
+    // Ripple tool creates block-less ghosts and creates gaps with them later
+    if (block) {
+      /* FIXME: Rewrite transition logic
+      if (block->type() == Block::kTransition) {
+        // For transitions, validate with the attached block
+        TransitionBlock* transition = static_cast<TransitionBlock*>(block);
 
-      if (transition->connected_in_block() && transition->connected_out_block()) {
-        // We set the block to the out block since that will be before the in block and will be the one we use to
-        // prevent overwriting since we're trimming the in side of this transition
+        if (transition->connected_in_block() && transition->connected_out_block()) {
+          // We set the block to the out block since that will be before the in block and will be the one we use to
+          // prevent overwriting since we're trimming the in side of this transition
 
-        // FIXME: At some point we may add some better logic to `latest_out` akin to the logic in ValidateInTrimming
-        //        which is why this hasn't yet been collapsed into the ternary below.
-        block = transition->connected_in_block();
+          // FIXME: At some point we may add some better logic to `latest_out` akin to the logic in ValidateInTrimming
+          //        which is why this hasn't yet been collapsed into the ternary below.
+          block = transition->connected_in_block();
 
-        earliest_out = transition->out() - transition->in_offset();
-      } else {
-        block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
-      }
-    }
-
-    if (prevent_overwriting) {
-      // Determine if there's a block in the way
-      Block* next = block->next();
-      while (next != nullptr) {
-        if (next->type() == Block::kClip) {
-          latest_out = qMin(latest_out, next->in());
-          break;
+          earliest_out = transition->out() - transition->in_offset();
+        } else {
+          block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
         }
-        next = next->next();
+      }
+      */
+
+      if (prevent_overwriting) {
+        // Determine if there's a block in the way
+        Block* next = block->next();
+        while (next != nullptr) {
+          if (next->type() == Block::kClip) {
+            latest_out = qMin(latest_out, next->in());
+            break;
+          }
+          next = next->next();
+        }
       }
     }
 

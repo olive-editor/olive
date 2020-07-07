@@ -1398,8 +1398,12 @@ void TrackListRippleToolCommand::redo_internal()
       const RippleInfo& info = info_.at(i);
 
       if (info.block) {
-        new_latest_pt = qMax(new_latest_pt, info.block->out());
-      } else {
+        if (info.new_length > 0) {
+          new_latest_pt = qMax(new_latest_pt, info.block->out());
+        } else {
+          new_latest_pt = qMax(new_latest_pt, info.block->in());
+        }
+      } else if (info.new_length > 0) {
         new_latest_pt = qMax(new_latest_pt, working_data_.at(i).created_gap->out());
       }
     }
@@ -1427,6 +1431,8 @@ void TrackListRippleToolCommand::redo_internal()
 
 void TrackListRippleToolCommand::undo_internal()
 {
+  // FIXME: Add cache shift optimization
+
   // Clean created gaps
   for (int i=info_.size()-1; i>=0; i--) {
     const RippleInfo& info = info_.at(i);
