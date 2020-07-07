@@ -23,6 +23,7 @@
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <QtMath>
+#include <cfloat>
 
 #include "common/qtutils.h"
 
