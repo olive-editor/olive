@@ -110,23 +110,34 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
 
   QTextDocument text_doc;
   text_doc.setHtml(job.GetValue(text_input_).data().toString());
-  text_doc.setTextWidth(frame->video_params().width());
+
+  // Align to 80% width because that's considered the "title safe" area
+  int tenth_of_width = frame->video_params().width() / 10;
+  text_doc.setTextWidth(tenth_of_width * 8);
 
   // Draw rich text onto image
   QPainter p(&img);
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
 
-  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
-  if (valign != kVerticalAlignTop) {
-    int doc_height = text_doc.size().height();
+  // Push 10% inwards to compensate for title safe area
+  p.translate(tenth_of_width, 0);
 
-    if (valign == kVerticalAlignCenter) {
-      // Center align
-      p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
-    } else {
-      // Must be bottom align
-      p.translate(0, frame->video_params().height() - doc_height);
-    }
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
+  int doc_height = text_doc.size().height();
+
+  switch (valign) {
+  case kVerticalAlignTop:
+    // Push 10% inwards for title safe area
+    p.translate(0, frame->video_params().height() / 10);
+    break;
+  case kVerticalAlignCenter:
+    // Center align
+    p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
+    break;
+  case kVerticalAlignBottom:
+    // Push 10% inwards for title safe area
+    p.translate(0, frame->video_params().height() - doc_height - frame->video_params().height() / 10);
+    break;
   }
 
   text_doc.drawContents(&p);
