@@ -78,11 +78,8 @@ struct HashDownloadFuturePair {
 
 void RenderTask::Render(const TimeRangeList& video_range,
                         const TimeRangeList &audio_range,
-                        const QMatrix4x4& mat,
                         bool use_disk_cache)
 {
-  backend_->SetVideoDownloadMatrix(mat);
-
   double progress_counter = 0;
   double total_length = 0;
   double video_frame_sz = video_params().time_base().toDouble();
@@ -245,8 +242,10 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
   }
 
-  // `Close` will block until all jobs are done making a safe deletion
-  backend_->Close();
+  if (backend_is_ours_) {
+    // `Close` will block until all jobs are done making a safe deletion
+    backend_->Close();
+  }
 }
 
 void RenderTask::SetAnchorPoint(const rational &r)

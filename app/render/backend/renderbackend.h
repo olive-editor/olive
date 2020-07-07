@@ -115,8 +115,6 @@ private:
   Node *CopyNodeConnections(Node *src_node);
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
-  void RunNextJob();
-
   ViewerOutput* viewer_node_;
 
   // VIDEO MEMBERS
@@ -149,6 +147,8 @@ private:
 
 private slots:
   void WorkerFinished();
+
+  void RunNextJob();
 
 };
 

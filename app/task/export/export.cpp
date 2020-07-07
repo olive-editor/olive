@@ -64,17 +64,17 @@ bool ExportTask::Run()
 
   frame_time_ = Timecode::time_to_timestamp(range.in(), viewer()->video_params().time_base());
 
-  QMatrix4x4 mat;
-
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
     if (params_.video_scaling_method() != ExportParams::kStretch) {
-      mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                         viewer()->video_params().width(),
-                                         viewer()->video_params().height(),
-                                         params_.video_params().width(),
-                                         params_.video_params().height());
+      QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
+                                                    viewer()->video_params().width(),
+                                                    viewer()->video_params().height(),
+                                                    params_.video_params().width(),
+                                                    params_.video_params().height());
+
+      backend()->SetVideoDownloadMatrix(mat);
     }
 
     // Create color processor
@@ -99,7 +99,7 @@ bool ExportTask::Run()
     audio_data_.SetLength(range.length());
   }
 
-  Render(video_range, audio_range, mat, false);
+  Render(video_range, audio_range, false);
 
   bool success = true;
 

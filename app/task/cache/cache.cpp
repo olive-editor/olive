@@ -57,7 +57,7 @@ bool CacheTask::Run()
     }
   }
 
-  Render(video_range, audio_range, QMatrix4x4(), true);
+  Render(video_range, audio_range, true);
 
   download_threads_.waitForDone();
 

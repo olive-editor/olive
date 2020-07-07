@@ -139,7 +139,7 @@ RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
 
   render_queue_.push_back(ticket);
 
-  RunNextJob();
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
 
   return ticket;
 }
@@ -155,7 +155,7 @@ RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
 
   render_queue_.push_back(ticket);
 
-  RunNextJob();
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
 
   return ticket;
 }

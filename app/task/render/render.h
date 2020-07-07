@@ -40,7 +40,6 @@ public:
 protected:
   void Render(const TimeRangeList &video_range,
               const TimeRangeList &audio_range,
-              const QMatrix4x4 &mat,
               bool use_disk_cache);
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
