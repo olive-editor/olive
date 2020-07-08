@@ -52,19 +52,24 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
   title_bar_layout->setMargin(0);
 
+  // *** Left Buttons ***
+
   title_bar_collapse_btn_ = new CollapseButton(title_bar_);
   title_bar_collapse_btn_->setContentsMargins(0, 0, 0, 0);
   title_bar_layout->addWidget(title_bar_collapse_btn_);
-
-  title_bar_lbl_ = new QLabel(title_bar_);
-  title_bar_lbl_->setMargin(0);
-  title_bar_layout->addWidget(title_bar_lbl_);
 
   center_button_ = new QPushButton("C", title_bar_);
   center_button_->setContentsMargins(0, 0, 0, 0);
   center_button_->setFixedSize(20, 20);
   title_bar_layout->addWidget(center_button_);
 
+  // *** Label ***
+
+  title_bar_lbl_ = new QLabel(title_bar_);
+  title_bar_lbl_->setMargin(0);
+  title_bar_layout->addWidget(title_bar_lbl_);
+
+  // *** Right Buttons ***
   title_bar_layout->addStretch();
 
   close_button_ = new QPushButton("X", title_bar_);
