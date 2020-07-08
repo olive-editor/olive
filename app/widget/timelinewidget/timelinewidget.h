@@ -98,6 +98,10 @@ public:
 
   virtual void HideSnaps() override;
 
+  QByteArray SaveSplitterState() const;
+
+  void RestoreSplitterState(const QByteArray& state);
+
 signals:
   void SelectionChanged(const QList<Block*>& selected_blocks);
 
@@ -500,6 +504,8 @@ private:
   int deferred_scroll_value_;
 
   bool use_audio_time_units_;
+
+  QSplitter* view_splitter_;
 
   int GetTrackY(const TrackReference& ref);
   int GetTrackHeight(const TrackReference& ref);

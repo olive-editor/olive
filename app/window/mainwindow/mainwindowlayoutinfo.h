@@ -17,7 +17,12 @@ public:
 
   void add_folder(Folder* f);
 
-  void add_sequence(Sequence* s);
+  struct OpenSequence {
+    Sequence* sequence;
+    QByteArray panel_state;
+  };
+
+  void add_sequence(const OpenSequence& seq);
 
   void set_state(const QByteArray& layout);
 
@@ -26,7 +31,7 @@ public:
     return open_folders_;
   }
 
-  const QList<Sequence*>& open_sequences() const
+  const QList<OpenSequence>& open_sequences() const
   {
     return open_sequences_;
   }
@@ -41,7 +46,7 @@ private:
 
   QList<Folder*> open_folders_;
 
-  QList<Sequence*> open_sequences_;
+  QList<OpenSequence> open_sequences_;
 
 };
 

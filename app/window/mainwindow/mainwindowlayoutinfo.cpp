@@ -17,9 +17,12 @@ void MainWindowLayoutInfo::toXml(QXmlStreamWriter *writer) const
 
   writer->writeStartElement(QStringLiteral("timeline"));
 
-  foreach (Sequence* sequence, open_sequences_) {
+  foreach (const OpenSequence& sequence, open_sequences_) {
     writer->writeTextElement(QStringLiteral("sequence"),
-                             QString::number(reinterpret_cast<quintptr>(sequence)));
+                             QString::number(reinterpret_cast<quintptr>(sequence.sequence)));
+
+    writer->writeTextElement(QStringLiteral("state"),
+                             QString(sequence.panel_state.toBase64()));
   }
 
   writer->writeEndElement(); // timeline
@@ -52,18 +55,23 @@ MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, XML
 
     } else if (reader->name() == QStringLiteral("timeline")) {
 
+      Sequence* open_seq = nullptr;
+      QByteArray tl_state;
+
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("sequence")) {
           quintptr item_id = reader->readElementText().toULongLong();
 
-          Sequence* open_seq = dynamic_cast<Sequence*>(xml_data.item_ptrs.value(item_id));
-
-          if (open_seq) {
-            info.open_sequences_.append(open_seq);
-          }
+          open_seq = dynamic_cast<Sequence*>(xml_data.item_ptrs.value(item_id));
+        } else if (reader->name() == QStringLiteral("state")) {
+          tl_state = QByteArray::fromBase64(reader->readElementText().toUtf8());
         } else {
           reader->skipCurrentElement();
         }
+      }
+
+      if (open_seq) {
+        info.open_sequences_.append({open_seq, tl_state});
       }
 
     } else if (reader->name() == QStringLiteral("state")) {
@@ -83,9 +91,9 @@ void MainWindowLayoutInfo::add_folder(olive::Folder *f)
   open_folders_.append(f);
 }
 
-void MainWindowLayoutInfo::add_sequence(Sequence *s)
+void MainWindowLayoutInfo::add_sequence(const OpenSequence &seq)
 {
-  open_sequences_.append(s);
+  open_sequences_.append(seq);
 }
 
 void MainWindowLayoutInfo::set_state(const QByteArray &layout)

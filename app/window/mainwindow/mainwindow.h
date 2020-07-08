@@ -60,7 +60,7 @@ public:
 
   MainWindowLayoutInfo SaveLayout() const;
 
-  void OpenSequence(Sequence* sequence, bool enable_focus = true);
+  TimelinePanel *OpenSequence(Sequence* sequence, bool enable_focus = true);
 
   void CloseSequence(Sequence* sequence);
 

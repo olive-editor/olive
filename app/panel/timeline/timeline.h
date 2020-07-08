@@ -39,6 +39,10 @@ public:
 
   void SplitAtPlayhead();
 
+  QByteArray SaveSplitterState() const;
+
+  void RestoreSplitterState(const QByteArray& state);
+
   virtual void SelectAll() override;
 
   virtual void DeselectAll() override;

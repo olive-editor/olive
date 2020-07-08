@@ -117,8 +117,9 @@ void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
     FolderOpen(folder->project(), folder, true);
   }
 
-  foreach (Sequence* sequence, info.open_sequences()) {
-    OpenSequence(sequence, info.open_sequences().size() == 1);
+  foreach (const MainWindowLayoutInfo::OpenSequence& sequence, info.open_sequences()) {
+    TimelinePanel* panel = OpenSequence(sequence.sequence, info.open_sequences().size() == 1);
+    panel->RestoreSplitterState(sequence.panel_state);
   }
 
   restoreState(info.state());
@@ -136,7 +137,8 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (TimelinePanel* panel, timeline_panels_) {
     if (panel->GetConnectedViewer()) {
-      info.add_sequence(static_cast<Sequence*>(panel->GetConnectedViewer()->parent()));
+      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()->parent()),
+                         panel->SaveSplitterState()});
     }
   }
 
@@ -145,13 +147,13 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
   return info;
 }
 
-void MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
+TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 {
   // See if this sequence is already open, and switch to it if so
   foreach (TimelinePanel* tl, timeline_panels_) {
     if (tl->GetConnectedViewer() == sequence->viewer_output()) {
       tl->raise();
-      return;
+      return tl;
     }
   }
 
@@ -170,6 +172,8 @@ void MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
   if (enable_focus) {
     TimelineFocused(sequence->viewer_output());
   }
+
+  return panel;
 }
 
 void MainWindow::CloseSequence(Sequence *sequence)
@@ -354,7 +358,7 @@ void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
       taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NORMAL);
       break;
     case kProgressNone:
-      taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NOPROGRESS);
+      taskbar_interface_->SetProgressState(reinterpret_ cast<HWND>(this->winId()), TBPF_NOPROGRESS);
       break;
     case kProgressError:
       taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_ERROR);

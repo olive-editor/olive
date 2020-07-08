@@ -46,6 +46,16 @@ void TimelinePanel::SplitAtPlayhead()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->SplitAtPlayhead();
 }
 
+QByteArray TimelinePanel::SaveSplitterState() const
+{
+  return static_cast<TimelineWidget*>(GetTimeBasedWidget())->SaveSplitterState();
+}
+
+void TimelinePanel::RestoreSplitterState(const QByteArray &state)
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->RestoreSplitterState(state);
+}
+
 void TimelinePanel::SelectAll()
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->SelectAll();

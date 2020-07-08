@@ -63,9 +63,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
-  QSplitter* view_splitter = new QSplitter(Qt::Vertical);
-  view_splitter->setChildrenCollapsible(false);
-  vert_layout->addWidget(view_splitter);
+  view_splitter_ = new QSplitter(Qt::Vertical);
+  view_splitter_->setChildrenCollapsible(false);
+  vert_layout->addWidget(view_splitter_);
 
   // Video view
   views_.append(new TimelineAndTrackView(Qt::AlignBottom));
@@ -109,7 +109,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view->SetSnapService(this);
 
-    view_splitter->addWidget(tview);
+    view_splitter_->addWidget(tview);
 
     ConnectTimelineView(view);
 
@@ -144,7 +144,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   }
 
   // Split viewer 50/50
-  view_splitter->setSizes({INT_MAX, INT_MAX});
+  view_splitter_->setSizes({INT_MAX, INT_MAX});
 
   // FIXME: Magic number
   SetScale(90.0);
@@ -1413,6 +1413,16 @@ void TimelineWidget::HideSnaps()
   foreach (TimelineAndTrackView* tview, views_) {
     tview->view()->DisableSnap();
   }
+}
+
+QByteArray TimelineWidget::SaveSplitterState() const
+{
+  return view_splitter_->saveState();
+}
+
+void TimelineWidget::RestoreSplitterState(const QByteArray &state)
+{
+  view_splitter_->restoreState(state);
 }
 
 void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_links)
