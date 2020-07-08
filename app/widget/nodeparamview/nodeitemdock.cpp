@@ -3,6 +3,7 @@
 
 #include <QPainter>
 #include <QEvent>
+#include <QInputDialog>
 
 
 OLIVE_NAMESPACE_ENTER
@@ -65,9 +66,10 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
 
   // *** Label ***
 
-  title_bar_lbl_ = new QLabel(title_bar_);
+  title_bar_lbl_ = new ClickableLabel(title_bar_);
   title_bar_lbl_->setMargin(0);
   title_bar_layout->addWidget(title_bar_lbl_);
+  connect(title_bar_lbl_, &ClickableLabel::MouseDoubleClicked, this, &NodeItemDockTitle::EditLabel);
 
   // *** Right Buttons ***
   title_bar_layout->addStretch();
@@ -138,6 +140,23 @@ void NodeItemDockTitle::Retranslate() {
     title_bar_lbl_->setText(node_->Name());
   } else {
     title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
+  }
+}
+
+void NodeItemDockTitle::EditLabel()
+{
+  QString start_label = node_->GetLabel();
+  bool ok;
+
+  QString s = QInputDialog::getText(this,
+                                    tr("Label Node"),
+                                    tr("Set node label"),
+                                    QLineEdit::Normal,
+                                    start_label,
+                                    &ok);
+
+  if (ok) {
+    node_->SetLabel(s);
   }
 }
 

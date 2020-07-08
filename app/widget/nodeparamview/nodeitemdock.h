@@ -9,6 +9,7 @@
 #include "common/define.h"
 #include "node/node.h"
 #include "widget/nodeparamview/nodeparamviewitem.h"
+#include "../clickablelabel/clickablelabel.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -53,7 +54,7 @@ private:
   /**
    * @brief QDockWidget's label, either node type or custom label set by the user
    */
-  QLabel* title_bar_lbl_;
+  ClickableLabel* title_bar_lbl_;
 
   /**
    * @brief Button to collapse the contents of the QDockWidget
@@ -74,6 +75,8 @@ private:
 
 private slots:
   void Retranslate();
+
+  void EditLabel();
 };
 
 class NodeItemDock : public QDockWidget {
