@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QEvent>
 #include <QInputDialog>
+#include <QMenu>
 
 
 OLIVE_NAMESPACE_ENTER
@@ -48,7 +49,7 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   title_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
   // Probably better to do in the style sheet
-  this->setStyleSheet("background-color: #404040");
+  //this->setStyleSheet("background-color: #404040");
 
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
   title_bar_layout->setMargin(0);
@@ -63,6 +64,12 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   center_button_->setContentsMargins(0, 0, 0, 0);
   center_button_->setFixedSize(20, 20);
   title_bar_layout->addWidget(center_button_);
+
+  center_parent_button_ = new QPushButton("P", title_bar_);
+  center_parent_button_->setContentsMargins(0, 0, 0, 0);
+  center_parent_button_->setFixedSize(20, 20);
+  title_bar_layout->addWidget(center_parent_button_);
+  connect(center_parent_button_, &QPushButton::clicked, this, &NodeItemDockTitle::ParentPopUpMenu);
 
   // *** Label ***
 
@@ -158,6 +165,41 @@ void NodeItemDockTitle::EditLabel()
   if (ok) {
     node_->SetLabel(s);
   }
+}
+
+void NodeItemDockTitle::ParentPopUpMenu()
+{
+  if (node_->GetImmediateDependencies().isEmpty()) {
+    return;
+  }
+  QMenu* nodeParents = new QMenu(this);
+  foreach(Node* node, node_->GetImmediateDependencies()) {
+    QAction* action = new QAction(this);
+    if (node->GetLabel().isEmpty()) {
+      action->setText(node->Name());
+    } else {
+      action->setText(node->GetLabel());
+    }
+
+    QVariant v = QVariant::fromValue((void*)node);
+    action->setData(v);
+
+    nodeParents->addAction(action);
+
+    connect(action, &QAction::triggered, this, &NodeItemDockTitle::CenterParentNode);
+    connect(action, &QAction::triggered, nodeParents, &QMenu::deleteLater);
+  }
+
+  nodeParents->popup(QCursor::pos());
+}
+
+void NodeItemDockTitle::CenterParentNode()
+{
+  QAction *act = qobject_cast<QAction *>(sender());
+  QVariant v = act->data();
+  Node* node = (Node*)v.value<void*>();
+
+  emit static_cast<NodeItemDock*>(parent())->CenterNode(node);
 }
 
 bool NodeItemDockTitle::eventFilter(QObject* pObject, QEvent* pEvent)

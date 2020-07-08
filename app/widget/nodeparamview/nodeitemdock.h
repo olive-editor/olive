@@ -68,6 +68,8 @@ private:
 
   QPushButton* center_button_;
 
+  QPushButton* center_parent_button_;
+
   /**
    * @brief Node asscoiated with the QDockWidget
    */
@@ -77,6 +79,10 @@ private slots:
   void Retranslate();
 
   void EditLabel();
+
+  void ParentPopUpMenu();
+
+  void CenterParentNode();
 };
 
 class NodeItemDock : public QDockWidget {
