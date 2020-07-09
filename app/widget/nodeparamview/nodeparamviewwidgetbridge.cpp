@@ -163,6 +163,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       QFontComboBox* font_combobox = new QFontComboBox();
       widgets_.append(font_combobox);
+      connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeParam::kFootage:
@@ -350,7 +351,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kFont:
   {
     // Widget is a QFontComboBox
-    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont(), 0);
+    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont().family(), 0);
     break;
   }
   case NodeParam::kFootage:
@@ -459,7 +460,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kText:
   {
     NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
-    e->setText(input_->get_value_at_time(node_time).toString());
+    e->setTextPreservingCursor(input_->get_value_at_time(node_time).toString());
     break;
   }
   case NodeParam::kBoolean:
@@ -467,7 +468,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeParam::kFont:
   {
-    // FIXME: Implement this
+    QFontComboBox* fc = static_cast<QFontComboBox*>(widgets_.first());
+    fc->blockSignals(true);
+    fc->setCurrentFont(input_->get_value_at_time(node_time).toString());
+    fc->blockSignals(false);
     break;
   }
   case NodeParam::kCombo:
