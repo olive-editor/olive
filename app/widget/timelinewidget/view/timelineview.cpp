@@ -250,17 +250,17 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
   if (show_beam_cursor_
       && connected_track_list_
-      && cursor_coord_.GetTrack().type() == connected_track_list_->type()
-      && cursor_coord_.GetTrack().index() < connected_track_list_->GetTrackCount()) {
+      && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
     painter->setPen(Qt::gray);
 
     double cursor_x = TimeToScene(cursor_coord_.GetFrame());
     int track_index = cursor_coord_.GetTrack().index();
+    int track_y = GetTrackY(track_index);
 
     painter->drawLine(cursor_x,
-                      GetTrackY(track_index),
+                      track_y,
                       cursor_x,
-                      GetTrackHeight(track_index));
+                      track_y + GetTrackHeight(track_index));
   }
 }
 
