@@ -91,26 +91,21 @@ void NodeParamViewItem::paintEvent(QPaintEvent* event) {
   Node* node = GetNode();
   Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
       .arg(node->Category().first())].value<Color>();
-  QColor border = QColor(41, 41, 41);
 
   // Draw border minus the top
   if (GetActive()) {
     int bottom = height() - 1;
-    int right = width() - 2;
-
-    // Top line
-    p.setPen(border);
-    p.drawLine(1, 0, right, 0);
+    int right = width() - 1;
 
     // L,B,R lines
     p.setPen(node_color.toQColor());
-    p.drawLine(1, 0, 1, bottom);
-    p.drawLine(1, bottom, right, bottom);
+    p.drawLine(0, 0, 0, bottom);
+    p.drawLine(0, bottom, right, bottom);
     p.drawLine(right, bottom, right, 0);
   }
   else {
-    p.setPen(border);
-    p.drawRect(1, 0, width()-3, height()-1);
+    p.setPen(QPalette::Shadow);
+    p.drawLine(0, height()-1, width()-1, height()-1);
   }
 }
 

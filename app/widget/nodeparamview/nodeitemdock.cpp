@@ -1,10 +1,14 @@
 #include "nodeitemdock.h"
 #include "config/config.h"
+#include "core.h"
+#include "window/mainwindow/mainwindow.h"
 
 #include <QPainter>
 #include <QEvent>
 #include <QInputDialog>
 #include <QMenu>
+#include <QPalette>
+#include <QLinearGradient>
 
 
 OLIVE_NAMESPACE_ENTER
@@ -48,9 +52,6 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   title_bar_ = new QWidget(this);
   title_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-  // Probably better to do in the style sheet
-  //this->setStyleSheet("background-color: #404040");
-
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
   title_bar_layout->setMargin(0);
 
@@ -89,6 +90,19 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
   // Add title bar to widget
   main_layout->addWidget(title_bar_);
 
+  QPalette app_pal = Core::instance()->main_window()->palette();
+  QPalette pal = palette();
+  // set black background
+  QLinearGradient titleBarGradient(0, 0, 0, this->height());
+  titleBarGradient.setColorAt(0, app_pal.color(QPalette::Base));
+  titleBarGradient.setColorAt(0.5, app_pal.color(QPalette::AlternateBase));
+  titleBarGradient.setColorAt(1, app_pal.color(QPalette::Base));
+  //pal.setBrush(QPalette::Window, titleBarGradient);
+
+  pal.setColor(QPalette::Window, app_pal.color(QPalette::Base));
+  this->setAutoFillBackground(true);
+  this->setPalette(pal);
+
   connect(node_, &Node::LabelChanged, this, &NodeItemDockTitle::Retranslate);
 
   Retranslate();
@@ -103,18 +117,18 @@ void NodeItemDockTitle::paintEvent(QPaintEvent* event) {
   int bottom = height() - 1;
   p.setPen(node_color.toQColor());
   // Draw double thickness top border
-  p.drawLine(1, 0, width() - 2, 0);
-  p.drawLine(1, 1, width() - 2, 1);
+  p.drawLine(0, 0, width() - 1, 0);
+  p.drawLine(0, 1, width() - 1, 1);
   
   // if active draw the sides
   bool flag = static_cast<NodeParamViewItem*>(static_cast<NodeItemDock*>(parent())->widget())->GetActive();
   if (flag) {
-    p.drawLine(1, 0, 2, height());
-    p.drawLine(width()-2, 0, width()-2,  height());
+    p.drawLine(0, 0, 0, height());
+    p.drawLine(width()-1, 0, width()-1,  height());
 
     // If collapsed draw the bottom of the header
     if (!title_bar_collapse_btn_->isChecked()) {
-      p.drawLine(2, bottom, width()-3, bottom);
+      p.drawLine(0, bottom, width()-1, bottom);
     }
   }
   
