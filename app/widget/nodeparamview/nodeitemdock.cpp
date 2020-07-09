@@ -92,13 +92,13 @@ NodeItemDockTitle::NodeItemDockTitle(Node* node, QWidget* parent) :
 
   QPalette app_pal = Core::instance()->main_window()->palette();
   QPalette pal = palette();
-  // set black background
+  /*
   QLinearGradient titleBarGradient(0, 0, 0, this->height());
   titleBarGradient.setColorAt(0, app_pal.color(QPalette::Base));
   titleBarGradient.setColorAt(0.5, app_pal.color(QPalette::AlternateBase));
   titleBarGradient.setColorAt(1, app_pal.color(QPalette::Base));
   //pal.setBrush(QPalette::Window, titleBarGradient);
-
+  */
   pal.setColor(QPalette::Window, app_pal.color(QPalette::Base));
   this->setAutoFillBackground(true);
   this->setPalette(pal);
