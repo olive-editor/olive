@@ -243,10 +243,10 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kInt: return ValueToBytesInternal<int>(value);
   case kFloat: return ValueToBytesInternal<float>(value);
   case kColor: return ValueToBytesInternal<Color>(value);
-  case kText: return ValueToBytesInternal<QString>(value);
+  case kText: return value.toString().toUtf8();
   case kBoolean: return ValueToBytesInternal<bool>(value);
-  case kFont: return ValueToBytesInternal<QString>(value); // FIXME: This should probably be a QFont?
-  case kFile: return ValueToBytesInternal<QString>(value);
+  case kFont: return value.toString().toUtf8();
+  case kFile: return value.toString().toUtf8();
   case kMatrix: return ValueToBytesInternal<QMatrix4x4>(value);
   case kRational: return ValueToBytesInternal<rational>(value);
   case kVec2: return ValueToBytesInternal<QVector2D>(value);
