@@ -85,18 +85,6 @@ public:
   }
 
   /**
-   * @brief Return a unique ID for the image generated at this time
-   *
-   * This hash should always be unique to this image and can therefore be used to match existing
-   * cached frames.
-   *
-   * @return
-   *
-   * SHA-1 hash or empty QByteArray if no viewer node is set.
-   */
-  void Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QList<rational>& times);
-
-  /**
    * @brief Render the frame at this time
    *
    * Produces a fully rendered frame from the connected viewer at this time.
