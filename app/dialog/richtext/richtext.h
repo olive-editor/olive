@@ -47,7 +47,18 @@ public:
   }
 
 private:
-  QPushButton* CreateToolbarButton(const QString &label, const QString &tooltip);
+  QPushButton* CreateToolbarButton(const QString &label,
+                                   const QString &tooltip,
+                                   const QStringList& tags);
+
+  void SetTags(const QStringList& t, bool enabled);
+
+  static QString CreateOpeningTag(const QString& s);
+  static QString CreateClosingTag(const QString& s);
+
+  static void UpdateTagButton(QPushButton* btn,
+                              const QString &text,
+                              int cursor_pos);
 
   QFontDatabase font_db_;
 
@@ -65,6 +76,8 @@ private:
   QPushButton* justify_align_btn_;
 
 private slots:
+  void TagButtonToggled(bool checked);
+
   void UpdateButtons();
 
 };
