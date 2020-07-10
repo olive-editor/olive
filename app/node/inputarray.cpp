@@ -59,7 +59,7 @@ void NodeInputArray::SetSize(int size)
   if (size < old_size) {
     // If the new size is less, delete all extraneous parameters
     for (int i=size;i<old_size;i++) {
-      sub_params_.at(i)->deleteLater();
+      delete sub_params_.at(i);
     }
   }
 
