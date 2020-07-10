@@ -21,13 +21,13 @@
 #include "renderworker.h"
 
 #include <QDir>
+#include <QThread>
 
 #include "audio/audiovisualwaveform.h"
 #include "common/functiontimer.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
 #include "task/conform/conform.h"
-#include "renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -38,6 +38,37 @@ RenderWorker::RenderWorker(RenderBackend* parent) :
   preview_cache_(nullptr),
   render_mode_(RenderMode::kOnline)
 {
+}
+
+void RenderWorker::Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QVector<rational> &times)
+{
+  QVector<QByteArray> hashes(times.size());
+
+  for (int i=0;i<hashes.size();i++) {
+    hashes[i] = HashNode(viewer->texture_input()->get_connected_node(),
+                         video_params_,
+                         times.at(i));
+  }
+
+  ticket->Finish(QVariant::fromValue(hashes));
+
+  emit FinishedJob();
+}
+
+QByteArray RenderWorker::HashNode(const Node *n, const VideoParams &params, const rational &time)
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  // Embed video parameters into this hash
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+
+  if (n) {
+    n->Hash(hasher, time);
+  }
+
+  return hasher.result();
 }
 
 void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time)
@@ -237,7 +268,7 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    QByteArray hash = RenderBackend::HashNode(node, video_params(), time);
+    QByteArray hash = HashNode(node, video_params(), time);
 
     QString fn = FrameHashCache::CachePathName(hash);
 

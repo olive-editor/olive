@@ -35,13 +35,14 @@ class RenderTicket : public QObject
   Q_OBJECT
 public:
   enum Type {
+    kTypeHash,
     kTypeVideo,
     kTypeAudio
   };
 
-  RenderTicket(Type type, const TimeRange& time);
+  RenderTicket(Type type, const QVariant& time);
 
-  const TimeRange& GetTime() const
+  const QVariant& GetTime() const
   {
     return time_;
   }
@@ -82,7 +83,7 @@ private:
 
   QWaitCondition wait_;
 
-  TimeRange time_;
+  QVariant time_;
 
   Type type_;
 

@@ -1007,7 +1007,7 @@ void NodeInput::set_is_keyframable(bool k)
   keyframable_ = k;
 }
 
-void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections, bool traverse_arrays)
 {
   Q_ASSERT(source->id() == dest->id());
 
@@ -1037,8 +1037,10 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
 
     dst_array->SetSize(src_array->GetSize());
 
-    for (int i=0;i<dst_array->GetSize();i++) {
-      CopyValues(src_array->At(i), dst_array->At(i), include_connections);
+    if (traverse_arrays) {
+      for (int i=0;i<dst_array->GetSize();i++) {
+        CopyValues(src_array->At(i), dst_array->At(i), include_connections);
+      }
     }
   }
 

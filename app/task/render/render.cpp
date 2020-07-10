@@ -107,11 +107,13 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     total_length += video_frame_sz * times.size();
 
-    QFuture<QVector<QByteArray> > hash_future = backend_->Hash(times);
-    hashes = hash_future.result();
+    RenderTicketPtr hash_future = backend_->Hash(times);
+    hashes = hash_future->Get().value<QVector<QByteArray> >();
 
-    for (int i=0;i<times.size();i++) {
-      frame_queue.push_back({times.at(i), hashes.at(i)});
+    if (!hash_future->WasCancelled()) {
+      for (int i=0;i<times.size();i++) {
+        frame_queue.push_back({times.at(i), hashes.at(i)});
+      }
     }
   }
 

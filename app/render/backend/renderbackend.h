@@ -69,12 +69,10 @@ public:
 
   void ProcessUpdateQueue();
 
-  static QByteArray HashNode(const Node* n, const VideoParams& params, const rational& time);
-
   /**
    * @brief Asynchronously generate a hash at a given time
    */
-  QFuture<QVector<QByteArray> > Hash(const QVector<rational> &times);
+  RenderTicketPtr Hash(const QVector<rational> &times);
 
   /**
    * @brief Asynchronously generate a frame at a given time

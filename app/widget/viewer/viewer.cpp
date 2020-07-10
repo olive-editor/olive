@@ -214,7 +214,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
-  Pause();
+  PauseInternal();
 
   if (cache_background_task_ == our_cache_background_task_) {
     StopAllBackgroundCacheTasks(true);
@@ -646,7 +646,8 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
     // Frame has been cached, grab the frame
     QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
 
-    RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo, TimeRange(t, t));
+    RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
+                                                            QVariant::fromValue(t));
     QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);
     return ticket;
 
@@ -875,10 +876,7 @@ void ViewerWidget::StartBackgroundCaching()
       cache_wait_timer_.start();
 
     } else {
-      cache_background_task_ = new CacheTask(GetConnectedNode(),
-                                             GetConnectedNode()->video_params(),
-                                             GetConnectedNode()->audio_params(),
-                                             false);
+      cache_background_task_ = new CacheTask(renderer_, false);
 
       our_cache_background_task_ = cache_background_task_;
 
@@ -1223,7 +1221,7 @@ void ViewerWidget::ViewerInvalidatedRange()
   StopAllBackgroundCacheTasks(false);
 
   if (!(qApp->mouseButtons() & Qt::LeftButton)) {
-    StartBackgroundCaching();
+    cache_wait_timer_.start();
   }
 }
 

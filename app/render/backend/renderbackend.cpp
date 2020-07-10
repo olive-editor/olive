@@ -113,19 +113,20 @@ void RenderBackend::ClearVideoQueue()
   render_queue_.clear();
 }
 
-QFuture<QVector<QByteArray> > RenderBackend::Hash(const QVector<rational> &times)
+RenderTicketPtr RenderBackend::Hash(const QVector<rational> &times)
 {
-  return QtConcurrent::run(&pool_, [this](const QVector<rational> &t){
-    QVector<QByteArray> hashes(t.size());
+  if (!viewer_node_) {
+    return nullptr;
+  }
 
-    for (int i=0;i<hashes.size();i++) {
-      hashes[i] = HashNode(copied_viewer_node_->texture_input()->get_connected_node(),
-                           video_params_,
-                           t.at(i));
-    }
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeHash,
+                                                          QVariant::fromValue(times));
 
-    return hashes;
-  }, times);
+  render_queue_.push_back(ticket);
+
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
+
+  return ticket;
 }
 
 RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
@@ -135,7 +136,7 @@ RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
   }
 
   RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
-                                                          TimeRange(time, time));
+                                                          QVariant::fromValue(time));
 
   render_queue_.push_back(ticket);
 
@@ -151,7 +152,7 @@ RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
   }
 
   RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeAudio,
-                                                          r);
+                                                          QVariant::fromValue(r));
 
   render_queue_.push_back(ticket);
 
@@ -214,6 +215,11 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
   // If we're here, we must have this node. Determine if we're already copying a "parent" of this
   for (int i=0; i<graph_update_queue_.size(); i++) {
     NodeInput* queued_input = graph_update_queue_.at(i);
+
+    // If this input is already queued, nothing to be done
+    if (source == queued_input) {
+      return;
+    }
 
     // Check if this dependency graph is already queued
     if (source->parentNode()->OutputsTo(queued_input, true)) {
@@ -300,7 +306,7 @@ void RenderBackend::RunNextJob()
 
       worker->SetVideoParams(video_params_);
       worker->SetAudioParams(audio_params_);
-      worker->SetVideoDownloadMatrix(video_download_matrix_);
+      worker->SetVideoDownloadMatrix(video_dwnload_matrix_);
       worker->SetRenderMode(render_mode_);
       if (preview_job_time_) {
         worker->EnablePreviewGeneration(viewer_node_->audio_playback_cache(), preview_job_time_);
@@ -311,13 +317,21 @@ void RenderBackend::RunNextJob()
       render_queue_.pop_front();
 
       switch (ticket->GetType()) {
+      case RenderTicket::kTypeHash:
+        QtConcurrent::run(&pool_,
+                          worker,
+                          &RenderWorker::Hash,
+                          ticket,
+                          copied_viewer_node_,
+                          ticket->GetTime().value<QVector<rational> >());
+        break;
       case RenderTicket::kTypeVideo:
         QtConcurrent::run(&pool_,
                           worker,
                           &RenderWorker::RenderFrame,
                           ticket,
                           copied_viewer_node_,
-                          ticket->GetTime().in());
+                          ticket->GetTime().value<rational>());
         break;
       case RenderTicket::kTypeAudio:
         QtConcurrent::run(&pool_,
@@ -325,7 +339,7 @@ void RenderBackend::RunNextJob()
                           &RenderWorker::RenderAudio,
                           ticket,
                           copied_viewer_node_,
-                          ticket->GetTime());
+                          ticket->GetTime().value<TimeRange>());
         break;
       }
 
@@ -337,27 +351,25 @@ void RenderBackend::RunNextJob()
   }
 }
 
+//#define PRINT_UPDATE_QUEUE_INFO
 void RenderBackend::ProcessUpdateQueue()
 {
+#ifdef PRINT_UPDATE_QUEUE_INFO
+  qint64 t = QDateTime::currentMSecsSinceEpoch();
+  qDebug() << "Processing update queue of" << graph_update_queue_.size() << "elements:";
+#endif
+
   while (!graph_update_queue_.isEmpty()) {
-    CopyNodeInputValue(graph_update_queue_.takeFirst());
-  }
-}
-
-QByteArray RenderBackend::HashNode(const Node *n, const VideoParams &params, const rational &time)
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  // Embed video parameters into this hash
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
-
-  if (n) {
-    n->Hash(hasher, time);
+    NodeInput* i = graph_update_queue_.takeFirst();
+#ifdef PRINT_UPDATE_QUEUE_INFO
+    qDebug() << " " << i->parentNode()->id() << i->id();
+#endif
+    CopyNodeInputValue(i);
   }
 
-  return hasher.result();
+#ifdef PRINT_UPDATE_QUEUE_INFO
+  qDebug() << "Update queue took:" << (QDateTime::currentMSecsSinceEpoch() - t);
+#endif
 }
 
 void RenderBackend::WorkerFinished()
@@ -386,6 +398,7 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
   // Copy the standard/keyframe values between these two inputs
   NodeInput::CopyValues(input,
                         our_copy,
+                        false,
                         false);
 
   // Handle connections

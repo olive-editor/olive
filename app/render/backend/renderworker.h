@@ -84,6 +84,8 @@ public:
     preview_job_time_ = job_time;
   }
 
+  void Hash(RenderTicketPtr ticket, ViewerOutput* viewer, const QVector<rational>& times);
+
   /**
    * @brief Render the frame at this time
    *
@@ -145,6 +147,8 @@ signals:
 
 private:
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
+
+  static QByteArray HashNode(const Node* n, const VideoParams& params, const rational& time);
 
   RenderBackend* parent_;
 
