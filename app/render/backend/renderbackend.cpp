@@ -306,7 +306,7 @@ void RenderBackend::RunNextJob()
 
       worker->SetVideoParams(video_params_);
       worker->SetAudioParams(audio_params_);
-      worker->SetVideoDownloadMatrix(video_dwnload_matrix_);
+      worker->SetVideoDownloadMatrix(video_download_matrix_);
       worker->SetRenderMode(render_mode_);
       if (preview_job_time_) {
         worker->EnablePreviewGeneration(viewer_node_->audio_playback_cache(), preview_job_time_);
