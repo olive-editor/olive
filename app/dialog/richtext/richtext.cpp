@@ -29,7 +29,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RichTextDialog::RichTextDialog(const QString &start, QWidget* parent) :
+RichTextDialog::RichTextDialog(QString start, QWidget* parent) :
   QDialog(parent)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -70,8 +70,9 @@ RichTextDialog::RichTextDialog(const QString &start, QWidget* parent) :
   // Create text edit widget
   text_edit_ = new QTextEdit();
   text_edit_->setWordWrapMode(QTextOption::NoWrap);
-  connect(text_edit_, &QTextEdit::cursorPositionChanged, this, &RichTextDialog::UpdateButtons);
-  text_edit_->document()->setHtml(start);
+  //connect(text_edit_, &QTextEdit::cursorPositionChanged, this, &RichTextDialog::UpdateButtons);
+  start.replace(QStringLiteral("<br>"), QStringLiteral("\n"));
+  text_edit_->document()->setPlainText(start);
   layout->addWidget(text_edit_);
 
   // Create buttons
@@ -81,6 +82,7 @@ RichTextDialog::RichTextDialog(const QString &start, QWidget* parent) :
   connect(buttons, &QDialogButtonBox::rejected, this, &RichTextDialog::reject);
 
   // Connect font buttons
+  /*
   connect(bold_btn_, &QPushButton::clicked, this, [this](bool e){
     text_edit_->setFontWeight(e ? QFont::Bold : QFont::Normal);
   });
@@ -113,6 +115,7 @@ RichTextDialog::RichTextDialog(const QString &start, QWidget* parent) :
   connect(font_combo_, &QFontComboBox::currentTextChanged, this, [this](const QString& s){
     text_edit_->setFontFamily(s);
   });
+  */
 }
 
 QPushButton *RichTextDialog::CreateToolbarButton(const QString& label, const QString& tooltip)
@@ -126,6 +129,7 @@ QPushButton *RichTextDialog::CreateToolbarButton(const QString& label, const QSt
 
 void RichTextDialog::UpdateButtons()
 {
+  /*
   bold_btn_->setChecked(text_edit_->fontWeight() > QFont::Normal);
   italic_btn_->setChecked(text_edit_->fontItalic());
   underline_btn_->setChecked(text_edit_->fontUnderline());
@@ -142,6 +146,7 @@ void RichTextDialog::UpdateButtons()
   center_align_btn_->setChecked(text_edit_->alignment() == Qt::AlignCenter);
   right_align_btn_->setChecked(text_edit_->alignment() == Qt::AlignRight);
   justify_align_btn_->setChecked(text_edit_->alignment() == Qt::AlignJustify);
+  */
 }
 
 OLIVE_NAMESPACE_EXIT

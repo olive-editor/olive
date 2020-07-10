@@ -34,11 +34,16 @@ class RichTextDialog : public QDialog
 {
   Q_OBJECT
 public:
-  RichTextDialog(const QString& start, QWidget* parent = nullptr);
+  RichTextDialog(QString start, QWidget* parent = nullptr);
 
   QString text() const
   {
-    return text_edit_->document()->toHtml("utf-8");
+    QString s = text_edit_->document()->toPlainText();
+
+    // Convert linebreaks
+    s.replace('\n', QStringLiteral("<br>"));
+
+    return s;
   }
 
 private:
