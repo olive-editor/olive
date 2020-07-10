@@ -100,7 +100,7 @@ else()
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
-    -O2
+    "$<$<CONFIG:RELEASE>:-O2>"
     -Werror
     -Wuninitialized
     -pedantic-errors
