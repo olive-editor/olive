@@ -356,32 +356,6 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  if (!attached_items_.isEmpty()) {
-    if (attached_items_.size() == 1) {
-      Node* dropping_node = attached_items_.first().item->GetNode();
-
-      if (drop_edge_) {
-        NodeEdgePtr old_edge = drop_edge_->edge();
-
-        // We have everything we need to place the node in between
-        QUndoCommand* command = new QUndoCommand();
-
-        // Remove old edge
-        new NodeEdgeRemoveCommand(old_edge, command);
-
-        // Place new edges
-        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
-        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
-
-        Core::instance()->undo_stack()->push(command);
-      }
-
-      drop_edge_ = nullptr;
-    }
-
-    DetachItemsFromCursor();
-  }
-
   super::mousePressEvent(event);
 }
 
@@ -455,6 +429,32 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 void NodeView::mouseReleaseEvent(QMouseEvent *event)
 {
   if (HandRelease(event)) return;
+
+  if (!attached_items_.isEmpty()) {
+    if (attached_items_.size() == 1) {
+      Node* dropping_node = attached_items_.first().item->GetNode();
+
+      if (drop_edge_) {
+        NodeEdgePtr old_edge = drop_edge_->edge();
+
+        // We have everything we need to place the node in between
+        QUndoCommand* command = new QUndoCommand();
+
+        // Remove old edge
+        new NodeEdgeRemoveCommand(old_edge, command);
+
+        // Place new edges
+        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
+        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+
+        Core::instance()->undo_stack()->push(command);
+      }
+
+      drop_edge_ = nullptr;
+    }
+
+    DetachItemsFromCursor();
+  }
 
   super::mouseReleaseEvent(event);
 }
