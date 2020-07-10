@@ -24,7 +24,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerOutput::ViewerOutput()
+ViewerOutput::ViewerOutput() :
+  video_frame_cache_(this),
+  audio_playback_cache_(this)
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
   AddInput(texture_input_);

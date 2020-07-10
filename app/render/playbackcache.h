@@ -32,7 +32,10 @@ class PlaybackCache : public QObject
 {
   Q_OBJECT
 public:
-  PlaybackCache() = default;
+  PlaybackCache(QObject* parent = nullptr) :
+    QObject(parent)
+  {
+  }
 
   void Invalidate(const TimeRange& r);
 

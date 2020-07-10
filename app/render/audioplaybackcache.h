@@ -31,7 +31,7 @@ class AudioPlaybackCache : public PlaybackCache
 {
   Q_OBJECT
 public:
-  AudioPlaybackCache();
+  AudioPlaybackCache(QObject* parent = nullptr);
 
   AudioParams GetParameters() {
     QMutexLocker locker(lock());

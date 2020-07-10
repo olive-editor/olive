@@ -28,7 +28,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioPlaybackCache::AudioPlaybackCache()
+AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
+  PlaybackCache(parent)
 {
   quint32 r = std::rand();
   UpdateFilename(QString::number(r));

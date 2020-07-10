@@ -35,11 +35,12 @@ class FrameHashCache : public PlaybackCache
 {
   Q_OBJECT
 public:
-  FrameHashCache() = default;
+  FrameHashCache(QObject* parent = nullptr) :
+    PlaybackCache(parent)
+  {
+  }
 
   QByteArray GetHash(const rational& time);
-
-  void SetHash(const rational& time, const QByteArray& hash, const qint64 &job_time);
 
   void SetTimebase(const rational& tb);
 
@@ -71,6 +72,9 @@ public:
   static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
   QVector<rational> GetInvalidatedFrames();
+
+public slots:
+  void SetHash(const OLIVE_NAMESPACE::rational& time, const QByteArray& hash, const qint64 &job_time);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
