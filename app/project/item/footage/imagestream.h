@@ -75,6 +75,24 @@ public:
 
   QString get_colorspace_match_string() const;
 
+  enum Interlacing {
+    kInterlaceNone,
+    kInterlacedTopFirst,
+    kInterlacedBottomFirst
+  };
+
+  Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
+  void set_interlacing(Interlacing i)
+  {
+    interlacing_ = i;
+
+    emit ParametersChanged();
+  }
+
 protected:
   virtual void FootageSetEvent(Footage*) override;
 
@@ -87,6 +105,7 @@ private:
   int height_;
   bool premultiplied_alpha_;
   QString colorspace_;
+  Interlacing interlacing_;
 
   PixelFormat::Format format_;
 
@@ -94,6 +113,7 @@ private slots:
   void ColorConfigChanged();
 
   void DefaultColorSpaceChanged();
+
 };
 
 using ImageStreamPtr = std::shared_ptr<ImageStream>;

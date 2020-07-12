@@ -182,6 +182,8 @@ private:
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
+  FramePtr BuffersToNativeFrame(int divider, int width, int height, int64_t ts, uint8_t **input_data, int* input_linesize);
+
   SwsContext* scale_ctx_;
   int scale_divider_;
   AVPixelFormat src_pix_fmt_;

@@ -548,6 +548,9 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
           }
           prev = prev->previous();
         }
+
+        // Limit in point at 0 on the timeline
+        earliest_in = qMax(rational(), earliest_in);
       }
     }
 

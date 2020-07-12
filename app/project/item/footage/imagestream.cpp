@@ -28,7 +28,8 @@
 OLIVE_NAMESPACE_ENTER
 
 ImageStream::ImageStream() :
-  premultiplied_alpha_(false)
+  premultiplied_alpha_(false),
+  interlacing_(kInterlaceNone)
 {
   set_type(kImage);
 }

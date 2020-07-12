@@ -41,6 +41,21 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
 
   int row = 0;
 
+  video_layout->addWidget(new QLabel(tr("Interlacing:")), row, 0);
+
+  video_interlace_combo_ = new QComboBox();
+
+  // These must match the Interlacing enum in ImageStream
+  video_interlace_combo_->addItem(tr("None (Progressive)"));
+  video_interlace_combo_->addItem(tr("Top-Field First"));
+  video_interlace_combo_->addItem(tr("Bottom-Field First"));
+
+  video_interlace_combo_->setCurrentIndex(stream->interlacing());
+
+  video_layout->addWidget(video_interlace_combo_, row, 1);
+
+  row++;
+
   video_layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
 
   video_color_space_ = new QComboBox();
@@ -109,6 +124,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     new VideoStreamChangeCommand(stream_,
                                  video_premultiply_alpha_->isChecked(),
                                  set_colorspace,
+                                 static_cast<ImageStream::Interlacing>(video_interlace_combo_->currentIndex()),
                                  parent);
   }
 
@@ -150,11 +166,13 @@ bool VideoStreamProperties::IsImageSequence(ImageStream *stream)
 VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
+                                                                          ImageStream::Interlacing interlacing,
                                                                           QUndoCommand *parent) :
   UndoCommand(parent),
   stream_(stream),
   new_premultiplied_(premultiplied),
-  new_colorspace_(colorspace)
+  new_colorspace_(colorspace),
+  new_interlacing_(interlacing)
 {
 }
 
@@ -167,15 +185,18 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
 {
   old_premultiplied_ = stream_->premultiplied_alpha();
   old_colorspace_ = stream_->colorspace(false);
+  old_interlacing_ = stream_->interlacing();
 
   stream_->set_premultiplied_alpha(new_premultiplied_);
   stream_->set_colorspace(new_colorspace_);
+  stream_->set_interlacing(new_interlacing_);
 }
 
 void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
 {
   stream_->set_premultiplied_alpha(old_premultiplied_);
   stream_->set_colorspace(old_colorspace_);
+  stream_->set_interlacing(old_interlacing_);
 }
 
 VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, QUndoCommand *parent) :

@@ -59,6 +59,11 @@ private:
   QComboBox* video_color_space_;
 
   /**
+   * @brief Setting for video interlacing
+   */
+  QComboBox* video_interlace_combo_;
+
+  /**
    * @brief Sets the start index for image sequences
    */
   IntegerSlider* imgseq_start_time_;
@@ -73,6 +78,7 @@ private:
     VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
+                             ImageStream::Interlacing interlacing,
                              QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
@@ -86,9 +92,11 @@ private:
 
     bool new_premultiplied_;
     QString new_colorspace_;
+    ImageStream::Interlacing new_interlacing_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
+    ImageStream::Interlacing old_interlacing_;
 
   };
 
