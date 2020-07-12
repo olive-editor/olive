@@ -38,7 +38,7 @@ SliderLabel::SliderLabel(QWidget *parent) :
   setPalette(p);
 
   // Use highlight color as font color
-  setForegroundRole(QPalette::Highlight);
+  setForegroundRole(QPalette::Link);
 
   // Set underlined
   QFont f = font();
