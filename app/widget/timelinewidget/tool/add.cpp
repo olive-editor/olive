@@ -22,6 +22,8 @@
 
 #include "core.h"
 #include "node/factory.h"
+#include "node/generator/solid/solid.h"
+#include "node/generator/text/text.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -44,7 +46,7 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
 
   Timeline::TrackType add_type = Timeline::kTrackTypeNone;
 
-  switch (Core::instance()->selected_addable_object()) {
+  switch (Core::instance()->GetSelectedAddableObject()) {
   case OLIVE_NAMESPACE::Tool::kAddableBars:
   case OLIVE_NAMESPACE::Tool::kAddableSolid:
   case OLIVE_NAMESPACE::Tool::kAddableTitle:
@@ -97,7 +99,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->AdjustedLength());
-      clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
+      clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
@@ -111,13 +113,13 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  ghost_->GetAdjustedIn(),
                                  command);
 
-      switch (Core::instance()->selected_addable_object()) {
+      switch (Core::instance()->GetSelectedAddableObject()) {
       case OLIVE_NAMESPACE::Tool::kAddableEmpty:
         // Empty, nothing to be done
         break;
       case OLIVE_NAMESPACE::Tool::kAddableSolid:
       {
-        Node* solid = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.solidgenerator"));
+        Node* solid = new SolidGenerator();
 
         new NodeAddCommand(graph,
                            solid,
@@ -128,7 +130,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
       }
       case OLIVE_NAMESPACE::Tool::kAddableTitle:
       {
-        Node* text = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.textgenerator"));
+        Node* text = new TextGenerator();
 
         new NodeAddCommand(graph,
                            text,
@@ -140,7 +142,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
       case OLIVE_NAMESPACE::Tool::kAddableBars:
       case OLIVE_NAMESPACE::Tool::kAddableTone:
         // Not implemented yet
-        qWarning() << "Unimplemented add object:" << Core::instance()->selected_addable_object();
+        qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
         break;
       case OLIVE_NAMESPACE::Tool::kAddableCount:
         // Invalid value, do nothing
