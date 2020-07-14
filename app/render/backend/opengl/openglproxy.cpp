@@ -288,7 +288,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     // This variable is used in the shader, let's set it
     const QVariant& value = it.value().data();
 
-    const NodeParam::DataType& data_type = (it.value().type() != NodeParam::kNone)
+    NodeParam::DataType data_type = (it.value().type() != NodeParam::kNone)
         ? it.value().type()
         : it.key()->data_type();
 
@@ -340,6 +340,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     case NodeInput::kBoolean:
       shader->setUniformValue(variable_location, value.toBool());
       break;
+    case NodeInput::kBuffer:
     case NodeInput::kTexture:
     {
       OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
@@ -392,7 +393,6 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     case NodeInput::kSampleJob:
     case NodeInput::kGenerateJob:
     case NodeInput::kFootage:
-    case NodeInput::kBuffer:
     case NodeInput::kNone:
     case NodeInput::kAny:
       break;
