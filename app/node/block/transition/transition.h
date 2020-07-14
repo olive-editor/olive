@@ -49,6 +49,11 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
+  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+
+protected:
+  virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
+
 private:
   double GetInternalTransitionTime(const rational& time) const;
 

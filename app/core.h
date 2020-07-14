@@ -114,7 +114,12 @@ public:
   /**
    * @brief Get the currently selected object that the add tool should make (if the add tool is active)
    */
-  const Tool::AddableObject& selected_addable_object() const;
+  const Tool::AddableObject& GetSelectedAddableObject() const;
+
+  /**
+   * @brief Get the currently selected node that the transition tool should make (if the transition tool is active)
+   */
+  const QString& GetSelectedTransition() const;
 
   /**
    * @brief Get current snapping value
@@ -342,6 +347,11 @@ public slots:
   void SetSelectedAddableObject(const Tool::AddableObject& obj);
 
   /**
+   * @brief Set the currently selected object that the add tool should make
+   */
+  void SetSelectedTransitionObject(const QString& obj);
+
+  /**
    * @brief Clears the list of recently opened/saved projects
    */
   void ClearOpenRecentList();
@@ -455,6 +465,11 @@ private:
    * @brief Currently active addable object
    */
   Tool::AddableObject addable_object_;
+
+  /**
+   * @brief Currently selected transition
+   */
+  QString selected_transition_;
 
   /**
    * @brief Current snapping setting

@@ -281,14 +281,24 @@ const Tool::Item &Core::tool() const
   return tool_;
 }
 
-const Tool::AddableObject &Core::selected_addable_object() const
+const Tool::AddableObject &Core::GetSelectedAddableObject() const
 {
   return addable_object_;
+}
+
+const QString &Core::GetSelectedTransition() const
+{
+  return selected_transition_;
 }
 
 void Core::SetSelectedAddableObject(const Tool::AddableObject &obj)
 {
   addable_object_ = obj;
+}
+
+void Core::SetSelectedTransitionObject(const QString &obj)
+{
+  selected_transition_ = obj;
 }
 
 void Core::ClearOpenRecentList()

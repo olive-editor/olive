@@ -20,6 +20,7 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+#include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/block/transition/transition.h"
 #include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -111,7 +112,14 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (ghost_) {
     if (!ghost_->AdjustedLength().isNull()) {
-      TransitionBlock* transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID("org.olivevideoeditor.Olive.crossdissolve"));
+      TransitionBlock* transition;
+
+      if (Core::instance()->GetSelectedTransition().isEmpty()) {
+        // Fallback if the user hasn't selected one yet
+        transition = new CrossDissolveTransition();
+      } else {
+        transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID(Core::instance()->GetSelectedTransition()));
+      }
 
       QUndoCommand* command = new QUndoCommand();
 

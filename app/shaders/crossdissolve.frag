@@ -19,8 +19,7 @@ void main(void) {
     }
 
     if (in_block_in_enabled) {
-        vec4 in_block_col = texture(in_block_in, ove_texcoord) * ove_tprog_all;
-        composite += in_block_col;
+        composite += texture(in_block_in, ove_texcoord) * ove_tprog_all;
     }
 
     fragColor = composite;

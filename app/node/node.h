@@ -70,6 +70,7 @@ public:
     kCategoryGeneral,
     kCategoryTimeline,
     kCategoryChannels,
+    kCategoryTransition,
 
     kCategoryCount
   };

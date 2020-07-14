@@ -14,12 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(crossdissolve)
-add_subdirectory(diptocolor)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/block/transition/transition.h
-  node/block/transition/transition.cpp
+  node/block/transition/crossdissolve/crossdissolvetransition.h
+  node/block/transition/crossdissolve/crossdissolvetransition.cpp
   PARENT_SCOPE
 )

@@ -668,6 +668,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Generator");
   case kCategoryChannels:
     return tr("Channel");
+  case kCategoryTransition:
+    return tr("Transition");
   case kCategoryUnknown:
   case kCategoryCount:
     break;

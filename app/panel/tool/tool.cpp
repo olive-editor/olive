@@ -42,6 +42,7 @@ ToolPanel::ToolPanel(QWidget *parent) :
   connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
 
   connect(t, &Toolbar::AddableObjectChanged, Core::instance(), &Core::SetSelectedAddableObject);
+  connect(t, &Toolbar::SelectedTransitionChanged, Core::instance(), &Core::SetSelectedTransitionObject);
 
   Retranslate();
 }

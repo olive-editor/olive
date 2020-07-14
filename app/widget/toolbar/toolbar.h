@@ -113,6 +113,11 @@ signals:
    */
   void AddableObjectChanged(const Tool::AddableObject& obj);
 
+  /**
+   * @brief Emitted when the selected transition is changed from the transition tool menu
+   */
+  void SelectedTransitionChanged(const QString& id);
+
 private:
   /**
    * @brief Reset all strings based on the currently selected language
@@ -211,9 +216,21 @@ private slots:
   void AddButtonClicked();
 
   /**
+   * @brief Receiver for the transition button
+   *
+   * The transition button pops up a list for which transition to create.
+   */
+  void TransitionButtonClicked();
+
+  /**
    * @brief Receiver for the menu created by AddButtonClicked()
    */
   void AddMenuItemTriggered(QAction* a);
+
+  /**
+   * @brief Receiver for the menu created by TransitionButtonClicked()
+   */
+  void TransitionMenuItemTriggered(QAction* a);
 
 };
 

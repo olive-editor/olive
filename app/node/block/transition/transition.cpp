@@ -131,6 +131,8 @@ double TransitionBlock::GetInProgress(const rational &time) const
 
 void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
+  Node::Hash(hash, time);
+
   double all_prog = GetTotalProgress(time);
   double in_prog = GetInProgress(time);
   double out_prog = GetOutProgress(time);
@@ -138,14 +140,6 @@ void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
   hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
   hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
   hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
-
-  if (out_block_input_->is_connected()) {
-    out_block_input_->get_connected_node()->Hash(hash, time);
-  }
-
-  if (in_block_input_->is_connected()) {
-    in_block_input_->get_connected_node()->Hash(hash, time);
-  }
 }
 
 double TransitionBlock::GetInternalTransitionTime(const rational &time) const
@@ -175,6 +169,27 @@ void TransitionBlock::BlockDisconnected(NodeEdgePtr edge)
   } else {
     connected_in_block_ = nullptr;
   }
+}
+
+NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
+{
+  ShaderJob job;
+
+  job.InsertValue(out_block_input(), value);
+  job.InsertValue(in_block_input(), value);
+  job.SetAlphaChannelRequired(true);
+
+  ShaderJobEvent(value, job);
+
+  NodeValueTable table = value.Merge();
+  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  return table;
+}
+
+void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
+{
+  Q_UNUSED(value)
+  Q_UNUSED(job)
 }
 
 OLIVE_NAMESPACE_EXIT
