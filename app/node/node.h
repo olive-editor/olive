@@ -305,6 +305,19 @@ public:
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source);
 
   /**
+   * @brief Limits cache invalidation temporarily
+   *
+   * If you intend to do a number of operations in quick succession, you can optimize it by running
+   * this function with EndOperation().
+   */
+  virtual void BeginOperation();
+
+  /**
+   * @brief Stops limiting cache invalidation and flushes changes
+   */
+  virtual void EndOperation();
+
+  /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
    *
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be

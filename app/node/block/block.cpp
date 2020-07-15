@@ -355,16 +355,6 @@ NodeInput *Block::speed_input() const
   return speed_input_;
 }
 
-void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
-{
-  if (range.out() <= in() || range.in() >= out()) {
-    // Ignore this range
-    return;
-  }
-
-  Node::InvalidateCache(TimeRange(qMax(range.in(), in()), qMin(range.out(), out())), from, source);
-}
-
 void Block::Hash(QCryptographicHash &, const rational &) const
 {
   // A block does nothing by default, so we hash nothing

@@ -202,7 +202,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     }
   }
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If we picked up a block to splice
   if (splice_) {
@@ -273,7 +273,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     }
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
                           track_->block_input(),
@@ -282,7 +282,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
 void TrackRippleRemoveAreaCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If we were given a block to insert, insert it here
   if (insert_ != nullptr) {
@@ -330,7 +330,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
 }
@@ -432,7 +432,7 @@ Project *BlockSplitCommand::GetRelevantProject() const
 
 void BlockSplitCommand::redo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
@@ -450,12 +450,12 @@ void BlockSplitCommand::redo_internal()
     NodeParam::ConnectEdge(new_block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 }
 
 void BlockSplitCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   block_->set_length_and_media_out(old_length_);
   track_->RippleRemoveBlock(new_block_);
@@ -467,7 +467,7 @@ void BlockSplitCommand::undo_internal()
     NodeParam::ConnectEdge(block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 }
 
 Block *BlockSplitCommand::new_block()
@@ -856,7 +856,7 @@ Project *BlockTrimCommand::GetRelevantProject() const
 
 void BlockTrimCommand::redo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
   rational trim_diff = old_length_ - new_length_;
@@ -923,14 +923,14 @@ void BlockTrimCommand::redo_internal()
     }
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void BlockTrimCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
   rational trim_diff = old_length_ - new_length_;
@@ -979,7 +979,7 @@ void BlockTrimCommand::undo_internal()
     invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
@@ -1003,7 +1003,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
 {
   TimeRange invalidate_range;
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If the block has no next, it's at the end of the track and there's no need to create a gap
   if (block_->next()) {
@@ -1062,7 +1062,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
     invalidate_range = TimeRange(earliest_change, RATIONAL_MAX);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
@@ -1071,7 +1071,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
 {
   TimeRange invalidate_range;
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   if (gap_) {
 
@@ -1116,7 +1116,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
 
   merged_gap_ = nullptr;
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
@@ -1156,7 +1156,7 @@ void TrackSlideCommand::slide_internal(bool undo)
 
   // Perform trims
   foreach (const BlockSlideInfo& info, blocks_) {
-    info.track->BlockInvalidateCache();
+    info.track->BeginOperation();
 
     if (info.mode == Timeline::kTrimIn || info.mode == Timeline::kTrimOut) {
       rational new_len = undo ? info.old_time : info.new_time;
@@ -1176,7 +1176,7 @@ void TrackSlideCommand::slide_internal(bool undo)
       added_gaps_.append(gap);
     }
 
-    info.track->UnblockInvalidateCache();
+    info.track->EndOperation();
   }
 
   if (undo) {
@@ -1184,12 +1184,12 @@ void TrackSlideCommand::slide_internal(bool undo)
     foreach (GapBlock* gap, added_gaps_) {
       TrackOutput* track = TrackOutput::TrackFromBlock(gap);
 
-      track->BlockInvalidateCache();
+      track->BeginOperation();
 
       track->RippleRemoveBlock(gap);
       delete TakeNodeFromParentGraph(gap);
 
-      track->UnblockInvalidateCache();
+      track->EndOperation();
     }
 
     added_gaps_.clear();
@@ -1253,7 +1253,7 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1263,8 +1263,7 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal();
+      track->EndOperation();
     }
   }
 }
@@ -1281,7 +1280,7 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1291,8 +1290,7 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal();
+      track->EndOperation();
     }
   }
 }
@@ -1338,7 +1336,7 @@ void TrackListRippleToolCommand::redo_internal()
   if (all_tracks_unlocked_) {
     // We can do some optimization here
     foreach (const RippleInfo& info, info_) {
-      info.track->BlockInvalidateCache();
+      info.track->BeginOperation();
     }
 
     old_latest_pt = RATIONAL_MIN;
@@ -1415,15 +1413,13 @@ void TrackListRippleToolCommand::redo_internal()
     }
 
     foreach (const RippleInfo& info, info_) {
-      info.track->UnblockInvalidateCache();
+      info.track->EndOperation();
 
       // FIXME: Untested, is this desirable behavior?
       if (earliest_pt < new_latest_pt) {
         info.track->InvalidateCache(TimeRange(earliest_pt, new_latest_pt),
                                     info.track->block_input(),
                                     info.track->block_input());
-      } else {
-        info.track->PushLengthChangeSignal();
       }
     }
   }
@@ -1505,7 +1501,7 @@ void TrackListInsertGaps::redo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1545,8 +1541,7 @@ void TrackListInsertGaps::redo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal(false);
+      track->EndOperation();
     }
   }
 }
@@ -1562,7 +1557,7 @@ void TrackListInsertGaps::undo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1588,8 +1583,7 @@ void TrackListInsertGaps::undo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal(false);
+      track->EndOperation();
     }
   }
 }

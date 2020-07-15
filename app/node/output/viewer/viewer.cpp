@@ -26,7 +26,8 @@ OLIVE_NAMESPACE_ENTER
 
 ViewerOutput::ViewerOutput() :
   video_frame_cache_(this),
-  audio_playback_cache_(this)
+  audio_playback_cache_(this),
+  operation_stack_(0)
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
   AddInput(texture_input_);
@@ -49,7 +50,7 @@ ViewerOutput::ViewerOutput() :
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
-    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
+    //connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
     connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
@@ -111,20 +112,22 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
 {
   emit GraphChangedFrom(source);
 
-  if (from == texture_input_ || from == samples_input_) {
-    TimeRange invalidated_range(qMax(rational(), range.in()),
-                                qMin(GetLength(), range.out()));
+  if (operation_stack_ == 0) {
+    if (from == texture_input_ || from == samples_input_) {
+      TimeRange invalidated_range(qMax(rational(), range.in()),
+                                  qMin(GetLength(), range.out()));
 
-    if (invalidated_range.in() != invalidated_range.out()) {
-      if (from == texture_input_) {
-        video_frame_cache_.Invalidate(invalidated_range);
-      } else {
-        audio_playback_cache_.Invalidate(invalidated_range);
+      if (invalidated_range.in() != invalidated_range.out()) {
+        if (from == texture_input_) {
+          video_frame_cache_.Invalidate(invalidated_range);
+        } else {
+          audio_playback_cache_.Invalidate(invalidated_range);
+        }
       }
     }
-  }
 
-  VerifyLength();
+    VerifyLength();
+  }
 
   Node::InvalidateCache(range, from, source);
 }
@@ -255,6 +258,20 @@ void ViewerOutput::set_media_name(const QString &name)
   media_name_ = name;
 
   emit MediaNameChanged(media_name_);
+}
+
+void ViewerOutput::BeginOperation()
+{
+  operation_stack_++;
+
+  Node::BeginOperation();
+}
+
+void ViewerOutput::EndOperation()
+{
+  operation_stack_--;
+
+  Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)

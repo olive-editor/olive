@@ -177,6 +177,28 @@ void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *s
   SendInvalidateCache(range, source);
 }
 
+void Node::BeginOperation()
+{
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      foreach (NodeEdgePtr edge, param->edges()) {
+        edge->input()->parentNode()->BeginOperation();
+      }
+    }
+  }
+}
+
+void Node::EndOperation()
+{
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      foreach (NodeEdgePtr edge, param->edges()) {
+        edge->input()->parentNode()->EndOperation();
+      }
+    }
+  }
+}
+
 TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
@@ -195,10 +217,7 @@ void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
   foreach (NodeParam* param, params_) {
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
-
-      QVector<NodeEdgePtr> edges = param->edges();
-
-      foreach (NodeEdgePtr edge, edges) {
+      foreach (NodeEdgePtr edge, param->edges()) {
         NodeInput* connected_input = edge->input();
         Node* connected_node = connected_input->parentNode();
 
