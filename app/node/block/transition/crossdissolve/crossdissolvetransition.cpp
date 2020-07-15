@@ -59,4 +59,31 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const QString &shader_id) cons
   return ShaderCode(Node::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }
 
+void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const
+{
+  for (int i=0; i<out_samples->sample_count(); i++) {
+    double this_sample_time = out_samples->audio_params().samples_to_time(i).toDouble() + time_in;
+    double progress = GetTotalProgress(this_sample_time);
+
+    for (int j=0; j<out_samples->audio_params().channel_count(); j++) {
+      out_samples->data()[j][i] = 0;
+
+      if (from_samples) {
+        if (i < from_samples->sample_count()) {
+          out_samples->data()[j][i] += from_samples->data()[j][i] * TransformCurve(1.0 - progress);
+        }
+      }
+
+      if (to_samples) {
+        // Offset input samples from the end
+        int in_index = i - (out_samples->sample_count() - to_samples->sample_count());
+
+        if (in_index >= 0) {
+          out_samples->data()[j][i] += to_samples->data()[j][in_index] * TransformCurve(progress);
+        }
+      }
+    }
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

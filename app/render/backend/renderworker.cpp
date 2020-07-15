@@ -230,8 +230,19 @@ QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, 
     // Update all non-sample and non-footage inputs
     NodeValueMap::const_iterator j;
     for (j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      value_db.Insert(j.key(), ProcessInput(j.key(), TimeRange(this_sample_time, this_sample_time)));
+      NodeValueTable value;
+      NodeInput* corresponding_input = node->GetInputWithID(j.key());
+
+      if (corresponding_input) {
+        value = ProcessInput(corresponding_input, TimeRange(this_sample_time, this_sample_time));
+      } else {
+        value.Push(j.value());
+      }
+
+      value_db.Insert(j.key(), value);
     }
+
+    AddGlobalsToDatabase(value_db, TimeRange(this_sample_time, this_sample_time));
 
     node->ProcessSamples(value_db,
                          job.samples(),

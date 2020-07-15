@@ -279,18 +279,21 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
   NodeValueMap::const_iterator it;
   for (it=job.GetValues().constBegin(); it!=job.GetValues().constEnd(); it++) {
     // See if the shader has takes this parameter as an input
-    int variable_location = shader->uniformLocation(it.key()->id());
+    int variable_location = shader->uniformLocation(it.key());
 
     if (variable_location == -1) {
       continue;
     }
+
+    // See if this value corresponds to an input (NOTE: it may not and this may be null)
+    NodeInput* corresponding_input = node->GetInputWithID(it.key());
 
     // This variable is used in the shader, let's set it
     const QVariant& value = it.value().data();
 
     NodeParam::DataType data_type = (it.value().type() != NodeParam::kNone)
         ? it.value().type()
-        : it.key()->data_type();
+        : corresponding_input->data_type();
 
     switch (data_type) {
     case NodeInput::kInt:
@@ -300,7 +303,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       shader->setUniformValue(variable_location, value.toFloat());
       break;
     case NodeInput::kVec2:
-      if (it.key()->IsArray()) {
+      if (corresponding_input && corresponding_input->IsArray()) {
         QVector<NodeValue> nv = value.value< QVector<NodeValue> >();
         QVector<QVector2D> a(nv.size());
 
@@ -310,7 +313,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
         shader->setUniformValueArray(variable_location, a.constData(), a.size());
 
-        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(it.key()->id()));
+        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(it.key()));
         if (count_location > -1) {
           shader->setUniformValue(count_location, a.size());
         }
@@ -355,7 +358,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       shader->setUniformValue(variable_location, textures_to_bind.size());
 
       // If this texture binding is the iterative input, set it here
-      if (it.key() == job.GetIterativeInput()) {
+      if (corresponding_input && corresponding_input == job.GetIterativeInput()) {
         iterative_input = textures_to_bind.size();
       }
 
@@ -363,7 +366,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       textures_to_bind.append(tex_id);
 
       // Set enable flag if shader wants it
-      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()->id()));
+      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
       if (enable_param_location > -1) {
         shader->setUniformValue(enable_param_location,
                                 tex_id > 0);
@@ -371,7 +374,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
       if (tex_id > 0) {
         // Set texture resolution if shader wants it
-        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()->id()));
+        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()));
         if (res_param_location > -1) {
           shader->setUniformValue(res_param_location,
                                   static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
@@ -403,19 +406,6 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
   shader->setUniformValue("ove_resolution",
                           static_cast<GLfloat>(params.width()),
                           static_cast<GLfloat>(params.height()));
-
-  if (node->IsBlock() && static_cast<const Block*>(node)->type() == Block::kTransition) {
-    const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
-
-    // Provides total transition progress from 0.0 (start) - 1.0 (end)
-    shader->setUniformValue("ove_tprog_all", static_cast<GLfloat>(transition_node->GetTotalProgress(range.in())));
-
-    // Provides progress of out section from 1.0 (start) - 0.0 (end)
-    shader->setUniformValue("ove_tprog_out", static_cast<GLfloat>(transition_node->GetOutProgress(range.in())));
-
-    // Provides progress of in section from 0.0 (start) - 1.0 (end)
-    shader->setUniformValue("ove_tprog_in", static_cast<GLfloat>(transition_node->GetInProgress(range.in())));
-  }
 
   shader->release();
 
