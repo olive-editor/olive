@@ -363,7 +363,17 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kCombo:
   {
     // Widget is a QComboBox
-    SetInputValue(static_cast<QComboBox*>(widgets_.first())->currentIndex(), 0);
+    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+    int index = cb->currentIndex();
+
+    // Subtract any splitters up until this point
+    for (int i=index-1; i>=0; i--) {
+      if (cb->itemData(i, Qt::AccessibleDescriptionRole).toString() == QStringLiteral("separator")) {
+        index--;
+      }
+    }
+
+    SetInputValue(index, 0);
     break;
   }
   }

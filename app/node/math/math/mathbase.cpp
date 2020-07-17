@@ -65,7 +65,16 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
       operation = QStringLiteral("%1 / %2");
       break;
     case kOpPower:
-      operation = QStringLiteral("pow(%1, %2)");
+      if (pairing == kPairTextureNumber) {
+        // The "number" in this operation has to be declared a vec4
+        if (type_a & NodeParam::kNumber) {
+          operation = QStringLiteral("pow(%2, vec4(%1))");
+        } else {
+          operation = QStringLiteral("pow(%1, vec4(%2))");
+        }
+      } else {
+        operation = QStringLiteral("pow(%1, %2)");
+      }
       break;
     }
 
