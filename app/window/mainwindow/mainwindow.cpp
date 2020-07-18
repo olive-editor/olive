@@ -358,7 +358,7 @@ void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
       taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NORMAL);
       break;
     case kProgressNone:
-      taskbar_interface_->SetProgressState(reinterpret_ cast<HWND>(this->winId()), TBPF_NOPROGRESS);
+      taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NOPROGRESS);
       break;
     case kProgressError:
       taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_ERROR);
