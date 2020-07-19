@@ -218,7 +218,6 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
     job.InsertValue(out_block_input(), value);
     job.InsertValue(in_block_input(), value);
     job.InsertValue(curve_input_, value);
-    job.SetAlphaChannelRequired(true);
 
     double time = value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")).toDouble();
     InsertTransitionTimes(&job, time);
