@@ -227,8 +227,15 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
       return;
     }
 
+    // Check if the source is a member of this array, in which case it'll be copied eventually anyway
+    if (queued_input->IsArray()
+        && static_cast<NodeInputArray*>(queued_input)->sub_params().contains(source)) {
+      return;
+    }
+
     // Check if this input supersedes an already queued input
-    if (queued_input->parentNode()->OutputsTo(source, true)) {
+    if (queued_input->parentNode()->OutputsTo(source, true)
+        || (source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))) {
       // In which case, we don't need to queue it and can queue our own
       graph_update_queue_.removeAt(i);
       i--;
