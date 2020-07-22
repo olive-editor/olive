@@ -89,8 +89,6 @@ void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  MouseMove(event);
-
   const TrackReference& track = ghost_->Track();
 
   if (ghost_) {

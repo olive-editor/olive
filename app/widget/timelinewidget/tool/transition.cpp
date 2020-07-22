@@ -106,8 +106,6 @@ void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  MouseMove(event);
-
   const TrackReference& track = ghost_->Track();
 
   if (ghost_) {
