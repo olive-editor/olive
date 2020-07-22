@@ -258,9 +258,6 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      snap_points_.append(ghost->In());
-      snap_points_.append(ghost->Out());
-
       ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
       ghost->SetMode(Timeline::kMove);
 
@@ -276,6 +273,9 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
     foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
       ghost->SetIn(ghost_start);
       ghost->SetOut(ghost_start + footage_duration);
+
+      snap_points_.append(ghost->In());
+      snap_points_.append(ghost->Out());
 
       parent()->AddGhost(ghost);
     }
