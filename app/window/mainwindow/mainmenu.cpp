@@ -262,6 +262,7 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, "S");
   tools_snapping_item_->setCheckable(true);
+  tools_snapping_item_->setChecked(Core::instance()->snapping());
 
   tools_menu_->addSeparator();
 
