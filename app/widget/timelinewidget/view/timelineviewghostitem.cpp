@@ -46,8 +46,16 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const Trac
   ghost->SetYCoords(y, height);
   ghost->setData(kAttachedBlock, Node::PtrToValue(block));
 
-  if (block->type() == Block::kClip) {
+  switch (block->type()) {
+  case Block::kClip:
     ghost->can_have_zero_length_ = false;
+    break;
+  case Block::kTransition:
+    ghost->can_have_zero_length_ = false;
+    ghost->SetCanMoveTracks(false);
+    break;
+  case Block::kGap:
+    break;
   }
 
   return ghost;

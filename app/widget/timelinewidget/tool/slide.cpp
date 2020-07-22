@@ -30,105 +30,13 @@ TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
 {
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
-  SetTrimOverwriteAllowed(true);
   SetGapTrimmingAllowed(true);
 }
-
-struct TrackBlockListPair {
-  TrackReference track;
-  QList<Block*> blocks;
-};
 
 void TimelineWidget::SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                              Timeline::MovementMode trim_mode)
 {
-  PointerTool::InitiateDrag(clicked_item, trim_mode);
-
-  // Sort blocks into tracks
-  QList<TrackBlockListPair> blocks_per_track;
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-    bool found = false;
-
-    for (int i=0;i<blocks_per_track.size();i++) {
-      if (blocks_per_track.at(i).track == ghost->Track()) {
-        blocks_per_track[i].blocks.append(b);
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      blocks_per_track.append({ghost->Track(), {b}});
-    }
-  }
-
-  // Make contiguous runs of blocks per each track
-  foreach (const TrackBlockListPair& p, blocks_per_track) {
-    // Blocks must be merged if any are non-adjacent
-    const TrackReference& track = p.track;
-    const QList<Block*>& blocks = p.blocks;
-
-    Block* earliest_block = blocks.first();
-    Block* latest_block = blocks.first();
-
-    // Find the earliest and latest selected blocks
-    for (int j=1;j<blocks.size();j++) {
-      Block* compare = blocks.at(j);
-
-      if (compare->in() < earliest_block->in()) {
-        earliest_block = compare;
-      }
-
-      if (compare->in() > latest_block->in()) {
-        latest_block = compare;
-      }
-    }
-
-    // Add any blocks between these blocks that aren't already in the list
-    if (earliest_block != latest_block) {
-      Block* b = earliest_block;
-      while ((b = b->next()) != latest_block) {
-        if (!blocks.contains(b)) {
-          AddGhostFromBlock(b, track, Timeline::kMove);
-        }
-      }
-    }
-
-    // Add surrounding blocks that will be trimming instead of moving
-    if (earliest_block->previous()) {
-      AddGhostFromBlock(earliest_block->previous(), track, Timeline::kTrimOut);
-    }
-
-    if (latest_block->next()) {
-      AddGhostFromBlock(latest_block->next(), track, Timeline::kTrimIn);
-    }
-  }
-}
-
-void TimelineWidget::SlideTool::FinishDrag(TimelineViewMouseEvent *event)
-{
-  Q_UNUSED(event)
-
-  QVector<TrackSlideCommand::BlockSlideInfo> info;
-
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (!ghost->HasBeenAdjusted()) {
-      continue;
-    }
-
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    info.append({parent()->GetTrackFromReference(ghost->Track()),
-                 b,
-                 ghost->mode(),
-                 ghost->mode() == Timeline::kMove ? ghost->GetAdjustedIn() : ghost->AdjustedLength(),
-                 ghost->mode() == Timeline::kMove ? ghost->In() : ghost->Length()});
-  }
-
-  if (!info.isEmpty()) {
-    Core::instance()->undo_stack()->push(new TrackSlideCommand(info));
-  }
+  InitiateDragInternal(clicked_item, trim_mode, kSlide, true);
 }
 
 OLIVE_NAMESPACE_EXIT

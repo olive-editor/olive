@@ -25,6 +25,7 @@
 
 #include "node/block/block.h"
 #include "node/block/gap/gap.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
 #include "timeline/timelinepoints.h"
@@ -574,6 +575,9 @@ private:
 
   QVector<BlockSlideInfo> blocks_;
   QList<GapBlock*> added_gaps_;
+  QList<Block*> removed_block_next;
+
+  QObject memory_manager_;
 
 };
 
@@ -603,6 +607,26 @@ private:
   QList<GapBlock*> gaps_added_;
 
   BlockSplitPreservingLinksCommand* split_command_;
+
+};
+
+class TransitionRemoveCommand : public UndoCommand {
+public:
+  TransitionRemoveCommand(TrackOutput *track, TransitionBlock* block, QUndoCommand *parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackOutput* track_;
+
+  TransitionBlock* block_;
+
+  Block* out_block_;
+  Block* in_block_;
 
 };
 

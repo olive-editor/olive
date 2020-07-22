@@ -123,14 +123,14 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
       rational time_movement = event->GetFrame() - drag_start_.GetFrame();
       int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
 
-      time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
+      time_movement = ValidateTimeMovement(time_movement);
       track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
       // If snapping is enabled, check for snap points
       if (Core::instance()->snapping()) {
         parent()->SnapPoint(snap_points_, &time_movement);
 
-        time_movement = ValidateTimeMovement(time_movement, parent()->ghost_items_);
+        time_movement = ValidateTimeMovement(time_movement);
         track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
       }
 
@@ -398,7 +398,7 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
 
     // Check if we're inserting
     if (insert) {
-      InsertGapsAtGhostDestination(parent()->ghost_items_, command);
+      InsertGapsAtGhostDestination(command);
     }
 
     for (int i=0;i<parent()->ghost_items_.size();i++) {

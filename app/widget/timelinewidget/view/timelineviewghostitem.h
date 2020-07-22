@@ -38,7 +38,9 @@ public:
   enum DataType {
     kAttachedBlock,
     kReferenceBlock,
-    kAttachedFootage
+    kAttachedFootage,
+    kTrimOverwriteAllowed,
+    kPointerToolMode
   };
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);

@@ -256,6 +256,39 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
   return table;
 }
 
+TransitionBlock *GetBlockTransitionInternal(Block *block, Timeline::MovementMode mode)
+{
+  // See if this block outputs to a transition
+  foreach (NodeEdgePtr edge, block->output()->edges()) {
+    Node* connected_node = edge->input()->parentNode();
+
+    if (connected_node->IsBlock()) {
+      Block* connected_block = static_cast<Block*>(connected_node);
+
+      if (connected_block->type() == Block::kTransition) {
+        TransitionBlock* connected_transition = static_cast<TransitionBlock*>(connected_block);
+
+        if ((mode == Timeline::kTrimIn && edge->input() == connected_transition->in_block_input())
+            || (mode == Timeline::kTrimOut && edge->input() == connected_transition->out_block_input())) {
+          return connected_transition;
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+TransitionBlock *TransitionBlock::GetBlockInTransition(Block *block)
+{
+  return GetBlockTransitionInternal(block, Timeline::kTrimIn);
+}
+
+TransitionBlock *TransitionBlock::GetBlockOutTransition(Block *block)
+{
+  return GetBlockTransitionInternal(block, Timeline::kTrimOut);
+}
+
 void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
 {
   Q_UNUSED(value)

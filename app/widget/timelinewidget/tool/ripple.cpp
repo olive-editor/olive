@@ -29,14 +29,13 @@ TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
-  SetTrimOverwriteAllowed(true);
   SetGapTrimmingAllowed(true);
 }
 
 void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                               Timeline::MovementMode trim_mode)
 {
-  PointerTool::InitiateDrag(clicked_item, trim_mode);
+  InitiateDragInternal(clicked_item, trim_mode, kPointer, true);
 
   if (parent()->ghost_items_.isEmpty()) {
     return;
@@ -86,16 +85,16 @@ void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_ite
 
         if (block_before_ripple->type() == Block::kGap) {
           // If this Block is already a Gap, ghost it now
-          ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode);
+          ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode, true);
         } else if (block_before_ripple->next()) {
           // Assuming this block is NOT at the end of the track (i.e. next != null)
 
           // We're going to create a gap after it. If next is a gap, we can just use that
           if (block_before_ripple->next()->type() == Block::kGap) {
-            ghost = AddGhostFromBlock(block_before_ripple->next(), track_ref, trim_mode);
+            ghost = AddGhostFromBlock(block_before_ripple->next(), track_ref, trim_mode, true);
           } else {
             // If next is NOT a gap, we'll need to create one, for which we'll use a null ghost
-            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
+            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode, true);
             ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
           }
         }

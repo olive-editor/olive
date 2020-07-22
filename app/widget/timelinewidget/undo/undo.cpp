@@ -416,12 +416,9 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   new_block_->setParent(&memory_manager_);
 
   // Determine if the block outputs to an "out" transition
-  foreach (NodeEdgePtr edge, block_->output()->edges()) {
-    if (edge->input()->parentNode()->IsBlock()
-        && static_cast<Block*>(edge->input()->parentNode())->type() == Block::kTransition
-        && edge->input() == static_cast<TransitionBlock*>(edge->input()->parentNode())->out_block_input()) {
-      transitions_to_move_.append(edge->input());
-    }
+  TransitionBlock* transition = TransitionBlock::GetBlockOutTransition(block_);
+  if (transition) {
+    transitions_to_move_.append(transition->out_block_input());
   }
 }
 
@@ -925,11 +922,23 @@ void BlockTrimCommand::redo_internal()
 
   track_->EndOperation();
 
+  if (block_->type() == Block::kTransition) {
+    // Whole transition needs to be invalidated
+    invalidate_range = TimeRange(block_->in(), block_->out());
+  }
+
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void BlockTrimCommand::undo_internal()
 {
+  TimeRange invalidate_range;
+
+  if (block_->type() == Block::kTransition) {
+    // Whole transition needs to be invalidated
+    invalidate_range = TimeRange(block_->in(), block_->out());
+  }
+
   track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
@@ -969,14 +978,18 @@ void BlockTrimCommand::undo_internal()
     }
   }
 
-  TimeRange invalidate_range;
-
   if (mode_ == Timeline::kTrimIn) {
     block_->set_length_and_media_in(old_length_);
-    invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff);
+
+    if (block_->type() != Block::kTransition) {
+      invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff);
+    }
   } else {
     block_->set_length_and_media_out(old_length_);
-    invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff);
+
+    if (block_->type() != Block::kTransition) {
+      invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff);
+    }
   }
 
   track_->EndOperation();
@@ -1144,29 +1157,58 @@ void TrackSlideCommand::undo_internal()
 
 void TrackSlideCommand::slide_internal(bool undo)
 {
-  QMap<TrackOutput*, TimeRangeList> invalidate_ranges;
+  QMap<TrackOutput*, TimeRange> invalidate_ranges;
 
   // Make sure all movement blocks' old positions are invalidated
   foreach (const BlockSlideInfo& info, blocks_) {
     if (info.mode == Timeline::kMove) {
-      invalidate_ranges[info.track].InsertTimeRange(TimeRange(info.block->in(),
-                                                              info.block->out()));
+      invalidate_ranges.insert(info.track,
+                               TimeRange(info.block->in(),
+                                         info.block->out()));
     }
   }
 
   // Perform trims
-  foreach (const BlockSlideInfo& info, blocks_) {
+  int iterator = undo ? blocks_.size() - 1 : 0;
+  int limit = undo ? -1 : blocks_.size();
+
+  while (iterator != limit) {
+    const BlockSlideInfo& info = blocks_.at(iterator);
+
     info.track->BeginOperation();
 
     if (info.mode == Timeline::kTrimIn || info.mode == Timeline::kTrimOut) {
-      rational new_len = undo ? info.old_time : info.new_time;
+      qDebug() << "Trimming block as part of a slide operation:" << info.old_time << info.new_time;
+      if (info.new_time.isNull()) {
+        // Assume this was a gap that was reduced to nothing
+        // On undo, restore it, on redo, remove it
+        if (undo) {
+          Block* next = removed_block_next.takeLast();
+          static_cast<NodeGraph*>(info.track->parent())->AddNode(info.block);
 
-      if (info.mode == Timeline::kTrimIn) {
-        info.block->set_length_and_media_in(new_len);
+          if (next) {
+            info.track->InsertBlockBefore(info.block, next);
+          } else {
+            info.track->AppendBlock(info.block);
+          }
+        } else {
+          removed_block_next.append(info.block->next());
+          info.track->RippleRemoveBlock(info.block);
+          TakeNodeFromParentGraph(info.block, &memory_manager_);
+        }
       } else {
-        info.block->set_length_and_media_out(new_len);
+        rational new_len = undo ? info.old_time : info.new_time;
+
+        if (info.mode == Timeline::kTrimIn) {
+          info.block->set_length_and_media_in(new_len);
+        } else {
+          info.block->set_length_and_media_out(new_len);
+        }
       }
-    } else if (!undo && info.mode == Timeline::kMove && !info.block->previous()) {
+    } else if (!undo
+               && info.mode == Timeline::kMove
+               && !info.block->previous()
+               && info.new_time > info.old_time) {
       // If this is a moving block and there was nothing before it to offset its time correctly,
       // insert a gap here
       GapBlock* gap = new GapBlock();
@@ -1177,6 +1219,12 @@ void TrackSlideCommand::slide_internal(bool undo)
     }
 
     info.track->EndOperation();
+
+    if (undo) {
+      iterator--;
+    } else {
+      iterator++;
+    }
   }
 
   if (undo) {
@@ -1198,16 +1246,16 @@ void TrackSlideCommand::slide_internal(bool undo)
   // Make sure all movement blocks' new positions are invalidated
   foreach (const BlockSlideInfo& info, blocks_) {
     if (info.mode == Timeline::kMove) {
-      invalidate_ranges[info.track].InsertTimeRange(TimeRange(info.block->in(),
-                                                              info.block->out()));
+      TimeRange& range = invalidate_ranges[info.track];
+
+      range.set_range(qMin(range.in(), info.block->in()),
+                      qMax(range.out(), info.block->out()));
     }
   }
 
-  QMap<TrackOutput*, TimeRangeList>::const_iterator i;
+  QMap<TrackOutput*, TimeRange>::const_iterator i;
   for (i=invalidate_ranges.constBegin(); i!=invalidate_ranges.constEnd(); i++) {
-    foreach (const TimeRange& r, i.value()) {
-      i.key()->InvalidateCache(r, i.key()->block_input(), i.key()->block_input());
-    }
+    i.key()->InvalidateCache(i.value(), i.key()->block_input(), i.key()->block_input());
   }
 }
 
@@ -1586,6 +1634,85 @@ void TrackListInsertGaps::undo_internal()
       track->EndOperation();
     }
   }
+}
+
+TransitionRemoveCommand::TransitionRemoveCommand(TrackOutput* track, TransitionBlock *block, QUndoCommand* parent) :
+  UndoCommand(parent),
+  track_(track),
+  block_(block),
+  out_block_(block_->connected_out_block()),
+  in_block_(block_->connected_in_block())
+{
+  // Can't remove a transition in this way unless it's connected to at least one other block
+  Q_ASSERT(out_block_ || in_block_);
+}
+
+Project *TransitionRemoveCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
+}
+
+void TransitionRemoveCommand::redo_internal()
+{
+  track_->BeginOperation();
+
+  TimeRange invalidate_range(block_->in(), block_->out());
+
+  if (in_block_) {
+    in_block_->set_length_and_media_in(in_block_->length() + block_->in_offset());
+  }
+
+  if (out_block_) {
+    out_block_->set_length_and_media_out(out_block_->length() + block_->out_offset());
+  }
+
+  if (in_block_) {
+    NodeParam::DisconnectEdge(in_block_->output(), block_->in_block_input());
+  }
+
+  if (out_block_) {
+    NodeParam::DisconnectEdge(out_block_->output(), block_->out_block_input());
+  }
+
+  track_->RippleRemoveBlock(block_);
+
+  track_->EndOperation();
+
+  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+}
+
+void TransitionRemoveCommand::undo_internal()
+{
+  track_->BeginOperation();
+
+  if (in_block_) {
+    track_->InsertBlockBefore(block_, in_block_);
+  } else {
+    track_->InsertBlockAfter(block_, out_block_);
+  }
+
+  if (in_block_) {
+    NodeParam::ConnectEdge(in_block_->output(), block_->in_block_input());
+  }
+
+  if (out_block_) {
+    NodeParam::ConnectEdge(out_block_->output(), block_->out_block_input());
+  }
+
+  // These if statements must be separated because in_offset and out_offset report different things
+  // if only one block is connected vs two. So we have to connect the blocks first before we have
+  // an accurate return value from these offset functions.
+  if (in_block_) {
+    in_block_->set_length_and_media_in(in_block_->length() - block_->in_offset());
+  }
+
+  if (out_block_) {
+    out_block_->set_length_and_media_out(out_block_->length() - block_->out_offset());
+  }
+
+  track_->EndOperation();
+
+  track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
 }
 
 OLIVE_NAMESPACE_EXIT

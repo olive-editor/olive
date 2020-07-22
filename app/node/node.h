@@ -224,7 +224,7 @@ public:
   /**
    * @brief Same as OutputsTo(Node*), but for a specific node input rather than just a node.
    */
-  bool OutputsTo(NodeInput* input, bool recursively) const;
+  bool OutputsTo(NodeInput* input, bool recursively, bool include_arrays) const;
 
   /**
    * @brief Returns whether this node ever receives an input from a particular node instance

@@ -556,7 +556,7 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
   return false;
 }
 
-bool Node::OutputsTo(NodeInput *input, bool recursively) const
+bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
 {
   QList<NodeOutput*> outputs = GetOutputs();
 
@@ -566,7 +566,10 @@ bool Node::OutputsTo(NodeInput *input, bool recursively) const
 
       if (connected == input) {
         return true;
-      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively)) {
+      } else if (include_arrays && input->IsArray()
+                 && static_cast<NodeInputArray*>(input)->sub_params().contains(connected)) {
+        return true;
+      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively, include_arrays)) {
         return true;
       }
     }

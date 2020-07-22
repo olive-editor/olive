@@ -472,66 +472,12 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::DeleteSelectedInternal(const QList<Block *> &blocks,
-                                            bool transition_aware,
+void TimelineWidget::ReplaceBlocksWithGaps(const QList<Block *> &blocks,
                                             bool remove_from_graph,
                                             QUndoCommand *command)
 {
   foreach (Block* b, blocks) {
     TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
-
-    /*if (transition_aware && b->type() == Block::kTransition) {
-      // Deleting transitions restores their in/out offsets to their attached blocks
-      TransitionBlock* transition = static_cast<TransitionBlock*>(b);
-
-      // Ripple remove transition
-      new TrackRippleRemoveBlockCommand(original_track,
-                                        transition,
-                                        command);
-
-      // Resize attached blocks to make up length
-      if (transition->connected_in_block()) {
-        new BlockResizeWithMediaInCommand(transition->connected_in_block(),
-                                          transition->connected_in_block()->length() + transition->in_offset(),
-                                          command);
-      }
-
-      if (transition->connected_out_block()) {
-        new BlockResizeCommand(transition->connected_out_block(),
-                               transition->connected_out_block()->length() + transition->out_offset(),
-                               command);
-      }
-    } else */
-
-
-    /*
-    if (b->next()) {
-
-      new TrackRippleRemoveBlockCommand(original_track, b, command);
-
-      if (b->previous() && b->previous()->type() == Block::kGap
-          && b->next() && b->next()->type() == Block::kGap) {
-
-        // Both previous AND next are blocks. We'll want to merge them together.
-        new TrackRippleRemoveBlockCommand(original_track, b->next(), command);
-
-      } else {
-
-        // Make new gap and replace old Block with it for now
-        GapBlock* gap = new GapBlock();
-        gap->set_length_and_media_out(b->length());
-
-        new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
-                           gap,
-                           command);
-
-        new TrackReplaceBlockCommand(original_track,
-                                     b,
-                                     gap,
-                                     command);
-      }
-    }
-    */
 
     new TrackReplaceBlockWithGapCommand(original_track, b, command);
 
@@ -566,17 +512,30 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   QUndoCommand* command = new QUndoCommand();
 
-  // Replace blocks with gaps (effectively deleting them)
-  DeleteSelectedInternal(blocks_to_delete, true, true, command);
+  QList<Block*> clips_to_delete;
+  QList<TransitionBlock*> transitions_to_delete;
 
-  /*
-  // Clean each track
-  foreach (const TrackReference& track, tracks_affected) {
-    new TrackCleanGapsCommand(GetConnectedNode()->track_list(track.type()),
-                              track.index(),
-                              command);
+  foreach (Block* b, blocks_to_delete) {
+    if (b->type() == Block::kClip) {
+      clips_to_delete.append(b);
+    } else if (b->type() == Block::kTransition) {
+      transitions_to_delete.append(static_cast<TransitionBlock*>(b));
+    }
   }
-  */
+
+  // Replace clips with gaps (effectively deleting them)
+  ReplaceBlocksWithGaps(clips_to_delete, true, command);
+
+  // For transitions, remove them but extend their attached blocks to fill their place
+  foreach (TransitionBlock* transition, transitions_to_delete) {
+    new TransitionRemoveCommand(TrackOutput::TrackFromBlock(transition),
+                                transition,
+                                command);
+
+    new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(GetConnectedNode()->parent()),
+                                    transition,
+                                    command);
+  }
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {
@@ -634,12 +593,16 @@ void TimelineWidget::ToggleLinksOnSelected()
 {
   QList<TimelineViewBlockItem*> sel = GetSelectedBlocks();
 
-  // Prioritize unlinking
-
   QList<Block*> blocks;
   bool link = true;
 
   foreach (TimelineViewBlockItem* item, sel) {
+    // Only clips can be linked
+    if (item->block()->type() != Block::kClip) {
+      continue;
+    }
+
+    // Prioritize unlinking, if any block has links, assume we're unlinking
     if (link && item->block()->HasLinks()) {
       link = false;
     }

@@ -29,47 +29,13 @@ TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
-  SetTrimOverwriteAllowed(true);
   SetGapTrimmingAllowed(true);
 }
 
 void TimelineWidget::RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                                Timeline::MovementMode trim_mode)
 {
-  PointerTool::InitiateDrag(clicked_item, trim_mode);
-
-  // For each ghost, we make an equivalent Ghost on the next/previous block
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* ghost_block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (ghost->mode() == Timeline::kTrimIn && ghost_block->previous()) {
-      // Add an extra Ghost for the previous block
-      AddGhostFromBlock(ghost_block->previous(), ghost->Track(), Timeline::kTrimOut);
-    } else if (ghost->mode() == Timeline::kTrimOut && ghost_block->next()) {
-      AddGhostFromBlock(ghost_block->next(), ghost->Track(), Timeline::kTrimIn);
-    }
-  }
-}
-
-void TimelineWidget::RollingTool::FinishDrag(TimelineViewMouseEvent *event)
-{
-  QUndoCommand* command = new QUndoCommand();
-
-  // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->mode() == drag_movement_mode()) {
-      Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-      BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                                 b,
-                                                 ghost->AdjustedLength(),
-                                                 drag_movement_mode(),
-                                                 command);
-      c->SetAllowNonGapTrimming(true);
-    }
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  InitiateDragInternal(clicked_item, trim_mode, kRolling, true);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -26,6 +26,7 @@
 #include <QWidget>
 
 #include "core.h"
+#include "node/block/transition/transition.h"
 #include "node/output/viewer/viewer.h"
 #include "snapservice.h"
 #include "timeline/timelinecommon.h"
@@ -189,18 +190,18 @@ private:
      * Validation is the process of ensuring that whatever movements the user is making are "valid" and "legal". This
      * function's validation ensures that no Ghost's in point ends up in a negative timecode.
      */
-    rational ValidateTimeMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+    rational ValidateTimeMovement(rational movement);
 
     /**
      * @brief Validates Ghosts that are moving vertically (track-based)
      *
      * This function's validation ensures that no Ghost's track ends up in a negative (non-existent) track.
      */
-    int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*> ghosts);
+    int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> &ghosts);
 
-    void GetGhostData(const QVector<TimelineViewGhostItem*>& ghosts, rational *earliest_point, rational *latest_point);
+    void GetGhostData(rational *earliest_point, rational *latest_point);
 
-    void InsertGapsAtGhostDestination(const QVector<TimelineViewGhostItem*>& ghosts, QUndoCommand* command);
+    void InsertGapsAtGhostDestination(QUndoCommand* command);
 
     QList<rational> snap_points_;
 
@@ -242,9 +243,9 @@ private:
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
                               Timeline::MovementMode trim_mode);
 
-    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode);
+    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool trim_overwrite_allowed);
 
-    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode);
+    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode, bool trim_overwrite_allowed);
 
     /**
      * @brief Validates Ghosts that are getting their in points trimmed
@@ -252,7 +253,7 @@ private:
      * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
      * Ghost's length becomes 0 or negative.
      */
-    rational ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
+    rational ValidateInTrimming(rational movement);
 
     /**
      * @brief Validates Ghosts that are getting their out points trimmed
@@ -260,9 +261,20 @@ private:
      * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
      * Ghost's length becomes 0 or negative.
      */
-    rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
+    rational ValidateOutTrimming(rational movement);
 
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
+
+    enum GhostMode {
+      kPointer,
+      kRolling,
+      kSlide
+    };
+
+    void InitiateDragInternal(TimelineViewBlockItem* clicked_item,
+                              Timeline::MovementMode trim_mode,
+                              GhostMode pointer_mode,
+                              bool trim_overwrite_allowed);
 
     const Timeline::MovementMode& drag_movement_mode() const
     {
@@ -284,11 +296,6 @@ private:
       track_movement_allowed_ = e;
     }
 
-    void SetTrimOverwriteAllowed(bool e)
-    {
-      trim_overwrite_allowed_ = e;
-    }
-
     void SetGapTrimmingAllowed(bool e)
     {
       gap_trimming_allowed_ = e;
@@ -297,16 +304,21 @@ private:
   private:
     Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
 
-    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
+    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode, bool trim_overwrite_allowed);
 
     bool IsClipTrimmable(TimelineViewBlockItem* clip,
                          const QList<TimelineViewBlockItem*>& items,
                          const Timeline::MovementMode& mode);
 
+    void ProcessGhostsForSliding();
+
+    void ProcessGhostsForRolling();
+
+    bool AddMovingTransitionsToClipGhost(Block *block, const TrackReference &track, Timeline::MovementMode movement, const QList<TimelineViewBlockItem *> &selected_items);
+
     bool movement_allowed_;
     bool trimming_allowed_;
     bool track_movement_allowed_;
-    bool trim_overwrite_allowed_;
     bool gap_trimming_allowed_;
     bool rubberband_selecting_;
 
@@ -383,8 +395,6 @@ private:
     RollingTool(TimelineWidget* parent);
 
   protected:
-    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
-
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
                               Timeline::MovementMode trim_mode) override;
   };
@@ -395,7 +405,6 @@ private:
     SlideTool(TimelineWidget* parent);
 
   protected:
-    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
                               Timeline::MovementMode trim_mode) override;
 
@@ -455,7 +464,7 @@ private:
 
   void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
-  void DeleteSelectedInternal(const QList<Block *>& blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
+  void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
 
   void SetBlockLinksSelected(Block *block, bool selected);
 
