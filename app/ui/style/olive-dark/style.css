@@ -22,15 +22,3 @@
 QPushButton:checked {
   background: #191919;
 }
-
-/* Node styling */
-NodeViewItemWidget {
-  qproperty-titlebarColor: #4040a0;
-  qproperty-borderColor: #000000;
-}
-
-/* Timeline playhead styling */
-TimelinePlayhead {
-  qproperty-playheadColor: #ff0000;
-  qproperty-playheadHighlightColor: rgba(255, 255, 255, 0.2);
-}

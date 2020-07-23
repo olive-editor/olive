@@ -25,7 +25,6 @@
 
 #include "core.h"
 #include "handmovableview.h"
-#include "timelineplayhead.h"
 #include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
@@ -100,8 +99,6 @@ private:
   qreal GetPlayheadX();
 
   int64_t playhead_;
-
-  TimelinePlayhead playhead_style_;
 
   double playhead_scene_left_;
   double playhead_scene_right_;

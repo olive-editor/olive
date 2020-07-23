@@ -281,7 +281,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   // Draw the playhead if it's on screen at the moment
   int playhead_pos = UnitToScreen(GetTime());
   p.setPen(Qt::NoPen);
-  p.setBrush(GetPlayheadColor());
+  p.setBrush(PLAYHEAD_COLOR);
   DrawPlayhead(&p, playhead_pos, line_bottom);
 }
 

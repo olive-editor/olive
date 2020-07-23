@@ -132,7 +132,19 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
     playhead_scene_left_ = GetPlayheadX();
     playhead_scene_right_ = playhead_scene_left_ + width;
 
-    playhead_style_.Draw(painter, QRectF(playhead_scene_left_, rect.top(), width, rect.height()));
+    QRectF playhead_rect(playhead_scene_left_, rect.top(), width, rect.height());
+
+    // Get playhead highlight color
+    QColor highlight = palette().text().color();
+    highlight.setAlpha(128);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(highlight);
+    painter->drawRect(playhead_rect);
+
+    // FIXME: Hardcoded...
+    painter->setPen(PLAYHEAD_COLOR);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawLine(QLineF(playhead_rect.topLeft(), playhead_rect.bottomLeft()));
   }
 
   if (snapped_) {
