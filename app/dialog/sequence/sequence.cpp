@@ -68,8 +68,8 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   // Set up dialog buttons
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &SequenceDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &SequenceDialog::reject);
   layout->addWidget(buttons);
 
   // Set window title based on type

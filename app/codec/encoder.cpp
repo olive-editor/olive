@@ -160,8 +160,6 @@ void EncodingParams::SetExportLength(const rational &export_length)
 
 void EncodingParams::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("encode"));
-
   writer->writeTextElement(QStringLiteral("filename"), filename_);
 
   writer->writeStartElement(QStringLiteral("video"));
@@ -211,8 +209,6 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
   }
 
   writer->writeEndElement(); // audio
-
-  writer->writeEndElement(); // encode
 }
 
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)

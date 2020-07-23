@@ -21,20 +21,132 @@
 #ifndef SEQUENCEPARAM_H
 #define SEQUENCEPARAM_H
 
+#include <QXmlStreamWriter>
+
 #include "common/rational.h"
+#include "common/xmlutils.h"
+#include "dialog/sequence/presetmanager.h"
 #include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
-struct SequencePreset {
-  QString name;
-  int width;
-  int height;
-  rational frame_rate;
-  int sample_rate;
-  uint64_t channel_layout;
-  int preview_divider;
-  PixelFormat::Format preview_format;
+class SequencePreset : public Preset {
+public:
+  SequencePreset() = default;
+
+  SequencePreset(const QString& name,
+                 int width,
+                 int height,
+                 const rational& frame_rate,
+                 int sample_rate,
+                 uint64_t channel_layout,
+                 int preview_divider,
+                 PixelFormat::Format preview_format) :
+    width_(width),
+    height_(height),
+    frame_rate_(frame_rate),
+    sample_rate_(sample_rate),
+    channel_layout_(channel_layout),
+    preview_divider_(preview_divider),
+    preview_format_(preview_format)
+  {
+    SetName(name);
+  }
+
+  static PresetPtr Create(const QString& name,
+                          int width,
+                          int height,
+                          const rational& frame_rate,
+                          int sample_rate,
+                          uint64_t channel_layout,
+                          int preview_divider,
+                          PixelFormat::Format preview_format)
+  {
+    return std::make_shared<SequencePreset>(name, width, height, frame_rate, sample_rate,
+                                            channel_layout, preview_divider, preview_format);
+  }
+
+  virtual void Load(QXmlStreamReader* reader) override
+  {
+    while (XMLReadNextStartElement(reader)) {
+      if (reader->name() == QStringLiteral("name")) {
+        SetName(reader->readElementText());
+      } else if (reader->name() == QStringLiteral("width")) {
+        width_ = reader->readElementText().toInt();
+      } else if (reader->name() == QStringLiteral("height")) {
+        height_ = reader->readElementText().toInt();
+      } else if (reader->name() == QStringLiteral("framerate")) {
+        frame_rate_ = rational::fromString(reader->readElementText());
+      } else if (reader->name() == QStringLiteral("samplerate")) {
+        sample_rate_ = reader->readElementText().toInt();
+      } else if (reader->name() == QStringLiteral("chlayout")) {
+        channel_layout_ = reader->readElementText().toULongLong();
+      } else if (reader->name() == QStringLiteral("divider")) {
+        preview_divider_ = reader->readElementText().toInt();
+      } else if (reader->name() == QStringLiteral("format")) {
+        preview_format_ = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+  }
+
+  virtual void Save(QXmlStreamWriter* writer) const override
+  {
+    writer->writeTextElement(QStringLiteral("name"), GetName());
+    writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
+    writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
+    writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+    writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
+    writer->writeTextElement(QStringLiteral("chlayout"), QString::number(channel_layout_));
+    writer->writeTextElement(QStringLiteral("divider"), QString::number(preview_divider_));
+    writer->writeTextElement(QStringLiteral("format"), QString::number(preview_format_));
+  }
+
+  int width() const
+  {
+    return width_;
+  }
+
+  int height() const
+  {
+    return height_;
+  }
+
+  const rational& frame_rate() const
+  {
+    return frame_rate_;
+  }
+
+  int sample_rate() const
+  {
+    return sample_rate_;
+  }
+
+  uint64_t channel_layout() const
+  {
+    return channel_layout_;
+  }
+
+  int preview_divider() const
+  {
+    return preview_divider_;
+  }
+
+  PixelFormat::Format preview_format() const
+  {
+    return preview_format_;
+  }
+
+private:
+  int width_;
+  int height_;
+  rational frame_rate_;
+  int sample_rate_;
+  uint64_t channel_layout_;
+  int preview_divider_;
+  PixelFormat::Format preview_format_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

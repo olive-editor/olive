@@ -185,13 +185,13 @@ PixelFormat::Format SequenceDialogParameterTab::GetSelectedPreviewFormat() const
 
 void SequenceDialogParameterTab::PresetChanged(const SequencePreset &preset)
 {
-  video_width_field_->SetValue(preset.width);
-  video_height_field_->SetValue(preset.height);
-  video_frame_rate_field_->setCurrentIndex(frame_rate_list_.indexOf(preset.frame_rate));
-  audio_sample_rate_field_->setCurrentIndex(sample_rate_list_.indexOf(preset.sample_rate));
-  audio_channels_field_->setCurrentIndex(channel_layout_list_.indexOf(preset.channel_layout));
-  preview_resolution_field_->setCurrentIndex(divider_list_.indexOf(preset.preview_divider));
-  preview_format_field_->setCurrentIndex(preview_format_list_.indexOf(preset.preview_format));
+  video_width_field_->SetValue(preset.width());
+  video_height_field_->SetValue(preset.height());
+  video_frame_rate_field_->setCurrentIndex(frame_rate_list_.indexOf(preset.frame_rate()));
+  audio_sample_rate_field_->setCurrentIndex(sample_rate_list_.indexOf(preset.sample_rate()));
+  audio_channels_field_->setCurrentIndex(channel_layout_list_.indexOf(preset.channel_layout()));
+  preview_resolution_field_->setCurrentIndex(divider_list_.indexOf(preset.preview_divider()));
+  preview_format_field_->setCurrentIndex(preview_format_list_.indexOf(preset.preview_format()));
 }
 
 void SequenceDialogParameterTab::SavePresetClicked()
