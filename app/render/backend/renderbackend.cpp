@@ -222,7 +222,7 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
     }
 
     // Check if this dependency graph is already queued
-    if (source->parentNode()->OutputsTo(queued_input, true)) {
+    if (source->parentNode()->OutputsTo(queued_input, true, true)) {
       // In which case, no further copy is necessary
       return;
     }
@@ -234,7 +234,7 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
     }
 
     // Check if this input supersedes an already queued input
-    if (queued_input->parentNode()->OutputsTo(source, true)
+    if (queued_input->parentNode()->OutputsTo(source, true, true)
         || (source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))) {
       // In which case, we don't need to queue it and can queue our own
       graph_update_queue_.removeAt(i);
@@ -400,6 +400,7 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
 {
   // Find our copy of this parameter
   Node* our_copy_node = copy_map_.value(input->parentNode());
+  Q_ASSERT(our_copy_node);
   NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
 
   // Copy the standard/keyframe values between these two inputs
