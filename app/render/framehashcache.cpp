@@ -193,7 +193,11 @@ void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
 
 void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
 {
-  SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+  if (frame) {
+    SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+  } else {
+    qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
+  }
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash)
