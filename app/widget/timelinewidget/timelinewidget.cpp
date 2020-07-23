@@ -523,9 +523,6 @@ void TimelineWidget::DeleteSelected(bool ripple)
     }
   }
 
-  // Replace clips with gaps (effectively deleting them)
-  ReplaceBlocksWithGaps(clips_to_delete, true, command);
-
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
     new TransitionRemoveCommand(TrackOutput::TrackFromBlock(transition),
@@ -536,6 +533,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
                                     transition,
                                     command);
   }
+
+  // Replace clips with gaps (effectively deleting them)
+  ReplaceBlocksWithGaps(clips_to_delete, true, command);
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {

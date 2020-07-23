@@ -36,7 +36,7 @@ TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
 void TimelineWidget::SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                              Timeline::MovementMode trim_mode)
 {
-  InitiateDragInternal(clicked_item, trim_mode, kSlide, true);
+  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
 }
 
 OLIVE_NAMESPACE_EXIT

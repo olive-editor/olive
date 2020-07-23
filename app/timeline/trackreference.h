@@ -36,6 +36,8 @@ public:
 
   const int& index() const;
 
+  bool operator<(const TrackReference& ref) const;
+
   bool operator==(const TrackReference& ref) const;
 
 private:
@@ -43,6 +45,8 @@ private:
 
   int index_;
 };
+
+uint qHash(const TrackReference& r, uint seed);
 
 OLIVE_NAMESPACE_EXIT
 

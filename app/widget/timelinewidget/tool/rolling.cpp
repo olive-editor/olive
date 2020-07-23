@@ -35,7 +35,7 @@ TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
 void TimelineWidget::RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                                Timeline::MovementMode trim_mode)
 {
-  InitiateDragInternal(clicked_item, trim_mode, kRolling, true);
+  InitiateDragInternal(clicked_item, trim_mode, false, true, false);
 }
 
 OLIVE_NAMESPACE_EXIT

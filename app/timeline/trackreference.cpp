@@ -49,4 +49,12 @@ bool TrackReference::operator==(const TrackReference &ref) const
   return type_ == ref.type_ && index_ == ref.index_;
 }
 
+uint qHash(const TrackReference &r, uint seed)
+{
+  // Not super efficient, but couldn't think of any better way to ensure a different hash each time
+  return ::qHash(QStringLiteral("%1:%2").arg(QString::number(r.type()),
+                                             QString::number(r.index())),
+                 seed);
+}
+
 OLIVE_NAMESPACE_EXIT

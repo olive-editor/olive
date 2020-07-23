@@ -243,9 +243,9 @@ private:
     virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
                               Timeline::MovementMode trim_mode);
 
-    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool trim_overwrite_allowed);
+    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists = false);
 
-    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode, bool trim_overwrite_allowed);
+    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode);
 
     /**
      * @brief Validates Ghosts that are getting their in points trimmed
@@ -265,16 +265,10 @@ private:
 
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
 
-    enum GhostMode {
-      kPointer,
-      kRolling,
-      kSlide
-    };
-
     void InitiateDragInternal(TimelineViewBlockItem* clicked_item,
                               Timeline::MovementMode trim_mode,
-                              GhostMode pointer_mode,
-                              bool trim_overwrite_allowed);
+                              bool dont_roll_trims,
+                              bool allow_nongap_rolling, bool slide_instead_of_moving);
 
     const Timeline::MovementMode& drag_movement_mode() const
     {
@@ -304,7 +298,7 @@ private:
   private:
     Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
 
-    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode, bool trim_overwrite_allowed);
+    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
     bool IsClipTrimmable(TimelineViewBlockItem* clip,
                          const QList<TimelineViewBlockItem*>& items,

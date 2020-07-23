@@ -80,23 +80,6 @@ rational TimelineWidget::Tool::ValidateTimeMovement(rational movement)
       continue;
     }
 
-    Block* block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (block && block->type() == Block::kTransition) {
-      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
-
-      // Dual transitions are only allowed to move so that neither of their offsets are < 0
-      if (transition->connected_in_block() && transition->connected_out_block()) {
-        if (movement > transition->out_offset()) {
-          movement = transition->out_offset();
-        }
-
-        if (movement < -transition->in_offset()) {
-          movement = -transition->in_offset();
-        }
-      }
-    }
-
     // Prevents any ghosts from going below 0:00:00 time
     if (ghost->In() + movement < 0) {
       movement = -ghost->In();

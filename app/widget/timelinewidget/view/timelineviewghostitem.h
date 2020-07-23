@@ -39,8 +39,9 @@ public:
     kAttachedBlock,
     kReferenceBlock,
     kAttachedFootage,
-    kTrimOverwriteAllowed,
-    kPointerToolMode
+    kGhostIsSliding,
+    kTrimIsARollEdit,
+    kTrimShouldBeIgnored
   };
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);

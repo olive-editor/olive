@@ -842,7 +842,7 @@ BlockTrimCommand::BlockTrimCommand(TrackOutput* track, Block *block, rational ne
   adjacent_(nullptr),
   we_created_adjacent_(false),
   we_deleted_adjacent_(false),
-  allow_nongap_trimming_(false)
+  trim_is_a_roll_edit_(false)
 {
 }
 
@@ -872,7 +872,7 @@ void BlockTrimCommand::redo_internal()
 
   if (trim_diff > rational()) {
     // If trimming SHORTER, we'll need to create/modify a gap
-    if (adjacent_ && (adjacent_->type() == Block::kGap || allow_nongap_trimming_)) {
+    if (adjacent_ && (adjacent_->type() == Block::kGap || trim_is_a_roll_edit_)) {
 
       // A gap (or equivalent) exists, simply increase the size of it
       if (mode_ == Timeline::kTrimIn) {
@@ -1134,15 +1134,22 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
-TrackSlideCommand::TrackSlideCommand(const QVector<TrackSlideCommand::BlockSlideInfo> &blocks, QUndoCommand *parent) :
+TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :
   UndoCommand(parent),
-  blocks_(blocks)
+  track_(track),
+  blocks_(moving_blocks),
+  movement_(movement),
+  we_created_in_adjacent_(false),
+  in_adjacent_(in_adjacent),
+  we_created_out_adjacent_(false),
+  out_adjacent_(out_adjacent)
 {
+  Q_ASSERT(!movement_.isNull());
 }
 
 Project *TrackSlideCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(blocks_.first().track->parent())->project();
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 void TrackSlideCommand::redo_internal()
@@ -1157,106 +1164,98 @@ void TrackSlideCommand::undo_internal()
 
 void TrackSlideCommand::slide_internal(bool undo)
 {
-  QMap<TrackOutput*, TimeRange> invalidate_ranges;
-
   // Make sure all movement blocks' old positions are invalidated
-  foreach (const BlockSlideInfo& info, blocks_) {
-    if (info.mode == Timeline::kMove) {
-      invalidate_ranges.insert(info.track,
-                               TimeRange(info.block->in(),
-                                         info.block->out()));
-    }
-  }
+  TimeRange invalidate_range(blocks_.first()->in(), blocks_.last()->out());
 
-  // Perform trims
-  int iterator = undo ? blocks_.size() - 1 : 0;
-  int limit = undo ? -1 : blocks_.size();
-
-  while (iterator != limit) {
-    const BlockSlideInfo& info = blocks_.at(iterator);
-
-    info.track->BeginOperation();
-
-    if (info.mode == Timeline::kTrimIn || info.mode == Timeline::kTrimOut) {
-      qDebug() << "Trimming block as part of a slide operation:" << info.old_time << info.new_time;
-      if (info.new_time.isNull()) {
-        // Assume this was a gap that was reduced to nothing
-        // On undo, restore it, on redo, remove it
-        if (undo) {
-          Block* next = removed_block_next.takeLast();
-          static_cast<NodeGraph*>(info.track->parent())->AddNode(info.block);
-
-          if (next) {
-            info.track->InsertBlockBefore(info.block, next);
-          } else {
-            info.track->AppendBlock(info.block);
-          }
-        } else {
-          removed_block_next.append(info.block->next());
-          info.track->RippleRemoveBlock(info.block);
-          TakeNodeFromParentGraph(info.block, &memory_manager_);
-        }
-      } else {
-        rational new_len = undo ? info.old_time : info.new_time;
-
-        if (info.mode == Timeline::kTrimIn) {
-          info.block->set_length_and_media_in(new_len);
-        } else {
-          info.block->set_length_and_media_out(new_len);
-        }
-      }
-    } else if (!undo
-               && info.mode == Timeline::kMove
-               && !info.block->previous()
-               && info.new_time > info.old_time) {
-      // If this is a moving block and there was nothing before it to offset its time correctly,
-      // insert a gap here
-      GapBlock* gap = new GapBlock();
-      gap->set_length_and_media_out(info.new_time);
-      static_cast<NodeGraph*>(info.block->parent())->AddNode(gap);
-      info.track->PrependBlock(gap);
-      added_gaps_.append(gap);
-    }
-
-    info.track->EndOperation();
-
-    if (undo) {
-      iterator--;
-    } else {
-      iterator++;
-    }
-  }
+  track_->BeginOperation();
 
   if (undo) {
-    // If undoing, remove added gaps
-    foreach (GapBlock* gap, added_gaps_) {
-      TrackOutput* track = TrackOutput::TrackFromBlock(gap);
 
-      track->BeginOperation();
-
-      track->RippleRemoveBlock(gap);
-      delete TakeNodeFromParentGraph(gap);
-
-      track->EndOperation();
+    // Undo code
+    if (we_created_in_adjacent_) {
+      // This is a gap we made, we can just delete it entirely
+      track_->RippleRemoveBlock(in_adjacent_);
+      delete TakeNodeFromParentGraph(in_adjacent_);
+      we_created_in_adjacent_ = false;
+      in_adjacent_ = nullptr;
+    } else if (in_adjacent_->parent() == &memory_manager_) {
+      // This is a gap we removed, we can re-insert it now
+      static_cast<NodeGraph*>(track_->parent())->AddNode(in_adjacent_);
+      track_->InsertBlockBefore(in_adjacent_, blocks_.first());
+    } else {
+      // We must have just resized this block
+      in_adjacent_->set_length_and_media_out(in_adjacent_->length() - movement_);
     }
 
-    added_gaps_.clear();
+    if (we_created_out_adjacent_) {
+      // This is a gap we made, we can just delete it entirely
+      track_->RippleRemoveBlock(out_adjacent_);
+      delete TakeNodeFromParentGraph(out_adjacent_);
+      we_created_out_adjacent_ = false;
+      out_adjacent_ = nullptr;
+    } else if (out_adjacent_) {
+      // We may not have created an out adjacent if this was the last clip in the track so we have
+      // to check here
+      if (out_adjacent_->parent() == &memory_manager_) {
+        // This is a gap we removed, we can re-insert it now
+        static_cast<NodeGraph*>(track_->parent())->AddNode(out_adjacent_);
+        track_->InsertBlockAfter(out_adjacent_, blocks_.last());
+      } else {
+        // We must have just resized this block
+        out_adjacent_->set_length_and_media_in(out_adjacent_->length() + movement_);
+      }
+    }
+
+  } else {
+
+    // Redo code
+    if (!in_adjacent_) {
+      // For any slide operation to have occurred at all with no in_adjacent, a gap will need to
+      // be created
+      GapBlock* gap = new GapBlock();
+      gap->set_length_and_media_out(movement_);
+      static_cast<NodeGraph*>(track_->parent())->AddNode(gap);
+      track_->InsertBlockBefore(gap, blocks_.first());
+      we_created_in_adjacent_ = true;
+      in_adjacent_ = gap;
+    } else if (-movement_ == in_adjacent_->length()) {
+      // Remove in adjacent entirely
+      track_->RippleRemoveBlock(in_adjacent_);
+      TakeNodeFromParentGraph(in_adjacent_, &memory_manager_);
+    } else {
+      // Resize in adjacent
+      in_adjacent_->set_length_and_media_out(in_adjacent_->length() + movement_);
+    }
+
+    if (!out_adjacent_) {
+      // For any slide operation to have occurred at all with no out_adjacent, a gap will need to
+      // be created UNLESS this is at the end of the track already
+      if (blocks_.last()->next()) {
+        GapBlock* gap = new GapBlock();
+        gap->set_length_and_media_out(-movement_);
+        static_cast<NodeGraph*>(track_->parent())->AddNode(gap);
+        track_->InsertBlockAfter(gap, blocks_.last());
+        we_created_out_adjacent_ = true;
+        out_adjacent_ = gap;
+      }
+    } else if (movement_ == out_adjacent_->length()) {
+      // Remove out adjacent entirely
+      track_->RippleRemoveBlock(out_adjacent_);
+      TakeNodeFromParentGraph(out_adjacent_, &memory_manager_);
+    } else {
+      // Resize out adjacent
+      out_adjacent_->set_length_and_media_in(out_adjacent_->length() - movement_);
+    }
+
   }
+
+  track_->EndOperation();
 
   // Make sure all movement blocks' new positions are invalidated
-  foreach (const BlockSlideInfo& info, blocks_) {
-    if (info.mode == Timeline::kMove) {
-      TimeRange& range = invalidate_ranges[info.track];
+  invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
+                             qMax(invalidate_range.out(), blocks_.last()->out()));
 
-      range.set_range(qMin(range.in(), info.block->in()),
-                      qMax(range.out(), info.block->out()));
-    }
-  }
-
-  QMap<TrackOutput*, TimeRange>::const_iterator i;
-  for (i=invalidate_ranges.constBegin(); i!=invalidate_ranges.constEnd(); i++) {
-    i.key()->InvalidateCache(i.value(), i.key()->block_input(), i.key()->block_input());
-  }
+  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 TrackListRippleRemoveAreaCommand::TrackListRippleRemoveAreaCommand(TrackList *list, rational in, rational out, QUndoCommand *parent) :
