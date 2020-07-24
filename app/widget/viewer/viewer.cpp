@@ -32,6 +32,7 @@
 
 #include "audio/audiomanager.h"
 #include "common/power.h"
+#include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
@@ -397,6 +398,8 @@ FramePtr DecodeCachedImage(const QString &fn, const rational& time)
 
   if (frame) {
     frame->set_timestamp(time);
+  } else {
+    qWarning() << "Tried to load cached frame from file but it was null";
   }
 
   return frame;
@@ -743,45 +746,14 @@ void ViewerWidget::ContextMenuSetSafeMargins()
 
 void ViewerWidget::ContextMenuSetCustomSafeMargins()
 {
-  QString s;
+  bool ok;
 
-  forever {
-    bool ok;
+  double new_ratio = GetFloatRatioFromUser(this,
+                                           tr("Safe Margins"),
+                                           &ok);
 
-    s = QInputDialog::getText(this,
-                              tr("Safe Margins"),
-                              tr("Enter custom ratio (e.g. \"4:3\", \"16/9\", etc.):"),
-                              QLineEdit::Normal,
-                              s,
-                              &ok);
-
-    if (!ok) {
-      // User cancelled dialog, do nothing
-      return;
-    }
-
-    QStringList ratio_components = s.split(QRegExp(QStringLiteral(":|;|\\/")));
-
-    if (ratio_components.size() == 2) {
-      bool numer_ok, denom_ok;
-
-      double num = ratio_components.at(0).toDouble(&numer_ok);
-      double den = ratio_components.at(1).toDouble(&denom_ok);
-
-      if (numer_ok
-          && denom_ok
-          && num > 0) {
-        // Exit loop and set this ratio
-        context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true, num / den));
-        return;
-      }
-    }
-
-    QMessageBox::warning(this,
-                         tr("Invalid custom ratio"),
-                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a "
-                            "rational fraction with a ':' or a '/' separator.").arg(s),
-                         QMessageBox::Ok);
+  if (ok) {
+    context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true, new_ratio));
   }
 }
 

@@ -119,6 +119,9 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
   image_stream->set_height(in->spec().height);
   image_stream->set_format(GetFormatFromOIIOBasetype(in->spec()));
 
+  // FIXME: Haven't looked, does OIIO report pixel aspect ratio somewhere?
+  image_stream->set_pixel_aspect_ratio(1);
+
   // Images will always have just one stream
   image_stream->set_index(0);
 

@@ -43,6 +43,12 @@ public:
 private:
   static bool IsImageSequence(ImageStream* stream);
 
+  void AddPixelAspectRatio(const QString& name, const rational& ratio);
+
+  static QString GetPixelAspectRatioItemText(const QString& name, const rational& ratio);
+
+  void UpdateCustomItem(const rational& ratio);
+
   /**
    * @brief Attached video stream
    */
@@ -73,12 +79,18 @@ private:
    */
   IntegerSlider* imgseq_end_time_;
 
+  /**
+   * @brief Sets the pixel aspect ratio of the stream
+   */
+  QComboBox* pixel_aspect_combo_;
+
   class VideoStreamChangeCommand : public UndoCommand {
   public:
     VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
                              ImageStream::Interlacing interlacing,
+                             const rational& pixel_ar,
                              QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
@@ -93,10 +105,12 @@ private:
     bool new_premultiplied_;
     QString new_colorspace_;
     ImageStream::Interlacing new_interlacing_;
+    rational new_pixel_ar_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
     ImageStream::Interlacing old_interlacing_;
+    rational old_pixel_ar_;
 
   };
 
@@ -123,6 +137,10 @@ private:
     int64_t old_duration_;
 
   };
+
+private slots:
+  void PixelAspectComboBoxChanged(int index);
+
 };
 
 OLIVE_NAMESPACE_EXIT

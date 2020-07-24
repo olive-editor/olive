@@ -93,6 +93,23 @@ public:
     emit ParametersChanged();
   }
 
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    // Auto-correct null aspect ratio to 1:1
+    if (r.isNull()) {
+      pixel_aspect_ratio_ = 1;
+    } else {
+      pixel_aspect_ratio_ = r;
+    }
+
+    emit ParametersChanged();
+  }
+
 protected:
   virtual void FootageSetEvent(Footage*) override;
 
@@ -108,6 +125,8 @@ private:
   Interlacing interlacing_;
 
   PixelFormat::Format format_;
+
+  rational pixel_aspect_ratio_;
 
 private slots:
   void ColorConfigChanged();

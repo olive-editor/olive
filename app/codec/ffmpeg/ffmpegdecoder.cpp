@@ -114,8 +114,6 @@ bool FFmpegDecoder::Open()
     native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
 
     Q_ASSERT(native_pix_fmt_ != PixelFormat::PIX_FMT_INVALID);
-
-    aspect_ratio_ = our_instance->sample_aspect_ratio();
   }
 
   time_base_ = our_instance->stream()->time_base;
@@ -465,6 +463,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
         bool image_is_still = false;
         ImageStream::Interlacing interlacing = ImageStream::kInterlaceNone;
+        rational pixel_aspect_ratio;
 
         {
           // Read at least two frames to get more information about this video stream
@@ -484,6 +483,10 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
                   interlacing = ImageStream::kInterlacedBottomFirst;
                 }
               }
+
+              pixel_aspect_ratio = av_guess_sample_aspect_ratio(instance.fmt_ctx(),
+                                                                instance.stream(),
+                                                                frame);
             }
 
             // Read second frame
@@ -527,6 +530,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
         image_stream->set_height(avstream->codecpar->height);
         image_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
         image_stream->set_interlacing(interlacing);
+        image_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
 
         str = image_stream;
 
@@ -825,7 +829,7 @@ FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height,
                                      native_pix_fmt_,
                                      divider));
   copy->set_timestamp(Timecode::timestamp_to_time(ts, time_base_));
-  copy->set_sample_aspect_ratio(aspect_ratio_);
+  copy->set_sample_aspect_ratio(std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio());
   copy->allocate();
 
   // Convert frame to RGB/A for the rest of the pipeline
@@ -1260,16 +1264,6 @@ void FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
     cached_frames_.removeFirst();
     cache_at_zero_ = false;
   }
-}
-
-rational FFmpegDecoderInstance::sample_aspect_ratio() const
-{
-  return av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr);
-}
-
-AVStream *FFmpegDecoderInstance::stream() const
-{
-  return avstream_;
 }
 
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :

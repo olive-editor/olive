@@ -36,6 +36,8 @@ set(OLIVE_SOURCES
   common/qtutils.h
   common/qtutils.cpp
   common/range.h
+  common/ratiodialog.h
+  common/ratiodialog.cpp
   common/rational.h
   common/rational.cpp
   common/threadedobject.h

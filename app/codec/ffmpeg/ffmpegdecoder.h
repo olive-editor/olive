@@ -64,8 +64,15 @@ public:
   void RemoveFramesBefore(const qint64& t);
   void TruncateCacheRangeTo(const qint64& t);
 
-  rational sample_aspect_ratio() const;
-  AVStream* stream() const;
+  AVFormatContext* fmt_ctx() const
+  {
+    return fmt_ctx_;
+  }
+
+  AVStream* stream() const
+  {
+    return avstream_;
+  }
 
   void ClearFrameCache();
 
@@ -191,7 +198,6 @@ private:
   PixelFormat::Format native_pix_fmt_;
 
   rational time_base_;
-  rational aspect_ratio_;
   int64_t start_time_;
 
   static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;

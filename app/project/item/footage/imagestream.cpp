@@ -29,7 +29,8 @@ OLIVE_NAMESPACE_ENTER
 
 ImageStream::ImageStream() :
   premultiplied_alpha_(false),
-  interlacing_(kInterlaceNone)
+  interlacing_(kInterlaceNone),
+  pixel_aspect_ratio_(1)
 {
   set_type(kImage);
 }

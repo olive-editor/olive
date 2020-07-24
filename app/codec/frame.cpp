@@ -113,7 +113,11 @@ const rational &Frame::sample_aspect_ratio() const
 
 void Frame::set_sample_aspect_ratio(const rational &aspect_ratio)
 {
-  sample_aspect_ratio_ = aspect_ratio;
+  if (aspect_ratio.isNull()) {
+    sample_aspect_ratio_ = 1;
+  } else {
+    sample_aspect_ratio_ = aspect_ratio;
+  }
 }
 
 const rational &Frame::timestamp() const

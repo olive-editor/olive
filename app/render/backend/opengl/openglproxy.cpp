@@ -149,7 +149,7 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
     VideoParams frame_params = frame->video_params();
 
     // Check frame aspect ratio
-    if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
+    if (frame->sample_aspect_ratio() != 1) {
       int new_width = frame_params.width();
       int new_height = frame_params.height();
 

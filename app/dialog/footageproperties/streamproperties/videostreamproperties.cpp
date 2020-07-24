@@ -22,11 +22,13 @@
 
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "common/ratiodialog.h"
 #include "project/item/footage/footage.h"
 #include "project/project.h"
 #include "undo/undostack.h"
@@ -40,6 +42,37 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
   video_layout->setMargin(0);
 
   int row = 0;
+
+  video_layout->addWidget(new QLabel(tr("Pixel Aspect:")), row, 0);
+
+  pixel_aspect_combo_ = new QComboBox();
+  video_layout->addWidget(pixel_aspect_combo_, row, 1);
+
+  AddPixelAspectRatio(tr("Square Pixels"), rational(1));
+  AddPixelAspectRatio(tr("NTSC Standard"), rational(8, 9));
+  AddPixelAspectRatio(tr("NTSC Widescreen"), rational(32, 27));
+  AddPixelAspectRatio(tr("PAL Standard"), rational(16, 15));
+  AddPixelAspectRatio(tr("PAL Widescreen"), rational(64, 45));
+  AddPixelAspectRatio(tr("HD Anamorphic 1080"), rational(4, 3));
+
+  // Always add custom item last, much of the logic relies on this. Set this to the current AR so
+  // that if none of the above are ==, it will eventually select this item
+  AddPixelAspectRatio(QString(), rational());
+  UpdateCustomItem(stream->pixel_aspect_ratio());
+
+  // Determine which index to select on startup
+  for (int i=0; i<pixel_aspect_combo_->count(); i++) {
+    if (pixel_aspect_combo_->itemData(i).value<rational>() == stream->pixel_aspect_ratio()) {
+      pixel_aspect_combo_->setCurrentIndex(i);
+      break;
+    }
+  }
+
+  // Pick up index signal to query for custom aspect ratio if requested
+  connect(pixel_aspect_combo_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this, &VideoStreamProperties::PixelAspectComboBoxChanged);
+
+  row++;
 
   video_layout->addWidget(new QLabel(tr("Interlacing:")), row, 0);
 
@@ -119,12 +152,15 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   }
 
   if (video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha()
-      || set_colorspace != stream_->colorspace(false)) {
+      || set_colorspace != stream_->colorspace(false)
+      || static_cast<ImageStream::Interlacing>(video_interlace_combo_->currentIndex()) != stream_->interlacing()
+      || pixel_aspect_combo_->currentData().value<rational>() != stream_->pixel_aspect_ratio()) {
 
     new VideoStreamChangeCommand(stream_,
                                  video_premultiply_alpha_->isChecked(),
                                  set_colorspace,
                                  static_cast<ImageStream::Interlacing>(video_interlace_combo_->currentIndex()),
+                                 pixel_aspect_combo_->currentData().value<rational>(),
                                  parent);
   }
 
@@ -163,16 +199,54 @@ bool VideoStreamProperties::IsImageSequence(ImageStream *stream)
   return (stream->type() == Stream::kVideo && static_cast<VideoStream*>(stream)->is_image_sequence());
 }
 
+void VideoStreamProperties::AddPixelAspectRatio(const QString &name, const rational &ratio)
+{
+  pixel_aspect_combo_->addItem(GetPixelAspectRatioItemText(name, ratio),
+                               QVariant::fromValue(ratio));
+}
+
+QString VideoStreamProperties::GetPixelAspectRatioItemText(const QString &name, const rational &ratio)
+{
+  return tr("%1 (%2)").arg(name, QString::number(ratio.toDouble(), 'f', 4));
+}
+
+void VideoStreamProperties::UpdateCustomItem(const rational &ratio)
+{
+  const int custom_index = pixel_aspect_combo_->count() - 1;
+
+  pixel_aspect_combo_->setItemText(custom_index,
+                                   GetPixelAspectRatioItemText(tr("Custom"), ratio));
+  pixel_aspect_combo_->setItemData(custom_index,
+                                   QVariant::fromValue(ratio));
+}
+
+void VideoStreamProperties::PixelAspectComboBoxChanged(int index)
+{
+  // Detect if custom was selected, in which case query what the new AR should be
+  if (index == pixel_aspect_combo_->count() - 1) {
+    // Query for custom pixel aspect ratio
+    bool ok;
+
+    double custom_ratio = GetFloatRatioFromUser(this, tr("Set Custom Pixel Aspect Ratio"), &ok);
+
+    if (ok) {
+      UpdateCustomItem(rational::fromDouble(custom_ratio));
+    }
+  }
+}
+
 VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           ImageStream::Interlacing interlacing,
+                                                                          const rational &pixel_ar,
                                                                           QUndoCommand *parent) :
   UndoCommand(parent),
   stream_(stream),
   new_premultiplied_(premultiplied),
   new_colorspace_(colorspace),
-  new_interlacing_(interlacing)
+  new_interlacing_(interlacing),
+  new_pixel_ar_(pixel_ar)
 {
 }
 
@@ -186,10 +260,12 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
   old_premultiplied_ = stream_->premultiplied_alpha();
   old_colorspace_ = stream_->colorspace(false);
   old_interlacing_ = stream_->interlacing();
+  old_pixel_ar_ = stream_->pixel_aspect_ratio();
 
   stream_->set_premultiplied_alpha(new_premultiplied_);
   stream_->set_colorspace(new_colorspace_);
   stream_->set_interlacing(new_interlacing_);
+  stream_->set_pixel_aspect_ratio(new_pixel_ar_);
 }
 
 void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
@@ -197,6 +273,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
   stream_->set_premultiplied_alpha(old_premultiplied_);
   stream_->set_colorspace(old_colorspace_);
   stream_->set_interlacing(old_interlacing_);
+  stream_->set_pixel_aspect_ratio(old_pixel_ar_);
 }
 
 VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, QUndoCommand *parent) :
