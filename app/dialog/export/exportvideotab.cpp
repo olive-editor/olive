@@ -49,6 +49,11 @@ ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   outer_layout->addStretch();
 }
 
+ExportCodec::Codec ExportVideoTab::GetSelectedCodec() const
+{
+  return static_cast<ExportCodec::Codec>(codec_combobox()->currentData().toInt());
+}
+
 QComboBox *ExportVideoTab::codec_combobox() const
 {
   return codec_combobox_;
@@ -107,11 +112,6 @@ ImageSection *ExportVideoTab::image_section() const
 H264Section *ExportVideoTab::h264_section() const
 {
   return h264_section_;
-}
-
-const int &ExportVideoTab::threads() const
-{
-  return threads_;
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -194,6 +194,10 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   codec_combobox_ = new QComboBox();
   codec_layout->addWidget(codec_combobox_, row, 1);
+  connect(codec_combobox_,
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportVideoTab::VideoCodecChanged);
 
   row++;
 
@@ -222,13 +226,33 @@ void ExportVideoTab::MaintainAspectRatioChanged(bool val)
 
 void ExportVideoTab::OpenAdvancedDialog()
 {
-  ExportAdvancedVideoDialog d(this);
+  // Find export formats compatible with this encoder
+  QStringList pixel_formats = ExportCodec::GetPixelFormatsForCodec(GetSelectedCodec());
+
+  ExportAdvancedVideoDialog d(pixel_formats, this);
 
   d.set_threads(threads_);
+  d.set_pix_fmt(pix_fmt_);
 
   if (d.exec() == QDialog::Accepted) {
     threads_ = d.threads();
+    pix_fmt_ = d.pix_fmt();
   }
+}
+
+void ExportVideoTab::VideoCodecChanged()
+{
+  ExportCodec::Codec codec = GetSelectedCodec();
+
+  if (codec == ExportCodec::kCodecH264) {
+    SetCodecSection(h264_section());
+  } else if (ExportCodec::IsCodecAStillImage(codec)) {
+    SetCodecSection(image_section());
+  }
+
+  // Set default pixel format
+  pix_fmt_ = ExportCodec::GetPixelFormatsForCodec(codec).first();
+  qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -88,6 +88,11 @@ void EncodingParams::set_video_threads(const int &threads)
   video_threads_ = threads;
 }
 
+void EncodingParams::set_video_pix_fmt(const QString &s)
+{
+  video_pix_fmt_ = s;
+}
+
 const QString &EncodingParams::filename() const
 {
   return filename_;
@@ -131,6 +136,11 @@ const int64_t &EncodingParams::video_buffer_size() const
 const int &EncodingParams::video_threads() const
 {
   return video_threads_;
+}
+
+const QString &EncodingParams::video_pix_fmt() const
+{
+  return video_pix_fmt_;
 }
 
 bool EncodingParams::audio_enabled() const

@@ -203,11 +203,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
           this,
           &ExportDialog::ResolutionChanged);
 
-  connect(video_tab_->codec_combobox(),
-          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-          this,
-          &ExportDialog::VideoCodecChanged);
-
   connect(video_tab_,
           &ExportVideoTab::ColorSpaceChanged,
           preview_viewer_,
@@ -232,8 +227,8 @@ void ExportDialog::StartExport()
     return;
   }
 
-  // Validate if the entered filename contains the correct extension (the extension is necessary for both FFmpeg and
-  // OIIO to determine the output format)
+  // Validate if the entered filename contains the correct extension (the extension is necessary
+  // for both FFmpeg and OIIO to determine the output format)
   QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(static_cast<ExportFormat::Format>(format_combobox_->currentIndex())));
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
@@ -356,7 +351,6 @@ void ExportDialog::FormatChanged(int index)
   foreach (ExportCodec::Codec vcodec, ExportFormat::GetVideoCodecs(current_format)) {
     video_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(vcodec), vcodec);
   }
-  VideoCodecChanged();
 
   audio_tab_->codec_combobox()->clear();
   foreach (ExportCodec::Codec acodec, ExportFormat::GetAudioCodecs(current_format)) {
@@ -394,17 +388,6 @@ void ExportDialog::ResolutionChanged()
   }
 
   UpdateViewerDimensions();
-}
-
-void ExportDialog::VideoCodecChanged()
-{
-  ExportCodec::Codec codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
-
-  if (codec == ExportCodec::kCodecH264) {
-    video_tab_->SetCodecSection(video_tab_->h264_section());
-  } else if (ExportCodec::IsCodecAStillImage(codec)) {
-    video_tab_->SetCodecSection(video_tab_->image_section());
-  }
 }
 
 void ExportDialog::LoadPresets()
@@ -457,7 +440,7 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (video_enabled_->isChecked()) {
-    ExportCodec::Codec video_codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
+    ExportCodec::Codec video_codec = video_tab_->GetSelectedCodec();
     params.EnableVideo(video_render_params, video_codec);
 
     params.set_video_threads(video_tab_->threads());
@@ -465,6 +448,8 @@ ExportParams ExportDialog::GenerateParams() const
     video_tab_->GetCodecSection()->AddOpts(&params);
 
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
+
+    params.set_video_pix_fmt(video_tab_->pix_fmt());
   }
 
   if (audio_enabled_->isChecked()) {

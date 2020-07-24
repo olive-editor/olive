@@ -81,8 +81,6 @@ private slots:
 
   void ResolutionChanged();
 
-  void VideoCodecChanged();
-
   void UpdateViewerDimensions();
 
   void StartExport();

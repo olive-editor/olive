@@ -40,6 +40,8 @@ class ExportVideoTab : public QWidget
 public:
   ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
 
+  ExportCodec::Codec GetSelectedCodec() const;
+
   QComboBox* codec_combobox() const;
 
   IntegerSlider* width_slider() const;
@@ -57,7 +59,17 @@ public:
   ImageSection* image_section() const;
   H264Section* h264_section() const;
 
-  const int& threads() const;
+  const int& threads() const
+  {
+    return threads_;
+  }
+
+  const QString& pix_fmt() const {
+    return pix_fmt_;
+  }
+
+public slots:
+  void VideoCodecChanged();
 
 signals:
   void ColorSpaceChanged(const QString& colorspace);
@@ -86,6 +98,8 @@ private:
   ColorManager* color_manager_;
 
   int threads_;
+
+  QString pix_fmt_;
 
 private slots:
   void MaintainAspectRatioChanged(bool val);

@@ -20,6 +20,10 @@
 
 #include "ffmpegencoder.h"
 
+extern "C" {
+#include <libavutil/pixdesc.h>
+}
+
 #include <QFile>
 
 #include "ffmpegcommon.h"
@@ -441,9 +445,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->height = params().video_params().height();
     codec_ctx->sample_aspect_ratio = {1, 1};
     codec_ctx->time_base = params().video_params().time_base().toAVRational();
-
-    // FIXME: Make this customizable again
-    codec_ctx->pix_fmt = encoder->pix_fmts[0];
+    codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
 
     // Set custom options
     {
