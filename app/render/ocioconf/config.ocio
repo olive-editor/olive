@@ -204,7 +204,7 @@ colorspaces:
         - !<MatrixTransform> {matrix: [0.412390800000, 0.357584340000, 0.180480790000, 0.000000000000, 0.212639010000, 0.715168680000, 0.072192320000, 0.000000000000, 0.019330820000, 0.119194780000, 0.950532150000, 0.000000000000, 0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000], direction: inverse}
 
   - !<ColorSpace>
-    name: Panasonic V-Log V-Gamut
+    name: Panasonic V-Log / V-Gamut
     family: Camera Footage
     equalitygroup: ""
     bitdepth: 32f
@@ -217,6 +217,36 @@ colorspaces:
       children:
         - !<FileTransform> {src: V-Log_to_linear.spi1d, interpolation: linear}
         - !<MatrixTransform> {matrix: [1.806576, -0.695697, -0.110879, 0, -0.170090 , 1.305955, -0.135865, 0, -0.025206, -0.154468, 1.179674, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Sony S-Log2 / S-Gamut3
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Sony S-Log2 / S-Gamut3
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: S-Log2_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [1.8779151284, -0.7941687613, -0.0837463671, 0, -0.1768069813, 1.3509996209, -0.1741926396, 0, -0.0262011264, -0.1484222623, 1.1746233888, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Sony S-Log3 / S-Gamut3.cine
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Sony S-Log3 / S-Gamut3.cine
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: S-Log3_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [1.6269474097, -0.5401385389, -0.0868088709, 0, -0.1785155271, 1.4179409275, -0.2394254003, 0, -0.0444361150, -0.1959199662, 1.2403560812, 0, 0, 0, 0, 1]}
 
   - !<ColorSpace>
     name: Arri Wide Gamut / LogC EI 800
