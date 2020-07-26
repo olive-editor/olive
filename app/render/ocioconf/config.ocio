@@ -254,7 +254,7 @@ colorspaces:
     equalitygroup: ""
     bitdepth: 32f
     description: |
-      Panasonic V-Log / V-Gamut
+      Arri Wide Gamut / LogC EI 800
     isdata: false
     allocation: uniform
     allocationvars: [0, 1]
@@ -269,7 +269,7 @@ colorspaces:
     equalitygroup: ""
     bitdepth: 32f
     description: |
-      Panasonic V-Log / V-Gamut
+      Arri Wide Gamut / LogC EI 400
     isdata: false
     allocation: uniform
     allocationvars: [0, 1]
