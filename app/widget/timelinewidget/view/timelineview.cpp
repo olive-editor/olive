@@ -47,26 +47,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
   viewport()->setMouseTracking(true);
-
-  connect(scene(), &QGraphicsScene::selectionChanged, this, &TimelineView::SelectionChanged);
-}
-
-void TimelineView::SelectAll()
-{
-  QList<QGraphicsItem*> all_items = items();
-
-  foreach (QGraphicsItem* i, all_items) {
-    i->setSelected(true);
-  }
-}
-
-void TimelineView::DeselectAll()
-{
-  QList<QGraphicsItem*> all_items = items();
-
-  foreach (QGraphicsItem* i, all_items) {
-    i->setSelected(false);
-  }
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)

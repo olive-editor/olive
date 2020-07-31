@@ -33,12 +33,19 @@ public:
   NodeTablePanel(QWidget* parent);
 
 public slots:
-  void SetNodes(const QList<Node*>& nodes);
+  void SelectNodes(const QList<Node*>& nodes)
+  {
+    static_cast<NodeTableWidget*>(GetTimeBasedWidget())->SelectNodes(nodes);
+  }
+
+  void DeselectNodes(const QList<Node*>& nodes)
+  {
+    static_cast<NodeTableWidget*>(GetTimeBasedWidget())->DeselectNodes(nodes);
+  }
 
 private:
   virtual void Retranslate() override;
 
-  NodeTableWidget* view_;
 };
 
 OLIVE_NAMESPACE_EXIT

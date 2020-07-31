@@ -144,7 +144,8 @@ void NodeView::SelectAll()
 
   scene_.SelectAll();
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::DeselectAll()
@@ -155,7 +156,8 @@ void NodeView::DeselectAll()
 
   scene_.DeselectAll();
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::Select(const QList<Node *> &nodes)
@@ -176,7 +178,8 @@ void NodeView::Select(const QList<Node *> &nodes)
     item->setSelected(true);
   }
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::SelectWithDependencies(QList<Node *> nodes)
@@ -195,10 +198,13 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::SelectBlocks(const QList<Block *> &blocks)
 {
-  if (selected_blocks_ == blocks) {
-    return;
-  }
+  selected_blocks_.append(blocks);
 
+  SelectBlocksInternal();
+}
+
+void NodeView::DeselectBlocks(const QList<Block *> &blocks)
+{
   // Remove temporary associations
   foreach (Block* b, selected_blocks_) {
     if (!blocks.contains(b)) {
@@ -206,35 +212,12 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
     }
   }
 
-  selected_blocks_ = blocks;
-
-  // Block scene signals while our selection is changing a lot
-  scene_.blockSignals(true);
-
-  if (filter_mode_ == kFilterShowSelectedBlocks) {
-    UpdateBlockFilter();
-  }
-
-  QList<Node*> nodes;
-  nodes.reserve(blocks.size());
-
+  // Remove blocks from selected array
   foreach (Block* b, blocks) {
-    nodes.append(b);
-    nodes.append(b->GetDependencies());
+    selected_blocks_.removeOne(b);
   }
 
-  SelectWithDependencies(nodes);
-
-  // Stop blocking signals and send a change signal now that all of our processing is done
-  scene_.blockSignals(false);
-  SceneSelectionChangedSlot();
-
-  if (!blocks.isEmpty()) {
-    NodeViewItem* item = scene_.NodeToUIObject(blocks.first());
-    if (item) {
-      centerOn(item);
-    }
-  }
+  SelectBlocksInternal();
 }
 
 void NodeView::CopySelected(bool cut)
@@ -478,7 +461,44 @@ void NodeView::wheelEvent(QWheelEvent *event)
 
 void NodeView::SceneSelectionChangedSlot()
 {
-  emit SelectionChanged(scene_.GetSelectedNodes());
+  QList<Node*> current_selection = scene_.GetSelectedNodes();
+
+  QList<Node*> selected;
+  QList<Node*> deselected;
+
+  // Determine which nodes are newly selected
+  if (selected_nodes_.isEmpty()) {
+    // All nodes in the current selection have just been selected
+    selected = current_selection;
+  } else {
+    foreach (Node* n, current_selection) {
+      if (!selected_nodes_.contains(n)) {
+        selected.append(n);
+      }
+    }
+  }
+
+  // Determine which nodes are newly deselected
+  if (current_selection.isEmpty()) {
+    // All nodes that were selected have been deselected
+    deselected = selected_nodes_;
+  } else {
+    foreach (Node* n, selected_nodes_) {
+      if (!current_selection.contains(n)) {
+        deselected.append(n);
+      }
+    }
+  }
+
+  selected_nodes_ = current_selection;
+
+  if (!selected.isEmpty()) {
+    emit NodesSelected(selected);
+  }
+
+  if (!deselected.isEmpty()) {
+    emit NodesDeselected(deselected);
+  }
 }
 
 void NodeView::ShowContextMenu(const QPoint &pos)
@@ -803,12 +823,6 @@ void NodeView::ConnectSelectionChangedSignal()
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
 }
 
-void NodeView::ReconnectSelectionChangedSignal()
-{
-  ConnectSelectionChangedSignal();
-  SceneSelectionChangedSlot();
-}
-
 void NodeView::DisconnectSelectionChangedSignal()
 {
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
@@ -911,6 +925,37 @@ void NodeView::DisassociateNode(Node *n, bool remove_from_map)
   }
 
   disconnect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed);
+}
+
+void NodeView::SelectBlocksInternal()
+{
+  // Block scene signals while our selection is changing a lot
+  scene_.blockSignals(true);
+
+  if (filter_mode_ == kFilterShowSelectedBlocks) {
+    UpdateBlockFilter();
+  }
+
+  QList<Node*> nodes;
+  nodes.reserve(selected_blocks_.size());
+
+  foreach (Block* b, selected_blocks_) {
+    nodes.append(b);
+    nodes.append(b->GetDependencies());
+  }
+
+  SelectWithDependencies(nodes);
+
+  // Stop blocking signals and send a change signal now that all of our processing is done
+  scene_.blockSignals(false);
+  SceneSelectionChangedSlot();
+
+  if (!selected_blocks_.isEmpty()) {
+    NodeViewItem* item = scene_.NodeToUIObject(selected_blocks_.first());
+    if (item) {
+      centerOn(item);
+    }
+  }
 }
 
 void NodeView::ValidateFilter()

@@ -122,52 +122,41 @@ NodeParamView::NodeParamView(QWidget *parent) :
   SetMaximumScale(TimelineViewBase::kMaximumScale);
 }
 
-void NodeParamView::SetNodes(QList<Node *> nodes)
+void NodeParamView::SelectNodes(const QList<Node *> &nodes)
 {
-  // If we already have item widgets, delete them all now
-  foreach (NodeParamViewItem* item, items_) {
-    emit ClosedNode(item->GetNode());
-    emit FoundGizmos(nullptr);
-    item->deleteLater();
+  foreach (Node* n, nodes) {
+    NodeParamViewItem* item = new NodeParamViewItem(n);
+
+    // Insert the widget before the stretch
+    param_layout_->insertWidget(param_layout_->count() - 1, item);
+
+    connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+    connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+    connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
+    connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
+    connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
+
+    items_.insert(n, item);
   }
-  items_.clear();
 
-  // Reset keyframe view
-  keyframe_view_->Clear();
+  UpdateItemTime(GetTimestamp());
 
-  // Set the internal list to the one we've received
-  nodes_ = nodes;
+  // Re-arrange keyframes
+  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+}
 
-  if (!nodes_.isEmpty()) {
-    // For each node, create a widget
-    bool found_gizmos = false;
+void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
+{
+  // Remove item from map and delete the widget
+  foreach (Node* n, nodes) {
+    // Remove all keyframes from this node
+    keyframe_view_->RemoveKeyframesOfNode(n);
 
-    foreach (Node* node, nodes_) {
-      NodeParamViewItem* item = new NodeParamViewItem(node);
-
-      // Insert the widget before the stretch
-      param_layout_->insertWidget(param_layout_->count() - 1, item);
-
-      connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-      connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-      connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
-      connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
-      connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
-
-      items_.append(item);
-
-      emit OpenedNode(node);
-
-      if (!found_gizmos && node->HasGizmos()) {
-        emit FoundGizmos(node);
-        found_gizmos = true;
-      }
-    }
-
-    UpdateItemTime(GetTimestamp());
-
-    QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+    delete items_.take(n);
   }
+
+  // Re-arrange keyframes
+  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
@@ -210,11 +199,6 @@ void NodeParamView::ConnectedNodeChanged(ViewerOutput *n)
   foreach (NodeParamViewItem* item, items_) {
     item->SetTimeTarget(n);
   }
-}
-
-const QList<Node *> &NodeParamView::nodes()
-{
-  return nodes_;
 }
 
 Node *NodeParamView::GetTimeTarget() const

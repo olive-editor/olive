@@ -37,8 +37,13 @@ class NodeParamView : public TimeBasedWidget
 public:
   NodeParamView(QWidget* parent = nullptr);
 
-  void SetNodes(QList<Node*> nodes);
-  const QList<Node*>& nodes();
+  void SelectNodes(const QList<Node*>& nodes);
+  void DeselectNodes(const QList<Node*>& nodes);
+
+  const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
+  {
+    return items_;
+  }
 
   Node* GetTimeTarget() const;
 
@@ -48,12 +53,6 @@ signals:
   void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QList<Node*>& target);
-
-  void OpenedNode(Node* n);
-
-  void ClosedNode(Node* n);
-
-  void FoundGizmos(Node* n);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -71,9 +70,7 @@ private:
 
   KeyframeView* keyframe_view_;
 
-  QList<Node*> nodes_;
-
-  QList<NodeParamViewItem*> items_;
+  QMap<Node*, NodeParamViewItem*> items_;
 
   QScrollBar* vertical_scrollbar_;
 

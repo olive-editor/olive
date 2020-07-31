@@ -82,8 +82,10 @@ MainWindow::MainWindow(QWidget *parent) :
   audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
 
   // Make connections to sequence viewer
-  connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
-  connect(node_panel_, &NodePanel::SelectionChanged, table_panel_, &NodeTablePanel::SetNodes);
+  connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
+  connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
+  connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
@@ -480,7 +482,8 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
-  connect(panel, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectBlocks);
+  connect(panel, &TimelinePanel::BlocksSelected, node_panel_, &NodePanel::SelectBlocks);
+  connect(panel, &TimelinePanel::BlocksDeselected, node_panel_, &NodePanel::DeselectBlocks);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
 

@@ -25,15 +25,9 @@ OLIVE_NAMESPACE_ENTER
 NodeTablePanel::NodeTablePanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("NodeTablePanel"), parent)
 {
-  view_ = new NodeTableWidget();
-  SetTimeBasedWidget(view_);
+  SetTimeBasedWidget(new NodeTableWidget());
 
   Retranslate();
-}
-
-void NodeTablePanel::SetNodes(const QList<Node *> &nodes)
-{
-  view_->SetNodes(nodes);
 }
 
 void NodeTablePanel::Retranslate()

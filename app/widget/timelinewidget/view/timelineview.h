@@ -49,10 +49,6 @@ public:
   TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop,
                QWidget* parent = nullptr);
 
-  void SelectAll();
-
-  void DeselectAll();
-
   int GetTrackY(int track_index) const;
   int GetTrackHeight(int track_index) const;
 
@@ -73,8 +69,6 @@ signals:
   void DragMoved(TimelineViewMouseEvent* event);
   void DragLeft(QDragLeaveEvent* event);
   void DragDropped(TimelineViewMouseEvent* event);
-
-  void SelectionChanged();
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;

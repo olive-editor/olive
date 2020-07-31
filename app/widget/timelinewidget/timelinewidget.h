@@ -104,7 +104,9 @@ public:
   void RestoreSplitterState(const QByteArray& state);
 
 signals:
-  void SelectionChanged(const QList<Block*>& selected_blocks);
+  void BlocksSelected(const QList<Block*>& selected_blocks);
+
+  void BlocksDeselected(const QList<Block*>& deselected_blocks);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -474,8 +476,9 @@ private:
 
   void StartRubberBandSelect(bool enable_selecting, bool select_links);
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
-  void EndRubberBandSelect(bool enable_selecting, bool select_links);
+  void EndRubberBandSelect();
   QRubberBand rubberband_;
+  QList<QGraphicsItem*> rubberband_already_selected_;
   QList<QGraphicsItem*> rubberband_now_selected_;
 
   Tool* GetActiveTool();
@@ -495,10 +498,6 @@ private:
   QMap<Block*, TimelineViewBlockItem*> block_items_;
 
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
-
-  void ConnectViewSelectionSignal(TimelineView* view);
-
-  void DisconnectViewSelectionSignal(TimelineView* view);
 
   QList<TimelineAndTrackView*> views_;
 
@@ -538,8 +537,6 @@ private slots:
   void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);
   void TrackIndexChanged();
-
-  void ViewSelectionChanged();
 
   /**
    * @brief Slot for when a Block node changes its parameters and the graphics need to update

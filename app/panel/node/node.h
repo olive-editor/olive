@@ -35,34 +35,77 @@ class NodePanel : public PanelWidget
 public:
   NodePanel(QWidget* parent);
 
-  void SetGraph(NodeGraph* graph);
+  void SetGraph(NodeGraph *graph)
+  {
+    node_view_->SetGraph(graph);
+  }
 
-  virtual void SelectAll() override;
-  virtual void DeselectAll() override;
+  virtual void SelectAll() override
+  {
+    node_view_->SelectAll();
+  }
 
-  virtual void DeleteSelected() override;
+  virtual void DeselectAll() override
+  {
+    node_view_->DeselectAll();
+  }
 
-  virtual void CutSelected() override;
-  virtual void CopySelected() override;
+  virtual void DeleteSelected() override
+  {
+    node_view_->DeleteSelected();
+  }
 
-  virtual void Paste() override;
+  virtual void CutSelected() override
+  {
+    node_view_->CopySelected(true);
+  }
 
-  virtual void Duplicate() override;
+  virtual void CopySelected() override
+  {
+    node_view_->CopySelected(false);
+  }
+
+  virtual void Paste() override
+  {
+    node_view_->Paste();
+  }
+
+  virtual void Duplicate() override
+  {
+    node_view_->Duplicate();
+  }
 
 public slots:
-  void Select(const QList<Node*>& nodes);
-  void SelectWithDependencies(const QList<Node*>& nodes);
+  void Select(const QList<Node*>& nodes)
+  {
+    node_view_->Select(nodes);
+  }
 
-  void SelectBlocks(const QList<Block*>& nodes);
+  void SelectWithDependencies(const QList<Node*>& nodes)
+  {
+    node_view_->SelectWithDependencies(nodes);
+  }
+
+  void SelectBlocks(const QList<Block*>& nodes)
+  {
+    node_view_->SelectBlocks(nodes);
+  }
+
+  void DeselectBlocks(const QList<Block*>& nodes)
+  {
+    node_view_->DeselectBlocks(nodes);
+  }
 
 signals:
-  /**
-   * @brief Wrapper for NodeView::SelectionChanged()
-   */
-  void SelectionChanged(QList<Node*> selected_nodes);
+  void NodesSelected(const QList<Node*>& nodes);
+
+  void NodesDeselected(const QList<Node*>& nodes);
 
 private:
-  virtual void Retranslate() override;
+  virtual void Retranslate() override
+  {
+    SetTitle(tr("Node Editor"));
+  }
 
   NodeView* node_view_;
 

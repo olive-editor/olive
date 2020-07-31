@@ -30,15 +30,22 @@ ParamPanel::ParamPanel(QWidget* parent) :
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
-  connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
+  //connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
   SetTimeBasedWidget(view);
 
   Retranslate();
 }
 
-void ParamPanel::SetNodes(QList<Node *> nodes)
+void ParamPanel::SelectNodes(const QList<Node *> &nodes)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetNodes(nodes);
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
+
+  Retranslate();
+}
+
+void ParamPanel::DeselectNodes(const QList<Node *> &nodes)
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 
   Retranslate();
 }
@@ -62,10 +69,10 @@ void ParamPanel::Retranslate()
 
   NodeParamView* view = static_cast<NodeParamView*>(GetTimeBasedWidget());
 
-  if (view->nodes().isEmpty()) {
+  if (view->GetItemMap().isEmpty()) {
     SetSubtitle(tr("(none)"));
-  } else if (view->nodes().size() == 1) {
-    SetSubtitle(view->nodes().first()->Name());
+  } else if (view->GetItemMap().size() == 1) {
+    SetSubtitle(view->GetItemMap().firstKey()->Name());
   } else {
     SetSubtitle(tr("(multiple)"));
   }

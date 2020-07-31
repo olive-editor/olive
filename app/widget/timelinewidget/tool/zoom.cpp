@@ -51,7 +51,7 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
     // Zoom into the rubberband selection
     QRect screen_coords = parent()->rubberband_.geometry();
 
-    parent()->EndRubberBandSelect(false, false);
+    parent()->EndRubberBandSelect();
 
     TimelineView* reference_view = parent()->views_.first()->view();
     QPointF scene_topleft = reference_view->mapToScene(reference_view->mapFrom(parent(), screen_coords.topLeft()));

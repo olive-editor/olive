@@ -74,6 +74,19 @@ void KeyframeViewBase::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
+{
+  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+
+  foreach (NodeInput* i, inputs) {
+    foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
+      foreach (NodeKeyframePtr key, track) {
+        RemoveKeyframe(key);
+      }
+    }
+  }
+}
+
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 {
   KeyframeAboutToBeRemoved(key.get());

@@ -40,6 +40,8 @@ public:
 
   void DeleteSelected();
 
+  void RemoveKeyframesOfNode(Node* n);
+
 public slots:
   void RemoveKeyframe(NodeKeyframePtr key);
 

@@ -33,7 +33,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   Retranslate();
 
-  connect(tw, &TimelineWidget::SelectionChanged, this, &TimelinePanel::SelectionChanged);
+  connect(tw, &TimelineWidget::BlocksSelected, this, &TimelinePanel::BlocksSelected);
+  connect(tw, &TimelineWidget::BlocksDeselected, this, &TimelinePanel::BlocksDeselected);
 }
 
 void TimelinePanel::Clear()

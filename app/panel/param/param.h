@@ -34,7 +34,8 @@ public:
   ParamPanel(QWidget* parent);
 
 public slots:
-  void SetNodes(QList<Node*> nodes);
+  void SelectNodes(const QList<Node*>& nodes);
+  void DeselectNodes(const QList<Node*>& nodes);
 
   virtual void SetTimestamp(const int64_t& timestamp) override;
 

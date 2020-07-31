@@ -78,15 +78,22 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     // If this item is already selected, no further selection needs to be made
     if (clicked_item_->isSelected()) {
 
+      // Collect item deselections
+      QList<Block*> deselected_blocks;
+
       // If shift is held, deselect it
       if (event->GetModifiers() & Qt::ShiftModifier) {
         clicked_item_->setSelected(false);
+        deselected_blocks.append(clicked_item_->block());
 
         // If not holding alt, deselect all links as well
         if (!(event->GetModifiers() & Qt::AltModifier)) {
           parent()->SetBlockLinksSelected(clicked_item_->block(), false);
+          deselected_blocks.append(clicked_item_->block()->linked_clips().toList());
         }
       }
+
+      emit parent()->BlocksDeselected(deselected_blocks);
 
       return;
     }
@@ -98,18 +105,29 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
   }
 
   if (selectable_item) {
+
+    // Collect item selections
+    QList<Block*> selected_blocks;
+
     // Select this item
     clicked_item_->setSelected(true);
+    selected_blocks.append(clicked_item_->block());
 
     // If not holding alt, select all links as well
     if (!(event->GetModifiers() & Qt::AltModifier)) {
       parent()->SetBlockLinksSelected(clicked_item_->block(), true);
+      selected_blocks.append(clicked_item_->block()->linked_clips().toList());
     }
+
+    emit parent()->BlocksSelected(selected_blocks);
+
   } else if (event->GetButton() == Qt::LeftButton) {
+
     // Start rubberband drag
     parent()->StartRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
 
     rubberband_selecting_ = true;
+
   }
 }
 
@@ -150,7 +168,7 @@ void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
     // Finish rubberband select
-    parent()->EndRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
+    parent()->EndRubberBandSelect();
     rubberband_selecting_ = false;
     return;
   }

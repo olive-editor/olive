@@ -25,8 +25,7 @@
 OLIVE_NAMESPACE_ENTER
 
 NodeTableWidget::NodeTableWidget(QWidget* parent) :
-  TimeBasedWidget(parent),
-  node_(nullptr)
+  TimeBasedWidget(parent)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setSpacing(0);
@@ -34,39 +33,6 @@ NodeTableWidget::NodeTableWidget(QWidget* parent) :
 
   view_ = new NodeTableView();
   layout->addWidget(view_);
-}
-
-void NodeTableWidget::SetNodes(const QList<Node *> &nodes)
-{
-  node_ = nullptr;
-
-  if (nodes.isEmpty()) {
-    view_->clear();
-  } else if (nodes.size() == 1) {
-    node_ = nodes.first();
-
-    ViewerOutput* viewer = node_->FindOutputNode<ViewerOutput>();
-    if (viewer) {
-      qDebug() << "Found timebase";
-      SetTimebase(viewer->video_params().time_base());
-    }
-
-    UpdateView();
-  } else {
-    view_->SetMultipleNodeMessage();
-  }
-}
-
-void NodeTableWidget::TimeChangedEvent(const int64_t &)
-{
-  UpdateView();
-}
-
-void NodeTableWidget::UpdateView()
-{
-  if (node_) {
-    view_->SetNode(node_, GetTime());
-  }
 }
 
 OLIVE_NAMESPACE_EXIT

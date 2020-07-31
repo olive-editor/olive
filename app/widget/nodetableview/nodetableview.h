@@ -32,12 +32,16 @@ class NodeTableView : public QTreeWidget
 public:
   NodeTableView(QWidget* parent = nullptr);
 
-  void SetNode(Node* n, const rational& time);
+  void SelectNodes(const QList<Node*>& nodes);
 
-  void SetMultipleNodeMessage();
+  void DeselectNodes(const QList<Node*>& nodes);
+
+  void SetTime(const rational& time);
 
 private:
-  Node* last_set_node_;
+  QMap<Node*, QTreeWidgetItem*> top_level_item_map_;
+
+  rational last_time_;
 
 };
 

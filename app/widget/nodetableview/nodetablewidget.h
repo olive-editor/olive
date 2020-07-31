@@ -31,17 +31,29 @@ class NodeTableWidget : public TimeBasedWidget
 public:
   NodeTableWidget(QWidget* parent = nullptr);
 
-  void SetNodes(const QList<Node*>& nodes);
+  void SelectNodes(const QList<Node*>& nodes)
+  {
+    view_->SelectNodes(nodes);
+  }
+
+  void DeselectNodes(const QList<Node*>& nodes)
+  {
+    view_->DeselectNodes(nodes);
+  }
 
 protected:
-  virtual void TimeChangedEvent(const int64_t& ts) override;
+  virtual void TimeChangedEvent(const int64_t& ts) override
+  {
+    UpdateView();
+  }
 
 private:
-  void UpdateView();
+  void UpdateView()
+  {
+    view_->SetTime(GetTime());
+  }
 
   NodeTableView* view_;
-
-  Node* node_;
 
 };
 
