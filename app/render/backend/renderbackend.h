@@ -23,12 +23,14 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "config/config.h"
 #include "dialog/rendercancel/rendercancel.h"
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "render/backend/colorprocessorcache.h"
 #include "renderticket.h"
+#include "renderticketwatcher.h"
 #include "renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -50,9 +52,42 @@ public:
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
-  void SetUpdateWithGraph(bool e)
+  void SetAutoCacheEnabled(bool e)
   {
-    update_with_graph_ = e;
+    autocache_enabled_ = e;
+  }
+
+  bool IsAutoCachePaused() const
+  {
+    return autocache_paused_;
+  }
+
+  void SetAutoCachePaused(bool paused)
+  {
+    autocache_paused_ = paused;
+
+    if (autocache_paused_) {
+      // Pause the autocache
+      ClearVideoQueue();
+    } else {
+      // Unpause the cache
+      AutoCacheRequeueFrames();
+    }
+  }
+
+  void AutoCacheRange(const TimeRange& range);
+
+  void AutoCacheRequeueFrames();
+
+  void SetAutoCachePlayhead(const rational& playhead)
+  {
+    autocache_range_ = TimeRange(playhead - Config::Current()["DiskCacheBehind"].value<rational>(),
+                                 playhead + Config::Current()["DiskCacheAhead"].value<rational>());
+
+    autocache_has_changed_ = true;
+    use_custom_autocache_range_ = false;
+
+    AutoCacheRequeueFrames();
   }
 
   void SetRenderMode(RenderMode::Mode e)
@@ -65,24 +100,22 @@ public:
     preview_job_time_ = job_time;
   }
 
-  void ClearVideoQueue();
-
   void ProcessUpdateQueue();
 
   /**
    * @brief Asynchronously generate a hash at a given time
    */
-  RenderTicketPtr Hash(const QVector<rational> &times);
+  RenderTicketPtr Hash(const QVector<rational> &times, bool prioritize = false);
 
   /**
    * @brief Asynchronously generate a frame at a given time
    */
-  RenderTicketPtr RenderFrame(const rational& time);
+  RenderTicketPtr RenderFrame(const rational& time, bool prioritize = false, const QByteArray& hash = QByteArray());
 
   /**
    * @brief Asynchronously generate a chunk of audio
    */
-  RenderTicketPtr RenderAudio(const TimeRange& r);
+  RenderTicketPtr RenderAudio(const TimeRange& r, bool prioritize = false);
 
   const VideoParams& GetVideoParams() const
   {
@@ -105,6 +138,14 @@ public:
 public slots:
   void NodeGraphChanged(NodeInput *source);
 
+  void ClearVideoQueue();
+
+  void ClearAudioQueue();
+
+  void ClearQueue();
+
+signals:
+
 protected:
   virtual RenderWorker* CreateNewWorker() = 0;
 
@@ -112,6 +153,10 @@ private:
   void CopyNodeInputValue(NodeInput* input);
   Node *CopyNodeConnections(Node *src_node);
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
+
+  void ClearQueueOfType(RenderTicket::Type type);
+
+  void SetHashes(FrameHashCache* cache, const QVector<rational>& times, const QVector<QByteArray>& hashes, qint64 job_time);
 
   ViewerOutput* viewer_node_;
 
@@ -126,9 +171,9 @@ private:
   QHash<Node*, Node*> copy_map_;
   ViewerOutput* copied_viewer_node_;
 
-  QThreadPool pool_;
-
   std::list<RenderTicketPtr> render_queue_;
+
+  std::list<RenderTicketPtr> running_tickets_;
 
   struct WorkerData {
     RenderWorker* worker;
@@ -137,16 +182,73 @@ private:
 
   QVector<WorkerData> workers_;
 
-  bool update_with_graph_;
+  bool autocache_enabled_;
+  bool autocache_paused_;
 
   qint64 preview_job_time_;
 
   RenderMode::Mode render_mode_;
 
+  TimeRange autocache_range_;
+
+  bool autocache_has_changed_;
+
+  bool use_custom_autocache_range_;
+  TimeRange custom_autocache_range_;
+
+  static QVector<RenderBackend*> instances_;
+  static QMutex instance_lock_;
+  static RenderBackend* active_instance_;
+  static QThreadPool thread_pool_;
+  void SetActiveInstance();
+
+  struct HashJobInfo {
+    QVector<rational> times;
+    qint64 job_time;
+  };
+
+  struct AudioJobInfo {
+    TimeRange range;
+    qint64 job_time;
+  };
+
+  struct VideoJobInfo {
+    QByteArray hash;
+    qint64 job_time;
+  };
+
+  QMap<RenderTicketWatcher*, HashJobInfo> autocache_hash_tasks_;
+
+  QList<QFutureWatcher<void>*> autocache_hash_process_tasks_;
+
+  QMap<RenderTicketWatcher*, AudioJobInfo> autocache_audio_tasks_;
+
+  QMap<RenderTicketWatcher*, VideoJobInfo> autocache_video_tasks_;
+
+  QMap<QFutureWatcher<bool>*, VideoJobInfo> autocache_video_download_tasks_;
+
+  QVector<QByteArray> currently_caching_hashes_;
+
 private slots:
   void WorkerFinished();
 
   void RunNextJob();
+
+  void TicketFinished();
+
+  void AutoCacheVideoInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void AutoCacheAudioInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void AutoCacheHashesGenerated();
+
+  void AutoCacheHashesProcessed();
+
+  void AutoCacheAudioRendered();
+
+  void AutoCacheVideoRendered();
+
+  void AutoCacheVideoDownloaded();
 
 };
 

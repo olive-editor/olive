@@ -44,6 +44,8 @@ public:
 
   void SetTimebase(const rational& tb);
 
+  void ValidateFramesWithHash(const QByteArray& hash);
+
   /**
    * @brief Returns a list of frames that use a particular hash
    */
@@ -62,8 +64,8 @@ public:
   static QString CachePathName(const QByteArray &hash);
 
   static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
-  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
-  static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
+  static bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
+  static bool SaveCacheFrame(const QByteArray& hash, FramePtr frame);
   static FramePtr LoadCacheFrame(const QByteArray& hash);
   static FramePtr LoadCacheFrame(const QString& fn);
 
@@ -72,9 +74,10 @@ public:
   static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
   QVector<rational> GetInvalidatedFrames();
+  QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
 
 public slots:
-  void SetHash(const OLIVE_NAMESPACE::rational& time, const QByteArray& hash, const qint64 &job_time);
+  void SetHash(const OLIVE_NAMESPACE::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;

@@ -57,6 +57,10 @@ public:
 public slots:
   void SetGizmos(Node* node);
 
+  void CacheEntireSequence();
+
+  void CacheSequenceInOut();
+
 protected:
   void CreateScopePanel(ScopePanel::Type type);
 

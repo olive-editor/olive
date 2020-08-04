@@ -41,7 +41,7 @@ QByteArray FrameHashCache::GetHash(const rational &time)
   return time_hash_map_.value(time);
 }
 
-void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
 {
   QMutexLocker locker(lock());
 
@@ -63,13 +63,17 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
 
   time_hash_map_.insert(time, hash);
 
-  TimeRange validated_range(time, time + timebase_);
-
-  NoLockValidate(validated_range);
+  TimeRange validated_range;
+  if (frame_exists) {
+    validated_range = TimeRange(time, time + timebase_);
+    NoLockValidate(validated_range);
+  }
 
   locker.unlock();
 
-  emit Validated(validated_range);
+  if (frame_exists) {
+    emit Validated(validated_range);
+  }
 }
 
 void FrameHashCache::SetTimebase(const rational &tb)
@@ -77,6 +81,33 @@ void FrameHashCache::SetTimebase(const rational &tb)
   QMutexLocker locker(lock());
 
   timebase_ = tb;
+}
+
+void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
+{
+  QMutexLocker locker(lock());
+
+  QMap<rational, QByteArray>::const_iterator iterator;
+
+  const TimeRangeList& invalidated_ranges = NoLockGetInvalidatedRanges();
+  TimeRangeList ranges_validated;
+
+  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+    if (iterator.value() == hash) {
+      TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
+
+      if (invalidated_ranges.ContainsTimeRange(frame_range)) {
+        NoLockValidate(frame_range);
+        ranges_validated.InsertTimeRange(frame_range);
+      }
+    }
+  }
+
+  locker.unlock();
+
+  foreach (const TimeRange& range, ranges_validated) {
+    emit Validated(range);
+  }
 }
 
 QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
@@ -175,10 +206,17 @@ QVector<rational> FrameHashCache::GetInvalidatedFrames()
 {
   QMutexLocker locker(lock());
 
-  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges());
+  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges(), timebase_);
 }
 
-void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
+QVector<rational> FrameHashCache::GetInvalidatedFrames(const TimeRange &intersecting)
+{
+  QMutexLocker locker(lock());
+
+  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges().Intersects(intersecting), timebase_);
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
                                     const VideoParams& vparam,
                                     int linesize_bytes)
@@ -188,15 +226,20 @@ void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
     DiskManager::instance()->CreatedFile(fn, hash);
+
+    return true;
+  } else {
+    return false;
   }
 }
 
-void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
 {
   if (frame) {
-    SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
   } else {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
+    return false;
   }
 }
 

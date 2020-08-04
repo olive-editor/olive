@@ -131,7 +131,8 @@ signals:
 
   void SizeChanged(int width, int height);
 
-  void ParamsChanged();
+  void VideoParamsChanged();
+  void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);

@@ -148,14 +148,14 @@ void ViewerOutput::set_video_params(const VideoParams &video)
     emit TimebaseChanged(video_params_.time_base());
   }
 
-  emit ParamsChanged();
+  emit VideoParamsChanged();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
 {
   audio_params_ = audio;
 
-  emit ParamsChanged();
+  emit AudioParamsChanged();
 }
 
 rational ViewerOutput::GetLength()

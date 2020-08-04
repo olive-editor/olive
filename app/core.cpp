@@ -1267,23 +1267,32 @@ void Core::CacheActiveSequence(bool in_out_only)
   TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
   if (p && p->GetConnectedViewer()) {
-    CacheTask* task = new CacheTask(p->GetConnectedViewer(),
-                                    p->GetConnectedViewer()->video_params(),
-                                    p->GetConnectedViewer()->audio_params(),
-                                    in_out_only);
+    // Hacky but works for now
 
-    // Stop any current auto-cache tasks
-    ViewerWidget::StopAllBackgroundCacheTasks(true);
-    ViewerWidget::SetBackgroundCacheTask(task);
+    // Find Viewer attached to this TimeBasedPanel
+    QList<ViewerPanel*> all_viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanel>();
 
-    TaskDialog* dialog = new TaskDialog(task, tr("Caching Sequence"), main_window_);
+    ViewerPanel* found_panel = nullptr;
 
-    connect(dialog,
-            &TaskDialog::TaskSucceeded,
-            this,
-            [] { ViewerWidget::SetBackgroundCacheTask(nullptr); });
+    foreach (ViewerPanel* viewer, all_viewers) {
+      if (viewer->GetConnectedViewer() == p->GetConnectedViewer()) {
+        found_panel = viewer;
+        break;
+      }
+    }
 
-    dialog->open();
+    if (found_panel) {
+      if (in_out_only) {
+        found_panel->CacheSequenceInOut();
+      } else {
+        found_panel->CacheEntireSequence();
+      }
+    } else {
+      QMessageBox::critical(main_window_,
+                            tr("Failed to cache sequence"),
+                            tr("No active viewer found with this sequence."),
+                            QMessageBox::Ok);
+    }
   }
 }
 

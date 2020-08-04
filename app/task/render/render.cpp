@@ -189,10 +189,12 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     while (!IsCancelled() && i != render_lookup_table.end()) {
       if (i->frame_future->IsFinished()) {
-        FramePtr f = i->frame_future->Get().value<FramePtr>();
+        if (!i->frame_future->WasCancelled()) {
+          FramePtr f = i->frame_future->Get().value<FramePtr>();
 
-        // Start multithreaded download here
-        download_futures.push_back({i->hash, DownloadFrame(f, i->hash)});
+          // Start multithreaded download here
+          download_futures.push_back({i->hash, DownloadFrame(f, i->hash)});
+        }
 
         i = render_lookup_table.erase(i);
       } else {

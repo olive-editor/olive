@@ -72,7 +72,7 @@ QFuture<void> CacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
 void CacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
 {
   foreach (const rational& t, times) {
-    viewer()->video_frame_cache()->SetHash(t, hash, job_time());
+    viewer()->video_frame_cache()->SetHash(t, hash, job_time(), true);
   }
 }
 
