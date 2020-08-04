@@ -86,7 +86,7 @@ QStringList ExportCodec::GetPixelFormatsForCodec(ExportCodec::Codec c)
 {
   QStringList pix_fmts;
 
-  AVCodec* codec_info;
+  AVCodec* codec_info = nullptr;
 
   switch (c) {
   case kCodecH264:
@@ -105,7 +105,6 @@ QStringList ExportCodec::GetPixelFormatsForCodec(ExportCodec::Codec c)
   case kCodecPNG:
   case kCodecTIFF:
     // FIXME: Add these in (these will most likely use an OIIOEncoder which doesn't exist yet)
-    codec_info = nullptr;
     break;
   case kCodecMP2:
   case kCodecMP3:
@@ -113,7 +112,6 @@ QStringList ExportCodec::GetPixelFormatsForCodec(ExportCodec::Codec c)
   case kCodecPCM:
   case kCodecCount:
     // These are audio or invalid codecs and therefore have no pixel formats
-    codec_info = nullptr;
     break;
   }
 
