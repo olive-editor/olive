@@ -944,7 +944,14 @@ void TimelineWidget::RemoveBlock(Block *block)
   disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
-  delete block_items_.take(block);
+  TimelineViewBlockItem* item = block_items_.take(block);
+
+  if (item->isSelected()) {
+    // Sending a list of one item all the time is not very efficient
+    emit BlocksDeselected({block});
+  }
+
+  delete item;
 }
 
 void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
