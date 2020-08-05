@@ -173,6 +173,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
   qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
+  qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
 }
 
 void Core::Start()

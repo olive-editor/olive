@@ -95,9 +95,9 @@ public:
     render_mode_ = e;
   }
 
-  void EnablePreviewGeneration(qint64 job_time)
+  void SetPreviewGenerationEnabled(bool e)
   {
-    preview_job_time_ = job_time;
+    generate_audio_previews_ = e;
   }
 
   void ProcessUpdateQueue();
@@ -185,7 +185,7 @@ private:
   bool autocache_enabled_;
   bool autocache_paused_;
 
-  qint64 preview_job_time_;
+  bool generate_audio_previews_;
 
   RenderMode::Mode render_mode_;
 
@@ -202,30 +202,15 @@ private:
   static QThreadPool thread_pool_;
   void SetActiveInstance();
 
-  struct HashJobInfo {
-    QVector<rational> times;
-    qint64 job_time;
-  };
-
-  struct AudioJobInfo {
-    TimeRange range;
-    qint64 job_time;
-  };
-
-  struct VideoJobInfo {
-    QByteArray hash;
-    qint64 job_time;
-  };
-
-  QMap<RenderTicketWatcher*, HashJobInfo> autocache_hash_tasks_;
+  QMap<RenderTicketWatcher*, QVector<rational> > autocache_hash_tasks_;
 
   QList<QFutureWatcher<void>*> autocache_hash_process_tasks_;
 
-  QMap<RenderTicketWatcher*, AudioJobInfo> autocache_audio_tasks_;
+  QMap<RenderTicketWatcher*, TimeRange> autocache_audio_tasks_;
 
-  QMap<RenderTicketWatcher*, VideoJobInfo> autocache_video_tasks_;
+  QMap<RenderTicketWatcher*, QByteArray> autocache_video_tasks_;
 
-  QMap<QFutureWatcher<bool>*, VideoJobInfo> autocache_video_download_tasks_;
+  QMap<QFutureWatcher<bool>*, QByteArray> autocache_video_download_tasks_;
 
   QVector<QByteArray> currently_caching_hashes_;
 
@@ -235,6 +220,8 @@ private slots:
   void RunNextJob();
 
   void TicketFinished();
+
+  void WorkerGeneratedWaveform(OLIVE_NAMESPACE::RenderTicketPtr ticket, OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange range);
 
   void AutoCacheVideoInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
 

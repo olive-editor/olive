@@ -41,7 +41,7 @@ RenderBackend::RenderBackend(QObject *parent) :
   viewer_node_(nullptr),
   autocache_enabled_(false),
   autocache_paused_(false),
-  preview_job_time_(0),
+  generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline),
   autocache_has_changed_(false),
   use_custom_autocache_range_(false)
@@ -374,6 +374,7 @@ void RenderBackend::RunNextJob()
     for (int i=0;i<workers_.size();i++) {
       RenderWorker* worker = CreateNewWorker();
 
+      connect(worker, &RenderWorker::WaveformGenerated, this, &RenderBackend::WorkerGeneratedWaveform);
       connect(worker, &RenderWorker::FinishedJob, this, &RenderBackend::WorkerFinished);
 
       workers_.replace(i, {worker, false});
@@ -393,18 +394,21 @@ void RenderBackend::RunNextJob()
       worker->SetAudioParams(audio_params_);
       worker->SetVideoDownloadMatrix(video_download_matrix_);
       worker->SetRenderMode(render_mode_);
-      if (preview_job_time_) {
-        worker->EnablePreviewGeneration(viewer_node_->audio_playback_cache(), preview_job_time_);
-      }
+      worker->SetPreviewGenerationEnabled(generate_audio_previews_);
       worker->SetCopyMap(&copy_map_);
 
+      // Move ticket from queue to running list
       RenderTicketPtr ticket = render_queue_.front();
       render_queue_.pop_front();
-
       running_tickets_.push_back(ticket);
+
+      // Create watcher to remove from running list
       RenderTicketWatcher* watcher = new RenderTicketWatcher();
       connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::TicketFinished);
       watcher->SetTicket(ticket);
+
+      // Set job time to now
+      ticket->SetJobTime();
 
       switch (ticket->GetType()) {
       case RenderTicket::kTypeHash:
@@ -458,6 +462,28 @@ void RenderBackend::TicketFinished()
   running_tickets_.remove(ticket);
 }
 
+void RenderBackend::WorkerGeneratedWaveform(RenderTicketPtr ticket, TrackOutput *track, AudioVisualWaveform samples, TimeRange range)
+{
+  qDebug() << "Hello?";
+
+  QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(range,
+                                                                                       ticket->GetJobTime());
+  if (!valid_ranges.isEmpty()) {
+    // Generate visual waveform in this background thread
+    track->waveform_lock()->lock();
+
+    track->waveform().set_channel_count(audio_params_.channel_count());
+
+    foreach (const TimeRange& r, valid_ranges) {
+      track->waveform().OverwriteSums(samples, r.in(), r.in() - range.in(), r.length());
+    }
+
+    track->waveform_lock()->unlock();
+
+    emit track->PreviewChanged();
+  }
+}
+
 void RenderBackend::AutoCacheVideoInvalidated(const TimeRange &range)
 {
   ClearVideoQueue();
@@ -465,7 +491,7 @@ void RenderBackend::AutoCacheVideoInvalidated(const TimeRange &range)
   // Hash these frames since that should be relatively quick.
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange({range});
-  autocache_hash_tasks_.insert(watcher, {frames, QDateTime::currentMSecsSinceEpoch()});
+  autocache_hash_tasks_.insert(watcher, frames);
   connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheHashesGenerated);
   watcher->SetTicket(Hash(frames));
 }
@@ -474,7 +500,7 @@ void RenderBackend::AutoCacheAudioInvalidated(const TimeRange &range)
 {
   // Start a task to re-render the audio at this range
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  autocache_audio_tasks_.insert(watcher, {range, QDateTime::currentMSecsSinceEpoch()});
+  autocache_audio_tasks_.insert(watcher, range);
   connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheAudioRendered);
   watcher->SetTicket(RenderAudio(range, true));
 }
@@ -509,17 +535,15 @@ void RenderBackend::AutoCacheHashesGenerated()
 
   if (autocache_hash_tasks_.contains(watcher)) {
     if (!watcher->WasCancelled()) {
-      const HashJobInfo& info = autocache_hash_tasks_.value(watcher);
-
       QFutureWatcher<void>* hw = new QFutureWatcher<void>();
       connect(hw, &QFutureWatcher<void>::finished, this, &RenderBackend::AutoCacheHashesProcessed);
       autocache_hash_process_tasks_.append(hw);
       hw->setFuture(QtConcurrent::run(this,
                                       &RenderBackend::SetHashes,
                                       viewer_node_->video_frame_cache(),
-                                      info.times,
+                                      autocache_hash_tasks_.value(watcher),
                                       watcher->Get().value<QVector<QByteArray> >(),
-                                      info.job_time));
+                                      watcher->GetTicket()->GetJobTime()));
     }
 
     autocache_hash_tasks_.remove(watcher);
@@ -547,11 +571,9 @@ void RenderBackend::AutoCacheAudioRendered()
 
   if (autocache_audio_tasks_.contains(watcher)) {
     if (!watcher->WasCancelled()) {
-      const AudioJobInfo& job_info = autocache_audio_tasks_.value(watcher);
-
-      viewer_node_->audio_playback_cache()->WritePCM(job_info.range,
+      viewer_node_->audio_playback_cache()->WritePCM(autocache_audio_tasks_.value(watcher),
                                                      watcher->Get().value<SampleBufferPtr>(),
-                                                     job_info.job_time);
+                                                     watcher->GetTicket()->GetJobTime());
     }
 
     autocache_audio_tasks_.remove(watcher);
@@ -566,14 +588,14 @@ void RenderBackend::AutoCacheVideoRendered()
 
   if (autocache_video_tasks_.contains(watcher)) {
     if (!watcher->WasCancelled()) {
-      const VideoJobInfo& info = autocache_video_tasks_.value(watcher);
+      const QByteArray& hash = autocache_video_tasks_.value(watcher);
 
       // Download frame in another thread
       QFutureWatcher<bool>* w = new QFutureWatcher<bool>();
-      autocache_video_download_tasks_.insert(w, info);
+      autocache_video_download_tasks_.insert(w, hash);
       connect(w, &QFutureWatcher<bool>::finished, this, &RenderBackend::AutoCacheVideoDownloaded);
       w->setFuture(QtConcurrent::run(FrameHashCache::SaveCacheFrame,
-                                     info.hash,
+                                     hash,
                                      watcher->Get().value<FramePtr>()));
     }
 
@@ -590,11 +612,11 @@ void RenderBackend::AutoCacheVideoDownloaded()
   if (autocache_video_download_tasks_.contains(watcher)) {
     if (!watcher->isCanceled()) {
       if (watcher->result()) {
-        const VideoJobInfo& info = autocache_video_download_tasks_.value(watcher);
+        const QByteArray& hash = autocache_video_download_tasks_.value(watcher);
 
-        currently_caching_hashes_.removeOne(info.hash);
+        currently_caching_hashes_.removeOne(hash);
 
-        viewer_node_->video_frame_cache()->ValidateFramesWithHash(info.hash);
+        viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
       } else {
         qCritical() << "Failed to download video frame";
       }
@@ -792,7 +814,7 @@ void RenderBackend::AutoCacheRequeueFrames()
 
         RenderTicketWatcher* watcher = new RenderTicketWatcher();
         connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheVideoRendered);
-        autocache_video_tasks_.insert(watcher, {hash, QDateTime::currentMSecsSinceEpoch()});
+        autocache_video_tasks_.insert(watcher, hash);
 
         watcher->SetTicket(RenderFrame(t, false, hash));
       }

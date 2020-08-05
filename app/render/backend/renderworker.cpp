@@ -34,14 +34,15 @@ OLIVE_NAMESPACE_ENTER
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
-  audio_mode_is_preview_(false),
-  preview_cache_(nullptr),
+  generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline)
 {
 }
 
 void RenderWorker::Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QVector<rational> &times)
 {
+  ticket_ = ticket;
+
   QVector<QByteArray> hashes(times.size());
 
   for (int i=0;i<hashes.size();i++) {
@@ -73,6 +74,8 @@ QByteArray RenderWorker::HashNode(const Node *n, const VideoParams &params, cons
 
 void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time)
 {
+  ticket_ = ticket;
+
   NodeValueTable table = ProcessInput(viewer->texture_input(),
                                       TimeRange(time, time + video_params_.time_base()));
 
@@ -109,6 +112,8 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
 
 void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange &range)
 {
+  ticket_ = ticket;
+
   NodeValueTable table = ProcessInput(viewer->samples_input(), range);
 
   QVariant samples = table.Get(NodeParam::kSamples);
@@ -168,38 +173,26 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
       NodeValueTable::Merge({merged_table, table});
     }
 
-    if (preview_cache_) {
+    if (generate_audio_previews_) {
       // Find original track object
       TrackOutput* original_track = nullptr;
 
-      QList<TimeRange> valid_ranges = preview_cache_->GetValidRanges(range, preview_job_time_);
-      if (!valid_ranges.isEmpty()) {
-        QHash<Node*, Node*>::const_iterator i;
-        for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
-          if (i.value() == track) {
-            original_track = static_cast<TrackOutput*>(i.key());
-            break;
-          }
+      // Have to do a manual loop since our track is const and QHash won't take it
+      QHash<Node*, Node*>::const_iterator i;
+      for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
+        if (i.value() == track) {
+          original_track = static_cast<TrackOutput*>(i.key());
+          break;
         }
+      }
 
-        // Generate visual waveform in this background thread
-        if (original_track) {
-          AudioVisualWaveform visual_waveform;
-          visual_waveform.set_channel_count(audio_params_.channel_count());
-          visual_waveform.OverwriteSamples(block_range_buffer, audio_params_.sample_rate());
+      if (original_track) {
+        // Generate a visual waveform and send it back to the main thread
+        AudioVisualWaveform visual_waveform;
+        visual_waveform.set_channel_count(audio_params_.channel_count());
+        visual_waveform.OverwriteSamples(block_range_buffer, audio_params_.sample_rate());
 
-          original_track->waveform_lock()->lock();
-
-          original_track->waveform().set_channel_count(audio_params_.channel_count());
-
-          foreach (const TimeRange& r, valid_ranges) {
-            original_track->waveform().OverwriteSums(visual_waveform, r.in(), r.in() - range.in(), r.length());
-          }
-
-          original_track->waveform_lock()->unlock();
-
-          emit original_track->PreviewChanged();
-        }
+        emit WaveformGenerated(ticket_, original_track, visual_waveform, range);
       }
     }
 
@@ -386,37 +379,24 @@ QVariant RenderWorker::ProcessAudioFootage(StreamPtr stream, const TimeRange &in
     // See if we have a conformed version of this audio
     if (!decoder->HasConformedVersion(audio_params())) {
 
-      // If not, check what audio mode we're in
-      if (audio_mode_is_preview_) {
+      // If not, the audio needs to be conformed
+      // For online rendering/export, it's a waste of time to render the audio until we have
+      // all we need, so we try to handle the conform ourselves
+      AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
 
-        // For preview, we report the conform is missing and finish the render without it
-        // temporarily. The backend that picks up this signal will recache this section once the
-        // conform is available.
-        emit AudioConformUnavailable(decoder->stream(),
-                                     audio_render_time_,
-                                     input_time.out(),
-                                     audio_params());
+      // Check if any other threads are conforming this audio
+      if (as->try_start_conforming(audio_params())) {
+
+        // If not, conform it ourselves
+        decoder->ConformAudio(&IsCancelled(), audio_params());
 
       } else {
 
-        // For online rendering/export, it's a waste of time to render the audio until we have
-        // all we need, so we try to handle the conform ourselves
-        AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
+        // If another thread is conforming already, hackily try to wait until it's done.
+        do {
+          QThread::msleep(1000);
+        } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
 
-        // Check if any other threads are conforming this audio
-        if (as->try_start_conforming(audio_params())) {
-
-          // If not, conform it ourselves
-          decoder->ConformAudio(&IsCancelled(), audio_params());
-
-        } else {
-
-          // If another thread is conforming already, hackily try to wait until it's done.
-          do {
-            QThread::msleep(1000);
-          } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
-
-        }
       }
 
     }

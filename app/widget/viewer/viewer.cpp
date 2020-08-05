@@ -110,6 +110,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_ = new OpenGLBackend(this);
   renderer_->SetAutoCacheEnabled(true);
   renderer_->SetRenderMode(RenderMode::kOffline);
+  renderer_->SetPreviewGenerationEnabled(true);
 
   // Ensures that seeking on the waveform view updates the time as expected
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);

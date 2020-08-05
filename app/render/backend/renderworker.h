@@ -63,11 +63,6 @@ public:
     video_download_matrix_ = mat;
   }
 
-  void SetAudioModeIsPreview(bool audio_mode_is_preview)
-  {
-    audio_mode_is_preview_ = audio_mode_is_preview;
-  }
-
   void SetCopyMap(QHash<Node*, Node*>* copy_map)
   {
     copy_map_ = copy_map;
@@ -78,10 +73,9 @@ public:
     render_mode_ = mode;
   }
 
-  void EnablePreviewGeneration(AudioPlaybackCache* cache, qint64 job_time)
+  void SetPreviewGenerationEnabled(bool e)
   {
-    preview_cache_ = cache;
-    preview_job_time_ = job_time;
+    generate_audio_previews_ = e;
   }
 
   void Hash(RenderTicketPtr ticket, ViewerOutput* viewer, const QVector<rational>& times);
@@ -143,7 +137,7 @@ signals:
 
   void FinishedJob();
 
-  void WaveformGenerated(OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange start);
+  void WaveformGenerated(OLIVE_NAMESPACE::RenderTicketPtr ticket, OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange range);
 
 private:
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
@@ -151,6 +145,8 @@ private:
   static QByteArray HashNode(const Node* n, const VideoParams& params, const rational& time);
 
   RenderBackend* parent_;
+
+  RenderTicketPtr ticket_;
 
   VideoParams video_params_;
 
@@ -173,10 +169,7 @@ private:
   TimeRange audio_render_time_;
   bool available_;
 
-  bool audio_mode_is_preview_;
-
-  AudioPlaybackCache* preview_cache_;
-  qint64 preview_job_time_;
+  bool generate_audio_previews_;
 
   QHash<Node*, Node*>* copy_map_;
 
