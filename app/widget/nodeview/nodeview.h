@@ -145,6 +145,8 @@ private slots:
 
   void AssociatedNodeDestroyed();
 
+  void GraphNodeRemoved(Node* node);
+
   void GraphEdgeAdded(NodeEdgePtr edge);
 
   void GraphEdgeRemoved(NodeEdgePtr edge);

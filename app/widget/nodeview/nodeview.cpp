@@ -74,6 +74,7 @@ void NodeView::SetGraph(NodeGraph *graph)
   if (graph_ != nullptr) {
     disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::GraphNodeRemoved);
     disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
     disconnect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
   }
@@ -89,6 +90,7 @@ void NodeView::SetGraph(NodeGraph *graph)
   if (graph_ != nullptr) {
     connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::GraphNodeRemoved);
     connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
     connect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
 
@@ -975,6 +977,13 @@ void NodeView::ValidateFilter()
 void NodeView::AssociatedNodeDestroyed()
 {
   DisassociateNode(static_cast<Node*>(sender()), true);
+}
+
+void NodeView::GraphNodeRemoved(Node *node)
+{
+  if (selected_blocks_.contains(static_cast<Block*>(node))) {
+    DeselectBlocks({static_cast<Block*>(node)});
+  }
 }
 
 void NodeView::GraphEdgeAdded(NodeEdgePtr edge)
