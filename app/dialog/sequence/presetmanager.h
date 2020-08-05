@@ -41,6 +41,8 @@ class Preset
 public:
   Preset() = default;
 
+  virtual ~Preset(){}
+
   const QString& GetName() const
   {
     return name_;

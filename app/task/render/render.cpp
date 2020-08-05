@@ -86,7 +86,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
   QVector<rational> times;
   QVector<QByteArray> hashes;
   std::list<HashTimePair> frame_queue;
-  qint64 hash_job_time;
+  qint64 hash_job_time = 0;
 
   if (!video_range.isEmpty()) {
     times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
