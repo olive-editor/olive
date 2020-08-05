@@ -914,6 +914,7 @@ void FFmpegDecoderInstance::SetWorking(bool working)
 
 void FFmpegDecoderInstance::Seek(int64_t timestamp)
 {
+  qDebug() << "Seeking to" << timestamp;
   avcodec_flush_buffers(codec_ctx_);
   av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
 }
@@ -1061,7 +1062,11 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       // Handle an "expected" EOF by using the last frame of our cache
       cache_at_eof_ = true;
 
-      return_frame = cached_frames_.last();
+      if (cached_frames_.isEmpty()) {
+        qCritical() << "Unexpected codec EOF - unable to retrieve frame";
+      } else {
+        return_frame = cached_frames_.last();
+      }
 
       cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
