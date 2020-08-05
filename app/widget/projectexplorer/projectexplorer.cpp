@@ -31,7 +31,7 @@
 #include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
-#include "task/cache/footagecache.h"
+#include "task/precache/precachetask.h"
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -427,7 +427,7 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 
   // Start a background task for proxying
   foreach (VideoStreamPtr video_stream, video_streams) {
-    FootageCacheTask* proxy_task = new FootageCacheTask(video_stream, sequence);
+    PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
     TaskManager::instance()->AddTask(proxy_task);
   }
 }

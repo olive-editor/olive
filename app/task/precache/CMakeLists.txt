@@ -16,9 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/cache/cache.h
-  task/cache/cache.cpp
-  task/cache/footagecache.h
-  task/cache/footagecache.cpp
+  task/precache/precachetask.h
+  task/precache/precachetask.cpp
   PARENT_SCOPE
 )

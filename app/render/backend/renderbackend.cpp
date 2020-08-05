@@ -464,8 +464,6 @@ void RenderBackend::TicketFinished()
 
 void RenderBackend::WorkerGeneratedWaveform(RenderTicketPtr ticket, TrackOutput *track, AudioVisualWaveform samples, TimeRange range)
 {
-  qDebug() << "Hello?";
-
   QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(range,
                                                                                        ticket->GetJobTime());
   if (!valid_ranges.isEmpty()) {

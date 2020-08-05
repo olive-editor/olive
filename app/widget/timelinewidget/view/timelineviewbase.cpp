@@ -136,7 +136,7 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
 
     // Get playhead highlight color
     QColor highlight = palette().text().color();
-    highlight.setAlpha(128);
+    highlight.setAlpha(32);
     painter->setPen(Qt::NoPen);
     painter->setBrush(highlight);
     painter->drawRect(playhead_rect);

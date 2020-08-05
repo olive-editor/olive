@@ -24,31 +24,17 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(RenderBackend *backend) :
-  backend_(backend)
-{
-  job_time_ = QDateTime::currentMSecsSinceEpoch();
-
-  backend_is_ours_ = false;
-}
-
 RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams)
 {
-  job_time_ = QDateTime::currentMSecsSinceEpoch();
-
   backend_ = new OpenGLBackend();
   backend_->SetViewerNode(viewer);
   backend_->SetVideoParams(vparams);
   backend_->SetAudioParams(aparams);
-
-  backend_is_ours_ = true;
 }
 
 RenderTask::~RenderTask()
 {
-  if (backend_is_ours_) {
-    backend_->deleteLater();
-  }
+  delete backend_;
 }
 
 struct TimeHashFuturePair {
@@ -74,6 +60,7 @@ struct RangeSampleFuturePair {
 struct HashDownloadFuturePair {
   QByteArray hash;
   QFuture<void> download_future;
+  qint64 job_time;
 };
 
 void RenderTask::Render(const TimeRangeList& video_range,
@@ -99,16 +86,16 @@ void RenderTask::Render(const TimeRangeList& video_range,
   QVector<rational> times;
   QVector<QByteArray> hashes;
   std::list<HashTimePair> frame_queue;
+  qint64 hash_job_time;
 
   if (!video_range.isEmpty()) {
-    QList<QByteArray> existing_hashes;
-
     times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
 
     total_length += video_frame_sz * times.size();
 
     RenderTicketPtr hash_future = backend_->Hash(times);
     hashes = hash_future->Get().value<QVector<QByteArray> >();
+    hash_job_time = hash_future->GetJobTime();
 
     if (!hash_future->WasCancelled()) {
       for (int i=0;i<times.size();i++) {
@@ -136,6 +123,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
              || !audio_lookup_table.empty())) {
 
     if (!IsCancelled() && !frame_queue.empty()) {
+
       // Pop another frame off the frame queue
       const HashTimePair& p = frame_queue.front();
 
@@ -163,7 +151,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
           if (hash_exists) {
             // Already exists, no need to render it again
-            FrameDownloaded(p.hash, {p.time});
+            FrameDownloaded(p.hash, {p.time}, hash_job_time);
             progress_counter += video_frame_sz;
             emit ProgressChanged(progress_counter / total_length);
           }
@@ -193,7 +181,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
           FramePtr f = i->frame_future->Get().value<FramePtr>();
 
           // Start multithreaded download here
-          download_futures.push_back({i->hash, DownloadFrame(f, i->hash)});
+          download_futures.push_back({i->hash, DownloadFrame(f, i->hash), i->frame_future->GetJobTime()});
         }
 
         i = render_lookup_table.erase(i);
@@ -215,7 +203,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
           }
         }
 
-        FrameDownloaded(j->hash, times_with_hash);
+        FrameDownloaded(j->hash, times_with_hash, j->job_time);
 
         existing_hashes.push_back(j->hash);
 
@@ -234,7 +222,9 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     while (!IsCancelled() && k != audio_lookup_table.end()) {
       if (k->sample_future->IsFinished()) {
-        AudioDownloaded(k->range, k->sample_future->Get().value<SampleBufferPtr>());
+        AudioDownloaded(k->range,
+                        k->sample_future->Get().value<SampleBufferPtr>(),
+                        k->sample_future->GetJobTime());
 
         progress_counter += k->range.length().toDouble();
         emit ProgressChanged(progress_counter / total_length);
@@ -246,15 +236,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
   }
 
-  if (backend_is_ours_) {
-    // `Close` will block until all jobs are done making a safe deletion
-    backend_->Close();
-  }
-}
-
-void RenderTask::SetAnchorPoint(const rational &r)
-{
-  anchor_point_ = r;
+  // `Close` will block until all jobs are done making a safe deletion
+  backend_->Close();
 }
 
 OLIVE_NAMESPACE_EXIT

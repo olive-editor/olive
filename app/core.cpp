@@ -51,7 +51,6 @@
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 #include "render/shaderinfo.h"
-#include "task/cache/cache.h"
 #include "task/project/import/import.h"
 #include "task/project/load/load.h"
 #include "task/project/save/save.h"

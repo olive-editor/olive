@@ -18,38 +18,36 @@
 
 ***/
 
-#ifndef CACHETASK_H
-#define CACHETASK_H
+#ifndef PRECACHETASK_H
+#define PRECACHETASK_H
 
-#include <QtConcurrent/QtConcurrent>
-
+#include "node/input/media/video/video.h"
+#include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 #include "task/render/render.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class CacheTask : public RenderTask
+class PreCacheTask : public RenderTask
 {
-  Q_OBJECT
 public:
-  CacheTask(RenderBackend* backend, bool in_out_only);
-  CacheTask(ViewerOutput* viewer,
-            const VideoParams &vparams,
-            const AudioParams &aparams,
-            bool in_out_only);
+  PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
+
+  virtual ~PreCacheTask() override;
 
 protected:
   virtual bool Run() override;
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) override;
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  void Init();
+  VideoStreamPtr footage_;
 
-  bool in_out_only_;
+  VideoInput* video_node_;
 
   QThreadPool download_threads_;
 
@@ -57,4 +55,4 @@ private:
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // CACHETASK_H
+#endif // PRECACHETASK_H

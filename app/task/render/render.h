@@ -32,7 +32,6 @@ OLIVE_NAMESPACE_ENTER
 class RenderTask : public Task
 {
 public:
-  RenderTask(RenderBackend* backend);
   RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
   virtual ~RenderTask() override;
@@ -44,9 +43,9 @@ protected:
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) = 0;
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) = 0;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
   ViewerOutput* viewer() const
   {
@@ -63,26 +62,13 @@ protected:
     return backend_->GetAudioParams();
   }
 
-  void SetAnchorPoint(const rational& r);
-
-  const qint64& job_time() const
-  {
-    return job_time_;
-  }
-
   RenderBackend* backend()
   {
     return backend_;
   }
 
 private:
-  rational anchor_point_;
-
   RenderBackend* backend_;
-
-  bool backend_is_ours_;
-
-  qint64 job_time_;
 
 };
 

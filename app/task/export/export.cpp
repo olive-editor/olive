@@ -148,8 +148,10 @@ QFuture<void> ExportTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
   return QtConcurrent::run(FrameColorConvert, color_processor_, frame);
 }
 
-void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
+void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
 {
+  Q_UNUSED(job_time)
+
   FramePtr f = rendered_frame_.value(hash);
 
   foreach (const rational& t, times) {
@@ -173,8 +175,10 @@ void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rationa
   }
 }
 
-void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
 {
+  Q_UNUSED(job_time)
+
   TimeRange adjusted_range = range;
 
   if (params_.has_custom_range()) {

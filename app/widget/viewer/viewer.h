@@ -34,7 +34,6 @@
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/backend/renderticketwatcher.h"
-#include "task/cache/cache.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
