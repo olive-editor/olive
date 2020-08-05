@@ -34,6 +34,14 @@
 
 OLIVE_NAMESPACE_ENTER
 
+FrameHashCache::FrameHashCache(QObject *parent) :
+  PlaybackCache(parent)
+{
+  if (DiskManager::instance()) {
+    connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &FrameHashCache::HashDeleted);
+  }
+}
+
 QByteArray FrameHashCache::GetHash(const rational &time)
 {
   QMutexLocker locker(lock());
@@ -318,19 +326,6 @@ void FrameHashCache::LengthChangedEvent(const rational &old, const rational &new
   }
 }
 
-void FrameHashCache::InvalidateEvent(const TimeRange &r)
-{
-  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
-
-  while (i != time_hash_map_.end()) {
-    if (i.key() >= r.in() && i.key() < r.out()) {
-      i = time_hash_map_.erase(i);
-    } else {
-      i++;
-    }
-  }
-}
-
 struct HashTimePair {
   rational time;
   QByteArray hash;
@@ -372,6 +367,29 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   }
 }
 
+void FrameHashCache::HashDeleted(const QByteArray &hash)
+{
+  QMutexLocker locker(lock());
+
+  TimeRangeList invalidated;
+
+  QMap<rational, QByteArray>::const_iterator i;
+  for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
+    if (i.value() == hash) {
+      TimeRange r(i.key(), i.key() + timebase_);
+
+      NoLockInvalidate(r);
+      invalidated.InsertTimeRange(r);
+    }
+  }
+
+  locker.unlock();
+
+  foreach (const TimeRange& r, invalidated) {
+    emit Invalidated(r);
+  }
+}
+
 QString FrameHashCache::CachePathName(const QByteArray& hash)
 {
   QString ext = GetFormatExtension();
@@ -380,6 +398,9 @@ QString FrameHashCache::CachePathName(const QByteArray& hash)
   cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
+
+  // Register that in some way this hash has been accessed
+  DiskManager::instance()->Accessed(hash);
 
   return cache_dir.filePath(filename);
 }

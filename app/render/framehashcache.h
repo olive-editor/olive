@@ -35,10 +35,7 @@ class FrameHashCache : public PlaybackCache
 {
   Q_OBJECT
 public:
-  FrameHashCache(QObject* parent = nullptr) :
-    PlaybackCache(parent)
-  {
-  }
+  FrameHashCache(QObject* parent = nullptr);
 
   QByteArray GetHash(const rational& time);
 
@@ -82,14 +79,15 @@ public slots:
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
-  virtual void InvalidateEvent(const TimeRange& range) override;
-
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
 private:
   QMap<rational, QByteArray> time_hash_map_;
 
   rational timebase_;
+
+private slots:
+  void HashDeleted(const QByteArray& hash);
 
 };
 
