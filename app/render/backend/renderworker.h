@@ -48,6 +48,11 @@ public:
     available_ = a;
   }
 
+  void SetViewerNode(ViewerOutput* viewer)
+  {
+    viewer_ = viewer;
+  }
+
   void SetVideoParams(const VideoParams& params)
   {
     video_params_ = params;
@@ -170,6 +175,8 @@ private:
   bool available_;
 
   bool generate_audio_previews_;
+
+  ViewerOutput* viewer_;
 
   QHash<Node*, Node*>* copy_map_;
 

@@ -97,11 +97,8 @@ void Config::SetDefaults()
   config_map_["AudioOutput"] = QString();
   config_map_["AudioInput"] = QString();
 
-  config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-  config_map_["DiskCacheSize"] = 20.0;
   config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(1));
   config_map_["DiskCacheAhead"] = QVariant::fromValue(rational(5));
-  config_map_["ClearDiskCacheOnClose"] = false;
 
   config_map_["DefaultSequenceWidth"] = 1920;
   config_map_["DefaultSequenceHeight"] = 1080;

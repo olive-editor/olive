@@ -18,50 +18,40 @@
 
 ***/
 
-#ifndef PREFERENCESDISKTAB_H
-#define PREFERENCESDISKTAB_H
+#ifndef PATHWIDGET_H
+#define PATHWIDGET_H
 
-#include <QCheckBox>
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "preferencestab.h"
-#include "render/diskmanager.h"
-#include "widget/slider/floatslider.h"
-#include "widget/path/pathwidget.h"
+#include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class PreferencesDiskTab : public PreferencesTab
+class PathWidget : public QWidget
 {
   Q_OBJECT
 public:
-  PreferencesDiskTab();
+  PathWidget(const QString& path,
+             QWidget* parent = nullptr);
 
-  virtual bool Validate() override;
-
-  virtual void Accept() override;
-
-private:
-  PathWidget* disk_cache_location_;
-
-  FloatSlider* maximum_cache_slider_;
-
-  FloatSlider* cache_ahead_slider_;
-
-  FloatSlider* cache_behind_slider_;
-
-  QCheckBox* clear_disk_cache_;
-
-  QPushButton* clear_cache_btn_;
-
-  DiskCacheFolder* default_disk_cache_folder_;
+  QString text() const
+  {
+    return path_edit_->text();
+  }
 
 private slots:
-  void ClearDiskCache();
+  void BrowseClicked();
+
+  void LineEditChanged();
+
+private:
+  QLineEdit* path_edit_;
+
+  QPushButton* browse_btn_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PREFERENCESDISKTAB_H
+#endif // PATHWIDGET_H

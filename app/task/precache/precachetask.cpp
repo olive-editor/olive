@@ -75,7 +75,7 @@ bool PreCacheTask::Run()
 
 QFuture<void> PreCacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
 {
-  return QtConcurrent::run(&download_threads_, FrameHashCache::SaveCacheFrame, hash, frame);
+  return QtConcurrent::run(&download_threads_, viewer()->video_frame_cache(), &FrameHashCache::SaveCacheFrame, hash, frame);
 }
 
 void PreCacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)

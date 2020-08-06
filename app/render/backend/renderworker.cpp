@@ -274,21 +274,17 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     QByteArray hash = HashNode(node, video_params(), time);
 
-    QString fn = FrameHashCache::CachePathName(hash);
+    FramePtr f = viewer_->video_frame_cache()->LoadCacheFrame(hash);
 
-    if (QFileInfo::exists(fn)) {
-      FramePtr f = FrameHashCache::LoadCacheFrame(hash);
+    if (f) {
+      // The cached frame won't load with the correct divider by default, so we enforce it here
+      f->set_video_params(VideoParams(f->width() * video_params_.divider(),
+                                      f->height() * video_params_.divider(),
+                                      f->video_params().time_base(),
+                                      f->video_params().format(),
+                                      video_params_.divider()));
 
-      if (f) {
-        // The cached frame won't load with the correct divider by default, so we enforce it here
-        f->set_video_params(VideoParams(f->width() * video_params_.divider(),
-                                        f->height() * video_params_.divider(),
-                                        f->video_params().time_base(),
-                                        f->video_params().format(),
-                                        video_params_.divider()));
-
-        return CachedFrameToTexture(f);
-      }
+      return CachedFrameToTexture(f);
     }
   }
 

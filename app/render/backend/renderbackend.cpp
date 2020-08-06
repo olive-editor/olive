@@ -396,6 +396,7 @@ void RenderBackend::RunNextJob()
       worker->SetRenderMode(render_mode_);
       worker->SetPreviewGenerationEnabled(generate_audio_previews_);
       worker->SetCopyMap(&copy_map_);
+      worker->SetViewerNode(viewer_node_);
 
       // Move ticket from queue to running list
       RenderTicketPtr ticket = render_queue_.front();
@@ -592,7 +593,8 @@ void RenderBackend::AutoCacheVideoRendered()
       QFutureWatcher<bool>* w = new QFutureWatcher<bool>();
       autocache_video_download_tasks_.insert(w, hash);
       connect(w, &QFutureWatcher<bool>::finished, this, &RenderBackend::AutoCacheVideoDownloaded);
-      w->setFuture(QtConcurrent::run(FrameHashCache::SaveCacheFrame,
+      w->setFuture(QtConcurrent::run(viewer_node_->video_frame_cache(),
+                                     &FrameHashCache::SaveCacheFrame,
                                      hash,
                                      watcher->Get().value<FramePtr>()));
     }

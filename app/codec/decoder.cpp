@@ -29,7 +29,9 @@
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
+#include "common/filefunctions.h"
 #include "task/taskmanager.h"
+#include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -173,6 +175,11 @@ QString Decoder::GetConformedFilename(const AudioParams &params)
   index_fn.append(QString::number(params.channel_layout()));
 
   return index_fn;
+}
+
+QString Decoder::GetIndexFilename()
+{
+  return QDir(stream_->footage()->project()->cache_path()).filePath(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()).append(QString::number(stream()->index())));
 }
 
 bool Decoder::ConformAudio(const QAtomicInt *, const AudioParams& )

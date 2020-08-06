@@ -42,6 +42,8 @@ const int kProjectIconSizeMaximum = 256;
 /// The default size an icon in ProjectExplorer can be
 const int kProjectIconSizeDefault = 64;
 
+const int kBytesInGigabyte = 1073741824;
+
 OLIVE_NAMESPACE_EXIT
 
 #define MACRO_NAME_AS_STR(s) #s

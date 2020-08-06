@@ -25,62 +25,56 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QStandardPaths>
 
 #include "common/filefunctions.h"
 #include "config/config.h"
+#include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
 DiskManager* DiskManager::instance_ = nullptr;
 
-DiskManager::DiskManager() :
-  consumption_(0)
+DiskManager::DiskManager()
 {
-  // Try to load any current cache index from file
-  QFile cache_index_file(GetCacheIndexFilename());
+  // Add default cache location
+  QFile default_disk_cache_file(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("defaultdiskcache")));
+  if (default_disk_cache_file.open(QFile::ReadOnly)) {
+    QString default_dir = default_disk_cache_file.readAll();
 
-  if (cache_index_file.open(QFile::ReadOnly)) {
-    QDataStream ds(&cache_index_file);
-
-    while (!cache_index_file.atEnd()) {
-      HashTime h;
-
-      ds >> h.file_name;
-      ds >> h.hash;
-      ds >> h.access_time;
-      ds >> h.file_size;
-
-      if (QFileInfo::exists(h.file_name)) {
-        consumption_ += h.file_size;
-        disk_data_.append(h);
-      }
+    if (FileFunctions::DirectoryIsValid(default_dir, true)) {
+      GetOpenFolder(default_dir);
+    } else {
+      QMessageBox::warning(nullptr,
+                           tr("Disk Cache Error"),
+                           tr("Unable to set custom application disk cache. Using default instead."));
     }
+
+    default_disk_cache_file.close();
+  }
+
+  // If no custom default was loaded, load default
+  if (open_folders_.isEmpty()) {
+    GetOpenFolder(QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("mediacache"));
+  }
+
+  QFile disk_cache_index(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("diskcache")));
+
+  if (disk_cache_index.open(QFile::ReadOnly)) {
+    QTextStream stream(&disk_cache_index);
+
+    QString line;
+    while (stream.readLineInto(&line)) {
+      GetOpenFolder(line);
+    }
+
+    disk_cache_index.close();
   }
 }
 
 DiskManager::~DiskManager()
 {
-  if (Config::Current()["ClearDiskCacheOnClose"].toBool()) {
-    // Clear all cache data
-    ClearDiskCache(true);
-  } else {
-    // Save current cache index
-    QFile cache_index_file(GetCacheIndexFilename());
-
-    if (cache_index_file.open(QFile::WriteOnly)) {
-      QDataStream ds(&cache_index_file);
-
-      foreach (const HashTime& h, disk_data_) {
-        ds << h.file_name;
-        ds << h.hash;
-        ds << h.access_time;
-        ds << h.file_size;
-      }
-    } else {
-      qWarning() << "Failed to write cache index:" << GetCacheIndexFilename();
-    }
-  }
 }
 
 void DiskManager::CreateInstance()
@@ -99,107 +93,178 @@ DiskManager *DiskManager::instance()
   return instance_;
 }
 
-void DiskManager::Accessed(const QByteArray &hash)
+void DiskManager::Accessed(const QString &cache_folder, const QByteArray &hash)
 {
-  lock_.lock();
+  DiskCacheFolder* f = GetOpenFolder(cache_folder);
 
-  for (int i=disk_data_.size()-1;i>=0;i--) {
-    const HashTime& h = disk_data_.at(i);
+  f->Accessed(hash);
+}
 
-    if (h.hash == hash) {
-      HashTime moved_hash = h;
+void DiskManager::CreatedFile(const QString &cache_folder, const QString &file_name, const QByteArray &hash)
+{
+  DiskCacheFolder* f = GetOpenFolder(cache_folder);
 
-      moved_hash.access_time = QDateTime::currentMSecsSinceEpoch();
+  f->CreatedFile(file_name, hash);
+}
 
-      disk_data_.removeAt(i);
-      disk_data_.append(moved_hash);
-      break;
+bool DiskManager::ClearDiskCache(const QString &cache_folder)
+{
+  DiskCacheFolder* f = GetOpenFolder(cache_folder);
+
+  return f->ClearCache();
+}
+
+DiskCacheFolder *DiskManager::GetOpenFolder(const QString &path)
+{
+  // If path is empty, this must mean default
+  if (path.isEmpty()) {
+    return GetDefaultCacheFolder();
+  }
+
+  // See if we have an existing path with this name
+  foreach (DiskCacheFolder* f, open_folders_) {
+    if (f->GetPath() == path) {
+      return f;
     }
   }
 
-  lock_.unlock();
+  // We must have to open this folder
+  DiskCacheFolder* f = new DiskCacheFolder(path, this);
+  connect(f, &DiskCacheFolder::DeletedFrame, this, &DiskManager::DeletedFrame);
+  open_folders_.append(f);
+
+  return f;
 }
 
-void DiskManager::Accessed(const QString &filename)
+DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
+  QObject(parent)
 {
-  lock_.lock();
+  SetPath(path);
+}
 
-  for (int i=disk_data_.size()-1;i>=0;i--) {
-    const HashTime& h = disk_data_.at(i);
+DiskCacheFolder::~DiskCacheFolder()
+{
+  CloseCacheFolder();
+}
 
-    if (h.file_name == filename) {
-      HashTime moved_hash = h;
+bool DiskCacheFolder::ClearCache()
+{
+  bool deleted_files = true;
 
-      moved_hash.access_time = QDateTime::currentMSecsSinceEpoch();
+  std::list<HashTime>::iterator i = disk_data_.begin();
 
-      disk_data_.removeAt(i);
-      disk_data_.append(moved_hash);
-      break;
+  while (i != disk_data_.end()) {
+    // We return a false result if any of the files fail to delete, but still try to delete as many as we can
+    if (QFile::remove(i->file_name) || !QFileInfo::exists(i->file_name)) {
+      emit DeletedFrame(path_, i->hash);
+      i = disk_data_.erase(i);
+    } else {
+      qWarning() << "Failed to delete" << i->file_name;
+      deleted_files = false;
+      i++;
     }
   }
 
-  lock_.unlock();
+  return deleted_files;
 }
 
-void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
+void DiskCacheFolder::Accessed(const QByteArray &hash)
 {
-  lock_.lock();
+  std::list<HashTime>::iterator i = disk_data_.begin();
 
+  while (i != disk_data_.end()) {
+    if (i->hash == hash) {
+      // Copy access data and erase from list
+      HashTime accessed_hash = *i;
+      disk_data_.erase(i);
+
+      // Add it to the end
+      disk_data_.push_back(accessed_hash);
+
+      // End loop
+      break;
+    } else {
+      i++;
+    }
+  }
+}
+
+void DiskCacheFolder::CreatedFile(const QString &file_name, const QByteArray &hash)
+{
   qint64 file_size = QFile(file_name).size();
 
-  disk_data_.append({file_name, hash, QDateTime::currentMSecsSinceEpoch(), file_size});
+  disk_data_.push_back({file_name, hash, file_size});
 
   consumption_ += file_size;
 
   QList<QByteArray> deleted_hashes;
 
-  while (consumption_ > DiskLimit()) {
+  while (consumption_ > limit_) {
     deleted_hashes.append(DeleteLeastRecent());
   }
 
-  lock_.unlock();
-
   foreach (const QByteArray& h, deleted_hashes) {
-    emit DeletedFrame(h);
+    emit DeletedFrame(path_, h);
   }
 }
 
-bool DiskManager::ClearDiskCache(bool quick_delete)
+void DiskCacheFolder::SetPath(const QString &path)
 {
-  bool deleted_files;
+  // If this is currently set to a folder, close it out now
+  CloseCacheFolder();
 
-  lock_.lock();
-
-  if (quick_delete) {
-    deleted_files = QDir(FileFunctions::GetMediaCacheLocation()).removeRecursively();
-
+  // Signal that disk cache is gone
+  if (!disk_data_.empty()) {
+    foreach (const HashTime& h, disk_data_) {
+      emit DeletedFrame(path_, h.hash);
+    }
     disk_data_.clear();
-  } else {
-    deleted_files = true;
+  }
 
-    for (int i=0;i<disk_data_.size();i++) {
-      const HashTime& ht = disk_data_.at(i);
+  // Set defaults
+  clear_on_close_ = false;
+  consumption_ = 0;
+  limit_ = 21474836480; // Default to 20 GB
 
-      // We return a false result if any of the files fail to delete, but still try to delete as many as we can
-      if (QFile::remove(ht.file_name) || !QFileInfo::exists(ht.file_name)) {
-        emit DeletedFrame(ht.hash);
-        disk_data_.removeAt(i);
-        i--;
-      } else {
-        qWarning() << "Failed to delete" << ht.file_name;
-        deleted_files = false;
+  // Set path
+  path_ = path;
+
+  // Attempt to load existing index file from path
+  QDir path_dir(path_);
+  path_dir.mkpath(".");
+
+  index_path_ = path_dir.filePath(QStringLiteral("index"));
+
+  // Try to load any current cache index from file
+  QFile cache_index_file(index_path_);
+
+  if (cache_index_file.open(QFile::ReadOnly)) {
+    QDataStream ds(&cache_index_file);
+
+    ds >> limit_;
+    ds >> clear_on_close_;
+
+    while (!cache_index_file.atEnd()) {
+      HashTime h;
+
+      ds >> h.file_name;
+      ds >> h.hash;
+      ds >> h.file_size;
+
+      if (QFileInfo::exists(h.file_name)) {
+        consumption_ += h.file_size;
+        disk_data_.push_back(h);
       }
     }
+
+    cache_index_file.close();
   }
-
-  lock_.unlock();
-
-  return deleted_files;
 }
 
-QByteArray DiskManager::DeleteLeastRecent()
+QByteArray DiskCacheFolder::DeleteLeastRecent()
 {
-  HashTime h = disk_data_.takeFirst();
+  HashTime h = disk_data_.front();
+  disk_data_.pop_front();
 
   QFile::remove(h.file_name);
 
@@ -208,19 +273,37 @@ QByteArray DiskManager::DeleteLeastRecent()
   return h.hash;
 }
 
-qint64 DiskManager::DiskLimit()
+void DiskCacheFolder::CloseCacheFolder()
 {
-  double gigabytes = Config::Current()["DiskCacheSize"].toDouble();
+  if (path_.isEmpty()) {
+    return;
+  }
 
-  // Convert gigabytes to bytes
-  return qRound64(gigabytes * 1073741824);
-}
+  if (clear_on_close_) {
+    // If we're not moving to new and we're set to clear on close, clear now or else it'll never
+    // get cleared later
+    ClearCache();
+  }
 
-QString DiskManager::GetCacheIndexFilename()
-{
-  QDir d(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
-  d.mkpath(".");
-  return d.filePath("diskindex");
+  // Save current cache index
+  QFile cache_index_file(index_path_);
+
+  if (cache_index_file.open(QFile::WriteOnly)) {
+    QDataStream ds(&cache_index_file);
+
+    ds << limit_;
+    ds << clear_on_close_;
+
+    foreach (const HashTime& h, disk_data_) {
+      ds << h.file_name;
+      ds << h.hash;
+      ds << h.file_size;
+    }
+
+    cache_index_file.close();
+  } else {
+    qWarning() << "Failed to write cache index:" << index_path_;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

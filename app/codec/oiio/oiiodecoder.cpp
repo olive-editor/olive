@@ -220,11 +220,6 @@ bool OIIODecoder::SupportsVideo()
   return true;
 }
 
-QString OIIODecoder::GetIndexFilename() const
-{
-  return QString();
-}
-
 void OIIODecoder::FrameToBuffer(FramePtr frame, OIIO::ImageBuf *buf)
 {
 #if OIIO_VERSION < 20112

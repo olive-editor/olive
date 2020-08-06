@@ -103,6 +103,8 @@ protected:
 
   virtual void ShiftEvent(const rational& from, const rational& to);
 
+  QString GetCacheDirectory() const;
+
   QMutex* lock()
   {
     return &lock_;

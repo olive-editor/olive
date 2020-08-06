@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "render/colormanager.h"
+#include "render/diskmanager.h"
 #include "project/item/folder/folder.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
@@ -71,7 +72,10 @@ public:
 
   bool is_new() const;
 
-  const QString& cache_path() const {
+  const QString& cache_path(bool default_if_empty = true) const {
+    if (cache_path_.isEmpty() && default_if_empty) {
+      return DiskManager::instance()->GetDefaultCachePath();
+    }
     return cache_path_;
   }
 

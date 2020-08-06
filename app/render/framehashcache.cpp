@@ -227,13 +227,18 @@ QVector<rational> FrameHashCache::GetInvalidatedFrames(const TimeRange &intersec
 bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
                                     const VideoParams& vparam,
-                                    int linesize_bytes)
+                                    int linesize_bytes) const
 {
   QString fn = CachePathName(hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
-    DiskManager::instance()->CreatedFile(fn, hash);
+    QMetaObject::invokeMethod(DiskManager::instance(),
+                              "CreatedFile",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, fn),
+                              Q_ARG(QByteArray, hash));
 
     return true;
   } else {
@@ -241,7 +246,7 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
 {
   if (frame) {
     return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
@@ -251,12 +256,12 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
   }
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash)
+FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash) const
 {
   return LoadCacheFrame(CachePathName(hash));
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
+FramePtr FrameHashCache::LoadCacheFrame(const QString &fn) const
 {
   FramePtr frame = nullptr;
 
@@ -367,8 +372,13 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   }
 }
 
-void FrameHashCache::HashDeleted(const QByteArray &hash)
+void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
 {
+  QString cache_dir = GetCacheDirectory();
+  if (cache_dir.isEmpty() || s != cache_dir) {
+    return;
+  }
+
   QMutexLocker locker(lock());
 
   TimeRangeList invalidated;
@@ -390,22 +400,26 @@ void FrameHashCache::HashDeleted(const QByteArray &hash)
   }
 }
 
-QString FrameHashCache::CachePathName(const QByteArray& hash)
+QString FrameHashCache::CachePathName(const QByteArray& hash) const
 {
   QString ext = GetFormatExtension();
 
-  QDir cache_dir(QDir(FileFunctions::GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
+  QDir cache_dir(QDir(GetCacheDirectory()).filePath(QString(hash.left(1).toHex())));
   cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
 
   // Register that in some way this hash has been accessed
-  DiskManager::instance()->Accessed(hash);
+  QMetaObject::invokeMethod(DiskManager::instance(),
+                            "Accessed",
+                            Qt::QueuedConnection,
+                            Q_ARG(QString, GetCacheDirectory()),
+                            Q_ARG(QByteArray, hash));
 
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
 {
   Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
 

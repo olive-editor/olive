@@ -58,13 +58,13 @@ public:
   /**
    * @brief Return the path of the cached image at this time
    */
-  static QString CachePathName(const QByteArray &hash);
+  QString CachePathName(const QByteArray &hash) const;
 
-  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
-  static bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
-  static bool SaveCacheFrame(const QByteArray& hash, FramePtr frame);
-  static FramePtr LoadCacheFrame(const QByteArray& hash);
-  static FramePtr LoadCacheFrame(const QString& fn);
+  bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  FramePtr LoadCacheFrame(const QByteArray& hash) const;
+  FramePtr LoadCacheFrame(const QString& fn) const;
 
   static QString GetFormatExtension();
 
@@ -87,7 +87,7 @@ private:
   rational timebase_;
 
 private slots:
-  void HashDeleted(const QByteArray& hash);
+  void HashDeleted(const QString &s, const QByteArray& hash);
 
 };
 

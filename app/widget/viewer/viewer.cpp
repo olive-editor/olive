@@ -361,9 +361,9 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
-FramePtr DecodeCachedImage(const QString &fn, const rational& time)
+FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time) const
 {
-  FramePtr frame = FrameHashCache::LoadCacheFrame(fn);
+  FramePtr frame = GetConnectedNode()->video_frame_cache()->LoadCacheFrame(fn);
 
   if (frame) {
     frame->set_timestamp(time);
@@ -374,7 +374,7 @@ FramePtr DecodeCachedImage(const QString &fn, const rational& time)
   return frame;
 }
 
-void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time)
+void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
 {
   ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
 }
@@ -606,7 +606,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queu
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
                                                             QVariant::fromValue(t));
-    QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);
+    QtConcurrent::run(this, &ViewerWidget::DecodeCachedImage, ticket, cache_fn, t);
 
     return ticket;
   }

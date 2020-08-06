@@ -204,6 +204,10 @@ private:
 
   void PopOldestFrameFromPlaybackQueue();
 
+  FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
+
+  void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;

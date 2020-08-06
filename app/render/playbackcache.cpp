@@ -22,6 +22,10 @@
 
 #include <QDateTime>
 
+#include "node/output/viewer/viewer.h"
+#include "project/item/sequence/sequence.h"
+#include "project/project.h"
+
 OLIVE_NAMESPACE_ENTER
 
 void PlaybackCache::Invalidate(const TimeRange &r)
@@ -188,6 +192,27 @@ void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)
       compare.set_in(remove.out());
     }
   }
+}
+
+QString PlaybackCache::GetCacheDirectory() const
+{
+  // NOTE: A lot of assumptions in this behavior
+  ViewerOutput* viewer = static_cast<ViewerOutput*>(parent());
+  if (!viewer) {
+    return QString();
+  }
+
+  Sequence* sequence = static_cast<Sequence*>(viewer->parent());
+  if (!sequence) {
+    return QString();
+  }
+
+  Project* project = sequence->project();
+  if (!project) {
+    return QString();
+  }
+
+  return project->cache_path();
 }
 
 OLIVE_NAMESPACE_EXIT

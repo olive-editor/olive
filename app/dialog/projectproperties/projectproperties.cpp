@@ -20,6 +20,7 @@
 
 #include "projectproperties.h"
 
+#include <QButtonGroup>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGroupBox>
@@ -29,6 +30,7 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "common/filefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "render/colormanager.h"
@@ -51,7 +53,10 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     // Color management group
     QWidget* color_group = new QWidget();
 
-    QGridLayout* color_layout = new QGridLayout(color_group);
+    QVBoxLayout* color_outer_layout = new QVBoxLayout(color_group);
+
+    QGridLayout* color_layout = new QGridLayout();
+    color_outer_layout->addLayout(color_layout);
 
     int row = 0;
 
@@ -80,26 +85,47 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     OCIOFilenameUpdated();
 
     tabs->addTab(color_group, tr("Color Management"));
+
+    color_outer_layout->addStretch();
   }
 
   
 
   {
-    // Paths group
-    QWidget* paths_group = new QWidget();
+    // Cache group
+    QWidget* cache_group = new QWidget();
 
-    QGridLayout* paths_layout = new QGridLayout(paths_group);
+    QVBoxLayout* cache_layout = new QVBoxLayout(cache_group);
 
-    cache_path_ = new PathWidget(working_project_->cache_path(), this);
+    QButtonGroup* disk_cache_btn_group = new QButtonGroup();
 
-    int row = 0;
+    disk_cache_use_default_btn_ = new QRadioButton(tr("Use Default Location"));
+    disk_cache_store_alongside_project_btn_ = new QRadioButton(tr("Store Alongside Project"));
+    disk_cache_use_custom_btn_ = new QRadioButton(tr("Use Custom Location:"));
 
-    paths_layout->addWidget(new QLabel(tr("Cache Path:")), row, 0);
-    paths_layout->addWidget(cache_path_->path_edit(), row, 1);
-    paths_layout->addWidget(cache_path_->browse_btn(), row, 2);
-    paths_layout->addWidget(cache_path_->default_box(), row, 3);
+    disk_cache_btn_group->addButton(disk_cache_use_default_btn_);
+    disk_cache_btn_group->addButton(disk_cache_store_alongside_project_btn_);
+    disk_cache_btn_group->addButton(disk_cache_use_custom_btn_);
 
-    tabs->addTab(paths_group, tr("Paths"));
+    cache_layout->addWidget(disk_cache_use_default_btn_);
+    cache_layout->addWidget(disk_cache_store_alongside_project_btn_);
+    cache_layout->addWidget(disk_cache_use_custom_btn_);
+
+    cache_path_ = new PathWidget(working_project_->cache_path(false), this);
+    cache_path_->setEnabled(false);
+    cache_layout->addWidget(cache_path_);
+
+    connect(disk_cache_use_custom_btn_, &QRadioButton::toggled, cache_path_, &PathWidget::setEnabled);
+
+    if (working_project_->cache_path(false).isEmpty()) {
+      disk_cache_use_default_btn_->setChecked(true);
+    } else {
+      disk_cache_use_custom_btn_->setChecked(true);
+    }
+
+    cache_layout->addWidget(cache_path_);
+
+    tabs->addTab(cache_group, tr("Disk Cache"));
   }
 
   QDialogButtonBox* dialog_btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -122,18 +148,26 @@ void ProjectPropertiesDialog::accept()
     return;
   }
 
-  if (!cache_path_->PathIsValid(true)) {
-    QMessageBox mb(this);
-    mb.setWindowModality(Qt::WindowModal);
-    mb.setIcon(QMessageBox::Critical);
-    mb.setWindowTitle(tr("Invalid path"));
-    mb.setText(tr("The cache path is invalid. Please check it and try again."));
-    mb.addButton(QMessageBox::Ok);
-    mb.exec();
+  if (disk_cache_use_default_btn_->isChecked()) {
+    // Empty cache path means default
+    working_project_->set_cache_path(QString());
+  } else if (disk_cache_store_alongside_project_btn_->isChecked()) {
+    QMessageBox::information(this, QString(), tr("\"Store alignside project\" functionality not implemented yet"));
     return;
-  }
+  } else {
+    if (!FileFunctions::DirectoryIsValid(cache_path_->text(), true)) {
+      QMessageBox mb(this);
+      mb.setWindowModality(Qt::WindowModal);
+      mb.setIcon(QMessageBox::Critical);
+      mb.setWindowTitle(tr("Invalid path"));
+      mb.setText(tr("The cache path is invalid. Please check it and try again."));
+      mb.addButton(QMessageBox::Ok);
+      mb.exec();
+      return;
+    }
 
-  working_project_->set_cache_path(cache_path_->path_edit()->text());
+    working_project_->set_cache_path(cache_path_->text());
+  }
 
   // This should ripple changes throughout the program that the color config has changed, therefore must be done last
   working_project_->color_manager()->SetConfigAndDefaultInput(ocio_filename_->text(),
@@ -181,56 +215,6 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
     ocio_config_is_valid_ = false;
     ocio_filename_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
     ocio_config_error_ = e.what();
-  }
-}
-
-PathWidget::PathWidget(const QString &path, QWidget *parent) :
-  QObject(parent)
-{
-  path_edit_ = new QLineEdit();
-  path_edit_->setText(path);
-  connect(path_edit_, &QLineEdit::textChanged, this, &PathWidget::LineEditChanged);
-
-  default_box_ = new QCheckBox(tr("Default"));
-
-  browse_btn_ = new QPushButton(tr("Browse"));
-
-  connect(default_box_, &QCheckBox::toggled, this, &PathWidget::DefaultToggled);
-
-  default_box_->setChecked(path.isEmpty());
-
-  connect(browse_btn_, &QPushButton::clicked, this, &PathWidget::BrowseClicked);
-}
-
-bool PathWidget::PathIsValid(bool try_to_create) const
-{
-  return default_box_->isChecked()
-      || QDir(path_edit_->text()).exists()
-      || (try_to_create && QDir(path_edit_->text()).mkpath(QStringLiteral(".")));
-}
-
-void PathWidget::DefaultToggled(bool e)
-{
-  path_edit_->setEnabled(!e);
-}
-
-void PathWidget::BrowseClicked()
-{
-  QString dir = QFileDialog::getExistingDirectory(static_cast<QWidget*>(parent()),
-                                                  tr("Browse for path"),
-                                                  path_edit_->text());
-
-  if (!dir.isEmpty()) {
-    path_edit_->setText(dir);
-  }
-}
-
-void PathWidget::LineEditChanged()
-{
-  if (PathIsValid(false)) {
-    path_edit_->setStyleSheet(QString());
-  } else {
-    path_edit_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
   }
 }
 

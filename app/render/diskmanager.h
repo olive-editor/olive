@@ -21,12 +21,82 @@
 #ifndef DISKMANAGER_H
 #define DISKMANAGER_H
 
+#include <QMap>
 #include <QMutex>
 #include <QObject>
 
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class DiskCacheFolder : public QObject
+{
+  Q_OBJECT
+public:
+  DiskCacheFolder(const QString& path, QObject* parent = nullptr);
+
+  virtual ~DiskCacheFolder() override;
+
+  bool ClearCache();
+
+  void Accessed(const QByteArray& hash);
+
+  void CreatedFile(const QString& file_name, const QByteArray& hash);
+
+  const QString& GetPath() const
+  {
+    return path_;
+  }
+
+  void SetPath(const QString& path);
+
+  qint64 GetLimit() const
+  {
+    return limit_;
+  }
+
+  bool GetClearOnClose() const
+  {
+    return clear_on_close_;
+  }
+
+  void SetLimit(qint64 l)
+  {
+    limit_ = l;
+  }
+
+  void SetClearOnClose(bool e)
+  {
+    clear_on_close_ = e;
+  }
+
+signals:
+  void DeletedFrame(const QString& path, const QByteArray& hash);
+
+private:
+  QByteArray DeleteLeastRecent();
+
+  void CloseCacheFolder();
+
+  QString path_;
+
+  QString index_path_;
+
+  struct HashTime {
+    QString file_name;
+    QByteArray hash;
+    qint64 file_size;
+  };
+
+  std::list<HashTime> disk_data_;
+
+  qint64 consumption_;
+
+  qint64 limit_;
+
+  bool clear_on_close_;
+
+};
 
 class DiskManager : public QObject
 {
@@ -38,16 +108,33 @@ public:
 
   static DiskManager* instance();
 
-  void Accessed(const QByteArray& hash);
+  bool ClearDiskCache(const QString& cache_folder);
 
-  void Accessed(const QString& filename);
+  DiskCacheFolder* GetDefaultCacheFolder() const
+  {
+    // The first folder will always be the default
+    return open_folders_.first();
+  }
 
-  void CreatedFile(const QString& file_name, const QByteArray& hash);
+  const QString& GetDefaultCachePath() const
+  {
+    return GetDefaultCacheFolder()->GetPath();
+  }
 
-  bool ClearDiskCache(bool quick_delete);
+  DiskCacheFolder* GetOpenFolder(const QString& path);
+
+  const QVector<DiskCacheFolder*>& GetOpenFolders() const
+  {
+    return open_folders_;
+  }
+
+public slots:
+  void Accessed(const QString& cache_folder, const QByteArray& hash);
+
+  void CreatedFile(const QString& cache_folder, const QString& file_name, const QByteArray& hash);
 
 signals:
-  void DeletedFrame(const QByteArray& hash);
+  void DeletedFrame(const QString& path, const QByteArray& hash);
 
 private:
   DiskManager();
@@ -56,24 +143,7 @@ private:
 
   static DiskManager* instance_;
 
-  QByteArray DeleteLeastRecent();
-
-  qint64 DiskLimit();
-
-  static QString GetCacheIndexFilename();
-
-  struct HashTime {
-    QString file_name;
-    QByteArray hash;
-    qint64 access_time;
-    qint64 file_size;
-  };
-
-  QList<HashTime> disk_data_;
-
-  qint64 consumption_;
-
-  QMutex lock_;
+  QVector<DiskCacheFolder*> open_folders_;
 
 };
 

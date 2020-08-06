@@ -611,40 +611,6 @@ void FFmpegDecoder::Error(const QString &s)
   ClearResources();
 }
 
-QMutex scaler_lock;
-void SaveCacheFrame(FFmpegDecoder* decoder,
-                    SwsContext* scaler,
-                    AVFrame* frame,
-                    VideoParams params,
-                    QString dst_fn)
-{
-  QByteArray converted_buffer(PixelFormat::GetBufferSize(params.format(),
-                                                         params.width(),
-                                                         params.height()),
-                              Qt::Uninitialized);
-
-  uint8_t* converted_data = reinterpret_cast<uint8_t*>(converted_buffer.data());
-  int converted_linesize = PixelFormat::GetBufferSize(params.format(),
-                                                      params.width(),
-                                                      1);
-
-  scaler_lock.lock();
-  sws_scale(scaler,
-            frame->data,
-            frame->linesize,
-            0,
-            frame->height,
-            &converted_data,
-            &converted_linesize);
-  scaler_lock.unlock();
-
-  if (!FrameHashCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params, converted_linesize)) {
-    qCritical() <<" Failed to save cache frame" << dst_fn;
-  }
-
-  av_frame_free(&frame);
-}
-
 bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams &p)
 {
   // Iterate through each audio frame and extract the PCM data
@@ -772,17 +738,6 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams 
   av_packet_free(&pkt);
 
   return success;
-}
-
-QString FFmpegDecoder::GetIndexFilename() const
-{
-  return FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()))
-      .append(QString::number(stream()->index()));
-}
-
-QString FFmpegDecoder::GetProxyFilename(int divider) const
-{
-  return GetIndexFilename().append('d').append(QString::number(divider));
 }
 
 int FFmpegDecoder::GetScaledDimension(int dim, int divider)
@@ -914,7 +869,6 @@ void FFmpegDecoderInstance::SetWorking(bool working)
 
 void FFmpegDecoderInstance::Seek(int64_t timestamp)
 {
-  qDebug() << "Seeking to" << timestamp;
   avcodec_flush_buffers(codec_ctx_);
   av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
 }
@@ -1169,14 +1123,6 @@ void FFmpegDecoder::FreeScaler()
 
     scale_divider_ = 0;
   }
-}
-
-QString FFmpegDecoder::GetProxyFrameFilename(const int64_t &timestamp, const int& divider) const
-{
-  QString dst_fn = GetProxyFilename(divider);
-  dst_fn.append(QString::number(timestamp));
-  dst_fn.append(FrameHashCache::GetFormatExtension());
-  return dst_fn;
 }
 
 int64_t FFmpegDecoderInstance::RangeStart() const
