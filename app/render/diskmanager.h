@@ -26,6 +26,7 @@
 #include <QObject>
 
 #include "common/define.h"
+#include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -128,6 +129,8 @@ public:
     return open_folders_;
   }
 
+  static bool ShowDiskCacheChangeConfirmationDialog(QWidget* parent);
+
 public slots:
   void Accessed(const QString& cache_folder, const QByteArray& hash);
 
@@ -135,6 +138,8 @@ public slots:
 
 signals:
   void DeletedFrame(const QString& path, const QByteArray& hash);
+
+  void InvalidateProject(Project* p);
 
 private:
   DiskManager();

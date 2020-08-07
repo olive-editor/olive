@@ -37,8 +37,6 @@ AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
 
 void AudioPlaybackCache::SetParameters(const AudioParams &params)
 {
-  QMutexLocker locker(lock());
-
   if (params_ == params) {
     return;
   }
@@ -52,22 +50,17 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   }
 
   // Our current audio cache is unusable, so we truncate it automatically
-  TimeRange invalidate_range(0, NoLockGetLength());
+  TimeRange invalidate_range(0, GetLength());
   if (invalidate_range.in() != invalidate_range.out()) {
-    NoLockInvalidate(invalidate_range);
+    Invalidate(invalidate_range);
   }
 
-  locker.unlock();
-
   emit ParametersChanged();
-  emit Invalidated(invalidate_range);
 }
 
 void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64 &job_time)
 {
-  QMutexLocker locker(lock());
-
-  QList<TimeRange> valid_ranges = NoLockGetValidRanges(range, job_time);
+  QList<TimeRange> valid_ranges = GetValidRanges(range, job_time);
   if (valid_ranges.isEmpty()) {
     return;
   }
@@ -102,11 +95,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
     f.close();
 
-    NoLockValidate(range);
-
-    locker.unlock();
-
-    emit Validated(range);
+    Validate(range);
   } else {
     qWarning() << "Failed to write PCM data to" << filename_;
   }
@@ -114,8 +103,6 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
 void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 {
-  QMutexLocker locker(lock());
-
   QFile f(filename_);
   if (f.open(QFile::ReadWrite)) {
     qint64 start_offset = params_.time_to_bytes(range.in());
@@ -132,6 +119,8 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
     f.write(a);
 
     f.close();
+
+    Validate(range);
   } else {
     qWarning() << "Failed to write PCM data to" << filename_;
   }
@@ -232,7 +221,7 @@ void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational&
   }
 }
 
-QList<TimeRange> AudioPlaybackCache::NoLockGetValidRanges(const TimeRange& range, const qint64& job_time)
+QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const qint64& job_time)
 {
   QList<TimeRange> valid_ranges;
 

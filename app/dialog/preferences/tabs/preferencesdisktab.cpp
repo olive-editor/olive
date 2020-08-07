@@ -102,12 +102,8 @@ bool PreferencesDiskTab::Validate()
   if (disk_cache_location_->text() != default_disk_cache_folder_->GetPath()) {
     // Disk cache location is changing
 
-    // Check if the user wants to move the cache here
-    if (QMessageBox::question(this,
-                              tr("Disk Cache"),
-                              tr("You've chosen to change the default disk cache location. This "
-                                 "will invalidate your current cache. Would you like to continue?"),
-                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+    // Check if the user is okay with invalidating the current cache
+    if (!DiskManager::ShowDiskCacheChangeConfirmationDialog(this)) {
       return false;
     }
 

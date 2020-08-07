@@ -39,20 +39,17 @@ FrameHashCache::FrameHashCache(QObject *parent) :
 {
   if (DiskManager::instance()) {
     connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &FrameHashCache::HashDeleted);
+    connect(DiskManager::instance(), &DiskManager::InvalidateProject, this, &FrameHashCache::ProjectInvalidated);
   }
 }
 
 QByteArray FrameHashCache::GetHash(const rational &time)
 {
-  QMutexLocker locker(lock());
-
   return time_hash_map_.value(time);
 }
 
 void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
 {
-  QMutexLocker locker(lock());
-
   bool is_current = false;
 
   for (int i=jobs_.size()-1; i>=0; i--) {
@@ -74,54 +71,34 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
   TimeRange validated_range;
   if (frame_exists) {
     validated_range = TimeRange(time, time + timebase_);
-    NoLockValidate(validated_range);
-  }
-
-  locker.unlock();
-
-  if (frame_exists) {
-    emit Validated(validated_range);
+    Validate(validated_range);
   }
 }
 
 void FrameHashCache::SetTimebase(const rational &tb)
 {
-  QMutexLocker locker(lock());
-
   timebase_ = tb;
 }
 
 void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
-  QMutexLocker locker(lock());
-
   QMap<rational, QByteArray>::const_iterator iterator;
 
-  const TimeRangeList& invalidated_ranges = NoLockGetInvalidatedRanges();
-  TimeRangeList ranges_validated;
+  const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
 
   for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
 
       if (invalidated_ranges.ContainsTimeRange(frame_range)) {
-        NoLockValidate(frame_range);
-        ranges_validated.InsertTimeRange(frame_range);
+        Validate(frame_range);
       }
     }
-  }
-
-  locker.unlock();
-
-  foreach (const TimeRange& range, ranges_validated) {
-    emit Validated(range);
   }
 }
 
 QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
-  QMutexLocker locker(lock());
-
   QList<rational> times;
 
   QMap<rational, QByteArray>::const_iterator iterator;
@@ -137,8 +114,6 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 
 QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
-  QMutexLocker locker(lock());
-
   QList<rational> times;
 
   QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
@@ -154,13 +129,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   }
 
   foreach (const rational& r, times) {
-    NoLockInvalidate(TimeRange(r, r + timebase_));
-  }
-
-  locker.unlock();
-
-  foreach (const rational& r, times) {
-    emit Invalidated(TimeRange(r, r + timebase_));
+    Invalidate(TimeRange(r, r + timebase_));
   }
 
   return times;
@@ -168,8 +137,6 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 
 QMap<rational, QByteArray> FrameHashCache::time_hash_map()
 {
-  QMutexLocker locker(lock());
-
   return time_hash_map_;
 }
 
@@ -205,23 +172,17 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
 
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range)
 {
-  QMutexLocker locker(lock());
-
   return GetFrameListFromTimeRange(range, timebase_);
 }
 
 QVector<rational> FrameHashCache::GetInvalidatedFrames()
 {
-  QMutexLocker locker(lock());
-
-  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges(), timebase_);
+  return GetFrameListFromTimeRange(GetInvalidatedRanges());
 }
 
 QVector<rational> FrameHashCache::GetInvalidatedFrames(const TimeRange &intersecting)
 {
-  QMutexLocker locker(lock());
-
-  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges().Intersects(intersecting), timebase_);
+  return GetFrameListFromTimeRange(GetInvalidatedRanges().Intersects(intersecting));
 }
 
 bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
@@ -379,24 +340,20 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
     return;
   }
 
-  QMutexLocker locker(lock());
-
-  TimeRangeList invalidated;
-
   QMap<rational, QByteArray>::const_iterator i;
   for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
     if (i.value() == hash) {
-      TimeRange r(i.key(), i.key() + timebase_);
-
-      NoLockInvalidate(r);
-      invalidated.InsertTimeRange(r);
+      Invalidate(TimeRange(i.key(), i.key() + timebase_));
     }
   }
+}
 
-  locker.unlock();
+void FrameHashCache::ProjectInvalidated(Project *p)
+{
+  if (GetProject() == p) {
+    time_hash_map_.clear();
 
-  foreach (const TimeRange& r, invalidated) {
-    emit Invalidated(r);
+    InvalidateAll();
   }
 }
 

@@ -34,6 +34,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "config/config.h"
 #include "core.h"
 #include "render/colormanager.h"
+#include "render/diskmanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -88,8 +89,6 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     color_outer_layout->addStretch();
   }
-
-  
 
   {
     // Cache group
@@ -148,9 +147,10 @@ void ProjectPropertiesDialog::accept()
     return;
   }
 
+  QString new_cache_path;
+
   if (disk_cache_use_default_btn_->isChecked()) {
-    // Empty cache path means default
-    working_project_->set_cache_path(QString());
+    // Keep new cache path empty, which means default
   } else if (disk_cache_store_alongside_project_btn_->isChecked()) {
     QMessageBox::information(this, QString(), tr("\"Store alignside project\" functionality not implemented yet"));
     return;
@@ -166,7 +166,19 @@ void ProjectPropertiesDialog::accept()
       return;
     }
 
-    working_project_->set_cache_path(cache_path_->text());
+    // Set new path to the text as entered
+    new_cache_path = cache_path_->text();
+  }
+
+  if (new_cache_path != working_project_->cache_path(false)) {
+    // Check if the user is okay with invalidating the current cache
+    if (!DiskManager::ShowDiskCacheChangeConfirmationDialog(this)) {
+      return;
+    }
+
+    working_project_->set_cache_path(new_cache_path);
+
+    emit DiskManager::instance()->InvalidateProject(working_project_);
   }
 
   // This should ripple changes throughout the program that the color config has changed, therefore must be done last
@@ -210,7 +222,6 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
         default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
       }
     }
-
   } catch (OCIO::Exception& e) {
     ocio_config_is_valid_ = false;
     ocio_filename_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));

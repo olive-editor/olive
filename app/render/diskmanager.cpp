@@ -136,6 +136,15 @@ DiskCacheFolder *DiskManager::GetOpenFolder(const QString &path)
   return f;
 }
 
+bool DiskManager::ShowDiskCacheChangeConfirmationDialog(QWidget *parent)
+{
+  return (QMessageBox::question(parent,
+                                tr("Disk Cache"),
+                                tr("You've chosen to change the default disk cache location. This "
+                                   "will invalidate your current cache. Would you like to continue?"),
+                                QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok);
+}
+
 DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
   QObject(parent)
 {

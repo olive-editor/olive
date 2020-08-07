@@ -89,6 +89,8 @@ private:
 private slots:
   void HashDeleted(const QString &s, const QByteArray& hash);
 
+  void ProjectInvalidated(Project* p);
+
 };
 
 OLIVE_NAMESPACE_EXIT

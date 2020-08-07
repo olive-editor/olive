@@ -28,6 +28,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+class Project;
+
 class PlaybackCache : public QObject
 {
   Q_OBJECT
@@ -43,17 +45,13 @@ public:
 
   const rational& GetLength()
   {
-    QMutexLocker locker(lock());
-
-    return NoLockGetLength();
+    return length_;
   }
 
   void SetLength(const rational& r);
 
   bool IsFullyValidated()
   {
-    QMutexLocker locker(lock());
-
     return invalidated_.isEmpty();
   }
 
@@ -61,15 +59,11 @@ public:
 
   const TimeRangeList& GetInvalidatedRanges()
   {
-    QMutexLocker locker(lock());
-
-    return NoLockGetInvalidatedRanges();
+    return invalidated_;
   }
 
   bool HasInvalidatedRanges()
   {
-    QMutexLocker locker(lock());
-
     return !invalidated_.isEmpty();
   }
 
@@ -83,19 +77,7 @@ signals:
   void LengthChanged(const OLIVE_NAMESPACE::rational& r);
 
 protected:
-  void NoLockInvalidate(const TimeRange& r);
-
-  void NoLockValidate(const TimeRange& r);
-
-  const rational& NoLockGetLength() const
-  {
-    return length_;
-  }
-
-  const TimeRangeList& NoLockGetInvalidatedRanges()
-  {
-    return invalidated_;
-  }
+  void Validate(const TimeRange& r);
 
   virtual void LengthChangedEvent(const rational& old, const rational& newlen);
 
@@ -103,12 +85,9 @@ protected:
 
   virtual void ShiftEvent(const rational& from, const rational& to);
 
-  QString GetCacheDirectory() const;
+  Project* GetProject() const;
 
-  QMutex* lock()
-  {
-    return &lock_;
-  }
+  QString GetCacheDirectory() const;
 
   struct JobIdentifier {
     TimeRange range;
@@ -119,8 +98,6 @@ protected:
 
 private:
   void RemoveRangeFromJobs(const TimeRange& remove);
-
-  QMutex lock_;
 
   TimeRangeList invalidated_;
 

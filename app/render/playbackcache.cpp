@@ -30,36 +30,30 @@ OLIVE_NAMESPACE_ENTER
 
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
-  QMutexLocker locker(lock());
+  Q_ASSERT(r.in() != r.out());
 
-  NoLockInvalidate(r);
+  invalidated_.InsertTimeRange(r);
 
-  locker.unlock();
+  RemoveRangeFromJobs(r);
+  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
+  jobs_.append({r, job_time});
+
+  InvalidateEvent(r);
 
   emit Invalidated(r);
 }
 
 void PlaybackCache::InvalidateAll()
 {
-  QMutexLocker locker(lock());
-
   if (length_.isNull()) {
     return;
   }
 
-  TimeRange invalidate_range(0, length_);
-
-  NoLockInvalidate(invalidate_range);
-
-  locker.unlock();
-
-  emit Invalidated(invalidate_range);
+  Invalidate(TimeRange(0, length_));
 }
 
 void PlaybackCache::SetLength(const rational &r)
 {
-  QMutexLocker locker(lock());
-
   if (length_ == r) {
     // Same length - do nothing
     return;
@@ -85,8 +79,6 @@ void PlaybackCache::SetLength(const rational &r)
   rational old_length = length_;
   length_ = r;
 
-  locker.unlock();
-
   if (r > old_length) {
     emit Invalidated(range_diff);
   } else {
@@ -100,21 +92,19 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
     return;
   }
 
-  QMutexLocker locker(lock());
-
   // An region between `from` and `to` will be inserted or spliced out
   TimeRangeList ranges_to_shift = invalidated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
   // Remove everything from the minimum point
   TimeRange remove_range = TimeRange(qMin(from, to), RATIONAL_MAX);
-  NoLockValidate(remove_range);
   RemoveRangeFromJobs(remove_range);
+  Validate(remove_range);
 
   // Shift everything in our ranges to shift list
   // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
-    NoLockInvalidate(r + diff);
+    Invalidate(r + diff);
   }
 
   ShiftEvent(from, to);
@@ -123,38 +113,18 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
 
   if (diff > rational()) {
     // If shifting forward, add this section to the invalidated region
-    NoLockInvalidate(TimeRange(from, to));
+    Invalidate(TimeRange(from, to));
   }
-
-  locker.unlock();
 
   // Emit signals
-  emit Validated(remove_range);
-  foreach (const TimeRange& r, ranges_to_shift) {
-    emit Invalidated(r + diff);
-  }
-  if (diff > rational()) {
-    emit Invalidated(TimeRange(from, to));
-  }
   emit Shifted(from, to);
 }
 
-void PlaybackCache::NoLockInvalidate(const TimeRange &r)
-{
-  Q_ASSERT(r.in() != r.out());
-
-  invalidated_.InsertTimeRange(r);
-
-  RemoveRangeFromJobs(r);
-  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
-  jobs_.append({r, job_time});
-
-  InvalidateEvent(r);
-}
-
-void PlaybackCache::NoLockValidate(const TimeRange &r)
+void PlaybackCache::Validate(const TimeRange &r)
 {
   invalidated_.RemoveTimeRange(r);
+
+  emit Validated(r);
 }
 
 void PlaybackCache::LengthChangedEvent(const rational &, const rational &)
@@ -167,6 +137,22 @@ void PlaybackCache::InvalidateEvent(const TimeRange &)
 
 void PlaybackCache::ShiftEvent(const rational &, const rational &)
 {
+}
+
+Project *PlaybackCache::GetProject() const
+{
+  // NOTE: A lot of assumptions in this behavior
+  ViewerOutput* viewer = static_cast<ViewerOutput*>(parent());
+  if (!viewer) {
+    return nullptr;
+  }
+
+  Sequence* sequence = static_cast<Sequence*>(viewer->parent());
+  if (!sequence) {
+    return nullptr;
+  }
+
+  return sequence->project();
 }
 
 void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)
@@ -196,23 +182,13 @@ void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)
 
 QString PlaybackCache::GetCacheDirectory() const
 {
-  // NOTE: A lot of assumptions in this behavior
-  ViewerOutput* viewer = static_cast<ViewerOutput*>(parent());
-  if (!viewer) {
+  Project* project = GetProject();
+
+  if (project) {
+    return project->cache_path();
+  } else {
     return QString();
   }
-
-  Sequence* sequence = static_cast<Sequence*>(viewer->parent());
-  if (!sequence) {
-    return QString();
-  }
-
-  Project* project = sequence->project();
-  if (!project) {
-    return QString();
-  }
-
-  return project->cache_path();
 }
 
 OLIVE_NAMESPACE_EXIT

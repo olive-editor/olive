@@ -26,6 +26,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
+#include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -63,6 +64,10 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
         }
       }
 
+    } else if (reader->name() == QStringLiteral("cachepath")) {
+
+      set_cache_path(reader->readElementText());
+
     } else if (reader->name() == QStringLiteral("layout")) {
 
       // Since the main window's functions have to occur in the GUI thread (and we're likely
@@ -97,6 +102,8 @@ void Project::Save(QXmlStreamWriter *writer) const
   writer->writeStartElement("project");
 
   writer->writeTextElement("url", filename_);
+
+  writer->writeTextElement("cachepath", cache_path(false));
 
   root_.Save(writer);
 
@@ -193,6 +200,14 @@ void Project::set_autorecovery_saved(bool e)
 bool Project::is_new() const
 {
   return !is_modified_ && filename_.isEmpty();
+}
+
+const QString &Project::cache_path(bool default_if_empty) const
+{
+  if (cache_path_.isEmpty() && default_if_empty) {
+    return DiskManager::instance()->GetDefaultCachePath();
+  }
+  return cache_path_;
 }
 
 OLIVE_NAMESPACE_EXIT
