@@ -341,6 +341,19 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
+  if (event->button() == Qt::RightButton) {
+    // Qt doesn't do this by default for some reason
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+      scene_.clearSelection();
+    }
+
+    // If there's an item here, select it
+    QGraphicsItem* item = itemAt(event->pos());
+    if (item) {
+      item->setSelected(true);
+    }
+  }
+
   super::mousePressEvent(event);
 }
 
