@@ -11,8 +11,8 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary
 REM Install 64-bit packages
 set VCPKG_DEFAULT_TRIPLET=x64-windows
 
-REM Hack to only install debug builds for time
-echo set(VCPKG_BUILD_TYPE debug) >> C:\Tools\vcpkg\triplets\x64-windows.cmake
+REM Hack to only install release builds for time
+echo set(VCPKG_BUILD_TYPE release) >> C:\Tools\vcpkg\triplets\x64-windows.cmake
 
 REM Install Open*IO libraries
 vcpkg install opencolorio
@@ -34,7 +34,7 @@ REM Add Qt and FFmpeg directory to path
 set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev
 
 REM Run cmake
-cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug
+cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 REM Build with Ninja
 ninja.exe || exit /B 1

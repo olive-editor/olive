@@ -84,11 +84,6 @@ target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 # Set compiler options
 if(MSVC)
-  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
@@ -98,14 +93,14 @@ if(MSVC)
     /experimental:external
     /external:anglebrackets
     /external:W0
-    /O2
+    "$<$<CONFIG:RELEASE>:/O2>"
     "$<$<COMPILE_LANGUAGE:CXX>:/MP>"
   )
 else()
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
-    -O2
+    "$<$<CONFIG:RELEASE>:-O2>"
     -Werror
     -Wuninitialized
     -pedantic-errors
@@ -131,16 +126,8 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-
-  # HACK: Brew on macOS separates the OpenEXR and IlmBase headers while they seem to expect to be
-  # in the same folder. So we link to that folder directly here.
-  ${ILMBASE_INCLUDES}/OpenEXR
-
-  ${OPENEXR_INCLUDES}
+  ${OPENEXR_INCLUDE_DIR}
 )
-
-message("OpenEXR Includes: " ${OPENEXR_INCLUDES})
-message("ILMBASE Includes: " ${ILMBASE_INCLUDES})
 
 # Set link libraries
 target_link_libraries(
