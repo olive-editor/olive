@@ -240,8 +240,8 @@ QString NodeParam::GetPrettyDataTypeName(const NodeParam::DataType &type)
 QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVariant &value)
 {
   switch (type) {
-  case kInt: return ValueToBytesInternal<int>(value);
-  case kFloat: return ValueToBytesInternal<float>(value);
+  case kInt: return ValueToBytesInternal<int64_t>(value);
+  case kFloat: return ValueToBytesInternal<double>(value);
   case kColor: return ValueToBytesInternal<Color>(value);
   case kText: return value.toString().toUtf8();
   case kBoolean: return ValueToBytesInternal<bool>(value);

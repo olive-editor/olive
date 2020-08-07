@@ -46,7 +46,7 @@ public:
 
   //void SetUuid(const QUuid& id);
 
-  const QString& GetCacheFilename() const;
+  const QString& GetPCMFilename() const;
 
   QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time);
 

@@ -205,7 +205,7 @@ void Core::Start()
 void Core::Stop()
 {
   // Save Config
-  //Config::Save();
+  Config::Save();
 
   // Save recently opened projects
   {

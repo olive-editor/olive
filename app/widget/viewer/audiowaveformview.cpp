@@ -66,7 +66,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   const AudioParams& params = playback_->GetParameters();
 
   if (!playback_
-      || playback_->GetCacheFilename().isEmpty()
+      || playback_->GetPCMFilename().isEmpty()
       || !params.is_valid()) {
     return;
   }
@@ -78,7 +78,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     cached_waveform_ = QPixmap(size());
     cached_waveform_.fill(Qt::transparent);
 
-    QFile fs(playback_->GetCacheFilename());
+    QFile fs(playback_->GetPCMFilename());
 
     if (fs.open(QFile::ReadOnly)) {
 

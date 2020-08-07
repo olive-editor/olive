@@ -67,7 +67,7 @@ public:
     /**
      * Integer type
      *
-     * Resolves to `int` (may resolve to `long` in the future).
+     * Resolves to int64_t.
      */
     kInt = 0x1,
 

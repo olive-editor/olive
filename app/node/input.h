@@ -278,9 +278,9 @@ public:
 
   void set_combobox_strings(const QStringList& strings);
 
-  static QString ValueToString(const DataType& data_type, const QVariant& value);
+  static QString ValueToString(const DataType& data_type, const QVariant& value, bool value_is_a_key_track);
 
-  static QVariant StringToValue(const DataType &data_type, const QString &string);
+  static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
 
   void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
 

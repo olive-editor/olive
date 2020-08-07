@@ -105,7 +105,7 @@ bool ExportTask::Run()
 
   if (params_.audio_enabled()) {
     // Write audio data now
-    encoder_->WriteAudio(audio_params(), audio_data_.GetCacheFilename());
+    encoder_->WriteAudio(audio_params(), audio_data_.GetPCMFilename());
   }
 
   encoder_->Close();

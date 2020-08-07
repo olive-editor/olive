@@ -502,7 +502,7 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
+    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
     QFile audio_src(audio_fn);
 
     if (audio_src.open(QFile::ReadOnly)) {
@@ -616,7 +616,7 @@ void ViewerWidget::FinishPlayPreprocess()
 {
   int64_t playback_start_time = ruler()->GetTime();
 
-  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
+  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
   if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
     AudioManager::instance()->StartOutput(audio_fn,

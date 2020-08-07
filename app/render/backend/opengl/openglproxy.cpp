@@ -297,9 +297,12 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
     switch (data_type) {
     case NodeInput::kInt:
+      // kInt technically specifies a LongLong, but OpenGL doesn't support those. This may lead to
+      // over/underflows if the number is large enough, but the likelihood of that is quite low.
       shader->setUniformValue(variable_location, value.toInt());
       break;
     case NodeInput::kFloat:
+      // kFloat technically specifies a double but as above, OpenGL doesn't support those.
       shader->setUniformValue(variable_location, value.toFloat());
       break;
     case NodeInput::kVec2:

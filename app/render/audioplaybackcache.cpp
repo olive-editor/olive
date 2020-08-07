@@ -238,11 +238,11 @@ QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, cons
 
 void AudioPlaybackCache::UpdateFilename(const QString &s)
 {
-  filename_ = QDir(GetCacheFilename()).filePath(s);
+  filename_ = QDir(GetCacheDirectory()).filePath(s);
   filename_.append(QStringLiteral(".pcm"));
 }
 
-const QString &AudioPlaybackCache::GetCacheFilename() const
+const QString &AudioPlaybackCache::GetPCMFilename() const
 {
   return filename_;
 }
