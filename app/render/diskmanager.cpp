@@ -39,16 +39,18 @@ DiskManager* DiskManager::instance_ = nullptr;
 DiskManager::DiskManager()
 {
   // Add default cache location
-  QFile default_disk_cache_file(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("defaultdiskcache")));
+  QFile default_disk_cache_file(GetDefaultDiskCacheConfigFile());
   if (default_disk_cache_file.open(QFile::ReadOnly)) {
     QString default_dir = default_disk_cache_file.readAll();
 
-    if (FileFunctions::DirectoryIsValid(default_dir, true)) {
-      GetOpenFolder(default_dir);
-    } else {
-      QMessageBox::warning(nullptr,
-                           tr("Disk Cache Error"),
-                           tr("Unable to set custom application disk cache. Using default instead."));
+    if (!default_dir.isEmpty()) {
+      if (FileFunctions::DirectoryIsValid(default_dir, true)) {
+        GetOpenFolder(default_dir);
+      } else {
+        QMessageBox::warning(nullptr,
+                             tr("Disk Cache Error"),
+                             tr("Unable to set custom application disk cache. Using default instead."));
+      }
     }
 
     default_disk_cache_file.close();
@@ -56,7 +58,7 @@ DiskManager::DiskManager()
 
   // If no custom default was loaded, load default
   if (open_folders_.isEmpty()) {
-    GetOpenFolder(QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("mediacache"));
+    GetOpenFolder(GetDefaultDiskCachePath());
   }
 
   QFile disk_cache_index(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("diskcache")));
@@ -75,6 +77,14 @@ DiskManager::DiskManager()
 
 DiskManager::~DiskManager()
 {
+  QFile default_disk_cache_file(GetDefaultDiskCacheConfigFile());
+  if (default_disk_cache_file.open(QFile::WriteOnly)) {
+    if (GetDefaultDiskCachePath() != GetDefaultCachePath()) {
+      default_disk_cache_file.write(GetDefaultCachePath().toUtf8());
+    }
+
+    default_disk_cache_file.close();
+  }
 }
 
 void DiskManager::CreateInstance()
@@ -143,6 +153,16 @@ bool DiskManager::ShowDiskCacheChangeConfirmationDialog(QWidget *parent)
                                 tr("You've chosen to change the default disk cache location. This "
                                    "will invalidate your current cache. Would you like to continue?"),
                                 QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok);
+}
+
+QString DiskManager::GetDefaultDiskCacheConfigFile()
+{
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("defaultdiskcache"));
+}
+
+QString DiskManager::GetDefaultDiskCachePath()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("mediacache");
 }
 
 DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :

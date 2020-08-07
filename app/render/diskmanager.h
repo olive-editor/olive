@@ -131,6 +131,10 @@ public:
 
   static bool ShowDiskCacheChangeConfirmationDialog(QWidget* parent);
 
+  static QString GetDefaultDiskCacheConfigFile();
+
+  static QString GetDefaultDiskCachePath();
+
 public slots:
   void Accessed(const QString& cache_folder, const QByteArray& hash);
 
