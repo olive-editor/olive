@@ -126,7 +126,12 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-  ${OPENEXR_INCLUDE_DIR}
+  ${OPENEXR_INCLUDES}
+
+  # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
+  #       expect to be in one. This includes the IlmBase files as if they were in the same folders
+  #       as the OpenEXR headers.
+  ${ILMBASE_INCLUDES}/OpenEXR
 )
 
 # Set link libraries
