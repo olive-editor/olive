@@ -39,7 +39,14 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 
 QList<Footage *> FootageViewerPanel::GetSelectedFootage() const
 {
-  return {static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->GetFootage()};
+  QList<Footage *> list;
+  Footage* f = static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->GetFootage();
+
+  if (f) {
+    list.append(f);
+  }
+
+  return list;
 }
 
 void FootageViewerPanel::SetFootage(Footage *f)
