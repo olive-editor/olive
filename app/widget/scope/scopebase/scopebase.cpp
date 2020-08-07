@@ -68,16 +68,6 @@ void ScopeBase::DrawScope()
   managed_tex().Release();
 }
 
-OpenGLShaderPtr ScopeBase::pipeline()
-{
-  return pipeline_;
-}
-
-OpenGLTexture &ScopeBase::managed_tex()
-{
-  return managed_tex_;
-}
-
 void ScopeBase::UploadTextureFromBuffer()
 {
   if (!isVisible()) {

@@ -31,11 +31,24 @@ class HistogramScope : public ScopeBase
 public:
   HistogramScope(QWidget* parent = nullptr);
 
+  virtual ~HistogramScope() override;
+
 protected:
-  //virtual OpenGLShaderPtr CreateShader() override;
+  virtual void initializeGL() override;
 
-  //virtual void DrawScope() override;
+  virtual OpenGLShaderPtr CreateShader() override;
+  OpenGLShaderPtr CreateSecondaryShader();
 
+  void AssertAdditionalTextures();
+
+  virtual void DrawScope() override;
+
+private:
+  OpenGLShaderPtr pipeline_secondary_;
+  OpenGLTexture texture_row_sums_;
+
+private slots:
+  void CleanUp();
 };
 
 OLIVE_NAMESPACE_EXIT

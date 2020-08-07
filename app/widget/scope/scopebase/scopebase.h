@@ -51,9 +51,20 @@ protected:
 
   virtual void DrawScope();
 
-  OpenGLShaderPtr pipeline();
+  OpenGLShaderPtr pipeline()
+  {
+    return pipeline_;
+  }
 
-  OpenGLTexture& managed_tex();
+  OpenGLTexture& managed_tex()
+  {
+    return managed_tex_;
+  }
+
+  OpenGLFramebuffer& framebuffer()
+  {
+    return framebuffer_;
+  }
 
 private:
   void UploadTextureFromBuffer();
