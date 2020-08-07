@@ -84,6 +84,11 @@ target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 # Set compiler options
 if(MSVC)
+  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
@@ -93,14 +98,14 @@ if(MSVC)
     /experimental:external
     /external:anglebrackets
     /external:W0
-    "$<$<CONFIG:RELEASE>:/O2>"
+    /O2
     "$<$<COMPILE_LANGUAGE:CXX>:/MP>"
   )
 else()
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
-    "$<$<CONFIG:RELEASE>:-O2>"
+    -O2
     -Werror
     -Wuninitialized
     -pedantic-errors
