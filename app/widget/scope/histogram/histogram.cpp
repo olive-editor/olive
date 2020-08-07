@@ -91,16 +91,16 @@ OpenGLShaderPtr HistogramScope::CreateShader()
 
 OpenGLShaderPtr HistogramScope::CreateSecondaryShader()
 {
-  OpenGLShaderPtr pipeline_secondary_ = OpenGLShader::Create();
+  OpenGLShaderPtr shader = OpenGLShader::Create();
 
-  pipeline_secondary_->create();
-  pipeline_secondary_->addShaderFromSourceCode(QOpenGLShader::Vertex,
+  shader->create();
+  shader->addShaderFromSourceCode(QOpenGLShader::Vertex,
     Node::ReadFileAsString(":/shaders/rgbhistogram.vert"));
-  pipeline_secondary_->addShaderFromSourceCode(QOpenGLShader::Fragment,
+  shader->addShaderFromSourceCode(QOpenGLShader::Fragment,
     Node::ReadFileAsString(":/shaders/rgbhistogram_secondary.frag"));
-  pipeline_secondary_->link();
+  shader->link();
 
-  return pipeline_secondary_;
+  return shader;
 }
 
 void HistogramScope::DrawScope()
