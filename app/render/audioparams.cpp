@@ -24,7 +24,30 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
+#include <QCoreApplication>
+
 OLIVE_NAMESPACE_ENTER
+
+const QVector<int> AudioParams::kSupportedSampleRates = {
+  8000,          // 8000 Hz
+  11025,         // 11025 Hz
+  16000,         // 16000 Hz
+  22050,         // 22050 Hz
+  24000,         // 24000 Hz
+  32000,         // 32000 Hz
+  44100,         // 44100 Hz
+  48000,         // 48000 Hz
+  88200,         // 88200 Hz
+  96000          // 96000 Hz
+};
+
+const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
+  AV_CH_LAYOUT_MONO,
+  AV_CH_LAYOUT_STEREO,
+  AV_CH_LAYOUT_2_1,
+  AV_CH_LAYOUT_5POINT1,
+  AV_CH_LAYOUT_7POINT1
+};
 
 int AudioParams::time_to_bytes(const double &time) const
 {
@@ -125,6 +148,29 @@ bool AudioParams::is_valid() const
           && channel_layout() > 0
           && format_ != SampleFormat::SAMPLE_FMT_INVALID
           && format_ != SampleFormat::SAMPLE_FMT_COUNT);
+}
+
+QString AudioParams::SampleRateToString(const int &sample_rate)
+{
+  return QCoreApplication::translate("AudioParams", "%1 Hz").arg(sample_rate);
+}
+
+QString AudioParams::ChannelLayoutToString(const uint64_t &layout)
+{
+  switch (layout) {
+  case AV_CH_LAYOUT_MONO:
+    return QCoreApplication::translate("AudioParams", "Mono");
+  case AV_CH_LAYOUT_STEREO:
+    return QCoreApplication::translate("AudioParams", "Stereo");
+  case AV_CH_LAYOUT_2_1:
+    return QCoreApplication::translate("AudioParams", "2.1");
+  case AV_CH_LAYOUT_5POINT1:
+    return QCoreApplication::translate("AudioParams", "5.1");
+  case AV_CH_LAYOUT_7POINT1:
+    return QCoreApplication::translate("AudioParams", "7.1");
+  default:
+    return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(layout, 1, 16);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

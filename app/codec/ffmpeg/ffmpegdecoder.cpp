@@ -463,8 +463,9 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
       if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 
         bool image_is_still = false;
-        ImageStream::Interlacing interlacing = ImageStream::kInterlaceNone;
         rational pixel_aspect_ratio;
+        rational frame_rate;
+        VideoParams::Interlacing interlacing = VideoParams::kInterlaceNone;
 
         {
           // Read at least two frames to get more information about this video stream
@@ -479,15 +480,19 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
               // Check if video is interlaced and what field dominance it has if so
               if (frame->interlaced_frame) {
                 if (frame->top_field_first) {
-                  interlacing = ImageStream::kInterlacedTopFirst;
+                  interlacing = VideoParams::kInterlacedTopFirst;
                 } else {
-                  interlacing = ImageStream::kInterlacedBottomFirst;
+                  interlacing = VideoParams::kInterlacedBottomFirst;
                 }
               }
 
               pixel_aspect_ratio = av_guess_sample_aspect_ratio(instance.fmt_ctx(),
                                                                 instance.stream(),
                                                                 frame);
+
+              frame_rate = av_guess_frame_rate(instance.fmt_ctx(),
+                                               instance.stream(),
+                                               frame);
             }
 
             // Read second frame
@@ -521,7 +526,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
         } else {
           VideoStreamPtr video_stream = std::make_shared<VideoStream>();
 
-          video_stream->set_frame_rate(av_guess_frame_rate(fmt_ctx, avstream, nullptr));
+          video_stream->set_frame_rate(frame_rate);
           video_stream->set_start_time(avstream->start_time);
 
           image_stream = video_stream;
@@ -783,9 +788,10 @@ FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height,
   copy->set_video_params(VideoParams(width,
                                      height,
                                      native_pix_fmt_,
+                                     std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio(),
+                                     std::static_pointer_cast<ImageStream>(stream())->interlacing(),
                                      divider));
   copy->set_timestamp(Timecode::timestamp_to_time(ts, time_base_));
-  copy->set_sample_aspect_ratio(std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio());
   copy->allocate();
 
   // Convert frame to RGB/A for the rest of the pipeline

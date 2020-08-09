@@ -18,44 +18,44 @@
 
 ***/
 
-#ifndef EXPORTAUDIOTAB_H
-#define EXPORTAUDIOTAB_H
+#ifndef SAMPLERATECOMBOBOX_H
+#define SAMPLERATECOMBOBOX_H
 
 #include <QComboBox>
-#include <QWidget>
 
-#include "common/define.h"
-#include "widget/standardcombos/standardcombos.h"
+#include "render/audioparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportAudioTab : public QWidget
+class SampleRateComboBox : public QComboBox
 {
+  Q_OBJECT
 public:
-  ExportAudioTab(QWidget* parent = nullptr);
-
-  QComboBox* codec_combobox() const
+  SampleRateComboBox(QWidget* parent = nullptr) :
+    QComboBox(parent)
   {
-    return codec_combobox_;
+    foreach (int sr, AudioParams::kSupportedSampleRates) {
+      this->addItem(AudioParams::SampleRateToString(sr), sr);
+    }
   }
 
-  SampleRateComboBox* sample_rate_combobox() const
+  int GetSampleRate() const
   {
-    return sample_rate_combobox_;
+    return this->currentData().toInt();
   }
 
-  ChannelLayoutComboBox* channel_layout_combobox() const
+  void SetSampleRate(int rate)
   {
-    return channel_layout_combobox_;
+    for (int i=0; i<this->count(); i++) {
+      if (this->itemData(i).toInt() == rate) {
+        this->setCurrentIndex(i);
+        break;
+      }
+    }
   }
-
-private:
-  QComboBox* codec_combobox_;
-  SampleRateComboBox* sample_rate_combobox_;
-  ChannelLayoutComboBox* channel_layout_combobox_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTAUDIOTAB_H
+#endif // SAMPLERATECOMBOBOX_H

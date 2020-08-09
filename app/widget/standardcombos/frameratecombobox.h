@@ -18,44 +18,45 @@
 
 ***/
 
-#ifndef EXPORTAUDIOTAB_H
-#define EXPORTAUDIOTAB_H
+#ifndef FRAMERATECOMBOBOX_H
+#define FRAMERATECOMBOBOX_H
 
 #include <QComboBox>
-#include <QWidget>
 
-#include "common/define.h"
-#include "widget/standardcombos/standardcombos.h"
+#include "common/rational.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportAudioTab : public QWidget
+class FrameRateComboBox : public QComboBox
 {
+  Q_OBJECT
 public:
-  ExportAudioTab(QWidget* parent = nullptr);
-
-  QComboBox* codec_combobox() const
+  FrameRateComboBox(QWidget* parent = nullptr) :
+    QComboBox(parent)
   {
-    return codec_combobox_;
+    foreach (const rational& fr, VideoParams::kSupportedFrameRates) {
+      this->addItem(VideoParams::FrameRateToString(fr), QVariant::fromValue(fr));
+    }
   }
 
-  SampleRateComboBox* sample_rate_combobox() const
+  rational GetFrameRate() const
   {
-    return sample_rate_combobox_;
+    return this->currentData().value<rational>();
   }
 
-  ChannelLayoutComboBox* channel_layout_combobox() const
+  void SetFrameRate(const rational& r)
   {
-    return channel_layout_combobox_;
+    for (int i=0; i<this->count(); i++) {
+      if (this->itemData(i).value<rational>() == r) {
+        this->setCurrentIndex(i);
+        break;
+      }
+    }
   }
-
-private:
-  QComboBox* codec_combobox_;
-  SampleRateComboBox* sample_rate_combobox_;
-  ChannelLayoutComboBox* channel_layout_combobox_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTAUDIOTAB_H
+#endif // FRAMERATECOMBOBOX_H

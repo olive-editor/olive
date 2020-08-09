@@ -18,44 +18,52 @@
 
 ***/
 
-#ifndef EXPORTAUDIOTAB_H
-#define EXPORTAUDIOTAB_H
+#ifndef VIDEODIVIDERCOMBOBOX_H
+#define VIDEODIVIDERCOMBOBOX_H
 
 #include <QComboBox>
-#include <QWidget>
 
-#include "common/define.h"
-#include "widget/standardcombos/standardcombos.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportAudioTab : public QWidget
+class VideoDividerComboBox : public QComboBox
 {
+  Q_OBJECT
 public:
-  ExportAudioTab(QWidget* parent = nullptr);
-
-  QComboBox* codec_combobox() const
+  VideoDividerComboBox(QWidget* parent = nullptr) :
+    QComboBox(parent)
   {
-    return codec_combobox_;
+    foreach (int d, VideoParams::kSupportedDividers) {
+      QString name;
+
+      if (d == 1) {
+        name = tr("Full");
+      } else {
+        name = tr("1/%1").arg(d);
+      }
+
+      this->addItem(name, d);
+    }
   }
 
-  SampleRateComboBox* sample_rate_combobox() const
+  int GetDivider() const
   {
-    return sample_rate_combobox_;
+    return this->currentData().toInt();
   }
 
-  ChannelLayoutComboBox* channel_layout_combobox() const
+  void SetDivider(int d)
   {
-    return channel_layout_combobox_;
+    for (int i=0; i<this->count(); i++) {
+      if (this->itemData(i).toInt() == d) {
+        this->setCurrentIndex(i);
+        break;
+      }
+    }
   }
-
-private:
-  QComboBox* codec_combobox_;
-  SampleRateComboBox* sample_rate_combobox_;
-  ChannelLayoutComboBox* channel_layout_combobox_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTAUDIOTAB_H
+#endif // VIDEODIVIDERCOMBOBOX_H

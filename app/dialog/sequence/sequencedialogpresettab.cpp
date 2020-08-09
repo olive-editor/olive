@@ -31,6 +31,7 @@
 
 #include "common/filefunctions.h"
 #include "node/input.h"
+#include "render/videoparams.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
@@ -39,6 +40,8 @@ OLIVE_NAMESPACE_ENTER
 const int kDataIsPreset = Qt::UserRole;
 const int kDataPresetIsCustomRole = Qt::UserRole + 1;
 const int kDataPresetDataRole = Qt::UserRole + 2;
+
+const PixelFormat::Format kDefaultPreviewFormat = PixelFormat::PIX_FMT_RGBA16F;
 
 SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   QWidget(parent),
@@ -65,8 +68,12 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("1080p"), 1920, 1080, 3));
   preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("720p"), 1280, 720, 2));
 
-  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("NTSC"), 720, 480, rational(30000, 1001), 1));
-  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("PAL"), 720, 576, rational(25, 1), 1));
+  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("NTSC"), 720, 480, rational(30000, 1001),
+                                                     VideoParams::kPixelAspectNTSCStandard,
+                                                     VideoParams::kPixelAspectNTSCWidescreen, 1));
+  preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("PAL"), 720, 576, rational(25, 1),
+                                                     VideoParams::kPixelAspectPALStandard,
+                                                     VideoParams::kPixelAspectPALWidescreen, 1));
 
   // Load custom presets
   for (int i=0;i<GetNumberOfPresets();i++) {
@@ -98,46 +105,56 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  width,
                                                  height,
                                                  rational(24000, 1001),
+                                                 VideoParams::kPixelAspectSquare,
+                                                 VideoParams::kInterlaceNone,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 25 FPS").arg(name),
                                                  width,
                                                  height,
                                                  rational(25, 1),
+                                                 VideoParams::kPixelAspectSquare,
+                                                 VideoParams::kInterlaceNone,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 29.97 FPS").arg(name),
                                                  width,
                                                  height,
                                                  rational(30000, 1001),
+                                                 VideoParams::kPixelAspectSquare,
+                                                 VideoParams::kInterlaceNone,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 50 FPS").arg(name),
                                                  width,
                                                  height,
                                                  rational(50, 1),
+                                                 VideoParams::kPixelAspectSquare,
+                                                 VideoParams::kInterlaceNone,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 59.94 FPS").arg(name),
                                                  width,
                                                  height,
                                                  rational(60000, 1001),
+                                                 VideoParams::kPixelAspectSquare,
+                                                 VideoParams::kInterlaceNone,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   return parent;
 }
 
-QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, int divider)
+QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, const rational &standard_par, const rational &wide_par, int divider)
 {
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
@@ -145,18 +162,22 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                                  width,
                                                  height,
                                                  frame_rate,
+                                                 standard_par,
+                                                 VideoParams::kInterlacedTopFirst,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 Widescreen").arg(name),
                                                  width,
                                                  height,
                                                  frame_rate,
+                                                 wide_par,
+                                                 VideoParams::kInterlacedTopFirst,
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 PixelFormat::PIX_FMT_RGBA16F));
+                                                 kDefaultPreviewFormat));
   return parent;
 }
 

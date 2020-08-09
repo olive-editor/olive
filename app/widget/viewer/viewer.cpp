@@ -164,7 +164,8 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
 void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
+  connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
@@ -176,7 +177,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
   n->audio_playback_cache()->SetParameters(n->audio_params());
 
-  SizeChangedSlot(n->video_params().width(), n->video_params().height());
+  SetViewerResolution(n->video_params().width(), n->video_params().height());
+  SetViewerPixelAspect(n->video_params().pixel_aspect_ratio());
   last_length_ = rational();
   LengthChangedSlot(n->GetLength());
 
@@ -213,7 +215,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
   PauseInternal();
 
-  disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
+  disconnect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
@@ -224,7 +227,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   ruler()->SetPlaybackCache(nullptr);
 
   // Effectively disables the viewer and clears the state
-  SizeChangedSlot(0, 0);
+  SetViewerResolution(0, 0);
 
   display_widget_->DisconnectColorManager();
   foreach (ViewerWindow* window, windows_) {
@@ -278,11 +281,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
 {
   color_menu_enabled_ = enabled;
-}
-
-void ViewerWidget::SetOverrideSize(int width, int height)
-{
-  SizeChangedSlot(width, height);
 }
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
@@ -1061,13 +1059,20 @@ void ViewerWidget::PlaybackTimerUpdate()
   }
 }
 
-void ViewerWidget::SizeChangedSlot(int width, int height)
+void ViewerWidget::SetViewerResolution(int width, int height)
 {
   sizer_->SetChildSize(width, height);
 
   foreach (ViewerWindow* vw, windows_) {
     vw->SetResolution(width, height);
   }
+}
+
+void ViewerWidget::SetViewerPixelAspect(const rational &ratio)
+{
+  sizer_->SetPixelAspectRatio(ratio);
+
+  // FIXME: Update windows too
 }
 
 void ViewerWidget::LengthChangedSlot(const rational &length)

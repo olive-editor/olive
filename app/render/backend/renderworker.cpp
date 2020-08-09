@@ -127,6 +127,8 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
                                       video_params_.height(),
                                       video_params_.time_base(),
                                       output_format,
+                                      video_params_.pixel_aspect_ratio(),
+                                      video_params_.interlacing(),
                                       video_params_.divider()));
   frame->set_timestamp(time);
   frame->allocate();
@@ -295,6 +297,8 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
                                       video_params_.height(),
                                       video_params_.time_base(),
                                       output_fmt,
+                                      video_params_.pixel_aspect_ratio(),
+                                      video_params_.interlacing(),
                                       video_params_.divider()));
   frame->allocate();
 
@@ -316,6 +320,8 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
                                       f->height() * video_params_.divider(),
                                       f->video_params().time_base(),
                                       f->video_params().format(),
+                                      f->video_params().pixel_aspect_ratio(),
+                                      f->video_params().interlacing(),
                                       video_params_.divider()));
 
       return CachedFrameToTexture(f);

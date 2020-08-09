@@ -28,6 +28,7 @@
 #include "streamproperties.h"
 #include "undo/undocommand.h"
 #include "widget/slider/integerslider.h"
+#include "widget/standardcombos/standardcombos.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -42,12 +43,6 @@ public:
 
 private:
   static bool IsImageSequence(ImageStream* stream);
-
-  void AddPixelAspectRatio(const QString& name, const rational& ratio);
-
-  static QString GetPixelAspectRatioItemText(const QString& name, const rational& ratio);
-
-  void UpdateCustomItem(const rational& ratio);
 
   /**
    * @brief Attached video stream
@@ -67,7 +62,7 @@ private:
   /**
    * @brief Setting for video interlacing
    */
-  QComboBox* video_interlace_combo_;
+  InterlacedComboBox* video_interlace_combo_;
 
   /**
    * @brief Sets the start index for image sequences
@@ -82,14 +77,14 @@ private:
   /**
    * @brief Sets the pixel aspect ratio of the stream
    */
-  QComboBox* pixel_aspect_combo_;
+  PixelAspectRatioComboBox* pixel_aspect_combo_;
 
   class VideoStreamChangeCommand : public UndoCommand {
   public:
     VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
-                             ImageStream::Interlacing interlacing,
+                             VideoParams::Interlacing interlacing,
                              const rational& pixel_ar,
                              QUndoCommand* parent = nullptr);
 
@@ -104,12 +99,12 @@ private:
 
     bool new_premultiplied_;
     QString new_colorspace_;
-    ImageStream::Interlacing new_interlacing_;
+    VideoParams::Interlacing new_interlacing_;
     rational new_pixel_ar_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
-    ImageStream::Interlacing old_interlacing_;
+    VideoParams::Interlacing old_interlacing_;
     rational old_pixel_ar_;
 
   };
@@ -137,9 +132,6 @@ private:
     int64_t old_duration_;
 
   };
-
-private slots:
-  void PixelAspectComboBoxChanged(int index);
 
 };
 

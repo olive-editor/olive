@@ -136,11 +136,16 @@ void ViewerOutput::set_video_params(const VideoParams &video)
 {
   bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
   bool timebase_changed = video_params_.time_base() != video.time_base();
+  bool pixel_aspect_changed = video_params_.pixel_aspect_ratio() != video.pixel_aspect_ratio();
 
   video_params_ = video;
 
   if (size_changed) {
     emit SizeChanged(video_params_.width(), video_params_.height());
+  }
+
+  if (pixel_aspect_changed) {
+    emit PixelAspectChanged(video_params_.pixel_aspect_ratio());
   }
 
   if (timebase_changed) {

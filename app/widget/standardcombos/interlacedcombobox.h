@@ -18,44 +18,40 @@
 
 ***/
 
-#ifndef EXPORTAUDIOTAB_H
-#define EXPORTAUDIOTAB_H
+#ifndef INTERLACEDCOMBOBOX_H
+#define INTERLACEDCOMBOBOX_H
 
 #include <QComboBox>
-#include <QWidget>
 
-#include "common/define.h"
-#include "widget/standardcombos/standardcombos.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportAudioTab : public QWidget
+class InterlacedComboBox : public QComboBox
 {
+  Q_OBJECT
 public:
-  ExportAudioTab(QWidget* parent = nullptr);
-
-  QComboBox* codec_combobox() const
+  InterlacedComboBox(QWidget* parent = nullptr) :
+    QComboBox(parent)
   {
-    return codec_combobox_;
+    // These must match the Interlacing enum in VideoParams
+    this->addItem(tr("None (Progressive)"));
+    this->addItem(tr("Top-Field First"));
+    this->addItem(tr("Bottom-Field First"));
   }
 
-  SampleRateComboBox* sample_rate_combobox() const
+  VideoParams::Interlacing GetInterlaceMode() const
   {
-    return sample_rate_combobox_;
+    return static_cast<VideoParams::Interlacing>(this->currentIndex());
   }
 
-  ChannelLayoutComboBox* channel_layout_combobox() const
+  void SetInterlaceMode(VideoParams::Interlacing mode)
   {
-    return channel_layout_combobox_;
+    this->setCurrentIndex(mode);
   }
-
-private:
-  QComboBox* codec_combobox_;
-  SampleRateComboBox* sample_rate_combobox_;
-  ChannelLayoutComboBox* channel_layout_combobox_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // EXPORTAUDIOTAB_H
+#endif // INTERLACEDCOMBOBOX_H

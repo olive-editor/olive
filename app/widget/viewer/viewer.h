@@ -73,8 +73,6 @@ public:
    */
   void SetColorMenuEnabled(bool enabled);
 
-  void SetOverrideSize(int width, int height);
-
   void SetMatrix(const QMatrix4x4& mat);
 
   /**
@@ -123,6 +121,10 @@ public slots:
   void CacheEntireSequence();
 
   void CacheSequenceInOut();
+
+  void SetViewerResolution(int width, int height);
+
+  void SetViewerPixelAspect(const rational& ratio);
 
 signals:
   /**
@@ -256,8 +258,6 @@ private:
 
 private slots:
   void PlaybackTimerUpdate();
-
-  void SizeChangedSlot(int width, int height);
 
   void LengthChangedSlot(const rational& length);
 

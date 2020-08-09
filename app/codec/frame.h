@@ -57,9 +57,6 @@ public:
   bool contains_pixel(int x, int y) const;
   void set_pixel(int x, int y, const Color& c);
 
-  const rational& sample_aspect_ratio() const;
-  void set_sample_aspect_ratio(const rational& sample_aspect_ratio);
-
   /**
    * @brief Get frame's timestamp.
    *
@@ -115,8 +112,6 @@ private:
   rational timestamp_;
 
   int64_t native_timestamp_;
-
-  rational sample_aspect_ratio_;
 
   int linesize_;
 

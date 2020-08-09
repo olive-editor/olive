@@ -27,7 +27,9 @@ OLIVE_NAMESPACE_ENTER
 ViewerSizer::ViewerSizer(QWidget *parent) :
   QWidget(parent),
   widget_(nullptr),
-  aspect_ratio_(0),
+  width_(0),
+  height_(0),
+  pixel_aspect_(1),
   zoom_(0)
 {
 }
@@ -51,11 +53,12 @@ void ViewerSizer::SetChildSize(int width, int height)
   width_ = width;
   height_ = height;
 
-  if (!width_ || !height_) {
-    aspect_ratio_ = 0;
-  } else {
-    aspect_ratio_ = static_cast<double>(width_) / static_cast<double>(height_);
-  }
+  UpdateSize();
+}
+
+void ViewerSizer::SetPixelAspectRatio(const rational &pixel_aspect)
+{
+  pixel_aspect_ = pixel_aspect;
 
   UpdateSize();
 }
@@ -81,7 +84,7 @@ void ViewerSizer::UpdateSize()
   }
 
   // If the aspect ratio is 0, the widget is always hidden
-  if (qIsNull(aspect_ratio_)) {
+  if (!width_ || !height_) {
     widget_->setVisible(false);
     return;
   }
@@ -91,6 +94,8 @@ void ViewerSizer::UpdateSize()
   QSize child_size;
   QMatrix4x4 child_matrix;
 
+  double sequence_aspect_ratio = static_cast<double>(width_) / static_cast<double>(height_) * pixel_aspect_.toDouble();
+
   if (zoom_ <= 0) {
 
     // If zoom is 0, we auto-fit
@@ -98,12 +103,12 @@ void ViewerSizer::UpdateSize()
 
     child_size = size();
 
-    if (our_aspect_ratio > aspect_ratio_) {
+    if (our_aspect_ratio > sequence_aspect_ratio) {
       // This container is wider than the image, scale by height
-      child_size = QSize(qRound(child_size.height() * aspect_ratio_), height());
+      child_size = QSize(qRound(child_size.height() * sequence_aspect_ratio), height());
     } else {
       // This container is taller than the image, scale by width
-      child_size = QSize(width(), qRound(child_size.width() / aspect_ratio_));
+      child_size = QSize(width(), qRound(child_size.width() / sequence_aspect_ratio));
     }
 
   } else {

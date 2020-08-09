@@ -49,7 +49,7 @@ private:
 
   QTreeWidgetItem *CreateHDPresetFolder(const QString& name, int width, int height, int divider);
 
-  QTreeWidgetItem *CreateSDPresetFolder(const QString& name, int width, int height, const rational &frame_rate, int divider);
+  QTreeWidgetItem *CreateSDPresetFolder(const QString& name, int width, int height, const rational &frame_rate, const rational& standard_par, const rational& wide_par, int divider);
 
   QTreeWidgetItem* GetSelectedItem();
   QTreeWidgetItem* GetSelectedCustomPreset();

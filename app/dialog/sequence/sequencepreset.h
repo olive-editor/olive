@@ -27,6 +27,7 @@
 #include "common/xmlutils.h"
 #include "dialog/sequence/presetmanager.h"
 #include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -38,6 +39,8 @@ public:
                  int width,
                  int height,
                  const rational& frame_rate,
+                 const rational& pixel_aspect,
+                 VideoParams::Interlacing interlacing,
                  int sample_rate,
                  uint64_t channel_layout,
                  int preview_divider,
@@ -45,6 +48,8 @@ public:
     width_(width),
     height_(height),
     frame_rate_(frame_rate),
+    pixel_aspect_(pixel_aspect),
+    interlacing_(interlacing),
     sample_rate_(sample_rate),
     channel_layout_(channel_layout),
     preview_divider_(preview_divider),
@@ -57,13 +62,16 @@ public:
                           int width,
                           int height,
                           const rational& frame_rate,
+                          const rational& pixel_aspect,
+                          VideoParams::Interlacing interlacing,
                           int sample_rate,
                           uint64_t channel_layout,
                           int preview_divider,
                           PixelFormat::Format preview_format)
   {
-    return std::make_shared<SequencePreset>(name, width, height, frame_rate, sample_rate,
-                                            channel_layout, preview_divider, preview_format);
+    return std::make_shared<SequencePreset>(name, width, height, frame_rate, pixel_aspect,
+                                            interlacing, sample_rate, channel_layout,
+                                            preview_divider, preview_format);
   }
 
   virtual void Load(QXmlStreamReader* reader) override
@@ -77,6 +85,10 @@ public:
         height_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("framerate")) {
         frame_rate_ = rational::fromString(reader->readElementText());
+      } else if (reader->name() == QStringLiteral("pixelaspect")) {
+        pixel_aspect_ = rational::fromString(reader->readElementText());
+      } else if (reader->name() == QStringLiteral("interlacing")) {
+        interlacing_ = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
       } else if (reader->name() == QStringLiteral("samplerate")) {
         sample_rate_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("chlayout")) {
@@ -97,6 +109,8 @@ public:
     writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
     writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
     writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+    writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_.toString());
+    writer->writeTextElement(QStringLiteral("interlacing_"), QString::number(interlacing_));
     writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
     writer->writeTextElement(QStringLiteral("chlayout"), QString::number(channel_layout_));
     writer->writeTextElement(QStringLiteral("divider"), QString::number(preview_divider_));
@@ -116,6 +130,16 @@ public:
   const rational& frame_rate() const
   {
     return frame_rate_;
+  }
+
+  const rational& pixel_aspect() const
+  {
+    return pixel_aspect_;
+  }
+
+  VideoParams::Interlacing interlacing() const
+  {
+    return interlacing_;
   }
 
   int sample_rate() const
@@ -142,6 +166,8 @@ private:
   int width_;
   int height_;
   rational frame_rate_;
+  rational pixel_aspect_;
+  VideoParams::Interlacing interlacing_;
   int sample_rate_;
   uint64_t channel_layout_;
   int preview_divider_;

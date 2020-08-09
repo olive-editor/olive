@@ -65,7 +65,8 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
 
     if (reader->name() == QStringLiteral("video")) {
       int video_width = 0, video_height = 0, preview_div = 1;
-      rational video_timebase;
+      rational video_timebase, video_pixel_aspect;
+      VideoParams::Interlacing video_interlacing = VideoParams::kInterlaceNone;
       PixelFormat::Format preview_format = PixelFormat::PIX_FMT_INVALID;
 
       while (XMLReadNextStartElement(reader)) {
@@ -83,12 +84,17 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
           preview_div = reader->readElementText().toInt();
         } else if (reader->name() == QStringLiteral("format")) {
           preview_format = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("pixelaspect")) {
+          video_pixel_aspect = rational::fromString(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("interlacing")) {
+          video_interlacing = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
         } else {
           reader->skipCurrentElement();
         }
       }
 
-      set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format, preview_div));
+      set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format,
+                                   video_pixel_aspect, video_interlacing, preview_div));
     } else if (reader->name() == QStringLiteral("audio")) {
       int rate = 0;
       uint64_t layout = 0;
@@ -156,6 +162,8 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("width"), QString::number(video_params().width()));
   writer->writeTextElement(QStringLiteral("height"), QString::number(video_params().height()));
   writer->writeTextElement(QStringLiteral("timebase"), video_params().time_base().toString());
+  writer->writeTextElement(QStringLiteral("pixelaspect"), video_params().pixel_aspect_ratio().toString());
+  writer->writeTextElement(QStringLiteral("interlacing"), QString::number(video_params().interlacing()));
   writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params().divider()));
   writer->writeTextElement(QStringLiteral("format"), QString::number(video_params().format()));
 
@@ -245,6 +253,8 @@ void Sequence::set_default_parameters()
                                height,
                                Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
                                static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                               Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
+                               Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
                                VideoParams::generate_auto_divider(width, height)));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
                    Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
@@ -269,6 +279,8 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
                                        vs->height(),
                                        vs->frame_rate().flipped(),
                                        static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       vs->pixel_aspect_ratio(),
+                                       vs->interlacing(),
                                        VideoParams::generate_auto_divider(vs->width(), vs->height())));
           found_video_params = true;
         }
@@ -284,6 +296,8 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
                                        is->height(),
                                        video_params().time_base(),
                                        static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       is->pixel_aspect_ratio(),
+                                       is->interlacing(),
                                        VideoParams::generate_auto_divider(is->width(), is->height())));
         }
         break;

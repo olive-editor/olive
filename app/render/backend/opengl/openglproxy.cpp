@@ -149,22 +149,26 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
     VideoParams frame_params = frame->video_params();
 
     // Check frame aspect ratio
-    if (frame->sample_aspect_ratio() != 1) {
+    rational true_pixel_aspect_ratio = frame_params.pixel_aspect_ratio() / params.pixel_aspect_ratio();
+
+    if (true_pixel_aspect_ratio != 1) {
       int new_width = frame_params.width();
       int new_height = frame_params.height();
 
       // Scale the frame in a way that does not reduce the resolution
-      if (frame->sample_aspect_ratio() > 1) {
+      if (frame_params.pixel_aspect_ratio() > 1) {
         // Make wider
-        new_width = qRound(static_cast<double>(new_width) * frame->sample_aspect_ratio().toDouble());
+        new_width = qRound(static_cast<double>(new_width) * frame_params.pixel_aspect_ratio().toDouble());
       } else {
         // Make taller
-        new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
+        new_height = qRound(static_cast<double>(new_height) / frame_params.pixel_aspect_ratio().toDouble());
       }
 
       frame_params = VideoParams(new_width,
                                  new_height,
                                  frame_params.format(),
+                                 frame_params.pixel_aspect_ratio(),
+                                 frame_params.interlacing(),
                                  frame_params.divider());
     }
 
@@ -178,6 +182,8 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
     VideoParams dest_params(frame_params.width(),
                             frame_params.height(),
                             texture_fmt,
+                            frame_params.pixel_aspect_ratio(),
+                            frame_params.interlacing(),
                             frame_params.divider());
 
     // Create destination texture
@@ -420,6 +426,8 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
                             params.height(),
                             params.time_base(),
                             output_format,
+                            params.pixel_aspect_ratio(),
+                            params.interlacing(),
                             params.divider());
 
   int real_iteration_count;

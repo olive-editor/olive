@@ -171,6 +171,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
   qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
+  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams::Interlacing>();
   qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
   qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
 }
@@ -866,90 +867,6 @@ bool Core::CloseAllExceptActiveProject()
   }
 
   return true;
-}
-
-QList<rational> Core::SupportedFrameRates()
-{
-  QList<rational> frame_rates;
-
-  frame_rates.append(rational(10, 1));            // 10 FPS
-  frame_rates.append(rational(15, 1));            // 15 FPS
-  frame_rates.append(rational(24000, 1001));      // 23.976 FPS
-  frame_rates.append(rational(24, 1));            // 24 FPS
-  frame_rates.append(rational(25, 1));            // 25 FPS
-  frame_rates.append(rational(30000, 1001));      // 29.97 FPS
-  frame_rates.append(rational(30, 1));            // 30 FPS
-  frame_rates.append(rational(48000, 1001));      // 47.952 FPS
-  frame_rates.append(rational(48, 1));            // 48 FPS
-  frame_rates.append(rational(50, 1));            // 50 FPS
-  frame_rates.append(rational(60000, 1001));      // 59.94 FPS
-  frame_rates.append(rational(60, 1));            // 60 FPS
-
-  return frame_rates;
-}
-
-QList<int> Core::SupportedSampleRates()
-{
-  QList<int> sample_rates;
-
-  sample_rates.append(8000);         // 8000 Hz
-  sample_rates.append(11025);        // 11025 Hz
-  sample_rates.append(16000);        // 16000 Hz
-  sample_rates.append(22050);        // 22050 Hz
-  sample_rates.append(24000);        // 24000 Hz
-  sample_rates.append(32000);        // 32000 Hz
-  sample_rates.append(44100);        // 44100 Hz
-  sample_rates.append(48000);        // 48000 Hz
-  sample_rates.append(88200);        // 88200 Hz
-  sample_rates.append(96000);        // 96000 Hz
-
-  return sample_rates;
-}
-
-QList<uint64_t> Core::SupportedChannelLayouts()
-{
-  QList<uint64_t> channel_layouts;
-
-  channel_layouts.append(AV_CH_LAYOUT_MONO);
-  channel_layouts.append(AV_CH_LAYOUT_STEREO);
-  channel_layouts.append(AV_CH_LAYOUT_2_1);
-  channel_layouts.append(AV_CH_LAYOUT_5POINT1);
-  channel_layouts.append(AV_CH_LAYOUT_7POINT1);
-
-  return channel_layouts;
-}
-
-QList<int> Core::SupportedDividers()
-{
-  return {1, 2, 3, 4, 6, 8, 12, 16};
-}
-
-QString Core::FrameRateToString(const rational &frame_rate)
-{
-  return tr("%1 FPS").arg(frame_rate.toDouble());
-}
-
-QString Core::SampleRateToString(const int &sample_rate)
-{
-  return tr("%1 Hz").arg(sample_rate);
-}
-
-QString Core::ChannelLayoutToString(const uint64_t &layout)
-{
-  switch (layout) {
-  case AV_CH_LAYOUT_MONO:
-    return tr("Mono");
-  case AV_CH_LAYOUT_STEREO:
-    return tr("Stereo");
-  case AV_CH_LAYOUT_2_1:
-    return tr("2.1");
-  case AV_CH_LAYOUT_5POINT1:
-    return tr("5.1");
-  case AV_CH_LAYOUT_7POINT1:
-    return tr("7.1");
-  default:
-    return tr("Unknown (0x%1)").arg(layout, 1, 16);
-  }
 }
 
 QString Core::GetProjectFilter()

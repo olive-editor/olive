@@ -22,6 +22,7 @@
 #define IMAGESTREAM_H
 
 #include "render/pixelformat.h"
+#include "render/videoparams.h"
 #include "stream.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -75,18 +76,12 @@ public:
 
   QString get_colorspace_match_string() const;
 
-  enum Interlacing {
-    kInterlaceNone,
-    kInterlacedTopFirst,
-    kInterlacedBottomFirst
-  };
-
-  Interlacing interlacing() const
+  VideoParams::Interlacing interlacing() const
   {
     return interlacing_;
   }
 
-  void set_interlacing(Interlacing i)
+  void set_interlacing(VideoParams::Interlacing i)
   {
     interlacing_ = i;
 
@@ -122,7 +117,7 @@ private:
   int height_;
   bool premultiplied_alpha_;
   QString colorspace_;
-  Interlacing interlacing_;
+  VideoParams::Interlacing interlacing_;
 
   PixelFormat::Format format_;
 

@@ -107,7 +107,9 @@ void Config::SetDefaults()
 
   SetEntryInternal(QStringLiteral("DefaultSequenceWidth"), NodeParam::kInt, 1920);
   SetEntryInternal(QStringLiteral("DefaultSequenceHeight"), NodeParam::kInt, 1080);
+  SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeParam::kRational, QVariant::fromValue(rational(1)));
   SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeParam::kRational, QVariant::fromValue(rational(1001, 30000)));
+  SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeParam::kInt, VideoParams::kInterlaceNone);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeParam::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeParam::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
   SetEntryInternal(QStringLiteral("DefaultSequencePreviewFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
@@ -158,7 +160,7 @@ void Config::Load()
 
           double config_fr = value.toDouble();
 
-          QList<rational> supported_frame_rates = Core::SupportedFrameRates();
+          const QVector<rational>& supported_frame_rates = VideoParams::kSupportedFrameRates;
 
           rational match = supported_frame_rates.first();
           double match_diff = qAbs(match.toDouble() - config_fr);

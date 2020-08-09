@@ -29,7 +29,8 @@ QVariant NodeTableTraverser::ProcessVideoFootage(StreamPtr stream, const rationa
   return QVariant::fromValue(VideoParams(video_stream->width(),
                                          video_stream->height(),
                                          video_stream->timebase(),
-                                         video_stream->format()));
+                                         video_stream->format(),
+                                         video_stream->pixel_aspect_ratio()));
 }
 
 QVariant NodeTableTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)

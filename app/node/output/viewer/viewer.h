@@ -131,6 +131,8 @@ signals:
 
   void SizeChanged(int width, int height);
 
+  void PixelAspectChanged(const rational& pixel_aspect);
+
   void VideoParamsChanged();
   void AudioParamsChanged();
 

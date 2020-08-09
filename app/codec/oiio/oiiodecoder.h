@@ -57,6 +57,8 @@ public:
 
   static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
 
+  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
+
 private:
 #if OIIO_VERSION < 10903
   OIIO::ImageInput* image_;

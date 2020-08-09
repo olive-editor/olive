@@ -80,6 +80,19 @@ public:
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
 
+  static const QVector<uint64_t> kSupportedChannelLayouts;
+  static const QVector<int> kSupportedSampleRates;
+
+  /**
+   * @brief Convert integer sample rate to a user-friendly string
+   */
+  static QString SampleRateToString(const int &sample_rate);
+
+  /**
+   * @brief Convert channel layout to a user-friendly string
+   */
+  static QString ChannelLayoutToString(const uint64_t &layout);
+
 private:
   int sample_rate_;
 

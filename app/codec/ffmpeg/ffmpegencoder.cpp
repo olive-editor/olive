@@ -138,6 +138,17 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   encoded_frame->height = frame->height();
   encoded_frame->format = video_codec_ctx_->pix_fmt;
 
+  // Set interlacing
+  if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {
+    encoded_frame->interlaced_frame = 1;
+
+    if (frame->video_params().interlacing() == VideoParams::kInterlacedTopFirst) {
+      encoded_frame->top_field_first = 1;
+    } else {
+      encoded_frame->top_field_first = 0;
+    }
+  }
+
   error_code = av_frame_get_buffer(encoded_frame, 0);
   if (error_code < 0) {
     FFmpegError("Failed to create AVFrame buffer", error_code);
@@ -443,9 +454,27 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   if (type == AVMEDIA_TYPE_VIDEO) {
     codec_ctx->width = params().video_params().width();
     codec_ctx->height = params().video_params().height();
-    codec_ctx->sample_aspect_ratio = {1, 1};
+    codec_ctx->sample_aspect_ratio = params().video_params().pixel_aspect_ratio().toAVRational();
     codec_ctx->time_base = params().video_params().time_base().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
+
+    if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
+      // FIXME: I actually don't know what these flags do, the documentation helpfully doesn't
+      //        explain them at all. I hope using both of them is the right thing to do.
+      codec_ctx->flags |= AV_CODEC_FLAG_INTERLACED_DCT | AV_CODEC_FLAG_INTERLACED_ME;
+
+
+      if (params().video_params().interlacing() == VideoParams::kInterlacedTopFirst) {
+        codec_ctx->field_order = AV_FIELD_TT;
+      } else {
+        codec_ctx->field_order = AV_FIELD_BB;
+
+        if (codec_id == AV_CODEC_ID_H264) {
+          // For some reason, FFmpeg doesn't set libx264's bff flag so we have to do it ourselves
+          av_opt_set(video_codec_ctx_->priv_data, "x264opts", "bff=1", AV_OPT_SEARCH_CHILDREN);
+        }
+      }
+    }
 
     // Set custom options
     {

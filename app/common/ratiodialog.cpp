@@ -70,7 +70,8 @@ double GetFloatRatioFromUser(QWidget* parent,
 
       if (numer_ok
           && denom_ok
-          && num > 0) {
+          && num > 0
+          && den > 0) {
         // Exit loop and set this ratio
         if (ok_in) {
           *ok_in = true;

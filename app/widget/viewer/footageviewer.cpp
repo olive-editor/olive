@@ -88,6 +88,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
                                                  video_stream->height(),
                                                  video_stream->frame_rate().flipped(),
                                                  static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 video_stream->pixel_aspect_ratio(),
+                                                 video_stream->interlacing(),
                                                  VideoParams::generate_auto_divider(video_stream->width(), video_stream->height())));
       NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
     } else {
@@ -98,6 +100,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
                                                  height,
                                                  Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
                                                  static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
+                                                 Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
                                                  VideoParams::generate_auto_divider(width, height)));
     }
 
