@@ -80,9 +80,12 @@ QFuture<void> PreCacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash
 
 void PreCacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
 {
-  foreach (const rational& t, times) {
-    viewer()->video_frame_cache()->SetHash(t, hash, job_time, true);
-  }
+  // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
+  // anything else.
+
+  Q_UNUSED(hash)
+  Q_UNUSED(times)
+  Q_UNUSED(job_time)
 }
 
 void PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
