@@ -52,7 +52,8 @@ QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instance_map_;
 QMutex FFmpegDecoder::instance_map_lock_;
 QHash< Stream*, FFmpegFramePool* > FFmpegDecoder::frame_pool_map_;
 
-// FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
+// FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+//        this a dynamic value somehow or a configurable value?
 const int FFmpegDecoderInstance::kMaxFrameLife = 2000;
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -94,11 +95,12 @@ bool FFmpegDecoder::Open()
     if (stream()->type() == Stream::kVideo) {
       QMutexLocker map_locker(&instance_map_lock_);
 
-      // FIXME: Test code, this should be changed later
       FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
 
       if (!frame_pool) {
-        frame_pool = new FFmpegFramePool(256,
+        // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+        //        this a dynamic value somehow or a configurable value?
+        frame_pool = new FFmpegFramePool(32,
                                          our_instance->stream()->codecpar->width,
                                          our_instance->stream()->codecpar->height,
                                          static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
@@ -106,7 +108,6 @@ bool FFmpegDecoder::Open()
       }
 
       our_instance->SetFramePool(frame_pool);
-      // End test code
     }
 
     // Determine which Olive native pixel format we retrieved
@@ -1300,8 +1301,8 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
     // Start clear timer
     clear_timer_ = new QTimer();
     clear_timer_->setInterval(kMaxFrameLife);
-    //clear_timer_->moveToThread(qApp->thread());
-    connect(clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent);
+    clear_timer_->moveToThread(qApp->thread());
+    connect(clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent, Qt::DirectConnection);
     QMetaObject::invokeMethod(clear_timer_, "start", Qt::QueuedConnection);
   }
 
@@ -1330,16 +1331,9 @@ void FFmpegDecoderInstance::ClearResources()
 
   // Stop timer
   if (clear_timer_) {
-
-    if (clear_timer_->thread() == QThread::currentThread()) {
-      clear_timer_->stop();
-    } else {
-      QMetaObject::invokeMethod(clear_timer_, "stop", Qt::BlockingQueuedConnection);
-    }
-
-    QMetaObject::invokeMethod(clear_timer_, "deleteLater", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(clear_timer_, "stop", Qt::QueuedConnection);
+    clear_timer_->deleteLater();
     clear_timer_ = nullptr;
-
   }
 
   if (opts_) {

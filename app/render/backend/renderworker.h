@@ -38,6 +38,8 @@ class RenderWorker : public QObject, public NodeTraverser
 public:
   RenderWorker(RenderBackend* parent);
 
+  virtual ~RenderWorker() override;
+
   bool IsAvailable() const
   {
     return available_;
@@ -169,7 +171,9 @@ private:
 
   QMatrix4x4 video_download_matrix_;
 
+  QMutex decoder_lock_;
   DecoderCache decoder_cache_;
+  QHash<Stream*, qint64> decoder_age_;
 
   TimeRange audio_render_time_;
   bool available_;
@@ -181,6 +185,13 @@ private:
   QHash<Node*, Node*>* copy_map_;
 
   RenderMode::Mode render_mode_;
+
+  QTimer* cleanup_timer_;
+
+  static const int kMaxDecoderLife;
+
+private slots:
+  void ClearOldDecoders();
 
 };
 

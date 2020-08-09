@@ -22,6 +22,7 @@
 
 #include <QDir>
 #include <QThread>
+#include <QTimer>
 
 #include "audio/audiovisualwaveform.h"
 #include "common/functiontimer.h"
@@ -31,12 +32,27 @@
 
 OLIVE_NAMESPACE_ENTER
 
+// FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+//        this a dynamic value somehow or a configurable value?
+const int RenderWorker::kMaxDecoderLife = 6000;
+
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
   generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline)
 {
+  cleanup_timer_ = new QTimer();
+  cleanup_timer_->setInterval(kMaxDecoderLife);
+  connect(cleanup_timer_, &QTimer::timeout, this, &RenderWorker::ClearOldDecoders, Qt::DirectConnection);
+  cleanup_timer_->moveToThread(qApp->thread());
+  QMetaObject::invokeMethod(cleanup_timer_, "start", Qt::QueuedConnection);
+}
+
+RenderWorker::~RenderWorker()
+{
+  QMetaObject::invokeMethod(cleanup_timer_, "stop", Qt::QueuedConnection);
+  cleanup_timer_->deleteLater();
 }
 
 void RenderWorker::Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QVector<rational> &times)
@@ -70,6 +86,24 @@ QByteArray RenderWorker::HashNode(const Node *n, const VideoParams &params, cons
   }
 
   return hasher.result();
+}
+
+void RenderWorker::ClearOldDecoders()
+{
+  QMutexLocker locker(&decoder_lock_);
+
+  QHash<Stream*, qint64>::iterator i = decoder_age_.begin();
+
+  while (i != decoder_age_.end()) {
+    if (i.value() < QDateTime::currentMSecsSinceEpoch() - kMaxDecoderLife) {
+      // This decoder is old, remove it
+      decoder_cache_.remove(i.key());
+
+      i = decoder_age_.erase(i);
+    } else {
+      i++;
+    }
+  }
 }
 
 void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time)
@@ -294,6 +328,7 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
+  QMutexLocker locker(&decoder_lock_);
 
   DecoderPtr decoder = decoder_cache_.value(stream.get());
 
@@ -310,6 +345,8 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
                  << "::" << stream->index();
     }
   }
+
+  decoder_age_.insert(stream.get(), QDateTime::currentMSecsSinceEpoch());
 
   return decoder;
 }
