@@ -524,7 +524,11 @@ void RenderBackend::SetHashes(FrameHashCache* cache, const QVector<rational>& ti
       }
     }
 
-    cache->SetHash(time, hash, job_time, hash_exists);
+    QMetaObject::invokeMethod(cache, "SetHash", Qt::QueuedConnection,
+                              OLIVE_NS_ARG(rational, time),
+                              Q_ARG(QByteArray, hash),
+                              Q_ARG(qint64, job_time),
+                              Q_ARG(bool, hash_exists));
   }
 }
 
