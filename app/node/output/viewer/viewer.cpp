@@ -50,7 +50,7 @@ ViewerOutput::ViewerOutput() :
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
-    //connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
+    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
     connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
