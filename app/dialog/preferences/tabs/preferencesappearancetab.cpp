@@ -46,13 +46,15 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
   style_combobox_ = new QComboBox();
 
-  const QMap<QString, QString>& themes = StyleManager::available_themes();
-  QMap<QString, QString>::const_iterator i;
-  for (i=themes.cbegin(); i!=themes.cend(); i++) {
-    style_combobox_->addItem(i.value(), i.key());
+  {
+    const QMap<QString, QString>& themes = StyleManager::available_themes();
+    QMap<QString, QString>::const_iterator i;
+    for (i=themes.cbegin(); i!=themes.cend(); i++) {
+      style_combobox_->addItem(i.value(), i.key());
 
-    if (StyleManager::GetStyle() == i.key()) {
-      style_combobox_->setCurrentIndex(style_combobox_->count()-1);
+      if (StyleManager::GetStyle() == i.key()) {
+        style_combobox_->setCurrentIndex(style_combobox_->count()-1);
+      }
     }
   }
 
