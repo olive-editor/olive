@@ -167,11 +167,14 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  connect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
+
+  InterlacingChangedSlot(n->video_params().interlacing());
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
@@ -218,6 +221,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
   disconnect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  disconnect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
@@ -824,6 +828,16 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
   }
 
+  {
+    // Deinterlace Option
+    if (GetConnectedNode()->video_params().interlacing() != VideoParams::kInterlaceNone) {
+      QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
+      deinterlace_action->setCheckable(true);
+      deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
+      connect(deinterlace_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetDeinterlacing);
+    }
+  }
+
   menu.addSeparator();
 
   {
@@ -1087,6 +1101,14 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 
     last_length_ = length;
   }
+}
+
+void ViewerWidget::InterlacingChangedSlot(VideoParams::Interlacing interlacing)
+{
+  // Automatically set a "sane" deinterlacing option
+  display_widget_->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
+
+  // FIXME: Set windows too
 }
 
 void ViewerWidget::UpdateRendererVideoParameters()

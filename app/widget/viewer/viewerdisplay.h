@@ -77,6 +77,11 @@ public:
 
   FramePtr last_loaded_buffer() const;
 
+  bool IsDeinterlacing() const
+  {
+    return deinterlace_;
+  }
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -101,6 +106,11 @@ public slots:
    * each time.
    */
   void SetImage(FramePtr in_buffer);
+
+  /**
+   * @brief Enables/disables a basic deinterlace on the viewer
+   */
+  void SetDeinterlacing(bool e);
 
 signals:
   /**
@@ -173,6 +183,8 @@ private:
   rational time_;
 
   FramePtr last_loaded_buffer_;
+
+  bool deinterlace_;
 
 private slots:
   /**

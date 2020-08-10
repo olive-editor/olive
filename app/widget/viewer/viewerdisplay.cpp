@@ -43,7 +43,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   signal_cursor_color_(false),
   gizmos_(nullptr),
   gizmo_click_(false),
-  last_loaded_buffer_(nullptr)
+  last_loaded_buffer_(nullptr),
+  deinterlace_(false)
 {
 }
 
@@ -83,6 +84,12 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
     doneCurrent();
   }
 
+  update();
+}
+
+void ViewerDisplayWidget::SetDeinterlacing(bool e)
+{
+  deinterlace_ = e;
   update();
 }
 
@@ -211,6 +218,12 @@ void ViewerDisplayWidget::paintGL()
 
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
+
+    // Set some parameters
+    color_service()->pipeline()->bind();
+    color_service()->pipeline()->setUniformValue("ove_resolution", texture_.width(), texture_.height());
+    color_service()->pipeline()->setUniformValue("ove_deinterlace", deinterlace_);
+    color_service()->pipeline()->release();
 
     // Blit using the color service
     color_service()->ProcessOpenGL(true, matrix_);

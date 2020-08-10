@@ -261,6 +261,8 @@ private slots:
 
   void LengthChangedSlot(const rational& length);
 
+  void InterlacingChangedSlot(VideoParams::Interlacing interlacing);
+
   void UpdateRendererVideoParameters();
 
   void UpdateRendererAudioParameters();

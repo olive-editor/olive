@@ -133,6 +133,8 @@ signals:
 
   void PixelAspectChanged(const rational& pixel_aspect);
 
+  void InterlacingChanged(VideoParams::Interlacing mode);
+
   void VideoParamsChanged();
   void AudioParamsChanged();
 
