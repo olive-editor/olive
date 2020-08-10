@@ -97,7 +97,10 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   // Default to showing play button
   playpause_stack_->setCurrentWidget(play_btn_);
-  playpause_stack_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+  // Hack to conform the play/pause button size to the other buttons (QStackedWidget has a
+  // different size policy by default)
+  playpause_stack_->setSizePolicy(prev_frame_btn_->sizePolicy());
 
   // Next Frame Button
   next_frame_btn_ = new QPushButton();
