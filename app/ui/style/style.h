@@ -28,33 +28,22 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class StyleDescriptor {
-public:
-  StyleDescriptor(const QString& name, const QString& path);
-
-  const QString& name() const;
-  const QString& path() const;
-
-private:
-  QString name_;
-  QString path_;
-};
-
 class StyleManager : public QObject {
 public:
-  static StyleDescriptor DefaultStyle();
+  static void Init();
 
   static const QString& GetStyle();
 
-  static void SetStyleFromConfig();
-
-  static void SetStyle(const StyleDescriptor& style);
-
   static void SetStyle(const QString& style_path);
 
-  static QList<StyleDescriptor> ListInternal();
-
   static void UseOSNativeStyling(QWidget* widget);
+
+  static const char* kDefaultStyle;
+
+  static const QMap<QString, QString>& available_themes()
+  {
+    return available_themes_;
+  }
 
 private:
   static QPalette ParsePalette(const QString& ini_path);
@@ -64,6 +53,8 @@ private:
   static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
 
   static QString current_style_;
+
+  static QMap<QString, QString> available_themes_;
 
 };
 

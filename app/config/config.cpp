@@ -31,6 +31,7 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "core.h"
+#include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -60,6 +61,7 @@ Config &Config::Current()
 void Config::SetDefaults()
 {
   config_map_.clear();
+  SetEntryInternal(QStringLiteral("Style"), NodeParam::kString, StyleManager::kDefaultStyle);
   SetEntryInternal(QStringLiteral("TimecodeDisplay"), NodeParam::kInt, Timecode::kTimecodeDropFrame);
   SetEntryInternal(QStringLiteral("DefaultStillLength"), NodeParam::kRational, QVariant::fromValue(rational(2)));
   SetEntryInternal(QStringLiteral("HoverFocus"), NodeParam::kBoolean, false);

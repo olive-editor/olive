@@ -669,8 +669,7 @@ void Core::OpenStartupProject()
 void Core::StartGUI(bool full_screen)
 {
   // Set UI style
-  qApp->setStyle(QStyleFactory::create("Fusion"));
-  StyleManager::SetStyle(StyleManager::DefaultStyle());
+  StyleManager::Init();
 
   // Set up shared menus
   MenuShared::CreateInstance();

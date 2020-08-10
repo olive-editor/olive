@@ -33,17 +33,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const char* StyleManager::kDefaultStyle = "olive-dark";
 QString StyleManager::current_style_;
-
-QList<StyleDescriptor> StyleManager::ListInternal()
-{
-  QList<StyleDescriptor> style_list;
-
-  style_list.append(StyleDescriptor(tr("Olive Dark"), ":/style/olive-dark"));
-  style_list.append(StyleDescriptor(tr("Olive Light"), ":/style/olive-light"));
-
-  return style_list;
-}
+QMap<QString, QString> StyleManager::available_themes_;
 
 void StyleManager::UseOSNativeStyling(QWidget *widget)
 {
@@ -145,9 +137,20 @@ void StyleManager::ParsePaletteColor(QSettings *ini, QPalette *palette, QPalette
   palette->setColor(group, role, QColor(ini->value(role_name).toString()));
 }
 
-StyleDescriptor StyleManager::DefaultStyle()
+void StyleManager::Init()
 {
-  return ListInternal().first();
+  qApp->setStyle(QStyleFactory::create("Fusion"));
+
+  available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));
+  available_themes_.insert(QStringLiteral("olive-light"), QStringLiteral("Olive Light"));
+
+  QString config_style = Config::Current()["Style"].toString();
+
+  if (config_style.isEmpty() || !available_themes_.contains(config_style)) {
+    SetStyle(kDefaultStyle);
+  } else {
+    SetStyle(config_style);
+  }
 }
 
 const QString &StyleManager::GetStyle()
@@ -155,31 +158,17 @@ const QString &StyleManager::GetStyle()
   return current_style_;
 }
 
-void StyleManager::SetStyleFromConfig()
-{
-  QString config_style = Config::Current()["Style"].toString();
-
-  if (config_style.isEmpty()) {
-    SetStyle(DefaultStyle());
-  } else {
-    SetStyle(config_style);
-  }
-}
-
-void StyleManager::SetStyle(const StyleDescriptor &style)
-{
-  SetStyle(style.path());
-}
-
 void StyleManager::SetStyle(const QString &style_path)
 {
   current_style_ = style_path;
 
+  QString abs_style_path = QStringLiteral(":/style/%1").arg(style_path);
+
   // Load all icons for this style (icons must be loaded first because the style change below triggers the icon change)
-  icon::LoadAll(style_path);
+  icon::LoadAll(abs_style_path);
 
   // Set palette for this
-  QString palette_file = QStringLiteral("%1/palette.ini").arg(style_path);
+  QString palette_file = QStringLiteral("%1/palette.ini").arg(abs_style_path);
   if (QFileInfo::exists(palette_file)) {
     qApp->setPalette(ParsePalette(palette_file));
   } else {
@@ -187,7 +176,7 @@ void StyleManager::SetStyle(const QString &style_path)
   }
 
   // Set CSS style for this
-  QFile css_file(QStringLiteral("%1/style.css").arg(style_path));
+  QFile css_file(QStringLiteral("%1/style.css").arg(abs_style_path));
 
   if (css_file.exists() && css_file.open(QFile::ReadOnly | QFile::Text)) {
     // Read in entire CSS from file and set as the application stylesheet
@@ -199,22 +188,6 @@ void StyleManager::SetStyle(const QString &style_path)
   } else {
     qApp->setStyleSheet(QString());
   }
-}
-
-StyleDescriptor::StyleDescriptor(const QString &name, const QString &path) :
-  name_(name),
-  path_(path)
-{
-}
-
-const QString &StyleDescriptor::name() const
-{
-  return name_;
-}
-
-const QString &StyleDescriptor::path() const
-{
-  return path_;
 }
 
 OLIVE_NAMESPACE_EXIT
