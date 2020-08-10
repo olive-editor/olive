@@ -67,7 +67,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("HoverFocus"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeParam::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeParam::kInt, 1);
-  SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, "en_US");
+  SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, QLocale::system().name());
   SetEntryInternal(QStringLiteral("ScrollZooms"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("EnableSeekToImport"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("EditToolAlsoSeeks"), NodeParam::kBoolean, false);
