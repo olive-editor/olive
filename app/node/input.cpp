@@ -366,6 +366,8 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
              || data_type == kBuffer) {
     // These data types need no XML representation
     return QString();
+  } else if (data_type == kInt) {
+    return QString::number(value.value<int64_t>());
   } else {
     if (value.canConvert<QString>()) {
       return value.toString();
@@ -397,6 +399,8 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
     QStringList vals = string.split(':');
 
     return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
+  } else if (data_type == kInt) {
+    return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
     return QVariant::fromValue(rational::fromString(string));
   } else {
