@@ -124,6 +124,19 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     cache_layout->addWidget(cache_path_);
 
+    QPushButton* disk_cache_settings_btn = new QPushButton(tr("Disk Cache Settings"));
+    connect(disk_cache_settings_btn, &QPushButton::clicked, this, [this](){
+      if (disk_cache_use_default_btn_->isChecked()) {
+        DiskManager::instance()->ShowDiskCacheSettingsDialog(DiskManager::instance()->GetDefaultCacheFolder(), this);
+      } else if (disk_cache_store_alongside_project_btn_->isChecked()) {
+        // FIXME:
+        QMessageBox::information(this, QString(), tr("\"Store alignside project\" functionality not implemented yet"));
+      } else {
+        DiskManager::instance()->ShowDiskCacheSettingsDialog(cache_path_->text(), this);
+      }
+    });
+    cache_layout->addWidget(disk_cache_settings_btn);
+
     tabs->addTab(cache_group, tr("Disk Cache"));
   }
 
@@ -152,6 +165,7 @@ void ProjectPropertiesDialog::accept()
   if (disk_cache_use_default_btn_->isChecked()) {
     // Keep new cache path empty, which means default
   } else if (disk_cache_store_alongside_project_btn_->isChecked()) {
+    // FIXME:
     QMessageBox::information(this, QString(), tr("\"Store alignside project\" functionality not implemented yet"));
     return;
   } else {

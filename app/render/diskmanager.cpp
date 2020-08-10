@@ -31,6 +31,7 @@
 #include "common/filefunctions.h"
 #include "config/config.h"
 #include "core.h"
+#include "dialog/diskcache/diskcachedialog.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -163,6 +164,25 @@ QString DiskManager::GetDefaultDiskCacheConfigFile()
 QString DiskManager::GetDefaultDiskCachePath()
 {
   return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("mediacache");
+}
+
+void DiskManager::ShowDiskCacheSettingsDialog(DiskCacheFolder *folder, QWidget *parent)
+{
+  DiskCacheDialog d(folder, parent);
+  d.exec();
+}
+
+void DiskManager::ShowDiskCacheSettingsDialog(const QString &path, QWidget *parent)
+{
+  if (!FileFunctions::DirectoryIsValid(path, true)) {
+    QMessageBox::critical(parent, tr("Disk Cache Error"),
+                          tr("Failed to open disk cache at \"%1\". Try a different folder.").arg(path));
+    return;
+  }
+
+  DiskCacheFolder* folder = GetOpenFolder(path);
+
+  ShowDiskCacheSettingsDialog(folder, parent);
 }
 
 DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :

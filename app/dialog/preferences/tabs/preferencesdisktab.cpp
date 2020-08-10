@@ -52,25 +52,13 @@ PreferencesDiskTab::PreferencesDiskTab()
 
   row++;
 
-  disk_management_layout->addWidget(new QLabel(tr("Maximum Disk Cache:")), row, 0);
-
-  maximum_cache_slider_ = new FloatSlider();
-  maximum_cache_slider_->SetFormat(tr("%1 GB"));
-  maximum_cache_slider_->SetMinimum(1.0);
-  maximum_cache_slider_->SetValue(static_cast<double>(default_disk_cache_folder_->GetLimit()) / static_cast<double>(kBytesInGigabyte));
-  disk_management_layout->addWidget(maximum_cache_slider_, row, 1);
+  QPushButton* disk_cache_settings_btn = new QPushButton(tr("Disk Cache Settings"));
+  connect(disk_cache_settings_btn, &QPushButton::clicked, this, [this](){
+    DiskManager::instance()->ShowDiskCacheSettingsDialog(disk_cache_location_->text(), this);
+  });
+  disk_management_layout->addWidget(disk_cache_settings_btn, row, 1);
 
   row++;
-
-  clear_cache_btn_ = new QPushButton(tr("Clear Disk Cache"));
-  connect(clear_cache_btn_, &QPushButton::clicked, this, &PreferencesDiskTab::ClearDiskCache);
-  disk_management_layout->addWidget(clear_cache_btn_, row, 1);
-
-  row++;
-
-  clear_disk_cache_ = new QCheckBox(tr("Automatically clear disk cache on close"));
-  clear_disk_cache_->setChecked(default_disk_cache_folder_->GetClearOnClose());
-  disk_management_layout->addWidget(clear_disk_cache_, row, 1);
 
   QGroupBox* cache_behavior = new QGroupBox(tr("Cache Behavior"));
   outer_layout->addWidget(cache_behavior);
@@ -125,37 +113,8 @@ void PreferencesDiskTab::Accept()
     default_disk_cache_folder_->SetPath(disk_cache_location_->text());
   }
 
-  qint64 new_disk_cache_limit = qRound64(maximum_cache_slider_->GetValue() * kBytesInGigabyte);
-  if (new_disk_cache_limit != default_disk_cache_folder_->GetLimit()) {
-    default_disk_cache_folder_->SetLimit(new_disk_cache_limit);
-  }
-
-  if (default_disk_cache_folder_->GetClearOnClose() != clear_disk_cache_->isChecked()) {
-    default_disk_cache_folder_->SetClearOnClose(clear_disk_cache_->isChecked());
-  }
-
   Config::Current()["DiskCacheBehind"] = QVariant::fromValue(rational::fromDouble(cache_behind_slider_->GetValue()));
   Config::Current()["DiskCacheAhead"] = QVariant::fromValue(rational::fromDouble(cache_ahead_slider_->GetValue()));
-}
-
-void PreferencesDiskTab::ClearDiskCache()
-{
-  if (QMessageBox::question(this,
-                            tr("Clear Disk Cache"),
-                            tr("Are you sure you want to clear the disk cache in '%1'?").arg(Config::Current()["DiskCachePath"].toString()),
-                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    clear_cache_btn_->setEnabled(false);
-
-    if (DiskManager::instance()->ClearDiskCache(default_disk_cache_folder_->GetPath())) {
-      clear_cache_btn_->setText(tr("Disk Cache Cleared"));
-    } else {
-      QMessageBox::information(this,
-                               tr("Clear Disk Cache"),
-                               tr("Disk cache failed to fully clear. You may have to delete the cache files manually."),
-                               QMessageBox::Ok);
-      clear_cache_btn_->setText(tr("Disk Cache Partially Cleared"));
-    }
-  }
 }
 
 OLIVE_NAMESPACE_EXIT

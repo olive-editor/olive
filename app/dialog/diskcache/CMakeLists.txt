@@ -14,23 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(about)
-add_subdirectory(actionsearch)
-add_subdirectory(color)
-add_subdirectory(diskcache)
-add_subdirectory(export)
-add_subdirectory(footageproperties)
-add_subdirectory(keyframeproperties)
-add_subdirectory(preferences)
-add_subdirectory(progress)
-add_subdirectory(projectproperties)
-add_subdirectory(rendercancel)
-add_subdirectory(richtext)
-add_subdirectory(sequence)
-add_subdirectory(speedduration)
-add_subdirectory(task)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/diskcache/diskcachedialog.h
+  dialog/diskcache/diskcachedialog.cpp
   PARENT_SCOPE
 )

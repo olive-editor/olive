@@ -18,41 +18,41 @@
 
 ***/
 
-#ifndef PREFERENCESDISKTAB_H
-#define PREFERENCESDISKTAB_H
+#ifndef DISKCACHEDIALOG_H
+#define DISKCACHEDIALOG_H
 
 #include <QCheckBox>
-#include <QLineEdit>
+#include <QDialog>
 #include <QPushButton>
 
-#include "preferencestab.h"
 #include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
-#include "widget/path/pathwidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class PreferencesDiskTab : public PreferencesTab
+class DiskCacheDialog : public QDialog
 {
   Q_OBJECT
 public:
-  PreferencesDiskTab();
+  DiskCacheDialog(DiskCacheFolder* folder, QWidget* parent = nullptr);
 
-  virtual bool Validate() override;
-
-  virtual void Accept() override;
+public slots:
+  virtual void accept() override;
 
 private:
-  PathWidget* disk_cache_location_;
+  DiskCacheFolder* folder_;
 
-  FloatSlider* cache_ahead_slider_;
+  FloatSlider* maximum_cache_slider_;
 
-  FloatSlider* cache_behind_slider_;
+  QCheckBox* clear_disk_cache_;
 
-  DiskCacheFolder* default_disk_cache_folder_;
+  QPushButton* clear_cache_btn_;
+
+private slots:
+  void ClearDiskCache();
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PREFERENCESDISKTAB_H
+#endif // DISKCACHEDIALOG_H
