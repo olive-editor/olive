@@ -435,6 +435,13 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     return;
   }
 
+  // Kindly tell all viewers to stop caching
+  if (pause_autocache_during_playback_) {
+    foreach (ViewerWidget* viewer, instances_) {
+      viewer->renderer_->ClearVideoQueue();
+    }
+  }
+
   // If the playhead is beyond the end, restart at 0
   if (!in_to_out_only && GetTime() >= GetConnectedNode()->GetLength()) {
     if (speed > 0) {
@@ -461,13 +468,6 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       for (int i=0; i<prequeue_length_; i++) {
         RequestNextFrameForQueue();
       }
-    }
-  }
-
-  // Kindly tell all viewers to stop caching
-  if (pause_autocache_during_playback_) {
-    foreach (ViewerWidget* viewer, instances_) {
-      viewer->renderer_->ClearVideoQueue();
     }
   }
 
