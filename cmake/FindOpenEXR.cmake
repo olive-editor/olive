@@ -118,13 +118,21 @@ set (_openexr_components IlmThread IlmImf Imath Iex Half)
 foreach (COMPONENT ${_openexr_components})
     string (TOUPPER ${COMPONENT} UPPERCOMPONENT)
     # First try with the version embedded
-    find_library (OPENEXR_${UPPERCOMPONENT}_LIBRARY
+    find_library (OPENEXR_${UPPERCOMPONENT}_LIBRARY_RELEASE
                   NAMES ${COMPONENT}-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}
                         ${COMPONENT}
-                        ${COMPONENT}-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d
+                  HINTS ${OPENEXR_LIBRARY_DIR} $ENV{OPENEXR_LIBRARY_DIR}
+                        ${GENERIC_LIBRARY_PATHS} )
+
+    find_library (OPENEXR_${UPPERCOMPONENT}_LIBRARY_DEBUG
+                  NAMES ${COMPONENT}-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d
                         ${COMPONENT}_d
                   HINTS ${OPENEXR_LIBRARY_DIR} $ENV{OPENEXR_LIBRARY_DIR}
                         ${GENERIC_LIBRARY_PATHS} )
+
+    set(OPENEXR_${UPPERCOMPONENT}_LIBRARY
+      optimized ${OPENEXR_${UPPERCOMPONENT}_LIBRARY_RELEASE}
+      debug ${OPENEXR_${UPPERCOMPONENT}_LIBRARY_DEBUG})
 endforeach ()
 
 find_package_handle_standard_args (OpenEXR
