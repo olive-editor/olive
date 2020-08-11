@@ -24,6 +24,9 @@
 #include <QPainter>
 #include <QtMath>
 #include <QDebug>
+#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QGuiApplication>
 
 #include "common/qtutils.h"
 #include "node/node.h"
@@ -34,6 +37,58 @@ OLIVE_NAMESPACE_ENTER
 WaveformScope::WaveformScope(QWidget* parent) :
   ScopeBase(parent)
 {
+  SetupControlUI();
+}
+
+void WaveformScope::SetupControlUI()
+{
+  //control_ui_ = new QWidget();
+  control_ui_->setContentsMargins(0, 0, 0, 0);
+
+  QHBoxLayout* toolbar_layout = new QHBoxLayout(control_ui_);
+  toolbar_layout->setMargin(0);
+
+  swizzle_.reserve(4);
+  swizzle_ = {true, true, true, false};
+
+  // check boxes for channels in waveform
+  luma_select_ = new QCheckBox(tr("Luma"), this);
+  toolbar_layout->addWidget(luma_select_);
+
+  red_select_ = new QCheckBox(tr("R"), this);
+  red_select_->setChecked(true);
+  toolbar_layout->addWidget(red_select_);
+
+  green_select_ = new QCheckBox(tr("G"), this);
+  green_select_->setChecked(true);
+  toolbar_layout->addWidget(green_select_);
+
+  blue_select_ = new QCheckBox(tr("B"), this);
+  blue_select_->setChecked(true);
+  toolbar_layout->addWidget(blue_select_);
+
+  connect(luma_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(3); });
+  connect(red_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(0); });
+  connect(green_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(1); });
+  connect(blue_select_, &QCheckBox::clicked, this, [this] { SortSwizzleData(2); });
+}
+
+void WaveformScope::SortSwizzleData(int checkbox) {
+  // If Ctrl is pressed when selecting a channel, display only the
+  // the channel selected
+  if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+    for (int i = 0; i < 4; i++) {
+      swizzle_[i] = (i == checkbox ? true : false);
+    }
+    red_select_->setChecked(checkbox == 0 ? true : false);
+    green_select_->setChecked(checkbox == 1 ? true : false);
+    blue_select_->setChecked(checkbox == 2 ? true : false);
+    luma_select_->setChecked(checkbox == 3 ? true : false);
+  } else {
+    swizzle_[checkbox] = !swizzle_[checkbox];
+  }
+
+  update();
 }
 
 OpenGLShaderPtr WaveformScope::CreateShader()
@@ -64,6 +119,9 @@ void WaveformScope::DrawScope()
 
   // Scale of the waveform relative to the viewport surface.
   pipeline()->setUniformValue("waveform_scale", waveform_scale);
+
+  // channel swizzle
+  pipeline()->setUniformValue("channel_swizzle", swizzle_[0], swizzle_[1], swizzle_[2], swizzle_[3]);
 
   pipeline()->release();
 

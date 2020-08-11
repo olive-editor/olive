@@ -37,6 +37,8 @@ public:
 
   virtual ~ScopeBase() override;
 
+  QWidget* ControlUI();
+
 public slots:
   void SetBuffer(Frame* frame);
 
@@ -66,8 +68,17 @@ protected:
     return framebuffer_;
   }
 
+  QWidget* controlUI()
+  {
+    return control_ui_;
+  }
+
+  QWidget* control_ui_;
+
 private:
   void UploadTextureFromBuffer();
+
+  virtual void SetupControlUI();
 
   OpenGLShaderPtr pipeline_;
 
@@ -78,6 +89,8 @@ private:
   OpenGLFramebuffer framebuffer_;
 
   Frame* buffer_;
+
+  
 
 private slots:
   void CleanUp();

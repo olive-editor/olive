@@ -47,6 +47,11 @@ ScopePanel::ScopePanel(QWidget* parent) :
   toolbar_layout->addWidget(scope_type_combobox_);
   toolbar_layout->addStretch();
 
+  QStackedWidget* stack_ui = new QStackedWidget();
+  stack_ui->setContentsMargins(0, 0, 0, 0);
+  stack_ui->setFixedHeight(20);
+  toolbar_layout->addWidget(stack_ui);
+
   layout->addLayout(toolbar_layout);
 
   stack_ = new QStackedWidget();
@@ -55,12 +60,16 @@ ScopePanel::ScopePanel(QWidget* parent) :
   // Create waveform view
   waveform_view_ = new WaveformScope();
   stack_->addWidget(waveform_view_);
+  stack_ui->addWidget(waveform_view_->ControlUI());
 
   // Create histogram
   histogram_ = new HistogramScope();
   stack_->addWidget(histogram_);
+  stack_ui->addWidget(histogram_->ControlUI());
 
   connect(scope_type_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), stack_, &QStackedWidget::setCurrentIndex);
+  connect(scope_type_combobox_, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), stack_ui,
+          &QStackedWidget::setCurrentIndex);
 
   Retranslate();
 }

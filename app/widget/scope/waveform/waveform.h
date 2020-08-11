@@ -22,6 +22,8 @@
 #define WAVEFORMSCOPE_H
 
 #include "widget/scope/scopebase/scopebase.h"
+#include <QCheckBox>
+#include <QVector>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -35,6 +37,21 @@ protected:
   virtual OpenGLShaderPtr CreateShader() override;
 
   virtual void DrawScope() override;
+
+private:
+  virtual void SetupControlUI() override;
+
+  void SortSwizzleData(int checkbox);
+
+  QCheckBox* luma_select_;
+
+  QCheckBox* red_select_;
+
+  QCheckBox* green_select_;
+
+  QCheckBox* blue_select_;
+
+  QVector<bool> swizzle_;
 
 };
 
