@@ -21,6 +21,8 @@
 #ifndef HISTOGRAMSCOPE_H
 #define HISTOGRAMSCOPE_H
 
+#include <QCheckBox>
+
 #include "widget/scope/scopebase/scopebase.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -44,8 +46,13 @@ protected:
   virtual void DrawScope() override;
 
 private:
+  virtual void SetupControlUI() override;
+  void SetPerformanceMode();
+
   OpenGLShaderPtr pipeline_secondary_;
   OpenGLTexture texture_row_sums_;
+  QCheckBox* performance_select_;
+  bool performance_mode_;
 
 private slots:
   void CleanUp();

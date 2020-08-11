@@ -22,6 +22,7 @@
 
 #include <QPainter>
 #include <QtMath>
+#include <QVBoxLayout>
 
 #include "common/qtutils.h"
 #include "node/node.h"
@@ -30,8 +31,29 @@
 OLIVE_NAMESPACE_ENTER
 
 HistogramScope::HistogramScope(QWidget* parent) :
-  ScopeBase(parent)
+  ScopeBase(parent),
+  performance_mode_(false)
 {
+  SetupControlUI();
+}
+
+void HistogramScope::SetupControlUI()
+{
+  control_ui_->setContentsMargins(0, 0, 0, 0);
+
+  QHBoxLayout* toolbar_layout = new QHBoxLayout(control_ui_);
+  toolbar_layout->setMargin(0);
+
+  performance_select_ = new QCheckBox(tr("Performance Mode"), this);
+  performance_select_->setToolTip(tr("Improve playback back speed by disabling the graticule."));
+  toolbar_layout->addWidget(performance_select_);
+
+  connect(performance_select_, &QCheckBox::clicked, this, &HistogramScope::SetPerformanceMode);
+}
+
+void HistogramScope::SetPerformanceMode() {
+  performance_mode_ = !performance_mode_;
+  this->repaint();
 }
 
 HistogramScope::~HistogramScope()
@@ -146,58 +168,59 @@ void HistogramScope::DrawScope()
   OpenGLRenderFunctions::Blit(pipeline_secondary_);
 
   texture_row_sums_.Release();
+  if (!performance_mode_) {
+    // Draw line overlays
+    QPainter p(this);
+    QFont font = p.font();
+    font.setPixelSize(10);
+    QFontMetrics font_metrics = QFontMetrics(font);
+    QString label;
+    std::vector<float> histogram_increments = {
+      0.00,
+      0.25,
+      0.50,
+      1.0
+    };
 
-  // Draw line overlays
-  QPainter p(this);
-  QFont font = p.font();
-  font.setPixelSize(10);
-  QFontMetrics font_metrics = QFontMetrics(font);
-  QString label;
-  std::vector<float> histogram_increments = {
-    0.00,
-    0.25,
-    0.50,
-    1.0
-  };
+    int histogram_steps = histogram_increments.size();
+    QVector<QLine> histogram_lines(histogram_steps + 1);
+    int font_x_offset = 0;
+    int font_y_offset = font_metrics.capHeight() / 2.0f;
 
-  int histogram_steps = histogram_increments.size();
-  QVector<QLine> histogram_lines(histogram_steps + 1);
-  int font_x_offset = 0;
-  int font_y_offset = font_metrics.capHeight() / 2.0f;
+    p.setCompositionMode(QPainter::CompositionMode_Plus);
 
-  p.setCompositionMode(QPainter::CompositionMode_Plus);
+    p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
+    p.setFont(font);
 
-  p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
-  p.setFont(font);
+    float histogram_dim_x = ceil((width() - 1.0) * histogram_scale);
+    float histogram_dim_y = ceil((height() - 1.0) * histogram_scale);
+    float histogram_start_dim_x =
+      ((width() - 1.0) - histogram_dim_x) / 2.0f;
+    float histogram_start_dim_y =
+      ((height() - 1.0) - histogram_dim_y) / 2.0f;
+    float histogram_end_dim_x = (width() - 1.0) - histogram_start_dim_x;
 
-  float histogram_dim_x = ceil((width() - 1.0) * histogram_scale);
-  float histogram_dim_y = ceil((height() - 1.0) * histogram_scale);
-  float histogram_start_dim_x =
-    ((width() - 1.0) - histogram_dim_x) / 2.0f;
-  float histogram_start_dim_y =
-    ((height() - 1.0) - histogram_dim_y) / 2.0f;
-  float histogram_end_dim_x = (width() - 1.0) - histogram_start_dim_x;
-
-  // for (int i=0; i <= histogram_steps; i++) {
-  for(std::vector<float>::iterator it = histogram_increments.begin();
-    it != histogram_increments.end(); it++) {
-    histogram_lines[it - histogram_increments.begin()].setLine(
-      histogram_start_dim_x,
-      (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
-        histogram_start_dim_y,
-      histogram_end_dim_x,
-      (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
-        histogram_start_dim_y);
-      label = QString::number(
-        *it * 100, 'f', 1) + "%";
-      font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
-
-      p.drawText(
-        histogram_start_dim_x - font_x_offset,
+    // for (int i=0; i <= histogram_steps; i++) {
+    for(std::vector<float>::iterator it = histogram_increments.begin();
+      it != histogram_increments.end(); it++) {
+      histogram_lines[it - histogram_increments.begin()].setLine(
+        histogram_start_dim_x,
         (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
-          histogram_start_dim_y + font_y_offset, label);
+          histogram_start_dim_y,
+        histogram_end_dim_x,
+        (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
+          histogram_start_dim_y);
+        label = QString::number(
+          *it * 100, 'f', 1) + "%";
+        font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
+
+        p.drawText(
+          histogram_start_dim_x - font_x_offset,
+          (histogram_dim_y * pow(1.0 - *it, histogram_base)) +
+            histogram_start_dim_y + font_y_offset, label);
+    }
+    p.drawLines(histogram_lines);
   }
-  p.drawLines(histogram_lines);
 }
 
 OLIVE_NAMESPACE_EXIT
