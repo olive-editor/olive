@@ -84,16 +84,13 @@ int Core::execute(QCoreApplication* a)
 {
   int exit_code = 1;
 
-  // Start core
-  OLIVE_NAMESPACE::Core::instance()->Start();
-
   //
   // Parse command line arguments
   //
 
   QCommandLineParser parser;
-  parser.addHelpOption();
-  parser.addVersionOption();
+  QCommandLineOption help_option = parser.addHelpOption();
+  QCommandLineOption version_option = parser.addVersionOption();
 
   // Project from command line option
   // FIXME: What's the correct way to make a visually "optional" positional argument, or is manually adding square
@@ -110,6 +107,14 @@ int Core::execute(QCoreApplication* a)
 
   // Parse options
   parser.process(*a);
+
+  if (parser.isSet(help_option) || parser.isSet(version_option)) {
+    // These options don't launch any of the application proper
+    return a->exec();
+  }
+
+  // Start core
+  OLIVE_NAMESPACE::Core::instance()->Start();
 
   QStringList args = parser.positionalArguments();
 
@@ -141,8 +146,6 @@ int Core::execute(QCoreApplication* a)
     }
 
   }
-
-
 
   // Clear core memory
   OLIVE_NAMESPACE::Core::instance()->Stop();
