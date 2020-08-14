@@ -35,7 +35,9 @@ goto end
 REM Acquire Google Crashpad
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
-fetch crashpad
+
+REM Run `fetch` through cmd /c since fetch is a batch file that seems to call exit 
+cmd /c fetch crashpad
 cd crashpad
 gn gen out/Default
 ninja.exe -C out/Default
@@ -54,7 +56,7 @@ REM If this is a pull request, no further packaging/deploying needs to be done
 if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
 
 REM Create Crashpad symbol file and upload it
-wget https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true -O dump_syms.exe
+C:\msys64\usr\bin\wget.exe https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true -O dump_syms.exe
 dump_syms app\olive-editor.pdb > olive-editor.sym
 curl -F symfile=@olive-editor.sym https://olivevideoeditor.org/crashpad/symbols.php
 
