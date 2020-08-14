@@ -30,8 +30,6 @@ curl https://ffmpeg.zeranoe.com/builds/win64/shared/%FFMPEG_VER%-shared.zip > %F
 7z x %FFMPEG_VER%-dev.zip
 7z x %FFMPEG_VER%-shared.zip
 
-goto end
-
 REM Acquire Google Crashpad
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
