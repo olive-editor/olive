@@ -32,17 +32,18 @@ extern "C" {
 }
 
 #include <csignal>
+
 #include <QApplication>
 #include <QSurfaceFormat>
 
 #include "core.h"
-#include "common/crashhandler.h"
 #include "common/debug.h"
 
-int main(int argc, char *argv[]) {
-  signal(SIGSEGV, OLIVE_NAMESPACE::crash_handler);
-  signal(SIGABRT, OLIVE_NAMESPACE::crash_handler);
+#ifdef USE_CRASHPAD
+#include "common/crashpadinterface.h"
+#endif // USE_CRASHPAD
 
+int main(int argc, char *argv[]) {
   // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;
   format.setVersion(3, 2);
@@ -85,6 +86,13 @@ int main(int argc, char *argv[]) {
 #if LIBAVFILTER_VERSION_INT < AV_VERSION_INT(7, 14, 100)
   avfilter_register_all();
 #endif
+
+  // Enable Google Crashpad if compiled with it
+#ifdef USE_CRASHPAD
+  if (!InitializeCrashpad()) {
+    qWarning() << "Failed to initialize Crashpad handler";
+  }
+#endif // USE_CRASHPAD
 
   return OLIVE_NAMESPACE::Core::instance()->execute(&a);
 }

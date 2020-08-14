@@ -79,9 +79,6 @@ if(APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
 endif()
 
-# Set compiler definitions
-target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
-
 # Set compiler options
 if(MSVC)
   target_compile_options(
@@ -170,6 +167,26 @@ elseif (APPLE)
     "-framework ApplicationServices"
   )
 endif()
+
+# Enable Crashpad if found
+if (GoogleCrashpad_FOUND)
+  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_CRASHPAD)
+
+  target_include_directories(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${CRASHPAD_INCLUDE_DIRS}
+    )
+
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${CRASHPAD_LIBRARIES}
+    )
+endif()
+
+# Set compiler definitions
+target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 set(OLIVE_TS_FILES
   # FIXME: Empty variable

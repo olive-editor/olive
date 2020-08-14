@@ -23,6 +23,8 @@ set(OLIVE_SOURCES
   common/clamp.h
   common/crashhandler.h
   common/crashhandler.cpp
+  common/crashpadinterface.cpp
+  common/crashpadinterface.h
   common/debug.h
   common/debug.cpp
   common/define.h

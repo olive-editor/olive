@@ -30,8 +30,17 @@ curl https://ffmpeg.zeranoe.com/builds/win64/shared/%FFMPEG_VER%-shared.zip > %F
 7z x %FFMPEG_VER%-dev.zip
 7z x %FFMPEG_VER%-shared.zip
 
-REM Add Qt and FFmpeg directory to path
-set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev
+REM Acquire Google Crashpad
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
+fetch crashpad
+cd crashpad
+gn gen out/Default
+ninja -C out/Default
+cd ..
+
+REM Add Qt, FFmpeg, and Crashpad to path
+set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev;%APPVEYOR_BUILD_FOLDER%\crashpad;%APPVEYOR_BUILD_FOLDER%\crashpad\out\Default
 
 REM Run cmake
 cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -42,12 +51,18 @@ ninja.exe || exit /B 1
 REM If this is a pull request, no further packaging/deploying needs to be done
 if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
 
+REM Create Crashpad symbol file and upload it
+wget https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true -O dump_syms.exe
+dump_syms app\olive-editor.pdb > olive-editor.sym
+curl -F symfile=@olive-editor.sym https://olivevideoeditor.org/crashpad/symbols.php
+
 REM Start building package
 mkdir olive-editor
 cd olive-editor
 copy ..\app\olive-editor.exe .
 copy ..\app\olive-editor.pdb .
 copy ..\app\crashhandler.exe .
+copy ..\crashpad\out\Default\crashpad_handler.exe .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
 copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenColorIO.dll .
@@ -84,9 +99,6 @@ copy app\packaging\windows\nsis\* .
 REM Create portable
 copy nul olive-editor\portable
 7z a %PKGNAME%.zip olive-editor
-
-REM We're ready to upload, but we only upload *sometimes*
-REM set PATH=%PATH%;C:\msys64\usr\bin
 
 REM If this was a tagged build, upload
 if "%APPVEYOR_REPO_TAG%"=="true" GOTO upload
