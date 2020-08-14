@@ -38,6 +38,12 @@ REM Run `fetch` through cmd /c since fetch is a batch file that seems to call ex
 cmd /c fetch crashpad
 cd crashpad
 cmd /c gn gen out/Default
+
+REM Patch to build a dynamic release instead of a static release
+ren out\Default\toolchain.ninja toolchain.ninja.old
+sed "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja.old > out\Default\toolchain.ninja
+
+REM Build Crashpad
 ninja.exe -C out/Default
 cd ..
 
@@ -67,28 +73,7 @@ copy ..\app\crashhandler.exe .
 copy ..\crashpad\out\Default\crashpad_handler.exe .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenColorIO.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenImageIO.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\yaml-cpp.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Half-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Iex-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IexMath-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImf-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImfUtil-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmThread-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Imath-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\libpng16.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\jpeg62.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\tiff.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\zlib1.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\lzma.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_date_time-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_filesystem-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_thread-vc141-mt-x64-1_72.dll .
+copy ..\app\*.dll .
 
 REM Package done, begin deployment
 cd ..
