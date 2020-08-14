@@ -24,11 +24,13 @@ vcpkg integrate install
 cd %APPVEYOR_BUILD_FOLDER%
 
 REM Acquire FFmpeg
-set FFMPEG_VER=ffmpeg-4.2.1-win64
+set FFMPEG_VER=ffmpeg-4.2.3-win64
 curl https://ffmpeg.zeranoe.com/builds/win64/dev/%FFMPEG_VER%-dev.zip > %FFMPEG_VER%-dev.zip
 curl https://ffmpeg.zeranoe.com/builds/win64/shared/%FFMPEG_VER%-shared.zip > %FFMPEG_VER%-shared.zip
 7z x %FFMPEG_VER%-dev.zip
 7z x %FFMPEG_VER%-shared.zip
+
+goto end
 
 REM Acquire Google Crashpad
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
@@ -36,7 +38,7 @@ set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
 fetch crashpad
 cd crashpad
 gn gen out/Default
-ninja -C out/Default
+ninja.exe -C out/Default
 cd ..
 
 REM Add Qt, FFmpeg, and Crashpad to path
