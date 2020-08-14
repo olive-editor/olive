@@ -37,7 +37,7 @@ set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
 REM Run `fetch` through cmd /c since fetch is a batch file that seems to call exit 
 cmd /c fetch crashpad
 cd crashpad
-gn gen out/Default
+cmd /c gn gen out/Default
 ninja.exe -C out/Default
 cd ..
 
