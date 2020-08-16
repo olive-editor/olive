@@ -81,6 +81,38 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
       ticket->WaitForFinished();
     }
 
+    // Clear autocache lists
+    {
+      // This can be cleared normally (hashes will be discarded and need to be calculated again)
+      autocache_hash_tasks_.clear();
+
+      // We need to wait for these since they work directly on the FrameHashCache. Most of the time
+      // this is fine, but not if the FrameHashCache gets deleted after this function.
+      foreach (QFutureWatcher<void>* watcher, autocache_hash_process_tasks_) {
+        watcher->waitForFinished();
+      }
+      autocache_hash_process_tasks_.clear();
+
+      // This can be cleared normally (frames will be discarded and need to be rendered again)
+      autocache_video_tasks_.clear();
+
+      // This can be cleared normally (PCM data will be discarded and need to be rendered again)
+      autocache_audio_tasks_.clear();
+
+      // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
+      // be in the cache for later use.
+      {
+        QMap<QFutureWatcher<bool>*, QByteArray>::const_iterator i;
+        for (i=autocache_video_download_tasks_.constBegin(); i!=autocache_video_download_tasks_.constEnd(); i++) {
+          i.key()->waitForFinished();
+        }
+        autocache_video_download_tasks_.clear();
+      }
+
+      // No longer caching any hashes
+      autocache_currently_caching_hashes_.clear();
+    }
+
     // Delete all of our copied nodes
     foreach (Node* c, copy_map_) {
       c->deleteLater();
@@ -433,7 +465,7 @@ void RenderBackend::RunNextJob()
 
         QByteArray frame_hash = ticket->property("hash").toByteArray();
         if (!frame_hash.isEmpty()) {
-          currently_caching_hashes_.append(frame_hash);
+          autocache_currently_caching_hashes_.append(frame_hash);
         }
         break;
       }
@@ -618,7 +650,7 @@ void RenderBackend::AutoCacheVideoDownloaded()
       if (watcher->result()) {
         const QByteArray& hash = autocache_video_download_tasks_.value(watcher);
 
-        currently_caching_hashes_.removeOne(hash);
+        autocache_currently_caching_hashes_.removeOne(hash);
 
         viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
       } else {
@@ -812,7 +844,7 @@ void RenderBackend::AutoCacheRequeueFrames()
       if (t >= using_range.in()
           && t < using_range.out()
           && !queued_hashes.contains(hash)
-          && !currently_caching_hashes_.contains(hash)) {
+          && !autocache_currently_caching_hashes_.contains(hash)) {
         // Don't render any hash more than once
         queued_hashes.append(hash);
 

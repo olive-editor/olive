@@ -212,7 +212,7 @@ private:
 
   QMap<QFutureWatcher<bool>*, QByteArray> autocache_video_download_tasks_;
 
-  QVector<QByteArray> currently_caching_hashes_;
+  QVector<QByteArray> autocache_currently_caching_hashes_;
 
 private slots:
   void WorkerFinished();
