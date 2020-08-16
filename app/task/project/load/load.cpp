@@ -56,7 +56,7 @@ bool ProjectLoadTask::Run()
             project->Load(&reader, &layout, &IsCancelled());
 
             // Ensure project is in main thread
-            moveToThread(qApp->thread());
+            project->moveToThread(qApp->thread());
 
             if (!IsCancelled()) {
               projects_.append(project);
