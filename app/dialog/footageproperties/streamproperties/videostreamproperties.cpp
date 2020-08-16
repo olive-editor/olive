@@ -110,6 +110,14 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
     imgseq_end_time_->SetValue(video_stream->start_time() + video_stream->duration() - 1);
     imgseq_layout->addWidget(imgseq_end_time_, imgseq_row, 1);
 
+    imgseq_row++;
+
+    imgseq_layout->addWidget(new QLabel(tr("Frame Rate:")), imgseq_row, 0);
+
+    imgseq_frame_rate_ = new FrameRateComboBox();
+    imgseq_frame_rate_->SetFrameRate(video_stream->frame_rate());
+    imgseq_layout->addWidget(imgseq_frame_rate_, imgseq_row, 1);
+
     video_layout->addWidget(imgseq_group, row, 0, 1, 2);
   }
 }
@@ -141,10 +149,12 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
 
     if (video_stream->start_time() != imgseq_start_time_->GetValue()
-        || video_stream->duration() != new_dur) {
+        || video_stream->duration() != new_dur
+        || video_stream->frame_rate() != imgseq_frame_rate_->GetFrameRate()) {
       new ImageSequenceChangeCommand(video_stream,
                                      imgseq_start_time_->GetValue(),
                                      new_dur,
+                                     imgseq_frame_rate_->GetFrameRate(),
                                      parent);
     }
   }
@@ -211,11 +221,12 @@ void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
   stream_->set_pixel_aspect_ratio(old_pixel_ar_);
 }
 
-VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, QUndoCommand *parent) :
+VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, const rational &frame_rate, QUndoCommand *parent) :
   UndoCommand(parent),
   video_stream_(video_stream),
   new_start_index_(start_index),
-  new_duration_(duration)
+  new_duration_(duration),
+  new_frame_rate_(frame_rate)
 {
 }
 
@@ -231,12 +242,18 @@ void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal()
 
   old_duration_ = video_stream_->duration();
   video_stream_->set_duration(new_duration_);
+
+  old_frame_rate_ = video_stream_->frame_rate();
+  video_stream_->set_frame_rate(new_frame_rate_);
+  video_stream_->set_timebase(new_frame_rate_.flipped());
 }
 
 void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
 {
   video_stream_->set_start_time(old_start_index_);
   video_stream_->set_duration(old_duration_);
+  video_stream_->set_frame_rate(old_frame_rate_);
+  video_stream_->set_timebase(old_frame_rate_.flipped());
 }
 
 OLIVE_NAMESPACE_EXIT

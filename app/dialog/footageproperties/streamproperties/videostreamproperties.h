@@ -75,6 +75,11 @@ private:
   IntegerSlider* imgseq_end_time_;
 
   /**
+   * @brief Sets the frame rate for image sequences
+   */
+  FrameRateComboBox* imgseq_frame_rate_;
+
+  /**
    * @brief Sets the pixel aspect ratio of the stream
    */
   PixelAspectRatioComboBox* pixel_aspect_combo_;
@@ -114,6 +119,7 @@ private:
     ImageSequenceChangeCommand(VideoStreamPtr video_stream,
                                int64_t start_index,
                                int64_t duration,
+                               const rational& frame_rate,
                                QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
@@ -130,6 +136,9 @@ private:
 
     int64_t new_duration_;
     int64_t old_duration_;
+
+    rational new_frame_rate_;
+    rational old_frame_rate_;
 
   };
 
