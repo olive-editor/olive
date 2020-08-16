@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QFile>
 
+#include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
@@ -378,11 +379,15 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
         // Footage timestamp
         if (stream->type() == Stream::kVideo) {
-          hash.addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
-                                                   QString::number(input_time.denominator())).toUtf8());
+          VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
-          hash.addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
+          int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
 
+          // Add timestamp in units of the video stream's timebase
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+
+          // Add start time - used for both image sequences and video streams
+          hash.addData(QString::number(video_stream->start_time()).toUtf8());
         }
       }
     }
