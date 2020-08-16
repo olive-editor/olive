@@ -24,6 +24,7 @@
 #include <QMap>
 #include <QMutex>
 #include <QObject>
+#include <QTimer>
 
 #include "common/define.h"
 #include "project/project.h"
@@ -96,6 +97,11 @@ private:
   qint64 limit_;
 
   bool clear_on_close_;
+
+  QTimer save_timer_;
+
+private slots:
+  void SaveDiskCacheIndex();
 
 };
 

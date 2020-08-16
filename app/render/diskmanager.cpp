@@ -189,6 +189,10 @@ DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
   QObject(parent)
 {
   SetPath(path);
+
+  save_timer_.setInterval(Config::Current()[QStringLiteral("DiskCacheSaveInterval")].toInt());
+  connect(&save_timer_, &QTimer::timeout, this, &DiskCacheFolder::SaveDiskCacheIndex);
+  save_timer_.start();
 }
 
 DiskCacheFolder::~DiskCacheFolder()
@@ -335,6 +339,11 @@ void DiskCacheFolder::CloseCacheFolder()
   }
 
   // Save current cache index
+  SaveDiskCacheIndex();
+}
+
+void DiskCacheFolder::SaveDiskCacheIndex()
+{
   QFile cache_index_file(index_path_);
 
   if (cache_index_file.open(QFile::WriteOnly)) {

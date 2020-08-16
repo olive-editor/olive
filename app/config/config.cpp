@@ -67,6 +67,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("HoverFocus"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeParam::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeParam::kInt, 1);
+  SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeParam::kInt, 10000);
   SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, QLocale::system().name());
   SetEntryInternal(QStringLiteral("ScrollZooms"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("EnableSeekToImport"), NodeParam::kBoolean, false);
