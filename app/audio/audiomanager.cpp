@@ -242,7 +242,7 @@ void AudioManager::OutputDevicesRefreshed()
   watcher->deleteLater();
   is_refreshing_outputs_ = false;
 
-  QString preferred_audio_output = Config::Current()["PreferredAudioOutput"].toString();
+  QString preferred_audio_output = Config::Current()["AudioOutput"].toString();
 
   if (!output_is_set_
       || (!preferred_audio_output.isEmpty() && output_device_info_.deviceName() != preferred_audio_output)) {
@@ -269,7 +269,7 @@ void AudioManager::InputDevicesRefreshed()
   watcher->deleteLater();
   is_refreshing_inputs_ = false;
 
-  QString preferred_audio_input = Config::Current()["PreferredAudioInput"].toString();
+  QString preferred_audio_input = Config::Current()["AudioInput"].toString();
 
   if (input_ == nullptr
       || (!preferred_audio_input.isEmpty() && input_device_info_.deviceName() != preferred_audio_input)) {
