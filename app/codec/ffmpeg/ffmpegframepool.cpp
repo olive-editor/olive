@@ -26,30 +26,21 @@ extern "C" {
 
 OLIVE_NAMESPACE_ENTER
 
-FFmpegFramePool::FFmpegFramePool(int element_count, int width, int height, AVPixelFormat format) :
+FFmpegFramePool::FFmpegFramePool(int element_count) :
   MemoryPool(element_count),
-  width_(width),
-  height_(height),
-  format_(format)
+  width_(0),
+  height_(0),
+  format_(AV_PIX_FMT_NONE)
 {
 }
 
-FFmpegFramePool::ElementPtr FFmpegFramePool::Get(AVFrame *copy)
+void FFmpegFramePool::SetParameters(int width, int height, AVPixelFormat format)
 {
-  ElementPtr ele = MemoryPool::Get();
+  Clear();
 
-  if (ele) {
-    av_image_copy_to_buffer(ele->data(),
-                            GetElementSize(),
-                            copy->data,
-                            copy->linesize,
-                            format_,
-                            width_,
-                            height_,
-                            1);
-  }
-
-  return ele;
+  width_ = width;
+  height_ = height;
+  format_ = format;
 }
 
 size_t FFmpegFramePool::GetElementSize()

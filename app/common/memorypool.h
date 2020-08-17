@@ -66,11 +66,24 @@ public:
    * Deletes all arenas.
    */
   virtual ~MemoryPool() {
-    ignore_arena_empty_signal_ = true;
-    qDeleteAll(arenas_);
+    Clear();
   }
 
   DISABLE_COPY_MOVE(MemoryPool)
+
+  /**
+   * @brief Clears all arenas, freeing all of their memory
+   *
+   * Note that this function is not safe, any elements that are still out there will be invalid
+   * and accessing them will cause a crash. You'll need to make sure all elements are already
+   * relinquished before then.
+   */
+  void Clear()
+  {
+    ignore_arena_empty_signal_ = true;
+    qDeleteAll(arenas_);
+    ignore_arena_empty_signal_ = false;
+  }
 
   /**
    * @brief Returns whether any arenas are successfully allocated
@@ -212,6 +225,7 @@ public:
           ElementPtr e = std::make_shared<Element>(this,
                                                    reinterpret_cast<T*>(data_ + i * element_sz_));
           lent_elements_.push_back(e.get());
+
           return e;
         }
       }

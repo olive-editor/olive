@@ -145,9 +145,8 @@ bool VideoParams::operator!=(const VideoParams &rhs) const
 
 void VideoParams::calculate_effective_size()
 {
-  // Fast rounding up to an even number
-  effective_width_ = qCeil(width() / divider_ * 0.5) * 2;
-  effective_height_ = qCeil(height() / divider_ * 0.5) * 2;
+  effective_width_ = GetScaledDimension(width(), divider_);
+  effective_height_ = GetScaledDimension(height(), divider_);
 }
 
 void VideoParams::validate_pixel_aspect_ratio()
@@ -193,6 +192,11 @@ QStringList VideoParams::GetStandardPixelAspectRatioNames()
 QString VideoParams::FormatPixelAspectRatioString(const QString &format, const rational &ratio)
 {
   return format.arg(QString::number(ratio.toDouble(), 'f', 4));
+}
+
+int VideoParams::GetScaledDimension(int dim, int divider)
+{
+  return qCeil(dim / divider * 0.5) * 2;
 }
 
 OLIVE_NAMESPACE_EXIT

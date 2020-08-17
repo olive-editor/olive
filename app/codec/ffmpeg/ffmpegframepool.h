@@ -30,12 +30,19 @@ OLIVE_NAMESPACE_ENTER
 class FFmpegFramePool : public MemoryPool<uint8_t>
 {
 public:
-  FFmpegFramePool(int element_count,
-                  int width,
-                  int height,
-                  AVPixelFormat format);
+  FFmpegFramePool(int element_count);
 
-  ElementPtr Get(AVFrame* copy);
+  void SetParameters(int width, int height, AVPixelFormat format);
+
+  const int& width() const
+  {
+    return width_;
+  }
+
+  const int& height() const
+  {
+    return height_;
+  }
 
 protected:
   virtual size_t GetElementSize() override;

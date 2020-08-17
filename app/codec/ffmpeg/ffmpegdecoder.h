@@ -76,7 +76,7 @@ public:
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
+  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, int divider, bool cache_is_locked);
 
   /**
    * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
@@ -98,10 +98,16 @@ private:
 
   void Seek(int64_t timestamp);
 
+  void InitScaler(int divider);
+  void FreeScaler();
+
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
   AVDictionary* opts_;
+
+  SwsContext* scale_ctx_;
+  int scale_divider_;
 
   int64_t second_ts_;
 
@@ -178,8 +184,6 @@ private:
   void FreeScaler();
 
   FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
-
-  static int GetScaledDimension(int dim, int divider);
 
   static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
 

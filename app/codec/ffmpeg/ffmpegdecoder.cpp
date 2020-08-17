@@ -106,10 +106,7 @@ bool FFmpegDecoder::Open()
     if (!frame_pool) {
       // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
       //        this a dynamic value somehow or a configurable value?
-      frame_pool = new FFmpegFramePool(64,
-                                       our_instance->stream()->codecpar->width,
-                                       our_instance->stream()->codecpar->height,
-                                       static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
+      frame_pool = new FFmpegFramePool(64);
       frame_pool_map_.insert(stream().get(), frame_pool);
     }
 
@@ -194,13 +191,28 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     FFmpegDecoderInstance* working_instance = nullptr;
 
+    int divided_width = VideoParams::GetScaledDimension(vs->width(), divider);
+    int divided_height = VideoParams::GetScaledDimension(vs->height(), divider);
+
     // Find instance
     do {
       QMutexLocker list_locker(&instance_map_lock_);
 
-      QList<FFmpegDecoderInstance*> non_ideal_contenders;
+      const QList<FFmpegDecoderInstance*>& instances = instance_map_.value(stream().get());
 
-      QList<FFmpegDecoderInstance*> instances = instance_map_.value(stream().get());
+      FFmpegFramePool* pool = frame_pool_map_.value(stream().get());
+
+      if (pool->width() != divided_width || pool->height() != divided_height) {
+        // Clear all instance queues
+        foreach (FFmpegDecoderInstance* i, instances) {
+          i->ClearFrameCache();
+        }
+
+        // Set new frame pool parameters
+        pool->SetParameters(divided_width, divided_height, src_pix_fmt_);
+      }
+
+      QList<FFmpegDecoderInstance*> non_ideal_contenders;
 
       foreach (FFmpegDecoderInstance* i, instances) {
 
@@ -291,7 +303,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
       working_instance->SetWorking(true);
 
       // Retrieve frame
-      return_frame = working_instance->RetrieveFrame(target_ts, true);
+      return_frame = working_instance->RetrieveFrame(target_ts, divider, true);
 
       // Set working to false and wake any threads waiting
       working_instance->cache_lock()->lock();
@@ -310,8 +322,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
                            input_linesize,
                            reinterpret_cast<const uint8_t*>(return_frame->data()),
                            src_pix_fmt_,
-                           vs->width(),
-                           vs->height(),
+                           divided_width,
+                           divided_height,
                            1);
 
       return BuffersToNativeFrame(divider,
@@ -750,11 +762,6 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams 
   return success;
 }
 
-int FFmpegDecoder::GetScaledDimension(int dim, int divider)
-{
-  return dim / divider;
-}
-
 PixelFormat::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
 {
   switch (pix_fmt) {
@@ -812,7 +819,7 @@ FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height,
             input_data,
             input_linesize,
             0,
-            height,
+            VideoParams::GetScaledDimension(height, divider),
             &output_data,
             &output_linesize);
 
@@ -954,10 +961,15 @@ void FFmpegDecoderInstance::ClearFrameCache()
   cache_at_zero_ = false;
 }
 
-FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cache_is_locked)
+FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, int divider, bool cache_is_locked)
 {
   if (!cache_is_locked) {
     cache_lock_.lock();
+  }
+
+  if (scale_divider_ != divider) {
+    FreeScaler();
+    InitScaler(divider);
   }
 
   int64_t seek_ts = target_ts;
@@ -1052,12 +1064,33 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
         break;
       }
 
-      FFmpegFramePool::ElementPtr cached = frame_pool_->Get(working_frame.frame());
+      FFmpegFramePool::ElementPtr cached = frame_pool_->Get();
 
       if (!cached) {
         qCritical() << "Frame pool failed to return a valid frame - out of memory?";
         cache_lock_.unlock();
         break;
+      }
+
+      {
+        uint8_t* scale_data[4];
+        int scale_linesize[4];
+
+        av_image_fill_arrays(scale_data,
+                             scale_linesize,
+                             cached->data(),
+                             static_cast<AVPixelFormat>(working_frame.frame()->format),
+                             VideoParams::GetScaledDimension(working_frame.frame()->width, divider),
+                             VideoParams::GetScaledDimension(working_frame.frame()->height, divider),
+                             1);
+
+        sws_scale(scale_ctx_,
+                  working_frame.frame()->data,
+                  working_frame.frame()->linesize,
+                  0,
+                  working_frame.frame()->height,
+                  scale_data,
+                  scale_linesize);
       }
 
       // Set timestamp so this frame can be identified later
@@ -1113,11 +1146,14 @@ void FFmpegDecoder::InitScaler(int divider)
 {
   VideoStream* vs = static_cast<VideoStream*>(stream().get());
 
-  scale_ctx_ = sws_getContext(vs->width(),
-                              vs->height(),
+  int scaled_width = VideoParams::GetScaledDimension(vs->width(), divider);
+  int scaled_height = VideoParams::GetScaledDimension(vs->height(), divider);
+
+  scale_ctx_ = sws_getContext(scaled_width,
+                              scaled_height,
                               src_pix_fmt_,
-                              GetScaledDimension(vs->width(), divider),
-                              GetScaledDimension(vs->height(), divider),
+                              scaled_width,
+                              scaled_height,
                               ideal_pix_fmt_,
                               SWS_FAST_BILINEAR,
                               nullptr,
@@ -1132,6 +1168,39 @@ void FFmpegDecoder::InitScaler(int divider)
 }
 
 void FFmpegDecoder::FreeScaler()
+{
+  if (scale_ctx_) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+
+    scale_divider_ = 0;
+  }
+}
+
+void FFmpegDecoderInstance::InitScaler(int divider)
+{
+  int scaled_width = VideoParams::GetScaledDimension(avstream_->codecpar->width, divider);
+  int scaled_height = VideoParams::GetScaledDimension(avstream_->codecpar->height, divider);
+
+  scale_ctx_ = sws_getContext(avstream_->codecpar->width,
+                              avstream_->codecpar->height,
+                              static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                              scaled_width,
+                              scaled_height,
+                              static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                              SWS_FAST_BILINEAR,
+                              nullptr,
+                              nullptr,
+                              nullptr);
+
+  if (scale_ctx_) {
+    scale_divider_ = divider;
+  } else {
+    scale_divider_ = 0;
+  }
+}
+
+void FFmpegDecoderInstance::FreeScaler()
 {
   if (scale_ctx_) {
     sws_freeContext(scale_ctx_);
@@ -1236,6 +1305,8 @@ void FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :
   fmt_ctx_(nullptr),
   opts_(nullptr),
+  scale_ctx_(nullptr),
+  scale_divider_(0),
   frame_pool_(nullptr),
   is_working_(false),
   cache_at_zero_(false),
@@ -1365,6 +1436,8 @@ void FFmpegDecoderInstance::ClearResources()
     avformat_close_input(&fmt_ctx_);
     fmt_ctx_ = nullptr;
   }
+
+  FreeScaler();
 }
 
 void FFmpegDecoderInstance::ClearTimerEvent()

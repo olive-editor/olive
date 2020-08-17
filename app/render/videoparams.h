@@ -114,6 +114,8 @@ public:
   static QStringList GetStandardPixelAspectRatioNames();
   static QString FormatPixelAspectRatioString(const QString& format, const rational& ratio);
 
+  static int GetScaledDimension(int dim, int divider);
+
 private:
   void calculate_effective_size();
 
