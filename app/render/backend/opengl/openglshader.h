@@ -51,7 +51,7 @@ public:
                                     OCIO::ConstProcessorRcPtr processor,
                                     bool alpha_is_associated);
 
-  static QString CodeDefaultFragment(const QString &function_name = QString(),
+  static QString CodeDefaultFragment(QString function_name = QString(),
                                      const QString &shader_code = QString());
   static QString CodeDefaultVertex();
   static QString CodeAlphaDisassociate(const QString& function_name);

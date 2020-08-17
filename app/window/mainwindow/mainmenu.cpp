@@ -61,7 +61,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
-  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow);
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
   file_menu_->addSeparator();
   file_close_project_item_ = file_menu_->AddItem("closeproj", Core::instance(), &Core::CloseActiveProject);
   file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
@@ -262,6 +262,7 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, "S");
   tools_snapping_item_->setCheckable(true);
+  tools_snapping_item_->setChecked(Core::instance()->snapping());
 
   tools_menu_->addSeparator();
 

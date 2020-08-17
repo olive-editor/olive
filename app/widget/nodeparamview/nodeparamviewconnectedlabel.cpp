@@ -23,7 +23,10 @@
 #include <QHBoxLayout>
 
 #include "common/qtutils.h"
+#include "core.h"
 #include "node/node.h"
+#include "widget/menu/menu.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -39,7 +42,9 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidg
 
   connected_to_lbl_ = new ClickableLabel();
   connected_to_lbl_->setCursor(Qt::PointingHandCursor);
+  connected_to_lbl_->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(connected_to_lbl_, &ClickableLabel::MouseClicked, this, &NodeParamViewConnectedLabel::ConnectionClicked);
+  connect(connected_to_lbl_, &ClickableLabel::customContextMenuRequested, this, &NodeParamViewConnectedLabel::ShowLabelContextMenu);
   layout->addWidget(connected_to_lbl_);
 
   layout->addStretch();
@@ -67,6 +72,18 @@ void NodeParamViewConnectedLabel::UpdateConnected()
   }
 
   connected_to_lbl_->setText(connection_str);
+}
+
+void NodeParamViewConnectedLabel::ShowLabelContextMenu()
+{
+  Menu m(this);
+
+  QAction* disconnect_action = m.addAction(tr("Disconnect"));
+  connect(disconnect_action, &QAction::triggered, this, [this](){
+    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(input_->get_connected_output(), input_));
+  });
+
+  m.exec(QCursor::pos());
 }
 
 OLIVE_NAMESPACE_EXIT

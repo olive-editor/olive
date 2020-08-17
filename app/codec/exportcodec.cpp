@@ -20,6 +20,11 @@
 
 #include "exportcodec.h"
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavutil/pixdesc.h>
+}
+
 OLIVE_NAMESPACE_ENTER
 
 QString ExportCodec::GetCodecName(ExportCodec::Codec c)
@@ -75,6 +80,49 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   }
 
   return false;
+}
+
+QStringList ExportCodec::GetPixelFormatsForCodec(ExportCodec::Codec c)
+{
+  QStringList pix_fmts;
+
+  AVCodec* codec_info = nullptr;
+
+  switch (c) {
+  case kCodecH264:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_H264);
+    break;
+  case kCodecDNxHD:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_DNXHD);
+    break;
+  case kCodecProRes:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_PRORES);
+    break;
+  case kCodecH265:
+    codec_info = avcodec_find_encoder(AV_CODEC_ID_HEVC);
+    break;
+  case kCodecOpenEXR:
+  case kCodecPNG:
+  case kCodecTIFF:
+    // FIXME: Add these in (these will most likely use an OIIOEncoder which doesn't exist yet)
+    break;
+  case kCodecMP2:
+  case kCodecMP3:
+  case kCodecAAC:
+  case kCodecPCM:
+  case kCodecCount:
+    // These are audio or invalid codecs and therefore have no pixel formats
+    break;
+  }
+
+  if (codec_info) {
+    for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
+      const char* pix_fmt_name = av_get_pix_fmt_name(codec_info->pix_fmts[i]);
+      pix_fmts.append(pix_fmt_name);
+    }
+  }
+
+  return pix_fmts;
 }
 
 OLIVE_NAMESPACE_EXIT

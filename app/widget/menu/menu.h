@@ -132,7 +132,7 @@ public:
   }
 
   QAction* AddActionWithData(const QString& text,
-                             const QVariant& data,
+                             const QVariant& d,
                              const QVariant& compare);
 
   QAction *InsertAlphabetically(const QString& s);

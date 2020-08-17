@@ -50,6 +50,10 @@ private:
 
   NodeInput* valign_input_;
 
+  NodeInput* font_input_;
+
+  NodeInput* font_size_input_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

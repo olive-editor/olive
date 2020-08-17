@@ -25,7 +25,6 @@
 
 #include "core.h"
 #include "handmovableview.h"
-#include "timelineplayhead.h"
 #include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
@@ -48,6 +47,9 @@ public:
 
   void SetSnapService(SnapService* service);
 
+  const double& GetYScale() const;
+  void SetYScale(const double& y_scale);
+
 public slots:
   void SetTime(const int64_t time);
 
@@ -69,11 +71,11 @@ protected:
 
   virtual void SceneRectUpdateEvent(QRectF&){}
 
+  virtual void VerticalScaleChangedEvent(double scale);
+
   bool HandleZoomFromScroll(QWheelEvent* event);
 
   bool WheelEventIsAZoomEvent(QWheelEvent* event);
-
-  void SetLimitYAxis(bool e);
 
   rational GetPlayheadTime() const;
 
@@ -83,12 +85,20 @@ protected:
 
   virtual void TimebaseChangedEvent(const rational &) override;
 
+  bool IsYAxisEnabled() const
+  {
+    return y_axis_enabled_;
+  }
+
+  void SetYAxisEnabled(bool e)
+  {
+    y_axis_enabled_ = e;
+  }
+
 private:
   qreal GetPlayheadX();
 
   int64_t playhead_;
-
-  TimelinePlayhead playhead_style_;
 
   double playhead_scene_left_;
   double playhead_scene_right_;
@@ -97,14 +107,16 @@ private:
 
   QGraphicsScene scene_;
 
-  bool limit_y_axis_;
-
   bool snapped_;
   QList<rational> snap_time_;
 
   rational end_time_;
 
   SnapService* snap_service_;
+
+  bool y_axis_enabled_;
+
+  double y_scale_;
 
 private slots:
   /**

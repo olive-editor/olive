@@ -1,7 +1,7 @@
 <RCC>
   <qresource prefix="/style/olive-light">
-    <file>palette.ini</file>
     <file>style.css</file>
+    <file>palette.ini</file>
     <file>png/add-button.16.png</file>
     <file>png/add-button.32.png</file>
     <file>png/add-button.64.png</file>
@@ -94,6 +94,10 @@
     <file>png/magnet.32.png</file>
     <file>png/magnet.64.png</file>
     <file>png/magnet.128.png</file>
+    <file>png/minus.16.png</file>
+    <file>png/minus.32.png</file>
+    <file>png/minus.64.png</file>
+    <file>png/minus.128.png</file>
     <file>png/new.16.png</file>
     <file>png/new.32.png</file>
     <file>png/new.64.png</file>
@@ -114,6 +118,10 @@
     <file>png/play.32.png</file>
     <file>png/play.64.png</file>
     <file>png/play.128.png</file>
+    <file>png/plus.16.png</file>
+    <file>png/plus.32.png</file>
+    <file>png/plus.64.png</file>
+    <file>png/plus.128.png</file>
     <file>png/prev.16.png</file>
     <file>png/prev.32.png</file>
     <file>png/prev.64.png</file>

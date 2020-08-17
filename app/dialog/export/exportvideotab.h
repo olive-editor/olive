@@ -31,6 +31,7 @@
 #include "render/colormanager.h"
 #include "widget/colorwheel/colorspacechooser.h"
 #include "widget/slider/integerslider.h"
+#include "widget/standardcombos/standardcombos.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -40,24 +41,87 @@ class ExportVideoTab : public QWidget
 public:
   ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
 
-  QComboBox* codec_combobox() const;
+  ExportCodec::Codec GetSelectedCodec() const
+  {
+    return static_cast<ExportCodec::Codec>(codec_combobox()->currentData().toInt());
+  }
 
-  IntegerSlider* width_slider() const;
-  IntegerSlider* height_slider() const;
-  QCheckBox* maintain_aspect_checkbox() const;
-  QComboBox* scaling_method_combobox() const;
+  QComboBox* codec_combobox() const
+  {
+    return codec_combobox_;
+  }
 
-  const rational& frame_rate() const;
-  void set_frame_rate(const rational& frame_rate);
+  IntegerSlider* width_slider() const
+  {
+    return width_slider_;
+  }
 
-  QString CurrentOCIOColorSpace();
+  IntegerSlider* height_slider() const
+  {
+    return height_slider_;
+  }
 
-  CodecSection* GetCodecSection() const;
-  void SetCodecSection(CodecSection* section);
-  ImageSection* image_section() const;
-  H264Section* h264_section() const;
+  QCheckBox* maintain_aspect_checkbox() const
+  {
+    return maintain_aspect_checkbox_;
+  }
 
-  const int& threads() const;
+  QComboBox* scaling_method_combobox() const
+  {
+    return scaling_method_combobox_;
+  }
+
+  FrameRateComboBox* frame_rate_combobox() const
+  {
+    return frame_rate_combobox_;
+  }
+
+  QString CurrentOCIOColorSpace()
+  {
+    return color_space_chooser_->input();
+  }
+
+  CodecSection* GetCodecSection() const
+  {
+    return static_cast<CodecSection*>(codec_stack_->currentWidget());
+  }
+
+  void SetCodecSection(CodecSection* section)
+  {
+    codec_stack_->setCurrentWidget(section);
+  }
+
+  ImageSection* image_section() const
+  {
+    return image_section_;
+  }
+
+  H264Section* h264_section() const
+  {
+    return h264_section_;
+  }
+
+  InterlacedComboBox* interlaced_combobox() const
+  {
+    return interlaced_combobox_;
+  }
+
+  PixelAspectRatioComboBox* pixel_aspect_combobox() const
+  {
+    return pixel_aspect_combobox_;
+  }
+
+  const int& threads() const
+  {
+    return threads_;
+  }
+
+  const QString& pix_fmt() const {
+    return pix_fmt_;
+  }
+
+public slots:
+  void VideoCodecChanged();
 
 signals:
   void ColorSpaceChanged(const QString& colorspace);
@@ -68,7 +132,7 @@ private:
   QWidget* SetupCodecSection();
 
   QComboBox* codec_combobox_;
-  QComboBox* frame_rate_combobox_;
+  FrameRateComboBox* frame_rate_combobox_;
   QCheckBox* maintain_aspect_checkbox_;
   QComboBox* scaling_method_combobox_;
 
@@ -81,11 +145,14 @@ private:
   IntegerSlider* width_slider_;
   IntegerSlider* height_slider_;
 
-  QList<rational> frame_rates_;
-
   ColorManager* color_manager_;
 
+  InterlacedComboBox* interlaced_combobox_;
+  PixelAspectRatioComboBox* pixel_aspect_combobox_;
+
   int threads_;
+
+  QString pix_fmt_;
 
 private slots:
   void MaintainAspectRatioChanged(bool val);

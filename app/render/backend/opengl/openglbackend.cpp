@@ -27,38 +27,17 @@ OLIVE_NAMESPACE_ENTER
 OpenGLBackend::OpenGLBackend(QObject* parent) :
   RenderBackend(parent)
 {
-  proxy_ = new OpenGLProxy();
 
-  QThread* proxy_thread = new QThread();
-  proxy_thread->start(QThread::IdlePriority);
-  proxy_->moveToThread(proxy_thread);
-
-  if (!proxy_->Init()) {
-    ClearProxy();
-  }
 }
 
 OpenGLBackend::~OpenGLBackend()
 {
   Close();
-
-  ClearProxy();
 }
 
 RenderWorker *OpenGLBackend::CreateNewWorker()
 {
-  return new OpenGLWorker(this, proxy_);
-}
-
-void OpenGLBackend::ClearProxy()
-{
-  if (proxy_) {
-    proxy_->thread()->quit();
-    proxy_->thread()->wait();
-    proxy_->thread()->deleteLater();
-    proxy_->deleteLater();
-    proxy_ = nullptr;
-  }
+  return new OpenGLWorker(this);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -33,9 +33,25 @@ public:
   NodeValue();
   NodeValue(const NodeParam::DataType& type, const QVariant& data, const Node* from, const QString& tag = QString());
 
-  const NodeParam::DataType& type() const;
-  const QVariant& data() const;
-  const QString& tag() const;
+  const NodeParam::DataType& type() const
+  {
+    return type_;
+  }
+
+  const QVariant& data() const
+  {
+    return data_;
+  }
+
+  const QString& tag() const
+  {
+    return tag_;
+  }
+
+  const Node* source() const
+  {
+    return from_;
+  }
 
   bool operator==(const NodeValue& rhs) const;
 
@@ -89,6 +105,23 @@ public:
   void Insert(const NodeInput* key, const NodeValueTable& value);
 
   NodeValueTable Merge() const;
+
+  using const_iterator = QHash<QString, NodeValueTable>::const_iterator;
+
+  inline QHash<QString, NodeValueTable>::const_iterator begin() const
+  {
+    return tables_.cbegin();
+  }
+
+  inline QHash<QString, NodeValueTable>::const_iterator end() const
+  {
+    return tables_.cend();
+  }
+
+  inline bool contains(const QString& s) const
+  {
+    return tables_.contains(s);
+  }
 
 private:
   QHash<QString, NodeValueTable> tables_;

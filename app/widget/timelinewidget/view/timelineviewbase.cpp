@@ -39,9 +39,10 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
   dragging_playhead_(false),
-  limit_y_axis_(false),
   snapped_(false),
-  snap_service_(nullptr)
+  snap_service_(nullptr),
+  y_axis_enabled_(false),
+  y_scale_(1.0)
 {
   setScene(&scene_);
 
@@ -81,6 +82,26 @@ void TimelineViewBase::SetSnapService(SnapService *service)
   snap_service_ = service;
 }
 
+const double &TimelineViewBase::GetYScale() const
+{
+  return y_scale_;
+}
+
+void TimelineViewBase::VerticalScaleChangedEvent(double)
+{
+}
+
+void TimelineViewBase::SetYScale(const double &y_scale)
+{
+  y_scale_ = y_scale;
+
+  if (y_axis_enabled_) {
+    VerticalScaleChangedEvent(y_scale_);
+
+    viewport()->update();
+  }
+}
+
 void TimelineViewBase::SetTime(const int64_t time)
 {
   playhead_ = time;
@@ -111,7 +132,19 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
     playhead_scene_left_ = GetPlayheadX();
     playhead_scene_right_ = playhead_scene_left_ + width;
 
-    playhead_style_.Draw(painter, QRectF(playhead_scene_left_, rect.top(), width, rect.height()));
+    QRectF playhead_rect(playhead_scene_left_, rect.top(), width, rect.height());
+
+    // Get playhead highlight color
+    QColor highlight = palette().text().color();
+    highlight.setAlpha(32);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(highlight);
+    painter->drawRect(playhead_rect);
+
+    // FIXME: Hardcoded...
+    painter->setPen(PLAYHEAD_COLOR);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawLine(QLineF(playhead_rect.topLeft(), playhead_rect.bottomLeft()));
   }
 
   if (snapped_) {
@@ -134,7 +167,9 @@ bool TimelineViewBase::PlayheadPress(QMouseEvent *event)
 {
   QPointF scene_pos = mapToScene(event->pos());
 
-  dragging_playhead_ = (scene_pos.x() >= playhead_scene_left_ && scene_pos.x() < playhead_scene_right_);
+  dragging_playhead_ = (event->button() == Qt::LeftButton
+                        && scene_pos.x() >= playhead_scene_left_
+                        && scene_pos.x() < playhead_scene_right_);
 
   return dragging_playhead_;
 }
@@ -251,10 +286,56 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
   if (WheelEventIsAZoomEvent(event)) {
     // If CTRL is held (or a preference is set to swap CTRL behavior), we zoom instead of scrolling
     if (!event->angleDelta().isNull()) {
-      if (event->angleDelta().x() + event->angleDelta().y() > 0) {
-        emit ScaleChanged(GetScale() * 1.1);
+      bool only_vertical = false;
+      bool only_horizontal = false;
+
+      // Ctrl+Shift limits to only one axis
+      // Alt switches between horizontal only (alt held) or vertical only (alt not held)
+      if (y_axis_enabled_) {
+        if (event->modifiers() & Qt::ShiftModifier) {
+          if (event->modifiers() & Qt::AltModifier) {
+            only_horizontal = true;
+          } else {
+            only_vertical = true;
+          }
+        }
       } else {
-        emit ScaleChanged(GetScale() * 0.9);
+        only_horizontal = true;
+      }
+
+      double scale_multiplier;
+
+      if (event->angleDelta().x() + event->angleDelta().y() > 0) {
+        scale_multiplier = 1.1;
+      } else {
+        scale_multiplier = 0.9;
+      }
+
+      QPointF cursor_pos;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+      cursor_pos = event->position();
+#else
+      cursor_pos = event->posF();
+#endif
+
+      if (!only_vertical) {
+        double new_x_scale = GetScale() * scale_multiplier;
+
+        int new_x_scroll = qRound(horizontalScrollBar()->value() / GetScale() * new_x_scale + (cursor_pos.x() - cursor_pos.x() / new_x_scale * GetScale()));
+
+        emit ScaleChanged(new_x_scale);
+
+        horizontalScrollBar()->setValue(new_x_scroll);
+      }
+
+      if (!only_horizontal) {
+        double new_y_scale = GetYScale() * scale_multiplier;
+
+        int new_y_scroll = qRound(verticalScrollBar()->value() / GetYScale() * new_y_scale + (cursor_pos.y() - cursor_pos.y() / new_y_scale * GetYScale()));
+
+        SetYScale(new_y_scale);
+
+        verticalScrollBar()->setValue(new_y_scroll);
       }
     }
 
@@ -267,12 +348,6 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
 bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
-}
-
-void TimelineViewBase::SetLimitYAxis(bool)
-{
-  limit_y_axis_ = true;
-  UpdateSceneRect();
 }
 
 OLIVE_NAMESPACE_EXIT

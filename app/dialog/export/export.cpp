@@ -177,9 +177,11 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
   video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
   video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
-  video_tab_->set_frame_rate(viewer_node_->video_params().time_base().flipped());
-  audio_tab_->set_sample_rate(viewer_node_->audio_params().sample_rate());
-  audio_tab_->set_channel_layout(viewer_node_->audio_params().channel_layout());
+  video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
+  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
+  video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
+  audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
+  audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
 
   video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
 
@@ -202,11 +204,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
           &QCheckBox::toggled,
           this,
           &ExportDialog::ResolutionChanged);
-
-  connect(video_tab_->codec_combobox(),
-          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-          this,
-          &ExportDialog::VideoCodecChanged);
 
   connect(video_tab_,
           &ExportVideoTab::ColorSpaceChanged,
@@ -232,8 +229,8 @@ void ExportDialog::StartExport()
     return;
   }
 
-  // Validate if the entered filename contains the correct extension (the extension is necessary for both FFmpeg and
-  // OIIO to determine the output format)
+  // Validate if the entered filename contains the correct extension (the extension is necessary
+  // for both FFmpeg and OIIO to determine the output format)
   QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(static_cast<ExportFormat::Format>(format_combobox_->currentIndex())));
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
@@ -356,7 +353,6 @@ void ExportDialog::FormatChanged(int index)
   foreach (ExportCodec::Codec vcodec, ExportFormat::GetVideoCodecs(current_format)) {
     video_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(vcodec), vcodec);
   }
-  VideoCodecChanged();
 
   audio_tab_->codec_combobox()->clear();
   foreach (ExportCodec::Codec acodec, ExportFormat::GetAudioCodecs(current_format)) {
@@ -396,17 +392,6 @@ void ExportDialog::ResolutionChanged()
   UpdateViewerDimensions();
 }
 
-void ExportDialog::VideoCodecChanged()
-{
-  ExportCodec::Codec codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
-
-  if (codec == ExportCodec::kCodecH264) {
-    video_tab_->SetCodecSection(video_tab_->h264_section());
-  } else if (ExportCodec::IsCodecAStillImage(codec)) {
-    video_tab_->SetCodecSection(video_tab_->image_section());
-  }
-}
-
 void ExportDialog::LoadPresets()
 {
 
@@ -440,12 +425,14 @@ ExportParams ExportDialog::GenerateParams() const
 
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                   static_cast<int>(video_tab_->height_slider()->GetValue()),
-                                  video_tab_->frame_rate().flipped(),
+                                  video_tab_->frame_rate_combobox()->GetFrameRate().flipped(),
                                   PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
+                                  video_tab_->pixel_aspect_combobox()->GetPixelAspectRatio(),
+                                  video_tab_->interlaced_combobox()->GetInterlaceMode(),
                                   render_mode);
 
   AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
-                                  audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
+                                  audio_tab_->channel_layout_combobox()->GetChannelLayout(),
                                   SampleFormat::kInternalFormat);
 
   ExportParams params;
@@ -457,7 +444,7 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (video_enabled_->isChecked()) {
-    ExportCodec::Codec video_codec = static_cast<ExportCodec::Codec>(video_tab_->codec_combobox()->currentData().toInt());
+    ExportCodec::Codec video_codec = video_tab_->GetSelectedCodec();
     params.EnableVideo(video_render_params, video_codec);
 
     params.set_video_threads(video_tab_->threads());
@@ -465,6 +452,8 @@ ExportParams ExportDialog::GenerateParams() const
     video_tab_->GetCodecSection()->AddOpts(&params);
 
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
+
+    params.set_video_pix_fmt(video_tab_->pix_fmt());
   }
 
   if (audio_enabled_->isChecked()) {
@@ -477,8 +466,8 @@ ExportParams ExportDialog::GenerateParams() const
 
 void ExportDialog::UpdateViewerDimensions()
 {
-  preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                   static_cast<int>(video_tab_->height_slider()->GetValue()));
+  preview_viewer_->SetViewerResolution(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                       static_cast<int>(video_tab_->height_slider()->GetValue()));
 
   QMatrix4x4 transform =
       ExportParams::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),

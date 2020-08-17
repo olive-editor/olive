@@ -51,11 +51,13 @@ public:
 
   virtual bool SupportsVideo() override;
 
-  virtual QString GetIndexFilename() const override;
-
   static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
 
   static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
+
+  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
+
+  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
 
 private:
 #if OIIO_VERSION < 10903

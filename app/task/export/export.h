@@ -40,16 +40,14 @@ protected:
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) override;
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
   QHash<QByteArray, FramePtr> rendered_frame_;
 
   QHash<rational, FramePtr> time_map_;
-
-  QList< QFuture<bool> > write_frame_futures_;
 
   ColorManager* color_manager_;
 

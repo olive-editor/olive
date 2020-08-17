@@ -61,18 +61,19 @@ public:
   void Select(const QList<Node*>& nodes);
   void SelectWithDependencies(QList<Node *> nodes);
 
-  void SelectBlocks(const QList<Block*>& blocks);
-
   void CopySelected(bool cut);
   void Paste();
 
   void Duplicate();
 
+  void SelectBlocks(const QList<Block*>& blocks);
+
+  void DeselectBlocks(const QList<Block*>& blocks);
+
 signals:
-  /**
-   * @brief Signal emitted when the selected nodes have changed
-   */
-  void SelectionChanged(QList<Node*> selected_nodes);
+  void NodesSelected(const QList<Node*>& nodes);
+
+  void NodesDeselected(const QList<Node*>& nodes);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
@@ -82,6 +83,8 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
   virtual void wheelEvent(QWheelEvent* event) override;
+
+  //virtual void scrollContentsBy(int dx, int dy) override;
 
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
@@ -97,13 +100,14 @@ private:
   void MoveAttachedNodesToCursor(const QPoint &p);
 
   void ConnectSelectionChangedSignal();
-  void ReconnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
 
   void UpdateBlockFilter();
 
   void AssociateNodeWithSelectedBlocks(Node* n);
   void DisassociateNode(Node* n, bool remove_from_map);
+
+  void SelectBlocksInternal();
 
   NodeGraph* graph_;
 
@@ -118,6 +122,8 @@ private:
   NodeInput* drop_input_;
 
   NodeViewScene scene_;
+
+  QList<Node*> selected_nodes_;
 
   QList<Block*> selected_blocks_;
 
@@ -138,6 +144,8 @@ private slots:
   void ValidateFilter();
 
   void AssociatedNodeDestroyed();
+
+  void GraphNodeRemoved(Node* node);
 
   void GraphEdgeAdded(NodeEdgePtr edge);
 

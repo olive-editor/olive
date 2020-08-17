@@ -34,7 +34,6 @@
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/backend/renderticketwatcher.h"
-#include "task/cache/cache.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -74,8 +73,6 @@ public:
    */
   void SetColorMenuEnabled(bool enabled);
 
-  void SetOverrideSize(int width, int height);
-
   void SetMatrix(const QMatrix4x4& mat);
 
   /**
@@ -96,9 +93,6 @@ public:
   }
 
   void SetGizmos(Node* node);
-
-  static void StopAllBackgroundCacheTasks(bool wait);
-  static void SetBackgroundCacheTask(CacheTask* t);
 
 public slots:
   void Play(bool in_to_out_only);
@@ -123,6 +117,14 @@ public slots:
   void ForceUpdate();
 
   void SetAutoCacheEnabled(bool e);
+
+  void CacheEntireSequence();
+
+  void CacheSequenceInOut();
+
+  void SetViewerResolution(int width, int height);
+
+  void SetViewerPixelAspect(const rational& ratio);
 
 signals:
   /**
@@ -166,7 +168,10 @@ protected:
 
   PlaybackControls* controls_;
 
-  ViewerDisplayWidget* display_widget() const;
+  ViewerDisplayWidget* display_widget() const
+  {
+    return display_widget_;
+  }
 
 private:
   void UpdateTimeInternal(int64_t i);
@@ -178,8 +183,6 @@ private:
   void PauseInternal();
 
   void PushScrubbedAudio();
-
-  int CalculateDivider();
 
   void UpdateMinimumScale();
 
@@ -203,6 +206,10 @@ private:
 
   void PopOldestFrameFromPlaybackQueue();
 
+  FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
+
+  void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -220,6 +227,8 @@ private:
   bool time_changed_from_timer_;
 
   bool play_in_to_out_only_;
+
+  bool pause_autocache_during_playback_;
 
   AudioWaveformView* waveform_view_;
 
@@ -241,38 +250,26 @@ private:
 
   QList<RenderTicketWatcher*> nonqueue_watchers_;
 
-  QTimer cache_wait_timer_;
-
-  bool busy_;
-
-  CacheTask* our_cache_background_task_;
-
   rational last_length_;
 
   int prequeue_length_;
 
-  bool autocache_;
-
-  static CacheTask* cache_background_task_;
-
-  static int busy_viewers_;
+  static QVector<ViewerWidget*> instances_;
 
 private slots:
   void PlaybackTimerUpdate();
 
-  void SizeChangedSlot(int width, int height);
-
   void LengthChangedSlot(const rational& length);
 
-  void UpdateRendererParameters();
+  void InterlacingChangedSlot(VideoParams::Interlacing interlacing);
+
+  void UpdateRendererVideoParameters();
+
+  void UpdateRendererAudioParameters();
 
   void ShowContextMenu(const QPoint& pos);
 
   void SetZoomFromMenu(QAction* action);
-
-  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
-
-  void ViewerInvalidatedRange();
 
   void ViewerShiftedRange(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
 
@@ -294,9 +291,7 @@ private slots:
 
   void RendererGeneratedFrameForQueue();
 
-  void StartBackgroundCaching();
-
-  void BackgroundCacheFinished(Task *t);
+  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
 
 };
 

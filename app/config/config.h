@@ -26,6 +26,7 @@
 #include <QVariant>
 
 #include "common/timecodefunctions.h"
+#include "node/param.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -43,10 +44,19 @@ public:
 
   QVariant& operator[](const QString&);
 
+  NodeParam::DataType GetConfigEntryType(const QString& key) const;
+
 private:
   Config();
 
-  QMap<QString, QVariant> config_map_;
+  struct ConfigEntry {
+    NodeParam::DataType type;
+    QVariant data;
+  };
+
+  void SetEntryInternal(const QString& key, NodeParam::DataType type, const QVariant& data);
+
+  QMap<QString, ConfigEntry> config_map_;
 
   static Config current_config_;
 

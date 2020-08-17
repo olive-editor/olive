@@ -36,7 +36,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   viewer_node_(nullptr),
   auto_max_scrollbar_(false),
   points_(nullptr),
-  toggle_show_all_(false)
+  toggle_show_all_(false),
+  auto_set_timebase_(true)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
@@ -79,6 +80,11 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     DisconnectNodeInternal(viewer_node_);
 
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &TimeBasedWidget::SetTimebase);
+
+    if (auto_set_timebase_) {
+      SetTimebase(rational());
+    }
 
     points_ = nullptr;
     ruler()->ConnectTimelinePoints(nullptr);
@@ -93,6 +99,18 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     if ((points_ = ConnectTimelinePoints())) {
       ruler()->ConnectTimelinePoints(points_);
+    }
+
+    if (auto_set_timebase_) {
+      if (!viewer_node_->video_params().time_base().isNull()) {
+        SetTimebase(viewer_node_->video_params().time_base());
+      } else if (viewer_node_->audio_params().sample_rate() > 0) {
+        SetTimebase(viewer_node_->audio_params().time_base());
+      } else {
+        SetTimebase(rational());
+      }
+
+      connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &TimeBasedWidget::SetTimebase);
     }
 
     ConnectNodeInternal(viewer_node_);
@@ -332,6 +350,11 @@ void TimeBasedWidget::CenterScrollOnPlayhead()
   scrollbar_->setValue(qRound(TimeToScene(Timecode::timestamp_to_time(ruler_->GetTime(), timebase()))) - scrollbar_->width()/2);
 }
 
+void TimeBasedWidget::SetAutoSetTimebase(bool e)
+{
+  auto_set_timebase_ = e;
+}
+
 void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
 {
   if (!points_) {
@@ -459,12 +482,12 @@ void TimeBasedWidget::ToggleShowAll()
       w = timeline_views_.first()->width();
     }
 
-    w = w / 10 * 9;
+
 
     toggle_show_all_old_scale_ = GetScale();
     toggle_show_all_old_scroll_ = scrollbar_->value();
 
-    SetScale(w / GetConnectedNode()->GetLength().toDouble());
+    SetScaleFromDimensions(w, GetConnectedNode()->GetLength().toDouble());
     scrollbar_->setValue(0);
 
     // Must explicitly do this because SetScale() will automatically set this to false

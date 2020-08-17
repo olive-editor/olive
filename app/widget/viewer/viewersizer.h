@@ -24,6 +24,7 @@
 #include <QWidget>
 
 #include "common/define.h"
+#include "common/rational.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -55,6 +56,11 @@ public:
    * This is not the actual resolution of the viewer, it's used to calculate the aspect ratio
    */
   void SetChildSize(int width, int height);
+
+  /**
+   * @brief Set pixel aspect ratio
+   */
+  void SetPixelAspectRatio(const rational& pixel_aspect);
 
   /**
    * @brief Set the zoom value of the child widget
@@ -96,10 +102,7 @@ private:
   int width_;
   int height_;
 
-  /**
-   * @brief Aspect ratio calculated from the size provided by SetChildSize()
-   */
-  double aspect_ratio_;
+  rational pixel_aspect_;
 
   /**
    * @brief Internal zoom value

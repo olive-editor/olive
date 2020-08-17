@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QFile>
 
+#include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
@@ -177,6 +178,28 @@ void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *s
   SendInvalidateCache(range, source);
 }
 
+void Node::BeginOperation()
+{
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      foreach (NodeEdgePtr edge, param->edges()) {
+        edge->input()->parentNode()->BeginOperation();
+      }
+    }
+  }
+}
+
+void Node::EndOperation()
+{
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      foreach (NodeEdgePtr edge, param->edges()) {
+        edge->input()->parentNode()->EndOperation();
+      }
+    }
+  }
+}
+
 TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
@@ -195,10 +218,7 @@ void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
   foreach (NodeParam* param, params_) {
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
-
-      QVector<NodeEdgePtr> edges = param->edges();
-
-      foreach (NodeEdgePtr edge, edges) {
+      foreach (NodeEdgePtr edge, param->edges()) {
         NodeInput* connected_input = edge->input();
         Node* connected_node = connected_input->parentNode();
 
@@ -359,11 +379,15 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
         // Footage timestamp
         if (stream->type() == Stream::kVideo) {
-          hash.addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
-                                                   QString::number(input_time.denominator())).toUtf8());
+          VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
-          hash.addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
+          int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
 
+          // Add timestamp in units of the video stream's timebase
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+
+          // Add start time - used for both image sequences and video streams
+          hash.addData(QString::number(video_stream->start_time()).toUtf8());
         }
       }
     }
@@ -537,6 +561,28 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
   return false;
 }
 
+bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
+{
+  QList<NodeOutput*> outputs = GetOutputs();
+
+  foreach (NodeOutput* output, outputs) {
+    foreach (NodeEdgePtr edge, output->edges()) {
+      NodeInput* connected = edge->input();
+
+      if (connected == input) {
+        return true;
+      } else if (include_arrays && input->IsArray()
+                 && static_cast<NodeInputArray*>(input)->sub_params().contains(connected)) {
+        return true;
+      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively, include_arrays)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   QList<NodeInput*> inputs = GetInputsIncludingArrays();
@@ -649,6 +695,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Generator");
   case kCategoryChannels:
     return tr("Channel");
+  case kCategoryTransition:
+    return tr("Transition");
   case kCategoryUnknown:
   case kCategoryCount:
     break;

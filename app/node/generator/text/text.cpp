@@ -32,11 +32,9 @@ enum TextVerticalAlign {
 
 TextGenerator::TextGenerator()
 {
-  QString default_str = QStringLiteral("<html><div style='font-size:144pt; text-align: center;'>%1</div></html>").arg(tr("Sample Text"));
-
   text_input_ = new NodeInput(QStringLiteral("text_in"),
                               NodeParam::kText,
-                              default_str);
+                              tr("Sample Text"));
   AddInput(text_input_);
 
   color_input_ = new NodeInput(QStringLiteral("color_in"),
@@ -48,6 +46,15 @@ TextGenerator::TextGenerator()
                                 NodeParam::kCombo,
                                 1);
   AddInput(valign_input_);
+
+  font_input_ = new NodeInput(QStringLiteral("font_in"),
+                              NodeParam::kFont);
+  AddInput(font_input_);
+
+  font_size_input_ = new NodeInput(QStringLiteral("font_size_in"),
+                                   NodeParam::kFloat,
+                                   72.0f);
+  AddInput(font_size_input_);
 }
 
 Node *TextGenerator::copy() const
@@ -78,7 +85,10 @@ QString TextGenerator::Description() const
 void TextGenerator::Retranslate()
 {
   text_input_->set_name(tr("Text"));
+  font_input_->set_name(tr("Font"));
+  font_size_input_->set_name(tr("Font Size"));
   color_input_->set_name(tr("Color"));
+  valign_input_->set_name(tr("Vertical Align"));
   valign_input_->set_combobox_strings({tr("Top"), tr("Center"), tr("Bottom")});
 }
 
@@ -88,6 +98,8 @@ NodeValueTable TextGenerator::Value(NodeValueDatabase &value) const
   job.InsertValue(text_input_, value);
   job.InsertValue(color_input_, value);
   job.InsertValue(valign_input_, value);
+  job.InsertValue(font_input_, value);
+  job.InsertValue(font_size_input_, value);
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
@@ -109,24 +121,45 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   img.fill(0);
 
   QTextDocument text_doc;
+
+  // Set default font
+  QFont default_font;
+  default_font.setFamily(job.GetValue(font_input_).data().toString());
+  default_font.setPointSizeF(job.GetValue(font_size_input_).data().toFloat());
+  text_doc.setDefaultFont(default_font);
+
+  // Center by default
+  text_doc.setDefaultTextOption(QTextOption(Qt::AlignCenter));
+
   text_doc.setHtml(job.GetValue(text_input_).data().toString());
-  text_doc.setTextWidth(frame->video_params().width());
+
+  // Align to 80% width because that's considered the "title safe" area
+  int tenth_of_width = frame->video_params().width() / 10;
+  text_doc.setTextWidth(tenth_of_width * 8);
 
   // Draw rich text onto image
   QPainter p(&img);
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
 
-  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
-  if (valign != kVerticalAlignTop) {
-    int doc_height = text_doc.size().height();
+  // Push 10% inwards to compensate for title safe area
+  p.translate(tenth_of_width, 0);
 
-    if (valign == kVerticalAlignCenter) {
-      // Center align
-      p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
-    } else {
-      // Must be bottom align
-      p.translate(0, frame->video_params().height() - doc_height);
-    }
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
+  int doc_height = text_doc.size().height();
+
+  switch (valign) {
+  case kVerticalAlignTop:
+    // Push 10% inwards for title safe area
+    p.translate(0, frame->video_params().height() / 10);
+    break;
+  case kVerticalAlignCenter:
+    // Center align
+    p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
+    break;
+  case kVerticalAlignBottom:
+    // Push 10% inwards for title safe area
+    p.translate(0, frame->video_params().height() - doc_height - frame->video_params().height() / 10);
+    break;
   }
 
   text_doc.drawContents(&p);

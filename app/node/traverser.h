@@ -56,6 +56,8 @@ protected:
 
   virtual QVariant GetCachedFrame(const Node *node, const rational &time);
 
+  static void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range);
+
 private:
   void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
 

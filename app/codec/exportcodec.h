@@ -51,6 +51,8 @@ public:
 
   static bool IsCodecAStillImage(Codec c);
 
+  static QStringList GetPixelFormatsForCodec(Codec c);
+
 };
 
 OLIVE_NAMESPACE_EXIT

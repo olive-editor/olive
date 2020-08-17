@@ -24,18 +24,17 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
-  viewer_(viewer),
-  video_params_(vparams),
-  audio_params_(aparams)
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams)
 {
-  job_time_ = QDateTime::currentMSecsSinceEpoch();
+  backend_ = new OpenGLBackend();
+  backend_->SetViewerNode(viewer);
+  backend_->SetVideoParams(vparams);
+  backend_->SetAudioParams(aparams);
+}
 
-  // FIXME: This makes a full copy of the node graph every time it starts, there must be a better
-  //        way.
-  backend_.SetViewerNode(viewer_);
-  backend_.SetVideoParams(video_params_);
-  backend_.SetAudioParams(audio_params_);
+RenderTask::~RenderTask()
+{
+  delete backend_;
 }
 
 struct TimeHashFuturePair {
@@ -61,18 +60,16 @@ struct RangeSampleFuturePair {
 struct HashDownloadFuturePair {
   QByteArray hash;
   QFuture<void> download_future;
+  qint64 job_time;
 };
 
 void RenderTask::Render(const TimeRangeList& video_range,
                         const TimeRangeList &audio_range,
-                        const QMatrix4x4& mat,
                         bool use_disk_cache)
 {
-  backend_.SetVideoDownloadMatrix(mat);
-
   double progress_counter = 0;
   double total_length = 0;
-  double video_frame_sz = video_params_.time_base().toDouble();
+  double video_frame_sz = video_params().time_base().toDouble();
 
   std::list<TimeRange> audio_queue;
   std::list<RangeSampleFuturePair> audio_lookup_table;
@@ -89,21 +86,21 @@ void RenderTask::Render(const TimeRangeList& video_range,
   QVector<rational> times;
   QVector<QByteArray> hashes;
   std::list<HashTimePair> frame_queue;
+  qint64 hash_job_time = 0;
 
   if (!video_range.isEmpty()) {
-    QList<QByteArray> existing_hashes;
+    times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
 
-    foreach (const TimeRange& r, video_range) {
-      total_length += r.length().toDouble();
-    }
+    total_length += video_frame_sz * times.size();
 
-    times = viewer_->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    RenderTicketPtr hash_future = backend_->Hash(times);
+    hashes = hash_future->Get().value<QVector<QByteArray> >();
+    hash_job_time = hash_future->GetJobTime();
 
-    QFuture<QVector<QByteArray> > hash_future = backend_.Hash(times);
-    hashes = hash_future.result();
-
-    for (int i=0;i<times.size();i++) {
-      frame_queue.push_back({times.at(i), hashes.at(i)});
+    if (!hash_future->WasCancelled()) {
+      for (int i=0;i<times.size();i++) {
+        frame_queue.push_back({times.at(i), hashes.at(i)});
+      }
     }
   }
 
@@ -125,7 +122,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
              || !download_futures.empty()
              || !audio_lookup_table.empty())) {
 
-    if (!frame_queue.empty()) {
+    if (!IsCancelled() && !frame_queue.empty()) {
+
       // Pop another frame off the frame queue
       const HashTimePair& p = frame_queue.front();
 
@@ -138,11 +136,14 @@ void RenderTask::Render(const TimeRangeList& video_range,
         bool hash_exists = false;
 
         if (use_disk_cache) {
-          bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
+          // Check if this hash is in our "existing hashes" list
+          hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
 
+          // If not, check if it's in the filesystem
           if (!hash_exists) {
-            hash_exists = QFileInfo::exists(viewer_->video_frame_cache()->CachePathName(p.hash));
+            hash_exists = QFileInfo::exists(viewer()->video_frame_cache()->CachePathName(p.hash));
 
+            // If so, add it to the list so we don't have to check the filesystem again later
             if (hash_exists) {
               existing_hashes.push_back(p.hash);
             }
@@ -150,7 +151,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
           if (hash_exists) {
             // Already exists, no need to render it again
-            FrameDownloaded(p.hash, {p.time});
+            FrameDownloaded(p.hash, {p.time}, hash_job_time);
             progress_counter += video_frame_sz;
             emit ProgressChanged(progress_counter / total_length);
           }
@@ -158,7 +159,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
         // If no existing disk cache was found, queue it now
         if (!hash_exists) {
-          render_lookup_table.push_back({p.hash, backend_.RenderFrame(p.time)});
+          render_lookup_table.push_back({p.hash, backend_->RenderFrame(p.time)});
           running_hashes.push_back(p.hash);
         }
       }
@@ -167,8 +168,8 @@ void RenderTask::Render(const TimeRangeList& video_range,
       frame_queue.pop_front();
     }
 
-    if (!audio_queue.empty()) {
-      audio_lookup_table.push_back({audio_queue.front(), backend_.RenderAudio(audio_queue.front())});
+    if (!IsCancelled() && !audio_queue.empty()) {
+      audio_lookup_table.push_back({audio_queue.front(), backend_->RenderAudio(audio_queue.front())});
       audio_queue.pop_front();
     }
 
@@ -176,10 +177,12 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     while (!IsCancelled() && i != render_lookup_table.end()) {
       if (i->frame_future->IsFinished()) {
-        FramePtr f = i->frame_future->Get().value<FramePtr>();
+        if (!i->frame_future->WasCancelled()) {
+          FramePtr f = i->frame_future->Get().value<FramePtr>();
 
-        // Start multithreaded download here
-        download_futures.push_back({i->hash, DownloadFrame(f, i->hash)});
+          // Start multithreaded download here
+          download_futures.push_back({i->hash, DownloadFrame(f, i->hash), i->frame_future->GetJobTime()});
+        }
 
         i = render_lookup_table.erase(i);
       } else {
@@ -194,13 +197,13 @@ void RenderTask::Render(const TimeRangeList& video_range,
         // Place it in the cache
         std::list<rational> times_with_hash;
 
-        for (int k=0;k<hashes.size();k++) {
-          if (hashes.at(k) == j->hash) {
-            times_with_hash.push_back(times.at(k));
+        for (int hash_index=0;hash_index<hashes.size();hash_index++) {
+          if (hashes.at(hash_index) == j->hash) {
+            times_with_hash.push_back(times.at(hash_index));
           }
         }
 
-        FrameDownloaded(j->hash, times_with_hash);
+        FrameDownloaded(j->hash, times_with_hash, j->job_time);
 
         existing_hashes.push_back(j->hash);
 
@@ -219,7 +222,9 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     while (!IsCancelled() && k != audio_lookup_table.end()) {
       if (k->sample_future->IsFinished()) {
-        AudioDownloaded(k->range, k->sample_future->Get().value<SampleBufferPtr>());
+        AudioDownloaded(k->range,
+                        k->sample_future->Get().value<SampleBufferPtr>(),
+                        k->sample_future->GetJobTime());
 
         progress_counter += k->range.length().toDouble();
         emit ProgressChanged(progress_counter / total_length);
@@ -232,12 +237,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
   }
 
   // `Close` will block until all jobs are done making a safe deletion
-  backend_.Close();
-}
-
-void RenderTask::SetAnchorPoint(const rational &r)
-{
-  anchor_point_ = r;
+  backend_->Close();
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -24,7 +24,6 @@
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
 #include "widget/timelinewidget/snapservice.h"
-#include "widget/timelinewidget/view/timelineplayhead.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -80,16 +79,6 @@ protected:
     return playhead_width_;
   }
 
-  inline const QColor& GetPlayheadColor() const
-  {
-    return style_.GetPlayheadColor();
-  }
-
-  inline const QColor& GetPlayheadHighlightColor() const
-  {
-    return style_.GetPlayheadHighlightColor();
-  }
-
 signals:
   /**
    * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
@@ -98,8 +87,6 @@ signals:
 
 private:
   int64_t time_;
-
-  TimelinePlayhead style_;
 
   TimelinePoints* timeline_points_;
 

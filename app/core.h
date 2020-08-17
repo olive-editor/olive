@@ -66,12 +66,14 @@ public:
    */
   static Core* instance();
 
+  int execute(QCoreApplication *a);
+
   /**
    * @brief Start Olive Core
    *
    * Main application launcher. Parses command line arguments and constructs main window (if entering a GUI mode).
    */
-  bool Start();
+  void Start();
 
   /**
    * @brief Stop Olive Core
@@ -112,7 +114,12 @@ public:
   /**
    * @brief Get the currently selected object that the add tool should make (if the add tool is active)
    */
-  const Tool::AddableObject& selected_addable_object() const;
+  const Tool::AddableObject& GetSelectedAddableObject() const;
+
+  /**
+   * @brief Get the currently selected node that the transition tool should make (if the transition tool is active)
+   */
+  const QString& GetSelectedTransition() const;
 
   /**
    * @brief Get current snapping value
@@ -161,42 +168,6 @@ public:
   static void CopyStringToClipboard(const QString& s);
 
   static QString PasteStringFromClipboard();
-
-  /**
-   * @brief Return a list of supported frame rates in rational form
-   *
-   * These rationals can be flipped to create a timebase in this frame rate.
-   */
-  static QList<rational> SupportedFrameRates();
-
-  /**
-   * @brief Return a list of supported sample rates in integer form
-   */
-  static QList<int> SupportedSampleRates();
-  /**
-   * @brief Return a list of supported channel layouts as or'd flags
-   */
-  static QList<uint64_t> SupportedChannelLayouts();
-
-  /**
-   * @brief Return a list of supported dividers
-   */
-  static QList<int> SupportedDividers();
-
-  /**
-   * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
-   */
-  static QString FrameRateToString(const rational& frame_rate);
-
-  /**
-   * @brief Convert integer sample rate to a user-friendly string
-   */
-  static QString SampleRateToString(const int &sample_rate);
-
-  /**
-   * @brief Convert channel layout to a user-friendly string
-   */
-  static QString ChannelLayoutToString(const uint64_t &layout);
 
   /**
    * @brief Recursively count files in a file/directory list
@@ -340,6 +311,11 @@ public slots:
   void SetSelectedAddableObject(const Tool::AddableObject& obj);
 
   /**
+   * @brief Set the currently selected object that the add tool should make
+   */
+  void SetSelectedTransitionObject(const QString& obj);
+
+  /**
    * @brief Clears the list of recently opened/saved projects
    */
   void ClearOpenRecentList();
@@ -406,11 +382,6 @@ private:
   void PushRecentlyOpenedProject(const QString &s);
 
   /**
-   * @brief Internal project open
-   */
-  void OpenProjectInternal(const QString& filename);
-
-  /**
    * @brief Declare custom types/classes for Qt's signal/slot system
    *
    * Qt's signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain
@@ -460,6 +431,11 @@ private:
   Tool::AddableObject addable_object_;
 
   /**
+   * @brief Currently selected transition
+   */
+  QString selected_transition_;
+
+  /**
    * @brief Current snapping setting
    */
   bool snapping_;
@@ -506,6 +482,15 @@ private slots:
   bool ConfirmImageSequence(const QString &filename);
 
   void ProjectWasModified(bool e);
+
+  bool StartHeadlessExport();
+
+  void OpenStartupProject();
+
+  /**
+   * @brief Internal project open
+   */
+  void OpenProjectInternal(const QString& filename);
 
 };
 

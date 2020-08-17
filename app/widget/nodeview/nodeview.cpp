@@ -74,6 +74,7 @@ void NodeView::SetGraph(NodeGraph *graph)
   if (graph_ != nullptr) {
     disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::GraphNodeRemoved);
     disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
     disconnect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
   }
@@ -89,6 +90,7 @@ void NodeView::SetGraph(NodeGraph *graph)
   if (graph_ != nullptr) {
     connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
     connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::GraphNodeRemoved);
     connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::GraphEdgeAdded);
     connect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::GraphEdgeRemoved);
 
@@ -144,7 +146,8 @@ void NodeView::SelectAll()
 
   scene_.SelectAll();
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::DeselectAll()
@@ -155,7 +158,8 @@ void NodeView::DeselectAll()
 
   scene_.DeselectAll();
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::Select(const QList<Node *> &nodes)
@@ -176,7 +180,8 @@ void NodeView::Select(const QList<Node *> &nodes)
     item->setSelected(true);
   }
 
-  ReconnectSelectionChangedSignal();
+  ConnectSelectionChangedSignal();
+  SceneSelectionChangedSlot();
 }
 
 void NodeView::SelectWithDependencies(QList<Node *> nodes)
@@ -195,10 +200,13 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::SelectBlocks(const QList<Block *> &blocks)
 {
-  if (selected_blocks_ == blocks) {
-    return;
-  }
+  selected_blocks_.append(blocks);
 
+  SelectBlocksInternal();
+}
+
+void NodeView::DeselectBlocks(const QList<Block *> &blocks)
+{
   // Remove temporary associations
   foreach (Block* b, selected_blocks_) {
     if (!blocks.contains(b)) {
@@ -206,35 +214,12 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
     }
   }
 
-  selected_blocks_ = blocks;
-
-  // Block scene signals while our selection is changing a lot
-  scene_.blockSignals(true);
-
-  if (filter_mode_ == kFilterShowSelectedBlocks) {
-    UpdateBlockFilter();
-  }
-
-  QList<Node*> nodes;
-  nodes.reserve(blocks.size());
-
+  // Remove blocks from selected array
   foreach (Block* b, blocks) {
-    nodes.append(b);
-    nodes.append(b->GetDependencies());
+    selected_blocks_.removeOne(b);
   }
 
-  SelectWithDependencies(nodes);
-
-  // Stop blocking signals and send a change signal now that all of our processing is done
-  scene_.blockSignals(false);
-  SceneSelectionChangedSlot();
-
-  if (!blocks.isEmpty()) {
-    NodeViewItem* item = scene_.NodeToUIObject(blocks.first());
-    if (item) {
-      centerOn(item);
-    }
-  }
+  SelectBlocksInternal();
 }
 
 void NodeView::CopySelected(bool cut)
@@ -356,30 +341,17 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
-  if (!attached_items_.isEmpty()) {
-    if (attached_items_.size() == 1) {
-      Node* dropping_node = attached_items_.first().item->GetNode();
-
-      if (drop_edge_) {
-        NodeEdgePtr old_edge = drop_edge_->edge();
-
-        // We have everything we need to place the node in between
-        QUndoCommand* command = new QUndoCommand();
-
-        // Remove old edge
-        new NodeEdgeRemoveCommand(old_edge, command);
-
-        // Place new edges
-        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
-        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
-
-        Core::instance()->undo_stack()->push(command);
-      }
-
-      drop_edge_ = nullptr;
+  if (event->button() == Qt::RightButton) {
+    // Qt doesn't do this by default for some reason
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+      scene_.clearSelection();
     }
 
-    DetachItemsFromCursor();
+    // If there's an item here, select it
+    QGraphicsItem* item = itemAt(event->pos());
+    if (item) {
+      item->setSelected(true);
+    }
   }
 
   super::mousePressEvent(event);
@@ -456,6 +428,32 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 {
   if (HandRelease(event)) return;
 
+  if (!attached_items_.isEmpty()) {
+    if (attached_items_.size() == 1) {
+      Node* dropping_node = attached_items_.first().item->GetNode();
+
+      if (drop_edge_) {
+        NodeEdgePtr old_edge = drop_edge_->edge();
+
+        // We have everything we need to place the node in between
+        QUndoCommand* command = new QUndoCommand();
+
+        // Remove old edge
+        new NodeEdgeRemoveCommand(old_edge, command);
+
+        // Place new edges
+        new NodeEdgeAddCommand(old_edge->output(), drop_input_, command);
+        new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+
+        Core::instance()->undo_stack()->push(command);
+      }
+
+      drop_edge_ = nullptr;
+    }
+
+    DetachItemsFromCursor();
+  }
+
   super::mouseReleaseEvent(event);
 }
 
@@ -478,7 +476,44 @@ void NodeView::wheelEvent(QWheelEvent *event)
 
 void NodeView::SceneSelectionChangedSlot()
 {
-  emit SelectionChanged(scene_.GetSelectedNodes());
+  QList<Node*> current_selection = scene_.GetSelectedNodes();
+
+  QList<Node*> selected;
+  QList<Node*> deselected;
+
+  // Determine which nodes are newly selected
+  if (selected_nodes_.isEmpty()) {
+    // All nodes in the current selection have just been selected
+    selected = current_selection;
+  } else {
+    foreach (Node* n, current_selection) {
+      if (!selected_nodes_.contains(n)) {
+        selected.append(n);
+      }
+    }
+  }
+
+  // Determine which nodes are newly deselected
+  if (current_selection.isEmpty()) {
+    // All nodes that were selected have been deselected
+    deselected = selected_nodes_;
+  } else {
+    foreach (Node* n, selected_nodes_) {
+      if (!current_selection.contains(n)) {
+        deselected.append(n);
+      }
+    }
+  }
+
+  selected_nodes_ = current_selection;
+
+  if (!selected.isEmpty()) {
+    emit NodesSelected(selected);
+  }
+
+  if (!deselected.isEmpty()) {
+    emit NodesDeselected(deselected);
+  }
 }
 
 void NodeView::ShowContextMenu(const QPoint &pos)
@@ -803,12 +838,6 @@ void NodeView::ConnectSelectionChangedSignal()
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
 }
 
-void NodeView::ReconnectSelectionChangedSignal()
-{
-  ConnectSelectionChangedSignal();
-  SceneSelectionChangedSlot();
-}
-
 void NodeView::DisconnectSelectionChangedSignal()
 {
   disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
@@ -913,6 +942,37 @@ void NodeView::DisassociateNode(Node *n, bool remove_from_map)
   disconnect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed);
 }
 
+void NodeView::SelectBlocksInternal()
+{
+  // Block scene signals while our selection is changing a lot
+  scene_.blockSignals(true);
+
+  if (filter_mode_ == kFilterShowSelectedBlocks) {
+    UpdateBlockFilter();
+  }
+
+  QList<Node*> nodes;
+  nodes.reserve(selected_blocks_.size());
+
+  foreach (Block* b, selected_blocks_) {
+    nodes.append(b);
+    nodes.append(b->GetDependencies());
+  }
+
+  SelectWithDependencies(nodes);
+
+  // Stop blocking signals and send a change signal now that all of our processing is done
+  scene_.blockSignals(false);
+  SceneSelectionChangedSlot();
+
+  if (!selected_blocks_.isEmpty()) {
+    NodeViewItem* item = scene_.NodeToUIObject(selected_blocks_.first());
+    if (item) {
+      centerOn(item);
+    }
+  }
+}
+
 void NodeView::ValidateFilter()
 {
   // Force auto-positioning
@@ -930,6 +990,13 @@ void NodeView::ValidateFilter()
 void NodeView::AssociatedNodeDestroyed()
 {
   DisassociateNode(static_cast<Node*>(sender()), true);
+}
+
+void NodeView::GraphNodeRemoved(Node *node)
+{
+  if (selected_blocks_.contains(static_cast<Block*>(node))) {
+    DeselectBlocks({static_cast<Block*>(node)});
+  }
 }
 
 void NodeView::GraphEdgeAdded(NodeEdgePtr edge)

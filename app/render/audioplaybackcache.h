@@ -31,10 +31,10 @@ class AudioPlaybackCache : public PlaybackCache
 {
   Q_OBJECT
 public:
-  AudioPlaybackCache();
+  AudioPlaybackCache(QObject* parent = nullptr);
 
-  AudioParams GetParameters() {
-    QMutexLocker locker(lock());
+  AudioParams GetParameters()
+  {
     return params_;
   }
 
@@ -46,14 +46,9 @@ public:
 
   //void SetUuid(const QUuid& id);
 
-  const QString& GetCacheFilename() const;
+  const QString& GetPCMFilename() const;
 
-  QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time)
-  {
-    QMutexLocker locker(lock());
-
-    return NoLockGetValidRanges(range, job_time);
-  }
+  QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time);
 
 signals:
   void ParametersChanged();
@@ -64,8 +59,6 @@ protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
 private:
-  QList<TimeRange> NoLockGetValidRanges(const TimeRange &range, const qint64 &job_time);
-
   void UpdateFilename(const QString& s);
 
   QString filename_;

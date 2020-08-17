@@ -73,6 +73,8 @@ QIcon icon::Error;
 QIcon icon::DirUp;
 QIcon icon::Clock;
 QIcon icon::Diamond;
+QIcon icon::Plus;
+QIcon icon::Minus;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -122,6 +124,8 @@ void icon::LoadAll(const QString& theme)
   DirUp = Create(theme, "dirup");
   Clock = Create(theme, "clock");
   Diamond = Create(theme, "diamond");
+  Plus = Create(theme, "plus");
+  Minus = Create(theme, "minus");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

@@ -31,6 +31,7 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "core.h"
+#include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -40,6 +41,11 @@ Config Config::current_config_;
 Config::Config()
 {
   SetDefaults();
+}
+
+void Config::SetEntryInternal(const QString &key, NodeParam::DataType type, const QVariant &data)
+{
+  config_map_[key] = {type, data};
 }
 
 QString Config::GetConfigFilePath()
@@ -55,66 +61,67 @@ Config &Config::Current()
 void Config::SetDefaults()
 {
   config_map_.clear();
-  config_map_["TimecodeDisplay"] = Timecode::kTimecodeDropFrame;
-  config_map_["DefaultStillLength"] = QVariant::fromValue(rational(2));
-  config_map_["HoverFocus"] = false;
-  config_map_["AudioScrubbing"] = true;
-  config_map_["AutorecoveryInterval"] = 1;
-  config_map_["Language"] = "en_US";
-  config_map_["ScrollZooms"] = false;
-  config_map_["EnableSeekToImport"] = false;
-  config_map_["EditToolAlsoSeeks"] = false;
-  config_map_["EditToolSelectsLinks"] = false;
-  config_map_["EnableDragFilesToTimeline"] = true;
-  config_map_["InvertTimelineScrollAxes"] = true;
-  config_map_["SelectAlsoSeeks"] = false;
-  config_map_["PasteSeeks"] = true;
-  config_map_["SelectAlsoSeeks"] = false;
-  config_map_["SetNameWithMarker"] = false;
-  config_map_["AutoSeekToBeginning"] = true;
-  config_map_["DropFileOnMediaToReplace"] = false;
-  config_map_["AddDefaultEffectsToClips"] = true;
-  config_map_["AutoscaleByDefault"] = false;
-  config_map_["Autoscroll"] = AutoScroll::kPage;
-  config_map_["AutoSelectDivider"] = true;
-  config_map_["SetNameWithMarker"] = false;
-  config_map_["RectifiedWaveforms"] = false;
-  config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
-  config_map_["Loop"] = false;
+  SetEntryInternal(QStringLiteral("Style"), NodeParam::kString, StyleManager::kDefaultStyle);
+  SetEntryInternal(QStringLiteral("TimecodeDisplay"), NodeParam::kInt, Timecode::kTimecodeDropFrame);
+  SetEntryInternal(QStringLiteral("DefaultStillLength"), NodeParam::kRational, QVariant::fromValue(rational(2)));
+  SetEntryInternal(QStringLiteral("HoverFocus"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeParam::kInt, 1);
+  SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeParam::kInt, 10000);
+  SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, QLocale::system().name());
+  SetEntryInternal(QStringLiteral("ScrollZooms"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("EnableSeekToImport"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("EditToolAlsoSeeks"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("EditToolSelectsLinks"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("EnableDragFilesToTimeline"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("InvertTimelineScrollAxes"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("PasteSeeks"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("AutoSeekToBeginning"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("DropFileOnMediaToReplace"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("AddDefaultEffectsToClips"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("AutoscaleByDefault"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("Autoscroll"), NodeParam::kInt, AutoScroll::kPage);
+  SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeParam::kBoolean, true);
+  SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, TimelineWidget::kDWSAsk);
+  SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
 
-  config_map_["AutoCacheInterval"] = 250;
+  SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);
 
-  config_map_["NodeCatColor0"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.75f));
-  config_map_["NodeCatColor1"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.25f));
-  config_map_["NodeCatColor2"] = QVariant::fromValue(Color(0.75f, 0.75f, 0.25f));
-  config_map_["NodeCatColor3"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.75f));
-  config_map_["NodeCatColor4"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.75f));
-  config_map_["NodeCatColor5"] = QVariant::fromValue(Color(0.50f, 0.50f, 0.50f));
-  config_map_["NodeCatColor6"] = QVariant::fromValue(Color(0.25f, 0.75f, 0.25f));
-  config_map_["NodeCatColor7"] = QVariant::fromValue(Color(0.25f, 0.25f, 0.75f));
-  config_map_["NodeCatColor8"] = QVariant::fromValue(Color(0.75f, 0.25f, 0.25f));
+  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.75f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.25f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.25f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.75f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.75f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeParam::kColor, QVariant::fromValue(Color(0.50f, 0.50f, 0.50f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.25f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.75f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.25f)));
 
-  config_map_["AudioOutput"] = QString();
-  config_map_["AudioInput"] = QString();
+  SetEntryInternal(QStringLiteral("AudioOutput"), NodeParam::kString, QString());
+  SetEntryInternal(QStringLiteral("AudioInput"), NodeParam::kString, QString());
 
-  config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-  config_map_["DiskCacheSize"] = 20.0;
-  config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(1));
-  config_map_["DiskCacheAhead"] = QVariant::fromValue(rational(5));
-  config_map_["ClearDiskCacheOnClose"] = false;
+  SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeParam::kRational, QVariant::fromValue(rational(1)));
+  SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeParam::kRational, QVariant::fromValue(rational(5)));
 
-  config_map_["DefaultSequenceWidth"] = 1920;
-  config_map_["DefaultSequenceHeight"] = 1080;
-  config_map_["DefaultSequenceFrameRate"] = QVariant::fromValue(rational(1001, 30000));
-  config_map_["DefaultSequenceAudioFrequency"] = 48000;
-  config_map_["DefaultSequenceAudioLayout"] = QVariant::fromValue(static_cast<uint64_t>(AV_CH_LAYOUT_STEREO));
-  config_map_["DefaultSequencePreviewFormat"] = PixelFormat::PIX_FMT_RGBA16F;
+  SetEntryInternal(QStringLiteral("DefaultSequenceWidth"), NodeParam::kInt, 1920);
+  SetEntryInternal(QStringLiteral("DefaultSequenceHeight"), NodeParam::kInt, 1080);
+  SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeParam::kRational, QVariant::fromValue(rational(1)));
+  SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeParam::kRational, QVariant::fromValue(rational(1001, 30000)));
+  SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeParam::kInt, VideoParams::kInterlaceNone);
+  SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeParam::kInt, 48000);
+  SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeParam::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
+  SetEntryInternal(QStringLiteral("DefaultSequencePreviewFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
 
   // Online/offline settings
-  config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
-  config_map_["OfflinePixelFormat"] = PixelFormat::PIX_FMT_RGBA16F;
-  config_map_["OnlineOCIOMethod"] = ColorManager::kOCIOAccurate;
-  config_map_["OfflineOCIOMethod"] = ColorManager::kOCIOFast;
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA32F);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
+  SetEntryInternal(QStringLiteral("OnlineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOAccurate);
+  SetEntryInternal(QStringLiteral("OfflineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOFast);
 }
 
 void Config::Load()
@@ -156,7 +163,7 @@ void Config::Load()
 
           double config_fr = value.toDouble();
 
-          QList<rational> supported_frame_rates = Core::SupportedFrameRates();
+          const QVector<rational>& supported_frame_rates = VideoParams::kSupportedFrameRates;
 
           rational match = supported_frame_rates.first();
           double match_diff = qAbs(match.toDouble() - config_fr);
@@ -174,7 +181,7 @@ void Config::Load()
 
           current_config_[key] = QVariant::fromValue(match.flipped());
         } else {
-          current_config_[key] = value;
+          current_config_[key] = NodeInput::StringToValue(current_config_.GetConfigEntryType(key), value, false);
         }
       }
 
@@ -219,10 +226,10 @@ void Config::Save()
   // Anything after the hyphen is considered "unimportant" information
   writer.writeTextElement("Version", QCoreApplication::applicationVersion().split('-').first());
 
-  QMapIterator<QString, QVariant> iterator(current_config_.config_map_);
+  QMapIterator<QString, ConfigEntry> iterator(current_config_.config_map_);
   while (iterator.hasNext()) {
     iterator.next();
-    writer.writeTextElement(iterator.key(), iterator.value().toString());
+    writer.writeTextElement(iterator.key(), NodeInput::ValueToString(iterator.value().type, iterator.value().data, false));
   }
 
   writer.writeEndElement(); // Configuration
@@ -234,12 +241,17 @@ void Config::Save()
 
 QVariant Config::operator[](const QString &key) const
 {
-  return config_map_[key];
+  return config_map_[key].data;
 }
 
 QVariant &Config::operator[](const QString &key)
 {
-  return config_map_[key];
+  return config_map_[key].data;
+}
+
+NodeParam::DataType Config::GetConfigEntryType(const QString &key) const
+{
+  return config_map_[key].type;
 }
 
 OLIVE_NAMESPACE_EXIT

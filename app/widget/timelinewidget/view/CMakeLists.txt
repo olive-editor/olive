@@ -18,8 +18,6 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelinewidget/view/handmovableview.h
   widget/timelinewidget/view/handmovableview.cpp
-  widget/timelinewidget/view/timelineplayhead.h
-  widget/timelinewidget/view/timelineplayhead.cpp
   widget/timelinewidget/view/timelineview.h
   widget/timelinewidget/view/timelineview.cpp
   widget/timelinewidget/view/timelineviewmouseevent.h

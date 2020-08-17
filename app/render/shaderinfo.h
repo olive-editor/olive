@@ -8,13 +8,18 @@
 
 OLIVE_NAMESPACE_ENTER
 
-using NodeValueMap = QHash<NodeInput*, NodeValue>;
+using NodeValueMap = QHash<QString, NodeValue>;
 
 class AcceleratedJob {
 public:
   AcceleratedJob() = default;
 
   NodeValue GetValue(NodeInput* input) const
+  {
+    return value_map_.value(input->id());
+  }
+
+  NodeValue GetValue(const QString& input) const
   {
     return value_map_.value(input);
   }
@@ -31,15 +36,20 @@ public:
         values[j] = value[subparam].TakeWithMeta(subparam->data_type());
       }
 
-      value_map_.insert(input, NodeValue(NodeParam::kVec2, QVariant::fromValue(values), input->parentNode()));
+      InsertValue(input->id(), NodeValue(NodeParam::kVec2, QVariant::fromValue(values), input->parentNode()));
     } else {
-      value_map_.insert(input, value[input].TakeWithMeta(input->data_type()));
+      InsertValue(input->id(), value[input].TakeWithMeta(input->data_type()));
     }
+  }
+
+  void InsertValue(const QString& input, const NodeValue& value)
+  {
+    value_map_.insert(input, value);
   }
 
   void InsertValue(NodeInput* input, const NodeValue& value)
   {
-    value_map_.insert(input, value);
+    value_map_.insert(input->id(), value);
   }
 
   const NodeValueMap &GetValues() const

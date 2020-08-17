@@ -44,7 +44,12 @@ void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
-  return NodeValueTable::Merge(tables_.values());
+  QHash<QString, NodeValueTable> copy = tables_;
+
+  // Kinda hacky, but we don't need this table to slipstream
+  copy.remove(QStringLiteral("global"));
+
+  return NodeValueTable::Merge(copy.values());
 }
 
 NodeValue::NodeValue() :
@@ -61,24 +66,9 @@ NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, cons
 {
 }
 
-const NodeParam::DataType &NodeValue::type() const
-{
-  return type_;
-}
-
-const QString &NodeValue::tag() const
-{
-  return tag_;
-}
-
 bool NodeValue::operator==(const NodeValue &rhs) const
 {
   return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
-}
-
-const QVariant &NodeValue::data() const
-{
-  return data_;
 }
 
 QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag) const
@@ -191,7 +181,6 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   NodeValueTable merged_table;
 
   // Slipstreams all tables together
-  // FIXME: I don't actually know if this is the right approach...
   foreach (const NodeValueTable& t, tables) {
     if (row >= t.Count()) {
       continue;

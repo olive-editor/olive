@@ -33,6 +33,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+OpenGLProxy* OpenGLProxy::instance_ = nullptr;
+
 OpenGLProxy::OpenGLProxy(QObject *parent) :
   QObject(parent),
   ctx_(nullptr),
@@ -46,6 +48,30 @@ OpenGLProxy::~OpenGLProxy()
   Close();
 
   surface_.destroy();
+}
+
+void OpenGLProxy::CreateInstance()
+{
+  instance_ = new OpenGLProxy();
+
+  QThread* proxy_thread = new QThread();
+  proxy_thread->start(QThread::IdlePriority);
+  instance_->moveToThread(proxy_thread);
+
+  if (!instance_->Init()) {
+    DestroyInstance();
+  }
+}
+
+void OpenGLProxy::DestroyInstance()
+{
+  if (instance_) {
+    instance_->thread()->quit();
+    instance_->thread()->wait();
+    instance_->thread()->deleteLater();
+    instance_->deleteLater();
+    instance_ = nullptr;
+  }
 }
 
 bool OpenGLProxy::Init()
@@ -123,22 +149,26 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
     VideoParams frame_params = frame->video_params();
 
     // Check frame aspect ratio
-    if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
+    rational true_pixel_aspect_ratio = frame_params.pixel_aspect_ratio() / params.pixel_aspect_ratio();
+
+    if (true_pixel_aspect_ratio != 1) {
       int new_width = frame_params.width();
       int new_height = frame_params.height();
 
       // Scale the frame in a way that does not reduce the resolution
-      if (frame->sample_aspect_ratio() > 1) {
+      if (frame_params.pixel_aspect_ratio() > 1) {
         // Make wider
-        new_width = qRound(static_cast<double>(new_width) * frame->sample_aspect_ratio().toDouble());
+        new_width = qRound(static_cast<double>(new_width) * frame_params.pixel_aspect_ratio().toDouble());
       } else {
         // Make taller
-        new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
+        new_height = qRound(static_cast<double>(new_height) / frame_params.pixel_aspect_ratio().toDouble());
       }
 
       frame_params = VideoParams(new_width,
                                  new_height,
                                  frame_params.format(),
+                                 frame_params.pixel_aspect_ratio(),
+                                 frame_params.interlacing(),
                                  frame_params.divider());
     }
 
@@ -152,6 +182,8 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
     VideoParams dest_params(frame_params.width(),
                             frame_params.height(),
                             texture_fmt,
+                            frame_params.pixel_aspect_ratio(),
+                            frame_params.interlacing(),
                             frame_params.divider());
 
     // Create destination texture
@@ -250,31 +282,37 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
   shader->bind();
 
-  NodeValueMap::const_iterator i;
-  for (i=job.GetValues().constBegin(); i!=job.GetValues().constEnd(); i++) {
+  NodeValueMap::const_iterator it;
+  for (it=job.GetValues().constBegin(); it!=job.GetValues().constEnd(); it++) {
     // See if the shader has takes this parameter as an input
-    int variable_location = shader->uniformLocation(i.key()->id());
+    int variable_location = shader->uniformLocation(it.key());
 
     if (variable_location == -1) {
       continue;
     }
 
-    // This variable is used in the shader, let's set it
-    const QVariant& value = i.value().data();
+    // See if this value corresponds to an input (NOTE: it may not and this may be null)
+    NodeInput* corresponding_input = node->GetInputWithID(it.key());
 
-    const NodeParam::DataType& data_type = (i.value().type() != NodeParam::kNone)
-        ? i.value().type()
-        : i.key()->data_type();
+    // This variable is used in the shader, let's set it
+    const QVariant& value = it.value().data();
+
+    NodeParam::DataType data_type = (it.value().type() != NodeParam::kNone)
+        ? it.value().type()
+        : corresponding_input->data_type();
 
     switch (data_type) {
     case NodeInput::kInt:
+      // kInt technically specifies a LongLong, but OpenGL doesn't support those. This may lead to
+      // over/underflows if the number is large enough, but the likelihood of that is quite low.
       shader->setUniformValue(variable_location, value.toInt());
       break;
     case NodeInput::kFloat:
+      // kFloat technically specifies a double but as above, OpenGL doesn't support those.
       shader->setUniformValue(variable_location, value.toFloat());
       break;
     case NodeInput::kVec2:
-      if (i.key()->IsArray()) {
+      if (corresponding_input && corresponding_input->IsArray()) {
         QVector<NodeValue> nv = value.value< QVector<NodeValue> >();
         QVector<QVector2D> a(nv.size());
 
@@ -284,7 +322,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
         shader->setUniformValueArray(variable_location, a.constData(), a.size());
 
-        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(i.key()->id()));
+        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(it.key()));
         if (count_location > -1) {
           shader->setUniformValue(count_location, a.size());
         }
@@ -314,6 +352,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     case NodeInput::kBoolean:
       shader->setUniformValue(variable_location, value.toBool());
       break;
+    case NodeInput::kBuffer:
     case NodeInput::kTexture:
     {
       OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
@@ -328,7 +367,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       shader->setUniformValue(variable_location, textures_to_bind.size());
 
       // If this texture binding is the iterative input, set it here
-      if (i.key() == job.GetIterativeInput()) {
+      if (corresponding_input && corresponding_input == job.GetIterativeInput()) {
         iterative_input = textures_to_bind.size();
       }
 
@@ -336,7 +375,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
       textures_to_bind.append(tex_id);
 
       // Set enable flag if shader wants it
-      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(i.key()->id()));
+      int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
       if (enable_param_location > -1) {
         shader->setUniformValue(enable_param_location,
                                 tex_id > 0);
@@ -344,7 +383,7 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
 
       if (tex_id > 0) {
         // Set texture resolution if shader wants it
-        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(i.key()->id()));
+        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()));
         if (res_param_location > -1) {
           shader->setUniformValue(res_param_location,
                                   static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
@@ -366,7 +405,6 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
     case NodeInput::kSampleJob:
     case NodeInput::kGenerateJob:
     case NodeInput::kFootage:
-    case NodeInput::kBuffer:
     case NodeInput::kNone:
     case NodeInput::kAny:
       break;
@@ -378,19 +416,6 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
                           static_cast<GLfloat>(params.width()),
                           static_cast<GLfloat>(params.height()));
 
-  if (node->IsBlock() && static_cast<const Block*>(node)->type() == Block::kTransition) {
-    const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
-
-    // Provides total transition progress from 0.0 (start) - 1.0 (end)
-    shader->setUniformValue("ove_tprog_all", static_cast<GLfloat>(transition_node->GetTotalProgress(range.in())));
-
-    // Provides progress of out section from 1.0 (start) - 0.0 (end)
-    shader->setUniformValue("ove_tprog_out", static_cast<GLfloat>(transition_node->GetOutProgress(range.in())));
-
-    // Provides progress of in section from 0.0 (start) - 1.0 (end)
-    shader->setUniformValue("ove_tprog_in", static_cast<GLfloat>(transition_node->GetInProgress(range.in())));
-  }
-
   shader->release();
 
   // Create the output textures
@@ -401,6 +426,8 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
                             params.height(),
                             params.time_base(),
                             output_format,
+                            params.pixel_aspect_ratio(),
+                            params.interlacing(),
                             params.divider());
 
   int real_iteration_count;

@@ -68,8 +68,8 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   // Set up dialog buttons
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &SequenceDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &SequenceDialog::reject);
   layout->addWidget(buttons);
 
   // Set window title based on type
@@ -102,24 +102,17 @@ void SequenceDialog::accept()
     return;
   }
 
-  // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
-  rational video_time_base = parameter_tab_->GetSelectedVideoFrameRate().flipped();
-
-  // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
-  int audio_sample_rate = parameter_tab_->GetSelectedAudioSampleRate();
-
-  // Get the audio channel layout value
-  uint64_t channels = parameter_tab_->GetSelectedAudioChannelLayout();
-
   // Generate video and audio parameter structs from data
   VideoParams video_params = VideoParams(parameter_tab_->GetSelectedVideoWidth(),
                                          parameter_tab_->GetSelectedVideoHeight(),
-                                         video_time_base,
+                                         parameter_tab_->GetSelectedVideoFrameRate().flipped(),
                                          parameter_tab_->GetSelectedPreviewFormat(),
+                                         parameter_tab_->GetSelectedVideoPixelAspect(),
+                                         parameter_tab_->GetSelectedVideoInterlacingMode(),
                                          parameter_tab_->GetSelectedPreviewResolution());
 
-  AudioParams audio_params = AudioParams(audio_sample_rate,
-                                         channels,
+  AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
+                                         parameter_tab_->GetSelectedAudioChannelLayout(),
                                          SampleFormat::kInternalFormat);
 
   if (make_undoable_) {

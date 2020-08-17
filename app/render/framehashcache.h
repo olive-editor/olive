@@ -35,13 +35,13 @@ class FrameHashCache : public PlaybackCache
 {
   Q_OBJECT
 public:
-  FrameHashCache() = default;
+  FrameHashCache(QObject* parent = nullptr);
 
   QByteArray GetHash(const rational& time);
 
-  void SetHash(const rational& time, const QByteArray& hash, const qint64 &job_time);
-
   void SetTimebase(const rational& tb);
+
+  void ValidateFramesWithHash(const QByteArray& hash);
 
   /**
    * @brief Returns a list of frames that use a particular hash
@@ -58,24 +58,26 @@ public:
   /**
    * @brief Return the path of the cached image at this time
    */
-  static QString CachePathName(const QByteArray &hash);
+  QString CachePathName(const QByteArray &hash) const;
 
-  static bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes);
-  static void SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes);
-  static void SaveCacheFrame(const QByteArray& hash, FramePtr frame);
-  static FramePtr LoadCacheFrame(const QByteArray& hash);
-  static FramePtr LoadCacheFrame(const QString& fn);
+  bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
+  bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  FramePtr LoadCacheFrame(const QByteArray& hash) const;
+  FramePtr LoadCacheFrame(const QString& fn) const;
 
   static QString GetFormatExtension();
 
   static QVector<rational> GetFrameListFromTimeRange(TimeRangeList range_list, const rational& timebase);
   QVector<rational> GetFrameListFromTimeRange(const TimeRangeList &range);
   QVector<rational> GetInvalidatedFrames();
+  QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
+
+public slots:
+  void SetHash(const OLIVE_NAMESPACE::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
-
-  virtual void InvalidateEvent(const TimeRange& range) override;
 
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
@@ -83,6 +85,11 @@ private:
   QMap<rational, QByteArray> time_hash_map_;
 
   rational timebase_;
+
+private slots:
+  void HashDeleted(const QString &s, const QByteArray& hash);
+
+  void ProjectInvalidated(Project* p);
 
 };
 

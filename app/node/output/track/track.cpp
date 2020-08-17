@@ -31,10 +31,8 @@ OLIVE_NAMESPACE_ENTER
 
 TrackOutput::TrackOutput() :
   track_type_(Timeline::kTrackTypeNone),
-  block_invalidate_cache_stack_(0),
   index_(-1),
-  locked_(false),
-  queued_length_change_(false)
+  locked_(false)
 {
   block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
   block_input_->set_is_keyframable(false);
@@ -252,11 +250,24 @@ const QList<Block *> &TrackOutput::Blocks() const
 
 void TrackOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  if (block_invalidate_cache_stack_ == 0) {
-    PushLengthChangeSignal(true);
+  TimeRange limited;
 
-    Node::InvalidateCache(TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length())), from, source);
+  if (block_input_->sub_params().contains(from)
+      && from->get_connected_node()
+      && from->get_connected_node()->IsBlock()) {
+    // Limit the range signal to the corresponding block
+    Block* b = static_cast<Block*>(from->get_connected_node());
+
+    if (range.out() <= b->in() || range.in() >= b->out()) {
+      return;
+    }
+
+    limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
+  } else {
+    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length()));
   }
+
+  Node::InvalidateCache(limited, from, source);
 }
 
 void TrackOutput::InsertBlockBefore(Block* block, Block* after)
@@ -279,12 +290,12 @@ void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 
 void TrackOutput::PrependBlock(Block *block)
 {
-  BlockInvalidateCache();
+  BeginOperation();
 
   block_input_->Prepend();
   NodeParam::ConnectEdge(block->output(), block_input_->First());
 
-  UnblockInvalidateCache();
+  EndOperation();
 
   // Everything has shifted at this point
   InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
@@ -292,57 +303,47 @@ void TrackOutput::PrependBlock(Block *block)
 
 void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 {
-  BlockInvalidateCache();
+  BeginOperation();
 
   int insert_index = GetInputIndexFromCacheIndex(index);
   block_input_->InsertAt(insert_index);
   NodeParam::ConnectEdge(block->output(),
                          block_input_->At(insert_index));
 
-  UnblockInvalidateCache();
+  EndOperation();
 
   InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::AppendBlock(Block *block)
 {
-  BlockInvalidateCache();
+  BeginOperation();
 
   block_input_->Append();
   NodeParam::ConnectEdge(block->output(), block_input_->Last());
 
-  UnblockInvalidateCache();
+  EndOperation();
 
   // Invalidate area that block was added to
   InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
-void TrackOutput::BlockInvalidateCache()
-{
-  block_invalidate_cache_stack_++;
-}
-
-void TrackOutput::UnblockInvalidateCache()
-{
-  block_invalidate_cache_stack_--;
-}
-
 void TrackOutput::RippleRemoveBlock(Block *block)
 {
-  BlockInvalidateCache();
+  BeginOperation();
 
   rational remove_in = block->in();
 
   block_input_->RemoveAt(GetInputIndexFromCacheIndex(block));
 
-  UnblockInvalidateCache();
+  EndOperation();
 
   InvalidateCache(TimeRange(remove_in, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 {
-  BlockInvalidateCache();
+  BeginOperation();
 
   int index_of_old_block = GetInputIndexFromCacheIndex(old);
 
@@ -352,7 +353,7 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   NodeParam::ConnectEdge(replace->output(),
                          block_input_->At(index_of_old_block));
 
-  UnblockInvalidateCache();
+  EndOperation();
 
   if (old->length() == replace->length()) {
     InvalidateCache(TimeRange(replace->in(), replace->out()), block_input_, block_input_);
@@ -443,14 +444,6 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-void TrackOutput::PushLengthChangeSignal(bool invalidate)
-{
-  if (queued_length_change_) {
-    queued_length_change_ = false;
-    SetLengthInternal(queued_length_, invalidate);
-  }
-}
-
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;
@@ -507,15 +500,6 @@ int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
 
 void TrackOutput::SetLengthInternal(const rational &r, bool invalidate)
 {
-  if (block_invalidate_cache_stack_ > 0) {
-    queued_length_change_ = true;
-  }
-
-  if (queued_length_change_) {
-    queued_length_ = r;
-    return;
-  }
-
   if (r != track_length_) {
     TimeRange invalidate_range(track_length_, r);
 

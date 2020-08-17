@@ -27,6 +27,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const int TimelineScaledObject::kCalculateDimensionsPadding = 10;
+
 TimelineScaledObject::TimelineScaledObject() :
   scale_(1.0),
   min_scale_(0),
@@ -110,6 +112,21 @@ void TimelineScaledObject::SetScale(const double& scale)
   scale_ = clamp(scale, min_scale_, max_scale_);
 
   ScaleChangedEvent(scale_);
+}
+
+void TimelineScaledObject::SetScaleFromDimensions(double viewport_width, double content_width)
+{
+  SetScale(CalculateScaleFromDimensions(viewport_width, content_width));
+}
+
+double TimelineScaledObject::CalculateScaleFromDimensions(double viewport_sz, double content_sz)
+{
+  return static_cast<double>(viewport_sz / kCalculateDimensionsPadding * (kCalculateDimensionsPadding-1)) / static_cast<double>(content_sz);
+}
+
+double TimelineScaledObject::CalculatePaddingFromDimensionScale(double viewport_sz)
+{
+  return (viewport_sz / (kCalculateDimensionsPadding * 2));
 }
 
 TimelineScaledWidget::TimelineScaledWidget(QWidget *parent) :

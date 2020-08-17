@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QString>
+#include <QXmlStreamWriter>
 
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
@@ -50,6 +51,7 @@ public:
   void set_video_max_bit_rate(const int64_t& rate);
   void set_video_buffer_size(const int64_t& sz);
   void set_video_threads(const int& threads);
+  void set_video_pix_fmt(const QString& s);
 
   const QString& filename() const;
 
@@ -61,6 +63,7 @@ public:
   const int64_t& video_max_bit_rate() const;
   const int64_t& video_buffer_size() const;
   const int& video_threads() const;
+  const QString& video_pix_fmt() const;
 
   bool audio_enabled() const;
   const ExportCodec::Codec &audio_codec() const;
@@ -68,6 +71,8 @@ public:
 
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
+
+  virtual void Save(QXmlStreamWriter* writer) const;
 
 private:
   QString filename_;
@@ -80,6 +85,7 @@ private:
   int64_t video_max_bit_rate_;
   int64_t video_buffer_size_;
   int video_threads_;
+  QString video_pix_fmt_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;

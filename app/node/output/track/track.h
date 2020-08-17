@@ -166,10 +166,6 @@ public:
    */
   void ReplaceBlock(Block* old, Block* replace);
 
-  void BlockInvalidateCache();
-
-  void UnblockInvalidateCache();
-
   static TrackOutput* TrackFromBlock(const Block *block);
 
   const rational& track_length() const;
@@ -191,8 +187,6 @@ public:
   NodeInputArray* block_input() const;
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
-
-  void PushLengthChangeSignal(bool invalidate = false);
 
   AudioVisualWaveform& waveform()
   {
@@ -274,14 +268,9 @@ private:
 
   QString track_name_;
 
-  int block_invalidate_cache_stack_;
-
   int index_;
 
   bool locked_;
-
-  bool queued_length_change_;
-  rational queued_length_;
 
   AudioVisualWaveform waveform_;
   QMutex waveform_lock_;

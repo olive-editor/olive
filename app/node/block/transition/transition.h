@@ -43,18 +43,41 @@ public:
   Block* connected_out_block() const;
   Block* connected_in_block() const;
 
-  double GetTotalProgress(const rational& time) const;
-  double GetOutProgress(const rational& time) const;
-  double GetInProgress(const rational& time) const;
+  double GetTotalProgress(const double &time) const;
+  double GetOutProgress(const double &time) const;
+  double GetInProgress(const double &time) const;
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
+  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+
+  static TransitionBlock* GetBlockInTransition(Block* block);
+
+  static TransitionBlock* GetBlockOutTransition(Block* block);
+
+protected:
+  virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
+
+  virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const;
+
+  double TransformCurve(double linear) const;
+
 private:
-  double GetInternalTransitionTime(const rational& time) const;
+  enum CurveType {
+    kLinear,
+    kExponential,
+    kLogarithmic
+  };
+
+  double GetInternalTransitionTime(const double &time) const;
+
+  void InsertTransitionTimes(AcceleratedJob* job, const double& time) const;
 
   NodeInput* out_block_input_;
 
   NodeInput* in_block_input_;
+
+  NodeInput* curve_input_;
 
   Block* connected_out_block_;
 

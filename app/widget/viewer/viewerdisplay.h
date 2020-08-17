@@ -105,6 +105,11 @@ public:
    */
   QPoint TransformViewerSpaceToBufferSpace(QPoint pos);
 
+  bool IsDeinterlacing() const
+  {
+    return deinterlace_;
+  }
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -147,6 +152,11 @@ public slots:
    * normal type.
    */
   void ToolChanged(Tool::Item tool);
+
+  /**
+   * @brief Enables/disables a basic deinterlace on the viewer
+   */
+  void SetDeinterlacing(bool e);
 
 signals:
   /**
@@ -211,9 +221,7 @@ private:
    */
   QMatrix4x4 scale_matrix_;
 
-#ifdef Q_OS_LINUX
-  static bool nouveau_check_done_;
-#endif
+
 
   bool signal_cursor_color_;
 
@@ -249,18 +257,13 @@ private:
    */
   bool hand_tool_clicked_;
 
+  bool deinterlace_;
+
 private slots:
   /**
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
    */
   void ContextCleanup();
-
-#ifdef Q_OS_LINUX
-  /**
-   * @brief Shows warning messagebox if Nouveau is detected
-   */
-  void ShowNouveauWarning();
-#endif
 
 };
 

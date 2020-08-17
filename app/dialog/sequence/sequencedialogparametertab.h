@@ -8,6 +8,7 @@
 #include "project/item/sequence/sequence.h"
 #include "sequencepreset.h"
 #include "widget/slider/integerslider.h"
+#include "widget/standardcombos/standardcombos.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -17,19 +18,50 @@ class SequenceDialogParameterTab : public QWidget
 public:
   SequenceDialogParameterTab(Sequence* sequence, QWidget* parent = nullptr);
 
-  int GetSelectedVideoWidth() const;
+  int GetSelectedVideoWidth() const
+  {
+    return video_width_field_->GetValue();
+  }
 
-  int GetSelectedVideoHeight() const;
+  int GetSelectedVideoHeight() const
+  {
+    return video_height_field_->GetValue();
+  }
 
-  const rational& GetSelectedVideoFrameRate() const;
+  rational GetSelectedVideoFrameRate() const
+  {
+    return video_frame_rate_field_->GetFrameRate();
+  }
 
-  int GetSelectedAudioSampleRate() const;
+  rational GetSelectedVideoPixelAspect() const
+  {
+    return video_pixel_aspect_field_->GetPixelAspectRatio();
+  }
 
-  uint64_t GetSelectedAudioChannelLayout() const;
+  VideoParams::Interlacing GetSelectedVideoInterlacingMode() const
+  {
+    return video_interlaced_field_->GetInterlaceMode();
+  }
 
-  int GetSelectedPreviewResolution() const;
+  int GetSelectedAudioSampleRate() const
+  {
+    return audio_sample_rate_field_->GetSampleRate();
+  }
 
-  PixelFormat::Format GetSelectedPreviewFormat() const;
+  uint64_t GetSelectedAudioChannelLayout() const
+  {
+    return audio_channels_field_->GetChannelLayout();
+  }
+
+  int GetSelectedPreviewResolution() const
+  {
+    return preview_resolution_field_->GetDivider();
+  }
+
+  PixelFormat::Format GetSelectedPreviewFormat() const
+  {
+    return preview_format_field_->GetPixelFormat();
+  }
 
 public slots:
   void PresetChanged(const SequencePreset& preset);
@@ -42,27 +74,21 @@ private:
 
   IntegerSlider* video_height_field_;
 
-  QComboBox* video_frame_rate_field_;
+  FrameRateComboBox* video_frame_rate_field_;
 
-  QComboBox* audio_sample_rate_field_;
+  PixelAspectRatioComboBox* video_pixel_aspect_field_;
 
-  QComboBox* audio_channels_field_;
+  InterlacedComboBox* video_interlaced_field_;
 
-  QComboBox* preview_resolution_field_;
+  SampleRateComboBox* audio_sample_rate_field_;
+
+  ChannelLayoutComboBox* audio_channels_field_;
+
+  VideoDividerComboBox* preview_resolution_field_;
 
   QLabel* preview_resolution_label_;
 
-  QComboBox* preview_format_field_;
-
-  QList<rational> frame_rate_list_;
-
-  QList<int> sample_rate_list_;
-
-  QList<uint64_t> channel_layout_list_;
-
-  QList<int> divider_list_;
-
-  QList<PixelFormat::Format> preview_format_list_;
+  PixelFormatComboBox* preview_format_field_;
 
 private slots:
   void SavePresetClicked();

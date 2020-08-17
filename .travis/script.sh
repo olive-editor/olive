@@ -6,7 +6,7 @@ export VERSION=$(git rev-parse --short=8 HEAD)
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     # Generate Makefile
-    cmake .
+    cmake . -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     # Make
     make -j$(sysctl -n hw.ncpu)
@@ -50,7 +50,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
     # Generate Makefile
-    cmake .
+    cmake . -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     # Make
     make -j$(nproc)

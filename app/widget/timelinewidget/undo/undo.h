@@ -25,6 +25,7 @@
 
 #include "node/block/block.h"
 #include "node/block/gap/gap.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
 #include "timeline/timelinepoints.h"
@@ -70,9 +71,9 @@ public:
 
   virtual Project* GetRelevantProject() const override;
 
-  void SetAllowNonGapTrimming(bool e)
+  void SetTrimIsARollEdit(bool e)
   {
-    allow_nongap_trimming_ = e;
+    trim_is_a_roll_edit_ = e;
   }
 
 protected:
@@ -90,7 +91,7 @@ private:
   bool we_created_adjacent_;
   bool we_deleted_adjacent_;
 
-  bool allow_nongap_trimming_;
+  bool trim_is_a_roll_edit_;
 
   QObject memory_manager_;
 
@@ -553,15 +554,7 @@ private:
 
 class TrackSlideCommand : public UndoCommand {
 public:
-  struct BlockSlideInfo {
-    TrackOutput* track;
-    Block* block;
-    Timeline::MovementMode mode;
-    rational new_time;
-    rational old_time;
-  };
-
-  TrackSlideCommand(const QVector<BlockSlideInfo>& blocks, QUndoCommand* parent = nullptr);
+  TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -572,8 +565,16 @@ protected:
 private:
   void slide_internal(bool undo);
 
-  QVector<BlockSlideInfo> blocks_;
-  QList<GapBlock*> added_gaps_;
+  TrackOutput* track_;
+  QList<Block*> blocks_;
+  rational movement_;
+
+  bool we_created_in_adjacent_;
+  Block* in_adjacent_;
+  bool we_created_out_adjacent_;
+  Block* out_adjacent_;
+
+  QObject memory_manager_;
 
 };
 
@@ -603,6 +604,26 @@ private:
   QList<GapBlock*> gaps_added_;
 
   BlockSplitPreservingLinksCommand* split_command_;
+
+};
+
+class TransitionRemoveCommand : public UndoCommand {
+public:
+  TransitionRemoveCommand(TrackOutput *track, TransitionBlock* block, QUndoCommand *parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackOutput* track_;
+
+  TransitionBlock* block_;
+
+  Block* out_block_;
+  Block* in_block_;
 
 };
 

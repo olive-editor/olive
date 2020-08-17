@@ -56,6 +56,9 @@ public:
 
 };
 
+// FIXME: Hardcoded (but that might be okay here)
+#define PLAYHEAD_COLOR Qt::red
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINECOMMON_H

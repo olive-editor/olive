@@ -185,16 +185,68 @@ NodeEdgePtr NodeParam::DisconnectForNewOutput(NodeInput *input)
   return nullptr;
 }
 
+QString NodeParam::GetPrettyDataTypeName(const NodeParam::DataType &type)
+{
+  switch (type) {
+  case kNone:
+    return tr("None");
+  case kInt:
+  case kCombo:
+    return tr("Integer");
+  case kFloat:
+    return tr("Float");
+  case kRational:
+    return tr("Rational");
+  case kBoolean:
+    return tr("Boolean");
+  case kColor:
+    return tr("Color");
+  case kMatrix:
+    return tr("Matrix");
+  case kText:
+    return tr("Text");
+  case kFont:
+    return tr("Font");
+  case kFile:
+    return tr("File");
+  case kTexture:
+    return tr("Texture");
+  case kSamples:
+    return tr("Samples");
+  case kFootage:
+    return tr("Footage");
+  case kVec2:
+    return tr("Vector 2D");
+  case kVec3:
+    return tr("Vector 3D");
+  case kVec4:
+    return tr("Vector 4D");
+
+  case kDecimal:
+  case kNumber:
+  case kString:
+  case kBuffer:
+  case kVector:
+  case kShaderJob:
+  case kSampleJob:
+  case kGenerateJob:
+  case kAny:
+    break;
+  }
+
+  return tr("Unknown");
+}
+
 QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVariant &value)
 {
   switch (type) {
-  case kInt: return ValueToBytesInternal<int>(value);
-  case kFloat: return ValueToBytesInternal<float>(value);
+  case kInt: return ValueToBytesInternal<int64_t>(value);
+  case kFloat: return ValueToBytesInternal<double>(value);
   case kColor: return ValueToBytesInternal<Color>(value);
-  case kText: return ValueToBytesInternal<QString>(value);
+  case kText: return value.toString().toUtf8();
   case kBoolean: return ValueToBytesInternal<bool>(value);
-  case kFont: return ValueToBytesInternal<QString>(value); // FIXME: This should probably be a QFont?
-  case kFile: return ValueToBytesInternal<QString>(value);
+  case kFont: return value.toString().toUtf8();
+  case kFile: return value.toString().toUtf8();
   case kMatrix: return ValueToBytesInternal<QMatrix4x4>(value);
   case kRational: return ValueToBytesInternal<rational>(value);
   case kVec2: return ValueToBytesInternal<QVector2D>(value);
@@ -220,39 +272,6 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   }
 
   return QByteArray();
-}
-
-NodeParam::DataType NodeParam::StringToDataType(const QString &s)
-{
-  QString type_id = s.toLower();
-
-  if (type_id == QStringLiteral("float")) {
-    return kFloat;
-  } else if (type_id == QStringLiteral("int")) {
-    return kInt;
-  } else if (type_id == QStringLiteral("rational")) {
-    return kRational;
-  } else if (type_id == QStringLiteral("bool")) {
-    return kBoolean;
-  } else if (type_id == QStringLiteral("color")) {
-    return kColor;
-  } else if (type_id == QStringLiteral("matrix")) {
-    return kMatrix;
-  } else if (type_id == QStringLiteral("text")) {
-    return kText;
-  } else if (type_id == QStringLiteral("texture")) {
-    return kTexture;
-  } else if (type_id == QStringLiteral("vec2")) {
-    return kVec2;
-  } else if (type_id == QStringLiteral("vec3")) {
-    return kVec3;
-  } else if (type_id == QStringLiteral("vec4")) {
-    return kVec4;
-  } else if (type_id == QStringLiteral("combo")) {
-    return kCombo;
-  }
-
-  return kAny;
 }
 
 template<typename T>

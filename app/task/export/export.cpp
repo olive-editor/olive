@@ -64,17 +64,17 @@ bool ExportTask::Run()
 
   frame_time_ = Timecode::time_to_timestamp(range.in(), viewer()->video_params().time_base());
 
-  QMatrix4x4 mat;
-
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
     if (params_.video_scaling_method() != ExportParams::kStretch) {
-      mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                         viewer()->video_params().width(),
-                                         viewer()->video_params().height(),
-                                         params_.video_params().width(),
-                                         params_.video_params().height());
+      QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
+                                                    viewer()->video_params().width(),
+                                                    viewer()->video_params().height(),
+                                                    params_.video_params().width(),
+                                                    params_.video_params().height());
+
+      backend()->SetVideoDownloadMatrix(mat);
     }
 
     // Create color processor
@@ -96,24 +96,16 @@ bool ExportTask::Run()
 
   if (params_.audio_enabled()) {
     audio_range.append(range);
+    audio_data_.SetLength(range.length());
   }
 
-  Render(video_range, audio_range, mat, false);
+  Render(video_range, audio_range, false);
 
   bool success = true;
 
-  foreach (QFuture<bool> f, write_frame_futures_) {
-    f.waitForFinished();
-
-    if (!f.result()) {
-      SetError(tr("Failed to write AVFrame"));
-      success = false;
-    }
-  }
-
   if (params_.audio_enabled()) {
     // Write audio data now
-    encoder_->WriteAudio(audio_params(), audio_data_.GetCacheFilename());
+    encoder_->WriteAudio(audio_params(), audio_data_.GetPCMFilename());
   }
 
   encoder_->Close();
@@ -126,8 +118,17 @@ bool ExportTask::Run()
 void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
 {
   // OCIO conversion requires a frame in 32F format
-  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F
+      && frame->format() != PixelFormat::PIX_FMT_RGB32F) {
+    PixelFormat::Format dst;
+
+    if (PixelFormat::FormatHasAlphaChannel(frame->format())) {
+      dst = PixelFormat::PIX_FMT_RGBA32F;
+    } else {
+      dst = PixelFormat::PIX_FMT_RGB32F;
+    }
+
+    frame = PixelFormat::ConvertPixelFormat(frame, dst);
   }
 
   // Color conversion must be done with unassociated alpha, and the pipeline is always associated
@@ -147,8 +148,10 @@ QFuture<void> ExportTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
   return QtConcurrent::run(FrameColorConvert, color_processor_, frame);
 }
 
-void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times)
+void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
 {
+  Q_UNUSED(job_time)
+
   FramePtr f = rendered_frame_.value(hash);
 
   foreach (const rational& t, times) {
@@ -165,22 +168,24 @@ void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rationa
 
     // Unfortunately this can't be done in another thread since the frames need to be sent
     // one after the other chronologically.
-    encoder_->WriteFrame(time_map_.value(real_time), real_time);
+    encoder_->WriteFrame(time_map_.take(real_time), real_time);
 
     frame_time_++;
 
   }
 }
 
-void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
 {
+  Q_UNUSED(job_time)
+
   TimeRange adjusted_range = range;
 
   if (params_.has_custom_range()) {
     adjusted_range -= params_.custom_range().in();
   }
 
-  audio_data_.WritePCM(adjusted_range, samples, job_time());
+  audio_data_.WritePCM(adjusted_range, samples, QDateTime::currentMSecsSinceEpoch());
 }
 
 OLIVE_NAMESPACE_EXIT

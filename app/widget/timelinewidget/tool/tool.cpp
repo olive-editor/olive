@@ -73,28 +73,11 @@ TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoo
   return nullptr;
 }
 
-rational TimelineWidget::Tool::ValidateTimeMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineWidget::Tool::ValidateTimeMovement(rational movement)
 {
-  foreach (TimelineViewGhostItem* ghost, ghosts) {
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     if (ghost->mode() != Timeline::kMove) {
       continue;
-    }
-
-    Block* block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (block && block->type() == Block::kTransition) {
-      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
-
-      // Dual transitions are only allowed to move so that neither of their offsets are < 0
-      if (transition->connected_in_block() && transition->connected_out_block()) {
-        if (movement > transition->out_offset()) {
-          movement = transition->out_offset();
-        }
-
-        if (movement < -transition->in_offset()) {
-          movement = -transition->in_offset();
-        }
-      }
     }
 
     // Prevents any ghosts from going below 0:00:00 time
@@ -106,7 +89,7 @@ rational TimelineWidget::Tool::ValidateTimeMovement(rational movement, const QVe
   return movement;
 }
 
-int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
+int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*>& ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     if (ghost->mode() != Timeline::kMove) {
@@ -115,7 +98,7 @@ int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<Time
 
     if (!ghost->CanMoveTracks()) {
 
-      movement = 0;
+      return 0;
 
     } else if (ghost->Track().index() + movement < 0) {
 
@@ -128,7 +111,7 @@ int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<Time
   return movement;
 }
 
-void TimelineWidget::Tool::GetGhostData(const QVector<TimelineViewGhostItem *> &ghosts, rational *earliest_point, rational *latest_point)
+void TimelineWidget::Tool::GetGhostData(rational *earliest_point, rational *latest_point)
 {
   rational ep = RATIONAL_MAX;
   rational lp = RATIONAL_MIN;
@@ -147,11 +130,11 @@ void TimelineWidget::Tool::GetGhostData(const QVector<TimelineViewGhostItem *> &
   }
 }
 
-void TimelineWidget::Tool::InsertGapsAtGhostDestination(const QVector<TimelineViewGhostItem *> &ghosts, QUndoCommand *command)
+void TimelineWidget::Tool::InsertGapsAtGhostDestination(QUndoCommand *command)
 {
   rational earliest_point, latest_point;
 
-  GetGhostData(ghosts, &earliest_point, &latest_point);
+  GetGhostData(&earliest_point, &latest_point);
 
   parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
 }

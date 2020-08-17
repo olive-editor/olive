@@ -37,7 +37,7 @@ public:
 
   void SetHighlighted(bool e);
 
-  void SetValue(double value);
+  void SetValue(const QString& value);
 
   void SetMultiplierVisible(bool e);
 
@@ -52,7 +52,7 @@ private:
   QLabel* label_;
 
   double multiplier_;
-  double value_;
+  QString value_;
 
   bool highlighted_;
 
@@ -64,11 +64,11 @@ class SliderLadder : public QFrame
 {
   Q_OBJECT
 public:
-  SliderLadder(double start_val, double drag_multiplier, int nb_outer_values, QWidget* parent = nullptr);
+  SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent = nullptr);
 
   virtual ~SliderLadder() override;
 
-  void SetValue(double val);
+  void SetValue(const QString& s);
 
 protected:
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
@@ -81,23 +81,17 @@ signals:
   void Released();
 
 private:
-  void SetActiveElement();
-
   QPoint drag_start_;
-
-  double start_val_;
 
   QList<SliderLadderElement*> elements_;
 
-  SliderLadderElement* active_element_;
-
-  float relative_y_;
+  int active_element_;
 
   QTimer drag_timer_;
 
-private slots:
-  void InitRelativeY();
+  int y_mobility_;
 
+private slots:
   void TimerUpdate();
 
 };

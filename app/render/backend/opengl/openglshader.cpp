@@ -146,8 +146,9 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
   return shader;
 }
 
-QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QString &shader_code)
+QString OpenGLShader::CodeDefaultFragment(QString function_name, const QString &shader_code)
 {
+  // Create shader header
   QString frag_code = QStringLiteral("#version 150\n"
                                      "\n"
                                      "#ifdef GL_ES\n"
@@ -156,47 +157,46 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
                                      "#endif\n"
                                      "\n"
                                      "uniform sampler2D ove_maintex;\n"
-                                     "uniform bool color_only;\n"
-                                     "uniform vec4 color_only_color;\n"
+                                     "uniform vec2 ove_resolution;\n"
+                                     "uniform bool ove_deinterlace;\n"
                                      "\n"
                                      "in vec2 ove_texcoord;\n"
                                      "\n"
                                      "out vec4 fragColor;\n"
                                      "\n");
 
-  // Finish the function with the main function
-
   // Check if additional code was passed to this function, add it here
-  if (shader_code.isEmpty()) {
-
-    // If not, just add a pure main() function
-
-    frag_code.append(QStringLiteral("\n"
-                                    "void main() {\n"
-                                    "    if (color_only) {\n"
-                                    "        fragColor = color_only_color;"
-                                    "    } else {\n"
-                                    "        vec4 color = texture(ove_maintex, ove_texcoord);\n"
-                                    "        fragColor = color;\n"
-                                    "    }\n"
-                                    "}\n"));
-
-  } else {
+  if (!function_name.isEmpty() && !shader_code.isEmpty()) {
 
     // If additional code was passed, add it and reference it in main().
     //
-    // The function in the additional code is expected to be `vec4 function_name(vec4 color)`. The texture coordinate
-    // can be acquired through `ove_texcoord`.
+    // The function in the additional code is expected to be `vec4 function_name(vec4 color)`.
+    // The texture coordinate can be acquired through `ove_texcoord`.
 
     frag_code.append(shader_code);
 
-    frag_code.append(QStringLiteral("\n"
-                                    "void main() {\n"
-                                    "    vec4 color = %1(texture(ove_maintex, ove_texcoord));\n"
-                                    "    fragColor = color;\n"
-                                    "}\n").arg(function_name));
+  } else {
+
+    // No function to call
+    function_name = QString();
 
   }
+
+  // Our function_name arg will either resolve to the function added to this or to nothing, in
+  // which case they'll just be benign brackets.
+  frag_code.append(QStringLiteral("\n"
+                                  "void main() {\n"
+                                  "    vec2 using_texcoord = ove_texcoord;\n"
+                                  "    if (ove_deinterlace) {\n"
+                                  "        // A very basic deinterlace that halves the vertical\n"
+                                  "        // resolution and linearly interpolates the two fields\n"
+                                  "        // by reading the texture coord between them.\n"
+                                  "        float half_vert = round(ove_resolution.y / 2.0);\n"
+                                  "        using_texcoord.y = (round(using_texcoord.y * half_vert) + 0.25) / half_vert;\n"
+                                  "    }\n"
+                                  "    vec4 color = %1(texture(ove_maintex, using_texcoord));\n"
+                                  "    fragColor = color;\n"
+                                  "}\n").arg(function_name));
 
   return frag_code;
 }

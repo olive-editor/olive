@@ -37,6 +37,8 @@ signals:
 private slots:
   void UpdateConnected();
 
+  void ShowLabelContextMenu();
+
 private:
   ClickableLabel* connected_to_lbl_;
 

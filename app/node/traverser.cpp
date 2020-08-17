@@ -41,11 +41,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
     database.Insert(input, ProcessInput(input, input_time));
   }
 
-  // Insert global variables
-  NodeValueTable global;
-  global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
-  global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
-  database.Insert(QStringLiteral("global"), global);
+  AddGlobalsToDatabase(database, range);
 
   return database;
 }
@@ -154,6 +150,15 @@ QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
   Q_UNUSED(time)
 
   return QVariant();
+}
+
+void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range)
+{
+  // Insert global variables
+  NodeValueTable global;
+  global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
+  global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
+  db.Insert(QStringLiteral("global"), global);
 }
 
 void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params)

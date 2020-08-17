@@ -42,19 +42,17 @@ public:
 
   static QString GetUniqueFileIdentifier(const QString& filename);
 
-  static QString GetMediaIndexLocation();
-
-  static QString GetMediaIndexFilename(const QString& filename);
-
-  static QString GetMediaCacheLocation();
-
   static QString GetConfigurationLocation();
 
   static QString GetApplicationPath();
 
   static QString GetTempFilePath();
 
+  static bool CanCopyDirectoryWithoutOverwriting(const QString& source, const QString& dest);
+
   static void CopyDirectory(const QString& source, const QString& dest, bool overwrite = false);
+
+  static bool DirectoryIsValid(const QString& dir, bool try_to_create);
 
 };
 

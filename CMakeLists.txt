@@ -67,6 +67,12 @@ find_package(FFMPEG 3.0 REQUIRED
   swresample
 )
 
+find_package(GoogleCrashpad)
+
+if (NOT GoogleCrashpad_FOUND)
+  message("   Automatic crash reporting will be disabled.")
+endif()
+
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   find_package(Git)
   if(GIT_FOUND)

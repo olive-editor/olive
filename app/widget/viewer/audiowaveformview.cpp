@@ -26,6 +26,7 @@
 
 #include "common/clamp.h"
 #include "config/config.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -65,7 +66,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   const AudioParams& params = playback_->GetParameters();
 
   if (!playback_
-      || playback_->GetCacheFilename().isEmpty()
+      || playback_->GetPCMFilename().isEmpty()
       || !params.is_valid()) {
     return;
   }
@@ -77,7 +78,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     cached_waveform_ = QPixmap(size());
     cached_waveform_.fill(Qt::transparent);
 
-    QFile fs(playback_->GetCacheFilename());
+    QFile fs(playback_->GetPCMFilename());
 
     if (fs.open(QFile::ReadOnly)) {
 
@@ -130,7 +131,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   p.drawPixmap(0, 0, cached_waveform_);
 
   // Draw playhead
-  p.setPen(GetPlayheadColor());
+  p.setPen(PLAYHEAD_COLOR);
 
   int playhead_x = UnitToScreen(GetTime());
   p.drawLine(playhead_x, 0, playhead_x, height());

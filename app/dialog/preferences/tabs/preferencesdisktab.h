@@ -26,7 +26,9 @@
 #include <QPushButton>
 
 #include "preferencestab.h"
+#include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
+#include "widget/path/pathwidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,27 +38,18 @@ class PreferencesDiskTab : public PreferencesTab
 public:
   PreferencesDiskTab();
 
+  virtual bool Validate() override;
+
   virtual void Accept() override;
 
 private:
-  QLineEdit* disk_cache_location_;
-
-  FloatSlider* maximum_cache_slider_;
+  PathWidget* disk_cache_location_;
 
   FloatSlider* cache_ahead_slider_;
 
   FloatSlider* cache_behind_slider_;
 
-  QCheckBox* clear_disk_cache_;
-
-  QPushButton* clear_cache_btn_;
-
-private slots:
-  void DiskCacheLineEditChanged();
-
-  void BrowseDiskCachePath();
-
-  void ClearDiskCache();
+  DiskCacheFolder* default_disk_cache_folder_;
 
 };
 

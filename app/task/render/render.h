@@ -34,57 +34,41 @@ class RenderTask : public Task
 public:
   RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
+  virtual ~RenderTask() override;
+
 protected:
   void Render(const TimeRangeList &video_range,
               const TimeRangeList &audio_range,
-              const QMatrix4x4 &mat,
               bool use_disk_cache);
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) = 0;
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) = 0;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
   ViewerOutput* viewer() const
   {
-    return viewer_;
+    return backend_->GetViewerNode();
   }
 
   VideoParams video_params() const
   {
-    return video_params_;
+    return backend_->GetVideoParams();
   }
 
   AudioParams audio_params() const
   {
-    return audio_params_;
+    return backend_->GetAudioParams();
   }
 
-  void SetAnchorPoint(const rational& r);
-
-  const qint64& job_time() const
+  RenderBackend* backend()
   {
-    return job_time_;
-  }
-
-  OpenGLBackend* backend()
-  {
-    return &backend_;
+    return backend_;
   }
 
 private:
-  ViewerOutput* viewer_;
-
-  VideoParams video_params_;
-
-  AudioParams audio_params_;
-
-  rational anchor_point_;
-
-  OpenGLBackend backend_;
-
-  qint64 job_time_;
+  RenderBackend* backend_;
 
 };
 

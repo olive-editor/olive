@@ -49,10 +49,6 @@ public:
   TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop,
                QWidget* parent = nullptr);
 
-  void SelectAll();
-
-  void DeselectAll();
-
   int GetTrackY(int track_index) const;
   int GetTrackHeight(int track_index) const;
 
@@ -60,6 +56,8 @@ public:
   void SetScrollCoordinates(const QPoint& pt);
 
   void ConnectTrackList(TrackList* list);
+
+  void SetBeamCursor(const TimelineCoordinate& coord);
 
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
@@ -71,8 +69,6 @@ signals:
   void DragMoved(TimelineViewMouseEvent* event);
   void DragLeft(QDragLeaveEvent* event);
   void DragDropped(TimelineViewMouseEvent* event);
-
-  void SelectionChanged();
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -88,6 +84,7 @@ protected:
   virtual void dropEvent(QDropEvent *event) override;
 
   virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   virtual void ToolChangedEvent(Tool::Item tool) override;
 
@@ -110,6 +107,10 @@ private:
   void UserSetTime(const int64_t& time);
 
   void UpdatePlayheadRect();
+
+  bool show_beam_cursor_;
+
+  TimelineCoordinate cursor_coord_;
 
   TrackList* connected_track_list_;
 

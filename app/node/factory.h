@@ -50,6 +50,8 @@ public:
     kMerge,
     kStrokeFilter,
     kTextGenerator,
+    kCrossDissolveTransition,
+    kDipToColorTransition,
 
     // Count value
     kInternalNodeCount
@@ -61,7 +63,7 @@ public:
 
   static void Destroy();
 
-  static Menu* CreateMenu(QWidget *parent, bool create_none_item = false);
+  static Menu* CreateMenu(QWidget *parent, bool create_none_item = false, Node::CategoryID restrict_to = Node::kCategoryUnknown);
 
   static Node* CreateFromMenuAction(QAction* action);
 
@@ -71,10 +73,11 @@ public:
 
   static Node* CreateFromID(const QString& id);
 
-private:
-  static Node* CreateInternal(const InternalID& id);
+  static Node* CreateFromFactoryIndex(const InternalID& id);
 
+private:
   static QList<Node*> library_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

@@ -67,7 +67,7 @@ public:
     /**
      * Integer type
      *
-     * Resolves to `int` (may resolve to `long` in the future).
+     * Resolves to int64_t.
      */
     kInt = 0x1,
 
@@ -378,17 +378,12 @@ public:
   /**
    * @brief Get a human-readable translated name for a certain data type
    */
-  static QString GetDefaultDataTypeName(const DataType &type);
+  static QString GetPrettyDataTypeName(const DataType &type);
 
   /**
    * @brief Convert a value from a NodeParam into bytes
    */
   static QByteArray ValueToBytes(const DataType &type, const QVariant& value);
-
-  /**
-   * @brief Convert a string to a data type
-   */
-  static DataType StringToDataType(const QString& s);
 
 signals:
   /**

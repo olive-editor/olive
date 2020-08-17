@@ -29,9 +29,19 @@ OLIVE_NAMESPACE_ENTER
 
 class VideoParams {
 public:
+  enum Interlacing {
+    kInterlaceNone,
+    kInterlacedTopFirst,
+    kInterlacedBottomFirst
+  };
+
   VideoParams();
-  VideoParams(const int& width, const int& height, const PixelFormat::Format& format, const int& divider = 1);
-  VideoParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const int& divider = 1);
+  VideoParams(const int& width, const int& height, const PixelFormat::Format& format,
+              const rational& pixel_aspect_ratio = 1,
+              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
+  VideoParams(const int& width, const int& height, const rational& time_base,
+              const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
+              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
 
   const int& width() const
   {
@@ -68,6 +78,16 @@ public:
     return format_;
   }
 
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
   static int generate_auto_divider(qint64 width, qint64 height);
 
   bool is_valid() const;
@@ -75,8 +95,29 @@ public:
   bool operator==(const VideoParams& rhs) const;
   bool operator!=(const VideoParams& rhs) const;
 
+  static const rational kPixelAspectSquare;
+  static const rational kPixelAspectNTSCStandard;
+  static const rational kPixelAspectNTSCWidescreen;
+  static const rational kPixelAspectPALStandard;
+  static const rational kPixelAspectPALWidescreen;
+  static const rational kPixelAspect1080Anamorphic;
+
+  static const QVector<rational> kSupportedFrameRates;
+  static const QVector<rational> kStandardPixelAspects;
+  static const QVector<int> kSupportedDividers;
+
+  /**
+   * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
+   */
+  static QString FrameRateToString(const rational& frame_rate);
+
+  static QStringList GetStandardPixelAspectRatioNames();
+  static QString FormatPixelAspectRatioString(const QString& format, const rational& ratio);
+
 private:
   void calculate_effective_size();
+
+  void validate_pixel_aspect_ratio();
 
   int width_;
   int height_;
@@ -84,11 +125,18 @@ private:
 
   PixelFormat::Format format_;
 
+  rational pixel_aspect_ratio_;
+
+  Interlacing interlacing_;
+
   int divider_;
   int effective_width_;
   int effective_height_;
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams)
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams::Interlacing)
 
 #endif // VIDEOPARAMS_H

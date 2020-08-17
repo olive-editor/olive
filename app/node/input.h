@@ -235,7 +235,7 @@ public:
   /**
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
-  static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true);
+  static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true, bool traverse_arrays = true);
 
   /**
    * @brief Set an arbitrary property on this input to influence a UI representation's behavior
@@ -278,9 +278,9 @@ public:
 
   void set_combobox_strings(const QStringList& strings);
 
-  static QString ValueToString(const DataType& data_type, const QVariant& value);
+  static QString ValueToString(const DataType& data_type, const QVariant& value, bool value_is_a_key_track);
 
-  static QVariant StringToValue(const DataType &data_type, const QString &string);
+  static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
 
   void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
 

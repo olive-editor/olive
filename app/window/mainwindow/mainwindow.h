@@ -23,6 +23,7 @@
 
 #include <QMainWindow>
 
+#include "mainwindowlayoutinfo.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -30,6 +31,7 @@
 #include "panel/param/param.h"
 #include "panel/project/project.h"
 #include "panel/scope/scope.h"
+#include "panel/table/table.h"
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
@@ -54,11 +56,11 @@ public:
 
   virtual ~MainWindow() override;
 
-  void LoadLayout(QXmlStreamReader* reader, XMLNodeData& xml_data);
+  void LoadLayout(const MainWindowLayoutInfo &info);
 
-  void SaveLayout(QXmlStreamWriter* writer) const;
+  MainWindowLayoutInfo SaveLayout() const;
 
-  void OpenSequence(Sequence* sequence);
+  TimelinePanel *OpenSequence(Sequence* sequence, bool enable_focus = true);
 
   void CloseSequence(Sequence* sequence);
 
@@ -103,6 +105,8 @@ public slots:
   void SetDefaultLayout();
 
 protected:
+  virtual void showEvent(QShowEvent* e) override;
+
   virtual void closeEvent(QCloseEvent* e) override;
 
 #ifdef Q_OS_WINDOWS
@@ -145,6 +149,7 @@ private:
   QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
+  NodeTablePanel* table_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -163,9 +168,11 @@ private slots:
 
   void FloatingPanelCloseRequested();
 
-  void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
-
   void StatusBarDoubleClicked();
+
+#ifdef Q_OS_LINUX
+  void ShowNouveauWarning();
+#endif
 
 };
 

@@ -28,6 +28,7 @@
 #include "streamproperties.h"
 #include "undo/undocommand.h"
 #include "widget/slider/integerslider.h"
+#include "widget/standardcombos/standardcombos.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -59,6 +60,11 @@ private:
   QComboBox* video_color_space_;
 
   /**
+   * @brief Setting for video interlacing
+   */
+  InterlacedComboBox* video_interlace_combo_;
+
+  /**
    * @brief Sets the start index for image sequences
    */
   IntegerSlider* imgseq_start_time_;
@@ -68,11 +74,23 @@ private:
    */
   IntegerSlider* imgseq_end_time_;
 
+  /**
+   * @brief Sets the frame rate for image sequences
+   */
+  FrameRateComboBox* imgseq_frame_rate_;
+
+  /**
+   * @brief Sets the pixel aspect ratio of the stream
+   */
+  PixelAspectRatioComboBox* pixel_aspect_combo_;
+
   class VideoStreamChangeCommand : public UndoCommand {
   public:
     VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
+                             VideoParams::Interlacing interlacing,
+                             const rational& pixel_ar,
                              QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
@@ -86,9 +104,13 @@ private:
 
     bool new_premultiplied_;
     QString new_colorspace_;
+    VideoParams::Interlacing new_interlacing_;
+    rational new_pixel_ar_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
+    VideoParams::Interlacing old_interlacing_;
+    rational old_pixel_ar_;
 
   };
 
@@ -97,6 +119,7 @@ private:
     ImageSequenceChangeCommand(VideoStreamPtr video_stream,
                                int64_t start_index,
                                int64_t duration,
+                               const rational& frame_rate,
                                QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
@@ -114,7 +137,11 @@ private:
     int64_t new_duration_;
     int64_t old_duration_;
 
+    rational new_frame_rate_;
+    rational old_frame_rate_;
+
   };
+
 };
 
 OLIVE_NAMESPACE_EXIT

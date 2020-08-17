@@ -24,7 +24,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerOutput::ViewerOutput()
+ViewerOutput::ViewerOutput() :
+  video_frame_cache_(this),
+  audio_playback_cache_(this),
+  operation_stack_(0)
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
   AddInput(texture_input_);
@@ -109,40 +112,60 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
 {
   emit GraphChangedFrom(source);
 
-  if (from == texture_input_ || from == samples_input_) {
-    TimeRange invalidated_range(qMax(rational(), range.in()),
-                                qMin(GetLength(), range.out()));
+  if (operation_stack_ == 0) {
+    if (from == texture_input_ || from == samples_input_) {
+      TimeRange invalidated_range(qMax(rational(), range.in()),
+                                  qMin(GetLength(), range.out()));
 
-    if (invalidated_range.in() != invalidated_range.out()) {
-      if (from == texture_input_) {
-        video_frame_cache_.Invalidate(invalidated_range);
-      } else {
-        audio_playback_cache_.Invalidate(invalidated_range);
+      if (invalidated_range.in() != invalidated_range.out()) {
+        if (from == texture_input_) {
+          video_frame_cache_.Invalidate(invalidated_range);
+        } else {
+          audio_playback_cache_.Invalidate(invalidated_range);
+        }
       }
     }
-  }
 
-  VerifyLength();
+    VerifyLength();
+  }
 
   Node::InvalidateCache(range, from, source);
 }
 
 void ViewerOutput::set_video_params(const VideoParams &video)
 {
+  bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
+  bool timebase_changed = video_params_.time_base() != video.time_base();
+  bool pixel_aspect_changed = video_params_.pixel_aspect_ratio() != video.pixel_aspect_ratio();
+  bool interlacing_changed = video_params_.interlacing() != video.interlacing();
+
   video_params_ = video;
 
-  video_frame_cache_.SetTimebase(video_params_.time_base());
+  if (size_changed) {
+    emit SizeChanged(video_params_.width(), video_params_.height());
+  }
 
-  emit SizeChanged(video_params_.width(), video_params_.height());
-  emit TimebaseChanged(video_params_.time_base());
-  emit ParamsChanged();
+  if (pixel_aspect_changed) {
+    emit PixelAspectChanged(video_params_.pixel_aspect_ratio());
+  }
+
+  if (interlacing_changed) {
+    emit InterlacingChanged(video_params_.interlacing());
+  }
+
+  if (timebase_changed) {
+    video_frame_cache_.SetTimebase(video_params_.time_base());
+    emit TimebaseChanged(video_params_.time_base());
+  }
+
+  emit VideoParamsChanged();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
 {
   audio_params_ = audio;
 
-  emit ParamsChanged();
+  emit AudioParamsChanged();
 }
 
 rational ViewerOutput::GetLength()
@@ -245,6 +268,20 @@ void ViewerOutput::set_media_name(const QString &name)
   media_name_ = name;
 
   emit MediaNameChanged(media_name_);
+}
+
+void ViewerOutput::BeginOperation()
+{
+  operation_stack_++;
+
+  Node::BeginOperation();
+}
+
+void ViewerOutput::EndOperation()
+{
+  operation_stack_--;
+
+  Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)

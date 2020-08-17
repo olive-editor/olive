@@ -31,13 +31,27 @@
 
 OLIVE_NAMESPACE_ENTER
 
+QVector<RenderBackend*> RenderBackend::instances_;
+QMutex RenderBackend::instance_lock_;
+RenderBackend* RenderBackend::active_instance_ = nullptr;
+QThreadPool RenderBackend::thread_pool_;
+
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
-  update_with_graph_(false),
-  preview_job_time_(0),
-  render_mode_(RenderMode::kOnline)
+  autocache_enabled_(false),
+  autocache_paused_(false),
+  generate_audio_previews_(false),
+  render_mode_(RenderMode::kOnline),
+  autocache_has_changed_(false),
+  use_custom_autocache_range_(false)
 {
+  instance_lock_.lock();
+  instances_.append(this);
+  instance_lock_.unlock();
+
+  // Set default autocache range
+  SetAutoCachePlayhead(rational());
 }
 
 RenderBackend::~RenderBackend()
@@ -53,22 +67,53 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 
   ViewerOutput* old_viewer = viewer_node_;
   if (!viewer_node) {
-    // If setting to null, set it here before we wait for jobs to finish
-    viewer_node_ = viewer_node;
+    // If setting to null, set it here before we wait for jobs to finish to prevent WorkerFinished()
+    // from calling RunNextJob() again and preventing us from finishing
+    viewer_node_ = nullptr;
   }
 
   if (old_viewer) {
-    // Delete all of our copied nodes
-    pool_.clear();
-    pool_.waitForDone();
+    // Cancel any remaining tickets
+    ClearQueue();
 
-    // Cancel all tickets
-    foreach (RenderTicketPtr t, render_queue_) {
-      t->Cancel();
+    // Wait for any currently running jobs to finish
+    foreach (RenderTicketPtr ticket, running_tickets_) {
+      ticket->WaitForFinished();
     }
-    render_queue_.clear();
 
-    // Delete all the nodes
+    // Clear autocache lists
+    {
+      // This can be cleared normally (hashes will be discarded and need to be calculated again)
+      autocache_hash_tasks_.clear();
+
+      // We need to wait for these since they work directly on the FrameHashCache. Most of the time
+      // this is fine, but not if the FrameHashCache gets deleted after this function.
+      foreach (QFutureWatcher<void>* watcher, autocache_hash_process_tasks_) {
+        watcher->waitForFinished();
+      }
+      autocache_hash_process_tasks_.clear();
+
+      // This can be cleared normally (frames will be discarded and need to be rendered again)
+      autocache_video_tasks_.clear();
+
+      // This can be cleared normally (PCM data will be discarded and need to be rendered again)
+      autocache_audio_tasks_.clear();
+
+      // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
+      // be in the cache for later use.
+      {
+        QMap<QFutureWatcher<bool>*, QByteArray>::const_iterator i;
+        for (i=autocache_video_download_tasks_.constBegin(); i!=autocache_video_download_tasks_.constEnd(); i++) {
+          i.key()->waitForFinished();
+        }
+        autocache_video_download_tasks_.clear();
+      }
+
+      // No longer caching any hashes
+      autocache_currently_caching_hashes_.clear();
+    }
+
+    // Delete all of our copied nodes
     foreach (Node* c, copy_map_) {
       c->deleteLater();
     }
@@ -76,18 +121,27 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     copied_viewer_node_ = nullptr;
     graph_update_queue_.clear();
 
+    // Disconnect signal (will be a no-op if the signal was never connected)
     disconnect(old_viewer,
                &ViewerOutput::GraphChangedFrom,
                this,
                &RenderBackend::NodeGraphChanged);
+
+    disconnect(old_viewer->video_frame_cache(),
+               &PlaybackCache::Invalidated,
+               this,
+               &RenderBackend::AutoCacheVideoInvalidated);
+
+    disconnect(old_viewer->audio_playback_cache(),
+               &PlaybackCache::Invalidated,
+               this,
+               &RenderBackend::AutoCacheAudioInvalidated);
   }
 
   if (viewer_node) {
     // If setting to non-null, set it now
     viewer_node_ = viewer_node;
-  }
 
-  if (viewer_node_) {
     // Copy graph
     copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
     copy_map_.insert(viewer_node_, copied_viewer_node_);
@@ -96,66 +150,94 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     NodeGraphChanged(viewer_node_->samples_input());
     ProcessUpdateQueue();
 
-    if (update_with_graph_) {
+    if (autocache_enabled_) {
       connect(viewer_node_,
               &ViewerOutput::GraphChangedFrom,
               this,
               &RenderBackend::NodeGraphChanged);
+
+      connect(viewer_node_->video_frame_cache(),
+              &PlaybackCache::Invalidated,
+              this,
+              &RenderBackend::AutoCacheVideoInvalidated);
+
+      connect(viewer_node_->audio_playback_cache(),
+              &PlaybackCache::Invalidated,
+              this,
+              &RenderBackend::AutoCacheAudioInvalidated);
     }
   }
 }
 
-void RenderBackend::ClearVideoQueue()
+void RenderBackend::AutoCacheRange(const TimeRange &range)
 {
-  foreach (RenderTicketPtr t, render_queue_) {
-    t->Cancel();
-  }
-  render_queue_.clear();
+  Q_ASSERT(autocache_enabled_);
+
+  autocache_has_changed_ = true;
+  use_custom_autocache_range_ = true;
+  custom_autocache_range_ = range;
+
+  AutoCacheRequeueFrames();
 }
 
-QFuture<QVector<QByteArray> > RenderBackend::Hash(const QVector<rational> &times)
+RenderTicketPtr RenderBackend::Hash(const QVector<rational> &times, bool prioritize)
 {
-  return QtConcurrent::run(&pool_, [this](const QVector<rational> &times){
-    QVector<QByteArray> hashes(times.size());
+  Q_ASSERT(viewer_node_);
 
-    for (int i=0;i<hashes.size();i++) {
-      hashes[i] = HashNode(copied_viewer_node_->texture_input()->get_connected_node(),
-                           video_params_,
-                           times.at(i));
-    }
+  SetActiveInstance();
 
-    return hashes;
-  }, times);
-}
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeHash,
+                                                          QVariant::fromValue(times));
 
-RenderTicketPtr RenderBackend::RenderFrame(const rational &time)
-{
-  if (!viewer_node_) {
-    return nullptr;
+  if (prioritize) {
+    render_queue_.push_front(ticket);
+  } else {
+    render_queue_.push_back(ticket);
   }
 
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
-                                                          TimeRange(time, time));
-
-  render_queue_.push_back(ticket);
-
-  RunNextJob();
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
 
   return ticket;
 }
 
-RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r)
+RenderTicketPtr RenderBackend::RenderFrame(const rational &time, bool prioritize, const QByteArray& hash)
 {
-  if (!viewer_node_) {
-    return nullptr;
+  Q_ASSERT(viewer_node_);
+
+  SetActiveInstance();
+
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
+                                                          QVariant::fromValue(time));
+
+  ticket->setProperty("hash", hash);
+
+  if (prioritize) {
+    render_queue_.push_front(ticket);
+  } else {
+    render_queue_.push_back(ticket);
   }
 
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
+
+  return ticket;
+}
+
+RenderTicketPtr RenderBackend::RenderAudio(const TimeRange &r, bool prioritize)
+{
+  Q_ASSERT(viewer_node_);
+
+  SetActiveInstance();
+
   RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeAudio,
-                                                          r);
+                                                          QVariant::fromValue(r));
 
-  render_queue_.push_back(ticket);
+  if (prioritize) {
+    render_queue_.push_front(ticket);
+  } else {
+    render_queue_.push_back(ticket);
+  }
 
-  RunNextJob();
+  QMetaObject::invokeMethod(this, "RunNextJob", Qt::QueuedConnection);
 
   return ticket;
 }
@@ -193,29 +275,72 @@ std::list<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
   return split_ranges;
 }
 
+void RenderBackend::ClearVideoQueue()
+{
+  ClearQueueOfType(RenderTicket::kTypeVideo);
+
+  autocache_has_changed_ = true;
+  use_custom_autocache_range_ = false;
+}
+
+void RenderBackend::ClearAudioQueue()
+{
+  ClearQueueOfType(RenderTicket::kTypeAudio);
+}
+
+void RenderBackend::ClearQueue()
+{
+  foreach (RenderTicketPtr t, render_queue_) {
+    t->Cancel();
+  }
+  render_queue_.clear();
+}
+
 void RenderBackend::NodeGraphChanged(NodeInput *source)
 {
-  if (!graph_update_queue_.isEmpty()) {
-    // First, check if anything in our queue is a dependency of this input. If so, we should remove
-    // it and just update this input.
+  // We need to determine:
+  // - If we don't have this input, assume that it's coming soon and ignore it
+  // - If we do, is this input a child of another input we're already copying?
+  // - Or are any of the queued inputs children of this one?
 
-    // First we need to find our copy of the input being queued
-    Node* our_copy_node = copy_map_.value(source->parentNode());
+  // First we need to find our copy of the input being queued
+  Node* our_copy_node = copy_map_.value(source->parentNode());
 
-    if (our_copy_node) {
-      NodeInput* our_copy = our_copy_node->GetInputWithID(source->id());
-      QList<Node*> our_copy_deps = our_copy->GetDependencies(our_copy);
+  // If we don't have this node yet, assume it's coming in a later copy in which case it'll be
+  // copied then
+  if (!our_copy_node) {
+    // Assert that there are updates coming
+    Q_ASSERT(!graph_update_queue_.isEmpty());
+    return;
+  }
 
-      for (int i=0;i<graph_update_queue_.size();i++) {
-        NodeInput* check_input = graph_update_queue_.at(i);
-        Node* check_input_our_copy = copy_map_.value(check_input->parentNode());
+  // If we're here, we must have this node. Determine if we're already copying a "parent" of this
+  for (int i=0; i<graph_update_queue_.size(); i++) {
+    NodeInput* queued_input = graph_update_queue_.at(i);
 
-        // If this input isn't connected anymore, it obviously won't come up as a dependency
-        if (our_copy_deps.contains(check_input_our_copy)) {
-          graph_update_queue_.removeAt(i);
-          i--;
-        }
-      }
+    // If this input is already queued, nothing to be done
+    if (source == queued_input) {
+      return;
+    }
+
+    // Check if this dependency graph is already queued
+    if (source->parentNode()->OutputsTo(queued_input, true, true)) {
+      // In which case, no further copy is necessary
+      return;
+    }
+
+    // Check if the source is a member of this array, in which case it'll be copied eventually anyway
+    if (queued_input->IsArray()
+        && static_cast<NodeInputArray*>(queued_input)->sub_params().contains(source)) {
+      return;
+    }
+
+    // Check if this input supersedes an already queued input
+    if (queued_input->parentNode()->OutputsTo(source, true, true)
+        || (source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))) {
+      // In which case, we don't need to queue it and can queue our own
+      graph_update_queue_.removeAt(i);
+      i--;
     }
   }
 
@@ -236,6 +361,14 @@ void RenderBackend::RunNextJob()
 {
   // If queue is empty, nothing to be done
   if (render_queue_.empty()) {
+
+    // If we're the active instance, unset it
+    instance_lock_.lock();
+    if (active_instance_ == this) {
+      active_instance_ = nullptr;
+    }
+    instance_lock_.unlock();
+
     return;
   }
 
@@ -247,7 +380,7 @@ void RenderBackend::RunNextJob()
   }
 
   // If we have a value update queued, check if all workers are available and proceed from there
-  if (update_with_graph_ && !graph_update_queue_.isEmpty()) {
+  if (autocache_enabled_ && !graph_update_queue_.isEmpty()) {
     bool all_workers_available = true;
 
     foreach (const WorkerData& data, workers_) {
@@ -268,11 +401,12 @@ void RenderBackend::RunNextJob()
   // If we have no workers allocated, allocate them now
   if (workers_.isEmpty()) {
     // Allocate workers here
-    workers_.resize(pool_.maxThreadCount());
+    workers_.resize(thread_pool_.maxThreadCount());
 
     for (int i=0;i<workers_.size();i++) {
       RenderWorker* worker = CreateNewWorker();
 
+      connect(worker, &RenderWorker::WaveformGenerated, this, &RenderBackend::WorkerGeneratedWaveform);
       connect(worker, &RenderWorker::FinishedJob, this, &RenderBackend::WorkerFinished);
 
       workers_.replace(i, {worker, false});
@@ -292,30 +426,56 @@ void RenderBackend::RunNextJob()
       worker->SetAudioParams(audio_params_);
       worker->SetVideoDownloadMatrix(video_download_matrix_);
       worker->SetRenderMode(render_mode_);
-      if (preview_job_time_) {
-        worker->EnablePreviewGeneration(viewer_node_->audio_playback_cache(), preview_job_time_);
-      }
+      worker->SetPreviewGenerationEnabled(generate_audio_previews_);
       worker->SetCopyMap(&copy_map_);
+      worker->SetViewerNode(viewer_node_);
 
+      // Move ticket from queue to running list
       RenderTicketPtr ticket = render_queue_.front();
       render_queue_.pop_front();
+      running_tickets_.push_back(ticket);
+
+      // Create watcher to remove from running list
+      RenderTicketWatcher* watcher = new RenderTicketWatcher();
+      connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::TicketFinished);
+      watcher->SetTicket(ticket);
+
+      // Set job time to now
+      ticket->SetJobTime();
 
       switch (ticket->GetType()) {
+      case RenderTicket::kTypeHash:
+        QtConcurrent::run(&thread_pool_,
+                          worker,
+                          &RenderWorker::Hash,
+                          ticket,
+                          copied_viewer_node_,
+                          ticket->GetTime().value<QVector<rational> >());
+        break;
       case RenderTicket::kTypeVideo:
-        QtConcurrent::run(&pool_,
+      {
+        rational frame = ticket->GetTime().value<rational>();
+
+        QtConcurrent::run(&thread_pool_,
                           worker,
                           &RenderWorker::RenderFrame,
                           ticket,
                           copied_viewer_node_,
-                          ticket->GetTime().in());
+                          frame);
+
+        QByteArray frame_hash = ticket->property("hash").toByteArray();
+        if (!frame_hash.isEmpty()) {
+          autocache_currently_caching_hashes_.append(frame_hash);
+        }
         break;
+      }
       case RenderTicket::kTypeAudio:
-        QtConcurrent::run(&pool_,
+        QtConcurrent::run(&thread_pool_,
                           worker,
                           &RenderWorker::RenderAudio,
                           ticket,
                           copied_viewer_node_,
-                          ticket->GetTime());
+                          ticket->GetTime().value<TimeRange>());
         break;
       }
 
@@ -327,33 +487,202 @@ void RenderBackend::RunNextJob()
   }
 }
 
-void RenderBackend::ProcessUpdateQueue()
+void RenderBackend::TicketFinished()
 {
-  /*
-  while (!graph_update_queue_.isEmpty()) {
-    CopyNodeInputValue(graph_update_queue_.takeFirst());
-  }
-  */
+  RenderTicketPtr ticket = static_cast<RenderTicketWatcher*>(sender())->GetTicket();
+  delete sender();
 
-  // FIXME: SLOW DEBUGGING CODE
-  CopyNodeInputValue(viewer_node_->texture_input());
-  CopyNodeInputValue(viewer_node_->samples_input());
+  running_tickets_.remove(ticket);
 }
 
-QByteArray RenderBackend::HashNode(const Node *n, const VideoParams &params, const rational &time)
+void RenderBackend::WorkerGeneratedWaveform(RenderTicketPtr ticket, TrackOutput *track, AudioVisualWaveform samples, TimeRange range)
 {
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
+  QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(range,
+                                                                                       ticket->GetJobTime());
+  if (!valid_ranges.isEmpty()) {
+    // Generate visual waveform in this background thread
+    track->waveform_lock()->lock();
 
-  // Embed video parameters into this hash
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+    track->waveform().set_channel_count(audio_params_.channel_count());
 
-  if (n) {
-    n->Hash(hasher, time);
+    foreach (const TimeRange& r, valid_ranges) {
+      track->waveform().OverwriteSums(samples, r.in(), r.in() - range.in(), r.length());
+    }
+
+    track->waveform_lock()->unlock();
+
+    emit track->PreviewChanged();
+  }
+}
+
+void RenderBackend::AutoCacheVideoInvalidated(const TimeRange &range)
+{
+  ClearVideoQueue();
+
+  // Hash these frames since that should be relatively quick.
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange({range});
+  autocache_hash_tasks_.insert(watcher, frames);
+  connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheHashesGenerated);
+  watcher->SetTicket(Hash(frames));
+}
+
+void RenderBackend::AutoCacheAudioInvalidated(const TimeRange &range)
+{
+  // Start a task to re-render the audio at this range
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  autocache_audio_tasks_.insert(watcher, range);
+  connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheAudioRendered);
+  watcher->SetTicket(RenderAudio(range, true));
+}
+
+void RenderBackend::SetHashes(FrameHashCache* cache, const QVector<rational>& times, const QVector<QByteArray>& hashes, qint64 job_time)
+{
+  std::vector<QByteArray> existing_hashes;
+
+  for (int i=0; i<times.size(); i++) {
+    // See if hash already exists in disk cache
+    const QByteArray& hash = hashes.at(i);
+    const rational& time = times.at(i);
+
+    // Check memory list since disk checking is slow
+    bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
+
+    if (!hash_exists) {
+      hash_exists = QFileInfo::exists(cache->CachePathName(hash));
+
+      if (hash_exists) {
+        existing_hashes.push_back(hash);
+      }
+    }
+
+    QMetaObject::invokeMethod(cache, "SetHash", Qt::QueuedConnection,
+                              OLIVE_NS_ARG(rational, time),
+                              Q_ARG(QByteArray, hash),
+                              Q_ARG(qint64, job_time),
+                              Q_ARG(bool, hash_exists));
+  }
+}
+
+void RenderBackend::AutoCacheHashesGenerated()
+{
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
+
+  if (autocache_hash_tasks_.contains(watcher)) {
+    if (!watcher->WasCancelled()) {
+      QFutureWatcher<void>* hw = new QFutureWatcher<void>();
+      connect(hw, &QFutureWatcher<void>::finished, this, &RenderBackend::AutoCacheHashesProcessed);
+      autocache_hash_process_tasks_.append(hw);
+      hw->setFuture(QtConcurrent::run(this,
+                                      &RenderBackend::SetHashes,
+                                      viewer_node_->video_frame_cache(),
+                                      autocache_hash_tasks_.value(watcher),
+                                      watcher->Get().value<QVector<QByteArray> >(),
+                                      watcher->GetTicket()->GetJobTime()));
+    }
+
+    autocache_hash_tasks_.remove(watcher);
   }
 
-  return hasher.result();
+  delete watcher;
+}
+
+void RenderBackend::AutoCacheHashesProcessed()
+{
+  QFutureWatcher<void>* watcher = static_cast<QFutureWatcher<void>*>(sender());
+
+  if (autocache_hash_process_tasks_.contains(watcher)) {
+    autocache_hash_process_tasks_.removeOne(watcher);
+
+    AutoCacheRequeueFrames();
+  }
+
+  delete watcher;
+}
+
+void RenderBackend::AutoCacheAudioRendered()
+{
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
+
+  if (autocache_audio_tasks_.contains(watcher)) {
+    if (!watcher->WasCancelled()) {
+      viewer_node_->audio_playback_cache()->WritePCM(autocache_audio_tasks_.value(watcher),
+                                                     watcher->Get().value<SampleBufferPtr>(),
+                                                     watcher->GetTicket()->GetJobTime());
+    }
+
+    autocache_audio_tasks_.remove(watcher);
+  }
+
+  delete watcher;
+}
+
+void RenderBackend::AutoCacheVideoRendered()
+{
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
+
+  if (autocache_video_tasks_.contains(watcher)) {
+    if (!watcher->WasCancelled()) {
+      const QByteArray& hash = autocache_video_tasks_.value(watcher);
+
+      // Download frame in another thread
+      QFutureWatcher<bool>* w = new QFutureWatcher<bool>();
+      autocache_video_download_tasks_.insert(w, hash);
+      connect(w, &QFutureWatcher<bool>::finished, this, &RenderBackend::AutoCacheVideoDownloaded);
+      w->setFuture(QtConcurrent::run(viewer_node_->video_frame_cache(),
+                                     &FrameHashCache::SaveCacheFrame,
+                                     hash,
+                                     watcher->Get().value<FramePtr>()));
+    }
+
+    autocache_video_tasks_.remove(watcher);
+  }
+
+  delete watcher;
+}
+
+void RenderBackend::AutoCacheVideoDownloaded()
+{
+  QFutureWatcher<bool>* watcher = static_cast<QFutureWatcher<bool>*>(sender());
+
+  if (autocache_video_download_tasks_.contains(watcher)) {
+    if (!watcher->isCanceled()) {
+      if (watcher->result()) {
+        const QByteArray& hash = autocache_video_download_tasks_.value(watcher);
+
+        autocache_currently_caching_hashes_.removeOne(hash);
+
+        viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
+      } else {
+        qCritical() << "Failed to download video frame";
+      }
+    }
+
+    autocache_video_download_tasks_.remove(watcher);
+  }
+
+  delete watcher;
+}
+
+//#define PRINT_UPDATE_QUEUE_INFO
+void RenderBackend::ProcessUpdateQueue()
+{
+#ifdef PRINT_UPDATE_QUEUE_INFO
+  qint64 t = QDateTime::currentMSecsSinceEpoch();
+  qDebug() << "Processing update queue of" << graph_update_queue_.size() << "elements:";
+#endif
+
+  while (!graph_update_queue_.isEmpty()) {
+    NodeInput* i = graph_update_queue_.takeFirst();
+#ifdef PRINT_UPDATE_QUEUE_INFO
+    qDebug() << " " << i->parentNode()->id() << i->id();
+#endif
+    CopyNodeInputValue(i);
+  }
+
+#ifdef PRINT_UPDATE_QUEUE_INFO
+  qDebug() << "Update queue took:" << (QDateTime::currentMSecsSinceEpoch() - t);
+#endif
 }
 
 void RenderBackend::WorkerFinished()
@@ -377,11 +706,13 @@ void RenderBackend::CopyNodeInputValue(NodeInput *input)
 {
   // Find our copy of this parameter
   Node* our_copy_node = copy_map_.value(input->parentNode());
+  Q_ASSERT(our_copy_node);
   NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
 
   // Copy the standard/keyframe values between these two inputs
   NodeInput::CopyValues(input,
                         our_copy,
+                        false,
                         false);
 
   // Handle connections
@@ -454,6 +785,78 @@ void RenderBackend::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_
 
     NodeParam::ConnectEdge(corresponding_output,
                            dst_input);
+  }
+}
+
+void RenderBackend::ClearQueueOfType(RenderTicket::Type type)
+{
+  std::list<RenderTicketPtr>::iterator i = render_queue_.begin();
+
+  while (i != render_queue_.end()) {
+    if ((*i)->GetType() == type) {
+      (*i)->Cancel();
+      i = render_queue_.erase(i);
+    } else {
+      i++;
+    }
+  }
+}
+
+void RenderBackend::SetActiveInstance()
+{
+  QMutexLocker locker(&instance_lock_);
+
+  if (active_instance_ != this) {
+    // Signal active instance to stop
+    QMetaObject::invokeMethod(active_instance_, "ClearVideoQueue", Qt::QueuedConnection);
+
+    active_instance_ = this;
+  }
+}
+
+void RenderBackend::AutoCacheRequeueFrames()
+{
+  if (viewer_node_
+      && viewer_node_->video_frame_cache()->HasInvalidatedRanges()
+      && autocache_hash_tasks_.isEmpty()
+      && autocache_hash_process_tasks_.isEmpty()
+      && autocache_has_changed_
+      && (!autocache_paused_ || use_custom_autocache_range_)) {
+    TimeRange using_range;
+
+    if (use_custom_autocache_range_) {
+      using_range = custom_autocache_range_;
+      use_custom_autocache_range_ = false;
+    } else {
+      using_range = autocache_range_;
+    }
+
+    QVector<rational> invalidated_ranges = viewer_node_->video_frame_cache()->GetInvalidatedFrames(using_range);
+
+    ClearVideoQueue();
+
+    // QMaps are automatically sorted by time which is always best for rendering
+    QList<QByteArray> queued_hashes;
+
+    foreach (const rational& t, invalidated_ranges) {
+      const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
+
+      if (t >= using_range.in()
+          && t < using_range.out()
+          && !queued_hashes.contains(hash)
+          && !autocache_currently_caching_hashes_.contains(hash)) {
+        // Don't render any hash more than once
+        queued_hashes.append(hash);
+
+        RenderTicketWatcher* watcher = new RenderTicketWatcher();
+        connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheVideoRendered);
+        autocache_video_tasks_.insert(watcher, hash);
+
+        watcher->SetTicket(RenderFrame(t, false, hash));
+      }
+    }
+
+    autocache_has_changed_ = false;
   }
 }
 

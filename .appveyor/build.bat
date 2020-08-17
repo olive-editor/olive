@@ -24,14 +24,31 @@ vcpkg integrate install
 cd %APPVEYOR_BUILD_FOLDER%
 
 REM Acquire FFmpeg
-set FFMPEG_VER=ffmpeg-4.2.1-win64
+set FFMPEG_VER=ffmpeg-4.2.3-win64
 curl https://ffmpeg.zeranoe.com/builds/win64/dev/%FFMPEG_VER%-dev.zip > %FFMPEG_VER%-dev.zip
 curl https://ffmpeg.zeranoe.com/builds/win64/shared/%FFMPEG_VER%-shared.zip > %FFMPEG_VER%-shared.zip
 7z x %FFMPEG_VER%-dev.zip
 7z x %FFMPEG_VER%-shared.zip
 
-REM Add Qt and FFmpeg directory to path
-set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev
+REM Acquire Google Crashpad
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\depot_tools
+
+REM Run `fetch` through cmd /c since fetch is a batch file that seems to call exit 
+cmd /c fetch crashpad
+cd crashpad
+cmd /c gn gen out/Default
+
+REM Patch to build a dynamic release instead of a static release
+ren out\Default\toolchain.ninja toolchain.ninja.old
+sed "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja.old > out\Default\toolchain.ninja
+
+REM Build Crashpad
+ninja.exe -C out/Default
+cd ..
+
+REM Add Qt, FFmpeg, and Crashpad to path
+set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev;%APPVEYOR_BUILD_FOLDER%\crashpad;%APPVEYOR_BUILD_FOLDER%\crashpad\out\Default
 
 REM Run cmake
 cmake -G "Ninja" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -42,36 +59,21 @@ ninja.exe || exit /B 1
 REM If this is a pull request, no further packaging/deploying needs to be done
 if NOT "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" goto end
 
+REM Create Crashpad symbol file and upload it
+C:\msys64\usr\bin\wget.exe https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true -O dump_syms.exe
+dump_syms app\olive-editor.pdb > olive-editor.sym
+curl -F symfile=@olive-editor.sym https://olivevideoeditor.org/crashpad/symbols.php
+
 REM Start building package
 mkdir olive-editor
 cd olive-editor
 copy ..\app\olive-editor.exe .
 copy ..\app\olive-editor.pdb .
 copy ..\app\crashhandler.exe .
+copy ..\crashpad\out\Default\crashpad_handler.exe .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenColorIO.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenImageIO.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\yaml-cpp.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Half-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Iex-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IexMath-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImf-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImfUtil-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmThread-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\Imath-2_3.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\libpng16.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\jpeg62.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\tiff.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\zlib1.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\lzma.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_date_time-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_filesystem-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_thread-vc141-mt-x64-1_72.dll .
+copy ..\app\*.dll .
 
 REM Package done, begin deployment
 cd ..
@@ -84,9 +86,6 @@ copy app\packaging\windows\nsis\* .
 REM Create portable
 copy nul olive-editor\portable
 7z a %PKGNAME%.zip olive-editor
-
-REM We're ready to upload, but we only upload *sometimes*
-REM set PATH=%PATH%;C:\msys64\usr\bin
 
 REM If this was a tagged build, upload
 if "%APPVEYOR_REPO_TAG%"=="true" GOTO upload

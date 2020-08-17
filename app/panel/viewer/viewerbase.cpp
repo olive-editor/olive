@@ -90,6 +90,16 @@ void ViewerPanelBase::SetGizmos(Node *node)
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetGizmos(node);
 }
 
+void ViewerPanelBase::CacheEntireSequence()
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheEntireSequence();
+}
+
+void ViewerPanelBase::CacheSequenceInOut()
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheSequenceInOut();
+}
+
 void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
 {
   ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());

@@ -88,6 +88,11 @@ void EncodingParams::set_video_threads(const int &threads)
   video_threads_ = threads;
 }
 
+void EncodingParams::set_video_pix_fmt(const QString &s)
+{
+  video_pix_fmt_ = s;
+}
+
 const QString &EncodingParams::filename() const
 {
   return filename_;
@@ -133,6 +138,11 @@ const int &EncodingParams::video_threads() const
   return video_threads_;
 }
 
+const QString &EncodingParams::video_pix_fmt() const
+{
+  return video_pix_fmt_;
+}
+
 bool EncodingParams::audio_enabled() const
 {
   return audio_enabled_;
@@ -156,6 +166,59 @@ const rational &EncodingParams::GetExportLength() const
 void EncodingParams::SetExportLength(const rational &export_length)
 {
   export_length_ = export_length;
+}
+
+void EncodingParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("filename"), filename_);
+
+  writer->writeStartElement(QStringLiteral("video"));
+
+  writer->writeAttribute(QStringLiteral("enabled"), QString::number(video_enabled_));
+
+  if (video_enabled_) {
+    writer->writeTextElement(QStringLiteral("codec"), QString::number(video_codec_));
+    writer->writeTextElement(QStringLiteral("width"), QString::number(video_params_.width()));
+    writer->writeTextElement(QStringLiteral("height"), QString::number(video_params_.height()));
+    writer->writeTextElement(QStringLiteral("format"), QString::number(video_params_.format()));
+    writer->writeTextElement(QStringLiteral("timebase"), video_params_.time_base().toString());
+    writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params_.divider()));
+    writer->writeTextElement(QStringLiteral("bitrate"), QString::number(video_bit_rate_));
+    writer->writeTextElement(QStringLiteral("maxbitrate"), QString::number(video_max_bit_rate_));
+    writer->writeTextElement(QStringLiteral("bufsize"), QString::number(video_buffer_size_));
+    writer->writeTextElement(QStringLiteral("threads"), QString::number(video_threads_));
+
+    if (!video_opts_.isEmpty()) {
+      writer->writeStartElement(QStringLiteral("opts"));
+
+      QHash<QString, QString>::const_iterator i;
+      for (i=video_opts_.constBegin(); i!=video_opts_.constEnd(); i++) {
+        writer->writeStartElement(QStringLiteral("entry"));
+
+        writer->writeTextElement(QStringLiteral("key"), i.key());
+        writer->writeTextElement(QStringLiteral("value"), i.value());
+
+        writer->writeEndElement(); // entry
+      }
+
+      writer->writeEndElement(); // opts
+    }
+  }
+
+  writer->writeEndElement(); // video
+
+  writer->writeStartElement(QStringLiteral("audio"));
+
+  writer->writeAttribute(QStringLiteral("enabled"), QString::number(audio_enabled_));
+
+  if (audio_enabled_) {
+    writer->writeTextElement(QStringLiteral("codec"), QString::number(audio_codec_));
+    writer->writeTextElement(QStringLiteral("samplerate"), QString::number(audio_params_.sample_rate()));
+    writer->writeTextElement(QStringLiteral("channellayout"), QString::number(audio_params_.channel_layout()));
+    writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params_.format()));
+  }
+
+  writer->writeEndElement(); // audio
 }
 
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)

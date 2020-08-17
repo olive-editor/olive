@@ -18,40 +18,45 @@
 
 ***/
 
-#ifndef CACHETASK_H
-#define CACHETASK_H
+#ifndef FRAMERATECOMBOBOX_H
+#define FRAMERATECOMBOBOX_H
 
-#include <QtConcurrent/QtConcurrent>
+#include <QComboBox>
 
-#include "task/render/render.h"
+#include "common/rational.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class CacheTask : public RenderTask
+class FrameRateComboBox : public QComboBox
 {
   Q_OBJECT
 public:
-  CacheTask(ViewerOutput* viewer,
-            const VideoParams &vparams,
-            const AudioParams &aparams,
-            bool in_out_only);
+  FrameRateComboBox(QWidget* parent = nullptr) :
+    QComboBox(parent)
+  {
+    foreach (const rational& fr, VideoParams::kSupportedFrameRates) {
+      this->addItem(VideoParams::FrameRateToString(fr), QVariant::fromValue(fr));
+    }
+  }
 
-protected:
-  virtual bool Run() override;
+  rational GetFrameRate() const
+  {
+    return this->currentData().value<rational>();
+  }
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
-
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times) override;
-
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
-
-private:
-  bool in_out_only_;
-
-  QThreadPool download_threads_;
+  void SetFrameRate(const rational& r)
+  {
+    for (int i=0; i<this->count(); i++) {
+      if (this->itemData(i).value<rational>() == r) {
+        this->setCurrentIndex(i);
+        break;
+      }
+    }
+  }
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // CACHETASK_H
+#endif // FRAMERATECOMBOBOX_H

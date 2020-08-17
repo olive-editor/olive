@@ -34,17 +34,22 @@
 
 OLIVE_NAMESPACE_ENTER
 
+FrameHashCache::FrameHashCache(QObject *parent) :
+  PlaybackCache(parent)
+{
+  if (DiskManager::instance()) {
+    connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &FrameHashCache::HashDeleted);
+    connect(DiskManager::instance(), &DiskManager::InvalidateProject, this, &FrameHashCache::ProjectInvalidated);
+  }
+}
+
 QByteArray FrameHashCache::GetHash(const rational &time)
 {
-  QMutexLocker locker(lock());
-
   return time_hash_map_.value(time);
 }
 
-void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time)
+void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
 {
-  QMutexLocker locker(lock());
-
   bool is_current = false;
 
   for (int i=jobs_.size()-1; i>=0; i--) {
@@ -63,26 +68,37 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const
 
   time_hash_map_.insert(time, hash);
 
-  TimeRange validated_range(time, time + timebase_);
-
-  NoLockValidate(validated_range);
-
-  locker.unlock();
-
-  emit Validated(validated_range);
+  TimeRange validated_range;
+  if (frame_exists) {
+    validated_range = TimeRange(time, time + timebase_);
+    Validate(validated_range);
+  }
 }
 
 void FrameHashCache::SetTimebase(const rational &tb)
 {
-  QMutexLocker locker(lock());
-
   timebase_ = tb;
+}
+
+void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
+{
+  QMap<rational, QByteArray>::const_iterator iterator;
+
+  const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
+
+  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+    if (iterator.value() == hash) {
+      TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
+
+      if (invalidated_ranges.ContainsTimeRange(frame_range)) {
+        Validate(frame_range);
+      }
+    }
+  }
 }
 
 QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
-  QMutexLocker locker(lock());
-
   QList<rational> times;
 
   QMap<rational, QByteArray>::const_iterator iterator;
@@ -98,8 +114,6 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 
 QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
-  QMutexLocker locker(lock());
-
   QList<rational> times;
 
   QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
@@ -115,13 +129,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   }
 
   foreach (const rational& r, times) {
-    NoLockInvalidate(TimeRange(r, r + timebase_));
-  }
-
-  locker.unlock();
-
-  foreach (const rational& r, times) {
-    emit Invalidated(TimeRange(r, r + timebase_));
+    Invalidate(TimeRange(r, r + timebase_));
   }
 
   return times;
@@ -129,8 +137,6 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 
 QMap<rational, QByteArray> FrameHashCache::time_hash_map()
 {
-  QMutexLocker locker(lock());
-
   return time_hash_map_;
 }
 
@@ -166,74 +172,106 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
 
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(const TimeRangeList &range)
 {
-  QMutexLocker locker(lock());
-
   return GetFrameListFromTimeRange(range, timebase_);
 }
 
 QVector<rational> FrameHashCache::GetInvalidatedFrames()
 {
-  QMutexLocker locker(lock());
-
-  return GetFrameListFromTimeRange(NoLockGetInvalidatedRanges());
+  return GetFrameListFromTimeRange(GetInvalidatedRanges());
 }
 
-void FrameHashCache::SaveCacheFrame(const QByteArray& hash,
+QVector<rational> FrameHashCache::GetInvalidatedFrames(const TimeRange &intersecting)
+{
+  return GetFrameListFromTimeRange(GetInvalidatedRanges().Intersects(intersecting));
+}
+
+bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
                                     char* data,
                                     const VideoParams& vparam,
-                                    int linesize_bytes)
+                                    int linesize_bytes) const
 {
   QString fn = CachePathName(hash);
 
   if (SaveCacheFrame(fn, data, vparam, linesize_bytes)) {
     // Register frame with the disk manager
-    DiskManager::instance()->CreatedFile(fn, hash);
+    QMetaObject::invokeMethod(DiskManager::instance(),
+                              "CreatedFile",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, GetCacheDirectory()),
+                              Q_ARG(QString, fn),
+                              Q_ARG(QByteArray, hash));
+
+    return true;
+  } else {
+    return false;
   }
 }
 
-void FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame)
+bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
 {
-  SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+  if (frame) {
+    return SaveCacheFrame(hash, frame->data(), frame->video_params(), frame->linesize_bytes());
+  } else {
+    qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
+    return false;
+  }
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash)
+FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash) const
 {
   return LoadCacheFrame(CachePathName(hash));
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
+FramePtr FrameHashCache::LoadCacheFrame(const QString &fn) const
 {
   FramePtr frame = nullptr;
 
   if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    auto input = OIIO::ImageInput::open(fn.toStdString());
+    Imf::InputFile file(fn.toUtf8(), 0);
 
-    if (input) {
+    Imath::Box2i dw = file.header().dataWindow();
+    Imf::PixelType pix_type = file.header().channels().begin().channel().type;
+    int width = dw.max.x - dw.min.x + 1;
+    int height = dw.max.y - dw.min.y + 1;
+    bool has_alpha = file.header().channels().findChannel("A");
 
-      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
-                                                                              input->spec().nchannels == kRGBAChannels);
-
-      frame = Frame::Create();
-      frame->set_video_params(VideoParams(input->spec().width,
-                                          input->spec().height,
-                                          image_format));
-
-      frame->allocate();
-
-      input->read_image(input->spec().format,
-                        frame->data(),
-                        OIIO::AutoStride,
-                        frame->linesize_bytes());
-
-      input->close();
-
-#if OIIO_VERSION < 10903
-      OIIO::ImageInput::destroy(input);
-#endif
-
+    PixelFormat::Format image_format;
+    if (pix_type == Imf::HALF) {
+      if (has_alpha) {
+        image_format = PixelFormat::PIX_FMT_RGBA16F;
+      } else {
+        image_format = PixelFormat::PIX_FMT_RGB16F;
+      }
     } else {
-      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+      if (has_alpha) {
+        image_format = PixelFormat::PIX_FMT_RGBA32F;
+      } else {
+        image_format = PixelFormat::PIX_FMT_RGB32F;
+      }
     }
+
+    frame = Frame::Create();
+    frame->set_video_params(VideoParams(width,
+                                        height,
+                                        image_format));
+
+    frame->allocate();
+
+    int bpc = PixelFormat::BytesPerChannel(image_format);
+
+    size_t xs = PixelFormat::ChannelCount(image_format) * bpc;
+    size_t ys = frame->linesize_bytes();
+
+    Imf::FrameBuffer framebuffer;
+    framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
+    framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
+    framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
+    if (has_alpha) {
+      framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
+    }
+
+    file.setFrameBuffer(framebuffer);
+    file.readPixels(dw.min.y, dw.max.y);
   }
 
   return frame;
@@ -250,19 +288,6 @@ void FrameHashCache::LengthChangedEvent(const rational &old, const rational &new
       } else {
         i++;
       }
-    }
-  }
-}
-
-void FrameHashCache::InvalidateEvent(const TimeRange &r)
-{
-  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
-
-  while (i != time_hash_map_.end()) {
-    if (i.key() >= r.in() && i.key() < r.out()) {
-      i = time_hash_map_.erase(i);
-    } else {
-      i++;
     }
   }
 }
@@ -308,19 +333,50 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   }
 }
 
-QString FrameHashCache::CachePathName(const QByteArray& hash)
+void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
+{
+  QString cache_dir = GetCacheDirectory();
+  if (cache_dir.isEmpty() || s != cache_dir) {
+    return;
+  }
+
+  QMap<rational, QByteArray>::const_iterator i;
+  for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
+    if (i.value() == hash) {
+      Invalidate(TimeRange(i.key(), i.key() + timebase_));
+    }
+  }
+}
+
+void FrameHashCache::ProjectInvalidated(Project *p)
+{
+  if (GetProject() == p) {
+    time_hash_map_.clear();
+
+    InvalidateAll();
+  }
+}
+
+QString FrameHashCache::CachePathName(const QByteArray& hash) const
 {
   QString ext = GetFormatExtension();
 
-  QDir cache_dir(QDir(FileFunctions::GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
+  QDir cache_dir(QDir(GetCacheDirectory()).filePath(QString(hash.left(1).toHex())));
   cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
 
+  // Register that in some way this hash has been accessed
+  QMetaObject::invokeMethod(DiskManager::instance(),
+                            "Accessed",
+                            Qt::QueuedConnection,
+                            Q_ARG(QString, GetCacheDirectory()),
+                            Q_ARG(QByteArray, hash));
+
   return cache_dir.filePath(filename);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes)
+bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
 {
   Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
 

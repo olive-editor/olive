@@ -38,6 +38,8 @@ class RenderWorker : public QObject, public NodeTraverser
 public:
   RenderWorker(RenderBackend* parent);
 
+  virtual ~RenderWorker() override;
+
   bool IsAvailable() const
   {
     return available_;
@@ -46,6 +48,11 @@ public:
   void SetAvailable(bool a)
   {
     available_ = a;
+  }
+
+  void SetViewerNode(ViewerOutput* viewer)
+  {
+    viewer_ = viewer;
   }
 
   void SetVideoParams(const VideoParams& params)
@@ -63,11 +70,6 @@ public:
     video_download_matrix_ = mat;
   }
 
-  void SetAudioModeIsPreview(bool audio_mode_is_preview)
-  {
-    audio_mode_is_preview_ = audio_mode_is_preview;
-  }
-
   void SetCopyMap(QHash<Node*, Node*>* copy_map)
   {
     copy_map_ = copy_map;
@@ -78,23 +80,12 @@ public:
     render_mode_ = mode;
   }
 
-  void EnablePreviewGeneration(AudioPlaybackCache* cache, qint64 job_time)
+  void SetPreviewGenerationEnabled(bool e)
   {
-    preview_cache_ = cache;
-    preview_job_time_ = job_time;
+    generate_audio_previews_ = e;
   }
 
-  /**
-   * @brief Return a unique ID for the image generated at this time
-   *
-   * This hash should always be unique to this image and can therefore be used to match existing
-   * cached frames.
-   *
-   * @return
-   *
-   * SHA-1 hash or empty QByteArray if no viewer node is set.
-   */
-  void Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QList<rational>& times);
+  void Hash(RenderTicketPtr ticket, ViewerOutput* viewer, const QVector<rational>& times);
 
   /**
    * @brief Render the frame at this time
@@ -153,12 +144,16 @@ signals:
 
   void FinishedJob();
 
-  void WaveformGenerated(OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange start);
+  void WaveformGenerated(OLIVE_NAMESPACE::RenderTicketPtr ticket, OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange range);
 
 private:
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
+  static QByteArray HashNode(const Node* n, const VideoParams& params, const rational& time);
+
   RenderBackend* parent_;
+
+  RenderTicketPtr ticket_;
 
   VideoParams video_params_;
 
@@ -176,19 +171,27 @@ private:
 
   QMatrix4x4 video_download_matrix_;
 
+  QMutex decoder_lock_;
   DecoderCache decoder_cache_;
+  QHash<Stream*, qint64> decoder_age_;
 
   TimeRange audio_render_time_;
   bool available_;
 
-  bool audio_mode_is_preview_;
+  bool generate_audio_previews_;
 
-  AudioPlaybackCache* preview_cache_;
-  qint64 preview_job_time_;
+  ViewerOutput* viewer_;
 
   QHash<Node*, Node*>* copy_map_;
 
   RenderMode::Mode render_mode_;
+
+  QTimer* cleanup_timer_;
+
+  static const int kMaxDecoderLife;
+
+private slots:
+  void ClearOldDecoders();
 
 };
 

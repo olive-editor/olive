@@ -21,6 +21,8 @@
 #ifndef IMAGESTREAM_H
 #define IMAGESTREAM_H
 
+#include "render/pixelformat.h"
+#include "render/videoparams.h"
 #include "stream.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -36,11 +38,35 @@ public:
 
   virtual QString description() const override;
 
-  const int& width() const;
-  void set_width(const int& width);
+  const int& width() const
+  {
+    return width_;
+  }
 
-  const int& height() const;
-  void set_height(const int& height);
+  void set_width(const int& width)
+  {
+    width_ = width;
+  }
+
+  const int& height() const
+  {
+    return height_;
+  }
+
+  void set_height(const int& height)
+  {
+    height_ = height;
+  }
+
+  const PixelFormat::Format& format() const
+  {
+    return format_;
+  }
+
+  void set_format(const PixelFormat::Format& format)
+  {
+    format_ = format;
+  }
 
   bool premultiplied_alpha() const;
   void set_premultiplied_alpha(bool e);
@@ -49,6 +75,35 @@ public:
   void set_colorspace(const QString& color);
 
   QString get_colorspace_match_string() const;
+
+  VideoParams::Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
+  void set_interlacing(VideoParams::Interlacing i)
+  {
+    interlacing_ = i;
+
+    emit ParametersChanged();
+  }
+
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    // Auto-correct null aspect ratio to 1:1
+    if (r.isNull()) {
+      pixel_aspect_ratio_ = 1;
+    } else {
+      pixel_aspect_ratio_ = r;
+    }
+
+    emit ParametersChanged();
+  }
 
 protected:
   virtual void FootageSetEvent(Footage*) override;
@@ -62,11 +117,17 @@ private:
   int height_;
   bool premultiplied_alpha_;
   QString colorspace_;
+  VideoParams::Interlacing interlacing_;
+
+  PixelFormat::Format format_;
+
+  rational pixel_aspect_ratio_;
 
 private slots:
   void ColorConfigChanged();
 
   void DefaultColorSpaceChanged();
+
 };
 
 using ImageStreamPtr = std::shared_ptr<ImageStream>;

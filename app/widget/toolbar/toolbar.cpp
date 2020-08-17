@@ -25,8 +25,9 @@
 #include <QButtonGroup>
 #include <QEvent>
 
-#include "widget/menu/menu.h"
+#include "node/factory.h"
 #include "ui/icons/icons.h"
+#include "widget/menu/menu.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -53,6 +54,9 @@ Toolbar::Toolbar(QWidget *parent) :
   // Create snapping button, which is not actually a tool, it's a toggle option
   btn_snapping_toggle_ = CreateNonToolButton();
   connect(btn_snapping_toggle_, &QPushButton::clicked, this, &Toolbar::SnappingButtonClicked);
+
+  // Connect transition button to menu signal
+  connect(btn_transition_tool_, &QPushButton::clicked, this, &Toolbar::TransitionButtonClicked);
 
   // Connect add button to menu signal
   connect(btn_add_, &QPushButton::clicked, this, &Toolbar::AddButtonClicked);
@@ -181,9 +185,25 @@ void Toolbar::AddButtonClicked()
   m.exec(QCursor::pos());
 }
 
+void Toolbar::TransitionButtonClicked()
+{
+  Menu* m = NodeFactory::CreateMenu(this, false, Node::kCategoryTransition);
+
+  connect(m, &QMenu::triggered, this, &Toolbar::TransitionMenuItemTriggered);
+
+  m->exec(QCursor::pos());
+
+  delete m;
+}
+
 void Toolbar::AddMenuItemTriggered(QAction* a)
 {
   emit AddableObjectChanged(static_cast<Tool::AddableObject>(a->data().toInt()));
+}
+
+void Toolbar::TransitionMenuItemTriggered(QAction *a)
+{
+  emit SelectedTransitionChanged(NodeFactory::GetIDFromMenuAction(a));
 }
 
 OLIVE_NAMESPACE_EXIT

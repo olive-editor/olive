@@ -49,71 +49,6 @@ ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   outer_layout->addStretch();
 }
 
-QComboBox *ExportVideoTab::codec_combobox() const
-{
-  return codec_combobox_;
-}
-
-IntegerSlider *ExportVideoTab::width_slider() const
-{
-  return width_slider_;
-}
-
-IntegerSlider *ExportVideoTab::height_slider() const
-{
-  return height_slider_;
-}
-
-QCheckBox *ExportVideoTab::maintain_aspect_checkbox() const
-{
-  return maintain_aspect_checkbox_;
-}
-
-QComboBox *ExportVideoTab::scaling_method_combobox() const
-{
-  return scaling_method_combobox_;
-}
-
-const rational &ExportVideoTab::frame_rate() const
-{
-  return frame_rates_.at(frame_rate_combobox_->currentIndex());
-}
-
-void ExportVideoTab::set_frame_rate(const rational &frame_rate)
-{
-  frame_rate_combobox_->setCurrentIndex(frame_rates_.indexOf(frame_rate));
-}
-
-QString ExportVideoTab::CurrentOCIOColorSpace()
-{
-  return color_space_chooser_->input();
-}
-
-CodecSection *ExportVideoTab::GetCodecSection() const
-{
-  return static_cast<CodecSection*>(codec_stack_->currentWidget());
-}
-
-void ExportVideoTab::SetCodecSection(CodecSection *section)
-{
-  codec_stack_->setCurrentWidget(section);
-}
-
-ImageSection *ExportVideoTab::image_section() const
-{
-  return image_section_;
-}
-
-H264Section *ExportVideoTab::h264_section() const
-{
-  return h264_section_;
-}
-
-const int &ExportVideoTab::threads() const
-{
-  return threads_;
-}
-
 QWidget* ExportVideoTab::SetupResolutionSection()
 {
   int row = 0;
@@ -163,13 +98,22 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
 
-  frame_rate_combobox_ = new QComboBox();
-  frame_rates_ = Core::SupportedFrameRates();
-  foreach (const rational& fr, frame_rates_) {
-    frame_rate_combobox_->addItem(Core::FrameRateToString(fr));
-  }
-
+  frame_rate_combobox_ = new FrameRateComboBox();
   layout->addWidget(frame_rate_combobox_, row, 1);
+
+  row++;
+
+  layout->addWidget(new QLabel(tr("Pixel Aspect Ratio:")), row, 0);
+
+  pixel_aspect_combobox_ = new PixelAspectRatioComboBox();
+  layout->addWidget(pixel_aspect_combobox_, row, 1);
+
+  row++;
+
+  layout->addWidget(new QLabel(tr("Interlacing:")), row, 0);
+
+  interlaced_combobox_ = new InterlacedComboBox();
+  layout->addWidget(interlaced_combobox_, row, 1);
 
   return resolution_group;
 }
@@ -194,6 +138,10 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   codec_combobox_ = new QComboBox();
   codec_layout->addWidget(codec_combobox_, row, 1);
+  connect(codec_combobox_,
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportVideoTab::VideoCodecChanged);
 
   row++;
 
@@ -222,13 +170,33 @@ void ExportVideoTab::MaintainAspectRatioChanged(bool val)
 
 void ExportVideoTab::OpenAdvancedDialog()
 {
-  ExportAdvancedVideoDialog d(this);
+  // Find export formats compatible with this encoder
+  QStringList pixel_formats = ExportCodec::GetPixelFormatsForCodec(GetSelectedCodec());
+
+  ExportAdvancedVideoDialog d(pixel_formats, this);
 
   d.set_threads(threads_);
+  d.set_pix_fmt(pix_fmt_);
 
   if (d.exec() == QDialog::Accepted) {
     threads_ = d.threads();
+    pix_fmt_ = d.pix_fmt();
   }
+}
+
+void ExportVideoTab::VideoCodecChanged()
+{
+  ExportCodec::Codec codec = GetSelectedCodec();
+
+  if (codec == ExportCodec::kCodecH264) {
+    SetCodecSection(h264_section());
+  } else if (ExportCodec::IsCodecAStillImage(codec)) {
+    SetCodecSection(image_section());
+  }
+
+  // Set default pixel format
+  pix_fmt_ = ExportCodec::GetPixelFormatsForCodec(codec).first();
+  qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -45,6 +45,13 @@ public slots:
     line_edit_->setText(s);
   }
 
+  void setTextPreservingCursor(const QString &s)
+  {
+    int cursor_pos = line_edit_->cursorPosition();
+    line_edit_->setText(s);
+    line_edit_->setCursorPosition(cursor_pos);
+  }
+
 signals:
   void textEdited(const QString &);
 

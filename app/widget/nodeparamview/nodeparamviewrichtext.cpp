@@ -48,8 +48,10 @@ void NodeParamViewRichText::ShowRichTextDialog()
 {
   RichTextDialog d(line_edit_->text(), this);
   if (d.exec() == QDialog::Accepted) {
-    line_edit_->setText(d.text());
-    emit textEdited(d.text());
+    QString s = d.text();
+
+    line_edit_->setText(s);
+    emit textEdited(s);
   }
 }
 

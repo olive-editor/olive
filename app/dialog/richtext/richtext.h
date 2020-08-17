@@ -34,15 +34,31 @@ class RichTextDialog : public QDialog
 {
   Q_OBJECT
 public:
-  RichTextDialog(const QString& start, QWidget* parent = nullptr);
+  RichTextDialog(QString start, QWidget* parent = nullptr);
 
   QString text() const
   {
-    return text_edit_->document()->toHtml("utf-8");
+    QString s = text_edit_->document()->toPlainText();
+
+    // Convert linebreaks
+    s.replace('\n', QStringLiteral("<br>"));
+
+    return s;
   }
 
 private:
-  QPushButton* CreateToolbarButton(const QString &label, const QString &tooltip);
+  QPushButton* CreateToolbarButton(const QString &label,
+                                   const QString &tooltip,
+                                   const QStringList& tags);
+
+  void SetTags(const QStringList& t, bool enabled);
+
+  static QString CreateOpeningTag(const QString& s);
+  static QString CreateClosingTag(const QString& s);
+
+  static void UpdateTagButton(QPushButton* btn,
+                              const QString &text,
+                              int cursor_pos);
 
   QFontDatabase font_db_;
 
@@ -60,6 +76,8 @@ private:
   QPushButton* justify_align_btn_;
 
 private slots:
+  void TagButtonToggled(bool checked);
+
   void UpdateButtons();
 
 };

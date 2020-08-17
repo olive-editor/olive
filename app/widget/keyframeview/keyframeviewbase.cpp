@@ -35,8 +35,6 @@ OLIVE_NAMESPACE_ENTER
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
   dragging_bezier_point_(nullptr),
-  y_axis_enabled_(false),
-  y_scale_(1.0),
   currently_autoselecting_(false)
 {
   SetDefaultDragMode(RubberBandDrag);
@@ -55,22 +53,6 @@ void KeyframeViewBase::Clear()
   }
 
   item_map_.clear();
-}
-
-const double &KeyframeViewBase::GetYScale() const
-{
-  return y_scale_;
-}
-
-void KeyframeViewBase::SetYScale(const double &y_scale)
-{
-  y_scale_ = y_scale;
-
-  if (y_axis_enabled_) {
-    VerticalScaleChangedEvent(y_scale_);
-
-    viewport()->update();
-  }
 }
 
 void KeyframeViewBase::DeleteSelected()
@@ -92,6 +74,19 @@ void KeyframeViewBase::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
+{
+  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+
+  foreach (NodeInput* i, inputs) {
+    foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
+      foreach (NodeKeyframePtr key, track) {
+        RemoveKeyframe(key);
+      }
+    }
+  }
+}
+
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 {
   KeyframeAboutToBeRemoved(key.get());
@@ -101,11 +96,20 @@ void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 
 KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 {
-  KeyframeViewItem* item = new KeyframeViewItem(key);
-  item->SetTimeTarget(GetTimeTarget());
-  item->SetScale(GetScale());
-  item_map_.insert(key.get(), item);
-  scene()->addItem(item);
+  KeyframeViewItem* item = item_map_.value(key.get());
+
+  if (!item) {
+    item = new KeyframeViewItem(key);
+    item->SetTimeTarget(GetTimeTarget());
+    item->SetScale(GetScale());
+    item_map_.insert(key.get(), item);
+    scene()->addItem(item);
+
+    if (hidden_tracks_.contains(key->track())) {
+      item->setVisible(false);
+    }
+  }
+
   return item;
 }
 
@@ -185,7 +189,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
           keypair.key->key()->set_time(node_time);
 
-          if (y_axis_enabled_) {
+          if (IsYAxisEnabled()) {
             keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
           }
 
@@ -248,7 +252,7 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
                                                 command);
 
             // Commit value if we're setting a value
-            if (y_axis_enabled_) {
+            if (IsYAxisEnabled()) {
               item->key()->set_value(keypair.value);
               new NodeParamSetKeyframeValueCommand(item->key(),
                                                    keypair.value - mouse_diff_scaled.y(),
@@ -279,10 +283,6 @@ void KeyframeViewBase::ScaleChangedEvent(const double &scale)
   }
 }
 
-void KeyframeViewBase::VerticalScaleChangedEvent(double)
-{
-}
-
 const QMap<NodeKeyframe *, KeyframeViewItem *> &KeyframeViewBase::item_map() const
 {
   return item_map_;
@@ -301,9 +301,30 @@ void KeyframeViewBase::TimeTargetChangedEvent(Node *target)
   }
 }
 
-void KeyframeViewBase::SetYAxisEnabled(bool e)
+void KeyframeViewBase::SetKeyframeTrackVisible(int track, bool visible)
 {
-  y_axis_enabled_ = e;
+  if (!visible == hidden_tracks_.contains(track)) {
+    return;
+  }
+
+  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
+
+  for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
+    if (i.key()->track() == track) {
+      i.value()->setVisible(visible);
+    }
+  }
+
+  if (visible) {
+    hidden_tracks_.removeOne(track);
+  } else {
+    hidden_tracks_.append(track);
+  }
+}
+
+void KeyframeViewBase::ContextMenuEvent(Menu& m)
+{
+  Q_UNUSED(m)
 }
 
 rational KeyframeViewBase::CalculateNewTimeFromScreen(const rational &old_time, double cursor_diff)
@@ -403,7 +424,7 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
 QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
 {
   return QPointF(static_cast<double>(cursor_pos.x()) / GetScale(),
-                 static_cast<double>(cursor_pos.y()) / y_scale_);
+                 static_cast<double>(cursor_pos.y()) / GetYScale());
 }
 
 void KeyframeViewBase::ShowContextMenu()
@@ -450,7 +471,11 @@ void KeyframeViewBase::ShowContextMenu()
         break;
       }
     }
+  }
 
+  ContextMenuEvent(m);
+
+  if (!items.isEmpty()) {
     m.addSeparator();
 
     QAction* properties_action = m.addAction(tr("P&roperties"));
@@ -502,7 +527,7 @@ void KeyframeViewBase::ShowKeyframePropertiesDialog()
 
 void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
 {
-  if (currently_autoselecting_ || y_axis_enabled_) {
+  if (currently_autoselecting_ || IsYAxisEnabled()) {
     return;
   }
 

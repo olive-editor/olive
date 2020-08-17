@@ -70,6 +70,7 @@ public:
     kCategoryGeneral,
     kCategoryTimeline,
     kCategoryChannels,
+    kCategoryTransition,
 
     kCategoryCount
   };
@@ -221,6 +222,11 @@ public:
   bool OutputsTo(const QString& id, bool recursively) const;
 
   /**
+   * @brief Same as OutputsTo(Node*), but for a specific node input rather than just a node.
+   */
+  bool OutputsTo(NodeInput* input, bool recursively, bool include_arrays) const;
+
+  /**
    * @brief Returns whether this node ever receives an input from a particular node instance
    */
   bool InputsFrom(Node* n, bool recursively) const;
@@ -297,6 +303,19 @@ public:
    * call this function with transformed time and relay the signal that way.
    */
   virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source);
+
+  /**
+   * @brief Limits cache invalidation temporarily
+   *
+   * If you intend to do a number of operations in quick succession, you can optimize it by running
+   * this function with EndOperation().
+   */
+  virtual void BeginOperation();
+
+  /**
+   * @brief Stops limiting cache invalidation and flushes changes
+   */
+  virtual void EndOperation();
 
   /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.

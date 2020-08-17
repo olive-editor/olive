@@ -18,31 +18,41 @@
 
 ***/
 
-#ifndef FOOTAGECACHETASK_H
-#define FOOTAGECACHETASK_H
+#ifndef PRECACHETASK_H
+#define PRECACHETASK_H
 
-#include "cache.h"
 #include "node/input/media/video/video.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
+#include "task/render/render.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class FootageCacheTask : public CacheTask
+class PreCacheTask : public RenderTask
 {
-  Q_OBJECT
 public:
-  FootageCacheTask(VideoStreamPtr footage, Sequence* sequence);
+  PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
 
-  virtual ~FootageCacheTask() override;
+  virtual ~PreCacheTask() override;
+
+protected:
+  virtual bool Run() override;
+
+  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
+
+  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
+
+  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
   VideoStreamPtr footage_;
 
   VideoInput* video_node_;
 
+  QThreadPool download_threads_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // FOOTAGECACHETASK_H
+#endif // PRECACHETASK_H

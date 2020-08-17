@@ -118,6 +118,10 @@ public:
     return &audio_playback_cache_;
   }
 
+  virtual void BeginOperation() override;
+
+  virtual void EndOperation() override;
+
 signals:
   void TimebaseChanged(const rational&);
 
@@ -127,7 +131,12 @@ signals:
 
   void SizeChanged(int width, int height);
 
-  void ParamsChanged();
+  void PixelAspectChanged(const rational& pixel_aspect);
+
+  void InterlacingChanged(VideoParams::Interlacing mode);
+
+  void VideoParamsChanged();
+  void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
@@ -163,6 +172,8 @@ private:
   FrameHashCache video_frame_cache_;
 
   AudioPlaybackCache audio_playback_cache_;
+
+  int operation_stack_;
 
 private slots:
   void UpdateTrackCache();

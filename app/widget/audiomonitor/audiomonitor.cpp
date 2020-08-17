@@ -90,11 +90,11 @@ void AudioMonitor::Stop()
   }
 }
 
-void AudioMonitor::OutputPushed(const QByteArray &data)
+void AudioMonitor::OutputPushed(const QByteArray &d)
 {
   QVector<double> v(params_.channel_count(), 0);
 
-  BytesToSampleSummary(data, v);
+  BytesToSampleSummary(d, v);
 
   PushValue(v);
 
@@ -275,23 +275,33 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
   // Determines how many milliseconds have passed since last update
   qint64 current_time = QDateTime::currentMSecsSinceEpoch();
   qint64 time_passed = current_time - last_time_;
+  int abs_speed = qAbs(playback_speed_);
+
+  // Multiply by speed if the speed is not 1
+  if (abs_speed != 1) {
+    time_passed *= abs_speed;
+  }
 
   // Convert ms to float seconds and determine how many bytes that is
   qint64 bytes_to_read = params_.time_to_bytes(static_cast<double>(time_passed) * 0.001);
 
   if (playback_speed_ < 0) {
+    // If reversing, jump back by the amount of bytes we're going to read
     bytes_to_read = qMin(bytes_to_read, file_.pos());
 
     file_.seek(file_.pos() - bytes_to_read);
   }
 
+  // Read bytes in from file
   QByteArray b = file_.read(bytes_to_read);
 
   if (playback_speed_ < 0) {
+    // If reversing, head back to where we were before the read so that the next read starts
+    // from where we left off
     file_.seek(file_.pos() - bytes_to_read);
   }
 
-  int abs_speed = qAbs(playback_speed_);
+  // If speed is not 1, transform it here
   if (abs_speed != 1) {
     int sample_sz = params_.samples_to_bytes(1);
     int in_nb_samples = params_.bytes_to_samples(b.size());
@@ -299,8 +309,8 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
     QByteArray speed_adjusted(out_nb_samples * sample_sz, Qt::Uninitialized);
 
     for (int i=0;i<out_nb_samples;i++) {
-      memcpy(speed_adjusted.data() + params_.samples_to_bytes(i),
-             b.constData() + params_.samples_to_bytes(i * abs_speed),
+      memcpy(speed_adjusted.data() + i * sample_sz,
+             b.constData() + i * abs_speed * sample_sz,
              sample_sz);
     }
 

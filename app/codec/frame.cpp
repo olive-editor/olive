@@ -27,8 +27,7 @@
 OLIVE_NAMESPACE_ENTER
 
 Frame::Frame() :
-  timestamp_(0),
-  sample_aspect_ratio_(1)
+  timestamp_(0)
 {
 }
 
@@ -104,16 +103,6 @@ void Frame::set_pixel(int x, int y, const Color &c)
   int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
 
   c.toData(data_.data() + byte_offset, video_params().format());
-}
-
-const rational &Frame::sample_aspect_ratio() const
-{
-  return sample_aspect_ratio_;
-}
-
-void Frame::set_sample_aspect_ratio(const rational &aspect_ratio)
-{
-  sample_aspect_ratio_ = aspect_ratio;
 }
 
 const rational &Frame::timestamp() const

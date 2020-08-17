@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(cache)
 add_subdirectory(conform)
 add_subdirectory(export)
+add_subdirectory(precache)
 add_subdirectory(project)
 add_subdirectory(render)
 

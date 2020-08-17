@@ -202,7 +202,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     }
   }
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If we picked up a block to splice
   if (splice_) {
@@ -273,7 +273,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     }
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
                           track_->block_input(),
@@ -282,7 +282,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
 void TrackRippleRemoveAreaCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If we were given a block to insert, insert it here
   if (insert_ != nullptr) {
@@ -330,7 +330,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
 }
@@ -416,12 +416,9 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   new_block_->setParent(&memory_manager_);
 
   // Determine if the block outputs to an "out" transition
-  foreach (NodeEdgePtr edge, block_->output()->edges()) {
-    if (edge->input()->parentNode()->IsBlock()
-        && static_cast<Block*>(edge->input()->parentNode())->type() == Block::kTransition
-        && edge->input() == static_cast<TransitionBlock*>(edge->input()->parentNode())->out_block_input()) {
-      transitions_to_move_.append(edge->input());
-    }
+  TransitionBlock* transition = TransitionBlock::GetBlockOutTransition(block_);
+  if (transition) {
+    transitions_to_move_.append(transition->out_block_input());
   }
 }
 
@@ -432,7 +429,7 @@ Project *BlockSplitCommand::GetRelevantProject() const
 
 void BlockSplitCommand::redo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
@@ -450,12 +447,12 @@ void BlockSplitCommand::redo_internal()
     NodeParam::ConnectEdge(new_block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 }
 
 void BlockSplitCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   block_->set_length_and_media_out(old_length_);
   track_->RippleRemoveBlock(new_block_);
@@ -467,7 +464,7 @@ void BlockSplitCommand::undo_internal()
     NodeParam::ConnectEdge(block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 }
 
 Block *BlockSplitCommand::new_block()
@@ -845,7 +842,7 @@ BlockTrimCommand::BlockTrimCommand(TrackOutput* track, Block *block, rational ne
   adjacent_(nullptr),
   we_created_adjacent_(false),
   we_deleted_adjacent_(false),
-  allow_nongap_trimming_(false)
+  trim_is_a_roll_edit_(false)
 {
 }
 
@@ -856,7 +853,7 @@ Project *BlockTrimCommand::GetRelevantProject() const
 
 void BlockTrimCommand::redo_internal()
 {
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
   rational trim_diff = old_length_ - new_length_;
@@ -875,7 +872,7 @@ void BlockTrimCommand::redo_internal()
 
   if (trim_diff > rational()) {
     // If trimming SHORTER, we'll need to create/modify a gap
-    if (adjacent_ && (adjacent_->type() == Block::kGap || allow_nongap_trimming_)) {
+    if (adjacent_ && (adjacent_->type() == Block::kGap || trim_is_a_roll_edit_)) {
 
       // A gap (or equivalent) exists, simply increase the size of it
       if (mode_ == Timeline::kTrimIn) {
@@ -923,14 +920,26 @@ void BlockTrimCommand::redo_internal()
     }
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
+
+  if (block_->type() == Block::kTransition) {
+    // Whole transition needs to be invalidated
+    invalidate_range = TimeRange(block_->in(), block_->out());
+  }
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void BlockTrimCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+  TimeRange invalidate_range;
+
+  if (block_->type() == Block::kTransition) {
+    // Whole transition needs to be invalidated
+    invalidate_range = TimeRange(block_->in(), block_->out());
+  }
+
+  track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
   rational trim_diff = old_length_ - new_length_;
@@ -969,17 +978,21 @@ void BlockTrimCommand::undo_internal()
     }
   }
 
-  TimeRange invalidate_range;
-
   if (mode_ == Timeline::kTrimIn) {
     block_->set_length_and_media_in(old_length_);
-    invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff);
+
+    if (block_->type() != Block::kTransition) {
+      invalidate_range = TimeRange(block_->in(), block_->in() + trim_diff);
+    }
   } else {
     block_->set_length_and_media_out(old_length_);
-    invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff);
+
+    if (block_->type() != Block::kTransition) {
+      invalidate_range = TimeRange(block_->out(), block_->out() - trim_diff);
+    }
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
@@ -1003,7 +1016,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
 {
   TimeRange invalidate_range;
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   // If the block has no next, it's at the end of the track and there's no need to create a gap
   if (block_->next()) {
@@ -1062,7 +1075,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
     invalidate_range = TimeRange(earliest_change, RATIONAL_MAX);
   }
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
@@ -1071,7 +1084,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
 {
   TimeRange invalidate_range;
 
-  track_->BlockInvalidateCache();
+  track_->BeginOperation();
 
   if (gap_) {
 
@@ -1116,20 +1129,27 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
 
   merged_gap_ = nullptr;
 
-  track_->UnblockInvalidateCache();
+  track_->EndOperation();
 
   track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
-TrackSlideCommand::TrackSlideCommand(const QVector<TrackSlideCommand::BlockSlideInfo> &blocks, QUndoCommand *parent) :
+TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :
   UndoCommand(parent),
-  blocks_(blocks)
+  track_(track),
+  blocks_(moving_blocks),
+  movement_(movement),
+  we_created_in_adjacent_(false),
+  in_adjacent_(in_adjacent),
+  we_created_out_adjacent_(false),
+  out_adjacent_(out_adjacent)
 {
+  Q_ASSERT(!movement_.isNull());
 }
 
 Project *TrackSlideCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(blocks_.first().track->parent())->project();
+  return static_cast<Sequence*>(track_->parent())->project();
 }
 
 void TrackSlideCommand::redo_internal()
@@ -1144,71 +1164,98 @@ void TrackSlideCommand::undo_internal()
 
 void TrackSlideCommand::slide_internal(bool undo)
 {
-  QMap<TrackOutput*, TimeRangeList> invalidate_ranges;
-
   // Make sure all movement blocks' old positions are invalidated
-  foreach (const BlockSlideInfo& info, blocks_) {
-    if (info.mode == Timeline::kMove) {
-      invalidate_ranges[info.track].InsertTimeRange(TimeRange(info.block->in(),
-                                                              info.block->out()));
-    }
-  }
+  TimeRange invalidate_range(blocks_.first()->in(), blocks_.last()->out());
 
-  // Perform trims
-  foreach (const BlockSlideInfo& info, blocks_) {
-    info.track->BlockInvalidateCache();
-
-    if (info.mode == Timeline::kTrimIn || info.mode == Timeline::kTrimOut) {
-      rational new_len = undo ? info.old_time : info.new_time;
-
-      if (info.mode == Timeline::kTrimIn) {
-        info.block->set_length_and_media_in(new_len);
-      } else {
-        info.block->set_length_and_media_out(new_len);
-      }
-    } else if (!undo && info.mode == Timeline::kMove && !info.block->previous()) {
-      // If this is a moving block and there was nothing before it to offset its time correctly,
-      // insert a gap here
-      GapBlock* gap = new GapBlock();
-      gap->set_length_and_media_out(info.new_time);
-      static_cast<NodeGraph*>(info.block->parent())->AddNode(gap);
-      info.track->PrependBlock(gap);
-      added_gaps_.append(gap);
-    }
-
-    info.track->UnblockInvalidateCache();
-  }
+  track_->BeginOperation();
 
   if (undo) {
-    // If undoing, remove added gaps
-    foreach (GapBlock* gap, added_gaps_) {
-      TrackOutput* track = TrackOutput::TrackFromBlock(gap);
 
-      track->BlockInvalidateCache();
-
-      track->RippleRemoveBlock(gap);
-      delete TakeNodeFromParentGraph(gap);
-
-      track->UnblockInvalidateCache();
+    // Undo code
+    if (we_created_in_adjacent_) {
+      // This is a gap we made, we can just delete it entirely
+      track_->RippleRemoveBlock(in_adjacent_);
+      delete TakeNodeFromParentGraph(in_adjacent_);
+      we_created_in_adjacent_ = false;
+      in_adjacent_ = nullptr;
+    } else if (in_adjacent_->parent() == &memory_manager_) {
+      // This is a gap we removed, we can re-insert it now
+      static_cast<NodeGraph*>(track_->parent())->AddNode(in_adjacent_);
+      track_->InsertBlockBefore(in_adjacent_, blocks_.first());
+    } else {
+      // We must have just resized this block
+      in_adjacent_->set_length_and_media_out(in_adjacent_->length() - movement_);
     }
 
-    added_gaps_.clear();
+    if (we_created_out_adjacent_) {
+      // This is a gap we made, we can just delete it entirely
+      track_->RippleRemoveBlock(out_adjacent_);
+      delete TakeNodeFromParentGraph(out_adjacent_);
+      we_created_out_adjacent_ = false;
+      out_adjacent_ = nullptr;
+    } else if (out_adjacent_) {
+      // We may not have created an out adjacent if this was the last clip in the track so we have
+      // to check here
+      if (out_adjacent_->parent() == &memory_manager_) {
+        // This is a gap we removed, we can re-insert it now
+        static_cast<NodeGraph*>(track_->parent())->AddNode(out_adjacent_);
+        track_->InsertBlockAfter(out_adjacent_, blocks_.last());
+      } else {
+        // We must have just resized this block
+        out_adjacent_->set_length_and_media_in(out_adjacent_->length() + movement_);
+      }
+    }
+
+  } else {
+
+    // Redo code
+    if (!in_adjacent_) {
+      // For any slide operation to have occurred at all with no in_adjacent, a gap will need to
+      // be created
+      GapBlock* gap = new GapBlock();
+      gap->set_length_and_media_out(movement_);
+      static_cast<NodeGraph*>(track_->parent())->AddNode(gap);
+      track_->InsertBlockBefore(gap, blocks_.first());
+      we_created_in_adjacent_ = true;
+      in_adjacent_ = gap;
+    } else if (-movement_ == in_adjacent_->length()) {
+      // Remove in adjacent entirely
+      track_->RippleRemoveBlock(in_adjacent_);
+      TakeNodeFromParentGraph(in_adjacent_, &memory_manager_);
+    } else {
+      // Resize in adjacent
+      in_adjacent_->set_length_and_media_out(in_adjacent_->length() + movement_);
+    }
+
+    if (!out_adjacent_) {
+      // For any slide operation to have occurred at all with no out_adjacent, a gap will need to
+      // be created UNLESS this is at the end of the track already
+      if (blocks_.last()->next()) {
+        GapBlock* gap = new GapBlock();
+        gap->set_length_and_media_out(-movement_);
+        static_cast<NodeGraph*>(track_->parent())->AddNode(gap);
+        track_->InsertBlockAfter(gap, blocks_.last());
+        we_created_out_adjacent_ = true;
+        out_adjacent_ = gap;
+      }
+    } else if (movement_ == out_adjacent_->length()) {
+      // Remove out adjacent entirely
+      track_->RippleRemoveBlock(out_adjacent_);
+      TakeNodeFromParentGraph(out_adjacent_, &memory_manager_);
+    } else {
+      // Resize out adjacent
+      out_adjacent_->set_length_and_media_in(out_adjacent_->length() - movement_);
+    }
+
   }
+
+  track_->EndOperation();
 
   // Make sure all movement blocks' new positions are invalidated
-  foreach (const BlockSlideInfo& info, blocks_) {
-    if (info.mode == Timeline::kMove) {
-      invalidate_ranges[info.track].InsertTimeRange(TimeRange(info.block->in(),
-                                                              info.block->out()));
-    }
-  }
+  invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
+                             qMax(invalidate_range.out(), blocks_.last()->out()));
 
-  QMap<TrackOutput*, TimeRangeList>::const_iterator i;
-  for (i=invalidate_ranges.constBegin(); i!=invalidate_ranges.constEnd(); i++) {
-    foreach (const TimeRange& r, i.value()) {
-      i.key()->InvalidateCache(r, i.key()->block_input(), i.key()->block_input());
-    }
-  }
+  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 TrackListRippleRemoveAreaCommand::TrackListRippleRemoveAreaCommand(TrackList *list, rational in, rational out, QUndoCommand *parent) :
@@ -1253,7 +1300,7 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1263,8 +1310,7 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal();
+      track->EndOperation();
     }
   }
 }
@@ -1281,7 +1327,7 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1291,8 +1337,7 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal();
+      track->EndOperation();
     }
   }
 }
@@ -1338,7 +1383,7 @@ void TrackListRippleToolCommand::redo_internal()
   if (all_tracks_unlocked_) {
     // We can do some optimization here
     foreach (const RippleInfo& info, info_) {
-      info.track->BlockInvalidateCache();
+      info.track->BeginOperation();
     }
 
     old_latest_pt = RATIONAL_MIN;
@@ -1398,8 +1443,12 @@ void TrackListRippleToolCommand::redo_internal()
       const RippleInfo& info = info_.at(i);
 
       if (info.block) {
-        new_latest_pt = qMax(new_latest_pt, info.block->out());
-      } else {
+        if (info.new_length > 0) {
+          new_latest_pt = qMax(new_latest_pt, info.block->out());
+        } else {
+          new_latest_pt = qMax(new_latest_pt, info.block->in());
+        }
+      } else if (info.new_length > 0) {
         new_latest_pt = qMax(new_latest_pt, working_data_.at(i).created_gap->out());
       }
     }
@@ -1411,15 +1460,13 @@ void TrackListRippleToolCommand::redo_internal()
     }
 
     foreach (const RippleInfo& info, info_) {
-      info.track->UnblockInvalidateCache();
+      info.track->EndOperation();
 
       // FIXME: Untested, is this desirable behavior?
       if (earliest_pt < new_latest_pt) {
         info.track->InvalidateCache(TimeRange(earliest_pt, new_latest_pt),
                                     info.track->block_input(),
                                     info.track->block_input());
-      } else {
-        info.track->PushLengthChangeSignal();
       }
     }
   }
@@ -1427,6 +1474,8 @@ void TrackListRippleToolCommand::redo_internal()
 
 void TrackListRippleToolCommand::undo_internal()
 {
+  // FIXME: Add cache shift optimization
+
   // Clean created gaps
   for (int i=info_.size()-1; i>=0; i--) {
     const RippleInfo& info = info_.at(i);
@@ -1499,7 +1548,7 @@ void TrackListInsertGaps::redo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1539,8 +1588,7 @@ void TrackListInsertGaps::redo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal(false);
+      track->EndOperation();
     }
   }
 }
@@ -1556,7 +1604,7 @@ void TrackListInsertGaps::undo_internal()
     }
 
     foreach (TrackOutput* track, working_tracks_) {
-      track->BlockInvalidateCache();
+      track->BeginOperation();
     }
   }
 
@@ -1582,10 +1630,88 @@ void TrackListInsertGaps::undo_internal()
 
   if (all_tracks_unlocked_) {
     foreach (TrackOutput* track, working_tracks_) {
-      track->UnblockInvalidateCache();
-      track->PushLengthChangeSignal(false);
+      track->EndOperation();
     }
   }
+}
+
+TransitionRemoveCommand::TransitionRemoveCommand(TrackOutput* track, TransitionBlock *block, QUndoCommand* parent) :
+  UndoCommand(parent),
+  track_(track),
+  block_(block),
+  out_block_(block_->connected_out_block()),
+  in_block_(block_->connected_in_block())
+{
+  // Can't remove a transition in this way unless it's connected to at least one other block
+  Q_ASSERT(out_block_ || in_block_);
+}
+
+Project *TransitionRemoveCommand::GetRelevantProject() const
+{
+  return static_cast<Sequence*>(track_->parent())->project();
+}
+
+void TransitionRemoveCommand::redo_internal()
+{
+  track_->BeginOperation();
+
+  TimeRange invalidate_range(block_->in(), block_->out());
+
+  if (in_block_) {
+    in_block_->set_length_and_media_in(in_block_->length() + block_->in_offset());
+  }
+
+  if (out_block_) {
+    out_block_->set_length_and_media_out(out_block_->length() + block_->out_offset());
+  }
+
+  if (in_block_) {
+    NodeParam::DisconnectEdge(in_block_->output(), block_->in_block_input());
+  }
+
+  if (out_block_) {
+    NodeParam::DisconnectEdge(out_block_->output(), block_->out_block_input());
+  }
+
+  track_->RippleRemoveBlock(block_);
+
+  track_->EndOperation();
+
+  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+}
+
+void TransitionRemoveCommand::undo_internal()
+{
+  track_->BeginOperation();
+
+  if (in_block_) {
+    track_->InsertBlockBefore(block_, in_block_);
+  } else {
+    track_->InsertBlockAfter(block_, out_block_);
+  }
+
+  if (in_block_) {
+    NodeParam::ConnectEdge(in_block_->output(), block_->in_block_input());
+  }
+
+  if (out_block_) {
+    NodeParam::ConnectEdge(out_block_->output(), block_->out_block_input());
+  }
+
+  // These if statements must be separated because in_offset and out_offset report different things
+  // if only one block is connected vs two. So we have to connect the blocks first before we have
+  // an accurate return value from these offset functions.
+  if (in_block_) {
+    in_block_->set_length_and_media_in(in_block_->length() - block_->in_offset());
+  }
+
+  if (out_block_) {
+    out_block_->set_length_and_media_out(out_block_->length() - block_->out_offset());
+  }
+
+  track_->EndOperation();
+
+  track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
 }
 
 OLIVE_NAMESPACE_EXIT

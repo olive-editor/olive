@@ -32,6 +32,7 @@
 
 #include "audio/audiomanager.h"
 #include "common/power.h"
+#include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
@@ -43,11 +44,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
+QVector<ViewerWidget*> ViewerWidget::instances_;
+
 const int kMaxPreQueueSize = 16;
-
-CacheTask* ViewerWidget::cache_background_task_ = nullptr;
-
-int ViewerWidget::busy_viewers_ = 0;
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
@@ -56,10 +55,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
-  prequeuing_(false),
-  busy_(false),
-  our_cache_background_task_(nullptr),
-  autocache_(true)
+  pause_autocache_during_playback_(true),
+  prequeuing_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -112,26 +109,21 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderer
   renderer_ = new OpenGLBackend(this);
-  renderer_->SetUpdateWithGraph(true);
+  renderer_->SetAutoCacheEnabled(true);
   renderer_->SetRenderMode(RenderMode::kOffline);
-
-  // Setup cache wait timer (waits a few seconds of inactivity before caching)
-  cache_wait_timer_.setInterval(Config::Current()["AutoCacheInterval"].toInt());
-  cache_wait_timer_.setSingleShot(true);
-  connect(&cache_wait_timer_, &QTimer::timeout, this, &ViewerWidget::StartBackgroundCaching);
-
-  // Remove pointer to cache task if it's removed from the task manager
-  connect(TaskManager::instance(), &TaskManager::TaskRemoved, this, &ViewerWidget::BackgroundCacheFinished);
+  renderer_->SetPreviewGenerationEnabled(true);
 
   // Ensures that seeking on the waveform view updates the time as expected
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
   // Ensures renderer is updated if the global pixel format is changed
-  connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
+  connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
 
   connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
 
   SetAutoMaxScrollBar(true);
+
+  instances_.append(this);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -161,6 +153,10 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
       PushScrubbedAudio();
     }
 
+    if (!pause_autocache_during_playback_ || !IsPlaying()) {
+      renderer_->SetAutoCachePlayhead(time_set);
+    }
+
     display_widget_->SetTime(time_set);
   }
 
@@ -169,28 +165,24 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
 void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  if (!n->video_params().time_base().isNull()) {
-    SetTimebase(n->video_params().time_base());
-  } else if (n->audio_params().sample_rate() > 0) {
-    SetTimebase(n->audio_params().time_base());
-  } else {
-    SetTimebase(rational());
-  }
-
-  connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
-  connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
+  connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-  connect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
+  connect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
+  connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
+  connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  connect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   connect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
+
+  InterlacingChangedSlot(n->video_params().interlacing());
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
   n->audio_playback_cache()->SetParameters(n->audio_params());
 
-  SizeChangedSlot(n->video_params().width(), n->video_params().height());
+  SetViewerResolution(n->video_params().width(), n->video_params().height());
+  SetViewerPixelAspect(n->video_params().pixel_aspect_ratio());
   last_length_ = rational();
   LengthChangedSlot(n->GetLength());
 
@@ -216,7 +208,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
   }
 
-  UpdateRendererParameters();
+  UpdateRendererVideoParameters();
+  UpdateRendererAudioParameters();
 
   // Set texture to new texture (or null if no viewer node is available)
   ForceUpdate();
@@ -224,29 +217,22 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
-  Pause();
+  PauseInternal();
 
-  if (cache_background_task_ == our_cache_background_task_) {
-    StopAllBackgroundCacheTasks(true);
-    cache_background_task_ = nullptr;
-  }
-  cache_wait_timer_.stop();
-
-  SetTimebase(rational());
-
-  disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
-  disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
+  disconnect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-  disconnect(n, &ViewerOutput::ParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
+  disconnect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
+  disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
+  disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  disconnect(n->audio_playback_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedRange);
   disconnect(n, &ViewerOutput::GraphChangedFrom, this, &ViewerWidget::UpdateStack);
 
   ruler()->SetPlaybackCache(nullptr);
 
   // Effectively disables the viewer and clears the state
-  SizeChangedSlot(0, 0);
+  SetViewerResolution(0, 0);
 
   display_widget_->DisconnectColorManager();
   foreach (ViewerWindow* window, windows_) {
@@ -273,21 +259,7 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 {
   TimeBasedWidget::resizeEvent(event);
 
-  /*
-  int new_div = CalculateDivider();
-  if (new_div != divider_) {
-    divider_ = new_div;
-
-    UpdateRendererParameters();
-  }
-  */
-
   UpdateMinimumScale();
-}
-
-ViewerDisplayWidget *ViewerWidget::display_widget() const
-{
-  return display_widget_;
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -314,11 +286,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
 {
   color_menu_enabled_ = enabled;
-}
-
-void ViewerWidget::SetOverrideSize(int width, int height)
-{
-  SizeChangedSlot(width, height);
 }
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
@@ -371,13 +338,23 @@ void ViewerWidget::ForceUpdate()
 
 void ViewerWidget::SetAutoCacheEnabled(bool e)
 {
-  autocache_ = e;
+  renderer_->SetAutoCachePaused(!e);
+}
 
-  if (autocache_) {
-    StartBackgroundCaching();
-  } else if (cache_background_task_ == our_cache_background_task_) {
-    StopAllBackgroundCacheTasks(false);
-    cache_background_task_ = nullptr;
+void ViewerWidget::CacheEntireSequence()
+{
+  renderer_->AutoCacheRange(TimeRange(rational(), GetConnectedNode()->video_frame_cache()->GetLength()));
+}
+
+void ViewerWidget::CacheSequenceInOut()
+{
+  if (GetConnectedTimelinePoints() && GetConnectedTimelinePoints()->workarea()->enabled()) {
+    renderer_->AutoCacheRange(GetConnectedTimelinePoints()->workarea()->range());
+  } else {
+    QMessageBox::warning(this,
+                         tr("Error"),
+                         tr("No in or out points are set to cache."),
+                         QMessageBox::Ok);
   }
 }
 
@@ -387,35 +364,20 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
-void ViewerWidget::StopAllBackgroundCacheTasks(bool wait)
+FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time) const
 {
-  if (cache_background_task_) {
-    if (wait) {
-      TaskManager::instance()->CancelTaskAndWait(cache_background_task_);
-    } else {
-      cache_background_task_->Cancel();
-    }
-    cache_background_task_ = nullptr;
-  }
-}
-
-void ViewerWidget::SetBackgroundCacheTask(CacheTask *t)
-{
-  cache_background_task_ = t;
-}
-
-FramePtr DecodeCachedImage(const QString &fn, const rational& time)
-{
-  FramePtr frame = FrameHashCache::LoadCacheFrame(fn);
+  FramePtr frame = GetConnectedNode()->video_frame_cache()->LoadCacheFrame(fn);
 
   if (frame) {
     frame->set_timestamp(time);
+  } else {
+    qWarning() << "Tried to load cached frame from file but it was null";
   }
 
   return frame;
 }
 
-void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time)
+void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
 {
   ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
 }
@@ -478,6 +440,13 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     return;
   }
 
+  // Kindly tell all viewers to stop caching
+  if (pause_autocache_during_playback_) {
+    foreach (ViewerWidget* viewer, instances_) {
+      viewer->renderer_->ClearVideoQueue();
+    }
+  }
+
   // If the playhead is beyond the end, restart at 0
   if (!in_to_out_only && GetTime() >= GetConnectedNode()->GetLength()) {
     if (speed > 0) {
@@ -506,14 +475,6 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       }
     }
   }
-
-  if (!busy_) {
-    busy_ = true;
-    busy_viewers_++;
-  }
-
-  StopAllBackgroundCacheTasks(false);
-  cache_wait_timer_.stop();
 
   if (!prequeuing_) {
     FinishPlayPreprocess();
@@ -544,7 +505,7 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
+    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
     QFile audio_src(audio_fn);
 
     if (audio_src.open(QFile::ReadOnly)) {
@@ -563,20 +524,6 @@ void ViewerWidget::PushScrubbedAudio()
     }
   }
 }
-
-/*
-int ViewerWidget::CalculateDivider()
-{
-  if (GetConnectedNode() && Config::Current()["AutoSelectDivider"].toBool()) {
-    int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
-    int long_side_of_widget = qMax(display_widget_->width(), display_widget_->height());
-
-    return qMax(1, int(qPow(2, qFloor(log2(double(long_side_of_video) / double(long_side_of_widget))))));
-  }
-
-  return divider_;
-}
-*/
 
 void ViewerWidget::UpdateMinimumScale()
 {
@@ -648,21 +595,23 @@ PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
-  if (cached_hash.isEmpty()) {
+
+  QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
+
+  if (cached_hash.isEmpty() || !QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
     if (clear_render_queue) {
       renderer_->ClearVideoQueue();
     }
 
-    return renderer_->RenderFrame(t);
+    return renderer_->RenderFrame(t, true);
   } else {
     // Frame has been cached, grab the frame
-    QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
+    RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo,
+                                                            QVariant::fromValue(t));
+    QtConcurrent::run(this, &ViewerWidget::DecodeCachedImage, ticket, cache_fn, t);
 
-    RenderTicketPtr ticket = std::make_shared<RenderTicket>(RenderTicket::kTypeVideo, TimeRange(t, t));
-    QtConcurrent::run(DecodeCachedImage, ticket, cache_fn, t);
     return ticket;
-
   }
 }
 
@@ -670,7 +619,7 @@ void ViewerWidget::FinishPlayPreprocess()
 {
   int64_t playback_start_time = ruler()->GetTime();
 
-  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetCacheFilename();
+  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
   if (!audio_fn.isEmpty()) {
     AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
     AudioManager::instance()->StartOutput(audio_fn,
@@ -755,45 +704,14 @@ void ViewerWidget::ContextMenuSetSafeMargins()
 
 void ViewerWidget::ContextMenuSetCustomSafeMargins()
 {
-  QString s;
+  bool ok;
 
-  forever {
-    bool ok;
+  double new_ratio = GetFloatRatioFromUser(this,
+                                           tr("Safe Margins"),
+                                           &ok);
 
-    s = QInputDialog::getText(this,
-                              tr("Safe Margins"),
-                              tr("Enter custom ratio (e.g. \"4:3\", \"16/9\", etc.):"),
-                              QLineEdit::Normal,
-                              s,
-                              &ok);
-
-    if (!ok) {
-      // User cancelled dialog, do nothing
-      return;
-    }
-
-    QStringList ratio_components = s.split(QRegExp(QStringLiteral(":|;|\\/")));
-
-    if (ratio_components.size() == 2) {
-      bool numer_ok, denom_ok;
-
-      double num = ratio_components.at(0).toDouble(&numer_ok);
-      double den = ratio_components.at(1).toDouble(&denom_ok);
-
-      if (numer_ok
-          && denom_ok
-          && num > 0) {
-        // Exit loop and set this ratio
-        context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true, num / den));
-        return;
-      }
-    }
-
-    QMessageBox::warning(this,
-                         tr("Invalid custom ratio"),
-                         tr("Failed to parse \"%1\" into an aspect ratio. Please format a "
-                            "rational fraction with a ':' or a '/' separator.").arg(s),
-                         QMessageBox::Ok);
+  if (ok) {
+    context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(true, new_ratio));
   }
 }
 
@@ -825,7 +743,7 @@ void ViewerWidget::RendererGeneratedFrame()
     }
   }
 
-  ticket->deleteLater();
+  delete ticket;
 }
 
 void ViewerWidget::RendererGeneratedFrameForQueue()
@@ -850,76 +768,7 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
     }
   }
 
-  watcher->deleteLater();
-}
-
-//#define PRINT_INVALID_RANGES
-void ViewerWidget::StartBackgroundCaching()
-{
-  if (busy_) {
-    busy_viewers_--;
-    busy_ = false;
-  }
-
-#ifdef PRINT_INVALID_RANGES
-  if (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()) {
-    qDebug() << "Video invalid:";
-    foreach (const TimeRange& r, GetConnectedNode()->video_frame_cache()->GetInvalidatedRanges()) {
-      qDebug() << "  " << r;
-    }
-  }
-
-  if (GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges()) {
-    qDebug() << "Audio invalid:";
-    foreach (const TimeRange& r, GetConnectedNode()->audio_playback_cache()->GetInvalidatedRanges()) {
-      qDebug() << "  " << r;
-    }
-  }
-#endif
-
-  if (autocache_
-      && GetConnectedNode()
-      && (GetConnectedNode()->video_frame_cache()->HasInvalidatedRanges()
-          || GetConnectedNode()->audio_playback_cache()->HasInvalidatedRanges())) {
-    if (cache_background_task_ || busy_viewers_) {
-
-      // Something else is caching right now, we don't want to do multiple at once so we'll check
-      // again in our next interval
-      cache_wait_timer_.start();
-
-    } else {
-      cache_background_task_ = new CacheTask(GetConnectedNode(),
-                                             GetConnectedNode()->video_params(),
-                                             GetConnectedNode()->audio_params(),
-                                             false);
-
-      our_cache_background_task_ = cache_background_task_;
-
-      TaskManager::instance()->AddTask(cache_background_task_);
-    }
-  }
-}
-
-void ViewerWidget::BackgroundCacheFinished(Task* t)
-{
-  if (cache_background_task_ == t) {
-    cache_background_task_ = nullptr;
-  }
-}
-
-void ViewerWidget::UpdateRendererParameters()
-{
-  if (cache_background_task_ == our_cache_background_task_) {
-    StopAllBackgroundCacheTasks(false);
-  }
-
-  GetConnectedNode()->video_frame_cache()->InvalidateAll();
-  GetConnectedNode()->audio_playback_cache()->InvalidateAll();
-
-  renderer_->SetVideoParams(GetConnectedNode()->video_params());
-  renderer_->SetAudioParams(GetConnectedNode()->audio_params());
-
-  display_widget_->SetVideoParams(GetConnectedNode()->video_params());
+  delete watcher;
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
@@ -980,6 +829,16 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
   }
 
+  {
+    // Deinterlace Option
+    if (GetConnectedNode()->video_params().interlacing() != VideoParams::kInterlaceNone) {
+      QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
+      deinterlace_action->setCheckable(true);
+      deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
+      connect(deinterlace_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetDeinterlacing);
+    }
+  }
+
   menu.addSeparator();
 
   {
@@ -998,11 +857,34 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   menu.addSeparator();
 
   {
+    Menu* cache_menu = new Menu(tr("Cache"), &menu);
+    menu.addMenu(cache_menu);
+
     // Auto-cache
-    QAction* autocache_action = menu.addAction(tr("Auto-Cache"));
+    QAction* autocache_action = cache_menu->addAction(tr("Auto-Cache"));
     autocache_action->setCheckable(true);
-    autocache_action->setChecked(autocache_);
+    autocache_action->setChecked(!renderer_->IsAutoCachePaused());
     connect(autocache_action, &QAction::triggered, this, &ViewerWidget::SetAutoCacheEnabled);
+
+    cache_menu->addSeparator();
+
+    // Stop auto-cache while playing
+    QAction* pause_autocache_while_playing = cache_menu->addAction(tr("Pause Auto-Cache During Playback"));
+    pause_autocache_while_playing->setCheckable(true);
+    pause_autocache_while_playing->setChecked(pause_autocache_during_playback_);
+    connect(pause_autocache_while_playing, &QAction::triggered, this, [this](bool e){
+      pause_autocache_during_playback_ = e;
+    });
+
+    cache_menu->addSeparator();
+
+    // Cache Entire Sequence
+    QAction* cache_entire_sequence = cache_menu->addAction(tr("Cache Entire Sequence"));
+    connect(cache_entire_sequence, &QAction::triggered, this, &ViewerWidget::CacheEntireSequence);
+
+    // Cache In/Out Sequence
+    QAction* cache_inout_sequence = cache_menu->addAction(tr("Cache Sequence In/Out"));
+    connect(cache_inout_sequence, &QAction::triggered, this, &ViewerWidget::CacheSequenceInOut);
   }
 
   menu.addSeparator();
@@ -1035,7 +917,7 @@ void ViewerWidget::Play(bool in_to_out_only)
 {
   if (in_to_out_only) {
     if (GetConnectedTimelinePoints()
-      && GetConnectedTimelinePoints()->workarea()->enabled()) {
+        && GetConnectedTimelinePoints()->workarea()->enabled()) {
       // Jump to in point
       SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(), timebase()));
     } else {
@@ -1055,7 +937,7 @@ void ViewerWidget::Pause()
 {
   PauseInternal();
 
-  StartBackgroundCaching();
+  renderer_->SetAutoCachePlayhead(GetTime());
 }
 
 void ViewerWidget::ShuttleLeft()
@@ -1192,13 +1074,20 @@ void ViewerWidget::PlaybackTimerUpdate()
   }
 }
 
-void ViewerWidget::SizeChangedSlot(int width, int height)
+void ViewerWidget::SetViewerResolution(int width, int height)
 {
   sizer_->SetChildSize(width, height);
 
   foreach (ViewerWindow* vw, windows_) {
     vw->SetResolution(width, height);
   }
+}
+
+void ViewerWidget::SetViewerPixelAspect(const rational &ratio)
+{
+  sizer_->SetPixelAspectRatio(ratio);
+
+  // FIXME: Update windows too
 }
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
@@ -1215,6 +1104,34 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
   }
 }
 
+void ViewerWidget::InterlacingChangedSlot(VideoParams::Interlacing interlacing)
+{
+  // Automatically set a "sane" deinterlacing option
+  display_widget_->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
+
+  // FIXME: Set windows too
+}
+
+void ViewerWidget::UpdateRendererVideoParameters()
+{
+  renderer_->ClearVideoQueue();
+
+  renderer_->SetVideoParams(GetConnectedNode()->video_params());
+
+  GetConnectedNode()->video_frame_cache()->InvalidateAll();
+
+  display_widget_->SetVideoParams(GetConnectedNode()->video_params());
+}
+
+void ViewerWidget::UpdateRendererAudioParameters()
+{
+  renderer_->ClearAudioQueue();
+
+  renderer_->SetAudioParams(GetConnectedNode()->audio_params());
+
+  GetConnectedNode()->audio_playback_cache()->InvalidateAll();
+}
+
 void ViewerWidget::SetZoomFromMenu(QAction *action)
 {
   sizer_->SetZoom(action->data().toInt());
@@ -1222,21 +1139,9 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
+  // If our current frame is within this range, we need to update
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
-  }
-
-  ViewerInvalidatedRange();
-}
-
-void ViewerWidget::ViewerInvalidatedRange()
-{
-  // Restart the cache wait timer
-  cache_wait_timer_.stop();
-  StopAllBackgroundCacheTasks(false);
-
-  if (!(qApp->mouseButtons() & Qt::LeftButton)) {
-    StartBackgroundCaching();
   }
 }
 

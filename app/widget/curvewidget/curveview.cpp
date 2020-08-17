@@ -20,8 +20,10 @@
 
 #include "curveview.h"
 
+#include <QScrollBar>
 #include <QMouseEvent>
 #include <QtMath>
+#include <cfloat>
 
 #include "common/qtutils.h"
 
@@ -61,6 +63,16 @@ void CurveView::Clear()
 void CurveView::SetTrackCount(int count)
 {
   track_count_ = count;
+
+  track_visible_.resize(track_count_);
+  track_visible_.fill(true);
+}
+
+void CurveView::SetTrackVisible(int track, bool visible)
+{
+  track_visible_[track] = visible;
+
+  SetKeyframeTrackVisible(track, visible);
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -116,6 +128,10 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   // Draw keyframe lines
 
   for (int j=0;j<track_count_;j++) {
+    if (!track_visible_.at(j)) {
+      continue;
+    }
+
     painter->setPen(QPen(GetKeyframeColor(j), qMax(1, fontMetrics().height() / 4)));
     QList<NodeKeyframe*> keys = GetKeyframesSortedByTime(j);
 
@@ -237,19 +253,20 @@ void CurveView::VerticalScaleChangedEvent(double scale)
 
 void CurveView::wheelEvent(QWheelEvent *event)
 {
-  if (WheelEventIsAZoomEvent(event)) {
-    if (!event->angleDelta().isNull()) {
-      if (event->angleDelta().x() + event->angleDelta().y() > 0) {
-        emit ScaleChanged(GetScale() * 1.1);
-        SetYScale(GetYScale() * 1.1);
-      } else {
-        emit ScaleChanged(GetScale() * 0.9);
-        SetYScale(GetYScale() * 0.9);
-      }
-    }
-  } else {
+  if (!HandleZoomFromScroll(event)) {
     KeyframeViewBase::wheelEvent(event);
   }
+}
+
+void CurveView::ContextMenuEvent(Menu &m)
+{
+  m.addSeparator();
+
+  // View settings
+  QAction* zoom_fit_action = m.addAction(tr("Zoom to Fit"));
+  connect(zoom_fit_action, &QAction::triggered, this, &CurveView::ZoomToFit);
+
+  //QAction* reset_zoom_action = m.addAction(tr("Reset Zoom"));
 }
 
 QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime(int track)
@@ -285,7 +302,12 @@ QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime(int track)
 
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
 {
-  return -key->value().toDouble() * GetYScale();
+  return GetItemYFromKeyframeValue(key->value().toDouble());
+}
+
+qreal CurveView::GetItemYFromKeyframeValue(double value)
+{
+  return -value * GetYScale();
 }
 
 void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *item)
@@ -365,6 +387,45 @@ void CurveView::BezierControlPointDestroyed()
 {
   BezierControlPointItem* item = static_cast<BezierControlPointItem*>(sender());
   bezier_control_points_.removeOne(item);
+}
+
+void CurveView::ZoomToFit()
+{
+  if (item_map().isEmpty()) {
+    // Prevent scaling to DBL_MIN/DBL_MAX
+    return;
+  }
+
+  QMap<NodeKeyframe *, KeyframeViewItem *>::const_iterator i;
+
+  rational min_time = RATIONAL_MAX;
+  rational max_time = RATIONAL_MIN;
+
+  double min_val = DBL_MAX;
+  double max_val = DBL_MIN;
+
+  for (i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
+    rational transformed_time = GetAdjustedTime(i.key()->parent()->parentNode(),
+                                                GetTimeTarget(),
+                                                i.key()->time(),
+                                                NodeParam::kOutput);
+
+    min_time = qMin(transformed_time, min_time);
+    max_time = qMax(transformed_time, max_time);
+
+    min_val = qMin(i.key()->value().toDouble(), min_val);
+    max_val = qMax(i.key()->value().toDouble(), max_val);
+  }
+
+  double time_range = max_time.toDouble() - min_time.toDouble();
+  double new_x_scale = CalculateScaleFromDimensions(this->width(), time_range);
+  double new_y_scale = CalculateScaleFromDimensions(this->height(), max_val - min_val);
+
+  emit ScaleChanged(new_x_scale);
+  SetYScale(new_y_scale);
+
+  horizontalScrollBar()->setValue(TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width()));
+  verticalScrollBar()->setValue(GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height()));
 }
 
 void CurveView::AddKeyframe(NodeKeyframePtr key)

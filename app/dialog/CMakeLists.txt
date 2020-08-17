@@ -17,6 +17,7 @@
 add_subdirectory(about)
 add_subdirectory(actionsearch)
 add_subdirectory(color)
+add_subdirectory(diskcache)
 add_subdirectory(export)
 add_subdirectory(footageproperties)
 add_subdirectory(keyframeproperties)

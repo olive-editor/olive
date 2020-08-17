@@ -21,27 +21,95 @@
 #include "renderworker.h"
 
 #include <QDir>
+#include <QThread>
+#include <QTimer>
 
 #include "audio/audiovisualwaveform.h"
 #include "common/functiontimer.h"
 #include "config/config.h"
 #include "node/block/clip/clip.h"
 #include "task/conform/conform.h"
-#include "renderbackend.h"
 
 OLIVE_NAMESPACE_ENTER
+
+// FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+//        this a dynamic value somehow or a configurable value?
+const int RenderWorker::kMaxDecoderLife = 6000;
 
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
   available_(true),
-  audio_mode_is_preview_(false),
-  preview_cache_(nullptr),
+  generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline)
 {
+  cleanup_timer_ = new QTimer();
+  cleanup_timer_->setInterval(kMaxDecoderLife);
+  connect(cleanup_timer_, &QTimer::timeout, this, &RenderWorker::ClearOldDecoders, Qt::DirectConnection);
+  cleanup_timer_->moveToThread(qApp->thread());
+  QMetaObject::invokeMethod(cleanup_timer_, "start", Qt::QueuedConnection);
+}
+
+RenderWorker::~RenderWorker()
+{
+  QMetaObject::invokeMethod(cleanup_timer_, "stop", Qt::QueuedConnection);
+  cleanup_timer_->deleteLater();
+}
+
+void RenderWorker::Hash(RenderTicketPtr ticket, ViewerOutput *viewer, const QVector<rational> &times)
+{
+  ticket_ = ticket;
+
+  QVector<QByteArray> hashes(times.size());
+
+  for (int i=0;i<hashes.size();i++) {
+    hashes[i] = HashNode(viewer->texture_input()->get_connected_node(),
+                         video_params_,
+                         times.at(i));
+  }
+
+  ticket->Finish(QVariant::fromValue(hashes));
+
+  emit FinishedJob();
+}
+
+QByteArray RenderWorker::HashNode(const Node *n, const VideoParams &params, const rational &time)
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  // Embed video parameters into this hash
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+
+  if (n) {
+    n->Hash(hasher, time);
+  }
+
+  return hasher.result();
+}
+
+void RenderWorker::ClearOldDecoders()
+{
+  QMutexLocker locker(&decoder_lock_);
+
+  QHash<Stream*, qint64>::iterator i = decoder_age_.begin();
+
+  while (i != decoder_age_.end()) {
+    if (i.value() < QDateTime::currentMSecsSinceEpoch() - kMaxDecoderLife) {
+      // This decoder is old, remove it
+      decoder_cache_.remove(i.key());
+
+      i = decoder_age_.erase(i);
+    } else {
+      i++;
+    }
+  }
 }
 
 void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, const rational &time)
 {
+  ticket_ = ticket;
+
   NodeValueTable table = ProcessInput(viewer->texture_input(),
                                       TimeRange(time, time + video_params_.time_base()));
 
@@ -59,6 +127,8 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
                                       video_params_.height(),
                                       video_params_.time_base(),
                                       output_format,
+                                      video_params_.pixel_aspect_ratio(),
+                                      video_params_.interlacing(),
                                       video_params_.divider()));
   frame->set_timestamp(time);
   frame->allocate();
@@ -78,6 +148,8 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
 
 void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange &range)
 {
+  ticket_ = ticket;
+
   NodeValueTable table = ProcessInput(viewer->samples_input(), range);
 
   QVariant samples = table.Get(NodeParam::kSamples);
@@ -137,38 +209,26 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
       NodeValueTable::Merge({merged_table, table});
     }
 
-    if (preview_cache_) {
+    if (generate_audio_previews_) {
       // Find original track object
       TrackOutput* original_track = nullptr;
 
-      QList<TimeRange> valid_ranges = preview_cache_->GetValidRanges(range, preview_job_time_);
-      if (!valid_ranges.isEmpty()) {
-        QHash<Node*, Node*>::const_iterator i;
-        for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
-          if (i.value() == track) {
-            original_track = static_cast<TrackOutput*>(i.key());
-            break;
-          }
+      // Have to do a manual loop since our track is const and QHash won't take it
+      QHash<Node*, Node*>::const_iterator i;
+      for (i=copy_map_->constBegin(); i!=copy_map_->constEnd(); i++) {
+        if (i.value() == track) {
+          original_track = static_cast<TrackOutput*>(i.key());
+          break;
         }
+      }
 
-        // Generate visual waveform in this background thread
-        if (original_track) {
-          AudioVisualWaveform visual_waveform;
-          visual_waveform.set_channel_count(audio_params_.channel_count());
-          visual_waveform.OverwriteSamples(block_range_buffer, audio_params_.sample_rate());
+      if (original_track) {
+        // Generate a visual waveform and send it back to the main thread
+        AudioVisualWaveform visual_waveform;
+        visual_waveform.set_channel_count(audio_params_.channel_count());
+        visual_waveform.OverwriteSamples(block_range_buffer, audio_params_.sample_rate());
 
-          original_track->waveform_lock()->lock();
-
-          original_track->waveform().set_channel_count(audio_params_.channel_count());
-
-          foreach (const TimeRange& r, valid_ranges) {
-            original_track->waveform().OverwriteSums(visual_waveform, r.in(), r.in() - range.in(), r.length());
-          }
-
-          original_track->waveform_lock()->unlock();
-
-          emit original_track->PreviewChanged();
-        }
+        emit WaveformGenerated(ticket_, original_track, visual_waveform, range);
       }
     }
 
@@ -199,8 +259,19 @@ QVariant RenderWorker::ProcessSamples(const Node *node, const TimeRange &range, 
     // Update all non-sample and non-footage inputs
     NodeValueMap::const_iterator j;
     for (j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      value_db.Insert(j.key(), ProcessInput(j.key(), TimeRange(this_sample_time, this_sample_time)));
+      NodeValueTable value;
+      NodeInput* corresponding_input = node->GetInputWithID(j.key());
+
+      if (corresponding_input) {
+        value = ProcessInput(corresponding_input, TimeRange(this_sample_time, this_sample_time));
+      } else {
+        value.Push(j.value());
+      }
+
+      value_db.Insert(j.key(), value);
     }
+
+    AddGlobalsToDatabase(value_db, TimeRange(this_sample_time, this_sample_time));
 
     node->ProcessSamples(value_db,
                          job.samples(),
@@ -226,6 +297,8 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
                                       video_params_.height(),
                                       video_params_.time_base(),
                                       output_fmt,
+                                      video_params_.pixel_aspect_ratio(),
+                                      video_params_.interlacing(),
                                       video_params_.divider()));
   frame->allocate();
 
@@ -237,18 +310,18 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
   if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    QByteArray hash = RenderBackend::HashNode(node, video_params(), time);
+    QByteArray hash = HashNode(node, video_params(), time);
 
-    QString fn = FrameHashCache::CachePathName(hash);
+    FramePtr f = viewer_->video_frame_cache()->LoadCacheFrame(hash);
 
-    if (QFileInfo::exists(fn)) {
-      FramePtr f = FrameHashCache::LoadCacheFrame(hash);
-
+    if (f) {
       // The cached frame won't load with the correct divider by default, so we enforce it here
       f->set_video_params(VideoParams(f->width() * video_params_.divider(),
                                       f->height() * video_params_.divider(),
                                       f->video_params().time_base(),
                                       f->video_params().format(),
+                                      f->video_params().pixel_aspect_ratio(),
+                                      f->video_params().interlacing(),
                                       video_params_.divider()));
 
       return CachedFrameToTexture(f);
@@ -261,6 +334,7 @@ QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
+  QMutexLocker locker(&decoder_lock_);
 
   DecoderPtr decoder = decoder_cache_.value(stream.get());
 
@@ -277,6 +351,8 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
                  << "::" << stream->index();
     }
   }
+
+  decoder_age_.insert(stream.get(), QDateTime::currentMSecsSinceEpoch());
 
   return decoder;
 }
@@ -316,9 +392,7 @@ QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &inp
         // Return a texture from the derived class
         value = FootageFrameToTexture(stream, frame);
 
-        if (value.isNull()) {
-          qDebug() << "Texture from derivative was blank";
-        } else {
+        if (!value.isNull()) {
           // Put this into the image cache instead
           still_image_cache_.insert(stream.get(), {value,
                                                    colorspace_match,
@@ -326,8 +400,6 @@ QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &inp
                                                    video_params_.divider(),
                                                    time_match});
         }
-      } else {
-        qDebug() << "Frame from decoder was blank";
       }
     }
 
@@ -346,37 +418,24 @@ QVariant RenderWorker::ProcessAudioFootage(StreamPtr stream, const TimeRange &in
     // See if we have a conformed version of this audio
     if (!decoder->HasConformedVersion(audio_params())) {
 
-      // If not, check what audio mode we're in
-      if (audio_mode_is_preview_) {
+      // If not, the audio needs to be conformed
+      // For online rendering/export, it's a waste of time to render the audio until we have
+      // all we need, so we try to handle the conform ourselves
+      AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
 
-        // For preview, we report the conform is missing and finish the render without it
-        // temporarily. The backend that picks up this signal will recache this section once the
-        // conform is available.
-        emit AudioConformUnavailable(decoder->stream(),
-                                     audio_render_time_,
-                                     input_time.out(),
-                                     audio_params());
+      // Check if any other threads are conforming this audio
+      if (as->try_start_conforming(audio_params())) {
+
+        // If not, conform it ourselves
+        decoder->ConformAudio(&IsCancelled(), audio_params());
 
       } else {
 
-        // For online rendering/export, it's a waste of time to render the audio until we have
-        // all we need, so we try to handle the conform ourselves
-        AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
+        // If another thread is conforming already, hackily try to wait until it's done.
+        do {
+          QThread::msleep(1000);
+        } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
 
-        // Check if any other threads are conforming this audio
-        if (as->try_start_conforming(audio_params())) {
-
-          // If not, conform it ourselves
-          decoder->ConformAudio(&IsCancelled(), audio_params());
-
-        } else {
-
-          // If another thread is conforming already, hackily try to wait until it's done.
-          do {
-            QThread::msleep(1000);
-          } while (!as->has_conformed_version(audio_params()) && !IsCancelled());
-
-        }
       }
 
     }

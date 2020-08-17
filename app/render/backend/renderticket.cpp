@@ -22,11 +22,12 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTicket::RenderTicket(Type type, const TimeRange &time) :
+RenderTicket::RenderTicket(Type type, const QVariant &time) :
   finished_(false),
   cancelled_(false),
   time_(time),
-  type_(type)
+  type_(type),
+  job_time_(0)
 {
 }
 

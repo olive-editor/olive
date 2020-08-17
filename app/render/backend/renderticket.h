@@ -21,6 +21,7 @@
 #ifndef RENDERTICKET_H
 #define RENDERTICKET_H
 
+#include <QDateTime>
 #include <QMutex>
 #include <QWaitCondition>
 
@@ -35,13 +36,24 @@ class RenderTicket : public QObject
   Q_OBJECT
 public:
   enum Type {
+    kTypeHash,
     kTypeVideo,
     kTypeAudio
   };
 
-  RenderTicket(Type type, const TimeRange& time);
+  RenderTicket(Type type, const QVariant& time);
 
-  const TimeRange& GetTime() const
+  qint64 GetJobTime() const
+  {
+    return job_time_;
+  }
+
+  void SetJobTime()
+  {
+    job_time_ = QDateTime::currentMSecsSinceEpoch();
+  }
+
+  const QVariant& GetTime() const
   {
     return time_;
   }
@@ -82,14 +94,18 @@ private:
 
   QWaitCondition wait_;
 
-  TimeRange time_;
+  QVariant time_;
 
   Type type_;
+
+  qint64 job_time_;
 
 };
 
 using RenderTicketPtr = std::shared_ptr<RenderTicket>;
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderTicketPtr)
 
 #endif // RENDERTICKET_H

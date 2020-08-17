@@ -16,9 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/cache/cache.h
-  task/cache/cache.cpp
-  task/cache/footagecache.h
-  task/cache/footagecache.cpp
+  node/block/transition/crossdissolve/crossdissolvetransition.h
+  node/block/transition/crossdissolve/crossdissolvetransition.cpp
   PARENT_SCOPE
 )

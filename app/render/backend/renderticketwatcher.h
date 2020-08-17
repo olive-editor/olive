@@ -31,6 +31,11 @@ class RenderTicketWatcher : public QObject
 public:
   RenderTicketWatcher(QObject* parent = nullptr);
 
+  RenderTicketPtr GetTicket() const
+  {
+    return ticket_;
+  }
+
   void SetTicket(RenderTicketPtr ticket);
 
   bool WasCancelled();

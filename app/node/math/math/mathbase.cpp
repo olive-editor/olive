@@ -65,7 +65,16 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
       operation = QStringLiteral("%1 / %2");
       break;
     case kOpPower:
-      operation = QStringLiteral("pow(%1, %2)");
+      if (pairing == kPairTextureNumber) {
+        // The "number" in this operation has to be declared a vec4
+        if (type_a & NodeParam::kNumber) {
+          operation = QStringLiteral("pow(%2, vec4(%1))");
+        } else {
+          operation = QStringLiteral("pow(%1, vec4(%2))");
+        }
+      } else {
+        operation = QStringLiteral("pow(%1, %2)");
+      }
       break;
     }
 
@@ -285,8 +294,13 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      if (operation != kOpMultiply
-          || number_val.data().value<QMatrix4x4>().isIdentity()) {
+      bool matrix_is_identity = false;
+
+      // FIXME: The matrix in the shader is transformed around footage+sequence resolution so we
+      //        need to do that here to determine if the matrix is truly identity. But to do that,
+      //        we need access to the texture parameters which is currently not possible.
+
+      if (operation != kOpMultiply || matrix_is_identity) {
         operation_is_noop = true;
       } else {
         // It's likely an alpha channel will result from this operation
