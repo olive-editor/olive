@@ -42,7 +42,6 @@ WaveformScope::WaveformScope(QWidget* parent) :
 
 void WaveformScope::SetupControlUI()
 {
-  //control_ui_ = new QWidget();
   control_ui_->setContentsMargins(0, 0, 0, 0);
 
   QHBoxLayout* toolbar_layout = new QHBoxLayout(control_ui_);

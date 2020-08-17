@@ -156,9 +156,4 @@ void ScopeBase::paintGL()
   }
 }
 
-void ScopeBase::SetupControlUI()
-{
-  control_ui_ = new QWidget();
-}
-
 OLIVE_NAMESPACE_EXIT

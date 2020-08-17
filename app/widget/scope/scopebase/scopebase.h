@@ -68,17 +68,16 @@ protected:
     return framebuffer_;
   }
 
-  QWidget* controlUI()
-  {
-    return control_ui_;
-  }
-
   QWidget* control_ui_;
 
 private:
   void UploadTextureFromBuffer();
 
-  virtual void SetupControlUI();
+   /**
+   * @brief Only needs to be implemented if the scope requires UI control. See waveform.cpp for an example
+   * Sets up the UI that control_ui_ points to.
+   */
+  virtual void SetupControlUI(){};
 
   OpenGLShaderPtr pipeline_;
 
@@ -89,8 +88,6 @@ private:
   OpenGLFramebuffer framebuffer_;
 
   Frame* buffer_;
-
-  
 
 private slots:
   void CleanUp();
