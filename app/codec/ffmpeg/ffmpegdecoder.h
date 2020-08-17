@@ -177,22 +177,23 @@ private:
   void InitScaler(int divider);
   void FreeScaler();
 
+  FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
+
   static int GetScaledDimension(int dim, int divider);
 
   static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
-  FramePtr BuffersToNativeFrame(int divider, int width, int height, int64_t ts, uint8_t **input_data, int* input_linesize);
+  static bool StreamUsesMultipleInstances(StreamPtr stream);
+
+  FramePtr BuffersToNativeFrame(int divider, int width, int height, const rational &ts, uint8_t **input_data, int* input_linesize);
 
   SwsContext* scale_ctx_;
   int scale_divider_;
   AVPixelFormat src_pix_fmt_;
   AVPixelFormat ideal_pix_fmt_;
   PixelFormat::Format native_pix_fmt_;
-
-  rational time_base_;
-  int64_t start_time_;
 
   static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;
   static QHash< Stream*, FFmpegFramePool* > frame_pool_map_;

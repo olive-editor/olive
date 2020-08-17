@@ -249,9 +249,13 @@ protected:
 
   QString GetIndexFilename();
 
-  bool open_;
+  static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
 
-  QMutex mutex_;
+  static int GetImageSequenceDigitCount(const QString& filename);
+
+  static int64_t GetImageSequenceIndex(const QString& filename);
+
+  bool open_;
 
 private:
   StreamPtr stream_;

@@ -47,6 +47,8 @@ public:
   bool is_image_sequence() const;
   void set_image_sequence(bool e);
 
+  int64_t get_time_in_timebase_units(const rational& time) const;
+
   /*
   int64_t get_closest_timestamp_in_frame_index(const rational& time);
   int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);

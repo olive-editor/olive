@@ -69,8 +69,6 @@ FFmpegDecoder::~FFmpegDecoder()
 
 bool FFmpegDecoder::Open()
 {
-  QMutexLocker locker(&mutex_);
-
   if (open_) {
     return true;
   }
@@ -92,24 +90,6 @@ bool FFmpegDecoder::Open()
     src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
 
-    if (stream()->type() == Stream::kVideo) {
-      QMutexLocker map_locker(&instance_map_lock_);
-
-      FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
-
-      if (!frame_pool) {
-        // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
-        //        this a dynamic value somehow or a configurable value?
-        frame_pool = new FFmpegFramePool(32,
-                                         our_instance->stream()->codecpar->width,
-                                         our_instance->stream()->codecpar->height,
-                                         static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
-        frame_pool_map_.insert(stream().get(), frame_pool);
-      }
-
-      our_instance->SetFramePool(frame_pool);
-    }
-
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
     native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
@@ -117,27 +97,77 @@ bool FFmpegDecoder::Open()
     Q_ASSERT(native_pix_fmt_ != PixelFormat::PIX_FMT_INVALID);
   }
 
-  time_base_ = our_instance->stream()->time_base;
-  start_time_ = our_instance->stream()->start_time;
+  if (StreamUsesMultipleInstances(stream())) {
+    // Video optimizes with multiple instances that we can swap between
+    QMutexLocker map_locker(&instance_map_lock_);
+
+    FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
+
+    if (!frame_pool) {
+      // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+      //        this a dynamic value somehow or a configurable value?
+      frame_pool = new FFmpegFramePool(64,
+                                       our_instance->stream()->codecpar->width,
+                                       our_instance->stream()->codecpar->height,
+                                       static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
+      frame_pool_map_.insert(stream().get(), frame_pool);
+    }
+
+    our_instance->SetFramePool(frame_pool);
+
+    instance_map_[stream().get()].append(our_instance);
+  } else {
+    // Images, image sequences, and audio don't need an instance
+    delete our_instance;
+  }
 
   // All allocation succeeded so we set the state to open
   open_ = true;
 
-  {
-    QMutexLocker l(&instance_map_lock_);
+  return true;
+}
 
-    QList<FFmpegDecoderInstance*> list = instance_map_.value(stream().get());
-    list.append(our_instance);
-    instance_map_.insert(stream().get(), list);
+FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &divider)
+{
+  // This is a still image
+  ImageStreamPtr is = std::static_pointer_cast<ImageStream>(stream());
+
+  QString img_filename = stream()->footage()->filename();
+
+  // If it's an image sequence, we'll probably need to transform the filename
+  if (stream()->type() == Stream::kVideo) {
+    int64_t ts = std::static_pointer_cast<VideoStream>(stream())->get_time_in_timebase_units(timecode);
+
+    img_filename = TransformImageSequenceFileName(stream()->footage()->filename(), ts);
   }
 
-  return true;
+  FFmpegDecoderInstance i(img_filename.toUtf8(), stream()->index());
+
+  AVPacket* pkt = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
+  FramePtr output_frame = nullptr;
+
+  int ret = i.GetFrame(pkt, frame);
+
+  if (ret >= 0) {
+    output_frame = BuffersToNativeFrame(divider,
+                                        is->width(),
+                                        is->height(),
+                                        0,
+                                        frame->data,
+                                        frame->linesize);
+  } else {
+    qWarning() << "Failed to retrieve still image from decoder";
+  }
+
+  av_frame_free(&frame);
+  av_packet_free(&pkt);
+
+  return output_frame;
 }
 
 FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
-  QMutexLocker locker(&mutex_);
-
   if (!open_) {
     qWarning() << "Tried to retrieve video on a decoder that's still closed";
     return nullptr;
@@ -149,40 +179,18 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
   ImageStreamPtr is = std::static_pointer_cast<ImageStream>(stream());
 
-  if (stream()->type() == Stream::kImage) {
+  if (stream()->type() == Stream::kImage
+      || std::static_pointer_cast<VideoStream>(stream())->is_image_sequence()) {
 
-    // FIXME: Hacky
-    FFmpegDecoderInstance i(stream()->footage()->filename().toUtf8(), stream()->index());
-
-    AVPacket* pkt = av_packet_alloc();
-    AVFrame* frame = av_frame_alloc();
-    FramePtr output_frame = nullptr;
-
-    int ret = i.GetFrame(pkt, frame);
-
-    if (ret >= 0) {
-      output_frame = BuffersToNativeFrame(divider,
-                                          is->width(),
-                                          is->height(),
-                                          0,
-                                          frame->data,
-                                          frame->linesize);
-    } else {
-      qWarning() << "Failed to retrieve still image from decoder";
-    }
-
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
-
-    return output_frame;
+    return RetrieveStillImage(timecode, divider);
 
   } else {
 
     FFmpegFramePool::ElementPtr return_frame = nullptr;
 
-    int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
-
     VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
+
+    int64_t target_ts = vs->get_time_in_timebase_units(timecode);
 
     FFmpegDecoderInstance* working_instance = nullptr;
 
@@ -309,7 +317,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
       return BuffersToNativeFrame(divider,
                                   vs->width(),
                                   vs->height(),
-                                  target_ts,
+                                  timecode,
                                   input_data,
                                   input_linesize);
     }
@@ -321,8 +329,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
 SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioParams &params)
 {
-  QMutexLocker locker(&mutex_);
-
   if (!open_) {
     qWarning() << "Tried to retrieve audio on a decoder that's still closed";
     return nullptr;
@@ -355,9 +361,7 @@ SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rat
 
 void FFmpegDecoder::Close()
 {
-  QMutexLocker locker(&mutex_);
-
-  {
+  if (stream() && StreamUsesMultipleInstances(stream())) {
     // Clear whichever instance is not in use and is least useful (there are only ever as many instances as there are
     // threads so if this thread is closing, an instance MUST be inactive)
     QMutexLocker l(&instance_map_lock_);
@@ -776,7 +780,13 @@ uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
   return av_get_default_channel_layout(stream->codecpar->channels);
 }
 
-FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height, int64_t ts, uint8_t** input_data, int* input_linesize)
+bool FFmpegDecoder::StreamUsesMultipleInstances(StreamPtr stream)
+{
+  return stream->type() == Stream::kVideo
+      && !std::static_pointer_cast<VideoStream>(stream)->is_image_sequence();
+}
+
+FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height, const rational& ts, uint8_t** input_data, int* input_linesize)
 {
   if (divider != scale_divider_) {
     FreeScaler();
@@ -791,7 +801,7 @@ FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height,
                                      std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio(),
                                      std::static_pointer_cast<ImageStream>(stream())->interlacing(),
                                      divider));
-  copy->set_timestamp(Timecode::timestamp_to_time(ts, time_base_));
+  copy->set_timestamp(ts);
   copy->allocate();
 
   // Convert frame to RGB/A for the rest of the pipeline
@@ -1062,8 +1072,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       }
 
       // Clear early frames
-      // FIXME: Hardcoded value (only stores a maximum of 2 seconds in the cache at any time)
-      TruncateCacheRangeTo(2*second_ts_);
+      TruncateCacheRangeTo(second_ts_);
 
       // Append this frame and signal to other threads that a new frame has arrived
       cached_frames_.append(cached);

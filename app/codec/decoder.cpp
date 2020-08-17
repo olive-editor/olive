@@ -30,6 +30,7 @@
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
 #include "common/filefunctions.h"
+#include "common/timecodefunctions.h"
 #include "task/taskmanager.h"
 #include "project/project.h"
 
@@ -218,6 +219,51 @@ void Decoder::SignalProcessingProgress(const int64_t &ts)
   if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
     emit IndexProgress(static_cast<double>(ts) / static_cast<double>(stream()->duration()));
   }
+}
+
+QString Decoder::TransformImageSequenceFileName(const QString &filename, const int64_t& number)
+{
+  int digit_count = GetImageSequenceDigitCount(filename);
+
+  QFileInfo file_info(filename);
+
+  QString original_basename = file_info.baseName();
+
+  QString new_basename = original_basename.left(original_basename.size() - digit_count)
+      .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
+
+  return file_info.dir().filePath(file_info.fileName().replace(original_basename, new_basename));
+}
+
+int Decoder::GetImageSequenceDigitCount(const QString &filename)
+{
+  QString basename = QFileInfo(filename).baseName();
+
+  // See if basename contains a number at the end
+  int digit_count = 0;
+
+  for (int i=basename.size()-1;i>=0;i--) {
+    if (basename.at(i).isDigit()) {
+      digit_count++;
+    } else {
+      break;
+    }
+  }
+
+  return digit_count;
+}
+
+int64_t Decoder::GetImageSequenceIndex(const QString &filename)
+{
+  int digit_count = GetImageSequenceDigitCount(filename);
+
+  QFileInfo file_info(filename);
+
+  QString original_basename = file_info.baseName();
+
+  QString number_only = original_basename.mid(original_basename.size() - digit_count);
+
+  return number_only.toLongLong();
 }
 
 OLIVE_NAMESPACE_EXIT

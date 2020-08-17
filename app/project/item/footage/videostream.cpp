@@ -71,6 +71,11 @@ void VideoStream::set_image_sequence(bool e)
   is_image_sequence_ = e;
 }
 
+int64_t VideoStream::get_time_in_timebase_units(const rational &time) const
+{
+  return Timecode::time_to_timestamp(time, timebase()) + start_time();
+}
+
 /*
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
 {

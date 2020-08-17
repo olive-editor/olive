@@ -143,8 +143,6 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 
 bool OIIODecoder::Open()
 {
-  QMutexLocker locker(&mutex_);
-
   Q_ASSERT(stream());
 
   if (stream()->type() != Stream::kVideo && !OpenImageHandler(stream()->footage()->filename())) {
@@ -158,16 +156,12 @@ bool OIIODecoder::Open()
 
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
 {
-  QMutexLocker locker(&mutex_);
-
   if (!open_) {
     return nullptr;
   }
 
   if (stream()->type() == Stream::kVideo) {
-    int64_t ts = Timecode::time_to_timestamp(timecode, stream()->timebase());
-
-    ts += static_cast<VideoStream*>(stream().get())->start_time();
+    int64_t ts = std::static_pointer_cast<VideoStream>(stream())->get_time_in_timebase_units(timecode);
 
     if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts))) {
       return nullptr;
@@ -210,8 +204,6 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
 
 void OIIODecoder::Close()
 {
-  QMutexLocker locker(&mutex_);
-
   CloseImageHandle();
 }
 
@@ -322,51 +314,6 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
   }
 
   return true;
-}
-
-int OIIODecoder::GetImageSequenceDigitCount(const QString &filename)
-{
-  QString basename = QFileInfo(filename).baseName();
-
-  // See if basename contains a number at the end
-  int digit_count = 0;
-
-  for (int i=basename.size()-1;i>=0;i--) {
-    if (basename.at(i).isDigit()) {
-      digit_count++;
-    } else {
-      break;
-    }
-  }
-
-  return digit_count;
-}
-
-QString OIIODecoder::TransformImageSequenceFileName(const QString &filename, const int64_t& number)
-{
-  int digit_count = GetImageSequenceDigitCount(filename);
-
-  QFileInfo file_info(filename);
-
-  QString original_basename = file_info.baseName();
-
-  QString new_basename = original_basename.left(original_basename.size() - digit_count)
-      .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
-
-  return file_info.dir().filePath(file_info.fileName().replace(original_basename, new_basename));
-}
-
-int64_t OIIODecoder::GetImageSequenceIndex(const QString &filename)
-{
-  int digit_count = GetImageSequenceDigitCount(filename);
-
-  QFileInfo file_info(filename);
-
-  QString original_basename = file_info.baseName();
-
-  QString number_only = original_basename.mid(original_basename.size() - digit_count);
-
-  return number_only.toLongLong();
 }
 
 bool OIIODecoder::OpenImageHandler(const QString &fn)
