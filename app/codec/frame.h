@@ -65,9 +65,6 @@ public:
   const rational& timestamp() const;
   void set_timestamp(const rational& timestamp);
 
-  const int64_t& native_timestamp();
-  void set_native_timestamp(const int64_t& timestamp);
-
   /**
    * @brief Get the data buffer of this frame
    */
@@ -110,8 +107,6 @@ private:
   QByteArray data_;
 
   rational timestamp_;
-
-  int64_t native_timestamp_;
 
   int linesize_;
 
