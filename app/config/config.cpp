@@ -101,6 +101,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.25f)));
   SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.75f)));
   SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.25f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor9"), NodeParam::kColor, QVariant::fromValue(Color(0.55f, 0.55f, 0.75f)));
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeParam::kString, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeParam::kString, QString());
@@ -229,7 +230,14 @@ void Config::Save()
   QMapIterator<QString, ConfigEntry> iterator(current_config_.config_map_);
   while (iterator.hasNext()) {
     iterator.next();
-    writer.writeTextElement(iterator.key(), NodeInput::ValueToString(iterator.value().type, iterator.value().data, false));
+
+    QString value = NodeInput::ValueToString(iterator.value().type, iterator.value().data, false);
+
+    writer.writeTextElement(iterator.key(), value);
+
+    if (iterator.value().type == NodeParam::kNone) {
+      qWarning() << "Config key" << iterator.key() << "had null type";
+    }
   }
 
   writer.writeEndElement(); // Configuration
