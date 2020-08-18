@@ -95,20 +95,16 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
           static_cast<olive::PreferencesBehaviorTab*>(preference_pane_stack_->widget(2)),
           &PreferencesBehaviorTab::ResetDefaults);
 
-  connect(this, &PreferencesDialog::ResetQuality,
-          static_cast<olive::PreferencesQualityTab*>(preference_pane_stack_->widget(3)),
-          &PreferencesQualityTab::ResetDefaults);
-
   connect(this, &PreferencesDialog::ResetDisk,
-          static_cast<olive::PreferencesDiskTab*>(preference_pane_stack_->widget(4)),
+          static_cast<olive::PreferencesDiskTab*>(preference_pane_stack_->widget(3)),
           &PreferencesDiskTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetAudio,
-          static_cast<olive::PreferencesAudioTab*>(preference_pane_stack_->widget(5)),
+          static_cast<olive::PreferencesAudioTab*>(preference_pane_stack_->widget(4)),
           &PreferencesAudioTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetKeyboard,
-          static_cast<olive::PreferencesKeyboardTab*>(preference_pane_stack_->widget(6)),
+          static_cast<olive::PreferencesKeyboardTab*>(preference_pane_stack_->widget(5)),
           &PreferencesKeyboardTab::ResetDefaults);
 }
 

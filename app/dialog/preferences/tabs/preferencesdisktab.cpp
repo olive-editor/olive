@@ -120,9 +120,9 @@ void PreferencesDiskTab::Accept()
 
 void PreferencesDiskTab::SetValuesFromConfig(Config config) 
 {
-  disk_cache_location_->setText(config["DiskCachePath"].toString());
-  maximum_cache_slider_->SetValue(config["DiskCacheSize"].toDouble());
-  clear_disk_cache_->setChecked(config["ClearDiskCacheOnClose"].toBool());
+  //disk_cache_location_->setText(config["DiskCachePath"].toString());
+  //maximum_cache_slider_->SetValue(config["DiskCacheSize"].toDouble());
+  //clear_disk_cache_->setChecked(config["ClearDiskCacheOnClose"].toBool());
   cache_ahead_slider_->SetValue(config["DiskCacheAhead"].value<rational>().toDouble());
   cache_behind_slider_->SetValue(config["DiskCacheBehind"].value<rational>().toDouble());
 }

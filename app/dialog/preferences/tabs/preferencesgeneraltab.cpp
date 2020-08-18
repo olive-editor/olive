@@ -124,12 +124,6 @@ void PreferencesGeneralTab::SetValuesFromConfig(Config config) {
   rectified_waveforms_->setChecked(config["RectifiedWaveforms"].toBool());
   autoscroll_method_->setCurrentIndex(config["Autoscroll"].toInt());
   default_still_length_->SetValue(config["DefaultStillLength"].value<rational>().toDouble());
-
-  default_sequence_.set_video_params(VideoParams(config["DefaultSequenceWidth"].toInt(),
-                                                 config["DefaultSequenceHeight"].toInt(),
-                                                 config["DefaultSequenceFrameRate"].value<rational>()));
-  default_sequence_.set_audio_params(AudioParams(config["DefaultSequenceAudioFrequency"].toInt(),
-                                                 config["DefaultSequenceAudioLayout"].toULongLong()));
 }
 
 void PreferencesGeneralTab::ResetDefaults(bool reset_all_tabs)
