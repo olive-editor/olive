@@ -25,6 +25,7 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QList>
 
 #include "config/config.h"
 #include "tabs/preferencesgeneraltab.h"
@@ -84,27 +85,27 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
           &QStackedWidget::setCurrentIndex);
 
   connect(this, &PreferencesDialog::ResetGeneral,
-          static_cast<olive::PreferencesGeneralTab*>(preference_pane_stack_->widget(0)),
+          static_cast<olive::PreferencesGeneralTab*>(preference_pane_stack_->widget(TabIndex(tr("General")))),
           &PreferencesGeneralTab::ResetDefaults);
-
+  
   connect(this, &PreferencesDialog::ResetAppearance,
-          static_cast<olive::PreferencesAppearanceTab*>(preference_pane_stack_->widget(1)),
+          static_cast<olive::PreferencesAppearanceTab*>(preference_pane_stack_->widget(TabIndex(tr("Appearance")))),
           &PreferencesAppearanceTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetBehavior,
-          static_cast<olive::PreferencesBehaviorTab*>(preference_pane_stack_->widget(2)),
+          static_cast<olive::PreferencesBehaviorTab*>(preference_pane_stack_->widget(TabIndex(tr("Behavior")))),
           &PreferencesBehaviorTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetDisk,
-          static_cast<olive::PreferencesDiskTab*>(preference_pane_stack_->widget(3)),
+          static_cast<olive::PreferencesDiskTab*>(preference_pane_stack_->widget(TabIndex(tr("Disk")))),
           &PreferencesDiskTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetAudio,
-          static_cast<olive::PreferencesAudioTab*>(preference_pane_stack_->widget(4)),
+          static_cast<olive::PreferencesAudioTab*>(preference_pane_stack_->widget(TabIndex(tr("Audio")))),
           &PreferencesAudioTab::ResetDefaults);
 
   connect(this, &PreferencesDialog::ResetKeyboard,
-          static_cast<olive::PreferencesKeyboardTab*>(preference_pane_stack_->widget(5)),
+          static_cast<olive::PreferencesKeyboardTab*>(preference_pane_stack_->widget(TabIndex(tr("Keyboard")))),
           &PreferencesKeyboardTab::ResetDefaults);
 }
 
@@ -167,6 +168,14 @@ void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)
   preference_pane_stack_->addWidget(tab);
 
   tabs_.append(tab);
+}
+
+int PreferencesDialog::TabIndex(QString title)
+{
+  QList<QListWidgetItem*> list = list_widget_->findItems(title, Qt::MatchExactly);
+  // Tab should exist, this is more to check for typos/bugs
+  Q_ASSERT(!list.empty());
+  return list_widget_->row(list.first());
 }
 
 OLIVE_NAMESPACE_EXIT

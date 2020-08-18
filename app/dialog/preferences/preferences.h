@@ -79,6 +79,12 @@ signals:
 private:
   void AddTab(PreferencesTab* tab, const QString& title);
 
+  /**
+   * @brief Return the index of the tab with the given title
+   * Saves having to keep track of hard coded tab numbers when linking everything together.
+   */
+  int TabIndex(QString title);
+
   QListWidget* list_widget_;
 
   QStackedWidget* preference_pane_stack_;
