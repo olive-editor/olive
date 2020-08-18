@@ -200,6 +200,10 @@ void ViewerOutput::UpdateTrackCache()
 
 void ViewerOutput::VerifyLength()
 {
+  if (operation_stack_ != 0) {
+    return;
+  }
+
   NodeTraverser traverser;
 
   rational video_length;
