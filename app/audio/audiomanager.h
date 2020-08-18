@@ -70,7 +70,7 @@ public:
 
   void SetOutputDevice(const QAudioDeviceInfo& info);
 
-  void SetOutputParams(const AudioRenderingParams& params);
+  void SetOutputParams(const AudioParams& params);
 
   void SetInputDevice(const QAudioDeviceInfo& info);
 
@@ -88,7 +88,7 @@ signals:
 
   void OutputDeviceStarted(const QString& filename, qint64 offset, int playback_speed);
 
-  void AudioParamsChanged(const AudioRenderingParams& params);
+  void AudioParamsChanged(const AudioParams& params);
 
   void OutputPushed(const QByteArray& data);
 
@@ -102,8 +102,8 @@ private:
   QList<QAudioDeviceInfo> input_devices_;
   QList<QAudioDeviceInfo> output_devices_;
 
-  QFutureWatcher< QList<QAudioDeviceInfo> > input_watcher_;
-  QFutureWatcher< QList<QAudioDeviceInfo> > output_watcher_;
+  bool is_refreshing_inputs_;
+  bool is_refreshing_outputs_;
 
   static AudioManager* instance_;
 
@@ -112,7 +112,7 @@ private:
   bool output_is_set_;
 
   QAudioDeviceInfo output_device_info_;
-  AudioRenderingParams output_params_;
+  AudioParams output_params_;
 
   std::unique_ptr<QAudioInput> input_;
   QAudioDeviceInfo input_device_info_;

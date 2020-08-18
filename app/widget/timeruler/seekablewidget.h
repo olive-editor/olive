@@ -23,7 +23,7 @@
 
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
-#include "widget/timelinewidget/view/timelineplayhead.h"
+#include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -40,6 +40,8 @@ public:
 
   void ConnectTimelinePoints(TimelinePoints* points);
 
+  void SetSnapService(SnapService* service);
+
 public slots:
   void SetTime(const int64_t &r);
 
@@ -50,6 +52,7 @@ protected:
 
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
   virtual void ScaleChangedEvent(const double&) override;
 
@@ -76,16 +79,6 @@ protected:
     return playhead_width_;
   }
 
-  inline const QColor& GetPlayheadColor() const
-  {
-    return style_.GetPlayheadColor();
-  }
-
-  inline const QColor& GetPlayheadHighlightColor() const
-  {
-    return style_.GetPlayheadHighlightColor();
-  }
-
 signals:
   /**
    * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
@@ -95,8 +88,6 @@ signals:
 private:
   int64_t time_;
 
-  TimelinePlayhead style_;
-
   TimelinePoints* timeline_points_;
 
   int scroll_;
@@ -104,6 +95,8 @@ private:
   int text_height_;
 
   int playhead_width_;
+
+  SnapService* snap_service_;
 
 };
 

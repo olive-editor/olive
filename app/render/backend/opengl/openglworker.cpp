@@ -20,65 +20,71 @@
 
 #include "openglworker.h"
 
-#include "common/clamp.h"
-#include "core.h"
-#include "node/block/transition/transition.h"
-#include "node/node.h"
-#include "openglcolorprocessor.h"
-#include "openglrenderfunctions.h"
-#include "render/colormanager.h"
-#include "render/pixelformat.h"
-
 OLIVE_NAMESPACE_ENTER
 
-OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, OpenGLProxy *proxy, QObject *parent) :
-  VideoRenderWorker(frame_cache, parent),
-  proxy_(proxy)
+OpenGLWorker::OpenGLWorker(RenderBackend *parent) :
+  RenderWorker(parent)
 {
 }
 
-NodeValue OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range)
+void OpenGLWorker::TextureToFrame(const QVariant &texture, FramePtr frame, const QMatrix4x4& mat) const
 {
-  FramePtr frame = decoder->RetrieveVideo(range.in(),
-                                          video_params().divider(),
-                                          video_params().mode() == RenderMode::kOffline);
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
+                            "TextureToBuffer",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(const QVariant&, texture),
+                            OLIVE_NS_ARG(FramePtr, frame),
+                            Q_ARG(const QMatrix4x4&, mat));
+}
 
-  NodeValue value;
+QVariant OpenGLWorker::FootageFrameToTexture(StreamPtr stream, FramePtr frame) const
+{
+  QVariant value;
 
-  if (frame) {
-    QMetaObject::invokeMethod(proxy_,
-                              "FrameToValue",
-                              Qt::BlockingQueuedConnection,
-                              OLIVE_NS_RETURN_ARG(NodeValue, value),
-                              OLIVE_NS_ARG(FramePtr, frame),
-                              OLIVE_NS_ARG(StreamPtr, stream));
-  }
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
+                            "FrameToValue",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_ARG(FramePtr, frame),
+                            OLIVE_NS_ARG(StreamPtr, stream),
+                            OLIVE_NS_CONST_ARG(VideoParams&, video_params()),
+                            OLIVE_NS_CONST_ARG(RenderMode::Mode&, render_mode()));
 
   return value;
 }
 
-void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable &output_params)
+QVariant OpenGLWorker::CachedFrameToTexture(FramePtr frame) const
 {
-  QMetaObject::invokeMethod(proxy_,
-                            "RunNodeAccelerated",
+  QVariant value;
+
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
+                            "PreCachedFrameToValue",
                             Qt::BlockingQueuedConnection,
-                            OLIVE_NS_CONST_ARG(Node*, node),
-                            OLIVE_NS_CONST_ARG(TimeRange&, range),
-                            OLIVE_NS_ARG(NodeValueDatabase&, input_params),
-                            OLIVE_NS_ARG(NodeValueTable&, output_params));
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_ARG(FramePtr, frame));
+
+  return value;
 }
 
-void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize)
+QVariant OpenGLWorker::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
-  QMetaObject::invokeMethod(proxy_,
-                            "TextureToBuffer",
+  QVariant value;
+
+  QMetaObject::invokeMethod(OpenGLProxy::instance(),
+                            "RunNodeAccelerated",
                             Qt::BlockingQueuedConnection,
-                            Q_ARG(const QVariant&, tex_in),
-                            Q_ARG(int, width),
-                            Q_ARG(int, height),
-                            Q_ARG(const QMatrix4x4&, matrix),
-                            Q_ARG(void*, buffer),
-                            Q_ARG(int, linesize));
+                            Q_RETURN_ARG(QVariant, value),
+                            OLIVE_NS_CONST_ARG(Node*, node),
+                            OLIVE_NS_CONST_ARG(TimeRange&, range),
+                            OLIVE_NS_CONST_ARG(ShaderJob&, job),
+                            OLIVE_NS_CONST_ARG(VideoParams&, video_params()));
+
+  return value;
+}
+
+bool OpenGLWorker::TextureHasAlpha(const QVariant &v) const
+{
+  return PixelFormat::FormatHasAlphaChannel(v.value<OpenGLTextureCache::ReferencePtr>()->texture()->format());
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -23,6 +23,7 @@
 #include <QDrag>
 #include <QMimeData>
 
+#include "config/config.h"
 #include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -50,6 +51,8 @@ Footage *FootageViewerWidget::GetFootage() const
 void FootageViewerWidget::SetFootage(Footage *footage)
 {
   if (footage_) {
+    cached_timestamps_.insert(footage_, GetTimestamp());
+
     ConnectViewerNode(nullptr);
 
     NodeParam::DisconnectEdge(video_node_->output(), viewer_node_->texture_input());
@@ -62,7 +65,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     VideoStreamPtr video_stream = nullptr;
     AudioStreamPtr audio_stream = nullptr;
 
-    foreach (StreamPtr s, footage->streams()) {
+    foreach (StreamPtr s, footage_->streams()) {
       if (!audio_stream && s->type() == Stream::kAudio) {
         audio_stream = std::static_pointer_cast<AudioStream>(s);
       }
@@ -77,19 +80,44 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       }
     }
 
+    viewer_node_->set_media_name(footage_->name());
+
     if (video_stream) {
       video_node_->SetFootage(video_stream);
-      viewer_node_->set_video_params(VideoParams(video_stream->width(), video_stream->height(), video_stream->frame_rate().flipped()));
+      viewer_node_->set_video_params(VideoParams(video_stream->width(),
+                                                 video_stream->height(),
+                                                 video_stream->frame_rate().flipped(),
+                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 video_stream->pixel_aspect_ratio(),
+                                                 video_stream->interlacing(),
+                                                 VideoParams::generate_auto_divider(video_stream->width(), video_stream->height())));
       NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
+    } else {
+      int width = Config::Current()["DefaultSequenceWidth"].toInt();
+      int height = Config::Current()["DefaultSequenceHeight"].toInt();
+
+      viewer_node_->set_video_params(VideoParams(width,
+                                                 height,
+                                                 Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
+                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                                 Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
+                                                 Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
+                                                 VideoParams::generate_auto_divider(width, height)));
     }
 
     if (audio_stream) {
       audio_node_->SetFootage(audio_stream);
-      viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout()));
+      viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout(), SampleFormat::kInternalFormat));
       NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
+    } else {
+      viewer_node_->set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
+                                     Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
+                                     SampleFormat::kInternalFormat));
     }
 
-    ConnectViewerNode(viewer_node_, footage->project()->color_manager());
+    ConnectViewerNode(viewer_node_, footage_->project()->color_manager());
+
+    SetTimestamp(cached_timestamps_.value(footage_, 0));
   }
 }
 

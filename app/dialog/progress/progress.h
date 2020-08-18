@@ -25,6 +25,7 @@
 #include <QProgressBar>
 
 #include "common/debug.h"
+#include "widget/taskview/elapsedcounterwidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -34,14 +35,24 @@ class ProgressDialog : public QDialog
 public:
   ProgressDialog(const QString &message, const QString &title, QWidget* parent = nullptr);
 
+protected:
+  virtual void showEvent(QShowEvent* e) override;
+
+  virtual void closeEvent(QCloseEvent *) override;
+
 public slots:
-  void SetProgress(int value);
+  void SetProgress(double value);
 
 signals:
   void Cancelled();
 
+protected:
+  void ShowErrorMessage(const QString& title, const QString& message);
+
 private:
   QProgressBar* bar_;
+
+  ElapsedCounterWidget* elapsed_timer_lbl_;
 
 };
 

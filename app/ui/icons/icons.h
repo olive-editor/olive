@@ -81,6 +81,8 @@ extern QIcon Error;
 extern QIcon DirUp;
 extern QIcon Clock;
 extern QIcon Diamond;
+extern QIcon Plus;
+extern QIcon Minus;
 
 /**
  * @brief Create an icon object loaded from file

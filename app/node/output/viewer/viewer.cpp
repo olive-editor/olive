@@ -24,7 +24,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ViewerOutput::ViewerOutput()
+ViewerOutput::ViewerOutput() :
+  video_frame_cache_(this),
+  audio_playback_cache_(this),
+  operation_stack_(0)
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
   AddInput(texture_input_);
@@ -40,12 +43,14 @@ ViewerOutput::ViewerOutput()
     // Create track input
     NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
     AddInput(track_input);
+    disconnect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &ViewerOutput::InputConnectionChanged);
+    disconnect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &ViewerOutput::InputConnectionChanged);
     track_inputs_.replace(i, track_input);
 
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
-    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::UpdateLength);
+    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
     connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
@@ -82,84 +87,104 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-NodeInput *ViewerOutput::texture_input() const
+void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
 {
-  return texture_input_;
+  video_frame_cache_.Shift(from, to);
 }
 
-NodeInput *ViewerOutput::samples_input() const
+void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
 {
-  return samples_input_;
+  audio_playback_cache_.Shift(from, to);
+
+  foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
+    QMutexLocker locker(track->waveform_lock());
+    track->waveform().Shift(from, to);
+  }
+}
+
+void ViewerOutput::ShiftCache(const rational &from, const rational &to)
+{
+  ShiftVideoCache(from, to);
+  ShiftAudioCache(from, to);
 }
 
 void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
 {
-  if (from == texture_input()) {
-    emit VideoChangedBetween(range, source);
-  } else if (from == samples_input()) {
-    emit AudioChangedBetween(range, source);
+  emit GraphChangedFrom(source);
+
+  if (operation_stack_ == 0) {
+    if (from == texture_input_ || from == samples_input_) {
+      TimeRange invalidated_range(qMax(rational(), range.in()),
+                                  qMin(GetLength(), range.out()));
+
+      if (invalidated_range.in() != invalidated_range.out()) {
+        if (from == texture_input_) {
+          video_frame_cache_.Invalidate(invalidated_range);
+        } else {
+          audio_playback_cache_.Invalidate(invalidated_range);
+        }
+      }
+    }
+
+    VerifyLength();
   }
 
   Node::InvalidateCache(range, from, source);
 }
 
-void ViewerOutput::InvalidateVisible(NodeInput* from, NodeInput *source)
-{
-  if (from == texture_input()) {
-    emit VisibleInvalidated(source);
-  }
-
-  Node::InvalidateVisible(from, source);
-}
-
-const VideoParams &ViewerOutput::video_params() const
-{
-  return video_params_;
-}
-
-const AudioParams &ViewerOutput::audio_params() const
-{
-  return audio_params_;
-}
-
 void ViewerOutput::set_video_params(const VideoParams &video)
 {
+  bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
+  bool timebase_changed = video_params_.time_base() != video.time_base();
+  bool pixel_aspect_changed = video_params_.pixel_aspect_ratio() != video.pixel_aspect_ratio();
+  bool interlacing_changed = video_params_.interlacing() != video.interlacing();
+
   video_params_ = video;
 
-  emit SizeChanged(video_params_.width(), video_params_.height());
-  emit TimebaseChanged(video_params_.time_base());
+  if (size_changed) {
+    emit SizeChanged(video_params_.width(), video_params_.height());
+  }
+
+  if (pixel_aspect_changed) {
+    emit PixelAspectChanged(video_params_.pixel_aspect_ratio());
+  }
+
+  if (interlacing_changed) {
+    emit InterlacingChanged(video_params_.interlacing());
+  }
+
+  if (timebase_changed) {
+    video_frame_cache_.SetTimebase(video_params_.time_base());
+    emit TimebaseChanged(video_params_.time_base());
+  }
+
   emit VideoParamsChanged();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
 {
   audio_params_ = audio;
+
+  emit AudioParamsChanged();
 }
 
-rational ViewerOutput::Length()
+rational ViewerOutput::GetLength()
 {
-  NodeTraverser traverser;
-
-  rational video_length;
-
-  if (texture_input_->IsConnected()) {
-    NodeValueTable t = traverser.ProcessNode(NodeDependency(texture_input_->get_connected_node(), 0, 0));
-    video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
-  }
-
-  rational audio_length;
-
-  if (samples_input_->IsConnected()) {
-    NodeValueTable t = traverser.ProcessNode(NodeDependency(samples_input_->get_connected_node(), 0, 0));
-    audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
-  }
-
-  return qMax(video_length, qMax(audio_length, timeline_length_));
+  return last_length_;
 }
 
-const QUuid &ViewerOutput::uuid() const
+QVector<TrackOutput *> ViewerOutput::GetUnlockedTracks() const
 {
-  return uuid_;
+  QVector<TrackOutput*> tracks = GetTracks();
+
+  for (int i=0;i<tracks.size();i++) {
+    if (tracks.at(i)->IsLocked()) {
+      tracks.removeAt(i);
+      i--;
+    }
+  }
+
+  return tracks;
 }
 
 void ViewerOutput::UpdateTrackCache()
@@ -173,30 +198,36 @@ void ViewerOutput::UpdateTrackCache()
   }
 }
 
-void ViewerOutput::UpdateLength(const rational &length)
+void ViewerOutput::VerifyLength()
 {
-  // If this length is equal, no-op
-  if (length == timeline_length_) {
-    return;
+  NodeTraverser traverser;
+
+  rational video_length;
+
+  if (texture_input_->is_connected()) {
+    NodeValueTable t = traverser.GenerateTable(texture_input_->get_connected_node(), 0, 0);
+    video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  // If this length is greater, this must be the new total length
-  if (length > timeline_length_) {
-    timeline_length_ = length;
-    emit LengthChanged(timeline_length_);
-    return;
+  rational audio_length;
+
+  if (samples_input_->is_connected()) {
+    NodeValueTable t = traverser.GenerateTable(samples_input_->get_connected_node(), 0, 0);
+    audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  // Otherwise, the new length is shorter and we'll have to manually determine what the new max length is
-  rational new_length = 0;
+  video_length = qMax(video_length, track_lists_.at(Timeline::kTrackTypeVideo)->GetTotalLength());
+  audio_length = qMax(audio_length, track_lists_.at(Timeline::kTrackTypeAudio)->GetTotalLength());
+  rational subtitle_length = track_lists_.at(Timeline::kTrackTypeSubtitle)->GetTotalLength();
 
-  foreach (TrackList* list, track_lists_) {
-    new_length = qMax(new_length, list->GetTotalLength());
-  }
+  video_frame_cache_.SetLength(video_length);
+  audio_playback_cache_.SetLength(audio_length);
 
-  if (new_length != timeline_length_) {
-    timeline_length_ = new_length;
-    emit LengthChanged(timeline_length_);
+  rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
+
+  if (real_length != last_length_) {
+    last_length_ = real_length;
+    emit LengthChanged(last_length_);
   }
 }
 
@@ -226,14 +257,10 @@ void ViewerOutput::Retranslate()
       break;
     }
 
-    if (!input_name.isEmpty())
+    if (!input_name.isEmpty()) {
       track_inputs_.at(i)->set_name(input_name);
+    }
   }
-}
-
-const QString &ViewerOutput::media_name() const
-{
-  return media_name_;
 }
 
 void ViewerOutput::set_media_name(const QString &name)
@@ -243,19 +270,18 @@ void ViewerOutput::set_media_name(const QString &name)
   emit MediaNameChanged(media_name_);
 }
 
-const QVector<TrackOutput *>& ViewerOutput::Tracks() const
+void ViewerOutput::BeginOperation()
 {
-  return track_cache_;
+  operation_stack_++;
+
+  Node::BeginOperation();
 }
 
-NodeInput *ViewerOutput::track_input(Timeline::TrackType type) const
+void ViewerOutput::EndOperation()
 {
-  return track_inputs_.at(type);
-}
+  operation_stack_--;
 
-TrackList *ViewerOutput::track_list(Timeline::TrackType type) const
-{
-  return track_lists_.at(type);
+  Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)

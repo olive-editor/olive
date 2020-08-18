@@ -26,98 +26,50 @@
 
 #include "common/clamp.h"
 #include "config/config.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
 AudioWaveformView::AudioWaveformView(QWidget *parent) :
   SeekableWidget(parent),
-  backend_(nullptr)
+  playback_(nullptr)
 {
   setAutoFillBackground(true);
   setBackgroundRole(QPalette::Base);
 }
 
-void AudioWaveformView::SetBackend(AudioRenderBackend *backend)
+void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
 {
-  if (backend_) {
-    disconnect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
-    disconnect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
+  if (playback_) {
+    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(0);
   }
 
-  backend_ = backend;
+  playback_ = playback;
 
-  if (backend_) {
-    connect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
-    connect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
+  if (playback_) {
+    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
-    SetTimebase(backend_->params().time_base());
+    SetTimebase(playback_->GetParameters().time_base());
   }
 
   ForceUpdate();
-}
-
-void AudioWaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const SampleSummer::Sum* samples, int nb_samples, int channels)
-{
-  int sample_index, next_sample_index = 0;
-
-  QVector<SampleSummer::Sum> summary;
-  int summary_index = -1;
-
-  int channel_height = rect.height() / channels;
-  int channel_half_height = channel_height / 2;
-
-  for (int i=0;i<rect.width();i++) {
-    sample_index = next_sample_index;
-
-    if (sample_index == nb_samples) {
-      break;
-    }
-
-    next_sample_index = qMin(nb_samples,
-                             qFloor(static_cast<double>(SampleSummer::kSumSampleRate) * static_cast<double>(i+1) / scale) * channels);
-
-    if (summary_index != sample_index) {
-      summary = SampleSummer::ReSumSamples(&samples[sample_index],
-                                           qMax(channels, next_sample_index - sample_index),
-                                           channels);
-      summary_index = sample_index;
-    }
-
-    int line_x = i + rect.x();
-
-    for (int j=0;j<summary.size();j++) {
-      if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
-        int channel_bottom = rect.y() + channel_height * (j + 1);
-
-        int diff = qRound((summary.at(j).max - summary.at(j).min) * channel_half_height);
-
-        painter->drawLine(line_x,
-                          channel_bottom - diff,
-                          line_x,
-                          channel_bottom);
-      } else{
-        int channel_mid = rect.y() + channel_height * j + channel_half_height;
-
-        painter->drawLine(line_x,
-                          channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
-                          line_x,
-                          channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height));
-      }
-    }
-  }
 }
 
 void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
-  if (!backend_ || backend_->CachePathName().isEmpty() || !backend_->params().is_valid()) {
+  const AudioParams& params = playback_->GetParameters();
+
+  if (!playback_
+      || playback_->GetPCMFilename().isEmpty()
+      || !params.is_valid()) {
     return;
   }
-
-  const AudioRenderingParams& params = backend_->params();
 
   if (cached_size_ != size()
       || cached_scale_ != GetScale()
@@ -126,7 +78,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     cached_waveform_ = QPixmap(size());
     cached_waveform_.fill(Qt::transparent);
 
-    QFile fs(backend_->CachePathName());
+    QFile fs(playback_->GetPCMFilename());
 
     if (fs.open(QFile::ReadOnly)) {
 
@@ -135,15 +87,11 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
       // FIXME: Hardcoded color
       wave_painter.setPen(QColor(64, 255, 160));
 
-      int channel_height = height() / params.channel_count();
-      int channel_half_height = channel_height / 2;
-
       int drew = 0;
 
       fs.seek(params.samples_to_bytes(ScreenToUnitRounded(0)));
 
       for (int x=0; x<width() && !fs.atEnd(); x++) {
-
         int samples_len = ScreenToUnitRounded(x+1) - ScreenToUnitRounded(x);
         int max_read_size = params.samples_to_bytes(samples_len);
 
@@ -154,28 +102,12 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
           samples_len = params.bytes_to_samples(read_buffer.size());
         }
 
-        QVector<SampleSummer::Sum> samples = SampleSummer::SumSamples(reinterpret_cast<const float*>(read_buffer.constData()),
-                                                                      samples_len,
-                                                                      params.channel_count());
+        QVector<AudioVisualWaveform::SamplePerChannel> samples = AudioVisualWaveform::SumSamples(reinterpret_cast<const float*>(read_buffer.constData()),
+                                                                                       samples_len,
+                                                                                       params.channel_count());
 
         for (int i=0;i<params.channel_count();i++) {
-          if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
-            int channel_bottom = channel_height * (i + 1);
-
-            int diff = qRound((samples.at(i).max - samples.at(i).min) * channel_half_height);
-
-            wave_painter.drawLine(x,
-                       channel_bottom - diff,
-                       x,
-                       channel_bottom);
-          } else {
-            int channel_mid = channel_height * i + channel_half_height;
-
-            wave_painter.drawLine(x,
-                       channel_mid + qRound(samples.at(i).min * static_cast<float>(channel_half_height)),
-                       x,
-                       channel_mid + qRound(samples.at(i).max * static_cast<float>(channel_half_height)));
-          }
+          AudioVisualWaveform::DrawSample(&wave_painter, samples, x, 0, height());
 
           drew++;
         }
@@ -199,7 +131,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
   p.drawPixmap(0, 0, cached_waveform_);
 
   // Draw playhead
-  p.setPen(GetPlayheadColor());
+  p.setPen(PLAYHEAD_COLOR);
 
   int playhead_x = UnitToScreen(GetTime());
   p.drawLine(playhead_x, 0, playhead_x, height());
@@ -207,12 +139,12 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 
 void AudioWaveformView::BackendParamsChanged()
 {
-  SetTimebase(backend_->params().time_base());
+  SetTimebase(playback_->GetParameters().time_base());
 }
 
 void AudioWaveformView::ForceUpdate()
 {
-  cached_size_  = QSize();
+  cached_size_ = QSize();
   update();
 }
 

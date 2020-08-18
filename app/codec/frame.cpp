@@ -27,8 +27,7 @@
 OLIVE_NAMESPACE_ENTER
 
 Frame::Frame() :
-  timestamp_(0),
-  sample_aspect_ratio_(1)
+  timestamp_(0)
 {
 }
 
@@ -37,12 +36,12 @@ FramePtr Frame::Create()
   return std::make_shared<Frame>();
 }
 
-const VideoRenderingParams &Frame::video_params() const
+const VideoParams &Frame::video_params() const
 {
   return params_;
 }
 
-void Frame::set_video_params(const VideoRenderingParams &params)
+void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 
@@ -93,14 +92,17 @@ bool Frame::contains_pixel(int x, int y) const
   return (is_allocated() && x >= 0 && x < width() && y >= 0 && y < height());
 }
 
-const rational &Frame::sample_aspect_ratio() const
+void Frame::set_pixel(int x, int y, const Color &c)
 {
-  return sample_aspect_ratio_;
-}
+  if (!contains_pixel(x, y)) {
+    return;
+  }
 
-void Frame::set_sample_aspect_ratio(const rational &aspect_ratio)
-{
-  sample_aspect_ratio_ = aspect_ratio;
+  int pixel_index = y * linesize_pixels() + x;
+
+  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
+
+  c.toData(data_.data() + byte_offset, video_params().format());
 }
 
 const rational &Frame::timestamp() const

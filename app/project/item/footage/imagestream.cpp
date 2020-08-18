@@ -28,7 +28,9 @@
 OLIVE_NAMESPACE_ENTER
 
 ImageStream::ImageStream() :
-  premultiplied_alpha_(false)
+  premultiplied_alpha_(false),
+  interlacing_(VideoParams::kInterlaceNone),
+  pixel_aspect_ratio_(1)
 {
   set_type(kImage);
 }
@@ -72,26 +74,6 @@ QString ImageStream::description() const
                                                                         QString::number(height()));
 }
 
-const int &ImageStream::width() const
-{
-  return width_;
-}
-
-void ImageStream::set_width(const int &width)
-{
-  width_ = width;
-}
-
-const int &ImageStream::height() const
-{
-  return height_;
-}
-
-void ImageStream::set_height(const int &height)
-{
-  height_ = height;
-}
-
 bool ImageStream::premultiplied_alpha() const
 {
   return premultiplied_alpha_;
@@ -132,7 +114,7 @@ void ImageStream::ColorConfigChanged()
 
   // Check if this colorspace is in the new config
   if (!colorspace_.isEmpty()) {
-    QStringList colorspaces = color_manager->ListAvailableInputColorspaces();
+    QStringList colorspaces = color_manager->ListAvailableColorspaces();
     if (!colorspaces.contains(colorspace_)) {
       // Set to empty if not
       colorspace_.clear();

@@ -32,17 +32,18 @@ extern "C" {
 }
 
 #include <csignal>
+
 #include <QApplication>
 #include <QSurfaceFormat>
 
 #include "core.h"
-#include "common/crashhandler.h"
 #include "common/debug.h"
 
-int main(int argc, char *argv[]) {
-  signal(SIGSEGV, OLIVE_NAMESPACE::crash_handler);
-  signal(SIGABRT, OLIVE_NAMESPACE::crash_handler);
+#ifdef USE_CRASHPAD
+#include "common/crashpadinterface.h"
+#endif // USE_CRASHPAD
 
+int main(int argc, char *argv[]) {
   // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;
   format.setVersion(3, 2);
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
-  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
   // Create application instance
@@ -86,23 +87,12 @@ int main(int argc, char *argv[]) {
   avfilter_register_all();
 #endif
 
-  int exit_code;
-
-  // Start core
-  if (OLIVE_NAMESPACE::Core::instance()->Start()) {
-
-    // Run application loop and receive exit code
-    exit_code = a.exec();
-
-  } else {
-
-    // Core failed to start, exit now
-    exit_code = 1;
-
+  // Enable Google Crashpad if compiled with it
+#ifdef USE_CRASHPAD
+  if (!InitializeCrashpad()) {
+    qWarning() << "Failed to initialize Crashpad handler";
   }
+#endif // USE_CRASHPAD
 
-  // Clear core memory
-  OLIVE_NAMESPACE::Core::instance()->Stop();
-
-  return exit_code;
+  return OLIVE_NAMESPACE::Core::instance()->execute(&a);
 }

@@ -29,7 +29,7 @@ MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
   footage_input_ = new NodeInput("footage_in", NodeInput::kFootage);
-  footage_input_->SetConnectable(false);
+  footage_input_->set_connectable(false);
   footage_input_->set_is_keyframable(false);
   connect(footage_input_, &NodeInput::ValueChanged, this, &MediaInput::FootageChanged);
   AddInput(footage_input_);
@@ -57,19 +57,13 @@ void MediaInput::Retranslate()
 
 NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
 {
-  NodeValueTable table;
+  NodeValueTable table = value.Merge();
 
   if (connected_footage_) {
     rational media_duration = Timecode::timestamp_to_time(connected_footage_->duration(),
                                                           connected_footage_->timebase());
 
-    table.Push(NodeInput::kRational, QVariant::fromValue(media_duration), "length");
-  }
-
-  // Push buffer to the top of the stack
-  NodeValue buffer = value[footage_input_].GetWithMeta(NodeParam::kBuffer);
-  if (buffer.type() != NodeParam::kNone) {
-    table.Push(buffer);
+    table.Push(NodeInput::kRational, QVariant::fromValue(media_duration), this, "length");
   }
 
   return table;

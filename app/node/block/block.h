@@ -22,18 +22,12 @@
 #define BLOCK_H
 
 #include "node/node.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
- *
- * This is an abstract function. Since different types of Block will provide their lengths in different ways, it's
- * necessary to subclass and override the length() function for a Block to be usable.
- *
- * When overriding Node::copy(), the derivative class should also call Block::CopyParameters() on the new Block instance
- * which will copy the block's name, length, and media in point. It does not copy any node-specific parameters like any
- * input values or connections as per standard with Node::copy().
  */
 class Block : public Node
 {
@@ -78,9 +72,6 @@ public:
   bool is_enabled() const;
   void set_enabled(bool e);
 
-  QString block_name() const;
-  void set_block_name(const QString& name);
-
   static bool Link(Block* a, Block* b);
   static void Link(const QList<Block*>& blocks);
   static bool Unlink(Block* a, Block* b);
@@ -96,8 +87,6 @@ public:
   NodeInput* length_input() const;
   NodeInput* media_in_input() const;
   NodeInput* speed_input() const;
-
-  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source) override;
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
@@ -115,8 +104,6 @@ signals:
 
   void LinksChanged();
 
-  void NameChanged();
-
   void EnabledChanged();
 
 protected:
@@ -130,11 +117,16 @@ protected:
 
   virtual QList<NodeInput*> GetInputsToHash() const override;
 
+  virtual void LengthChangedEvent(const rational& old_length,
+                                  const rational& new_length,
+                                  const Timeline::MovementMode& mode);
+
   Block* previous_;
   Block* next_;
 
 private:
-  NodeInput* name_input_;
+  void set_length_internal(const rational &length);
+
   NodeInput* length_input_;
   NodeInput* media_in_input_;
   NodeInput* speed_input_;

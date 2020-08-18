@@ -22,7 +22,6 @@
 
 #include <QCheckBox>
 #include <QFontComboBox>
-#include <QLineEdit>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -30,6 +29,7 @@
 #include "core.h"
 #include "node/node.h"
 #include "nodeparamviewarraywidget.h"
+#include "nodeparamviewrichtext.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
@@ -88,11 +88,15 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeParam::kString:
     case NodeParam::kBuffer:
     case NodeParam::kVector:
+    case NodeParam::kShaderJob:
+    case NodeParam::kSampleJob:
+    case NodeParam::kGenerateJob:
       break;
     case NodeParam::kInt:
     {
       IntegerSlider* slider = new IntegerSlider();
       slider->SetDefaultValue(input_->GetDefaultValue());
+      slider->SetLadderElementCount(2);
       widgets_.append(slider);
       connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -143,9 +147,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeParam::kText:
     {
-      QLineEdit* line_edit = new QLineEdit();
+      NodeParamViewRichText* line_edit = new NodeParamViewRichText();
       widgets_.append(line_edit);
-      connect(line_edit, &QLineEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewRichText::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeParam::kBoolean:
@@ -159,6 +163,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       QFontComboBox* font_combobox = new QFontComboBox();
       widgets_.append(font_combobox);
+      connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeParam::kFootage:
@@ -233,7 +238,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
     dragger_.Drag(value);
 
-    input_->parentNode()->InvalidateVisible(input_, input_);
+    //input_->parentNode()->InvalidateVisible(input_, input_);
 
   } else if (dragger_.IsStarted()) {
 
@@ -262,6 +267,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kString:
   case NodeParam::kVector:
   case NodeParam::kBuffer:
+  case NodeParam::kShaderJob:
+  case NodeParam::kSampleJob:
+  case NodeParam::kGenerateJob:
     break;
   case NodeParam::kInt:
   {
@@ -330,8 +338,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   }
   case NodeParam::kText:
   {
-    // Sender is a QLineEdit
-    SetInputValue(static_cast<QLineEdit*>(sender())->text(), 0);
+    // Sender is a NodeParamViewRichText
+    SetInputValue(static_cast<NodeParamViewRichText*>(sender())->text(), 0);
     break;
   }
   case NodeParam::kBoolean:
@@ -343,7 +351,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kFont:
   {
     // Widget is a QFontComboBox
-    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont(), 0);
+    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont().family(), 0);
     break;
   }
   case NodeParam::kFootage:
@@ -355,7 +363,17 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kCombo:
   {
     // Widget is a QComboBox
-    SetInputValue(static_cast<QComboBox*>(widgets_.first())->currentIndex(), 0);
+    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+    int index = cb->currentIndex();
+
+    // Subtract any splitters up until this point
+    for (int i=index-1; i>=0; i--) {
+      if (cb->itemData(i, Qt::AccessibleDescriptionRole).toString() == QStringLiteral("separator")) {
+        index--;
+      }
+    }
+
+    SetInputValue(index, 0);
     break;
   }
   }
@@ -366,6 +384,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
   for (int i=0;i<count;i++) {
     FloatSlider* fs = new FloatSlider();
     fs->SetDefaultValue(input_->GetDefaultValueForTrack(i));
+    fs->SetLadderElementCount(2);
     widgets_.append(fs);
     connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }
@@ -392,6 +411,9 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kNumber:
   case NodeParam::kString:
   case NodeParam::kBuffer:
+  case NodeParam::kShaderJob:
+  case NodeParam::kSampleJob:
+  case NodeParam::kGenerateJob:
   case NodeParam::kVector:
     break;
   case NodeParam::kInt:
@@ -447,7 +469,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeParam::kText:
   {
-    static_cast<QLineEdit*>(widgets_.first())->setText(input_->get_value_at_time(node_time).toString());
+    NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
+    e->setTextPreservingCursor(input_->get_value_at_time(node_time).toString());
     break;
   }
   case NodeParam::kBoolean:
@@ -455,7 +478,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeParam::kFont:
   {
-    // FIXME: Implement this
+    QFontComboBox* fc = static_cast<QFontComboBox*>(widgets_.first());
+    fc->blockSignals(true);
+    fc->setCurrentFont(input_->get_value_at_time(node_time).toString());
+    fc->blockSignals(false);
     break;
   }
   case NodeParam::kCombo:

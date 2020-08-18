@@ -46,7 +46,7 @@ public:
 
   const double& GetSpeed() const;
 
-  bool Open(const AudioRenderingParams& params, const double &speed);
+  bool Open(const AudioParams& params, const double &speed);
 
   void Push(const char *data, int length);
 
@@ -67,7 +67,7 @@ private:
   int processed_frame_byte_index_;
   int processed_frame_max_bytes_;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
   int64_t timestamp_;
 

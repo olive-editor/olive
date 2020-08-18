@@ -21,6 +21,7 @@
 #ifndef TASKMANAGER_H
 #define TASKMANAGER_H
 
+#include <QtConcurrent/QtConcurrent>
 #include <QVector>
 #include <QUndoCommand>
 
@@ -62,6 +63,8 @@ public:
 
   Task* GetFirstTask() const;
 
+  void CancelTaskAndWait(Task* t);
+
 public slots:
   /**
    * @brief Add a new Task
@@ -80,6 +83,8 @@ public slots:
    */
   void AddTask(Task *t);
 
+  void CancelTask(Task* t);
+
 signals:
   /**
    * @brief Signal emitted when a Task is added by AddTask()
@@ -95,79 +100,31 @@ signals:
    */
   void TaskListChanged();
 
+  /**
+   * @brief Signal emitted when a task is deleted
+   */
+  void TaskRemoved(Task* t);
+
+  /**
+   * @brief Signal emitted when a task fails
+   */
+  void TaskFailed(Task* t);
+
 private:
-  /**
-   * @brief The Status enum
-   *
-   * All states that a Task can be in. When subclassing, you don't need to set the Task's status as the base class
-   * does that automatically.
-   */
-  enum TaskStatus {
-    /// This Task is yet to start
-    kWaiting,
-
-    /// This Task is currently running (see Action())
-    kWorking,
-
-    /// This Task has completed successfully
-    kFinished,
-
-    /// This Task failed and could not complete
-    kError
-  };
-
-  struct TaskContainer {
-    Task* task;
-    TaskStatus status;
-  };
-
-  struct ThreadContainer {
-    QThread* thread;
-    bool active;
-  };
-
-  /**
-   * @brief Scan through the task queue and start any Tasks that are able to start
-   *
-   * This function is run whenever a Task is added and whenever a Task finishes. It determines how many Tasks are
-   * currently running and therefore how many Tasks can be started (if any). It will then start ones that can.
-   *
-   * This function is aware of "dependency Tasks" and if a Task is waiting but has a dependency that hasn't finished,
-   * it will skip to the next one.
-   *
-   * Like AddTask, this function is NOT thread-safe and currently only intended to be run from the main thread.
-   */
-  void StartNextWaiting();
-
-  /**
-   * @brief Removes the Task from the queue and deletes it
-   *
-   * Recommended for use after a Task has completed or errorred.
-   *
-   * @param t
-   *
-   * Task to delete
-   */
-  void DeleteTask(Task* t);
-
-  TaskStatus GetTaskStatus(Task* t);
-
-  void SetTaskStatus(Task* t, TaskStatus status);
-
   /**
    * @brief Internal task array
    */
-  QVector<TaskContainer> tasks_;
+  QHash<QFutureWatcher<bool>*, Task*> tasks_;
 
   /**
-   * @brief Background threads to run tasks on
+   * @brief Internal list of failed tasks
    */
-  QVector<ThreadContainer> threads_;
+  std::list<Task*> failed_tasks_;
 
   /**
-   * @brief Value for how many threads are currently active
+   * @brief Task thread pool
    */
-  int active_thread_count_;
+  QThreadPool thread_pool_;
 
   /**
    * @brief TaskManager singleton instance
@@ -175,10 +132,6 @@ private:
   static TaskManager* instance_;
 
 private slots:
-  void TaskSucceeded();
-
-  void TaskFailed();
-
   void TaskFinished();
 
 };

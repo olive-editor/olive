@@ -79,9 +79,6 @@ if(APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
 endif()
 
-# Set compiler definitions
-target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
-
 # Set compiler options
 if(MSVC)
   target_compile_options(
@@ -100,13 +97,14 @@ else()
   target_compile_options(
     ${OLIVE_TARGET}
     PRIVATE
-    -O2
+    "$<$<CONFIG:RELEASE>:-O2>"
     -Werror
     -Wuninitialized
     -pedantic-errors
     -Wall
     -Wextra
     -Wno-unused-parameter
+    -Wshadow
   )
 endif()
 
@@ -125,7 +123,12 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-  ${OPENEXR_INCLUDE_DIRS}
+  ${OPENEXR_INCLUDES}
+
+  # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
+  #       expect to be in one. This includes the IlmBase files as if they were in the same folders
+  #       as the OpenEXR headers.
+  ${ILMBASE_INCLUDES}/OpenEXR
 )
 
 # Set link libraries
@@ -138,6 +141,7 @@ target_link_libraries(
   Qt5::Multimedia
   Qt5::OpenGL
   Qt5::Svg
+  Qt5::Concurrent
   OpenGL::GL
   FFMPEG::avutil
   FFMPEG::avcodec
@@ -163,6 +167,26 @@ elseif (APPLE)
     "-framework ApplicationServices"
   )
 endif()
+
+# Enable Crashpad if found
+if (GoogleCrashpad_FOUND)
+  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_CRASHPAD)
+
+  target_include_directories(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${CRASHPAD_INCLUDE_DIRS}
+    )
+
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${CRASHPAD_LIBRARIES}
+    )
+endif()
+
+# Set compiler definitions
+target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 set(OLIVE_TS_FILES
   # FIXME: Empty variable

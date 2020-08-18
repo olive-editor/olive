@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "common/define.h"
+#include "widget/standardcombos/standardcombos.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -33,20 +34,26 @@ class ExportAudioTab : public QWidget
 public:
   ExportAudioTab(QWidget* parent = nullptr);
 
-  QComboBox* codec_combobox() const;
-  QComboBox* sample_rate_combobox() const;
-  QComboBox* channel_layout_combobox() const;
+  QComboBox* codec_combobox() const
+  {
+    return codec_combobox_;
+  }
 
-  void set_sample_rate(int rate);
-  void set_channel_layout(uint64_t layout);
+  SampleRateComboBox* sample_rate_combobox() const
+  {
+    return sample_rate_combobox_;
+  }
+
+  ChannelLayoutComboBox* channel_layout_combobox() const
+  {
+    return channel_layout_combobox_;
+  }
 
 private:
   QComboBox* codec_combobox_;
-  QComboBox* sample_rate_combobox_;
-  QComboBox* channel_layout_combobox_;
+  SampleRateComboBox* sample_rate_combobox_;
+  ChannelLayoutComboBox* channel_layout_combobox_;
 
-  QList<int> sample_rates_;
-  QList<uint64_t> channel_layouts_;
 };
 
 OLIVE_NAMESPACE_EXIT

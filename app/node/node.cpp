@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QFile>
 
+#include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
@@ -40,6 +41,8 @@ Node::Node() :
 
 Node::~Node()
 {
+  DisconnectAll();
+
   // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
   // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
   foreach (NodeParam* param, params_) {
@@ -175,14 +178,23 @@ void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *s
   SendInvalidateCache(range, source);
 }
 
-void Node::InvalidateVisible(NodeInput *from, NodeInput* source)
+void Node::BeginOperation()
 {
-  Q_UNUSED(from)
-
   foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kOutput) {
       foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->InvalidateVisible(edge->input(), source);
+        edge->input()->parentNode()->BeginOperation();
+      }
+    }
+  }
+}
+
+void Node::EndOperation()
+{
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      foreach (NodeEdgePtr edge, param->edges()) {
+        edge->input()->parentNode()->EndOperation();
       }
     }
   }
@@ -206,10 +218,7 @@ void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
   foreach (NodeParam* param, params_) {
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
-
-      QVector<NodeEdgePtr> edges = param->edges();
-
-      foreach (NodeEdgePtr edge, edges) {
+      foreach (NodeEdgePtr edge, param->edges()) {
         NodeInput* connected_input = edge->input();
         Node* connected_node = connected_input->parentNode();
 
@@ -287,11 +296,11 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(const NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
 {
 }
 
-bool Node::GizmoPress(const NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &viewport)
+bool Node::GizmoPress(NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &)
 {
   return false;
 }
@@ -332,7 +341,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
     // For a single frame, we only care about one of the times
     rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
 
-    if (input->IsConnected()) {
+    if (input->is_connected()) {
       // Traverse down this edge
       input->get_connected_node()->Hash(hash, input_time);
     } else {
@@ -370,11 +379,15 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
         // Footage timestamp
         if (stream->type() == Stream::kVideo) {
-          hash.addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
-                                                   QString::number(input_time.denominator())).toUtf8());
+          VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
-          hash.addData(QString::number(static_cast<VideoStream*>(stream.get())->start_time()).toUtf8());
+          int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
 
+          // Add timestamp in units of the video stream's timebase
+          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+
+          // Add start time - used for both image sequences and video streams
+          hash.addData(QString::number(video_stream->start_time()).toUtf8());
         }
       }
     }
@@ -468,43 +481,21 @@ QList<Node *> Node::GetImmediateDependencies() const
   return GetDependenciesInternal(false, false);
 }
 
-Node::Capabilities Node::GetCapabilities(const NodeValueDatabase &) const
+ShaderCode Node::GetShaderCode(const QString &shader_id) const
 {
-  return kNormal;
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(QString(), QString());
 }
 
-QString Node::ShaderID(const NodeValueDatabase &) const
+void Node::ProcessSamples(NodeValueDatabase &, const SampleBufferPtr, SampleBufferPtr, int) const
 {
-  return id();
 }
 
-QString Node::ShaderVertexCode(const NodeValueDatabase &) const
+void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
 {
-  return QString();
-}
-
-QString Node::ShaderFragmentCode(const NodeValueDatabase&) const
-{
-  return QString();
-}
-
-int Node::ShaderIterations() const
-{
-  return 1;
-}
-
-NodeInput *Node::ShaderIterativeInput() const
-{
-  return nullptr;
-}
-
-NodeInput* Node::ProcessesSamplesFrom(const NodeValueDatabase &) const
-{
-  return nullptr;
-}
-
-void Node::ProcessSamples(const NodeValueDatabase &, const AudioRenderingParams&, const SampleBufferPtr, SampleBufferPtr, int) const
-{
+  Q_UNUSED(frame)
+  Q_UNUSED(job)
 }
 
 NodeInput *Node::GetInputWithID(const QString &id) const
@@ -562,6 +553,28 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
       if (connected->id() == id) {
         return true;
       } else if (recursively && connected->OutputsTo(id, recursively)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
+{
+  QList<NodeOutput*> outputs = GetOutputs();
+
+  foreach (NodeOutput* output, outputs) {
+    foreach (NodeEdgePtr edge, output->edges()) {
+      NodeInput* connected = edge->input();
+
+      if (connected == input) {
+        return true;
+      } else if (include_arrays && input->IsArray()
+                 && static_cast<NodeInputArray*>(input)->sub_params().contains(connected)) {
+        return true;
+      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively, include_arrays)) {
         return true;
       }
     }
@@ -682,6 +695,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Generator");
   case kCategoryChannels:
     return tr("Channel");
+  case kCategoryTransition:
+    return tr("Transition");
   case kCategoryUnknown:
   case kCategoryCount:
     break;
@@ -700,7 +715,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs) {
-      if (input->IsConnected()) {
+      if (input->is_connected()) {
         TimeRange input_adjustment = InputTimeAdjustment(input, time);
         Node* connected = input->get_connected_node();
 
@@ -721,7 +736,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeOutput* output, outputs) {
-      if (output->IsConnected()) {
+      if (output->is_connected()) {
         foreach (NodeEdgePtr edge, output->edges()) {
           Node* input_node = edge->input()->parentNode();
 
@@ -763,23 +778,6 @@ NodeOutput *Node::output() const
   return output_;
 }
 
-NodeValue Node::InputValueFromTable(NodeInput *input, NodeValueDatabase &db, bool take) const
-{
-  NodeParam::DataType find_data_type = input->data_type();
-
-  // Exception for Footage types (try to get a Texture instead)
-  if (find_data_type == NodeParam::kFootage) {
-    find_data_type = NodeParam::kTexture;
-  }
-
-  // Try to get a value from it
-  if (take) {
-    return db[input].TakeWithMeta(find_data_type);
-  } else {
-    return db[input].GetWithMeta(find_data_type);
-  }
-}
-
 const QPointF &Node::GetPosition() const
 {
   return position_;
@@ -801,7 +799,7 @@ bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
 {
   foreach (NodeParam* p, params_) {
     if (p->type() == type
-        && (p->IsConnected() || !must_be_connected)) {
+        && (p->is_connected() || !must_be_connected)) {
       return true;
     }
   }

@@ -85,14 +85,24 @@ void PolygonGenerator::Retranslate()
   color_input_->set_name(tr("Color"));
 }
 
-Node::Capabilities PolygonGenerator::GetCapabilities(const NodeValueDatabase &) const
+ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
-  return kShader;
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(Node::ReadFileAsString(":/shaders/polygon.frag"), QString());
 }
 
-QString PolygonGenerator::ShaderFragmentCode(const NodeValueDatabase &) const
+NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
 {
-  return Node::ReadFileAsString(":/shaders/polygon.frag");
+  ShaderJob job;
+
+  job.InsertValue(points_input_, value);
+  job.InsertValue(color_input_, value);
+  job.SetAlphaChannelRequired(true);
+
+  NodeValueTable table = value.Merge();
+  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  return table;
 }
 
 bool PolygonGenerator::HasGizmos() const
@@ -100,8 +110,10 @@ bool PolygonGenerator::HasGizmos() const
   return true;
 }
 
-void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize &viewport) const
+void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize &viewport) const
 {
+  Q_UNUSED(viewport)
+
   if (!points_input_->GetSize()) {
     return;
   }
@@ -118,8 +130,10 @@ void PolygonGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, cons
   p->drawRects(rects);
 }
 
-bool PolygonGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize& viewport)
+bool PolygonGenerator::GizmoPress(NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize& viewport)
 {
+  Q_UNUSED(viewport)
+
   QVector<QPointF> points = GetGizmoCoordinates(db, scale);
   QVector<QRectF> rects = GetGizmoRects(points);
 
@@ -150,8 +164,6 @@ void PolygonGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const
 
   gizmo_x_dragger_.Drag(new_pos.x());
   gizmo_y_dragger_.Drag(new_pos.y());
-
-  InvalidateVisible(gizmo_drag_, gizmo_drag_);
 }
 
 void PolygonGenerator::GizmoRelease()
@@ -160,7 +172,7 @@ void PolygonGenerator::GizmoRelease()
   gizmo_y_dragger_.End();
 }
 
-QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(const NodeValueDatabase &db, const QVector2D& scale) const
+QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D& scale) const
 {
   QVector<QPointF> points(points_input_->GetSize());
 

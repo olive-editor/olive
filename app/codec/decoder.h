@@ -138,7 +138,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider, bool use_proxies);
+  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider);
 
   /**
    * @brief Retrieve video frame
@@ -164,7 +164,7 @@ public:
    * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
    * the provided timecode or the media could not be opened.
    */
-  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
+  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioParams& params);
 
   virtual bool SupportsVideo();
   virtual bool SupportsAudio();
@@ -211,11 +211,6 @@ public:
   static DecoderPtr CreateFromID(const QString& id);
 
   /**
-   * @brief VIDEO ONLY: Produce a compressed EXR proxy with the specified divider
-   */
-  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider);
-
-  /**
    * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
    *
    * Internally, our render engine only deals with PCM since it provides the least headaches and
@@ -229,44 +224,36 @@ public:
    * All audio decoders must override this. It's not pure since video decoders don't need to use
    * this, but default behavior will abort since it should never be called.
    */
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams &params);
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams &params);
 
   /**
    * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params
    * already exists
    */
-  bool HasConformedVersion(const AudioRenderingParams& params);
+  bool HasConformedVersion(const AudioParams& params);
 
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
    * available
    */
-  void IndexProgress(int);
+  void IndexProgress(double);
 
 protected:
   void SignalProcessingProgress(const int64_t& ts);
 
   /**
-   * @brief Returns the filename for the index
-   *
-   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for
-   * this to work correctly.
-   */
-  virtual QString GetIndexFilename() const = 0;
-
-  /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters
    */
-  QString GetConformedFilename(const AudioRenderingParams &params);
+  QString GetConformedFilename(const AudioParams &params);
+
+  QString GetIndexFilename();
 
   bool open_;
 
   QMutex mutex_;
 
 private:
-  void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
-
   StreamPtr stream_;
 
 };

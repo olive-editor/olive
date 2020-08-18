@@ -72,6 +72,26 @@ const ColorTransform &ManagedDisplayWidget::GetColorTransform() const
   return color_transform_;
 }
 
+Menu *ManagedDisplayWidget::GetColorSpaceMenu(QMenu *parent, bool auto_connect)
+{
+  QStringList colorspaces = color_manager()->ListAvailableColorspaces();
+
+  Menu* ocio_colorspace_menu = new Menu(tr("Color Space"), parent);
+
+  if (auto_connect) {
+    connect(ocio_colorspace_menu, &Menu::triggered, this, &ManagedDisplayWidget::MenuColorspaceSelect);
+  }
+
+  foreach (const QString& c, colorspaces) {
+    QAction* action = ocio_colorspace_menu->addAction(c);
+    action->setCheckable(true);
+    action->setChecked(color_transform_.output() == c);
+    action->setData(c);
+  }
+
+  return ocio_colorspace_menu;
+}
+
 void ManagedDisplayWidget::ColorConfigChanged()
 {
   if (!color_manager_) {
@@ -101,6 +121,8 @@ void ManagedDisplayWidget::ShowDefaultContextMenu()
   Menu m(this);
 
   if (color_manager_) {
+    m.addMenu(GetColorSpaceMenu(&m));
+    m.addSeparator();
     m.addMenu(GetDisplayMenu(&m));
     m.addMenu(GetViewMenu(&m));
     m.addMenu(GetLookMenu(&m));
@@ -143,6 +165,11 @@ void ManagedDisplayWidget::MenuLookSelect(QAction *action)
                                                                                         action->data().toString()));
 
   SetColorTransform(new_transform);
+}
+
+void ManagedDisplayWidget::MenuColorspaceSelect(QAction *action)
+{
+  SetColorTransform(color_manager()->GetCompliantColorSpace(ColorTransform(action->data().toString())));
 }
 
 void ManagedDisplayWidget::SetColorTransform(const ColorTransform &transform)

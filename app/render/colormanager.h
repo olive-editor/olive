@@ -66,7 +66,7 @@ public:
 
   QStringList ListAvailableLooks();
 
-  QStringList ListAvailableInputColorspaces();
+  QStringList ListAvailableColorspaces();
 
   const QString& GetDefaultInputColorSpace() const;
 
@@ -80,7 +80,7 @@ public:
 
   ColorTransform GetCompliantColorSpace(const ColorTransform& transform, bool force_display = false);
 
-  static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
+  static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
 
   void GetDefaultLumaCoefs(float* rgb) const;
   Color GetDefaultLumaCoefs() const;

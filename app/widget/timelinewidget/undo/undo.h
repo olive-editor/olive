@@ -25,6 +25,7 @@
 
 #include "node/block/block.h"
 #include "node/block/gap/gap.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
 #include "timeline/timelinepoints.h"
@@ -62,6 +63,38 @@ private:
   Block* block_;
   rational old_length_;
   rational new_length_;
+};
+
+class BlockTrimCommand : public UndoCommand {
+public:
+  BlockTrimCommand(TrackOutput *track, Block* block, rational new_length, Timeline::MovementMode mode, QUndoCommand* command = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+  void SetTrimIsARollEdit(bool e)
+  {
+    trim_is_a_roll_edit_ = e;
+  }
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackOutput* track_;
+  Block* block_;
+  rational old_length_;
+  rational new_length_;
+  Timeline::MovementMode mode_;
+
+  Block* adjacent_;
+  bool we_created_adjacent_;
+  bool we_deleted_adjacent_;
+
+  bool trim_is_a_roll_edit_;
+
+  QObject memory_manager_;
+
 };
 
 class BlockSetMediaInCommand : public UndoCommand {
@@ -168,6 +201,8 @@ protected:
   virtual void undo_internal() override;
 
 protected:
+  Project* project_;
+
   TrackOutput* track_;
   rational in_;
   rational out_;
@@ -192,6 +227,84 @@ protected:
 
 };
 
+class TrackListRippleRemoveAreaCommand : public UndoCommand {
+public:
+  TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out, QUndoCommand* parent = nullptr);
+
+  virtual ~TrackListRippleRemoveAreaCommand() override;
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* list_;
+
+  QList<TrackOutput*> working_tracks_;
+
+  rational in_;
+
+  rational out_;
+
+  bool all_tracks_unlocked_;
+
+  QVector<TrackRippleRemoveAreaCommand*> commands_;
+
+};
+
+class TimelineRippleRemoveAreaCommand : public UndoCommand {
+public:
+  TimelineRippleRemoveAreaCommand(ViewerOutput* timeline, rational in, rational out, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+private:
+  ViewerOutput* timeline_;
+
+};
+
+class TrackListRippleToolCommand : public UndoCommand {
+public:
+  struct RippleInfo {
+    Block* block;
+    Block* ref_block;
+    TrackOutput* track;
+    rational new_length;
+    rational old_length;
+  };
+
+  TrackListRippleToolCommand(TrackList* track_list,
+                             const QList<RippleInfo>& info,
+                             const Timeline::MovementMode& movement_mode,
+                             QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* track_list_;
+
+  QList<RippleInfo> info_;
+  Timeline::MovementMode movement_mode_;
+
+  struct WorkingData {
+    GapBlock* created_gap;
+    Block* removed_gap_after;
+  };
+
+  QVector<WorkingData> working_data_;
+
+  QObject memory_manager_;
+
+  bool all_tracks_unlocked_;
+
+};
+
 /**
  * @brief Destructively places `block` at the in point `start`
  *
@@ -202,6 +315,8 @@ protected:
 class TrackPlaceBlockCommand : public TrackRippleRemoveAreaCommand {
 public:
   TrackPlaceBlockCommand(TrackList *timeline, int track, Block* block, rational in, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
 
 protected:
   virtual void redo_internal() override;
@@ -287,9 +402,9 @@ private:
   Block* replace_;
 };
 
-class TrackCleanGapsCommand : public UndoCommand {
+class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackCleanGapsCommand(TrackList* track_list, int index, QUndoCommand* parent = nullptr);
+  TrackReplaceBlockWithGapCommand(TrackOutput* track, Block* block, QUndoCommand* command = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -298,21 +413,14 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  struct MergedGap {
-    GapBlock* merged;
-    rational original_length;
-    QList<GapBlock*> removed;
-  };
+  TrackOutput* track_;
+  Block* block_;
 
-  TrackList* track_list_;
-
-  int track_index_;
+  bool we_created_gap_;
+  GapBlock* gap_;
+  GapBlock* merged_gap_;
 
   QObject memory_manager_;
-
-  QList<MergedGap> merged_gaps_;
-
-  QList<GapBlock*> removed_end_gaps_;
 
 };
 
@@ -441,6 +549,81 @@ private:
   bool old_enabled_;
 
   bool new_enabled_;
+
+};
+
+class TrackSlideCommand : public UndoCommand {
+public:
+  TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  void slide_internal(bool undo);
+
+  TrackOutput* track_;
+  QList<Block*> blocks_;
+  rational movement_;
+
+  bool we_created_in_adjacent_;
+  Block* in_adjacent_;
+  bool we_created_out_adjacent_;
+  Block* out_adjacent_;
+
+  QObject memory_manager_;
+
+};
+
+class TrackListInsertGaps : public UndoCommand {
+public:
+  TrackListInsertGaps(TrackList* track_list, const rational& point, const rational& length, QUndoCommand* parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackList* track_list_;
+
+  rational point_;
+
+  rational length_;
+
+  QList<TrackOutput*> working_tracks_;
+
+  bool all_tracks_unlocked_;
+
+  QList<Block*> gaps_to_extend_;
+
+  QList<GapBlock*> gaps_added_;
+
+  BlockSplitPreservingLinksCommand* split_command_;
+
+};
+
+class TransitionRemoveCommand : public UndoCommand {
+public:
+  TransitionRemoveCommand(TrackOutput *track, TransitionBlock* block, QUndoCommand *parent = nullptr);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TrackOutput* track_;
+
+  TransitionBlock* block_;
+
+  Block* out_block_;
+  Block* in_block_;
 
 };
 

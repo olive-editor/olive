@@ -194,7 +194,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
       }
     }
 
-    if (input->IsConnectable()) {
+    if (input->is_connectable()) {
       // Create clickable label used when an input is connected
       ui_objects.connected_label = new NodeParamViewConnectedLabel(input);
       connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::ConnectionClicked, this, &NodeParamViewItemBody::ConnectionClicked);
@@ -222,7 +222,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
     input_ui_map_.insert(input, ui_objects);
 
     // Update "connected" label
-    if (input->IsConnectable()) {
+    if (input->is_connectable()) {
       UpdateUIForEdgeConnection(input);
     }
 
@@ -310,11 +310,11 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(NodeInput *input)
   const InputUI& ui_objects = input_ui_map_[input];
 
   foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-    w->setVisible(!input->IsConnected());
+    w->setVisible(!input->is_connected());
   }
 
   // Show/hide connection label
-  ui_objects.connected_label->setVisible(input->IsConnected());
+  ui_objects.connected_label->setVisible(input->is_connected());
 }
 
 void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e)

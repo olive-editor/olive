@@ -31,7 +31,7 @@
 #include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
-#include "task/proxy/proxy.h"
+#include "task/precache/precachetask.h"
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -240,121 +240,144 @@ void ProjectExplorer::ShowContextMenu()
   Menu menu;
   Menu new_menu;
 
-  // FIXME: Support for multiple items and items other than Footage
-  QList<Item*> selected_items = SelectedItems();
+  context_menu_items_ = SelectedItems();
 
-  if (selected_items.isEmpty()) {
+  if (context_menu_items_.isEmpty()) {
+    // Items to show if no items are selected
+
+    // "New" menu
     new_menu.setTitle(tr("&New"));
     MenuShared::instance()->AddItemsForNewMenu(&new_menu);
     menu.addMenu(&new_menu);
 
-    menu.addSeparator();
-
-    // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
+    // "Import" action
     QAction* import_action = menu.addAction(tr("&Import..."));
     connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
 
     menu.addSeparator();
 
+    // Project properties action
     QAction* project_properties = menu.addAction(tr("&Project Properties..."));
     connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
-    context_menu_item_ = selected_items.first();
 
-    if (context_menu_item_->type() == Item::kFolder) {
+    // Actions to add when only one item is selected
+    if (context_menu_items_.size() == 1) {
+      Item* context_menu_item = context_menu_items_.first();
 
-      QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
-      connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
+      switch (context_menu_item->type()) {
+      case Item::kFolder:
+      {
+        QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
+        connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
 
-      QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
-      connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
-
-      menu.addSeparator();
-
-    } else if (context_menu_item_->type() == Item::kFootage) {
-      QString reveal_text;
+        QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
+        connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
+        break;
+      }
+      case Item::kFootage:
+      {
+        QString reveal_text;
 
 #if defined(Q_OS_WINDOWS)
-      reveal_text = tr("Reveal in Explorer");
+        reveal_text = tr("Reveal in Explorer");
 #elif defined(Q_OS_MAC)
-      reveal_text = tr("Reveal in Finder");
+        reveal_text = tr("Reveal in Finder");
 #else
-      reveal_text = tr("Reveal in File Manager");
-      #endif
+        reveal_text = tr("Reveal in File Manager");
+#endif
 
-      QAction* reveal_action = menu.addAction(reveal_text);
-      connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
+        QAction* reveal_action = menu.addAction(reveal_text);
+        connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
+        break;
+      }
+      case Item::kSequence:
+        break;
+      }
 
       menu.addSeparator();
+    }
 
-      Footage* f = static_cast<Footage*>(context_menu_item_);
+    bool all_items_are_footage = true;
+    bool all_items_have_video_streams = true;
+    bool all_items_are_footage_or_sequence = true;
 
-      if (f->HasStreamsOfType(Stream::kVideo)) {
-        Menu* proxy_menu = new Menu(tr("Proxy"), &menu);
-        menu.addMenu(proxy_menu);
+    foreach (Item* i, context_menu_items_) {
+      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasStreamsOfType(Stream::kVideo)) {
+        all_items_have_video_streams = false;
+      }
 
-        VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(f->get_first_stream_of_type(Stream::kVideo));
+      if (i->type() != Item::kFootage) {
+        all_items_are_footage = false;
+      }
 
-        if (video_stream->is_generating_proxy()) {
-
-          // Prevent multiple proxy actions from occurring at once
-          QAction* cant_proxy_action = proxy_menu->addAction(tr("Proxy being generated..."));
-          cant_proxy_action->setEnabled(false);
-
-        } else {
-
-          proxy_menu->addAction(tr("(None)"))->setData(0);
-          proxy_menu->addSeparator();
-          proxy_menu->addAction(tr("Full"))->setData(1);
-          proxy_menu->addAction(tr("1/2"))->setData(2);
-          proxy_menu->addAction(tr("1/4"))->setData(4);
-          proxy_menu->addAction(tr("1/8"))->setData(8);
-
-          foreach (QAction* a, proxy_menu->actions()) {
-            a->setCheckable(true);
-
-            if (a->data() == video_stream->using_proxy()) {
-              a->setChecked(true);
-            }
-          }
-
-          connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
-
-        }
-
-        menu.addSeparator();
+      if (i->type() != Item::kFootage && i->type() != Item::kSequence) {
+        all_items_are_footage_or_sequence = false;
       }
     }
 
-    QAction* properties_action = menu.addAction(tr("P&roperties"));
+    if (all_items_are_footage && all_items_have_video_streams) {
+      Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
+      menu.addMenu(proxy_menu);
 
-    if (context_menu_item_->type() == Item::kFootage) {
-      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowFootagePropertiesDialog);
-    } else if (context_menu_item_->type() == Item::kSequence) {
-      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowSequencePropertiesDialog);
+      QList<ItemPtr> sequences = project()->get_items_of_type(Item::kSequence);
+
+      if (sequences.isEmpty()) {
+        QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
+        a->setEnabled(false);
+      } else {
+        foreach (ItemPtr i, sequences) {
+          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->name()));
+          a->setData(Node::PtrToValue(i.get()));
+        }
+
+        connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
+      }
+    }
+
+    Q_UNUSED(all_items_are_footage_or_sequence)
+
+    if (context_menu_items_.size() == 1) {
+      menu.addSeparator();
+
+      QAction* properties_action = menu.addAction(tr("P&roperties"));
+      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowItemPropertiesDialog);
     }
   }
 
   menu.exec(QCursor::pos());
 }
 
-void ProjectExplorer::ShowFootagePropertiesDialog()
+void ProjectExplorer::ShowItemPropertiesDialog()
 {
-  // FIXME: Support for multiple items
-  FootagePropertiesDialog fpd(this, static_cast<Footage*>(context_menu_item_));
-  fpd.exec();
-}
+  Item* sel = context_menu_items_.first();
 
-void ProjectExplorer::ShowSequencePropertiesDialog()
-{
-  // FIXME: Support for multiple items
-  SequenceDialog sd(static_cast<Sequence*>(context_menu_item_), SequenceDialog::kExisting, this);
-  sd.exec();
+  switch (sel->type()) {
+  case Item::kFootage:
+  {
+    // FIXME: Support for multiple items
+    FootagePropertiesDialog fpd(this, static_cast<Footage*>(sel));
+    fpd.exec();
+    break;
+  }
+  case Item::kFolder:
+  {
+    // FIXME: Rename dialog probably
+    break;
+  }
+  case Item::kSequence:
+  {
+    // FIXME: Support for multiple items
+    SequenceDialog sd(static_cast<Sequence*>(sel), SequenceDialog::kExisting, this);
+    sd.exec();
+    break;
+  }
+  }
 }
 
 void ProjectExplorer::RevealSelectedFootage()
 {
-  Footage* footage = static_cast<Footage*>(context_menu_item_);
+  Footage* footage = static_cast<Footage*>(context_menu_items_.first());
 
 #if defined(Q_OS_WINDOWS)
   // Explorer
@@ -379,45 +402,33 @@ void ProjectExplorer::RevealSelectedFootage()
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_item_, false);
+  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), false);
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_item_, true);
+  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), true);
 }
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  // Find video stream
-  VideoStreamPtr video_stream = nullptr;
+  QList<VideoStreamPtr> video_streams;
 
-  foreach (StreamPtr s, static_cast<Footage*>(context_menu_item_)->streams()) {
-    if (s->type() == Stream::kVideo) {
-      video_stream = std::static_pointer_cast<VideoStream>(s);
-      break;
+  // To get here, the `context_menu_items_` must be all kFootage
+  foreach (Item* i, context_menu_items_) {
+    VideoStreamPtr s = std::static_pointer_cast<VideoStream>(static_cast<Footage*>(i)->get_first_stream_of_type(Stream::kVideo));
+
+    if (s) {
+      video_streams.append(s);
     }
   }
 
-  if (!video_stream) {
-    return;
-  }
+  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
-  int chosen_proxy_setting = a->data().toInt();
-
-  if (chosen_proxy_setting != video_stream->using_proxy()) {
-    if (!a->data().toInt()) {
-
-      // 0 means disable the proxy
-      video_stream->set_proxy(0, QVector<int64_t>());
-
-    } else if (video_stream->try_start_proxy()) {
-
-      // Start a background task for proxying
-      ProxyTask* proxy_task = new ProxyTask(video_stream, a->data().toInt());
-      TaskManager::instance()->AddTask(proxy_task);
-
-    }
+  // Start a background task for proxying
+  foreach (VideoStreamPtr video_stream, video_streams) {
+    PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
+    TaskManager::instance()->AddTask(proxy_task);
   }
 }
 

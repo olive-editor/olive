@@ -22,11 +22,13 @@
 
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "core.h"
 #include "project/item/footage/footage.h"
 #include "project/project.h"
 #include "undo/undostack.h"
@@ -40,6 +42,23 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
   video_layout->setMargin(0);
 
   int row = 0;
+
+  video_layout->addWidget(new QLabel(tr("Pixel Aspect:")), row, 0);
+
+  pixel_aspect_combo_ = new PixelAspectRatioComboBox();
+  pixel_aspect_combo_->SetPixelAspectRatio(stream->pixel_aspect_ratio());
+  video_layout->addWidget(pixel_aspect_combo_, row, 1);
+
+  row++;
+
+  video_layout->addWidget(new QLabel(tr("Interlacing:")), row, 0);
+
+  video_interlace_combo_ = new InterlacedComboBox();
+  video_interlace_combo_->SetInterlaceMode(stream->interlacing());
+
+  video_layout->addWidget(video_interlace_combo_, row, 1);
+
+  row++;
 
   video_layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
 
@@ -91,6 +110,14 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
     imgseq_end_time_->SetValue(video_stream->start_time() + video_stream->duration() - 1);
     imgseq_layout->addWidget(imgseq_end_time_, imgseq_row, 1);
 
+    imgseq_row++;
+
+    imgseq_layout->addWidget(new QLabel(tr("Frame Rate:")), imgseq_row, 0);
+
+    imgseq_frame_rate_ = new FrameRateComboBox();
+    imgseq_frame_rate_->SetFrameRate(video_stream->frame_rate());
+    imgseq_layout->addWidget(imgseq_frame_rate_, imgseq_row, 1);
+
     video_layout->addWidget(imgseq_group, row, 0, 1, 2);
   }
 }
@@ -104,11 +131,15 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   }
 
   if (video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha()
-      || set_colorspace != stream_->colorspace(false)) {
+      || set_colorspace != stream_->colorspace(false)
+      || static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()) != stream_->interlacing()
+      || pixel_aspect_combo_->GetPixelAspectRatio() != stream_->pixel_aspect_ratio()) {
 
     new VideoStreamChangeCommand(stream_,
                                  video_premultiply_alpha_->isChecked(),
                                  set_colorspace,
+                                 static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
+                                 pixel_aspect_combo_->GetPixelAspectRatio(),
                                  parent);
   }
 
@@ -118,10 +149,12 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
 
     if (video_stream->start_time() != imgseq_start_time_->GetValue()
-        || video_stream->duration() != new_dur) {
+        || video_stream->duration() != new_dur
+        || video_stream->frame_rate() != imgseq_frame_rate_->GetFrameRate()) {
       new ImageSequenceChangeCommand(video_stream,
                                      imgseq_start_time_->GetValue(),
                                      new_dur,
+                                     imgseq_frame_rate_->GetFrameRate(),
                                      parent);
     }
   }
@@ -150,11 +183,15 @@ bool VideoStreamProperties::IsImageSequence(ImageStream *stream)
 VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
+                                                                          VideoParams::Interlacing interlacing,
+                                                                          const rational &pixel_ar,
                                                                           QUndoCommand *parent) :
   UndoCommand(parent),
   stream_(stream),
   new_premultiplied_(premultiplied),
-  new_colorspace_(colorspace)
+  new_colorspace_(colorspace),
+  new_interlacing_(interlacing),
+  new_pixel_ar_(pixel_ar)
 {
 }
 
@@ -167,22 +204,29 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
 {
   old_premultiplied_ = stream_->premultiplied_alpha();
   old_colorspace_ = stream_->colorspace(false);
+  old_interlacing_ = stream_->interlacing();
+  old_pixel_ar_ = stream_->pixel_aspect_ratio();
 
   stream_->set_premultiplied_alpha(new_premultiplied_);
   stream_->set_colorspace(new_colorspace_);
+  stream_->set_interlacing(new_interlacing_);
+  stream_->set_pixel_aspect_ratio(new_pixel_ar_);
 }
 
 void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
 {
   stream_->set_premultiplied_alpha(old_premultiplied_);
   stream_->set_colorspace(old_colorspace_);
+  stream_->set_interlacing(old_interlacing_);
+  stream_->set_pixel_aspect_ratio(old_pixel_ar_);
 }
 
-VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, QUndoCommand *parent) :
+VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, const rational &frame_rate, QUndoCommand *parent) :
   UndoCommand(parent),
   video_stream_(video_stream),
   new_start_index_(start_index),
-  new_duration_(duration)
+  new_duration_(duration),
+  new_frame_rate_(frame_rate)
 {
 }
 
@@ -198,12 +242,18 @@ void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal()
 
   old_duration_ = video_stream_->duration();
   video_stream_->set_duration(new_duration_);
+
+  old_frame_rate_ = video_stream_->frame_rate();
+  video_stream_->set_frame_rate(new_frame_rate_);
+  video_stream_->set_timebase(new_frame_rate_.flipped());
 }
 
 void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
 {
   video_stream_->set_start_time(old_start_index_);
   video_stream_->set_duration(old_duration_);
+  video_stream_->set_frame_rate(old_frame_rate_);
+  video_stream_->set_timebase(old_frame_rate_.flipped());
 }
 
 OLIVE_NAMESPACE_EXIT

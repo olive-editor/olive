@@ -51,22 +51,18 @@ void TimelineWidget::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
     ghost->SetMediaInAdjustment(time_movement);
   }
 
-  // Show tooltip
-  // Generate tooltip (showing earliest in point of imported clip)
-  int64_t earliest_timestamp = Timecode::time_to_timestamp(time_movement, parent()->GetToolTipTimebase());
-  QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                         parent()->GetToolTipTimebase(),
-                                                         Core::instance()->GetTimecodeDisplay(),
-                                                         true);
-  // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
-  // of the cursor)
+  // Generate tooltip and force it to to update (otherwise the tooltip won't move as written in the
+  // documentation, and could get in the way of the cursor)
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     tooltip_text,
+                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, parent()->GetToolTipTimebase()),
+                                                                              parent()->GetToolTipTimebase(),
+                                                                              Core::instance()->GetTimecodeDisplay(),
+                                                                              true),
                      parent());
 }
 
-void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

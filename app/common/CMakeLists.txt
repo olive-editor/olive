@@ -23,6 +23,8 @@ set(OLIVE_SOURCES
   common/clamp.h
   common/crashhandler.h
   common/crashhandler.cpp
+  common/crashpadinterface.cpp
+  common/crashpadinterface.h
   common/debug.h
   common/debug.cpp
   common/define.h
@@ -36,13 +38,14 @@ set(OLIVE_SOURCES
   common/qtutils.h
   common/qtutils.cpp
   common/range.h
+  common/ratiodialog.h
+  common/ratiodialog.cpp
   common/rational.h
   common/rational.cpp
   common/threadedobject.h
   common/threadedobject.cpp
   common/timecodefunctions.h
   common/timecodefunctions.cpp
-  common/timelinecommon.h
   common/timerange.h
   common/timerange.cpp
   common/tohex.h

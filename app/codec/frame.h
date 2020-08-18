@@ -44,8 +44,8 @@ public:
 
   static FramePtr Create();
 
-  const VideoRenderingParams& video_params() const;
-  void set_video_params(const VideoRenderingParams& params);
+  const VideoParams& video_params() const;
+  void set_video_params(const VideoParams& params);
 
   int linesize_pixels() const;
   int linesize_bytes() const;
@@ -55,9 +55,7 @@ public:
 
   Color get_pixel(int x, int y) const;
   bool contains_pixel(int x, int y) const;
-
-  const rational& sample_aspect_ratio() const;
-  void set_sample_aspect_ratio(const rational& sample_aspect_ratio);
+  void set_pixel(int x, int y, const Color& c);
 
   /**
    * @brief Get frame's timestamp.
@@ -107,15 +105,13 @@ public:
   int allocated_size() const;
 
 private:
-  VideoRenderingParams params_;
+  VideoParams params_;
 
   QByteArray data_;
 
   rational timestamp_;
 
   int64_t native_timestamp_;
-
-  rational sample_aspect_ratio_;
 
   int linesize_;
 

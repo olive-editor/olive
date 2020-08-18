@@ -34,7 +34,8 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   SeekableWidget(parent),
   text_visible_(text_visible),
   centered_text_(true),
-  show_cache_status_(cache_status_visible)
+  show_cache_status_(cache_status_visible),
+  playback_cache_(nullptr)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -54,33 +55,27 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, static_cast<void (TimeRuler::*)()>(&TimeRuler::update));
 }
 
-void TimeRuler::SetCacheStatusLength(const rational &length)
+void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
 {
-  if (show_cache_status_) {
-    cache_length_ = length;
-
-    dirty_cache_ranges_.RemoveTimeRange(TimeRange(length, RATIONAL_MAX));
-
-    update();
+  if (!show_cache_status_) {
+    return;
   }
-}
 
-void TimeRuler::CacheInvalidatedRange(const TimeRange& range)
-{
-  if (show_cache_status_) {
-    dirty_cache_ranges_.InsertTimeRange(range);
-
-    update();
+  if (playback_cache_) {
+    disconnect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    disconnect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    disconnect(playback_cache_, &PlaybackCache::LengthChanged, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
   }
-}
 
-void TimeRuler::CacheTimeReady(const rational &time)
-{
-  if (show_cache_status_) {
-    dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase()));
+  playback_cache_ = cache;
 
-    update();
+  if (playback_cache_) {
+    connect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    connect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    connect(playback_cache_, &PlaybackCache::LengthChanged, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
   }
+
+  update();
 }
 
 void TimeRuler::paintEvent(QPaintEvent *)
@@ -253,25 +248,32 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   // If cache status is enabled
-  if (show_cache_status_) {
-    int cache_screen_length = qMin(TimeToScreen(cache_length_), width());
+  if (show_cache_status_ && playback_cache_) {
+    int cache_screen_length = qMin(TimeToScreen(playback_cache_->GetLength()), width());
 
     if (cache_screen_length > 0) {
       int cache_y = height() - cache_status_height_;
 
       p.fillRect(0, cache_y, cache_screen_length , cache_status_height_, Qt::green);
 
-      foreach (const TimeRange& range, dirty_cache_ranges_) {
+      foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges()) {
         int range_left = TimeToScreen(range.in());
-        int range_right = TimeToScreen(range.out());
+        if (range_left >= width()) {
+          continue;
+        }
 
-        if (range_left >= width() || range_right < 0) {
+        int range_right = TimeToScreen(range.out());
+        if (range_right < 0) {
           continue;
         }
 
         int adjusted_left = qMax(0, range_left);
 
-        p.fillRect(adjusted_left, cache_y, qMin(width(), range_right) - adjusted_left, cache_status_height_, Qt::red);
+        p.fillRect(adjusted_left,
+                   cache_y,
+                   qMin(width(), range_right) - adjusted_left,
+                   cache_status_height_,
+                   Qt::red);
       }
     }
   }
@@ -279,7 +281,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   // Draw the playhead if it's on screen at the moment
   int playhead_pos = UnitToScreen(GetTime());
   p.setPen(Qt::NoPen);
-  p.setBrush(GetPlayheadColor());
+  p.setBrush(PLAYHEAD_COLOR);
   DrawPlayhead(&p, playhead_pos, line_bottom);
 }
 

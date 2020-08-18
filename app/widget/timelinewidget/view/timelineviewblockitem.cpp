@@ -96,28 +96,16 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 
     // Draw waveform if one is available
-    QString wave_fn = QDir(QDir(Config::Current()["DiskCachePath"].toString()).filePath("waveform")).filePath(QString::number(reinterpret_cast<quintptr>(block_)));
-    QFile wave_file(wave_fn);
-    if (wave_file.open(QFile::ReadOnly)){
-      painter->setPen(QColor(64, 64, 64));
+    painter->setPen(QColor(64, 64, 64));
+    TrackOutput* track = TrackOutput::TrackFromBlock(block_);
+    if (track) {
+      QMutexLocker locker(track->waveform_lock());
 
-      QByteArray w = wave_file.readAll();
-
-      wave_file.close();
-
-      // Read metadata
-      SampleSummer::Info info;
-      memcpy(&info, w.data(), sizeof(SampleSummer::Info));
-
-      // Prevent divide by zero
-      if (info.channels) {
-        AudioWaveformView::DrawWaveform(painter,
+      AudioVisualWaveform::DrawWaveform(painter,
                                         rect().toRect(),
                                         this->GetScale(),
-                                        reinterpret_cast<const SampleSummer::Sum*>(w.constData() + sizeof(SampleSummer::Info)),
-                                        (w.size() - sizeof(SampleSummer::Info)) / sizeof(SampleSummer::Sum),
-                                        info.channels);
-      }
+                                        track->waveform(),
+                                        block_->in());
     }
 
     painter->setPen(Qt::white);
@@ -134,12 +122,12 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     int text_top = TrackOutput::GetTrackHeightMinimum() / 2 - painter->fontMetrics().height() / 2;
     QRectF text_rect = rect();
     text_rect.adjust(0, text_top, 0, 0);
-    painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->block_name());
+    painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->GetLabel());
 
     // Linked clips are underlined
     if (block_->HasLinks()) {
       QFontMetrics fm = painter->fontMetrics();
-      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->block_name()));
+      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->GetLabel()));
 
       QPointF underline_start = rect().topLeft() + QPointF(0, text_top + fm.height());
       QPointF underline_end = underline_start + QPointF(text_width, 0);

@@ -68,6 +68,9 @@ public:
 
   static Format OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bool has_alpha);
 
+  static Format GetFormatWithAlphaChannel(Format f);
+  static Format GetFormatWithoutAlphaChannel(Format f);
+
   /**
    * @brief Returns the minimum buffer size (in bytes) necessary for a given format, width, and height.
    *

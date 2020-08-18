@@ -64,8 +64,15 @@ public:
   void RemoveFramesBefore(const qint64& t);
   void TruncateCacheRangeTo(const qint64& t);
 
-  rational sample_aspect_ratio() const;
-  AVStream* stream() const;
+  AVFormatContext* fmt_ctx() const
+  {
+    return fmt_ctx_;
+  }
+
+  AVStream* stream() const
+  {
+    return avstream_;
+  }
 
   void ClearFrameCache();
 
@@ -134,8 +141,8 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
 
   virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider, bool use_proxies) override;
-  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
+  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioParams& params) override;
   virtual void Close() override;
 
   virtual QString id() override;
@@ -143,8 +150,7 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
-  virtual bool ProxyVideo(const QAtomicInt* cancelled, int divider) override;
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioRenderingParams& p) override;
+  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams& p) override;
 
 private:
   /**
@@ -166,22 +172,18 @@ private:
    */
   void FFmpegError(int error_code);
 
-  virtual QString GetIndexFilename() const override;
-
-  QString GetProxyFilename(int divider) const;
-
   void ClearResources();
 
   void InitScaler(int divider);
   void FreeScaler();
-
-  QString GetProxyFrameFilename(const int64_t& timestamp, const int &divider) const;
 
   static int GetScaledDimension(int dim, int divider);
 
   static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
+
+  FramePtr BuffersToNativeFrame(int divider, int width, int height, int64_t ts, uint8_t **input_data, int* input_linesize);
 
   SwsContext* scale_ctx_;
   int scale_divider_;
@@ -190,7 +192,6 @@ private:
   PixelFormat::Format native_pix_fmt_;
 
   rational time_base_;
-  rational aspect_ratio_;
   int64_t start_time_;
 
   static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;

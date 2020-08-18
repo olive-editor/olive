@@ -33,7 +33,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   Retranslate();
 
-  connect(tw, &TimelineWidget::SelectionChanged, this, &TimelinePanel::SelectionChanged);
+  connect(tw, &TimelineWidget::BlocksSelected, this, &TimelinePanel::BlocksSelected);
+  connect(tw, &TimelineWidget::BlocksDeselected, this, &TimelinePanel::BlocksDeselected);
 }
 
 void TimelinePanel::Clear()
@@ -44,6 +45,16 @@ void TimelinePanel::Clear()
 void TimelinePanel::SplitAtPlayhead()
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->SplitAtPlayhead();
+}
+
+QByteArray TimelinePanel::SaveSplitterState() const
+{
+  return static_cast<TimelineWidget*>(GetTimeBasedWidget())->SaveSplitterState();
+}
+
+void TimelinePanel::RestoreSplitterState(const QByteArray &state)
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->RestoreSplitterState(state);
 }
 
 void TimelinePanel::SelectAll()

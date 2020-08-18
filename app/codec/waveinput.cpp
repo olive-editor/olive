@@ -139,7 +139,7 @@ bool WaveInput::open()
   }
 
   // We're good to go!
-  params_ = AudioRenderingParams(sample_rate, channel_layout, format);
+  params_ = AudioParams(sample_rate, channel_layout, format);
 
   if (!find_str(&file_, "data")) {
     close();
@@ -197,7 +197,7 @@ bool WaveInput::at_end() const
   return file_.pos() == (data_position_ + data_size_);
 }
 
-const AudioRenderingParams &WaveInput::params() const
+const AudioParams &WaveInput::params() const
 {
   return params_;
 }

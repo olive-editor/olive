@@ -203,6 +203,7 @@ FloatSlider *ColorValuesTab::CreateColorSlider()
   FloatSlider* fs = new FloatSlider();
   fs->SetDragMultiplier(0.01);
   fs->SetDecimalPlaces(5);
+  fs->SetLadderElementCount(1);
   connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesTab::SliderChanged);
   return fs;
 }

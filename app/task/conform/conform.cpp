@@ -24,17 +24,18 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ConformTask::ConformTask(AudioStreamPtr stream, const AudioRenderingParams& params) :
+ConformTask::ConformTask(AudioStreamPtr stream, const AudioParams& params) :
   stream_(stream),
   params_(params)
 {
   SetTitle(tr("Conforming Audio %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
 }
 
-void ConformTask::Action()
+bool ConformTask::Run()
 {
   if (stream_->footage()->decoder().isEmpty()) {
-    emit Failed(tr("Failed to find decoder to conform audio stream"));
+    SetError(tr("Failed to find decoder to conform audio stream"));
+    return false;
   } else {
     DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
 
@@ -42,10 +43,11 @@ void ConformTask::Action()
 
     connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
-    if (decoder->ConformAudio(&IsCancelled(), params_)) {
-      emit Succeeded();
+    if (!decoder->ConformAudio(&IsCancelled(), params_)) {
+      SetError(tr("Failed to conform audio"));
+      return false;
     } else {
-      emit Failed(QStringLiteral("Failed to conform audio"));
+      return true;
     }
   }
 }

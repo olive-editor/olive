@@ -30,7 +30,6 @@
 #include "tabs/preferencesgeneraltab.h"
 #include "tabs/preferencesbehaviortab.h"
 #include "tabs/preferencesappearancetab.h"
-#include "tabs/preferencesqualitytab.h"
 #include "tabs/preferencesdisktab.h"
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
@@ -55,7 +54,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesGeneralTab(), tr("General"));
   AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
   AddTab(new PreferencesBehaviorTab(), tr("Behavior"));
-  AddTab(new PreferencesQualityTab(), tr("Quality"));
   AddTab(new PreferencesDiskTab(), tr("Disk"));
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));

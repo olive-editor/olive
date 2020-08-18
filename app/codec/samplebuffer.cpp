@@ -1,4 +1,4 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -38,18 +38,18 @@ SampleBufferPtr SampleBuffer::Create()
   return std::make_shared<SampleBuffer>();
 }
 
-SampleBufferPtr SampleBuffer::CreateAllocated(const AudioRenderingParams &audio_params, int samples_per_channel)
+SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, int samples_per_channel)
 {
   SampleBufferPtr buffer = Create();
 
   buffer->set_audio_params(audio_params);
-  buffer->set_sample_count_per_channel(samples_per_channel);
+  buffer->set_sample_count(samples_per_channel);
   buffer->allocate();
 
   return buffer;
 }
 
-SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioRenderingParams &audio_params, const QByteArray &bytes)
+SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioParams &audio_params, const QByteArray &bytes)
 {
   if (!audio_params.is_valid()) {
     qWarning() << "Tried to create from packed data with invalid parameters";
@@ -73,12 +73,12 @@ SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioRenderingParams &a
   return buffer;
 }
 
-const AudioRenderingParams &SampleBuffer::audio_params() const
+const AudioParams &SampleBuffer::audio_params() const
 {
   return audio_params_;
 }
 
-void SampleBuffer::set_audio_params(const AudioRenderingParams &params)
+void SampleBuffer::set_audio_params(const AudioParams &params)
 {
   if (data_) {
     qWarning() << "Tried to set parameters on allocated sample buffer";
@@ -88,12 +88,12 @@ void SampleBuffer::set_audio_params(const AudioRenderingParams &params)
   audio_params_ = params;
 }
 
-const int &SampleBuffer::sample_count_per_channel() const
+const int &SampleBuffer::sample_count() const
 {
   return sample_count_per_channel_;
 }
 
-void SampleBuffer::set_sample_count_per_channel(const int &sample_count)
+void SampleBuffer::set_sample_count(const int &sample_count)
 {
   if (data_) {
     qWarning() << "Tried to set sample count on allocated sample buffer";
@@ -173,15 +173,15 @@ void SampleBuffer::speed(double speed)
     return;
   }
 
-  int max_adjusted_nb_samples = qRound(static_cast<double>(sample_count_per_channel_) * speed);
+  sample_count_per_channel_ = qRound(static_cast<double>(sample_count_per_channel_) / speed);
 
   float** input_data = data_;
   float** output_data;
 
-  allocate_sample_buffer(&output_data, audio_params_.channel_count(), max_adjusted_nb_samples);
+  allocate_sample_buffer(&output_data, audio_params_.channel_count(), sample_count_per_channel_);
 
-  for (int i=0;i<max_adjusted_nb_samples;i++) {
-    int input_index = qRound(static_cast<double>(i) * speed);
+  for (int i=0;i<sample_count_per_channel_;i++) {
+    int input_index = qFloor(static_cast<double>(i) * speed);
 
     for (int j=0;j<audio_params_.channel_count();j++) {
       output_data[j][i] = input_data[j][input_index];
@@ -191,6 +191,34 @@ void SampleBuffer::speed(double speed)
   destroy_sample_buffer(&input_data, audio_params_.channel_count());
 
   data_ = output_data;
+}
+
+void SampleBuffer::transform_volume(float f)
+{
+  for (int i=0;i<audio_params().channel_count();i++) {
+    for (int j=0;j<sample_count_per_channel_;j++) {
+      data_[i][j] *= f;
+    }
+  }
+}
+
+void SampleBuffer::transform_volume_for_channel(int channel, float volume)
+{
+  for (int i=0;i<sample_count_per_channel_;i++) {
+    data_[channel][i] *= volume;
+  }
+}
+
+void SampleBuffer::transform_volume_for_sample(int sample_index, float volume)
+{
+  for (int i=0;i<audio_params().channel_count();i++) {
+    data_[i][sample_index] *= volume;
+  }
+}
+
+void SampleBuffer::transform_volume_for_sample_on_channel(int sample_index, int channel, float volume)
+{
+  data_[channel][sample_index] *= volume;
 }
 
 void SampleBuffer::fill(const float &f)

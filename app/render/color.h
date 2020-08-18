@@ -84,6 +84,8 @@ public:
   float* data() {return data_;}
   const float* data() const {return data_;}
 
+  void toData(char* data, const PixelFormat::Format& format) const;
+
   static Color fromData(const char* data, const PixelFormat::Format& format);
 
   QColor toQColor() const;

@@ -39,6 +39,10 @@ public:
 
   void SplitAtPlayhead();
 
+  QByteArray SaveSplitterState() const;
+
+  void RestoreSplitterState(const QByteArray& state);
+
   virtual void SelectAll() override;
 
   virtual void DeselectAll() override;
@@ -87,7 +91,9 @@ protected:
   virtual void Retranslate() override;
 
 signals:
-  void SelectionChanged(const QList<Block*>& selected_blocks);
+  void BlocksSelected(const QList<Block*>& selected_blocks);
+
+  void BlocksDeselected(const QList<Block*>& deselected_blocks);
 
 };
 

@@ -26,7 +26,8 @@ OLIVE_NAMESPACE_ENTER
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
   QStatusBar(parent),
-  manager_(nullptr)
+  manager_(nullptr),
+  connected_task_(nullptr)
 {
   setSizeGripEnabled(false);
 
@@ -37,7 +38,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
   bar_->setMaximum(100);
   bar_->setVisible(false);
 
-  showMessage(tr("Welcome to %1 %2").arg(QCoreApplication::applicationName(), QCoreApplication::applicationVersion()));
+  showMessage(tr("Welcome to %1 %2").arg(QCoreApplication::applicationName(),
+                                         QCoreApplication::applicationVersion()));
 }
 
 void MainStatusBar::ConnectTaskManager(TaskManager *manager)
@@ -62,6 +64,7 @@ void MainStatusBar::UpdateStatus()
   if (manager_->GetTaskCount() == 0) {
     clearMessage();
     bar_->setVisible(false);
+    bar_->setValue(0);
   } else {
     Task* t = manager_->GetFirstTask();
 
@@ -72,8 +75,26 @@ void MainStatusBar::UpdateStatus()
     }
 
     bar_->setVisible(true);
-    connect(t, &Task::ProgressChanged, bar_, &QProgressBar::setValue);
+
+    if (connected_task_) {
+      disconnect(connected_task_, &Task::ProgressChanged, this, &MainStatusBar::SetProgressBarValue);
+      disconnect(connected_task_, &Task::destroyed, this, &MainStatusBar::ConnectedTaskDeleted);
+    }
+
+    connected_task_ = t;
+    connect(connected_task_, &Task::ProgressChanged, this, &MainStatusBar::SetProgressBarValue);
+    connect(connected_task_, &Task::destroyed, this, &MainStatusBar::ConnectedTaskDeleted);
   }
+}
+
+void MainStatusBar::SetProgressBarValue(double d)
+{
+  bar_->setValue(qRound(100.0 * d));
+}
+
+void MainStatusBar::ConnectedTaskDeleted()
+{
+  connected_task_ = nullptr;
 }
 
 void MainStatusBar::mouseDoubleClickEvent(QMouseEvent* e)

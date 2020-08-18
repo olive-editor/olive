@@ -17,18 +17,3 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
-
-/* Hack that forces checked QPushButtons to use dark color */
-
-
-/* Node styling */
-NodeViewItemWidget {
-  qproperty-titlebarColor: #a0a0ff;
-  qproperty-borderColor: #000000;
-}
-
-/* Timeline playhead styling */
-TimelinePlayhead {
-  qproperty-playheadColor: #ff0000;
-  qproperty-playheadHighlightColor: rgba(0, 0, 0, 0.25);
-}

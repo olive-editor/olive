@@ -22,18 +22,22 @@
 
 OLIVE_NAMESPACE_ENTER
 
-void GizmoTraverser::FootageProcessingEvent(StreamPtr stream, const TimeRange &/*input_time*/, NodeValueTable *table)
+QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+  Q_UNUSED(input_time)
 
-    ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+  ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
 
-    table->Push(NodeParam::kTexture, QSize(image_stream->width(),
-                                           image_stream->height()));
+  return QSize(image_stream->width(), image_stream->height());
+}
 
-  } else if (stream->type() == Stream::kAudio) {
-    // FIXME: Get samples
-  }
+QVariant GizmoTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(job)
+
+  return size_;
 }
 
 OLIVE_NAMESPACE_EXIT

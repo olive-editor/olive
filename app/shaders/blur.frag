@@ -21,6 +21,11 @@ out vec4 fragColor;
 #define METHOD_BOX_BLUR 0
 #define METHOD_GAUSSIAN_BLUR 1
 
+// Mode
+#define MODE_NONE 0
+#define MODE_HORIZONTAL 1
+#define MODE_VERTICAL 2
+
 // Single gaussian formula (unused, mainly here for documentation/just in case)
 //float gaussian(float x, float sigma) {
 //    return (1.0/(sigma*sqrt(2.0*M_PI)))*exp(-0.5*pow(x/sigma, 2.0));
@@ -32,10 +37,36 @@ float gaussian2(float x, float y, float sigma) {
     return (1.0/((sigma*sigma)*2.0*M_PI))*exp(-0.5*(((x*x) + (y*y))/(sigma*sigma)));
 }
 
+int determine_mode() {
+    if (radius_in == 0.0) {
+        return MODE_NONE;
+    }
+
+    if (!horiz_in && !vert_in) {
+        return MODE_NONE;
+    }
+
+    if (horiz_in && !vert_in) {
+        return MODE_HORIZONTAL;
+    }
+
+    if (vert_in && !horiz_in) {
+        return MODE_VERTICAL;
+    }
+
+    if (ove_iteration == 0) {
+        return MODE_HORIZONTAL;
+    }
+
+    if (ove_iteration == 1) {
+        return MODE_VERTICAL;
+    }
+}
+
 void main(void) {
-    if (radius_in == 0.0
-        || (ove_iteration == 0 && !horiz_in)
-        || (ove_iteration == 1 && !vert_in)) {
+    int mode = determine_mode();
+
+    if (mode == MODE_NONE) {
         fragColor = texture(tex_in, ove_texcoord);
         return;
     }
@@ -77,9 +108,9 @@ void main(void) {
         }
 
         vec2 pixel_coord = ove_texcoord;
-        if (ove_iteration == 0) {
+        if (mode == MODE_HORIZONTAL) {
             pixel_coord.x += i / ove_resolution.x;
-        } else if (ove_iteration == 1) {
+        } else if (mode == MODE_VERTICAL) {
             pixel_coord.y += i / ove_resolution.y;
         }
 

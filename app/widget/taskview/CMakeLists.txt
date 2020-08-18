@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/taskview/elapsedcounterwidget.h
+  widget/taskview/elapsedcounterwidget.cpp
   widget/taskview/taskview.h
   widget/taskview/taskview.cpp
   widget/taskview/taskviewitem.h

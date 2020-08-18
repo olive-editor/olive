@@ -32,8 +32,8 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
-  connect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
+  connect(track_input_, &NodeInputArray::SubParamEdgeAdded, this, &TrackList::TrackConnected);
+  connect(track_input_, &NodeInputArray::SubParamEdgeRemoved, this, &TrackList::TrackDisconnected);
 }
 
 const Timeline::TrackType &TrackList::type() const
@@ -99,7 +99,7 @@ TrackOutput* TrackList::AddTrack()
       }
     }
 
-    if (last_track && last_track->output()->IsConnected()) {
+    if (last_track && last_track->output()->is_connected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
         if (!track_input_->ContainsSubParameter(edge->input())) {
           switch (type_) {
@@ -151,9 +151,9 @@ void TrackList::RemoveTrack()
 
 void TrackList::TrackConnected(NodeEdgePtr edge)
 {
-  int track_index = track_input_->IndexOfSubParameter(edge->input());
+  int input_index = track_input_->IndexOfSubParameter(edge->input());
 
-  Q_ASSERT(track_index >= 0);
+  Q_ASSERT(input_index >= 0);
 
   Node* connected_node = edge->output()->parentNode();
 
@@ -163,7 +163,7 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
     {
       // Find "real" index
       TrackOutput* next = nullptr;
-      for (int i=track_index+1; i<track_input_->GetSize(); i++) {
+      for (int i=input_index+1; i<track_input_->GetSize(); i++) {
         Node* that_track = track_input_->At(i)->get_connected_node();
 
         if (that_track && that_track->IsTrack()) {

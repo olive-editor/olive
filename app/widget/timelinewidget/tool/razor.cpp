@@ -23,7 +23,7 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::RazorTool::RazorTool(TimelineWidget* parent) :
-  Tool(parent)
+  BeamTool(parent)
 {
 }
 
@@ -37,7 +37,7 @@ void TimelineWidget::RazorTool::MousePress(TimelineViewMouseEvent *event)
 void TimelineWidget::RazorTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!dragging_) {
-    drag_start_ = event->GetCoordinates(true);
+    drag_start_ = ValidatedCoordinate(event->GetCoordinates(true));
     dragging_ = true;
   }
 

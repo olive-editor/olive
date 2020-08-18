@@ -21,6 +21,7 @@
 #ifndef CURVEWIDGET_H
 #define CURVEWIDGET_H
 
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QWidget>
@@ -58,6 +59,8 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node* target) override;
 
+  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+
 private:
   void UpdateInputLabel();
 
@@ -86,6 +89,8 @@ private:
   NodeParamViewWidgetBridge* bridge_;
 
   NodeParamViewKeyframeControl* key_control_;
+
+  QList<QCheckBox*> checkboxes_;
 
 private slots:
   void SelectionChanged();

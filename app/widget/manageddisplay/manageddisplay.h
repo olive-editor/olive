@@ -53,6 +53,11 @@ public:
   const ColorTransform& GetColorTransform() const;
 
   /**
+   * @brief Get menu that can be used to select the colorspace
+   */
+  Menu* GetColorSpaceMenu(QMenu* parent, bool auto_connect = true);
+
+  /**
    * @brief Get menu that can be used to select the display transform
    */
   Menu* GetDisplayMenu(QMenu* parent, bool auto_connect = true);
@@ -168,6 +173,11 @@ private slots:
    * @brief If GetLookMenu() is called with `auto_connect` set to true, it will be connected to this
    */
   void MenuLookSelect(QAction* action);
+
+  /**
+   * @brief If GetColorSpaceMenu() is called with `auto_connect` set to true, it will be connected to this
+   */
+  void MenuColorspaceSelect(QAction* action);
 
 };
 

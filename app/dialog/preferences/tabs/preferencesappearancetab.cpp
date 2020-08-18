@@ -44,19 +44,21 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
   // Appearance -> Theme
   appearance_layout->addWidget(new QLabel(tr("Theme")), row, 0);
 
-  style_ = new QComboBox();
+  style_combobox_ = new QComboBox();
 
-  style_list_ = StyleManager::ListInternal();
+  {
+    const QMap<QString, QString>& themes = StyleManager::available_themes();
+    QMap<QString, QString>::const_iterator i;
+    for (i=themes.cbegin(); i!=themes.cend(); i++) {
+      style_combobox_->addItem(i.value(), i.key());
 
-  foreach (const StyleDescriptor& s, style_list_) {
-    style_->addItem(s.name(), s.path());
-
-    if (s.path() == StyleManager::GetStyle()) {
-      style_->setCurrentIndex(style_->count()-1);
+      if (StyleManager::GetStyle() == i.key()) {
+        style_combobox_->setCurrentIndex(style_combobox_->count()-1);
+      }
     }
   }
 
-  appearance_layout->addWidget(style_, row, 1);
+  appearance_layout->addWidget(style_combobox_, row, 1);
 
   row++;
 
@@ -91,7 +93,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
 void PreferencesAppearanceTab::Accept()
 {
-  QString style_path = style_->currentData().toString();
+  QString style_path = style_combobox_->currentData().toString();
 
   if (style_path != StyleManager::GetStyle()) {
     StyleManager::SetStyle(style_path);

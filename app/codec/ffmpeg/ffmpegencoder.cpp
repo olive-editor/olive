@@ -20,6 +20,10 @@
 
 #include "ffmpegencoder.h"
 
+extern "C" {
+#include <libavutil/pixdesc.h>
+}
+
 #include <QFile>
 
 #include "ffmpegcommon.h"
@@ -35,127 +39,17 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   video_scale_ctx_(nullptr),
   audio_stream_(nullptr),
   audio_codec_ctx_(nullptr),
-  audio_resample_ctx_(nullptr)
+  audio_resample_ctx_(nullptr),
+  open_(false)
 {
 }
 
-void FFmpegEncoder::WriteAudio(AudioRenderingParams pcm_info, const QString &pcm_filename, TimeRange range)
+bool FFmpegEncoder::Open()
 {
-  QFile pcm(pcm_filename);
-  if (pcm.open(QFile::ReadOnly)) {
-    // Divide PCM stream into AVFrames
-
-    // See if the codec defines a number of samples per frame
-    int maximum_frame_samples = audio_codec_ctx_->frame_size;
-    if (!maximum_frame_samples) {
-      // If not, use another frame size
-      if (params().video_enabled()) {
-        // If we're encoding video, use enough samples to cover roughly one frame of video
-        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().time_base());
-      } else {
-        // If no video, just use an arbitrary number
-        maximum_frame_samples = 256;
-      }
-    }
-
-    SwrContext* swr_ctx = swr_alloc_set_opts(nullptr,
-                                             static_cast<int64_t>(audio_codec_ctx_->channel_layout),
-                                             audio_codec_ctx_->sample_fmt,
-                                             audio_codec_ctx_->sample_rate,
-                                             static_cast<int64_t>(pcm_info.channel_layout()),
-                                             FFmpegCommon::GetFFmpegSampleFormat(pcm_info.format()),
-                                             pcm_info.sample_rate(),
-                                             0,
-                                             nullptr);
-
-    swr_init(swr_ctx);
-
-    // Loop through PCM queueing write events
-    AVFrame* frame = av_frame_alloc();
-
-    // Set up frame and allocate its buffers
-    frame->channel_layout = audio_codec_ctx_->channel_layout;
-    frame->nb_samples = maximum_frame_samples;
-    frame->format = audio_codec_ctx_->sample_fmt;
-    av_frame_get_buffer(frame, 0);
-
-    // Keep track of sample count to use as each frame's timebase
-    int sample_counter = 0;
-
-    // Go to start range if one was set
-    if (range.in() > 0) {
-      pcm.seek(pcm_info.time_to_bytes(range.in()));
-    }
-
-    int end_in_bytes = pcm_info.time_to_bytes(range.out());
-
-    while (true) {
-      // Calculate how many samples should input this frame
-      int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
-                                              audio_codec_ctx_->sample_rate,
-                                              pcm_info.sample_rate(),
-                                              AV_ROUND_UP);
-
-      // Calculate how many bytes this is
-      int max_read = pcm_info.samples_to_bytes(samples_needed);
-
-      // Limit read to end time if necessary
-      if (pcm.pos() + max_read > end_in_bytes) {
-        max_read = end_in_bytes - pcm.pos();
-      }
-
-      // Read bytes from PCM
-      QByteArray input_data = pcm.read(max_read);
-
-      // Use swresample to convert the data into the correct format
-      const char* input_data_array = input_data.constData();
-      int converted = swr_convert(swr_ctx,
-
-                                  // output data
-                                  frame->data,
-
-                                  // output sample count (maximum amount of samples in output)
-                                  maximum_frame_samples,
-
-                                  // input data
-                                  reinterpret_cast<const uint8_t**>(&input_data_array),
-
-                                  // input sample count (maximum amount of samples we read from pcm file)
-                                  pcm_info.bytes_to_samples(input_data.size()));
-
-      // Update the frame's number of samples to the amount we actually received
-      frame->nb_samples = converted;
-
-      // Update frame timestamp
-      frame->pts = sample_counter;
-
-      // Increment timestamp for the next frame by the amount of samples in this one
-      sample_counter += converted;
-
-      // Write the frame
-      if (!WriteAVFrame(frame, audio_codec_ctx_, audio_stream_)) {
-        qCritical() << "Failed to write audio AVFrame";
-        break;
-      }
-
-      // Break if we've reached the end point
-      if (pcm.atEnd() || pcm.pos() == end_in_bytes) {
-        break;
-      }
-    }
-
-    av_frame_free(&frame);
-
-    swr_free(&swr_ctx);
-
-    pcm.close();
+  if (open_) {
+    return true;
   }
 
-  emit AudioComplete();
-}
-
-bool FFmpegEncoder::OpenInternal()
-{
   int error_code;
 
   // Convert QString to C string that FFmpeg expects
@@ -225,11 +119,14 @@ bool FFmpegEncoder::OpenInternal()
     return false;
   }
 
+  open_ = true;
   return true;
 }
 
-void FFmpegEncoder::WriteInternal(FramePtr frame, rational time)
+bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 {
+  bool success = false;
+
   AVFrame* encoded_frame = av_frame_alloc();
 
   int error_code;
@@ -240,6 +137,17 @@ void FFmpegEncoder::WriteInternal(FramePtr frame, rational time)
   encoded_frame->width = frame->width();
   encoded_frame->height = frame->height();
   encoded_frame->format = video_codec_ctx_->pix_fmt;
+
+  // Set interlacing
+  if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {
+    encoded_frame->interlaced_frame = 1;
+
+    if (frame->video_params().interlacing() == VideoParams::kInterlacedTopFirst) {
+      encoded_frame->top_field_first = 1;
+    } else {
+      encoded_frame->top_field_first = 0;
+    }
+  }
 
   error_code = av_frame_get_buffer(encoded_frame, 0);
   if (error_code < 0) {
@@ -269,21 +177,126 @@ void FFmpegEncoder::WriteInternal(FramePtr frame, rational time)
 
   encoded_frame->pts = qRound64(time.toDouble() / av_q2d(video_codec_ctx_->time_base));
 
-  WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
+  success = WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
 
 fail:
   av_frame_free(&encoded_frame);
+
+  return success;
 }
 
-void FFmpegEncoder::CloseInternal()
+void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
 {
-  if (IsOpen()) {
+  QFile pcm(pcm_filename);
+  if (pcm.open(QFile::ReadOnly)) {
+    // Divide PCM stream into AVFrames
+
+    // See if the codec defines a number of samples per frame
+    int maximum_frame_samples = audio_codec_ctx_->frame_size;
+    if (!maximum_frame_samples) {
+      // If not, use another frame size
+      if (params().video_enabled()) {
+        // If we're encoding video, use enough samples to cover roughly one frame of video
+        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().time_base());
+      } else {
+        // If no video, just use an arbitrary number
+        maximum_frame_samples = 256;
+      }
+    }
+
+    SwrContext* swr_ctx = swr_alloc_set_opts(nullptr,
+                                             static_cast<int64_t>(audio_codec_ctx_->channel_layout),
+                                             audio_codec_ctx_->sample_fmt,
+                                             audio_codec_ctx_->sample_rate,
+                                             static_cast<int64_t>(pcm_info.channel_layout()),
+                                             FFmpegCommon::GetFFmpegSampleFormat(pcm_info.format()),
+                                             pcm_info.sample_rate(),
+                                             0,
+                                             nullptr);
+
+    swr_init(swr_ctx);
+
+    // Loop through PCM queueing write events
+    AVFrame* frame = av_frame_alloc();
+
+    // Set up frame and allocate its buffers
+    frame->channel_layout = audio_codec_ctx_->channel_layout;
+    frame->nb_samples = maximum_frame_samples;
+    frame->format = audio_codec_ctx_->sample_fmt;
+    av_frame_get_buffer(frame, 0);
+
+    // Keep track of sample count to use as each frame's timebase
+    int sample_counter = 0;
+
+    while (true) {
+      // Calculate how many samples should input this frame
+      int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
+                                              audio_codec_ctx_->sample_rate,
+                                              pcm_info.sample_rate(),
+                                              AV_ROUND_UP);
+
+      // Calculate how many bytes this is
+      int max_read = pcm_info.samples_to_bytes(samples_needed);
+
+      // Read bytes from PCM
+      QByteArray input_data = pcm.read(max_read);
+
+      // Use swresample to convert the data into the correct format
+      const char* input_data_array = input_data.constData();
+      int converted = swr_convert(swr_ctx,
+
+                                  // output data
+                                  frame->data,
+
+                                  // output sample count (maximum amount of samples in output)
+                                  maximum_frame_samples,
+
+                                  // input data
+                                  reinterpret_cast<const uint8_t**>(&input_data_array),
+
+                                  // input sample count (maximum amount of samples we read from pcm file)
+                                  pcm_info.bytes_to_samples(input_data.size()));
+
+      // Update the frame's number of samples to the amount we actually received
+      frame->nb_samples = converted;
+
+      // Update frame timestamp
+      frame->pts = sample_counter;
+
+      // Increment timestamp for the next frame by the amount of samples in this one
+      sample_counter += converted;
+
+      // Write the frame
+      if (!WriteAVFrame(frame, audio_codec_ctx_, audio_stream_)) {
+        qCritical() << "Failed to write audio AVFrame";
+        break;
+      }
+
+      // Break if we've reached the end point
+      if (pcm.atEnd()) {
+        break;
+      }
+    }
+
+    av_frame_free(&frame);
+
+    swr_free(&swr_ctx);
+
+    pcm.close();
+  }
+}
+
+void FFmpegEncoder::Close()
+{
+  if (open_) {
     // Flush encoders
     FlushEncoders();
 
     // We've written a header, so we'll write a trailer
     av_write_trailer(fmt_ctx_);
     avio_closep(&fmt_ctx_->pb);
+
+    open_ = false;
   }
 
   if (video_scale_ctx_) {
@@ -364,19 +377,61 @@ fail:
   return succeeded;
 }
 
-bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const QString& codec)
+bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const ExportCodec::Codec& codec)
 {
   if (type != AVMEDIA_TYPE_VIDEO && type != AVMEDIA_TYPE_AUDIO) {
     Error(QStringLiteral("Cannot initialize a stream that is not a video or audio type"));
     return false;
   }
 
-  // Retrieve codec and convert to C string
-  QByteArray codec_bytes = codec.toUtf8();
-  const char* codec_c_str = codec_bytes.constData();
+  // Retrieve codec
+  AVCodecID codec_id = AV_CODEC_ID_NONE;
+
+  switch (codec) {
+  case ExportCodec::kCodecDNxHD:
+    codec_id = AV_CODEC_ID_DNXHD;
+    break;
+  case ExportCodec::kCodecAAC:
+    codec_id = AV_CODEC_ID_AAC;
+    break;
+  case ExportCodec::kCodecMP2:
+    codec_id = AV_CODEC_ID_MP2;
+    break;
+  case ExportCodec::kCodecMP3:
+    codec_id = AV_CODEC_ID_MP3;
+    break;
+  case ExportCodec::kCodecH264:
+    codec_id = AV_CODEC_ID_H264;
+    break;
+  case ExportCodec::kCodecH265:
+    codec_id = AV_CODEC_ID_HEVC;
+    break;
+  case ExportCodec::kCodecOpenEXR:
+    codec_id = AV_CODEC_ID_EXR;
+    break;
+  case ExportCodec::kCodecPNG:
+    codec_id = AV_CODEC_ID_PNG;
+    break;
+  case ExportCodec::kCodecTIFF:
+    codec_id = AV_CODEC_ID_TIFF;
+    break;
+  case ExportCodec::kCodecProRes:
+    codec_id = AV_CODEC_ID_PRORES;
+    break;
+  case ExportCodec::kCodecPCM:
+    codec_id = AV_CODEC_ID_PCM_S16LE;
+    break;
+  case ExportCodec::kCodecCount:
+    break;
+  }
+
+  if (codec_id == AV_CODEC_ID_NONE) {
+    Error(QStringLiteral("Unknown internal codec"));
+    return false;
+  }
 
   // Find encoder with this name
-  AVCodec* encoder = avcodec_find_encoder_by_name(codec_c_str);
+  AVCodec* encoder = avcodec_find_encoder(codec_id);
 
   if (!encoder) {
     Error(QStringLiteral("Failed to find codec for %1").arg(codec));
@@ -399,11 +454,27 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   if (type == AVMEDIA_TYPE_VIDEO) {
     codec_ctx->width = params().video_params().width();
     codec_ctx->height = params().video_params().height();
-    codec_ctx->sample_aspect_ratio = {1, 1};
+    codec_ctx->sample_aspect_ratio = params().video_params().pixel_aspect_ratio().toAVRational();
     codec_ctx->time_base = params().video_params().time_base().toAVRational();
+    codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
 
-    // FIXME: Make this customizable again
-    codec_ctx->pix_fmt = encoder->pix_fmts[0];
+    if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
+      // FIXME: I actually don't know what these flags do, the documentation helpfully doesn't
+      //        explain them at all. I hope using both of them is the right thing to do.
+      codec_ctx->flags |= AV_CODEC_FLAG_INTERLACED_DCT | AV_CODEC_FLAG_INTERLACED_ME;
+
+
+      if (params().video_params().interlacing() == VideoParams::kInterlacedTopFirst) {
+        codec_ctx->field_order = AV_FIELD_TT;
+      } else {
+        codec_ctx->field_order = AV_FIELD_BB;
+
+        if (codec_id == AV_CODEC_ID_H264) {
+          // For some reason, FFmpeg doesn't set libx264's bff flag so we have to do it ourselves
+          av_opt_set(video_codec_ctx_->priv_data, "x264opts", "bff=1", AV_OPT_SEARCH_CHILDREN);
+        }
+      }
+    }
 
     // Set custom options
     {

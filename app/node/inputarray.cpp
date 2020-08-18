@@ -59,8 +59,7 @@ void NodeInputArray::SetSize(int size)
   if (size < old_size) {
     // If the new size is less, delete all extraneous parameters
     for (int i=size;i<old_size;i++) {
-      NodeInput* sub_param = sub_params_.at(i);
-      delete sub_param;
+      delete sub_params_.at(i);
     }
   }
 
@@ -127,12 +126,12 @@ void NodeInputArray::InsertAt(int index)
     NodeInput* this_param = sub_params_.at(i);
     NodeInput* prev_param = sub_params_.at(i-1);
 
-    if (this_param->IsConnected()) {
+    if (this_param->is_connected()) {
       // Disconnect whatever is at this parameter (presumably its connection has already been copied so we can just remove it)
       NodeParam::DisconnectEdge(this_param->edges().first());
     }
 
-    if (prev_param->IsConnected()) {
+    if (prev_param->is_connected()) {
       // Get edge here (only one since it's an input)
       NodeEdgePtr edge = prev_param->edges().first();
 
@@ -162,14 +161,14 @@ void NodeInputArray::RemoveAt(int index)
   for (int i=index;i<sub_params_.size();i++) {
     NodeInput* this_param = sub_params_.at(i);
 
-    if (this_param->IsConnected()) {
+    if (this_param->is_connected()) {
       // Disconnect current edge
       NodeParam::DisconnectEdge(this_param->edges().first());
     }
 
     if (i < sub_params_.size() - 1) {
       NodeInput* next_param = sub_params_.at(i + 1);
-      if (next_param->IsConnected()) {
+      if (next_param->is_connected()) {
         // Get edge from next param
         NodeEdgePtr edge = next_param->edges().first();
 

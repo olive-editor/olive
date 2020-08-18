@@ -49,7 +49,8 @@ Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
   case Stream::kAudio:
     return Timeline::kTrackTypeAudio;
   case Stream::kSubtitle:
-    return Timeline::kTrackTypeSubtitle;
+    // Temporarily disabled until we figure out a better thing to do with this
+    //return Timeline::kTrackTypeSubtitle;
   case Stream::kUnknown:
   case Stream::kData:
   case Stream::kAttachment:
@@ -122,13 +123,16 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
       rational time_movement = event->GetFrame() - drag_start_.GetFrame();
       int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
 
+      time_movement = ValidateTimeMovement(time_movement);
+      track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+
       // If snapping is enabled, check for snap points
       if (Core::instance()->snapping()) {
-        SnapPoint(snap_points_, &time_movement);
-      }
+        parent()->SnapPoint(snap_points_, &time_movement);
 
-      time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
-      track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+        time_movement = ValidateTimeMovement(time_movement);
+        track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+      }
 
       rational earliest_ghost = RATIONAL_MAX;
 
@@ -212,7 +216,9 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
     QVector<int> track_offsets(Timeline::kTrackTypeCount);
     track_offsets.fill(track_start);
 
+    QVector<TimelineViewGhostItem*> footage_ghosts;
     rational footage_duration;
+    bool contains_image_stream = false;
 
     quint64 enabled_streams = footage.streams();
 
@@ -232,32 +238,46 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
       if (stream->type() == Stream::kImage) {
-        // Stream is essentially length-less - use config's default image length
-        footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
+        // Stream is essentially length-less - we may use the default still image length in config,
+        // or we may use another stream's length depending on the circumstance
+        contains_image_stream = true;
       } else {
         // Rescale stream duration to timeline timebase
-        int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
-
         // Convert to rational time
-        footage_duration = rational(dest_tb.numerator() * stream_duration,
-                                    dest_tb.denominator());
+        if (footage.footage()->workarea()->enabled()) {
+          footage_duration = qMax(footage_duration, footage.footage()->workarea()->range().length());
+          ghost->SetMediaIn(footage.footage()->workarea()->in());
+        } else {
+          int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
+          footage_duration = qMax(footage_duration, Timecode::timestamp_to_time(stream_duration, dest_tb));
+        }
       }
 
-      ghost->SetIn(ghost_start);
-      ghost->SetOut(ghost_start + footage_duration);
       ghost->SetTrack(TrackReference(track_type, track_offsets.at(track_type)));
 
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      snap_points_.append(ghost->In());
-      snap_points_.append(ghost->Out());
-
       ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
       ghost->SetMode(Timeline::kMove);
 
-      parent()->AddGhost(ghost);
+      footage_ghosts.append(ghost);
 
+    }
+
+    if (contains_image_stream && footage_duration.isNull()) {
+      // Footage must ONLY be image streams so no duration value was found, use default in config
+      footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
+    }
+
+    foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
+      ghost->SetIn(ghost_start);
+      ghost->SetOut(ghost_start + footage_duration);
+
+      snap_points_.append(ghost->In());
+      snap_points_.append(ghost->Out());
+
+      parent()->AddGhost(ghost);
     }
 
     // Stack each ghost one after the other
@@ -378,7 +398,7 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
 
     // Check if we're inserting
     if (insert) {
-      InsertGapsAtGhostDestination(parent()->ghost_items_, command);
+      InsertGapsAtGhostDestination(command);
     }
 
     for (int i=0;i<parent()->ghost_items_.size();i++) {
@@ -387,8 +407,9 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
 
       ClipBlock* clip = new ClipBlock();
+      clip->set_media_in(ghost->MediaIn());
       clip->set_length_and_media_out(ghost->Length());
-      clip->set_block_name(footage_stream->footage()->name());
+      clip->SetLabel(footage_stream->footage()->name());
       new NodeAddCommand(dst_graph, clip, command);
 
       switch (footage_stream->type()) {

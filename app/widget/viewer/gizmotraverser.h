@@ -28,10 +28,20 @@ OLIVE_NAMESPACE_ENTER
 class GizmoTraverser : public NodeTraverser
 {
 public:
-  GizmoTraverser() = default;
+  GizmoTraverser(const QSize& sequence_resolution) :
+    size_(sequence_resolution)
+  {
+  }
 
 protected:
-  virtual void FootageProcessingEvent(StreamPtr stream, const TimeRange &input_time, NodeValueTable* table) override;
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+
+  // FIXME: Do something about audio?
+
+private:
+  QSize size_;
 
 };
 

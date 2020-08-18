@@ -72,10 +72,15 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
-  void SetVideoParams(const VideoRenderingParams& params);
+  void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
 
   FramePtr last_loaded_buffer() const;
+
+  bool IsDeinterlacing() const
+  {
+    return deinterlace_;
+  }
 
 public slots:
   /**
@@ -101,6 +106,11 @@ public slots:
    * each time.
    */
   void SetImage(FramePtr in_buffer);
+
+  /**
+   * @brief Enables/disables a basic deinterlace on the viewer
+   */
+  void SetDeinterlacing(bool e);
 
 signals:
   /**
@@ -160,10 +170,6 @@ private:
    */
   QMatrix4x4 matrix_;
 
-#ifdef Q_OS_LINUX
-  static bool nouveau_check_done_;
-#endif
-
   bool signal_cursor_color_;
 
   ViewerSafeMarginInfo safe_margin_;
@@ -171,25 +177,20 @@ private:
   Node* gizmos_;
   NodeValueDatabase gizmo_db_;
   rational gizmo_drag_time_;
-  VideoRenderingParams gizmo_params_;
+  VideoParams gizmo_params_;
   bool gizmo_click_;
 
   rational time_;
 
   FramePtr last_loaded_buffer_;
 
+  bool deinterlace_;
+
 private slots:
   /**
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
    */
   void ContextCleanup();
-
-#ifdef Q_OS_LINUX
-  /**
-   * @brief Shows warning messagebox if Nouveau is detected
-   */
-  void ShowNouveauWarning();
-#endif
 
 };
 

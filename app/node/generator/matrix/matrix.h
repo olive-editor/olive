@@ -47,9 +47,9 @@ public:
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
   virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(const NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
 
-  virtual bool GizmoPress(const NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
+  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
   virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
   virtual void GizmoRelease() override;
 
@@ -63,14 +63,14 @@ private:
   };
 
   QMatrix4x4 GenerateMatrix(NodeValueDatabase& value) const;
-  QMatrix4x4 GenerateMatrix(const NodeValueDatabase& value, bool ignore_anchor) const;
+  QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool ignore_anchor) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,
                                    bool uniform_scale,
                                    const QVector2D &anchor);
 
-  QPointF GetGizmoAnchorPoint(const NodeValueDatabase &db, const GizmoSharedData &gizmo_data) const;
+  QPointF GetGizmoAnchorPoint(NodeValueDatabase &db, const GizmoSharedData &gizmo_data) const;
   static int GetGizmoAnchorPointRadius();
   NodeInput* gizmo_drag_;
 

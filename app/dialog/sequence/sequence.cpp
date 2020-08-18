@@ -25,6 +25,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QSplitter>
 #include <QVBoxLayout>
 
 #include "core.h"
@@ -41,43 +42,21 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  // Set up preset section
-  QHBoxLayout* preset_layout = new QHBoxLayout();
-  preset_layout->addWidget(new QLabel(tr("Preset:")));
-  QComboBox* preset_combobox = new QComboBox();
-  preset_layout->addWidget(preset_combobox);
-  layout->addLayout(preset_layout);
+  QSplitter* splitter = new QSplitter();
+  layout->addWidget(splitter);
 
-  // Set up video section
-  QGroupBox* video_group = new QGroupBox();
-  video_group->setTitle(tr("Video"));
-  QGridLayout* video_layout = new QGridLayout(video_group);
-  video_layout->addWidget(new QLabel(tr("Width:")), 0, 0);
-  video_width_field_ = new QSpinBox();
-  video_width_field_->setMaximum(99999);
-  video_layout->addWidget(video_width_field_, 0, 1);
-  video_layout->addWidget(new QLabel(tr("Height:")), 1, 0);
-  video_height_field_ = new QSpinBox();
-  video_height_field_->setMaximum(99999);
-  video_layout->addWidget(video_height_field_, 1, 1);
-  video_layout->addWidget(new QLabel(tr("Frame Rate:")), 2, 0);
-  video_frame_rate_field_ = new QComboBox();
-  video_layout->addWidget(video_frame_rate_field_, 2, 1);
-  layout->addWidget(video_group);
+  preset_tab_ = new SequenceDialogPresetTab();
+  splitter->addWidget(preset_tab_);
 
-  // Set up audio section
-  QGroupBox* audio_group = new QGroupBox();
-  audio_group->setTitle(tr("Audio"));
-  QGridLayout* audio_layout = new QGridLayout(audio_group);
-  audio_layout->addWidget(new QLabel(tr("Sample Rate:")), 0, 0);
-  audio_sample_rate_field_ = new QComboBox();
-  // FIXME: No sample rate made
-  audio_layout->addWidget(audio_sample_rate_field_, 0, 1);
-  audio_layout->addWidget(new QLabel(tr("Channels:")), 1, 0);
-  audio_channels_field_ = new QComboBox();
-  // FIXME: No channels made
-  audio_layout->addWidget(audio_channels_field_, 1, 1);
-  layout->addWidget(audio_group);
+  parameter_tab_ = new SequenceDialogParameterTab(sequence_);
+  splitter->addWidget(parameter_tab_);
+
+  connect(preset_tab_, &SequenceDialogPresetTab::PresetChanged,
+          parameter_tab_, &SequenceDialogParameterTab::PresetChanged);
+  connect(preset_tab_, &SequenceDialogPresetTab::PresetAccepted,
+          this, &SequenceDialog::accept);
+  connect(parameter_tab_, &SequenceDialogParameterTab::SaveParametersAsPreset,
+          preset_tab_, &SequenceDialogPresetTab::SaveParametersAsPreset);
 
   // Set up name section
   QHBoxLayout* name_layout = new QHBoxLayout();
@@ -89,8 +68,8 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   // Set up dialog buttons
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &SequenceDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &SequenceDialog::reject);
   layout->addWidget(buttons);
 
   // Set window title based on type
@@ -101,41 +80,6 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   case kExisting:
     setWindowTitle(tr("Editing \"%1\"").arg(sequence_->name()));
     break;
-  }
-
-  // Set up available frame rates
-  frame_rate_list_ = Core::SupportedFrameRates();
-  foreach (const rational& fr, frame_rate_list_) {
-    video_frame_rate_field_->addItem(Core::FrameRateToString(fr));
-  }
-
-  // Set up available sample rates
-  sample_rate_list_ = Core::SupportedSampleRates();
-  foreach (const int& sr, sample_rate_list_) {
-    audio_sample_rate_field_->addItem(Core::SampleRateToString(sr));
-  }
-
-  // Set up available channel layouts
-  QList<uint64_t> channel_layouts = Core::SupportedChannelLayouts();
-  foreach (const uint64_t& ch_layout, channel_layouts) {
-    audio_channels_field_->addItem(Core::ChannelLayoutToString(ch_layout), QVariant::fromValue(ch_layout));
-  }
-
-  // Set values based on input sequence
-  video_width_field_->setValue(sequence_->video_params().width());
-  video_height_field_->setValue(sequence_->video_params().height());
-
-  int frame_rate_index = frame_rate_list_.indexOf(sequence_->video_params().time_base().flipped());
-  video_frame_rate_field_->setCurrentIndex(frame_rate_index);
-
-  int sample_rate_index = sample_rate_list_.indexOf(sequence_->audio_params().sample_rate());
-  audio_sample_rate_field_->setCurrentIndex(sample_rate_index);
-
-  for (int i=0;i<audio_channels_field_->count();i++) {
-    if (audio_channels_field_->itemData(i).toULongLong() == sequence_->audio_params().channel_layout()) {
-      audio_channels_field_->setCurrentIndex(i);
-      break;
-    }
   }
 
   name_field_->setText(sequence_->name());
@@ -158,22 +102,18 @@ void SequenceDialog::accept()
     return;
   }
 
-  // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
-  rational video_time_base = frame_rate_list_.at(video_frame_rate_field_->currentIndex()).flipped();
-
-  // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
-  int audio_sample_rate = sample_rate_list_.at(audio_sample_rate_field_->currentIndex());
-
-  // Get the audio channel layout value
-  uint64_t channels = audio_channels_field_->currentData().toULongLong();
-
   // Generate video and audio parameter structs from data
-  VideoParams video_params = VideoParams(video_width_field_->value(),
-                                         video_height_field_->value(),
-                                         video_time_base);
+  VideoParams video_params = VideoParams(parameter_tab_->GetSelectedVideoWidth(),
+                                         parameter_tab_->GetSelectedVideoHeight(),
+                                         parameter_tab_->GetSelectedVideoFrameRate().flipped(),
+                                         parameter_tab_->GetSelectedPreviewFormat(),
+                                         parameter_tab_->GetSelectedVideoPixelAspect(),
+                                         parameter_tab_->GetSelectedVideoInterlacingMode(),
+                                         parameter_tab_->GetSelectedPreviewResolution());
 
-  AudioParams audio_params = AudioParams(audio_sample_rate,
-                                         channels);
+  AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
+                                         parameter_tab_->GetSelectedAudioChannelLayout(),
+                                         SampleFormat::kInternalFormat);
 
   if (make_undoable_) {
 
@@ -197,7 +137,7 @@ void SequenceDialog::accept()
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
                                                            const VideoParams& video_params,
-                                                           const AudioParams& audio_params,
+                                                           const AudioParams &audio_params,
                                                            const QString& name,
                                                            QUndoCommand* parent) :
   UndoCommand(parent),

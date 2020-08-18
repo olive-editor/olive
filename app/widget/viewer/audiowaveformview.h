@@ -23,9 +23,9 @@
 
 #include <QWidget>
 
-#include "audio/sumsamples.h"
+#include "audio/audiovisualwaveform.h"
 #include "render/audioparams.h"
-#include "render/backend/audiorenderbackend.h"
+#include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -38,15 +38,13 @@ public:
 
   //void SetData(const QString& file, const AudioRenderingParams& params);
 
-  void SetBackend(AudioRenderBackend* backend);
-
-  static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const SampleSummer::Sum *samples, int nb_samples, int channels);
+  void SetViewer(AudioPlaybackCache *playback);
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  AudioRenderBackend* backend_;
+  AudioPlaybackCache *playback_;
 
   QPixmap cached_waveform_;
   QSize cached_size_;

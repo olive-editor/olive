@@ -33,8 +33,7 @@
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
 #include "render/backend/opengl/openglbackend.h"
-#include "render/backend/opengl/opengltexture.h"
-#include "render/backend/audio/audiobackend.h"
+#include "render/backend/renderticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -74,8 +73,6 @@ public:
    */
   void SetColorMenuEnabled(bool enabled);
 
-  void SetOverrideSize(int width, int height);
-
   void SetMatrix(const QMatrix4x4& mat);
 
   /**
@@ -85,11 +82,15 @@ public:
    */
   void SetFullScreen(QScreen* screen = nullptr);
 
-  void ForceUpdate();
+  RenderBackend* renderer() const
+  {
+    return renderer_;
+  }
 
-  VideoRenderBackend* video_renderer() const;
-
-  ColorManager* color_manager() const;
+  ColorManager* color_manager() const
+  {
+    return display_widget_->color_manager();
+  }
 
   void SetGizmos(Node* node);
 
@@ -112,6 +113,18 @@ public slots:
    * @brief Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled()
    */
   void SetSignalCursorColorEnabled(bool e);
+
+  void ForceUpdate();
+
+  void SetAutoCacheEnabled(bool e);
+
+  void CacheEntireSequence();
+
+  void CacheSequenceInOut();
+
+  void SetViewerResolution(int width, int height);
+
+  void SetViewerPixelAspect(const rational& ratio);
 
 signals:
   /**
@@ -153,12 +166,12 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  OpenGLBackend* video_renderer_;
-  AudioBackend* audio_renderer_;
-
   PlaybackControls* controls_;
 
-  ViewerDisplayWidget* display_widget() const;
+  ViewerDisplayWidget* display_widget() const
+  {
+    return display_widget_;
+  }
 
 private:
   void UpdateTimeInternal(int64_t i);
@@ -167,23 +180,35 @@ private:
 
   void PlayInternal(int speed, bool in_to_out_only);
 
-  void PushScrubbedAudio();
+  void PauseInternal();
 
-  int CalculateDivider();
+  void PushScrubbedAudio();
 
   void UpdateMinimumScale();
 
   void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
 
-  void FillPlaybackQueue();
-
   QString GetCachedFilenameFromTime(const rational& time);
 
   bool FrameExistsAtTime(const rational& time);
 
-  FramePtr DecodeCachedImage(const QString& fn);
-
   void SetDisplayImage(FramePtr frame, bool main_only);
+
+  void RequestNextFrameForQueue();
+
+  PixelFormat::Format GetCurrentPixelFormat() const;
+
+  RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
+
+  void FinishPlayPreprocess();
+
+  int DeterminePlaybackQueueSize();
+
+  void PopOldestFrameFromPlaybackQueue();
+
+  FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
+
+  void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
 
   QStackedWidget* stack_;
 
@@ -197,15 +222,13 @@ private:
 
   bool color_menu_enabled_;
 
-  int divider_;
-
   ColorManager* override_color_manager_;
 
   bool time_changed_from_timer_;
 
   bool play_in_to_out_only_;
 
-  bool playback_is_audio_only_;
+  bool pause_autocache_during_playback_;
 
   AudioWaveformView* waveform_view_;
 
@@ -216,28 +239,39 @@ private:
   ViewerDisplayWidget* context_menu_widget_;
 
   ViewerPlaybackTimer playback_timer_;
+  QTimer playback_backup_timer_;
 
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
 
+  RenderBackend* renderer_;
+
+  bool prequeuing_;
+
+  QList<RenderTicketWatcher*> nonqueue_watchers_;
+
+  rational last_length_;
+
+  int prequeue_length_;
+
+  static QVector<ViewerWidget*> instances_;
+
 private slots:
   void PlaybackTimerUpdate();
 
-  void RendererCachedTime(const rational& time, qint64 job_time);
-
-  void SizeChangedSlot(int width, int height);
-
   void LengthChangedSlot(const rational& length);
 
-  void UpdateRendererParameters();
+  void InterlacingChangedSlot(VideoParams::Interlacing interlacing);
+
+  void UpdateRendererVideoParameters();
+
+  void UpdateRendererAudioParameters();
 
   void ShowContextMenu(const QPoint& pos);
 
-  void SetDividerFromMenu(QAction* action);
-
   void SetZoomFromMenu(QAction* action);
 
-  void InvalidateVisible(NodeInput *source);
+  void ViewerShiftedRange(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
 
   void UpdateStack();
 
@@ -253,7 +287,11 @@ private slots:
 
   void ContextMenuScopeTriggered(QAction* action);
 
-  void RendererGeneratedFrame(FramePtr f);
+  void RendererGeneratedFrame();
+
+  void RendererGeneratedFrameForQueue();
+
+  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
 
 };
 

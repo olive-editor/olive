@@ -33,7 +33,7 @@ class WaveOutput
 {
 public:
   WaveOutput(const QString& f,
-             const AudioRenderingParams& params);
+             const AudioParams& params);
 
   ~WaveOutput();
 
@@ -48,7 +48,7 @@ public:
 
   const int& data_length() const;
 
-  const AudioRenderingParams& params() const;
+  const AudioParams& params() const;
 
 private:
   template<typename T>
@@ -58,7 +58,7 @@ private:
 
   QFile file_;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
   int data_length_;
 

@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   node/math/math/math.h
   node/math/math/math.cpp
+  node/math/math/mathbase.h
+  node/math/math/mathbase.cpp
   PARENT_SCOPE
 )

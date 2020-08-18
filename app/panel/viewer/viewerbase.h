@@ -47,8 +47,6 @@ public:
 
   void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
 
-  VideoRenderBackend* video_renderer() const;
-
   void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
 
   /**
@@ -58,6 +56,10 @@ public:
 
 public slots:
   void SetGizmos(Node* node);
+
+  void CacheEntireSequence();
+
+  void CacheSequenceInOut();
 
 protected:
   void CreateScopePanel(ScopePanel::Type type);

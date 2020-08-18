@@ -23,8 +23,8 @@
 
 #include <QVariant>
 
-#include "common/timelinecommon.h"
 #include "project/item/footage/footage.h"
+#include "timeline/timelinecommon.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewrect.h"
 
@@ -38,7 +38,10 @@ public:
   enum DataType {
     kAttachedBlock,
     kReferenceBlock,
-    kAttachedFootage
+    kAttachedFootage,
+    kGhostIsSliding,
+    kTrimIsARollEdit,
+    kTrimShouldBeIgnored
   };
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);

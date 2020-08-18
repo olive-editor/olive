@@ -54,6 +54,7 @@ find_package(Qt5 5.6 REQUIRED
   OpenGL
   Svg
   LinguistTools
+  Concurrent
 )
 
 find_package(FFMPEG 3.0 REQUIRED
@@ -65,6 +66,12 @@ find_package(FFMPEG 3.0 REQUIRED
   swscale
   swresample
 )
+
+find_package(GoogleCrashpad)
+
+if (NOT GoogleCrashpad_FOUND)
+  message("   Automatic crash reporting will be disabled.")
+endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   find_package(Git)

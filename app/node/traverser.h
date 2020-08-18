@@ -23,7 +23,6 @@
 
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
-#include "dependency.h"
 #include "node/output/track/track.h"
 #include "project/item/footage/stream.h"
 #include "value.h"
@@ -35,21 +34,32 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable ProcessNode(const NodeDependency &dep);
+  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
+  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out);
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
 protected:
-  virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range);
+  NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
 
-  NodeValueTable ProcessInput(const NodeInput* input, const TimeRange &range);
+  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
 
-  virtual void FootageProcessingEvent(StreamPtr, const TimeRange&, NodeValueTable*){}
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
 
-  virtual void ProcessNodeEvent(const Node*, const TimeRange&, NodeValueDatabase&, NodeValueTable&){}
+  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time);
+
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+
+  virtual QVariant ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
+
+  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job);
+
+  virtual QVariant GetCachedFrame(const Node *node, const rational &time);
+
+  static void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range);
 
 private:
-  StreamPtr ResolveStreamFromInput(NodeInput* input);
+  void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
 
 };
 

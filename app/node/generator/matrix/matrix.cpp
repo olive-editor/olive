@@ -44,7 +44,7 @@ MatrixGenerator::MatrixGenerator()
 
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
   uniform_scale_input_->set_is_keyframable(false);
-  uniform_scale_input_->SetConnectable(false);
+  uniform_scale_input_->set_connectable(false);
   connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &MatrixGenerator::UniformScaleChanged);
   AddInput(uniform_scale_input_);
 
@@ -96,11 +96,11 @@ NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
   // Push matrix output
   QMatrix4x4 mat = GenerateMatrix(value);
   NodeValueTable output = value.Merge();
-  output.Push(NodeParam::kMatrix, mat);
+  output.Push(NodeParam::kMatrix, mat, this);
   return output;
 }
 
-bool MatrixGenerator::GizmoPress(const NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize &viewport)
+bool MatrixGenerator::GizmoPress(NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize &viewport)
 {
   GizmoSharedData gizmo_data(viewport, scale);
 
@@ -151,11 +151,7 @@ void MatrixGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const 
 
     gizmo_x2_dragger_.Drag(new_pos2.x());
     gizmo_y2_dragger_.Drag(new_pos2.y());
-
-    InvalidateVisible(position_input_, position_input_);
   }
-
-  InvalidateVisible(gizmo_drag_, gizmo_drag_);
 }
 
 void MatrixGenerator::GizmoRelease()
@@ -171,7 +167,7 @@ bool MatrixGenerator::HasGizmos() const
   return true;
 }
 
-void MatrixGenerator::DrawGizmos(const NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize& viewport) const
+void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize& viewport) const
 {
   p->setPen(Qt::white);
 
@@ -223,7 +219,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value) const
                         value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>());
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueDatabase &value, bool ignore_anchor) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool ignore_anchor) const
 {
   QVector2D anchor;
 
@@ -252,13 +248,14 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   // Rotation
   mat.rotate(rot, 0, 0, 1);
 
-  // Scale
+  // Scale (convert to a QVector3D so that the identity matrix is preserved if all values are 1.0f)
+  QVector3D full_scale;
   if (uniform_scale) {
-    QVector2D uniformed(scale.x(), scale.x());
-    mat.scale(uniformed);
+    full_scale = QVector3D(scale.x(), scale.x(), 1.0f);
   } else {
-    mat.scale(scale);
+    full_scale = QVector3D(scale, 1.0f);
   }
+  mat.scale(full_scale);
 
   // Anchor Point
   mat.translate(-anchor);
@@ -266,7 +263,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   return mat;
 }
 
-QPointF MatrixGenerator::GetGizmoAnchorPoint(const NodeValueDatabase &db,
+QPointF MatrixGenerator::GetGizmoAnchorPoint(NodeValueDatabase &db,
                                             const GizmoSharedData& gizmo_data) const
 {
   QMatrix4x4 matrix;

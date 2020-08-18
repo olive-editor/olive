@@ -54,14 +54,7 @@ private:
   /**
    * @brief UI widget for selecting the current UI style
    */
-  QComboBox* style_;
-
-  /**
-   * @brief List of internal styles
-   */
-  QList<StyleDescriptor> style_list_;
-
-  QString custom_style_path_;
+  QComboBox* style_combobox_;
 
   QList<QColor> colors_;
 

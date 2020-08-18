@@ -29,74 +29,13 @@ TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
+  SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+                                              Timeline::MovementMode trim_mode)
 {
-  Q_UNUSED(event)
-
-  // For ripple operations, all ghosts will be moving the same way
-  Timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
-
-  QUndoCommand* command = new QUndoCommand();
-
-  // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (b == nullptr) {
-      // This is a gap we are creating
-
-      // Make sure there's actually a gap being created
-      if (ghost->AdjustedLength() > 0) {
-        GapBlock* gap = new GapBlock();
-        gap->set_length_and_media_out(ghost->AdjustedLength());
-        new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), gap, command);
-
-        Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
-
-        new TrackInsertBlockAfterCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                         gap,
-                                         block_to_append_gap_to,
-                                         command);
-      }
-    } else {
-      // This was a Block that already existed
-      if (ghost->AdjustedLength() > 0) {
-        if (movement_mode == Timeline::kTrimIn) {
-          // We'll need to shift the media in point too
-          new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
-        } else {
-          new BlockResizeCommand(b, ghost->AdjustedLength(), command);
-        }
-      } else {
-        // Assumed the Block was a Gap and it was reduced to zero length, remove it here
-        new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
-
-        new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
-      }
-    }
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
-}
-
-rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
-{
-  // Only validate trimming, and we don't care about "overwriting" since the ripple tool is nondestructive
-  time_movement = ValidateInTrimming(time_movement, ghosts, false);
-  time_movement = ValidateOutTrimming(time_movement, ghosts, false);
-
-  return time_movement;
-}
-
-void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                                Timeline::MovementMode trim_mode,
-                                                bool allow_gap_trimming)
-{
-  Q_UNUSED(allow_gap_trimming)
-
-  PointerTool::InitiateGhosts(clicked_item, trim_mode, true);
+  InitiateDragInternal(clicked_item, trim_mode, true, true, false);
 
   if (parent()->ghost_items_.isEmpty()) {
     return;
@@ -118,7 +57,11 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (TrackOutput* track, parent()->GetConnectedNode()->Tracks()) {
+  foreach (TrackOutput* track, parent()->GetConnectedNode()->GetTracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 
@@ -135,7 +78,7 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
       Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple != nullptr) {
+      if (block_before_ripple) {
         TimelineViewGhostItem* ghost;
 
         TrackReference track_ref(track->track_type(), track->Index());
@@ -143,16 +86,51 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
         if (block_before_ripple->type() == Block::kGap) {
           // If this Block is already a Gap, ghost it now
           ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode);
-        } else {
-          // If there's no gap here, we'll need to create one
-          ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
-          ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
-        }
+        } else if (block_before_ripple->next()) {
+          // Assuming this block is NOT at the end of the track (i.e. next != null)
 
-        ghost->SetInvisible(true);
+          // We're going to create a gap after it. If next is a gap, we can just use that
+          if (block_before_ripple->next()->type() == Block::kGap) {
+            ghost = AddGhostFromBlock(block_before_ripple->next(), track_ref, trim_mode);
+          } else {
+            // If next is NOT a gap, we'll need to create one, for which we'll use a null ghost
+            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
+            ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
+          }
+        }
       }
     }
   }
+}
+
+void TimelineWidget::RippleTool::FinishDrag(TimelineViewMouseEvent *event)
+{
+  Q_UNUSED(event)
+
+  QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
+
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    TrackOutput* track = parent()->GetTrackFromReference(ghost->Track());
+
+    TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)),
+                                                Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock)),
+                                                track,
+                                                ghost->AdjustedLength(),
+                                                ghost->Length()};
+
+    info_list[track->track_type()].append(i);
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  for (int i=0;i<info_list.size();i++) {
+    new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+                                   info_list.at(i),
+                                   drag_movement_mode(),
+                                   command);
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 OLIVE_NAMESPACE_EXIT

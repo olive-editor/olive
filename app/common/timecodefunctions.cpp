@@ -256,6 +256,19 @@ bool Timecode::TimebaseIsDropFrame(const rational &timebase)
   return (timebase.numerator() == 1001);
 }
 
+QString Timecode::TimeToString(int64_t ms)
+{
+  int64_t total_seconds = ms / 1000;
+  int64_t ss = total_seconds % 60;
+  int64_t mm = (total_seconds / 60) % 60;
+  int64_t hh = total_seconds / 3600;
+
+  return QStringLiteral("%1:%2:%3")
+      .arg(hh, 2, 10, QChar('0'))
+      .arg(mm, 2, 10, QChar('0'))
+      .arg(ss, 2, 10, QChar('0'));
+}
+
 int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase)
 {
   return time_to_timestamp(time.toDouble(), timebase);

@@ -21,12 +21,16 @@
 #ifndef RENDERBACKEND_H
 #define RENDERBACKEND_H
 
-#include <QLinkedList>
+#include <QtConcurrent/QtConcurrent>
 
+#include "config/config.h"
 #include "dialog/rendercancel/rendercancel.h"
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
+#include "render/backend/colorprocessorcache.h"
+#include "renderticket.h"
+#include "renderticketwatcher.h"
 #include "renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -37,141 +41,201 @@ class RenderBackend : public QObject
 public:
   RenderBackend(QObject* parent = nullptr);
 
-  bool Init();
+  virtual ~RenderBackend() override;
 
   void Close();
 
-  const QString& GetError() const;
+  ViewerOutput* GetViewerNode() const
+  {
+    return viewer_node_;
+  }
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
-  bool IsInitiated();
+  void SetAutoCacheEnabled(bool e)
+  {
+    autocache_enabled_ = e;
+  }
 
-  ViewerOutput* viewer_node() const;
+  bool IsAutoCachePaused() const
+  {
+    return autocache_paused_;
+  }
 
-  void CancelQueue();
+  void SetAutoCachePaused(bool paused)
+  {
+    autocache_paused_ = paused;
 
-  void InvalidateVisible(const TimeRange &range, NodeInput *from);
+    if (autocache_paused_) {
+      // Pause the autocache
+      ClearVideoQueue();
+    } else {
+      // Unpause the cache
+      AutoCacheRequeueFrames();
+    }
+  }
+
+  void AutoCacheRange(const TimeRange& range);
+
+  void AutoCacheRequeueFrames();
+
+  void SetAutoCachePlayhead(const rational& playhead)
+  {
+    autocache_range_ = TimeRange(playhead - Config::Current()["DiskCacheBehind"].value<rational>(),
+                                 playhead + Config::Current()["DiskCacheAhead"].value<rational>());
+
+    autocache_has_changed_ = true;
+    use_custom_autocache_range_ = false;
+
+    AutoCacheRequeueFrames();
+  }
+
+  void SetRenderMode(RenderMode::Mode e)
+  {
+    render_mode_ = e;
+  }
+
+  void SetPreviewGenerationEnabled(bool e)
+  {
+    generate_audio_previews_ = e;
+  }
+
+  void ProcessUpdateQueue();
+
+  /**
+   * @brief Asynchronously generate a hash at a given time
+   */
+  RenderTicketPtr Hash(const QVector<rational> &times, bool prioritize = false);
+
+  /**
+   * @brief Asynchronously generate a frame at a given time
+   */
+  RenderTicketPtr RenderFrame(const rational& time, bool prioritize = false, const QByteArray& hash = QByteArray());
+
+  /**
+   * @brief Asynchronously generate a chunk of audio
+   */
+  RenderTicketPtr RenderAudio(const TimeRange& r, bool prioritize = false);
+
+  const VideoParams& GetVideoParams() const
+  {
+    return video_params_;
+  }
+
+  const AudioParams& GetAudioParams() const
+  {
+    return audio_params_;
+  }
+
+  void SetVideoParams(const VideoParams& params);
+
+  void SetAudioParams(const AudioParams& params);
+
+  void SetVideoDownloadMatrix(const QMatrix4x4& mat);
+
+  static std::list<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
 public slots:
-  void InvalidateCache(const TimeRange &range, NodeInput *from);
+  void NodeGraphChanged(NodeInput *source);
+
+  void ClearVideoQueue();
+
+  void ClearAudioQueue();
+
+  void ClearQueue();
 
 signals:
-  void QueueComplete();
 
 protected:
-  void RegenerateCacheID();
-
-  virtual bool InitInternal();
-
-  virtual void CloseInternal();
-
-  virtual bool CanRender();
-
-  virtual TimeRange PopNextFrameFromQueue();
-
-  rational GetSequenceLength();
-
-  const QVector<QThread*>& threads();
-
-  /**
-   * @brief Internal function for generating the cache ID
-   */
-  virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) = 0;
-
-  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range, bool only_visible);
-
-  virtual void CacheIDChangedEvent(const QString& id);
-
-  virtual void WorkerAboutToStartEvent(RenderWorker* worker);
-
-  void SetError(const QString& error);
-
-  virtual void ConnectViewer(ViewerOutput* node);
-  virtual void DisconnectViewer(ViewerOutput* node);
-
-  /**
-   * @brief Function called when there are frames in the queue to cache
-   *
-   * This function is NOT thread-safe and should only be called in the main thread.
-   */
-  void CacheNext();
-
-  void InitWorkers();
-
-  virtual NodeInput* GetDependentInput() = 0;
-
-  virtual void ConnectWorkerToThis(RenderWorker* worker) = 0;
-
-  bool ViewerIsConnected() const;
-
-  const QString& cache_id() const;
-
-  void QueueValueUpdate(NodeInput *from);
-
-  bool AllProcessorsAreAvailable() const;
-  bool WorkerIsBusy(RenderWorker* worker) const;
-  void SetWorkerBusyState(RenderWorker* worker, bool busy);
-
-  TimeRangeList cache_queue_;
-
-  QVector<RenderWorker*> processors_;
-
-  QHash<TimeRange, qint64> render_job_info_;
-
-  QHash<Node*, Node*> node_copy_map_;
-
-  NodeGraph copied_graph_;
+  virtual RenderWorker* CreateNewWorker() = 0;
 
 private:
-  void InvalidateCacheVeryInternal(const TimeRange &range, NodeInput *from, bool only_visible);
-
   void CopyNodeInputValue(NodeInput* input);
   Node *CopyNodeConnections(Node *src_node);
   void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
-  /**
-   * @brief Internal list of RenderProcessThreads
-   */
-  QVector<QThread*> threads_;
+  void ClearQueueOfType(RenderTicket::Type type);
 
-  /**
-   * @brief Internal variable that contains whether the Renderer has started or not
-   */
-  bool started_;
+  void SetHashes(FrameHashCache* cache, const QVector<rational>& times, const QVector<QByteArray>& hashes, qint64 job_time);
 
-  /**
-   * @brief Internal reference to attached viewer node
-   */
   ViewerOutput* viewer_node_;
 
-  /**
-   * @brief Internal reference to the copied viewer node we made in the compilation process
-   */
+  // VIDEO MEMBERS
+  VideoParams video_params_;
+  QMatrix4x4 video_download_matrix_;
+
+  // AUDIO MEMBERS
+  AudioParams audio_params_;
+
+  QList<NodeInput*> graph_update_queue_;
+  QHash<Node*, Node*> copy_map_;
   ViewerOutput* copied_viewer_node_;
 
-  /**
-   * @brief Error string that can be set in SetError() to handle failures
-   */
-  QString error_;
+  std::list<RenderTicketPtr> render_queue_;
 
-  QString cache_id_;
+  std::list<RenderTicketPtr> running_tickets_;
 
-  QList<NodeInput*> input_update_queued_;
-
-  QVector<bool> processor_busy_state_;
-
-  RenderCancelDialog* cancel_dialog_;
-
-  struct FootageWaitInfo {
-    StreamPtr stream;
-    TimeRange affected_range;
-    rational stream_time;
-
-    bool operator==(const FootageWaitInfo& rhs) const;
+  struct WorkerData {
+    RenderWorker* worker;
+    bool busy;
   };
 
-  QList<FootageWaitInfo> footage_wait_info_;
+  QVector<WorkerData> workers_;
+
+  bool autocache_enabled_;
+  bool autocache_paused_;
+
+  bool generate_audio_previews_;
+
+  RenderMode::Mode render_mode_;
+
+  TimeRange autocache_range_;
+
+  bool autocache_has_changed_;
+
+  bool use_custom_autocache_range_;
+  TimeRange custom_autocache_range_;
+
+  static QVector<RenderBackend*> instances_;
+  static QMutex instance_lock_;
+  static RenderBackend* active_instance_;
+  static QThreadPool thread_pool_;
+  void SetActiveInstance();
+
+  QMap<RenderTicketWatcher*, QVector<rational> > autocache_hash_tasks_;
+
+  QList<QFutureWatcher<void>*> autocache_hash_process_tasks_;
+
+  QMap<RenderTicketWatcher*, TimeRange> autocache_audio_tasks_;
+
+  QMap<RenderTicketWatcher*, QByteArray> autocache_video_tasks_;
+
+  QMap<QFutureWatcher<bool>*, QByteArray> autocache_video_download_tasks_;
+
+  QVector<QByteArray> autocache_currently_caching_hashes_;
+
+private slots:
+  void WorkerFinished();
+
+  void RunNextJob();
+
+  void TicketFinished();
+
+  void WorkerGeneratedWaveform(OLIVE_NAMESPACE::RenderTicketPtr ticket, OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange range);
+
+  void AutoCacheVideoInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void AutoCacheAudioInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void AutoCacheHashesGenerated();
+
+  void AutoCacheHashesProcessed();
+
+  void AutoCacheAudioRendered();
+
+  void AutoCacheVideoRendered();
+
+  void AutoCacheVideoDownloaded();
 
 };
 

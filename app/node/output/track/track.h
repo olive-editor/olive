@@ -21,26 +21,25 @@
 #ifndef TRACKOUTPUT_H
 #define TRACKOUTPUT_H
 
-#include "common/timelinecommon.h"
+#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
+#include "timeline/timelinecommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
-class TrackOutput : public Block
+class TrackOutput : public Node
 {
   Q_OBJECT
 public:
   TrackOutput();
 
-  const Timeline::TrackType& track_type();
+  const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 
-  virtual Type type() const override;
-
-  virtual Block* copy() const override;
+  virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -57,29 +56,68 @@ public:
   const int& Index();
   void SetIndex(const int& index);
 
+  /**
+   * @brief Returns the block that starts BEFORE (not AT) and ends AFTER (not AT) a time
+   *
+   * Catches the first block that matches `block.in < time && block.out > time` or nullptr if any
+   * block starts/ends precisely at that time or the time exceeds the track length.
+   */
   Block* BlockContainingTime(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts BEFORE a given time and ends some time AFTER or precisely AT that time
+   * @brief Returns the block that starts BEFORE a given time and ends either AFTER or AT that time
+   *
+   * @return Catches the first block that matches `block.out >= time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockBefore(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts BEFORE a given time OR the block that starts precisely at that time
+   * @brief Returns the block that starts BEFORE or AT a given time.
+   *
+   * @return Catches the first block that matches `block.out > time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockBeforeOrAt(const rational& time) const;
 
   /**
-   * @brief Returns the block that starts either precisely AT a given time or the soonest block AFTER
+   * @brief Returns the block that starts either AT a given time or the soonest block AFTER
+   *
+   * @return Catches the first block that matches `block.in >= time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockAfterOrAt(const rational& time) const;
 
   /**
    * @brief Returns the block that starts AFTER the given time (but never AT the given time)
+   *
+   * @return Catches the first block that matches `block.in > time` or nullptr if this time
+   * exceeds the track length.
    */
   Block* NearestBlockAfter(const rational& time) const;
 
+  /**
+   * @brief Returns the block that should be rendered/visible at a given time
+   *
+   * Use this for any video rendering or determining which block will actually be active at any
+   * time.
+   *
+   * @return Catches the first block that matches `block.in <= time && block.out > time`. Returns
+   * nullptr if the time exceeds the track length, the block active at this time is disabled, or
+   * if IsMuted() is true.
+   */
   Block* BlockAtTime(const rational& time) const;
+
+  /**
+   * @brief Returns a list of blocks that should be rendered/visible during a given time range
+   *
+   * Use this for audio rendering to determine all blocks that will be active throughout a range
+   * of time.
+   *
+   * @return Similar to BlockAtTime() but will match several blocks where
+   * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
+   * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
+   */
   QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
   const QList<Block *> &Blocks() const;
@@ -128,10 +166,6 @@ public:
    */
   void ReplaceBlock(Block* old, Block* replace);
 
-  void BlockInvalidateCache();
-
-  void UnblockInvalidateCache();
-
   static TrackOutput* TrackFromBlock(const Block *block);
 
   const rational& track_length() const;
@@ -153,6 +187,16 @@ public:
   NodeInputArray* block_input() const;
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+
+  AudioVisualWaveform& waveform()
+  {
+    return waveform_;
+  }
+
+  QMutex* waveform_lock()
+  {
+    return &waveform_lock_;
+  }
 
 public slots:
   void SetTrackName(const QString& name);
@@ -192,13 +236,23 @@ signals:
    */
   void IndexChanged(int i);
 
+  /**
+   * @brief Signal emitted when preview (waveform) has changed and UI should be updated
+   */
+  void PreviewChanged();
+
 protected:
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+
+  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
 private:
   void UpdateInOutFrom(int index);
 
   int GetInputIndexFromCacheIndex(int cache_index);
   int GetInputIndexFromCacheIndex(Block* block);
+
+  void SetLengthInternal(const rational& r, bool invalidate = true);
 
   QList<Block*> block_cache_;
 
@@ -214,11 +268,12 @@ private:
 
   QString track_name_;
 
-  int block_invalidate_cache_stack_;
-
   int index_;
 
   bool locked_;
+
+  AudioVisualWaveform waveform_;
+  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

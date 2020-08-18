@@ -48,18 +48,31 @@ AudioManager *AudioManager::instance()
 
 void AudioManager::RefreshDevices()
 {
-  output_watcher_.setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioOutput));
-  input_watcher_.setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioInput));
+  if (!is_refreshing_outputs_) {
+    QFutureWatcher< QList<QAudioDeviceInfo> >* output_watcher = new QFutureWatcher< QList<QAudioDeviceInfo> >();
+    connect(output_watcher, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::OutputDevicesRefreshed);
+    output_watcher->setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioOutput));
+
+    is_refreshing_outputs_ = true;
+  }
+
+  if (!is_refreshing_inputs_) {
+    QFutureWatcher< QList<QAudioDeviceInfo> >* input_watcher = new QFutureWatcher< QList<QAudioDeviceInfo> >();
+    connect(input_watcher, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::InputDevicesRefreshed);
+    input_watcher->setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioInput));
+
+    is_refreshing_inputs_ = true;
+  }
 }
 
 bool AudioManager::IsRefreshingOutputs()
 {
-  return output_watcher_.isRunning();
+  return is_refreshing_outputs_;
 }
 
 bool AudioManager::IsRefreshingInputs()
 {
-  return input_watcher_.isRunning();
+  return is_refreshing_inputs_;
 }
 
 void AudioManager::PushToOutput(const QByteArray &samples)
@@ -148,7 +161,7 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
   }
 }
 
-void AudioManager::SetOutputParams(const AudioRenderingParams &params)
+void AudioManager::SetOutputParams(const AudioParams &params)
 {
   if (output_params_ != params) {
     output_params_ = params;
@@ -156,7 +169,7 @@ void AudioManager::SetOutputParams(const AudioRenderingParams &params)
     QMetaObject::invokeMethod(&output_manager_,
                               "SetParameters",
                               Qt::QueuedConnection,
-                              OLIVE_NS_ARG(AudioRenderingParams, params));
+                              OLIVE_NS_ARG(AudioParams, params));
 
     // Refresh output device
     SetOutputDevice(output_device_info_);
@@ -200,6 +213,8 @@ void AudioManager::ReverseBuffer(char *buffer, int buffer_size, int sample_size)
 }
 
 AudioManager::AudioManager() :
+  is_refreshing_inputs_(false),
+  is_refreshing_outputs_(false),
   output_is_set_(false),
   input_(nullptr),
   input_file_(nullptr)
@@ -210,9 +225,6 @@ AudioManager::AudioManager() :
   output_manager_.moveToThread(&output_thread_);
 
   connect(&output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
-
-  connect(&output_watcher_, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::OutputDevicesRefreshed);
-  connect(&input_watcher_, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::InputDevicesRefreshed);
 }
 
 AudioManager::~AudioManager()
@@ -224,7 +236,11 @@ AudioManager::~AudioManager()
 
 void AudioManager::OutputDevicesRefreshed()
 {
-  output_devices_ = output_watcher_.result();
+  QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
+
+  output_devices_ = watcher->result();
+  watcher->deleteLater();
+  is_refreshing_outputs_ = false;
 
   QString preferred_audio_output = Config::Current()["PreferredAudioOutput"].toString();
 
@@ -247,7 +263,11 @@ void AudioManager::OutputDevicesRefreshed()
 
 void AudioManager::InputDevicesRefreshed()
 {
-  input_devices_ = input_watcher_.result();
+  QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
+
+  input_devices_ = watcher->result();
+  watcher->deleteLater();
+  is_refreshing_inputs_ = false;
 
   QString preferred_audio_input = Config::Current()["PreferredAudioInput"].toString();
 

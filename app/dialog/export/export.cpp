@@ -31,21 +31,17 @@
 #include <QStandardPaths>
 
 #include "core.h"
+#include "dialog/task/task.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/backend/exportparams.h"
 #include "render/pixelformat.h"
 #include "ui/icons/icons.h"
-#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
-  viewer_node_(viewer_node),
-  previously_selected_format_(0),
-  exporter_(nullptr),
-  cancelled_(false)
+  viewer_node_(viewer_node)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -53,11 +49,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
-  QWidget* outer_preferences_area = new QWidget();
-  QVBoxLayout* outer_preferences_layout = new QVBoxLayout(outer_preferences_area);
-
   preferences_area_ = new QWidget();
-  outer_preferences_layout->addWidget(preferences_area_);
   QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
   preferences_layout->setMargin(0);
 
@@ -74,7 +66,10 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   file_browse_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   file_browse_btn->setIcon(icon::Folder);
   file_browse_btn->setToolTip(tr("Browse for exported file filename"));
-  connect(file_browse_btn, SIGNAL(clicked(bool)), this, SLOT(BrowseFilename()));
+  connect(file_browse_btn,
+          &QPushButton::clicked,
+          this,
+          &ExportDialog::BrowseFilename);
   preferences_layout->addWidget(file_browse_btn, row, 3);
 
   row++;
@@ -109,7 +104,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   preferences_layout->addWidget(new QLabel(tr("Format:")), row, 0);
   format_combobox_ = new QComboBox();
-  connect(format_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(FormatChanged(int)));
   preferences_layout->addWidget(format_combobox_, row, 1, 1, 3);
 
   row++;
@@ -142,44 +136,17 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preferences_tabs->addTab(audio_area, tr("Audio"));
   preferences_layout->addWidget(preferences_tabs, row, 0, 1, 4);
 
-  QHBoxLayout* progress_bar_layout = new QHBoxLayout();
-  progress_bar_layout->setMargin(0);
-  outer_preferences_layout->addLayout(progress_bar_layout);
-
-  progress_bar_ = new QProgressBar();
-  progress_bar_->setEnabled(false);
-  progress_bar_->setValue(0);
-  progress_bar_layout->addWidget(progress_bar_);
-
-  export_cancel_btn_ = new QPushButton();
-  export_cancel_btn_->setIcon(icon::Error);
-  export_cancel_btn_->setEnabled(false);
-  connect(export_cancel_btn_, &QPushButton::clicked, this, &ExportDialog::CancelExport);
-  progress_bar_layout->addWidget(export_cancel_btn_);
-
-  QHBoxLayout* time_label_layout = new QHBoxLayout();
-  time_label_layout->setMargin(0);
-  outer_preferences_layout->addLayout(time_label_layout);
-
-  elapsed_label_ = new QLabel();
-  elapsed_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  time_label_layout->addWidget(elapsed_label_);
-
-  remaining_label_ = new QLabel();
-  remaining_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  time_label_layout->addWidget(remaining_label_);
-
-  UpdateTimeLabels();
+  row++;
 
   buttons_ = new QDialogButtonBox();
   buttons_->setCenterButtons(true);
   buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
   buttons_->addButton(QDialogButtonBox::Cancel);
-  connect(buttons_, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons_, SIGNAL(rejected()), this, SLOT(reject()));
-  outer_preferences_layout->addWidget(buttons_);
+  connect(buttons_, &QDialogButtonBox::accepted, this, &ExportDialog::StartExport);
+  connect(buttons_, &QDialogButtonBox::rejected, this, &ExportDialog::reject);
+  preferences_layout->addWidget(buttons_, row, 0, 1, 4);
 
-  splitter->addWidget(outer_preferences_area);
+  splitter->addWidget(preferences_area_);
 
   QWidget* preview_area = new QWidget();
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
@@ -190,34 +157,54 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->addWidget(preview_area);
 
   // Set default filename
-  // FIXME: Use Sequence name and project filename to construct this
   SetDefaultFilename();
 
-  // Set up available export formats
-  SetUpFormats();
-
   // Populate combobox formats
-  foreach (const ExportFormat& format, formats_) {
-    format_combobox_->addItem(format.name());
+  for (int i=0; i<ExportFormat::kFormatCount; i++) {
+    format_combobox_->addItem(ExportFormat::GetName(static_cast<ExportFormat::Format>(i)));
   }
 
   // Set defaults
-  format_combobox_->setCurrentIndex(kFormatMPEG4);
+  previously_selected_format_ = ExportFormat::kFormatMPEG4;
+  format_combobox_->setCurrentIndex(ExportFormat::kFormatMPEG4);
+  connect(format_combobox_,
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::FormatChanged);
+  FormatChanged(ExportFormat::kFormatMPEG4);
+
   video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
   video_tab_->width_slider()->SetDefaultValue(viewer_node_->video_params().width());
   video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
   video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
-  video_tab_->set_frame_rate(viewer_node_->video_params().time_base().flipped());
-  audio_tab_->set_sample_rate(viewer_node_->audio_params().sample_rate());
-  audio_tab_->set_channel_layout(viewer_node_->audio_params().channel_layout());
+  video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
+  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
+  video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
+  audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
+  audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
 
   video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
 
-  connect(video_tab_->width_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->height_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->scaling_method_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(UpdateViewerDimensions()));
-  connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
-  connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
+  connect(video_tab_->width_slider(),
+          &IntegerSlider::ValueChanged,
+          this,
+          &ExportDialog::ResolutionChanged);
+
+  connect(video_tab_->height_slider(),
+          &IntegerSlider::ValueChanged,
+          this,
+          &ExportDialog::ResolutionChanged);
+
+  connect(video_tab_->scaling_method_combobox(),
+          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this,
+          &ExportDialog::UpdateViewerDimensions);
+
+  connect(video_tab_->maintain_aspect_checkbox(),
+          &QCheckBox::toggled,
+          this,
+          &ExportDialog::ResolutionChanged);
+
   connect(video_tab_,
           &ExportVideoTab::ColorSpaceChanged,
           preview_viewer_,
@@ -227,17 +214,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
-
-  // Update renderer
-  // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
-  //        the renderer save the map as some sort of file that this can load.
-  preview_viewer_->video_renderer()->InvalidateCache(TimeRange(0, viewer_node_->Length()), nullptr);
-
-  progress_timer_.setInterval(1000);
-  connect(&progress_timer_, &QTimer::timeout, this, &ExportDialog::UpdateTimeLabels);
 }
 
-void ExportDialog::accept()
+void ExportDialog::StartExport()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
     QMessageBox b(this);
@@ -250,9 +229,9 @@ void ExportDialog::accept()
     return;
   }
 
-  // Validate if the entered filename contains the correct extension (the extension is necessary for both FFmpeg and
-  // OIIO to determine the output format)
-  QString necessary_ext = QStringLiteral(".%1").arg(formats_.at(format_combobox_->currentIndex()).extension());
+  // Validate if the entered filename contains the correct extension (the extension is necessary
+  // for both FFmpeg and OIIO to determine the output format)
+  QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(static_cast<ExportFormat::Format>(format_combobox_->currentIndex())));
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
   if (!filename_edit_->text().endsWith(necessary_ext, Qt::CaseInsensitive)) {
@@ -319,46 +298,14 @@ void ExportDialog::accept()
     }
   }
 
-  // Set up export parameters
-  exporter_ = new Exporter(viewer_node_, color_manager_, GenerateParams());
-
-  connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
-  connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::ProgressUpdated);
-
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
-#endif
-
-  export_start_ = QDateTime::currentMSecsSinceEpoch();
-
-  flt_progress_ = 0;
-
-  progress_timer_.start();
-
-  QMetaObject::invokeMethod(exporter_, "StartExporting", Qt::QueuedConnection);
-
-  SetUIElementsEnabled(false);
+  ExportTask* task = new ExportTask(viewer_node_, color_manager_, GenerateParams());
+  TaskDialog* td = new TaskDialog(task, tr("Export"), this);
+  connect(td, &TaskDialog::TaskSucceeded, this, &QDialog::accept);
+  td->open();
 }
 
 void ExportDialog::closeEvent(QCloseEvent *e)
 {
-  if (exporter_) {
-    QMessageBox b(this);
-    b.setIcon(QMessageBox::Question);
-    b.setWindowModality(Qt::WindowModal);
-    b.setWindowTitle(tr("Still Exporting"));
-    b.setText(tr("This sequence is still being exported. Do you wish to cancel it?"));
-    b.addButton(QMessageBox::Yes);
-    b.addButton(QMessageBox::No);
-
-    if (b.exec() == QMessageBox::Yes) {
-      CancelExport();
-    } else {
-      e->ignore();
-      return;
-    }
-  }
-
   preview_viewer_->ConnectViewerNode(nullptr);
 
   QDialog::closeEvent(e);
@@ -366,12 +313,12 @@ void ExportDialog::closeEvent(QCloseEvent *e)
 
 void ExportDialog::BrowseFilename()
 {
-  const ExportFormat& current_format = formats_.at(format_combobox_->currentIndex());
+  ExportFormat::Format f = static_cast<ExportFormat::Format>(format_combobox_->currentIndex());
 
   QString browsed_fn = QFileDialog::getSaveFileName(this,
                                                     "",
                                                     filename_edit_->text(),
-                                                    QStringLiteral("%1 (*.%2)").arg(current_format.name(), current_format.extension()),
+                                                    QStringLiteral("%1 (*.%2)").arg(ExportFormat::GetName(f), ExportFormat::GetExtension(f)),
                                                     nullptr,
 
                                                     // We don't confirm overwrite here because we do it later
@@ -385,9 +332,9 @@ void ExportDialog::BrowseFilename()
 void ExportDialog::FormatChanged(int index)
 {
   QString current_filename = filename_edit_->text();
-  const QString& previously_selected_ext = formats_.at(previously_selected_format_).extension();
-  const ExportFormat& current_format = formats_.at(index);
-  const QString& currently_selected_ext = current_format.extension();
+  QString previously_selected_ext = ExportFormat::GetExtension(previously_selected_format_);
+  ExportFormat::Format current_format = static_cast<ExportFormat::Format>(index);
+  QString currently_selected_ext = ExportFormat::GetExtension(current_format);
 
   // If the previous extension was added, remove it
   if (current_filename.endsWith(previously_selected_ext, Qt::CaseInsensitive)) {
@@ -399,18 +346,17 @@ void ExportDialog::FormatChanged(int index)
   current_filename.append(currently_selected_ext);
   filename_edit_->setText(current_filename);
 
-  previously_selected_format_ = index;
+  previously_selected_format_ = current_format;
 
   // Update video and audio comboboxes
   video_tab_->codec_combobox()->clear();
-  foreach (int vcodec, current_format.video_codecs()) {
-    video_tab_->codec_combobox()->addItem(codecs_.at(vcodec).name(), vcodec);
+  foreach (ExportCodec::Codec vcodec, ExportFormat::GetVideoCodecs(current_format)) {
+    video_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(vcodec), vcodec);
   }
-  VideoCodecChanged();
 
   audio_tab_->codec_combobox()->clear();
-  foreach (int acodec, current_format.audio_codecs()) {
-    audio_tab_->codec_combobox()->addItem(codecs_.at(acodec).name(), acodec);
+  foreach (ExportCodec::Codec acodec, ExportFormat::GetAudioCodecs(current_format)) {
+    audio_tab_->codec_combobox()->addItem(ExportCodec::GetCodecName(acodec), acodec);
   }
 }
 
@@ -446,91 +392,6 @@ void ExportDialog::ResolutionChanged()
   UpdateViewerDimensions();
 }
 
-void ExportDialog::VideoCodecChanged()
-{
-  int codec_index = video_tab_->codec_combobox()->currentData().toInt();
-  const ExportCodec& codec = codecs_.at(codec_index);
-
-  if (codec_index == kCodecH264) {
-    video_tab_->SetCodecSection(video_tab_->h264_section());
-  } else if (codec.flags() & ExportCodec::kStillImage) {
-    video_tab_->SetCodecSection(video_tab_->image_section());
-  }
-}
-
-void ExportDialog::SetUpFormats()
-{
-  // Set up codecs
-  for (int i=0;i<kCodecCount;i++) {
-    switch (static_cast<Codec>(i)) {
-    case kCodecDNxHD:
-      codecs_.append(ExportCodec(tr("DNxHD"), "dnxhd"));
-      break;
-    case kCodecH264:
-      codecs_.append(ExportCodec(tr("H.264"), "libx264"));
-      break;
-    case kCodecH265:
-      codecs_.append(ExportCodec(tr("H.265"), "libx265"));
-      break;
-    case kCodecOpenEXR:
-      codecs_.append(ExportCodec(tr("OpenEXR"), "exr", ExportCodec::kStillImage));
-      break;
-    case kCodecPNG:
-      codecs_.append(ExportCodec(tr("PNG"), "png", ExportCodec::kStillImage));
-      break;
-    case kCodecProRes:
-      codecs_.append(ExportCodec(tr("ProRes"), "prores"));
-      break;
-    case kCodecTIFF:
-      codecs_.append(ExportCodec(tr("TIFF"), "tiff", ExportCodec::kStillImage));
-      break;
-    case kCodecMP2:
-      codecs_.append(ExportCodec(tr("MP2"), "mp2"));
-      break;
-    case kCodecMP3:
-      codecs_.append(ExportCodec(tr("MP3"), "libmp3lame"));
-      break;
-    case kCodecAAC:
-      codecs_.append(ExportCodec(tr("AAC"), "aac"));
-      break;
-    case kCodecPCM:
-      codecs_.append(ExportCodec(tr("PCM (Uncompressed)"), "pcm"));
-      break;
-    case kCodecCount:
-      break;
-    }
-  }
-
-  // Set up formats
-  for (int i=0;i<kFormatCount;i++) {
-    switch (static_cast<Format>(i)) {
-    case kFormatDNxHD:
-      formats_.append(ExportFormat(tr("DNxHD"), "mxf", "ffmpeg", {kCodecDNxHD}, {kCodecPCM}));
-      break;
-    case kFormatMatroska:
-      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatMPEG4:
-      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatOpenEXR:
-      formats_.append(ExportFormat(tr("OpenEXR"), "exr", "oiio", {kCodecOpenEXR}, {}));
-      break;
-    case kFormatQuickTime:
-      formats_.append(ExportFormat(tr("QuickTime"), "mov", "ffmpeg", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
-      break;
-    case kFormatPNG:
-      formats_.append(ExportFormat(tr("PNG"), "png", "oiio", {kCodecPNG}, {}));
-      break;
-    case kFormatTIFF:
-      formats_.append(ExportFormat(tr("TIFF"), "tiff", "oiio", {kCodecTIFF}, {}));
-      break;
-    case kFormatCount:
-      break;
-    }
-  }
-}
-
 void ExportDialog::LoadPresets()
 {
 
@@ -553,17 +414,6 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
-void ExportDialog::SetUIElementsEnabled(bool enabled)
-{
-  preferences_area_->setEnabled(enabled);
-  buttons_->setEnabled(enabled);
-
-  progress_bar_->setEnabled(!enabled);
-  export_cancel_btn_->setEnabled(!enabled);
-  elapsed_label_->setEnabled(!enabled);
-  remaining_label_->setEnabled(!enabled);
-}
-
 int ExportDialog::AlignEvenNumber(double d)
 {
   return qCeil(d * 0.5) * 2;
@@ -573,157 +423,60 @@ ExportParams ExportDialog::GenerateParams() const
 {
   RenderMode::Mode render_mode = RenderMode::kOnline;
 
-  VideoRenderingParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                           static_cast<int>(video_tab_->height_slider()->GetValue()),
-                                           video_tab_->frame_rate().flipped(),
-                                           PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
-                                           render_mode);
+  VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                  static_cast<int>(video_tab_->height_slider()->GetValue()),
+                                  video_tab_->frame_rate_combobox()->GetFrameRate().flipped(),
+                                  PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
+                                  video_tab_->pixel_aspect_combobox()->GetPixelAspectRatio(),
+                                  video_tab_->interlaced_combobox()->GetInterlaceMode(),
+                                  render_mode);
 
-  AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
-                                           audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SampleFormat::kInternalFormat);
+  AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
+                                  audio_tab_->channel_layout_combobox()->GetChannelLayout(),
+                                  SampleFormat::kInternalFormat);
 
   ExportParams params;
   params.SetFilename(filename_edit_->text());
-  params.SetExportLength(viewer_node_->Length());
+  params.SetExportLength(viewer_node_->GetLength());
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
     params.set_video_scaling_method(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));
   }
 
   if (video_enabled_->isChecked()) {
-    const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
-    params.EnableVideo(video_render_params,
-                       video_codec.id());
+    ExportCodec::Codec video_codec = video_tab_->GetSelectedCodec();
+    params.EnableVideo(video_render_params, video_codec);
 
     params.set_video_threads(video_tab_->threads());
 
     video_tab_->GetCodecSection()->AddOpts(&params);
 
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
+
+    params.set_video_pix_fmt(video_tab_->pix_fmt());
   }
 
   if (audio_enabled_->isChecked()) {
-    const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
-    params.EnableAudio(audio_render_params,
-                       audio_codec.id());
+    ExportCodec::Codec audio_codec = static_cast<ExportCodec::Codec>(audio_tab_->codec_combobox()->currentData().toInt());
+    params.EnableAudio(audio_render_params, audio_codec);
   }
 
   return params;
 }
 
-void ExportDialog::UpdateTimeLabels()
-{
-  qint64 elapsed, remaining;
-
-  if (exporter_) {
-    elapsed = QDateTime::currentMSecsSinceEpoch() - export_start_;
-
-    if (flt_progress_ > 0) {
-      remaining = qRound64((1.0 - flt_progress_) * static_cast<double>(elapsed) / flt_progress_);
-    } else {
-      remaining = 0;
-    }
-  } else {
-    elapsed = 0;
-    remaining = 0;
-  }
-
-  elapsed_label_->setText(tr("Elapsed: %1").arg(TimeToString(elapsed)));
-  remaining_label_->setText(tr("Remaining: %1").arg(TimeToString(remaining)));
-}
-
-void ExportDialog::ProgressUpdated(double p)
-{
-  int i_prog = qRound(100.0 * p);
-
-  progress_bar_->setValue(i_prog);
-
-#ifdef Q_OS_WINDOWS
-  UpdateTaskbarProgress(i_prog);
-#endif
-
-  flt_progress_ = p;
-}
-
-QString ExportDialog::TimeToString(int64_t ms)
-{
-  int64_t total_seconds = ms / 1000;
-  int64_t ss = total_seconds % 60;
-  int64_t mm = (total_seconds / 60) % 60;
-  int64_t hh = total_seconds / 3600;
-
-  return QStringLiteral("%1:%2:%3")
-      .arg(hh, 2, 10, QChar('0'))
-      .arg(mm, 2, 10, QChar('0'))
-      .arg(ss, 2, 10, QChar('0'));
-}
-
 void ExportDialog::UpdateViewerDimensions()
 {
-  preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
+  preview_viewer_->SetViewerResolution(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                       static_cast<int>(video_tab_->height_slider()->GetValue()));
+
+  QMatrix4x4 transform =
+      ExportParams::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                                   viewer_node_->video_params().width(),
+                                   viewer_node_->video_params().height(),
+                                   static_cast<int>(video_tab_->width_slider()->GetValue()),
                                    static_cast<int>(video_tab_->height_slider()->GetValue()));
 
-  preview_viewer_->SetMatrix(Exporter::GenerateMatrix(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                                      viewer_node_->video_params().width(),
-                                                      viewer_node_->video_params().height(),
-                                                      static_cast<int>(video_tab_->width_slider()->GetValue()),
-                                                      static_cast<int>(video_tab_->height_slider()->GetValue())));
+  preview_viewer_->SetMatrix(transform);
 }
-
-void ExportDialog::ExporterIsDone()
-{
-  progress_timer_.stop();
-
-  if (exporter_->GetExportStatus()) {
-    QMessageBox b(this);
-    b.setIcon(QMessageBox::Information);
-    b.setWindowModality(Qt::WindowModal);
-    b.setWindowTitle(tr("Export Status"));
-    b.setText(tr("Export completed successfully."));
-    b.addButton(QMessageBox::Ok);
-    b.exec();
-
-    QDialog::accept();
-  } else {
-    if (!cancelled_) {
-#ifdef Q_OS_WINDOWS
-      Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
-#endif
-
-      QMessageBox b(this);
-      b.setIcon(QMessageBox::Critical);
-      b.setWindowModality(Qt::WindowModal);
-      b.setWindowTitle(tr("Export Status"));
-      b.setText(tr("Export failed: %1").arg(exporter_->GetExportError()));
-      b.addButton(QMessageBox::Ok);
-      b.exec();
-    }
-
-    SetUIElementsEnabled(true);
-  }
-
-  exporter_ = nullptr;
-  cancelled_ = false;
-
-#ifdef Q_OS_WINDOWS
-  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NOPROGRESS);
-#endif
-}
-
-void ExportDialog::CancelExport()
-{
-  if (exporter_) {
-    cancelled_ = true;
-    exporter_->Cancel();
-  }
-}
-
-#ifdef Q_OS_WINDOWS
-void ExportDialog::UpdateTaskbarProgress(int progress)
-{
-  Core::instance()->main_window()->SetTaskbarButtonProgress(progress, 100);
-}
-#endif
 
 OLIVE_NAMESPACE_EXIT

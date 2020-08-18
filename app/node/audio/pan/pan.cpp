@@ -59,26 +59,45 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-Node::Capabilities PanNode::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable PanNode::Value(NodeValueDatabase &value) const
 {
-  return kSampleProcessor;
+  // Create a sample job
+  SampleJob job(samples_input_, value);
+  job.InsertValue(panning_input_, value);
+
+  // Push it to our table
+  NodeValueTable table = value.Merge();
+
+  if (job.HasSamples()) {
+    float pan_volume = job.GetValue(panning_input_).data().toFloat();
+    if (panning_input_->is_static()) {
+      if (!qIsNull(pan_volume) && job.samples()->audio_params().channel_count() == 2) {
+        if (pan_volume > 0) {
+          job.samples()->transform_volume_for_channel(0, 1.0f - pan_volume);
+        } else {
+          job.samples()->transform_volume_for_channel(1, 1.0f + pan_volume);
+        }
+      }
+
+      table.Push(NodeParam::kSamples, QVariant::fromValue(job.samples()), this);
+    } else {
+      table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+    }
+  }
+
+  return table;
 }
 
-NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
+void PanNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  return samples_input_;
-}
-
-void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
-{
-  if (params.channel_count() != 2) {
+  if (input->audio_params().channel_count() != 2) {
     // This node currently only works for stereo audio
     return;
   }
 
   float pan_val = values[panning_input_].Get(NodeParam::kFloat).toFloat();
 
-  for (int i=0;i<params.channel_count();i++) {
+  for (int i=0;i<input->audio_params().channel_count();i++) {
     output->data()[i][index] = input->data()[i][index];
   }
 

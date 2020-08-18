@@ -36,27 +36,14 @@ public:
 protected:
   virtual void mousePressEvent(QMouseEvent *ev) override;
 
-  virtual void mouseMoveEvent(QMouseEvent *ev) override;
-
-  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-
   virtual void focusInEvent(QFocusEvent *event) override;
 
 signals:
-  void dragged(int x);
-
-  void drag_start();
-
-  void drag_stop();
+  void LabelPressed();
 
   void focused();
 
   void RequestReset();
-
-private:
-  QPoint drag_start_;
-
-  bool dragging_;
 
 };
 

@@ -85,9 +85,14 @@ private slots:
   void ToolsMenuAboutToShow();
 
   /**
-   * @brief PlaybackMenuAboutToShow
+   * @brief Slot triggered just before the Playback menu shows
    */
   void PlaybackMenuAboutToShow();
+
+  /**
+   * @brief Slot triggered just before the Sequence menu shows
+   */
+  void SequenceMenuAboutToShow();
 
   /**
    * @brief Slot triggered just before the Window menu shows
@@ -172,6 +177,9 @@ private slots:
 
   void OpenRecentItemTriggered();
 
+  void SequenceCacheTriggered();
+  void SequenceCacheInOutTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
@@ -240,6 +248,10 @@ private:
   QAction* playback_shuttlestop_item_;
   QAction* playback_shuttleright_item_;
   QAction* playback_loop_item_;
+
+  Menu* sequence_menu_;
+  QAction* sequence_cache_item_;
+  QAction* sequence_cache_in_to_out_item_;
 
   Menu* window_menu_;
   QAction* window_menu_separator_;

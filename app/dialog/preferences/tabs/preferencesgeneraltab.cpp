@@ -102,16 +102,8 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   default_still_length_ = new FloatSlider();
   default_still_length_->SetMinimum(0.1);
+  default_still_length_->SetFormat(tr("%1 seconds"));
   general_layout->addWidget(default_still_length_);
-
-  row++;
-
-  general_layout->addWidget(new QLabel(tr("Default Sequence Settings:")), row, 0);
-
-  // General -> Default Sequence Settings
-  QPushButton* default_sequence_settings = new QPushButton(tr("Edit"));
-  connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
-  general_layout->addWidget(default_sequence_settings, row, 1);
 
   layout->addStretch();
 
@@ -120,25 +112,11 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
 void PreferencesGeneralTab::Accept()
 {
-  Config::Current()["DefaultSequenceWidth"] = default_sequence_.video_params().width();
-  Config::Current()["DefaultSequenceHeight"] = default_sequence_.video_params().height();;
-  Config::Current()["DefaultSequenceFrameRate"] = QVariant::fromValue(default_sequence_.video_params().time_base());
-  Config::Current()["DefaultSequenceAudioFrequency"] = default_sequence_.audio_params().sample_rate();
-  Config::Current()["DefaultSequenceAudioLayout"] = QVariant::fromValue(default_sequence_.audio_params().channel_layout());
-
   Config::Current()["RectifiedWaveforms"] = rectified_waveforms_->isChecked();
 
   Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
 
   Config::Current()["DefaultStillLength"] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
-}
-
-void PreferencesGeneralTab::edit_default_sequence_settings()
-{
-  SequenceDialog sd(&default_sequence_, SequenceDialog::kExisting, this);
-  sd.SetUndoable(false);
-  sd.SetNameIsEditable(false);
-  sd.exec();
 }
 
 void PreferencesGeneralTab::SetValuesFromConfig(Config config) {

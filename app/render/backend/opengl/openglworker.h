@@ -18,39 +18,32 @@
 
 ***/
 
-#ifndef OPENGLPROCESSOR_H
-#define OPENGLPROCESSOR_H
+#ifndef OPENGLWORKER_H
+#define OPENGLWORKER_H
 
-#include <QOffscreenSurface>
-#include <QOpenGLContext>
-
-#include "../videorenderworker.h"
-#include "openglframebuffer.h"
 #include "openglproxy.h"
-#include "openglshadercache.h"
-#include "opengltexturecache.h"
+#include "render/backend/renderworker.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class OpenGLWorker : public VideoRenderWorker {
-  Q_OBJECT
+class OpenGLWorker : public RenderWorker
+{
 public:
-  OpenGLWorker(VideoRenderFrameCache* frame_cache,
-               OpenGLProxy* proxy,
-               QObject* parent = nullptr);
+  OpenGLWorker(RenderBackend* parent);
 
 protected:
-  virtual NodeValue FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range) override;
+  virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const override;
 
-  virtual void RunNodeAccelerated(const Node *node, const TimeRange &range, NodeValueDatabase &input_params, NodeValueTable& output_params) override;
+  virtual QVariant FootageFrameToTexture(StreamPtr stream, FramePtr frame) const override;
 
-  virtual void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize) override;
+  virtual QVariant CachedFrameToTexture(FramePtr frame) const override;
 
-private:
-  OpenGLProxy* proxy_;
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
+
+  virtual bool TextureHasAlpha(const QVariant& v) const override;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // OPENGLPROCESSOR_H
+#endif // OPENGLWORKER_H

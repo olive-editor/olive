@@ -16,7 +16,13 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/sequence/presetmanager.h
   dialog/sequence/sequence.h
   dialog/sequence/sequence.cpp
+  dialog/sequence/sequencedialogparametertab.h
+  dialog/sequence/sequencedialogparametertab.cpp
+  dialog/sequence/sequencedialogpresettab.h
+  dialog/sequence/sequencedialogpresettab.cpp
+  dialog/sequence/sequencepreset.h
   PARENT_SCOPE
 )

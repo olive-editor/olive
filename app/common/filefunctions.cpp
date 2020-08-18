@@ -50,41 +50,14 @@ QString FileFunctions::GetUniqueFileIdentifier(const QString &filename)
   return QString(result.toHex());
 }
 
-QString FileFunctions::GetMediaIndexLocation()
-{
-  QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
-
-  QDir media_index_dir = local_appdata_dir.filePath("mediaindex");
-
-  // Attempt to ensure this folder exists
-  media_index_dir.mkpath(".");
-
-  return media_index_dir.absolutePath();
-}
-
-QString FileFunctions::GetMediaIndexFilename(const QString &filename)
-{
-  return QDir(GetMediaIndexLocation()).filePath(filename);
-}
-
-QString FileFunctions::GetMediaCacheLocation()
-{
-  QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
-
-  QDir media_cache_dir = local_appdata_dir.filePath("mediacache");
-
-  // Attempt to ensure this folder exists
-  media_cache_dir.mkpath(".");
-
-  return media_cache_dir.absolutePath();
-}
-
 QString FileFunctions::GetConfigurationLocation()
 {
   if (IsPortable()) {
     return GetApplicationPath();
   } else {
-    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QString s = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir(s).mkpath(".");
+    return s;
   }
 }
 
@@ -108,6 +81,30 @@ QString FileFunctions::GetTempFilePath()
   QDir(temp_path).mkpath(".");
 
   return temp_path;
+}
+
+bool FileFunctions::CanCopyDirectoryWithoutOverwriting(const QString& source, const QString& dest)
+{
+  QFileInfoList info_list = QDir(source).entryInfoList();
+
+  foreach (const QFileInfo& info, info_list) {
+    // QDir::NoDotAndDotDot continues to not work, so we have to check manually
+    if (info.fileName() == QStringLiteral(".") || info.fileName() == QStringLiteral("..")) {
+      continue;
+    }
+
+    QString dest_equivalent = QDir(dest).filePath(info.fileName());
+
+    if (info.isDir()) {
+      if (!CanCopyDirectoryWithoutOverwriting(info.absoluteFilePath(), dest_equivalent)) {
+        return false;
+      }
+    } else if (QFileInfo::exists(dest_equivalent)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bool overwrite)
@@ -148,6 +145,29 @@ void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bo
       QFile::copy(info.absoluteFilePath(), dest_file_path);
     }
   }
+}
+
+bool FileFunctions::DirectoryIsValid(const QString &dir, bool try_to_create)
+{
+  // Empty string is invalid
+  if (dir.isEmpty()) {
+    return false;
+  }
+
+  QDir d(dir);
+
+  // If directory already exists, this is valid
+  if (d.exists()) {
+    return true;
+  }
+
+  // If we can create and creation is successful, this is valid
+  if (try_to_create && d.mkpath(".")) {
+    return true;
+  }
+
+  // Otherwise, invalid
+  return false;
 }
 
 OLIVE_NAMESPACE_EXIT

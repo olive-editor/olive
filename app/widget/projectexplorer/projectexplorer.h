@@ -144,7 +144,7 @@ private:
 
   QTimer rename_timer_;
 
-  Item* context_menu_item_;
+  QList<Item*> context_menu_items_;
 
 private slots:
   void ItemClickedSlot(const QModelIndex& index);
@@ -161,9 +161,7 @@ private slots:
 
   void ShowContextMenu();
 
-  void ShowFootagePropertiesDialog();
-
-  void ShowSequencePropertiesDialog();
+  void ShowItemPropertiesDialog();
 
   void RevealSelectedFootage();
 

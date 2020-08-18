@@ -21,6 +21,7 @@
 #include "footage.h"
 
 #include <QCoreApplication>
+#include <QDir>
 
 #include "codec/decoder.h"
 #include "common/xmlutils.h"
@@ -49,6 +50,27 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
       set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("filename")) {
       set_filename(attr.value().toString());
+    }
+  }
+
+  // Validate filename
+  if (!QFileInfo::exists(filename_)) {
+    // Absolute filename does not exist, use some heuristics to try relocating the file
+
+    if (xml_node_data.real_project_url != xml_node_data.saved_project_url) {
+      // Project path has changed, check if the file we're looking for is the same relative to the
+      // new project path
+      QDir saved_dir(QFileInfo(xml_node_data.saved_project_url).dir());
+      QDir true_dir(QFileInfo(xml_node_data.real_project_url).dir());
+
+      QString relative_filename = saved_dir.relativeFilePath(filename_);
+      QString transformed_abs_filename = true_dir.filePath(relative_filename);
+
+      if (QFileInfo::exists(transformed_abs_filename)) {
+        // Use this file instead
+        qInfo() << "Footage" << filename_ << "doesn't exist, using relative file" << transformed_abs_filename;
+        set_filename(transformed_abs_filename);
+      }
     }
   }
 
@@ -220,38 +242,53 @@ QIcon Footage::icon()
 
 QString Footage::duration()
 {
-  if (streams_.isEmpty()) {
-    return QString();
+  // Find longest stream duration
+
+  StreamPtr longest_stream = nullptr;
+  rational longest;
+
+  foreach (StreamPtr stream, streams_) {
+    if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+      rational this_stream_dur = Timecode::timestamp_to_time(stream->duration(),
+                                                             stream->timebase());
+
+      if (this_stream_dur > longest) {
+        longest_stream = stream;
+        longest = this_stream_dur;
+      }
+    }
   }
 
-  if (streams_.first()->type() == Stream::kVideo) {
-    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(streams_.first());
+  if (longest_stream) {
+    if (longest_stream->type() == Stream::kVideo) {
+      VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(longest_stream);
 
-    int64_t duration = video_stream->duration();
-    rational frame_rate_timebase = video_stream->frame_rate().flipped();
+      int64_t duration = video_stream->duration();
+      rational frame_rate_timebase = video_stream->frame_rate().flipped();
 
-    if (video_stream->timebase() != frame_rate_timebase) {
-      // Convert from timebase to frame rate
-      rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
-      duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+      if (video_stream->timebase() != frame_rate_timebase) {
+        // Convert from timebase to frame rate
+        rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
+        duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+      }
+
+      return Timecode::timestamp_to_timecode(duration,
+                                             frame_rate_timebase,
+                                             Core::instance()->GetTimecodeDisplay());
+    } else if (longest_stream->type() == Stream::kAudio) {
+      AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(longest_stream);
+
+      // If we're showing in a timecode, we prefer showing audio in seconds instead
+      Timecode::Display display = Core::instance()->GetTimecodeDisplay();
+      if (display == Timecode::kTimecodeDropFrame
+          || display == Timecode::kTimecodeNonDropFrame) {
+        display = Timecode::kTimecodeSeconds;
+      }
+
+      return Timecode::timestamp_to_timecode(longest_stream->duration(),
+                                             longest_stream->timebase(),
+                                             display);
     }
-
-    return Timecode::timestamp_to_timecode(duration,
-                                           frame_rate_timebase,
-                                           Core::instance()->GetTimecodeDisplay());
-  } else if (streams_.first()->type() == Stream::kAudio) {
-    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
-
-    // If we're showing in a timecode, we prefer showing audio in seconds instead
-    Timecode::Display display = Core::instance()->GetTimecodeDisplay();
-    if (display == Timecode::kTimecodeDropFrame
-        || display == Timecode::kTimecodeNonDropFrame) {
-      display = Timecode::kTimecodeSeconds;
-    }
-
-    return Timecode::timestamp_to_timecode(streams_.first()->duration(),
-                                           streams_.first()->timebase(),
-                                           display);
   }
 
   return QString();
@@ -263,15 +300,13 @@ QString Footage::rate()
     return QString();
   }
 
-  if (streams_.first()->type() == Stream::kVideo) {
-    // Return the timebase as a frame rate
-    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(streams_.first());
-
+  if (HasStreamsOfType(Stream::kVideo)) {
+    // This is a video editor, prioritize video streams
+    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo));
     return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
-  } else if (streams_.first()->type() == Stream::kAudio) {
-    // Return the sample rate
+  } else if (HasStreamsOfType(Stream::kAudio)) {
+    // No video streams, return audio
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
-
     return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream->sample_rate());
   }
 

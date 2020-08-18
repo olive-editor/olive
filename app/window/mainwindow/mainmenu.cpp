@@ -27,6 +27,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"
+#include "dialog/task/task.h"
 #include "panel/panelmanager.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
@@ -60,7 +61,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
-  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow);
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
   file_menu_->addSeparator();
   file_close_project_item_ = file_menu_->AddItem("closeproj", Core::instance(), &Core::CloseActiveProject);
   file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
@@ -181,6 +182,14 @@ MainMenu::MainMenu(MainWindow *parent) :
   playback_loop_item_->setCheckable(true);
 
   //
+  // SEQUENCE MENU
+  //
+
+  sequence_menu_ = new Menu(this, this, &MainMenu::SequenceMenuAboutToShow);
+  sequence_cache_item_ = sequence_menu_->AddItem("seqcache", this, &MainMenu::SequenceCacheTriggered);
+  sequence_cache_in_to_out_item_ = sequence_menu_->AddItem("seqcacheinout", this, &MainMenu::SequenceCacheInOutTriggered);
+
+  //
   // WINDOW MENU
   //
   window_menu_ = new Menu(this, this, &MainMenu::WindowMenuAboutToShow);
@@ -253,6 +262,7 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, "S");
   tools_snapping_item_->setCheckable(true);
+  tools_snapping_item_->setChecked(Core::instance()->snapping());
 
   tools_menu_->addSeparator();
 
@@ -358,6 +368,16 @@ void MainMenu::ToolsMenuAboutToShow()
 void MainMenu::PlaybackMenuAboutToShow()
 {
   playback_loop_item_->setChecked(Config::Current()["Loop"].toBool());
+}
+
+void MainMenu::SequenceMenuAboutToShow()
+{
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  bool can_cache_sequence = (p && p->GetConnectedViewer());
+
+  sequence_cache_item_->setEnabled(can_cache_sequence);
+  sequence_cache_in_to_out_item_->setEnabled(can_cache_sequence);
 }
 
 void MainMenu::WindowMenuAboutToShow()
@@ -591,6 +611,16 @@ void MainMenu::OpenRecentItemTriggered()
   Core::instance()->OpenProjectFromRecentList(static_cast<QAction*>(sender())->data().toInt());
 }
 
+void MainMenu::SequenceCacheTriggered()
+{
+  Core::instance()->CacheActiveSequence(false);
+}
+
+void MainMenu::SequenceCacheInOutTriggered()
+{
+  Core::instance()->CacheActiveSequence(true);
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -658,6 +688,11 @@ void MainMenu::Retranslate()
   playback_shuttlestop_item_->setText(tr("Shuttle Stop"));
   playback_shuttleright_item_->setText(tr("Shuttle Right"));
   playback_loop_item_->setText(tr("Loop"));
+
+  // Sequence menu
+  sequence_menu_->setTitle(tr("&Sequence"));
+  sequence_cache_item_->setText(tr("Cache Entire Sequence"));
+  sequence_cache_in_to_out_item_->setText(tr("Cache Sequence In/Out"));
 
   // Window menu
   window_menu_->setTitle("&Window");

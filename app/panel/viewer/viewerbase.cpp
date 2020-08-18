@@ -72,11 +72,6 @@ void ViewerPanelBase::DisconnectTimeBasedPanel(TimeBasedPanel *panel)
   disconnect(panel, &TimeBasedPanel::ShuttleRightRequested, this, &ViewerPanelBase::ShuttleRight);
 }
 
-VideoRenderBackend *ViewerPanelBase::video_renderer() const
-{
-  return static_cast<ViewerWidget*>(GetTimeBasedWidget())->video_renderer();
-}
-
 void ViewerPanelBase::ConnectPixelSamplerPanel(PixelSamplerPanel *psp)
 {
   ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
@@ -93,6 +88,16 @@ void ViewerPanelBase::SetFullScreen(QScreen *screen)
 void ViewerPanelBase::SetGizmos(Node *node)
 {
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetGizmos(node);
+}
+
+void ViewerPanelBase::CacheEntireSequence()
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheEntireSequence();
+}
+
+void ViewerPanelBase::CacheSequenceInOut()
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheSequenceInOut();
 }
 
 void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)

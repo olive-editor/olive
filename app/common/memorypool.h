@@ -57,6 +57,7 @@ public:
    */
   MemoryPool(int element_count) {
     element_count_ = element_count;
+    ignore_arena_empty_signal_ = false;
   }
 
   /**
@@ -65,6 +66,7 @@ public:
    * Deletes all arenas.
    */
   virtual ~MemoryPool() {
+    ignore_arena_empty_signal_ = true;
     qDeleteAll(arenas_);
   }
 
@@ -112,7 +114,7 @@ public:
      * Automatically releases this element's memory back to the arena it was retrieved from.
      */
     ~Element() {
-      parent_->Release(this);
+      release();
     }
 
     DISABLE_COPY_MOVE(Element)
@@ -151,6 +153,13 @@ public:
       return accessed_;
     }
 
+    void release() {
+      if (data_) {
+        parent_->Release(this);
+        data_ = nullptr;
+      }
+    }
+
   private:
     Arena* parent_;
 
@@ -176,11 +185,13 @@ public:
     Arena(MemoryPool* parent) {
       parent_ = parent;
       data_ = nullptr;
-      use_count_ = 0;
     }
 
     ~Arena() {
-      // FIXME: Invalidate elements that have been lent out?
+      std::list<Element*> copy = lent_elements_;
+      foreach (Element* e, copy) {
+        e->release();
+      }
 
       delete [] data_;
     }
@@ -197,8 +208,11 @@ public:
         if (available_.at(i)) {
           // This buffer is available
           available_.replace(i, false);
-          use_count_++;
-          return std::make_shared<Element>(this, reinterpret_cast<T*>(data_ + i * element_sz_));
+
+          ElementPtr e = std::make_shared<Element>(this,
+                                                   reinterpret_cast<T*>(data_ + i * element_sz_));
+          lent_elements_.push_back(e.get());
+          return e;
         }
       }
 
@@ -215,17 +229,18 @@ public:
       int index = diff / element_sz_;
 
       available_.replace(index, true);
-      use_count_--;
 
-      if (!use_count_) {
+      lent_elements_.remove(e);
+
+      if (lent_elements_.empty()) {
         locker.unlock();
         parent_->ArenaIsEmpty(this);
       }
     }
 
-    const int& GetUsageCount() {
+    int GetUsageCount() {
       QMutexLocker locker(&lock_);
-      return use_count_;
+      return lent_elements_.size();
     }
 
     bool Allocate(size_t ele_sz, size_t nb_elements) {
@@ -242,7 +257,6 @@ public:
         return true;
       } else {
         available_.clear();
-        data_ = nullptr;
 
         return false;
       }
@@ -267,7 +281,7 @@ public:
 
     size_t element_sz_;
 
-    int use_count_;
+    std::list<Element*> lent_elements_;
 
   };
 
@@ -287,7 +301,7 @@ public:
     }
 
     // All arenas were empty, we'll need to create a new one
-    if (arenas_.isEmpty()) {
+    if (arenas_.empty()) {
       qDebug() << "No arenas, creating new...";
     } else {
       qDebug() << "All arenas are full, creating new...";
@@ -312,16 +326,21 @@ public:
       return nullptr;
     }
 
-    arenas_.append(a);
+    arenas_.push_back(a);
     return a->Get();
   }
 
   void ArenaIsEmpty(Arena* a) {
+    // FIXME: Does this need to be mutexed?
+    if (ignore_arena_empty_signal_) {
+      return;
+    }
+
     QMutexLocker locker(&lock_);
 
     if (!a->GetUsageCount()) {
       qDebug() << "Removing an empty arena";
-      arenas_.removeOne(a);
+      arenas_.remove(a);
       delete a;
     }
   }
@@ -339,9 +358,11 @@ protected:
 private:
   int element_count_;
 
-  QLinkedList<Arena*> arenas_;
+  std::list<Arena*> arenas_;
 
   QMutex lock_;
+
+  bool ignore_arena_empty_signal_;
 
 };
 

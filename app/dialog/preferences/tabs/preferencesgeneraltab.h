@@ -39,12 +39,6 @@ public:
 
   virtual void Accept() override;
 
-private slots:
-  /**
-   * @brief Shows a NewSequenceDialog attached to default_sequence
-   */
-  void edit_default_sequence_settings();
-
 public slots:
   void ResetDefaults(bool reset_all_tabs);
 
@@ -58,11 +52,6 @@ private:
   QCheckBox* rectified_waveforms_;
 
   FloatSlider* default_still_length_;
-
-  /**
-   * @brief A sequence we can feed to a SequenceDialog to change the defaults
-   */
-  Sequence default_sequence_;
 
 };
 

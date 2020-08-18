@@ -21,6 +21,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/audioparams.h
   render/audioparams.cpp
+  render/audioplaybackcache.h
+  render/audioplaybackcache.cpp
   render/color.h
   render/color.cpp
   render/colormanager.h
@@ -29,11 +31,16 @@ set(OLIVE_SOURCES
   render/colorprocessor.cpp
   render/diskmanager.h
   render/diskmanager.cpp
+  render/framehashcache.h
+  render/framehashcache.cpp
   render/managedcolor.h
   render/managedcolor.cpp
   render/pixelformat.h
   render/pixelformat.cpp
+  render/playbackcache.h
+  render/playbackcache.cpp
   render/rendermodes.h
+  render/shaderinfo.h
   render/videoparams.h
   render/videoparams.cpp
   PARENT_SCOPE

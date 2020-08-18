@@ -82,14 +82,35 @@ void StrokeFilterNode::Retranslate()
   inner_input_->set_name(tr("Inner"));
 }
 
-Node::Capabilities StrokeFilterNode::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
 {
-  return kShader;
+  ShaderJob job;
+
+  job.InsertValue(tex_input_, value);
+  job.InsertValue(color_input_, value);
+  job.InsertValue(radius_input_, value);
+  job.InsertValue(opacity_input_, value);
+  job.InsertValue(inner_input_, value);
+
+  NodeValueTable table = value.Merge();
+
+  if (!job.GetValue(tex_input_).data().isNull()) {
+    if (job.GetValue(radius_input_).data().toDouble() > 0.0
+        && job.GetValue(opacity_input_).data().toDouble() > 0.0) {
+      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+    } else {
+      table.Push(job.GetValue(tex_input_));
+    }
+  }
+
+  return table;
 }
 
-QString StrokeFilterNode::ShaderFragmentCode(const NodeValueDatabase &) const
+ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
 {
-  return ReadFileAsString(":/shaders/stroke.frag");
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(ReadFileAsString(":/shaders/stroke.frag"), QString());
 }
 
 OLIVE_NAMESPACE_EXIT

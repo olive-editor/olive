@@ -60,6 +60,7 @@ truncate -s 0 $QRCFILE
 echo "<RCC>" >> $QRCFILE
 echo "  <qresource prefix=\"/style/$PACKNAME\">" >> $QRCFILE
 echo "    <file>style.css</file>" >> $QRCFILE
+echo "    <file>palette.ini</file>" >> $QRCFILE
 
 OutputPng() {
   echo Creating $2...

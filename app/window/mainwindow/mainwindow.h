@@ -23,6 +23,7 @@
 
 #include <QMainWindow>
 
+#include "mainwindowlayoutinfo.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -30,6 +31,7 @@
 #include "panel/param/param.h"
 #include "panel/project/project.h"
 #include "panel/scope/scope.h"
+#include "panel/table/table.h"
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
@@ -54,11 +56,11 @@ public:
 
   virtual ~MainWindow() override;
 
-  void LoadLayout(QXmlStreamReader* reader, XMLNodeData& xml_data);
+  void LoadLayout(const MainWindowLayoutInfo &info);
 
-  void SaveLayout(QXmlStreamWriter* writer) const;
+  MainWindowLayoutInfo SaveLayout() const;
 
-  void OpenSequence(Sequence* sequence);
+  TimelinePanel *OpenSequence(Sequence* sequence, bool enable_focus = true);
 
   void CloseSequence(Sequence* sequence);
 
@@ -70,11 +72,26 @@ public:
 
   CurvePanel* AppendCurvePanel();
 
-#ifdef Q_OS_WINDOWS
-  void SetTaskbarButtonState(TBPFLAG flags);
+  enum ProgressStatus {
+    kProgressNone,
+    kProgressShow,
+    kProgressError
+  };
 
-  void SetTaskbarButtonProgress(int value, int max);
-#endif
+  /**
+   * @brief Where applicable, show progress on an operating system level
+   *
+   * * For Windows, this is shown as progress in the taskbar.
+   * * For macOS, this is shown as progress in the dock.
+   */
+  void SetApplicationProgressStatus(ProgressStatus status);
+
+  /**
+   * @brief If SetApplicationProgressStatus is set to kShowProgress, set the value with this
+   *
+   * Expects a percentage (0-100 inclusive).
+   */
+  void SetApplicationProgressValue(int value);
 
 public slots:
   void ProjectOpen(Project *p);
@@ -88,6 +105,8 @@ public slots:
   void SetDefaultLayout();
 
 protected:
+  virtual void showEvent(QShowEvent* e) override;
+
   virtual void closeEvent(QCloseEvent* e) override;
 
 #ifdef Q_OS_WINDOWS
@@ -130,6 +149,7 @@ private:
   QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
+  NodeTablePanel* table_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -148,9 +168,11 @@ private slots:
 
   void FloatingPanelCloseRequested();
 
-  void LoadLayoutInternal(QXmlStreamReader* reader, XMLNodeData *xml_data);
-
   void StatusBarDoubleClicked();
+
+#ifdef Q_OS_LINUX
+  void ShowNouveauWarning();
+#endif
 
 };
 

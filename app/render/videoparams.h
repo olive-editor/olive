@@ -27,46 +27,107 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class VideoParams
-{
+class VideoParams {
 public:
+  enum Interlacing {
+    kInterlaceNone,
+    kInterlacedTopFirst,
+    kInterlacedBottomFirst
+  };
+
   VideoParams();
-  VideoParams(const int& width, const int& height, const rational& time_base);
+  VideoParams(const int& width, const int& height, const PixelFormat::Format& format,
+              const rational& pixel_aspect_ratio = 1,
+              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
+  VideoParams(const int& width, const int& height, const rational& time_base,
+              const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
+              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
 
-  const int& width() const;
-  const int& height() const;
-  const rational& time_base() const;
+  const int& width() const
+  {
+    return width_;
+  }
 
-private:
-  int width_;
-  int height_;
-  rational time_base_;
+  const int& height() const
+  {
+    return height_;
+  }
 
-};
+  const rational& time_base() const
+  {
+    return time_base_;
+  }
 
-class VideoRenderingParams : public VideoParams {
-public:
-  VideoRenderingParams();
-  VideoRenderingParams(const int& width, const int& height, const PixelFormat::Format& format, const int& divider = 1);
-  VideoRenderingParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
-  VideoRenderingParams(const VideoParams& params, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
+  const int& divider() const
+  {
+    return divider_;
+  }
 
-  const int& divider() const;
-  const int& effective_width() const;
-  const int& effective_height() const;
+  const int& effective_width() const
+  {
+    return effective_width_;
+  }
+
+  const int& effective_height() const
+  {
+    return effective_height_;
+  }
+
+  const PixelFormat::Format& format() const
+  {
+    return format_;
+  }
+
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
+  static int generate_auto_divider(qint64 width, qint64 height);
 
   bool is_valid() const;
-  const PixelFormat::Format& format() const;
-  const RenderMode::Mode& mode() const;
 
-  bool operator==(const VideoRenderingParams& rhs) const;
-  bool operator!=(const VideoRenderingParams& rhs) const;
+  bool operator==(const VideoParams& rhs) const;
+  bool operator!=(const VideoParams& rhs) const;
+
+  static const rational kPixelAspectSquare;
+  static const rational kPixelAspectNTSCStandard;
+  static const rational kPixelAspectNTSCWidescreen;
+  static const rational kPixelAspectPALStandard;
+  static const rational kPixelAspectPALWidescreen;
+  static const rational kPixelAspect1080Anamorphic;
+
+  static const QVector<rational> kSupportedFrameRates;
+  static const QVector<rational> kStandardPixelAspects;
+  static const QVector<int> kSupportedDividers;
+
+  /**
+   * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
+   */
+  static QString FrameRateToString(const rational& frame_rate);
+
+  static QStringList GetStandardPixelAspectRatioNames();
+  static QString FormatPixelAspectRatioString(const QString& format, const rational& ratio);
 
 private:
   void calculate_effective_size();
 
+  void validate_pixel_aspect_ratio();
+
+  int width_;
+  int height_;
+  rational time_base_;
+
   PixelFormat::Format format_;
-  RenderMode::Mode mode_;
+
+  rational pixel_aspect_ratio_;
+
+  Interlacing interlacing_;
 
   int divider_;
   int effective_width_;
@@ -74,5 +135,8 @@ private:
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams)
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams::Interlacing)
 
 #endif // VIDEOPARAMS_H

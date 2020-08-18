@@ -35,6 +35,9 @@ TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
 
   // Connect task view to the task manager
   connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
+  connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_, &TaskView::RemoveTask);
+  connect(TaskManager::instance(), &TaskManager::TaskFailed, view_, &TaskView::TaskFailed);
+  connect(view_, &TaskView::TaskCancelled, TaskManager::instance(), &TaskManager::CancelTask);
 
   // Set strings
   Retranslate();

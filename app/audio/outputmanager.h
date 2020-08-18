@@ -59,7 +59,7 @@ public slots:
   void ResetToPushMode();
 
   // Queued
-  void SetParameters(OLIVE_NAMESPACE::AudioRenderingParams params);
+  void SetParameters(OLIVE_NAMESPACE::AudioParams params);
 
   // Queued
   void Close();

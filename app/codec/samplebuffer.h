@@ -46,21 +46,20 @@ public:
   virtual ~SampleBuffer();
 
   static SampleBufferPtr Create();
-  static SampleBufferPtr CreateAllocated(const AudioRenderingParams& audio_params, int samples_per_channel);
-  static SampleBufferPtr CreateFromPackedData(const AudioRenderingParams& audio_params, const QByteArray& bytes);
+  static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
+  static SampleBufferPtr CreateFromPackedData(const AudioParams& audio_params, const QByteArray& bytes);
 
   DISABLE_COPY_MOVE(SampleBuffer)
 
-  const AudioRenderingParams& audio_params() const;
-  void set_audio_params(const AudioRenderingParams& params);
+  const AudioParams& audio_params() const;
+  void set_audio_params(const AudioParams& params);
 
-  const int &sample_count_per_channel() const;
-  void set_sample_count_per_channel(const int &sample_count_per_channel);
+  const int &sample_count() const;
+  void set_sample_count(const int &sample_count);
 
   float** data();
   const float** const_data() const;
   float* channel_data(int channel);
-  float* sample_data(int index);
 
   bool is_allocated() const;
   void allocate();
@@ -68,6 +67,10 @@ public:
 
   void reverse();
   void speed(double speed);
+  void transform_volume(float f);
+  void transform_volume_for_channel(int channel, float volume);
+  void transform_volume_for_sample(int sample_index, float volume);
+  void transform_volume_for_sample_on_channel(int sample_index, int channel, float volume);
 
   void fill(const float& f);
   void fill(const float& f, int start_sample, int end_sample);
@@ -82,7 +85,7 @@ private:
 
   static void destroy_sample_buffer(float*** data, int nb_channels);
 
-  AudioRenderingParams audio_params_;
+  AudioParams audio_params_;
 
   int sample_count_per_channel_;
 

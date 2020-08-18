@@ -30,6 +30,7 @@ OLIVE_NAMESPACE_ENTER
 
 class CurveView : public KeyframeViewBase
 {
+  Q_OBJECT
 public:
   CurveView(QWidget* parent = nullptr);
 
@@ -39,8 +40,12 @@ public:
 
   void SetTrackCount(int count);
 
+  void SetTrackVisible(int track, bool visible);
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
+
+  void ZoomToFit();
 
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
@@ -53,10 +58,13 @@ protected:
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
+  virtual void ContextMenuEvent(Menu &m) override;
+
 private:
   QList<NodeKeyframe*> GetKeyframesSortedByTime(int track);
 
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
+  qreal GetItemYFromKeyframeValue(double value);
 
   void SetItemYFromKeyframeValue(NodeKeyframe* key, KeyframeViewItem* item);
 
@@ -75,6 +83,8 @@ private:
   QList<QGraphicsLineItem*> lines_;
 
   QList<BezierControlPointItem*> bezier_control_points_;
+
+  QVector<bool> track_visible_;
 
   int track_count_;
 

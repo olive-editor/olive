@@ -63,7 +63,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
 
       // Check if the speeds are different
       if (same_speed
-          && prev_clip->speed() == this_clip->speed()) {
+          && qAbs(prev_clip->speed()) != qAbs(this_clip->speed())) {
         same_speed = false;
       }
 
@@ -98,7 +98,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
 
     if (same_speed) {
       // All clips share the same speed so we can show the value
-      speed_slider_->SetValue(clips_.first()->speed().toDouble());
+      speed_slider_->SetValue(qAbs(clips_.first()->speed().toDouble()));
     } else {
       // Else, we show an invalid initial state
       speed_slider_->SetTristate();
@@ -130,8 +130,8 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     speed_layout->addWidget(link_speed_and_duration_, row, 0, 1, 2);
 
     // Pick up when the speed or duration slider changes so we can programmatically link them
-    connect(speed_slider_, SIGNAL(ValueChanged(double)), this, SLOT(SpeedChanged()));
-    connect(duration_slider_, SIGNAL(ValueChanged(int64_t)), this, SLOT(DurationChanged()));
+    connect(speed_slider_, &FloatSlider::ValueChanged, this, &SpeedDurationDialog::SpeedChanged);
+    connect(duration_slider_, &TimeSlider::ValueChanged, this, &SpeedDurationDialog::DurationChanged);
 
     reverse_speed_checkbox_ = new QCheckBox(tr("Reverse Speed"));
     if (all_reversed) {
@@ -151,27 +151,19 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
   layout->addWidget(buttons);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &SpeedDurationDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &SpeedDurationDialog::reject);
 }
 
 void SpeedDurationDialog::accept()
 {
-  if (duration_slider_->IsTristate() && speed_slider_->IsTristate()) {
-    // Nothing to be done
-    QDialog::accept();
-    return;
-  }
-
   QUndoCommand* command = new QUndoCommand();
 
+  bool change_duration = !duration_slider_->IsTristate() || (!speed_slider_->IsTristate() && link_speed_and_duration_->isChecked());
+  bool change_speed = !speed_slider_->IsTristate() || (!duration_slider_->IsTristate() && link_speed_and_duration_->isChecked());
+
   foreach (ClipBlock* clip, clips_) {
-    bool change_duration = !duration_slider_->IsTristate() || link_speed_and_duration_->isChecked();
-    bool change_speed = !speed_slider_->IsTristate() || link_speed_and_duration_->isChecked();
-
     double new_speed = speed_slider_->GetValue();
-
-    rational new_clip_length = clip->length();
 
     if (change_duration) {
       // Change the duration
@@ -194,55 +186,34 @@ void SpeedDurationDialog::accept()
       }
 
       if (new_duration != current_duration) {
-        new_clip_length = Timecode::timestamp_to_time(new_duration, timebase_);
-        Block* next_block = clip->next();
+        // Calculate new clip length
+        rational new_clip_length = Timecode::timestamp_to_time(new_duration, timebase_);
 
-        // If "ripple clips" isn't checked, we need to calculate around the timeline as-is
-        if (!ripple_clips_checkbox_->isChecked()
-            && next_block) {
+        if (ripple_clips_checkbox_->isChecked()) {
 
-          if (new_clip_length > clip->length()) {
+          // FIXME: Make this a REAL ripple...
+          new BlockResizeCommand(clip, new_clip_length, command);
 
-            // Check if next clip is a gap, and if so we can take it all up
-            if (next_block->type() == Block::kGap) {
-              new_clip_length = qMin(next_block->out(), clip->in() + new_clip_length);
+        } else {
 
-              // If we're taking up the entire clip, we'll just remove it
-              if (new_clip_length == next_block->out()) {
-                new TrackRippleRemoveBlockCommand(TrackOutput::TrackFromBlock(next_block), next_block, command);
-
-                // Delete node and its exclusive deps
-                new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(next_block->parent()), next_block, command);
+          // If "ripple clips" isn't checked, we may be limited to how much we can change the length
+          Block* next_block = clip->next();
+          if (next_block) {
+            if (new_clip_length > clip->length()) {
+              if (next_block->type() == Block::kGap) {
+                // Check if next clip is a gap, and if so we can take it all up
+                new_clip_length = qMin(next_block->out(), clip->in() + new_clip_length);
               } else {
-                // Otherwise we can just resize it
-                new BlockResizeCommand(next_block, next_block->out() - new_clip_length, command);
+                // Otherwise we can't extend any further
+                new_clip_length = clip->length();
               }
-
-            } else {
-              // Otherwise we can't extend any further
-              new_clip_length = clip->length();
-            }
-
-          } else if (new_clip_length < clip->length()) {
-
-            // If we're not rippling these clips, we'll need to insert a gap (unless the clip is already at the end)
-            rational gap_length = clip->length() - new_clip_length;
-
-            if (next_block->type() == Block::kGap) {
-              // If we've already got a gap here, we can just resize it
-              new BlockResizeCommand(next_block, next_block->length() + gap_length, command);
-            } else {
-              // Otherwise we have to create a new gap
-              GapBlock* gap = new GapBlock();
-              gap->set_length_and_media_out(gap_length);
-              new NodeAddCommand(static_cast<NodeGraph*>(clip->parent()), gap, command);
-              new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(clip), gap, clip, command);
             }
           }
-        }
 
-        if (new_clip_length != clip->length()) {
-          new BlockResizeCommand(clip, new_clip_length, command);
+          if (new_clip_length != clip->length()) {
+            new BlockTrimCommand(TrackOutput::TrackFromBlock(clip), clip, new_clip_length, Timeline::kTrimOut, command);
+          }
+
         }
       }
     }
@@ -254,12 +225,12 @@ void SpeedDurationDialog::accept()
         new_block_speed = -new_block_speed;
       }
 
-      // Change the speed by calculating the appropriate media out point for this clip
-
+      // Change the speed
       new BlockSetSpeedCommand(clip, new_block_speed, command);
     }
 
-    if (!reverse_speed_checkbox_->isTristate() && clip->is_reversed() != reverse_speed_checkbox_->isChecked()) {
+    if (!reverse_speed_checkbox_->isTristate()
+        && clip->is_reversed() != reverse_speed_checkbox_->isChecked()) {
       new BlockReverseCommand(clip, command);
     }
   }
@@ -274,7 +245,7 @@ double SpeedDurationDialog::GetUnadjustedLengthTimestamp(ClipBlock *clip) const
   double duration = static_cast<double>(Timecode::time_to_timestamp(clip->length(), timebase_));
 
   // Convert duration to non-speed adjusted duration
-  duration *= clip->speed().toDouble();
+  duration *= qAbs(clip->speed().toDouble());
 
   return duration;
 }

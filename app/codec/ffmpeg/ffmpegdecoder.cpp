@@ -42,7 +42,7 @@ extern "C" {
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
-#include "render/backend/videorenderframecache.h"
+#include "render/framehashcache.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 
@@ -52,7 +52,8 @@ QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instance_map_;
 QMutex FFmpegDecoder::instance_map_lock_;
 QHash< Stream*, FFmpegFramePool* > FFmpegDecoder::frame_pool_map_;
 
-// FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
+// FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+//        this a dynamic value somehow or a configurable value?
 const int FFmpegDecoderInstance::kMaxFrameLife = 2000;
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -86,19 +87,20 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
-  if (stream()->type() == Stream::kVideo) {
+  if (stream()->type() == Stream::kImage || stream()->type() == Stream::kVideo) {
     // Get an Olive compatible AVPixelFormat
     src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
 
-    {
+    if (stream()->type() == Stream::kVideo) {
       QMutexLocker map_locker(&instance_map_lock_);
 
-      // FIXME: Test code, this should be changed later
       FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
 
       if (!frame_pool) {
-        frame_pool = new FFmpegFramePool(256,
+        // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
+        //        this a dynamic value somehow or a configurable value?
+        frame_pool = new FFmpegFramePool(32,
                                          our_instance->stream()->codecpar->width,
                                          our_instance->stream()->codecpar->height,
                                          static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format));
@@ -106,7 +108,6 @@ bool FFmpegDecoder::Open()
       }
 
       our_instance->SetFramePool(frame_pool);
-      // End test code
     }
 
     // Determine which Olive native pixel format we retrieved
@@ -114,8 +115,6 @@ bool FFmpegDecoder::Open()
     native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
 
     Q_ASSERT(native_pix_fmt_ != PixelFormat::PIX_FMT_INVALID);
-
-    aspect_ratio_ = our_instance->sample_aspect_ratio();
   }
 
   time_base_ = our_instance->stream()->time_base;
@@ -135,7 +134,7 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider, bool use_proxies)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -144,216 +143,183 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
     return nullptr;
   }
 
-  if (stream()->type() != Stream::kVideo) {
+  if (stream()->type() != Stream::kImage && stream()->type() != Stream::kVideo) {
     return nullptr;
   }
 
-  int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
+  ImageStreamPtr is = std::static_pointer_cast<ImageStream>(stream());
 
-  VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
+  if (stream()->type() == Stream::kImage) {
 
-  if (use_proxies && vs->using_proxy()) {
-    QString proxy_fn = GetProxyFilename(vs->using_proxy());
+    // FIXME: Hacky
+    FFmpegDecoderInstance i(stream()->footage()->filename().toUtf8(), stream()->index());
 
-    int64_t index_ts = vs->get_closest_timestamp_in_frame_index(target_ts);
+    AVPacket* pkt = av_packet_alloc();
+    AVFrame* frame = av_frame_alloc();
+    FramePtr output_frame = nullptr;
 
-    if (target_ts > -1) {
-      // Use this timestamp instead - even if we fall through to decoding manually, it'll be more
-      // accurate than the one we calculated earlier
-      target_ts = index_ts;
+    int ret = i.GetFrame(pkt, frame);
 
-      QString frame_filename = GetProxyFrameFilename(target_ts, vs->using_proxy());
-
-      if (QFileInfo::exists(frame_filename)) {
-        auto in = OIIO::ImageInput::open(frame_filename.toStdString());
-
-        if (in) {
-          FramePtr copy = Frame::Create();
-          copy->set_video_params(VideoRenderingParams(vs->width(),
-                                                      vs->height(),
-                                                      native_pix_fmt_,
-                                                      vs->using_proxy()));
-          copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
-          copy->set_sample_aspect_ratio(aspect_ratio_);
-          copy->allocate();
-
-          // We're running one "decoder" per thread already, no need to spawn more than that
-          in->threads(1);
-
-          in->read_image(PixelFormat::GetOIIOTypeDesc(native_pix_fmt_),
-                         copy->data(),
-                         OIIO::AutoStride,
-                         copy->linesize_bytes());
-
-          in->close();
-
-#if OIIO_VERSION < 10903
-          OIIO::ImageInput::destroy(in);
-#endif
-
-          return copy;
-        }
-      }
+    if (ret >= 0) {
+      output_frame = BuffersToNativeFrame(divider,
+                                          is->width(),
+                                          is->height(),
+                                          0,
+                                          frame->data,
+                                          frame->linesize);
+    } else {
+      qWarning() << "Failed to retrieve still image from decoder";
     }
-  }
 
-  FFmpegDecoderInstance* working_instance = nullptr;
-  FFmpegFramePool::ElementPtr return_frame = nullptr;
+    av_frame_free(&frame);
+    av_packet_free(&pkt);
 
-  // Find instance
-  do {
-    QMutexLocker list_locker(&instance_map_lock_);
+    return output_frame;
 
-    QList<FFmpegDecoderInstance*> non_ideal_contenders;
+  } else {
 
-    QList<FFmpegDecoderInstance*> instances = instance_map_.value(stream().get());
+    FFmpegFramePool::ElementPtr return_frame = nullptr;
 
-    foreach (FFmpegDecoderInstance* i, instances) {
+    int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
 
-      i->cache_lock()->lock();
+    VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
-      if (i->CacheContainsTime(target_ts)) {
+    FFmpegDecoderInstance* working_instance = nullptr;
 
-        // Found our instance, allow others to enter the list
+    // Find instance
+    do {
+      QMutexLocker list_locker(&instance_map_lock_);
 
-        list_locker.unlock();
+      QList<FFmpegDecoderInstance*> non_ideal_contenders;
 
-        // Get the frame from this cache
-        return_frame = i->GetFrameFromCache(target_ts);
+      QList<FFmpegDecoderInstance*> instances = instance_map_.value(stream().get());
 
-        // Got our frame, allow cache to continue
-        i->cache_lock()->unlock();
-        break;
+      foreach (FFmpegDecoderInstance* i, instances) {
 
-      } else if (i->CacheWillContainTime(target_ts) || i->CacheCouldContainTime(target_ts)) {
+        i->cache_lock()->lock();
 
-        // Found our instance, allow others to enter the list
-        list_locker.unlock();
+        if (i->CacheContainsTime(target_ts)) {
 
-        // If the instance is currently in use, enter into a loop of seeing from frames come up next in case one is ours
-        if (i->IsWorking()) {
+          // Found our instance, allow others to enter the list
 
-          do {
-            // Allow instance to continue to the next frame
-            i->cache_wait_cond()->wait(i->cache_lock());
+          list_locker.unlock();
 
-            // See if the cache now contains this frame, if so we'll exit this loop
-            if (i->CacheContainsTime(target_ts)) {
+          // Get the frame from this cache
+          return_frame = i->GetFrameFromCache(target_ts);
 
-              // Grab the frame
-              return_frame = i->GetFrameFromCache(target_ts);
+          // Got our frame, allow cache to continue
+          i->cache_lock()->unlock();
+          break;
 
-              // We can release this worker now since we don't need it anymore
-              i->cache_lock()->unlock();
+        } else if (i->CacheWillContainTime(target_ts) || i->CacheCouldContainTime(target_ts)) {
 
-            } else if (!i->IsWorking()) {
+          // Found our instance, allow others to enter the list
+          list_locker.unlock();
 
-              // This instance finished and we didn't get our frame, we'll take it and continue it
-              working_instance = i;
-              break;
+          // If the instance is currently in use, enter into a loop of seeing from frames come up next in case one is ours
+          if (i->IsWorking()) {
 
-            }
-          } while (!return_frame);
+            do {
+              // Allow instance to continue to the next frame
+              i->cache_wait_cond()->wait(i->cache_lock());
+
+              // See if the cache now contains this frame, if so we'll exit this loop
+              if (i->CacheContainsTime(target_ts)) {
+
+                // Grab the frame
+                return_frame = i->GetFrameFromCache(target_ts);
+
+                // We can release this worker now since we don't need it anymore
+                i->cache_lock()->unlock();
+
+              } else if (!i->IsWorking()) {
+
+                // This instance finished and we didn't get our frame, we'll take it and continue it
+                working_instance = i;
+                break;
+
+              }
+            } while (!return_frame);
+
+          } else {
+            // Otherwise, we'll grab this instance and continue it ourselves
+            working_instance = i;
+          }
+
+          break;
+
+        } else if (i->IsWorking()) {
+
+          // Ignore currently working instances
+          i->cache_lock()->unlock();
+
+        } else if (i->CacheIsEmpty()) {
+
+          // Prioritize this cache over others (leaves this instance LOCKED in case we end up using it later)
+          non_ideal_contenders.prepend(i);
 
         } else {
-          // Otherwise, we'll grab this instance and continue it ourselves
-          working_instance = i;
+
+          // De-prioritize this cache (leaves this instance LOCKED in case we end up using it later)
+          non_ideal_contenders.append(i);
+
         }
-
-        break;
-
-      } else if (i->IsWorking()) {
-
-        // Ignore currently working instances
-        i->cache_lock()->unlock();
-
-      } else if (i->CacheIsEmpty()) {
-
-        // Prioritize this cache over others (leaves this instance LOCKED in case we end up using it later)
-        non_ideal_contenders.prepend(i);
-
-      } else {
-
-        // De-prioritize this cache (leaves this instance LOCKED in case we end up using it later)
-        non_ideal_contenders.append(i);
-
       }
+
+      // If we didn't find a suitable contender, grab the first non-suitable and roll with that
+      if (!return_frame && !working_instance && !non_ideal_contenders.isEmpty()) {
+        working_instance = non_ideal_contenders.takeFirst();
+      }
+
+      // For all instances we left locked but didn't end up using, lock them now
+      foreach (FFmpegDecoderInstance* unsuitable_instance, non_ideal_contenders) {
+        unsuitable_instance->cache_lock()->unlock();
+      }
+    } while (!return_frame && !working_instance);
+
+    if (!return_frame && working_instance) {
+
+      // This instance SHOULD remain locked from our earlier loop, making this operation safe
+      working_instance->SetWorking(true);
+
+      // Retrieve frame
+      return_frame = working_instance->RetrieveFrame(target_ts, true);
+
+      // Set working to false and wake any threads waiting
+      working_instance->cache_lock()->lock();
+      working_instance->SetWorking(false);
+      working_instance->cache_wait_cond()->wakeAll();
+      working_instance->cache_lock()->unlock();
     }
 
-    // If we didn't find a suitable contender, grab the first non-suitable and roll with that
-    if (!return_frame && !working_instance && !non_ideal_contenders.isEmpty()) {
-      working_instance = non_ideal_contenders.takeFirst();
+    // We found the frame, we'll return a copy
+    if (return_frame) {
+      // Align buffer to data/linesize points that can be passed to sws_scale
+      uint8_t* input_data[4];
+      int input_linesize[4];
+
+      av_image_fill_arrays(input_data,
+                           input_linesize,
+                           reinterpret_cast<const uint8_t*>(return_frame->data()),
+                           src_pix_fmt_,
+                           vs->width(),
+                           vs->height(),
+                           1);
+
+      return BuffersToNativeFrame(divider,
+                                  vs->width(),
+                                  vs->height(),
+                                  target_ts,
+                                  input_data,
+                                  input_linesize);
     }
 
-    // For all instances we left locked but didn't end up using, lock them now
-    foreach (FFmpegDecoderInstance* unsuitable_instance, non_ideal_contenders) {
-      unsuitable_instance->cache_lock()->unlock();
-    }
-  } while (!return_frame && !working_instance);
-
-  if (!return_frame && working_instance) {
-
-    // This instance SHOULD remain locked from our earlier loop, making this operation safe
-    working_instance->SetWorking(true);
-
-    // Retrieve frame
-    return_frame = working_instance->RetrieveFrame(target_ts, true);
-
-    // Set working to false and wake any threads waiting
-    working_instance->cache_lock()->lock();
-    working_instance->SetWorking(false);
-    working_instance->cache_wait_cond()->wakeAll();
-    working_instance->cache_lock()->unlock();
-  }
-
-  // We found the frame, we'll return a copy
-  if (return_frame) {
-    if (divider != scale_divider_) {
-      FreeScaler();
-      InitScaler(divider);
-    }
-
-    // Create frame to return
-    FramePtr copy = Frame::Create();
-    copy->set_video_params(VideoRenderingParams(vs->width(),
-                                                vs->height(),
-                                                native_pix_fmt_,
-                                                divider));
-    copy->set_timestamp(Timecode::timestamp_to_time(target_ts, time_base_));
-    copy->set_sample_aspect_ratio(aspect_ratio_);
-    copy->allocate();
-
-    // Align buffer to data/linesize points that can be passed to sws_scale
-    uint8_t* input_data[4];
-    int input_linesize[4];
-
-    av_image_fill_arrays(input_data,
-                         input_linesize,
-                         reinterpret_cast<const uint8_t*>(return_frame->data()),
-                         src_pix_fmt_,
-                         vs->width(),
-                         vs->height(),
-                         1);
-
-    // Convert frame to RGB/A for the rest of the pipeline
-    uint8_t* output_data = reinterpret_cast<uint8_t*>(copy->data());
-    int output_linesize = copy->linesize_bytes();
-
-    sws_scale(scale_ctx_,
-              input_data,
-              input_linesize,
-              0,
-              vs->height(),
-              &output_data,
-              &output_linesize);
-
-    return copy;
   }
 
   return nullptr;
 }
 
-SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
+SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioParams &params)
 {
   QMutexLocker locker(&mutex_);
 
@@ -370,7 +336,7 @@ SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rat
   WaveInput input(wav_fn);
 
   if (input.open()) {
-    const AudioRenderingParams& input_params = input.params();
+    const AudioParams& input_params = input.params();
 
     // Read bytes from wav
     QByteArray packed_data = input.read(input_params.time_to_bytes(timecode), input_params.time_to_bytes(length));
@@ -481,8 +447,6 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
   AVFormatContext* fmt_ctx = nullptr;
   error_code = avformat_open_input(&fmt_ctx, filename, nullptr, nullptr);
 
-  QList<Stream*> streams_that_need_manual_duration;
-
   // Handle format context error
   if (error_code == 0) {
 
@@ -498,15 +462,83 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
       if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 
-        // Create a video stream object
-        VideoStreamPtr video_stream = std::make_shared<VideoStream>();
+        bool image_is_still = false;
+        rational pixel_aspect_ratio;
+        rational frame_rate;
+        VideoParams::Interlacing interlacing = VideoParams::kInterlaceNone;
 
-        video_stream->set_width(avstream->codecpar->width);
-        video_stream->set_height(avstream->codecpar->height);
-        video_stream->set_frame_rate(av_guess_frame_rate(fmt_ctx, avstream, nullptr));
-        video_stream->set_start_time(avstream->start_time);
+        {
+          // Read at least two frames to get more information about this video stream
+          AVPacket* pkt = av_packet_alloc();
+          AVFrame* frame = av_frame_alloc();
 
-        str = video_stream;
+          {
+            FFmpegDecoderInstance instance(filename, i);
+
+            // Read first frame and retrieve some metadata
+            if (instance.GetFrame(pkt, frame) >= 0) {
+              // Check if video is interlaced and what field dominance it has if so
+              if (frame->interlaced_frame) {
+                if (frame->top_field_first) {
+                  interlacing = VideoParams::kInterlacedTopFirst;
+                } else {
+                  interlacing = VideoParams::kInterlacedBottomFirst;
+                }
+              }
+
+              pixel_aspect_ratio = av_guess_sample_aspect_ratio(instance.fmt_ctx(),
+                                                                instance.stream(),
+                                                                frame);
+
+              frame_rate = av_guess_frame_rate(instance.fmt_ctx(),
+                                               instance.stream(),
+                                               frame);
+            }
+
+            // Read second frame
+            int ret = instance.GetFrame(pkt, frame);
+
+            if (ret >= 0) {
+              // Check if we need a manual duration
+              if (avstream->duration == AV_NOPTS_VALUE) {
+                int64_t new_dur;
+
+                do {
+                  new_dur = frame->pts;
+                } while (instance.GetFrame(pkt, frame) >= 0);
+
+                avstream->duration = new_dur;
+              }
+            } else if (ret == AVERROR_EOF) {
+              // Video has only one frame in it, treat it like a still image
+              image_is_still = true;
+            }
+          }
+
+          av_frame_free(&frame);
+          av_packet_free(&pkt);
+        }
+
+        ImageStreamPtr image_stream;
+
+        if (image_is_still) {
+          image_stream = std::make_shared<ImageStream>();
+        } else {
+          VideoStreamPtr video_stream = std::make_shared<VideoStream>();
+
+          video_stream->set_frame_rate(frame_rate);
+          video_stream->set_start_time(avstream->start_time);
+
+          image_stream = video_stream;
+        }
+
+        image_stream->set_width(avstream->codecpar->width);
+        image_stream->set_height(avstream->codecpar->height);
+        image_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
+        image_stream->set_interlacing(interlacing);
+        image_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
+
+        str = image_stream;
 
       } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
@@ -555,61 +587,11 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
       str->set_timebase(avstream->time_base);
       str->set_duration(avstream->duration);
 
-      // The container/stream info may not contain a duration, so we'll need to manually retrieve it
-      if (avstream->duration == AV_NOPTS_VALUE) {
-        streams_that_need_manual_duration.append(str.get());
-      }
-
       f->add_stream(str);
     }
 
     // As long as we can open the container and retrieve information, this was a successful probe
     result = true;
-  }
-
-  // If the metadata did not contain a duration, we'll need to loop through the file to retrieve it
-  if (!streams_that_need_manual_duration.isEmpty()) {
-
-    AVPacket* pkt = av_packet_alloc();
-
-    QVector<int64_t> durations(streams_that_need_manual_duration.size());
-    durations.fill(0);
-
-    while (true) {
-      if (cancelled && *cancelled) {
-        break;
-      }
-
-      // Ensure previous buffers are cleared
-      av_packet_unref(pkt);
-
-      // Read packet from file
-      int ret = av_read_frame(fmt_ctx, pkt);
-
-      if (ret < 0) {
-        // Handle errors that aren't EOF (which simply means the file is finished)
-        if (ret != AVERROR_EOF) {
-          qWarning() << "Error while finding duration";
-        }
-        break;
-      } else {
-        for (int i=0;i<streams_that_need_manual_duration.size();i++) {
-          if (streams_that_need_manual_duration.at(i)->index() == pkt->stream_index
-              && pkt->pts > durations.at(i)) {
-            durations.replace(i, pkt->pts);
-          }
-        }
-      }
-    }
-
-    av_packet_free(&pkt);
-
-    if (!cancelled || !*cancelled) {
-      for (int i=0;i<streams_that_need_manual_duration.size();i++) {
-        streams_that_need_manual_duration.at(i)->set_duration(durations.at(i));
-      }
-    }
-
   }
 
   // Free all memory
@@ -635,170 +617,7 @@ void FFmpegDecoder::Error(const QString &s)
   ClearResources();
 }
 
-QMutex scaler_lock;
-void SaveCacheFrame(FFmpegDecoder* decoder,
-                    SwsContext* scaler,
-                    AVFrame* frame,
-                    VideoRenderingParams params,
-                    QString dst_fn)
-{
-  QByteArray converted_buffer(PixelFormat::GetBufferSize(params.format(),
-                                                         params.width(),
-                                                         params.height()),
-                              Qt::Uninitialized);
-
-  uint8_t* converted_data = reinterpret_cast<uint8_t*>(converted_buffer.data());
-  int converted_linesize = PixelFormat::GetBufferSize(params.format(),
-                                                      params.width(),
-                                                      1);
-
-  scaler_lock.lock();
-  sws_scale(scaler,
-            frame->data,
-            frame->linesize,
-            0,
-            frame->height,
-            &converted_data,
-            &converted_linesize);
-  scaler_lock.unlock();
-
-  if (!VideoRenderFrameCache::SaveCacheFrame(dst_fn, converted_buffer.data(), params)) {
-    qCritical() <<" Failed to save cache frame" << dst_fn;
-  }
-
-  av_frame_free(&frame);
-}
-
-bool FFmpegDecoder::ProxyVideo(const QAtomicInt *cancelled, int divider)
-{
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
-
-  QString proxy_filename = GetProxyFilename(divider);
-
-  if (QFileInfo::exists(proxy_filename)) {
-
-    // A proxy of this type already exists so we can do nothing
-    QFile index_file(proxy_filename);
-    if (index_file.open(QFile::ReadOnly)) {
-      QVector<int64_t> index(index_file.size() / sizeof(int64_t));
-
-      index_file.read(reinterpret_cast<char*>(index.data()),
-                      index_file.size());
-
-      index_file.close();
-
-      video_stream->set_proxy(divider, index);
-
-      return true;
-    }
-
-  }
-
-  // Iterate each frame and transcode it to EXR
-  FFmpegDecoderInstance instance(stream()->footage()->filename().toUtf8(), stream()->index());
-
-  int ret;
-
-  AVPixelFormat src_fmt = static_cast<AVPixelFormat>(instance.stream()->codecpar->format);
-  AVPixelFormat ideal_fmt = FFmpegCommon::GetCompatiblePixelFormat(src_fmt);
-  PixelFormat::Format native_fmt = GetNativePixelFormat(ideal_fmt);
-
-  int divided_width = GetScaledDimension(instance.stream()->codecpar->width, divider);
-  int divided_height = GetScaledDimension(instance.stream()->codecpar->height, divider);
-
-  SwsContext* scaler = sws_getContext(instance.stream()->codecpar->width,
-                                      instance.stream()->codecpar->height,
-                                      src_fmt,
-                                      divided_width,
-                                      divided_height,
-                                      ideal_fmt,
-                                      SWS_FAST_BILINEAR,
-                                      nullptr,
-                                      nullptr,
-                                      0);
-
-  AVPacket* pkt = av_packet_alloc();
-  QVector<int64_t> frame_index;
-  QVector< QFuture<void> > futures;
-  int finished_futures = 0;
-
-  VideoRenderingParams converted_params(divided_width,
-                                        divided_height,
-                                        native_fmt);
-
-  bool succeeded = false;
-
-  while (true) {
-    if (cancelled && *cancelled) {
-      break;
-    }
-
-    AVFrame* frame = av_frame_alloc();
-
-    ret = instance.GetFrame(pkt, frame);
-
-    // Handle errors
-    if (ret < 0) {
-      if (ret == AVERROR_EOF) {
-        succeeded = true;
-      } else {
-        char err_str[50];
-        av_strerror(ret, err_str, 50);
-        qWarning() << "Failed to proxy:" << ret << err_str;
-      }
-
-      av_frame_free(&frame);
-      break;
-    }
-
-    frame_index.append(frame->pts);
-
-    QFuture<void> future = QtConcurrent::run(SaveCacheFrame,
-                                             this,
-                                             scaler,
-                                             frame,
-                                             converted_params,
-                                             GetProxyFrameFilename(frame->pts, divider));
-    futures.append(future);
-
-    while (finished_futures < futures.size()) {
-      if (!futures.at(finished_futures).isFinished()) {
-        SignalProcessingProgress(frame_index.at(finished_futures));
-        break;
-      }
-
-      finished_futures++;
-    }
-  }
-
-  // Wait for all conversions to finish
-  for ( ; finished_futures<futures.size(); finished_futures++) {
-    futures[finished_futures].waitForFinished();
-    SignalProcessingProgress(frame_index.at(finished_futures));
-  }
-
-  // If succeeded, update the video stream's proxy state
-  if (succeeded) {
-    QFile index_output(proxy_filename);
-
-    if (index_output.open(QFile::WriteOnly)) {
-      index_output.write(reinterpret_cast<const char*>(frame_index.constData()),
-                         frame_index.size() * sizeof(int64_t));
-
-      index_output.close();
-    }
-
-    video_stream->set_proxy(divider, frame_index);
-  }
-
-  sws_freeContext(scaler);
-
-  av_packet_free(&pkt);
-
-  return succeeded;
-}
-
-bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderingParams &p)
+bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioParams &p)
 {
   // Iterate through each audio frame and extract the PCM data
   AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
@@ -927,17 +746,6 @@ bool FFmpegDecoder::ConformAudio(const QAtomicInt *cancelled, const AudioRenderi
   return success;
 }
 
-QString FFmpegDecoder::GetIndexFilename() const
-{
-  return FileFunctions::GetMediaIndexFilename(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()))
-      .append(QString::number(stream()->index()));
-}
-
-QString FFmpegDecoder::GetProxyFilename(int divider) const
-{
-  return GetIndexFilename().append('d').append(QString::number(divider));
-}
-
 int FFmpegDecoder::GetScaledDimension(int dim, int divider)
 {
   return dim / divider;
@@ -966,6 +774,39 @@ uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
   }
 
   return av_get_default_channel_layout(stream->codecpar->channels);
+}
+
+FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height, int64_t ts, uint8_t** input_data, int* input_linesize)
+{
+  if (divider != scale_divider_) {
+    FreeScaler();
+    InitScaler(divider);
+  }
+
+  // Create frame to return
+  FramePtr copy = Frame::Create();
+  copy->set_video_params(VideoParams(width,
+                                     height,
+                                     native_pix_fmt_,
+                                     std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio(),
+                                     std::static_pointer_cast<ImageStream>(stream())->interlacing(),
+                                     divider));
+  copy->set_timestamp(Timecode::timestamp_to_time(ts, time_base_));
+  copy->allocate();
+
+  // Convert frame to RGB/A for the rest of the pipeline
+  uint8_t* output_data = reinterpret_cast<uint8_t*>(copy->data());
+  int output_linesize = copy->linesize_bytes();
+
+  sws_scale(scale_ctx_,
+            input_data,
+            input_linesize,
+            0,
+            height,
+            &output_data,
+            &output_linesize);
+
+  return copy;
 }
 
 int FFmpegDecoderInstance::GetFrame(AVPacket *pkt, AVFrame *frame)
@@ -1112,7 +953,10 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
-  cache_target_time_ = target_ts;
+  // CacheCouldContainTime uses cache_target_time_, so we'll temporarily set it to the last frame's TS
+  if (!cached_frames_.isEmpty()) {
+    cache_target_time_ = cached_frames_.last()->timestamp();
+  }
 
   // If the frame wasn't in the frame cache, see if this frame cache is too old to use
   if (!CacheCouldContainTime(target_ts)) {
@@ -1125,6 +969,8 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
 
     still_seeking = true;
   }
+
+  cache_target_time_ = target_ts;
 
   int ret;
   AVPacket* pkt = av_packet_alloc();
@@ -1177,7 +1023,11 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       // Handle an "expected" EOF by using the last frame of our cache
       cache_at_eof_ = true;
 
-      return_frame = cached_frames_.last();
+      if (cached_frames_.isEmpty()) {
+        qCritical() << "Unexpected codec EOF - unable to retrieve frame";
+      } else {
+        return_frame = cached_frames_.last();
+      }
 
       cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
@@ -1282,14 +1132,6 @@ void FFmpegDecoder::FreeScaler()
   }
 }
 
-QString FFmpegDecoder::GetProxyFrameFilename(const int64_t &timestamp, const int& divider) const
-{
-  QString dst_fn = GetProxyFilename(divider);
-  dst_fn.append(QString::number(timestamp));
-  dst_fn.append(VideoRenderFrameCache::GetFormatExtension(native_pix_fmt_));
-  return dst_fn;
-}
-
 int64_t FFmpegDecoderInstance::RangeStart() const
 {
   if (cached_frames_.isEmpty()) {
@@ -1382,16 +1224,6 @@ void FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
   }
 }
 
-rational FFmpegDecoderInstance::sample_aspect_ratio() const
-{
-  return av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr);
-}
-
-AVStream *FFmpegDecoderInstance::stream() const
-{
-  return avstream_;
-}
-
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :
   fmt_ctx_(nullptr),
   opts_(nullptr),
@@ -1406,7 +1238,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
 
   // Handle format context error
   if (error_code != 0) {
-    qDebug() << "Failed to open input:" << filename << error_code;
+    qCritical() << "Failed to open input:" << filename << error_code;
     ClearResources();
     return;
   }
@@ -1416,7 +1248,7 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
 
   // Handle get stream information error
   if (error_code < 0) {
-    qDebug() << "Failed to find stream info:" << error_code;
+    qCritical() << "Failed to find stream info:" << error_code;
     ClearResources();
     return;
   }
@@ -1463,7 +1295,9 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
   // Open codec
   error_code = avcodec_open2(codec_ctx_, codec, &opts_);
   if (error_code < 0) {
-    qDebug() << "Failed to open codec" << codec->id << error_code;
+    char buf[50];
+    av_strerror(error_code, buf, 50);
+    qCritical() << "Failed to open codec" << codec->id << error_code << buf;
     ClearResources();
     return;
   }
@@ -1473,8 +1307,8 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
     // Start clear timer
     clear_timer_ = new QTimer();
     clear_timer_->setInterval(kMaxFrameLife);
-    //clear_timer_->moveToThread(qApp->thread());
-    connect(clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent);
+    clear_timer_->moveToThread(qApp->thread());
+    connect(clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent, Qt::DirectConnection);
     QMetaObject::invokeMethod(clear_timer_, "start", Qt::QueuedConnection);
   }
 
@@ -1503,16 +1337,9 @@ void FFmpegDecoderInstance::ClearResources()
 
   // Stop timer
   if (clear_timer_) {
-
-    if (clear_timer_->thread() == QThread::currentThread()) {
-      clear_timer_->stop();
-    } else {
-      QMetaObject::invokeMethod(clear_timer_, "stop", Qt::BlockingQueuedConnection);
-    }
-
-    QMetaObject::invokeMethod(clear_timer_, "deleteLater", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(clear_timer_, "stop", Qt::QueuedConnection);
+    clear_timer_->deleteLater();
     clear_timer_ = nullptr;
-
   }
 
   if (opts_) {

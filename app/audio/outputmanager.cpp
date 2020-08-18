@@ -68,7 +68,7 @@ void AudioOutputManager::ResetToPushMode()
   }
 }
 
-void AudioOutputManager::SetParameters(AudioRenderingParams params)
+void AudioOutputManager::SetParameters(AudioParams params)
 {
   device_proxy_.SetParameters(params);
 }
@@ -82,7 +82,7 @@ void AudioOutputManager::Close()
       device_proxy_.close();
     }
 
-    delete output_;
+    output_->deleteLater();
     output_ = nullptr;
   }
 }

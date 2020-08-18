@@ -31,31 +31,27 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
-  name_input_ = new NodeInput("name_in", NodeParam::kString);
-  name_input_->SetConnectable(false);
-  name_input_->set_is_keyframable(false);
-  AddInput(name_input_);
-
   length_input_ = new NodeInput("length_in", NodeParam::kRational);
-  length_input_->SetConnectable(false);
+  length_input_->set_connectable(false);
   length_input_->set_is_keyframable(false);
   AddInput(length_input_);
+  disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
   connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
 
   media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
-  media_in_input_->SetConnectable(false);
+  media_in_input_->set_connectable(false);
   media_in_input_->set_is_keyframable(false);
   AddInput(media_in_input_);
 
   enabled_input_ = new NodeInput("enabled_in", NodeParam::kBoolean);
-  enabled_input_->SetConnectable(false);
+  enabled_input_->set_connectable(false);
   enabled_input_->set_is_keyframable(false);
   enabled_input_->set_standard_value(true);
   AddInput(enabled_input_);
 
   speed_input_ = new NodeInput("speed_in", NodeParam::kRational);
   speed_input_->set_standard_value(QVariant::fromValue(rational(1)));
-  speed_input_->SetConnectable(false);
+  speed_input_->set_connectable(false);
   speed_input_->set_is_keyframable(false);
   AddInput(speed_input_);
 
@@ -101,7 +97,11 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
-  length_input_->set_standard_value(QVariant::fromValue(length));
+  rational old_length = this->length();
+
+  set_length_internal(length);
+
+  LengthChangedEvent(old_length, length, Timeline::kTrimOut);
 }
 
 void Block::set_length_and_media_in(const rational &length)
@@ -115,8 +115,12 @@ void Block::set_length_and_media_in(const rational &length)
   // Calculate media_in adjustment
   set_media_in(media_in() + (this->length() - length) * speed());
 
+  rational old_length = this->length();
+
   // Set the length without setting media out
-  set_length_and_media_out(length);
+  set_length_internal(length);
+
+  LengthChangedEvent(old_length, length, Timeline::kTrimIn);
 }
 
 Block *Block::previous()
@@ -186,18 +190,6 @@ void Block::set_enabled(bool e)
   emit EnabledChanged();
 }
 
-QString Block::block_name() const
-{
-  return name_input_->get_standard_value().toString();
-}
-
-void Block::set_block_name(const QString &name)
-{
-  name_input_->set_standard_value(name);
-
-  emit NameChanged();
-}
-
 rational Block::SequenceToMediaTime(const rational &sequence_time) const
 {
   // These constants are not considered "values" per se, so we don't modify them
@@ -244,6 +236,15 @@ QList<NodeInput *> Block::GetInputsToHash() const
   inputs.removeOne(length_input_);
 
   return inputs;
+}
+
+void Block::LengthChangedEvent(const rational &, const rational &, const Timeline::MovementMode &)
+{
+}
+
+void Block::set_length_internal(const rational &length)
+{
+  length_input_->set_standard_value(QVariant::fromValue(length));
 }
 
 void Block::LengthInputChanged()
@@ -333,7 +334,6 @@ void Block::Retranslate()
 {
   Node::Retranslate();
 
-  name_input_->set_name(tr("Name"));
   length_input_->set_name(tr("Length"));
   media_in_input_->set_name(tr("Media In"));
   enabled_input_->set_name(tr("Enabled"));
@@ -355,19 +355,9 @@ NodeInput *Block::speed_input() const
   return speed_input_;
 }
 
-void Block::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
-{
-  // We ignore length changes since they don't have an effect on our frames
-  if (from == length_input_) {
-    return;
-  }
-
-  Node::InvalidateCache(range, from, source);
-}
-
 void Block::Hash(QCryptographicHash &, const rational &) const
 {
-  // A block does nothing by default
+  // A block does nothing by default, so we hash nothing
 }
 
 OLIVE_NAMESPACE_EXIT

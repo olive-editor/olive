@@ -38,16 +38,13 @@
 
 OLIVE_NAMESPACE_ENTER
 
-#ifdef Q_OS_LINUX
-bool ViewerDisplayWidget::nouveau_check_done_ = false;
-#endif
-
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
   signal_cursor_color_(false),
   gizmos_(nullptr),
   gizmo_click_(false),
-  last_loaded_buffer_(nullptr)
+  last_loaded_buffer_(nullptr),
+  deinterlace_(false)
 {
 }
 
@@ -90,6 +87,12 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
   update();
 }
 
+void ViewerDisplayWidget::SetDeinterlacing(bool e)
+{
+  deinterlace_ = e;
+  update();
+}
+
 const ViewerSafeMarginInfo &ViewerDisplayWidget::GetSafeMargin() const
 {
   return safe_margin_;
@@ -113,7 +116,7 @@ void ViewerDisplayWidget::SetGizmos(Node *node)
   }
 }
 
-void ViewerDisplayWidget::SetVideoParams(const VideoRenderingParams &params)
+void ViewerDisplayWidget::SetVideoParams(const VideoParams &params)
 {
   gizmo_params_ = params;
 
@@ -147,7 +150,9 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
   QOpenGLWidget::mousePressEvent(event);
 
-  emit DragStarted();
+  if (event->button() == Qt::LeftButton) {
+    emit DragStarted();
+  }
 }
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
@@ -197,21 +202,6 @@ void ViewerDisplayWidget::initializeGL()
   ManagedDisplayWidget::initializeGL();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerDisplayWidget::ContextCleanup, Qt::DirectConnection);
-
-#ifdef Q_OS_LINUX
-  if (!nouveau_check_done_) {
-    const char* vendor = reinterpret_cast<const char*>(context()->functions()->glGetString(GL_VENDOR));
-
-    if (!strcmp(vendor, "nouveau")) {
-      // Working with Qt widgets in this function segfaults, so we queue the messagebox for later
-      QMetaObject::invokeMethod(this,
-                                "ShowNouveauWarning",
-                                Qt::QueuedConnection);
-    }
-
-    nouveau_check_done_ = true;
-  }
-#endif
 }
 
 void ViewerDisplayWidget::paintGL()
@@ -229,6 +219,12 @@ void ViewerDisplayWidget::paintGL()
     // Bind retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
+    // Set some parameters
+    color_service()->pipeline()->bind();
+    color_service()->pipeline()->setUniformValue("ove_resolution", texture_.width(), texture_.height());
+    color_service()->pipeline()->setUniformValue("ove_deinterlace", deinterlace_);
+    color_service()->pipeline()->release();
+
     // Blit using the color service
     color_service()->ProcessOpenGL(true, matrix_);
 
@@ -239,7 +235,7 @@ void ViewerDisplayWidget::paintGL()
 
   // Draw gizmos if we have any
   if (gizmos_) {
-    GizmoTraverser gt;
+    GizmoTraverser gt(QSize(gizmo_params_.width(), gizmo_params_.height()));
 
     rational node_time = GetGizmoTime();
 
@@ -302,18 +298,6 @@ rational ViewerDisplayWidget::GetGizmoTime()
 {
   return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
 }
-
-#ifdef Q_OS_LINUX
-void ViewerDisplayWidget::ShowNouveauWarning()
-{
-  QMessageBox::warning(this,
-                       tr("Driver Warning"),
-                       tr("Olive has detected your system is using the Nouveau graphics driver.\n\nThis driver is "
-                          "known to have stability and performance issues with Olive. It is highly recommended "
-                          "you install the proprietary NVIDIA driver before continuing to use Olive."),
-                       QMessageBox::Ok);
-}
-#endif
 
 void ViewerDisplayWidget::ContextCleanup()
 {

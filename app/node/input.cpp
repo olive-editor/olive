@@ -81,13 +81,15 @@ QString NodeInput::name()
 
 void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  {
+    XMLAttributeLoop(reader, attr) {
+      if (cancelled && *cancelled) {
+        return;
+      }
 
-    if (attr.name() == QStringLiteral("keyframing")) {
-      set_is_keyframing(attr.value() == QStringLiteral("1"));
+      if (attr.name() == QStringLiteral("keyframing")) {
+        set_is_keyframing(attr.value() == QStringLiteral("1"));
+      }
     }
   }
 
@@ -325,17 +327,48 @@ void NodeInput::SetDefaultValue(const QVector<QVariant> &default_value)
 
 QString NodeInput::ValueToString(const QVariant &value) const
 {
-  return ValueToString(data_type_, value);
+  return ValueToString(data_type_, value, true);
 }
 
-QString NodeInput::ValueToString(const DataType& data_type, const QVariant &value)
+QString NodeInput::ValueToString(const DataType& data_type, const QVariant &value, bool value_is_a_key_track)
 {
-  switch (data_type) {
-  case kRational:
+  if (!value_is_a_key_track && data_type == kVec2) {
+    QVector2D vec = value.value<QVector2D>();
+
+    return QStringLiteral("%1:%2").arg(QString::number(vec.x()),
+                                       QString::number(vec.y()));
+  } else if (!value_is_a_key_track && data_type == kVec3) {
+    QVector3D vec = value.value<QVector3D>();
+
+    return QStringLiteral("%1:%2:%3").arg(QString::number(vec.x()),
+                                          QString::number(vec.y()),
+                                          QString::number(vec.z()));
+  } else if (!value_is_a_key_track && data_type == kVec4) {
+    QVector4D vec = value.value<QVector4D>();
+
+    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(vec.x()),
+                                             QString::number(vec.y()),
+                                             QString::number(vec.z()),
+                                             QString::number(vec.w()));
+  } else if (!value_is_a_key_track && data_type == kColor) {
+    Color c = value.value<Color>();
+
+    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(c.red()),
+                                             QString::number(c.green()),
+                                             QString::number(c.blue()),
+                                             QString::number(c.alpha()));
+  } else if (data_type == kRational) {
     return value.value<rational>().toString();
-  case kFootage:
+  } else if (data_type == kFootage) {
     return QString::number(reinterpret_cast<quintptr>(value.value<StreamPtr>().get()));
-  default:
+  } else if (data_type == kTexture
+             || data_type == kSamples
+             || data_type == kBuffer) {
+    // These data types need no XML representation
+    return QString();
+  } else if (data_type == kInt) {
+    return QString::number(value.value<int64_t>());
+  } else {
     if (value.canConvert<QString>()) {
       return value.toString();
     }
@@ -344,29 +377,40 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
       qWarning() << "Failed to convert type" << ToHex(data_type) << "to string";
     }
 
-    /* fall through */
-
-    // These data types need no XML representation
-  case kTexture:
-  case kSamples:
-  case kBuffer:
     return QString();
   }
 }
 
-QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string)
+QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string, bool value_is_a_key_track)
 {
-  switch (data_type) {
-  case kRational:
+  if (!value_is_a_key_track && data_type == kVec2) {
+    QStringList vals = string.split(':');
+
+    return QVector2D(vals.at(0).toFloat(), vals.at(1).toFloat());
+  } else if (!value_is_a_key_track && data_type == kVec3) {
+    QStringList vals = string.split(':');
+
+    return QVector3D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat());
+  } else if (!value_is_a_key_track && data_type == kVec4) {
+    QStringList vals = string.split(':');
+
+    return QVector4D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat());
+  } else if (!value_is_a_key_track && data_type == kColor) {
+    QStringList vals = string.split(':');
+
+    return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
+  } else if (data_type == kInt) {
+    return QVariant::fromValue(string.toLongLong());
+  } else if (data_type == kRational) {
     return QVariant::fromValue(rational::fromString(string));
-  default:
+  } else {
     return string;
   }
 }
 
 void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
 {
-  if (IsConnected()
+  if (is_connected()
       && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
     Node* connected = get_connected_node();
 
@@ -427,7 +471,7 @@ QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::Foot
     footage_connections.append({this, string.toULongLong()});
   }
 
-  return StringToValue(data_type_, string);
+  return StringToValue(data_type_, string, true);
 }
 
 NodeOutput *NodeInput::get_connected_output() const
@@ -970,6 +1014,11 @@ bool NodeInput::is_keyframable() const
   return keyframable_;
 }
 
+bool NodeInput::is_static() const
+{
+  return !(this->is_connected() || this->is_keyframing());
+}
+
 QVariant NodeInput::get_standard_value() const
 {
   return combine_track_values_into_normal_value(standard_value_);
@@ -1000,7 +1049,7 @@ void NodeInput::set_is_keyframable(bool k)
   keyframable_ = k;
 }
 
-void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections, bool traverse_arrays)
 {
   Q_ASSERT(source->id() == dest->id());
 
@@ -1030,8 +1079,10 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
 
     dst_array->SetSize(src_array->GetSize());
 
-    for (int i=0;i<dst_array->GetSize();i++) {
-      CopyValues(src_array->At(i), dst_array->At(i), include_connections);
+    if (traverse_arrays) {
+      for (int i=0;i<dst_array->GetSize();i++) {
+        CopyValues(src_array->At(i), dst_array->At(i), include_connections);
+      }
     }
   }
 

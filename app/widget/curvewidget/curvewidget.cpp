@@ -117,11 +117,16 @@ void CurveWidget::SetInput(NodeInput *input)
 {
   if (bridge_) {
     foreach (QWidget* bridge_widget, bridge_->widgets()) {
-      delete bridge_widget;
+      bridge_widget->deleteLater();
     }
-    delete bridge_;
+    bridge_->deleteLater();
     bridge_ = nullptr;
   }
+
+  foreach (QCheckBox* box, checkboxes_) {
+    box->deleteLater();
+  }
+  checkboxes_.clear();
 
   if (input_) {
     disconnect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
@@ -142,7 +147,15 @@ void CurveWidget::SetInput(NodeInput *input)
 
     for (int i=0;i<bridge_->widgets().size();i++) {
       // Insert between two stretches to center the widget
-      widget_bridge_layout_->insertWidget(2 + i, bridge_->widgets().at(i));
+      QCheckBox* checkbox = new QCheckBox();
+      checkbox->setChecked(true);
+      widget_bridge_layout_->insertWidget(2 + i*2, checkbox);
+      checkboxes_.append(checkbox);
+      connect(checkbox, &QCheckBox::clicked, this, [this](bool e){
+        view_->SetTrackVisible(checkboxes_.indexOf(static_cast<QCheckBox*>(sender())), e);
+      });
+
+      widget_bridge_layout_->insertWidget(2 + i*2 + 1, bridge_->widgets().at(i));
     }
 
     connect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
@@ -156,6 +169,8 @@ void CurveWidget::SetInput(NodeInput *input)
   }
 
   UpdateInputLabel();
+
+  QMetaObject::invokeMethod(view_, "ZoomToFit", Qt::QueuedConnection);
 }
 
 const double &CurveWidget::GetVerticalScale()
@@ -205,8 +220,6 @@ void CurveWidget::ScaleChangedEvent(const double &scale)
 
 void CurveWidget::TimeTargetChangedEvent(Node *target)
 {
-  ConnectViewerNode(nullptr);
-
   key_control_->SetTimeTarget(target);
 
   view_->SetTimeTarget(target);
@@ -214,12 +227,11 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
   if (bridge_) {
     bridge_->SetTimeTarget(target);
   }
+}
 
-  // FIXME: If a non-viewer node is ever set here, it will fail to update the length
-  ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(target);
-  if (viewer) {
-    ConnectViewerNode(viewer);
-  }
+void CurveWidget::ConnectedNodeChanged(ViewerOutput *n)
+{
+  SetTimeTarget(n);
 }
 
 void CurveWidget::UpdateInputLabel()

@@ -58,34 +58,26 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-Node::Capabilities VolumeNode::GetCapabilities(const NodeValueDatabase &) const
+NodeValueTable VolumeNode::Value(NodeValueDatabase &value) const
 {
-  return kSampleProcessor;
+  return ValueInternal(value,
+                       kOpMultiply,
+                       kPairSampleNumber,
+                       samples_input_,
+                       value[samples_input_].TakeWithMeta(NodeParam::kSamples),
+                       volume_input_,
+                       value[volume_input_].TakeWithMeta(NodeParam::kFloat));
 }
 
-NodeInput *VolumeNode::ProcessesSamplesFrom(const NodeValueDatabase &) const
+void VolumeNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  return samples_input_;
-}
-
-void VolumeNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
-{
-  float volume_val = values[volume_input_].Get(NodeParam::kFloat).toFloat();
-
-  for (int i=0;i<params.channel_count();i++) {
-    output->data()[i][index] = input->data()[i][index] * volume_val;
-  }
+  return ProcessSamplesInternal(values, kOpMultiply, samples_input_, volume_input_, input, output, index);
 }
 
 void VolumeNode::Retranslate()
 {
   samples_input_->set_name(tr("Samples"));
   volume_input_->set_name(tr("Volume"));
-}
-
-NodeInput *VolumeNode::samples_input() const
-{
-  return samples_input_;
 }
 
 OLIVE_NAMESPACE_EXIT

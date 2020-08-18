@@ -35,21 +35,29 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
+  enum ExportCodec {
+    kCodecEXR,
+    kCodecPNG,
+    kCodecTIFF
+  };
+
   virtual QString id() override;
 
   virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
 
   virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider, bool use_proxies) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
   virtual void Close() override;
 
   virtual bool SupportsVideo() override;
 
-  virtual QString GetIndexFilename() const override;
-
   static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
 
   static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
+
+  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
+
+  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
 
 private:
 #if OIIO_VERSION < 10903

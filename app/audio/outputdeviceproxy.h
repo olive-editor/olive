@@ -39,7 +39,7 @@ public:
 
   virtual ~AudioOutputDeviceProxy() override;
 
-  void SetParameters(const AudioRenderingParams& params);
+  void SetParameters(const AudioParams& params);
 
   void SetDevice(const QString &filename, qint64 offset, int playback_speed);
 
@@ -57,7 +57,7 @@ private:
 
   TempoProcessor tempo_processor_;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
   int playback_speed_;
 

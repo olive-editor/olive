@@ -26,47 +26,12 @@
 #include <QDialog>
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QRadioButton>
 
 #include "project/project.h"
+#include "widget/path/pathwidget.h"
 
 OLIVE_NAMESPACE_ENTER
-
-class PathWidget : public QObject
-{
-  Q_OBJECT
-public:
-  PathWidget(const QString& path,
-             QWidget* parent = nullptr);
-
-  bool PathIsValid(bool try_to_create) const;
-
-  QLineEdit* path_edit() const {
-    return path_edit_;
-  }
-
-  QCheckBox* default_box() const {
-    return default_box_;
-  }
-
-  QPushButton* browse_btn() const {
-    return browse_btn_;
-  }
-
-private slots:
-  void DefaultToggled(bool e);
-
-  void BrowseClicked();
-
-  void LineEditChanged();
-
-private:
-  QLineEdit* path_edit_;
-
-  QCheckBox* default_box_;
-
-  QPushButton* browse_btn_;
-
-};
 
 class ProjectPropertiesDialog : public QDialog
 {
@@ -90,7 +55,11 @@ private:
 
   PathWidget* cache_path_;
 
-  PathWidget* proxy_path_;
+  QRadioButton* disk_cache_use_default_btn_;
+
+  QRadioButton* disk_cache_store_alongside_project_btn_;
+
+  QRadioButton* disk_cache_use_custom_btn_;
   
 private slots:
   void BrowseForOCIOConfig();

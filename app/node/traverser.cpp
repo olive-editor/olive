@@ -38,54 +38,57 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     TimeRange input_time = node->InputTimeAdjustment(input, range);
 
-    NodeValueTable table = ProcessInput(input, input_time);
-
-    // Exception for Footage types where we actually retrieve some Footage data from a decoder
-    if (input->data_type() == NodeParam::kFootage) {
-      StreamPtr stream = ResolveStreamFromInput(input);
-
-      if (stream) {
-
-        FootageProcessingEvent(stream, input_time, &table);
-
-      }
-    }
-
-    database.Insert(input, table);
+    database.Insert(input, ProcessInput(input, input_time));
   }
 
-  // Insert global variables
-  NodeValueTable global;
-  global.Push(NodeParam::kFloat, range.in().toDouble(), QStringLiteral("time_in"));
-  global.Push(NodeParam::kFloat, range.out().toDouble(), QStringLiteral("time_out"));
-  database.Insert(QStringLiteral("global"), global);
+  AddGlobalsToDatabase(database, range);
 
   return database;
 }
 
-NodeValueTable NodeTraverser::ProcessNode(const NodeDependency& dep)
+NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& range)
 {
-  const Node* node = dep.node();
+  if (input->is_connected()) {
+    // Value will equal something from the connected node, follow it
+    return GenerateTable(input->get_connected_node(), range);
+  } else if (!input->IsArray()) {
+    // Push onto the table the value at this time from the input
+    QVariant input_value = input->get_value_at_time(range.in());
 
-  if (node->IsTrack()) {
+    NodeValueTable table;
+    table.Push(input->data_type(), input_value, input->parentNode());
+    return table;
+  }
+
+  return NodeValueTable();
+}
+
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
+{
+  if (n->IsTrack()) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
-    return RenderBlock(static_cast<const TrackOutput*>(node), dep.range());
+    return GenerateBlockTable(static_cast<const TrackOutput*>(n), range);
   }
 
   // FIXME: Cache certain values here if we've already processed them before
 
   // Generate database of input values of node
-  NodeValueDatabase database = GenerateDatabase(node, dep.range());
+  NodeValueDatabase database = GenerateDatabase(n, range);
 
   // By this point, the node should have all the inputs it needs to render correctly
-  NodeValueTable table = node->Value(database);
+  NodeValueTable table = n->Value(database);
 
-  ProcessNodeEvent(node, dep.range(), database, table);
+  PostProcessTable(n, range, table);
 
   return table;
 }
 
-NodeValueTable NodeTraverser::RenderBlock(const TrackOutput *track, const TimeRange &range)
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, const rational &out)
+{
+  return GenerateTable(n, TimeRange(in, out));
+}
+
+NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
 {
   // By default, just follow the in point
   Block* active_block = track->BlockAtTime(range.in());
@@ -93,29 +96,165 @@ NodeValueTable NodeTraverser::RenderBlock(const TrackOutput *track, const TimeRa
   NodeValueTable table;
 
   if (active_block) {
-    table = ProcessNode(NodeDependency(active_block, range));
+    table = GenerateTable(active_block, range);
   }
 
   return table;
 }
 
-StreamPtr NodeTraverser::ResolveStreamFromInput(NodeInput *input)
+QVariant NodeTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  return input->get_standard_value().value<StreamPtr>();
+  Q_UNUSED(stream)
+  Q_UNUSED(input_time)
+
+  return QVariant();
 }
 
-NodeValueTable NodeTraverser::ProcessInput(const NodeInput *input, const TimeRange& range)
+QVariant NodeTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)
 {
-  if (input->IsConnected()) {
-    // Value will equal something from the connected node, follow it
-    return ProcessNode(NodeDependency(input->get_connected_node(), range));
-  } else {
-    // Push onto the table the value at this time from the input
-    QVariant input_value = input->get_value_at_time(range.in());
+  Q_UNUSED(stream)
+  Q_UNUSED(input_time)
 
-    NodeValueTable table;
-    table.Push(input->data_type(), input_value);
-    return table;
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(job)
+
+  return QVariant();
+}
+
+QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(time)
+
+  return QVariant();
+}
+
+void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range)
+{
+  // Insert global variables
+  NodeValueTable global;
+  global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
+  global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
+  db.Insert(QStringLiteral("global"), global);
+}
+
+void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params)
+{
+  bool got_cached_frame = false;
+
+  // Convert footage to image/sample buffers
+  QVariant cached_frame = GetCachedFrame(node, range.in());
+  if (!cached_frame.isNull()) {
+    output_params.Push(NodeParam::kTexture, cached_frame, node);
+
+    // No more to do here
+    got_cached_frame = true;
+  }
+
+  // Strip out any jobs or footage
+  QList<NodeValue> video_footage_to_retrieve;
+  QList<NodeValue> audio_footage_to_retrieve;
+  QList<NodeValue> shader_jobs_to_run;
+  QList<NodeValue> sample_jobs_to_run;
+  QList<NodeValue> generate_jobs_to_run;
+
+  for (int i=0; i<output_params.Count(); i++) {
+    const NodeValue& v = output_params.at(i);
+    QList<NodeValue>* take_this_value_list = nullptr;
+
+    if (v.type() == NodeParam::kFootage) {
+      StreamPtr s = v.data().value<StreamPtr>();
+
+      if (s) {
+        if (s->type() == Stream::kVideo
+            || s->type() == Stream::kImage) {
+          take_this_value_list = &video_footage_to_retrieve;
+        } else if (s->type() == Stream::kAudio) {
+          take_this_value_list = &audio_footage_to_retrieve;
+        }
+      }
+    } else if (v.type() == NodeParam::kShaderJob) {
+      take_this_value_list = &shader_jobs_to_run;
+    } else if (v.type() == NodeParam::kSampleJob) {
+      take_this_value_list = &sample_jobs_to_run;
+    } else if (v.type() == NodeParam::kGenerateJob) {
+      take_this_value_list = &generate_jobs_to_run;
+    }
+
+    if (take_this_value_list) {
+      take_this_value_list->append(output_params.TakeAt(i));
+      i--;
+    }
+  }
+
+  if (!got_cached_frame) {
+    // Retrieve video frames
+    foreach (const NodeValue& v, video_footage_to_retrieve) {
+      QVariant value = ProcessVideoFootage(v.data().value<StreamPtr>(), range.in());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+
+    // Run shaders
+    foreach (const NodeValue& v, shader_jobs_to_run) {
+      QVariant value = ProcessShader(node, range, v.data().value<ShaderJob>());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+
+    // Run generate jobs
+    foreach (const NodeValue& v, generate_jobs_to_run) {
+      QVariant value = ProcessFrameGeneration(node, v.data().value<GenerateJob>());
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kTexture, value, node);
+      }
+    }
+  }
+
+  // Retrieve audio samples
+  foreach (const NodeValue& v, audio_footage_to_retrieve) {
+    QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+
+    if (!value.isNull()) {
+      output_params.Push(NodeParam::kSamples, value, node);
+    }
+  }
+
+  // Run any accelerated shader jobs
+  foreach (const NodeValue& v, sample_jobs_to_run) {
+    QVariant value = ProcessSamples(node, range, v.data().value<SampleJob>());
+
+    if (!value.isNull()) {
+      output_params.Push(NodeParam::kSamples, value, node);
+    }
   }
 }
 

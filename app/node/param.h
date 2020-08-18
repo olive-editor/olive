@@ -67,7 +67,7 @@ public:
     /**
      * Integer type
      *
-     * Resolves to `int` (may resolve to `long` in the future).
+     * Resolves to int64_t.
      */
     kInt = 0x1,
 
@@ -179,6 +179,33 @@ public:
     kCombo = 0x8000,
 
     /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated shader job needs to
+     * run. This value will usually be taken from a table and a kTexture value will be pushed to
+     * take its place.
+     */
+    kShaderJob = 0x10000,
+
+    /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated sample job needs to
+     * take place. This value will usually be taken from a table and a kSamples value will be
+     * pushed to take its place.
+     */
+    kSampleJob = 0x20000,
+
+    /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated sample job needs to
+     * take place. This value will usually be taken from a table and a kSamples value will be
+     * pushed to take its place.
+     */
+    kGenerateJob = 0x40000,
+
+    /**
      ****************************** BROAD IDENTIFIERS ******************************
      */
 
@@ -277,10 +304,10 @@ public:
   /**
    * @brief Returns whether anything is connected to this parameter or not
    */
-  bool IsConnected() const;
+  bool is_connected() const;
 
-  bool IsConnectable() const;
-  void SetConnectable(bool connectable);
+  bool is_connectable() const;
+  void set_connectable(bool connectable);
 
   /**
    * @brief Return a list of edges (aka connections to other nodes)
@@ -351,17 +378,12 @@ public:
   /**
    * @brief Get a human-readable translated name for a certain data type
    */
-  static QString GetDefaultDataTypeName(const DataType &type);
+  static QString GetPrettyDataTypeName(const DataType &type);
 
   /**
    * @brief Convert a value from a NodeParam into bytes
    */
   static QByteArray ValueToBytes(const DataType &type, const QVariant& value);
-
-  /**
-   * @brief Convert a string to a data type
-   */
-  static DataType StringToDataType(const QString& s);
 
 signals:
   /**

@@ -30,15 +30,15 @@ OLIVE_NAMESPACE_ENTER
 class ConformTask : public Task
 {
 public:
-  ConformTask(AudioStreamPtr stream, const AudioRenderingParams& params);
+  ConformTask(AudioStreamPtr stream, const AudioParams& params);
 
 protected:
-  virtual void Action() override;
+  virtual bool Run() override;
 
 private:
   AudioStreamPtr stream_;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
 };
 

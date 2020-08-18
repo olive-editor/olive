@@ -28,7 +28,8 @@ const rational TimelineWorkArea::kResetIn = 0;
 const rational TimelineWorkArea::kResetOut = RATIONAL_MAX;
 
 TimelineWorkArea::TimelineWorkArea(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  workarea_enabled_(false)
 {
 }
 
@@ -61,7 +62,7 @@ void TimelineWorkArea::Load(QXmlStreamReader *reader)
 
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("enabled")) {
-      set_enabled(attr.value() != 0);
+      set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
       range_in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {

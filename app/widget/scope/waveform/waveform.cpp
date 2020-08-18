@@ -41,8 +41,10 @@ OpenGLShaderPtr WaveformScope::CreateShader()
   OpenGLShaderPtr pipeline = OpenGLShader::Create();
 
   pipeline->create();
-  pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
-  pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex,
+    Node::ReadFileAsString(":/shaders/rgbwaveform.vert"));
+  pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment,
+    Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
   pipeline->link();
 
   return pipeline;
@@ -51,12 +53,6 @@ OpenGLShaderPtr WaveformScope::CreateShader()
 void WaveformScope::DrawScope()
 {
   float waveform_scale = 0.80f;
-  float waveform_dim_x = width() * waveform_scale;
-  float waveform_dim_y = height() * waveform_scale;
-  float waveform_start_dim_x = (width() - waveform_dim_x) / 2.0f;
-  float waveform_start_dim_y = (height() - waveform_dim_y) / 2.0f;
-  float waveform_end_dim_x = width() - waveform_start_dim_x;
-  float waveform_end_dim_y = height() - waveform_start_dim_y;
 
   // Draw waveform through shader
   pipeline()->bind();
@@ -68,22 +64,6 @@ void WaveformScope::DrawScope()
 
   // Scale of the waveform relative to the viewport surface.
   pipeline()->setUniformValue("waveform_scale", waveform_scale);
-  pipeline()->setUniformValue(
-    "waveform_dims", waveform_dim_x, waveform_dim_y);
-
-  pipeline()->setUniformValue(
-    "waveform_region",
-    waveform_start_dim_x, waveform_start_dim_y,
-    waveform_end_dim_x, waveform_end_dim_y);
-
-  float waveform_start_uv_x = waveform_start_dim_x / width();
-  float waveform_start_uv_y = waveform_start_dim_y / height();
-  float waveform_end_uv_x = waveform_end_dim_x / width();
-  float waveform_end_uv_y = waveform_end_dim_y / height();
-  pipeline()->setUniformValue(
-    "waveform_uv",
-    waveform_start_uv_x, waveform_start_uv_y,
-    waveform_end_uv_x, waveform_end_uv_y);
 
   pipeline()->release();
 
@@ -93,9 +73,19 @@ void WaveformScope::DrawScope()
 
   managed_tex().Release();
 
+  float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
+  float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);
+  float waveform_start_dim_x =
+    ((width() - 1.0) - waveform_dim_x) / 2.0f;
+  float waveform_start_dim_y =
+    ((height() - 1.0) - waveform_dim_y) / 2.0f;
+  float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
+
   // Draw line overlays
   QPainter p(this);
-  QFontMetrics font_metrics = QFontMetrics(QFont());
+  QFont font;
+  font.setPixelSize(10);
+  QFontMetrics font_metrics = QFontMetrics(font);
   QString label;
   float ire_increment = 0.1f;
   int ire_steps = qRound(1.0 / ire_increment);
@@ -106,7 +96,7 @@ void WaveformScope::DrawScope()
   p.setCompositionMode(QPainter::CompositionMode_Plus);
 
   p.setPen(QColor(0.0, 0.6 * 255.0, 0.0));
-  p.setFont(QFont());
+  p.setFont(font);
 
   for (int i=0; i <= ire_steps; i++) {
     ire_lines[i].setLine(

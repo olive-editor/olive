@@ -24,15 +24,10 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-#ifdef Q_OS_MAC
-#include <ApplicationServices/ApplicationServices.h>
-#endif
-
 OLIVE_NAMESPACE_ENTER
 
 SliderLabel::SliderLabel(QWidget *parent) :
-  QLabel(parent),
-  dragging_(false)
+  QLabel(parent)
 {
   QPalette p = palette();
 
@@ -43,7 +38,7 @@ SliderLabel::SliderLabel(QWidget *parent) :
   setPalette(p);
 
   // Use highlight color as font color
-  setForegroundRole(QPalette::Highlight);
+  setForegroundRole(QPalette::Link);
 
   // Set underlined
   QFont f = font();
@@ -57,66 +52,9 @@ SliderLabel::SliderLabel(QWidget *parent) :
 void SliderLabel::mousePressEvent(QMouseEvent *e)
 {
   if (e->modifiers() & Qt::AltModifier) {
-
     emit RequestReset();
-
   } else {
-
-#if defined(Q_OS_MAC)
-    CGAssociateMouseAndMouseCursorPosition(false);
-    CGDisplayHideCursor(kCGDirectMainDisplay);
-    CGGetLastMouseDelta(nullptr, nullptr);
-#else
-    drag_start_ = QCursor::pos();
-
-    static_cast<QGuiApplication*>(QApplication::instance())->setOverrideCursor(Qt::BlankCursor);
-#endif
-
-    emit drag_start();
-
-    dragging_ = true;
-
-  }
-}
-
-void SliderLabel::mouseMoveEvent(QMouseEvent *)
-{
-  if (dragging_) {
-
-    int32_t x_mvmt, y_mvmt;
-
-    // Keep cursor in the same position
-#if defined(Q_OS_MAC)
-    CGGetLastMouseDelta(&x_mvmt, &y_mvmt);
-#else
-    QPoint current_pos = QCursor::pos();
-
-    x_mvmt = current_pos.x() - drag_start_.x();
-    y_mvmt = drag_start_.y() - current_pos.y();
-
-    QCursor::setPos(drag_start_);
-#endif
-
-    emit dragged(x_mvmt + y_mvmt);
-
-  }
-}
-
-void SliderLabel::mouseReleaseEvent(QMouseEvent *)
-{
-  if (dragging_) {
-
-#if defined(Q_OS_MAC)
-    CGAssociateMouseAndMouseCursorPosition(true);
-    CGDisplayShowCursor(kCGDirectMainDisplay);
-#else
-    static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
-#endif
-
-    emit drag_stop();
-
-    dragging_ = false;
-
+    emit LabelPressed();
   }
 }
 

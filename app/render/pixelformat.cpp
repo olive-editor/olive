@@ -164,6 +164,52 @@ PixelFormat::Format PixelFormat::OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bo
   return PixelFormat::PIX_FMT_INVALID;
 }
 
+PixelFormat::Format PixelFormat::GetFormatWithAlphaChannel(PixelFormat::Format f)
+{
+  switch (f) {
+  case PIX_FMT_INVALID:
+  case PIX_FMT_COUNT:
+    break;
+  case PIX_FMT_RGB8:
+  case PIX_FMT_RGBA8:
+    return PIX_FMT_RGBA8;
+  case PIX_FMT_RGB16U:
+  case PIX_FMT_RGBA16U:
+    return PIX_FMT_RGBA16U;
+  case PIX_FMT_RGB16F:
+  case PIX_FMT_RGBA16F:
+    return PIX_FMT_RGBA16F;
+  case PIX_FMT_RGB32F:
+  case PIX_FMT_RGBA32F:
+    return PIX_FMT_RGBA32F;
+  }
+
+  return PIX_FMT_INVALID;
+}
+
+PixelFormat::Format PixelFormat::GetFormatWithoutAlphaChannel(PixelFormat::Format f)
+{
+  switch (f) {
+  case PIX_FMT_INVALID:
+  case PIX_FMT_COUNT:
+    break;
+  case PIX_FMT_RGB8:
+  case PIX_FMT_RGBA8:
+    return PIX_FMT_RGB8;
+  case PIX_FMT_RGB16U:
+  case PIX_FMT_RGBA16U:
+    return PIX_FMT_RGB16U;
+  case PIX_FMT_RGB16F:
+  case PIX_FMT_RGBA16F:
+    return PIX_FMT_RGB16F;
+  case PIX_FMT_RGB32F:
+  case PIX_FMT_RGBA32F:
+    return PIX_FMT_RGB32F;
+  }
+
+  return PIX_FMT_INVALID;
+}
+
 int PixelFormat::GetBufferSize(const PixelFormat::Format &format, const int &width, const int &height)
 {
   return BytesPerPixel(format) * width * height;
@@ -216,9 +262,9 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
 
   // Create a destination frame with the same parameters
   FramePtr converted = Frame::Create();
-  converted->set_video_params(VideoRenderingParams(frame->video_params().width(),
-                                                   frame->video_params().height(),
-                                                   dest_format));
+  converted->set_video_params(VideoParams(frame->video_params().width(),
+                                          frame->video_params().height(),
+                                          dest_format));
   converted->set_timestamp(frame->timestamp());
   converted->allocate();
 

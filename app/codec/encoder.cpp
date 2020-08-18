@@ -25,8 +25,7 @@
 OLIVE_NAMESPACE_ENTER
 
 Encoder::Encoder(const EncodingParams &params) :
-  params_(params),
-  open_(false)
+  params_(params)
 {
 }
 
@@ -50,14 +49,14 @@ void EncodingParams::SetFilename(const QString &filename)
   filename_ = filename;
 }
 
-void EncodingParams::EnableVideo(const VideoRenderingParams &video_params, const QString &vcodec)
+void EncodingParams::EnableVideo(const VideoParams &video_params, const ExportCodec::Codec &vcodec)
 {
   video_enabled_ = true;
   video_params_ = video_params;
   video_codec_ = vcodec;
 }
 
-void EncodingParams::EnableAudio(const AudioRenderingParams &audio_params, const QString &acodec)
+void EncodingParams::EnableAudio(const AudioParams &audio_params, const ExportCodec::Codec &acodec)
 {
   audio_enabled_ = true;
   audio_params_ = audio_params;
@@ -89,6 +88,11 @@ void EncodingParams::set_video_threads(const int &threads)
   video_threads_ = threads;
 }
 
+void EncodingParams::set_video_pix_fmt(const QString &s)
+{
+  video_pix_fmt_ = s;
+}
+
 const QString &EncodingParams::filename() const
 {
   return filename_;
@@ -99,12 +103,12 @@ bool EncodingParams::video_enabled() const
   return video_enabled_;
 }
 
-const QString &EncodingParams::video_codec() const
+const ExportCodec::Codec &EncodingParams::video_codec() const
 {
   return video_codec_;
 }
 
-const VideoRenderingParams &EncodingParams::video_params() const
+const VideoParams &EncodingParams::video_params() const
 {
   return video_params_;
 }
@@ -134,17 +138,22 @@ const int &EncodingParams::video_threads() const
   return video_threads_;
 }
 
+const QString &EncodingParams::video_pix_fmt() const
+{
+  return video_pix_fmt_;
+}
+
 bool EncodingParams::audio_enabled() const
 {
   return audio_enabled_;
 }
 
-const QString &EncodingParams::audio_codec() const
+const ExportCodec::Codec &EncodingParams::audio_codec() const
 {
   return audio_codec_;
 }
 
-const AudioRenderingParams &EncodingParams::audio_params() const
+const AudioParams &EncodingParams::audio_params() const
 {
   return audio_params_;
 }
@@ -159,47 +168,64 @@ void EncodingParams::SetExportLength(const rational &export_length)
   export_length_ = export_length;
 }
 
+void EncodingParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("filename"), filename_);
+
+  writer->writeStartElement(QStringLiteral("video"));
+
+  writer->writeAttribute(QStringLiteral("enabled"), QString::number(video_enabled_));
+
+  if (video_enabled_) {
+    writer->writeTextElement(QStringLiteral("codec"), QString::number(video_codec_));
+    writer->writeTextElement(QStringLiteral("width"), QString::number(video_params_.width()));
+    writer->writeTextElement(QStringLiteral("height"), QString::number(video_params_.height()));
+    writer->writeTextElement(QStringLiteral("format"), QString::number(video_params_.format()));
+    writer->writeTextElement(QStringLiteral("timebase"), video_params_.time_base().toString());
+    writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params_.divider()));
+    writer->writeTextElement(QStringLiteral("bitrate"), QString::number(video_bit_rate_));
+    writer->writeTextElement(QStringLiteral("maxbitrate"), QString::number(video_max_bit_rate_));
+    writer->writeTextElement(QStringLiteral("bufsize"), QString::number(video_buffer_size_));
+    writer->writeTextElement(QStringLiteral("threads"), QString::number(video_threads_));
+
+    if (!video_opts_.isEmpty()) {
+      writer->writeStartElement(QStringLiteral("opts"));
+
+      QHash<QString, QString>::const_iterator i;
+      for (i=video_opts_.constBegin(); i!=video_opts_.constEnd(); i++) {
+        writer->writeStartElement(QStringLiteral("entry"));
+
+        writer->writeTextElement(QStringLiteral("key"), i.key());
+        writer->writeTextElement(QStringLiteral("value"), i.value());
+
+        writer->writeEndElement(); // entry
+      }
+
+      writer->writeEndElement(); // opts
+    }
+  }
+
+  writer->writeEndElement(); // video
+
+  writer->writeStartElement(QStringLiteral("audio"));
+
+  writer->writeAttribute(QStringLiteral("enabled"), QString::number(audio_enabled_));
+
+  if (audio_enabled_) {
+    writer->writeTextElement(QStringLiteral("codec"), QString::number(audio_codec_));
+    writer->writeTextElement(QStringLiteral("samplerate"), QString::number(audio_params_.sample_rate()));
+    writer->writeTextElement(QStringLiteral("channellayout"), QString::number(audio_params_.channel_layout()));
+    writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params_.format()));
+  }
+
+  writer->writeEndElement(); // audio
+}
+
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
 {
   Q_UNUSED(id)
   
   return new FFmpegEncoder(params);
-}
-
-bool Encoder::IsOpen() const
-{
-  return open_;
-}
-
-void Encoder::Open()
-{
-  if (!open_) {
-    open_ = OpenInternal();
-  }
-
-  if (open_) {
-    emit OpenSucceeded();
-  } else {
-    emit OpenFailed();
-  }
-}
-
-void Encoder::WriteFrame(FramePtr frame, rational time)
-{
-  if (open_) {
-    WriteInternal(frame, time);
-  }
-}
-
-void Encoder::Close()
-{
-  if (open_) {
-    CloseInternal();
-
-    open_ = false;
-  }
-
-  emit Closed();
 }
 
 OLIVE_NAMESPACE_EXIT

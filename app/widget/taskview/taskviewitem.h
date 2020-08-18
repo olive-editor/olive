@@ -24,8 +24,10 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QStackedWidget>
 #include <QWidget>
 
+#include "elapsedcounterwidget.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -45,13 +47,24 @@ class TaskViewItem : public QFrame
 public:
   TaskViewItem(Task *task, QWidget* parent = nullptr);
 
+  void Failed();
+
+signals:
+  void TaskCancelled(Task* t);
+
 private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;
   QPushButton* cancel_btn_;
-  QLabel* task_status_lbl_;
+
+  QStackedWidget* status_stack_;
+  ElapsedCounterWidget* elapsed_timer_lbl_;
+  QLabel* task_error_lbl_;
 
   Task* task_;
+
+private slots:
+  void UpdateProgress(double d);
 
 };
 

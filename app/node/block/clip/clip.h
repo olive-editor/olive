@@ -56,9 +56,6 @@ public:
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
-signals:
-  void PreviewUpdated();
-
 private:
   NodeInput* texture_input_;
 

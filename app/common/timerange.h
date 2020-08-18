@@ -43,9 +43,18 @@ public:
 
   bool OverlapsWith(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
   bool Contains(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
+  bool Contains(const rational& r) const;
 
-  TimeRange CombineWith(const TimeRange& a) const;
+  TimeRange Combined(const TimeRange& a) const;
   static TimeRange Combine(const TimeRange &a, const TimeRange &b);
+  TimeRange Intersected(const TimeRange& a) const;
+  static TimeRange Intersect(const TimeRange &a, const TimeRange &b);
+
+  TimeRange operator+(const rational& rhs) const;
+  TimeRange operator-(const rational& rhs) const;
+
+  const TimeRange& operator+=(const rational &rhs);
+  const TimeRange& operator-=(const rational &rhs);
 
 private:
   void normalize();
@@ -60,13 +69,18 @@ class TimeRangeList : public QList<TimeRange> {
 public:
   TimeRangeList() = default;
 
+  TimeRangeList(std::initializer_list<TimeRange> r) :
+    QList<TimeRange>(r)
+  {
+  }
+
   void InsertTimeRange(const TimeRange& range);
 
-  void RemoveTimeRange(const TimeRange& range);
+  void RemoveTimeRange(const TimeRange& remove);
 
   bool ContainsTimeRange(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
-  TimeRangeList Intersects(const TimeRange& range);
+  TimeRangeList Intersects(const TimeRange& range) const;
 
 private:
   void PrintTimeList();

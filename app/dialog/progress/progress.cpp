@@ -21,8 +21,11 @@
 #include "progress.h"
 
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -43,6 +46,9 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
   bar_->setMaximum(100);
   layout->addWidget(bar_);
 
+  elapsed_timer_lbl_ = new ElapsedCounterWidget();
+  layout->addWidget(elapsed_timer_lbl_);
+
   QHBoxLayout* cancel_layout = new QHBoxLayout();
   layout->addLayout(cancel_layout);
   cancel_layout->setMargin(0);
@@ -56,9 +62,43 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
   cancel_layout->addStretch();
 }
 
-void ProgressDialog::SetProgress(int value)
+void ProgressDialog::showEvent(QShowEvent *e)
 {
-  bar_->setValue(value);
+  QDialog::showEvent(e);
+
+  elapsed_timer_lbl_->Start();
+
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressShow);
+}
+
+void ProgressDialog::closeEvent(QCloseEvent *e)
+{
+  QDialog::closeEvent(e);
+
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressNone);
+}
+
+void ProgressDialog::SetProgress(double value)
+{
+  int percent = qRound(100.0 * value);
+
+  bar_->setValue(percent);
+  elapsed_timer_lbl_->SetProgress(value);
+
+  Core::instance()->main_window()->SetApplicationProgressValue(percent);
+}
+
+void ProgressDialog::ShowErrorMessage(const QString &title, const QString &message)
+{
+  Core::instance()->main_window()->SetApplicationProgressStatus(MainWindow::kProgressError);
+
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Critical);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(title);
+  b.setText(message);
+  b.addButton(QMessageBox::Ok);
+  b.exec();
 }
 
 OLIVE_NAMESPACE_EXIT

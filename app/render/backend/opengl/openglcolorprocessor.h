@@ -62,6 +62,8 @@ private slots:
 
 };
 
+using OpenGLColorProcessorCache = QHash<QString, OpenGLColorProcessorPtr>;
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // OPENGLCOLORPROCESSOR_H

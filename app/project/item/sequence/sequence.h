@@ -64,8 +64,8 @@ public:
   virtual QString duration() override;
   virtual QString rate() override;
 
-  const VideoParams& video_params() const;
-  void set_video_params(const VideoParams& vparam);
+  const VideoParams &video_params() const;
+  void set_video_params(const VideoParams &vparam);
 
   const AudioParams& audio_params() const;
   void set_audio_params(const AudioParams& params);

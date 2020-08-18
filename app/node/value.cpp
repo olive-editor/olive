@@ -32,16 +32,6 @@ NodeValueTable& NodeValueDatabase::operator[](const NodeInput *input)
   return tables_[input->id()];
 }
 
-const NodeValueTable NodeValueDatabase::operator[](const QString &input_id) const
-{
-  return tables_[input_id];
-}
-
-const NodeValueTable NodeValueDatabase::operator[](const NodeInput *input) const
-{
-  return tables_[input->id()];
-}
-
 void NodeValueDatabase::Insert(const QString &key, const NodeValueTable &value)
 {
   tables_.insert(key, value);
@@ -54,34 +44,31 @@ void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
-  return NodeValueTable::Merge(tables_.values());
+  QHash<QString, NodeValueTable> copy = tables_;
+
+  // Kinda hacky, but we don't need this table to slipstream
+  copy.remove(QStringLiteral("global"));
+
+  return NodeValueTable::Merge(copy.values());
 }
 
-NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, const QString &tag) :
+NodeValue::NodeValue() :
+  type_(NodeParam::kNone),
+  from_(nullptr)
+{
+}
+
+NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, const Node *from, const QString &tag) :
   type_(type),
   data_(data),
+  from_(from),
   tag_(tag)
 {
-}
-
-const NodeParam::DataType &NodeValue::type() const
-{
-  return type_;
-}
-
-const QString &NodeValue::tag() const
-{
-  return tag_;
 }
 
 bool NodeValue::operator==(const NodeValue &rhs) const
 {
   return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
-}
-
-const QVariant &NodeValue::data() const
-{
-  return data_;
 }
 
 QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag) const
@@ -97,7 +84,7 @@ NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QSt
     return values_.at(value_index);
   }
 
-  return NodeValue(NodeParam::kNone, QVariant());
+  return NodeValue();
 }
 
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
@@ -113,7 +100,7 @@ NodeValue NodeValueTable::TakeWithMeta(const NodeParam::DataType &type, const QS
     return values_.takeAt(value_index);
   }
 
-  return NodeValue(NodeParam::kNone, QVariant());
+  return NodeValue();
 }
 
 void NodeValueTable::Push(const NodeValue &value)
@@ -121,9 +108,9 @@ void NodeValueTable::Push(const NodeValue &value)
   values_.append(value);
 }
 
-void NodeValueTable::Push(const NodeParam::DataType &type, const QVariant &data, const QString &tag)
+void NodeValueTable::Push(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
 {
-  Push(NodeValue(type, data, tag));
+  Push(NodeValue(type, data, from, tag));
 }
 
 void NodeValueTable::Prepend(const NodeValue &value)
@@ -131,12 +118,12 @@ void NodeValueTable::Prepend(const NodeValue &value)
   values_.prepend(value);
 }
 
-void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &data, const QString &tag)
+void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
 {
-  Prepend(NodeValue(type, data, tag));
+  Prepend(NodeValue(type, data, from, tag));
 }
 
-const NodeValue &NodeValueTable::At(int index) const
+const NodeValue &NodeValueTable::at(int index) const
 {
   return values_.at(index);
 }
@@ -194,7 +181,6 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   NodeValueTable merged_table;
 
   // Slipstreams all tables together
-  // FIXME: I don't actually know if this is the right approach...
   foreach (const NodeValueTable& t, tables) {
     if (row >= t.Count()) {
       continue;
@@ -202,7 +188,7 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
 
     int row_index = t.Count() - 1 - row;
 
-    merged_table.Prepend(t.At(row_index));
+    merged_table.Prepend(t.at(row_index));
   }
 
   return merged_table;

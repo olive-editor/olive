@@ -39,13 +39,13 @@ public:
   virtual ~AudioMonitor() override;
 
 public slots:
-  void SetParams(const AudioRenderingParams& params);
+  void SetParams(const AudioParams& params);
 
   void OutputDeviceSet(const QString& filename, qint64 offset, int playback_speed);
 
   void Stop();
 
-  void OutputPushed(const QByteArray& data);
+  void OutputPushed(const QByteArray& d);
 
 protected:
   //virtual void paintEvent(QPaintEvent* event) override;
@@ -64,7 +64,7 @@ private:
 
   QVector<double> GetAverages() const;
 
-  AudioRenderingParams params_;
+  AudioParams params_;
 
   QFile file_;
   qint64 last_time_;

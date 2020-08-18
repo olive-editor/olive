@@ -29,7 +29,9 @@
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
+#include "common/filefunctions.h"
 #include "task/taskmanager.h"
+#include "project/project.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -57,12 +59,12 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/, bool /*use_proxies*/)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/)
 {
   return nullptr;
 }
 
-SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
+SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioParams &/*params*/)
 {
   return nullptr;
 }
@@ -161,126 +163,7 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-/*void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
-{
-  if (stream()->type() != Stream::kAudio) {
-    // Nothing to be done
-    return;
-  }
-
-  // Get indexed WAV file
-  WaveInput input(GetIndexFilename());
-
-  // FIXME: No handling if input failed to open/is corrupt
-  if (input.open()) {
-    // If the parameters are equal, nothing to be done
-    // FIXME: Technically we only need to conform if the SAMPLE RATE is not equal. Format and channel layout conversion
-    //        could be done on the fly so we could perhaps conform less often at some point.
-    if (input.params() == params) {
-      input.close();
-      return;
-    }
-
-    // Otherwise, let's start converting the format
-    QMutexLocker locker(stream()->index_process_lock());
-
-    // Generate destination filename for this conversion to see if it exists
-    QString conformed_fn = GetConformedFilename(params);
-
-    if (QFileInfo::exists(conformed_fn)) {
-      // We must have already conformed this format
-      std::static_pointer_cast<AudioStream>(stream())->append_conformed_version(params);
-      input.close();
-      return;
-    }
-
-    // Set up resampler
-    SwrContext* resampler = swr_alloc_set_opts(nullptr,
-                                               static_cast<int64_t>(params.channel_layout()),
-                                               FFmpegCommon::GetFFmpegSampleFormat(params.format()),
-                                               params.sample_rate(),
-                                               static_cast<int64_t>(input.params().channel_layout()),
-                                               FFmpegCommon::GetFFmpegSampleFormat(input.params().format()),
-                                               input.params().sample_rate(),
-                                               0,
-                                               nullptr);
-
-    swr_init(resampler);
-
-    WaveOutput conformed_output(conformed_fn, params);
-    if (!conformed_output.open()) {
-      qWarning() << "Failed to open conformed output:" << conformed_fn;
-      input.close();
-      return;
-    }
-
-    // Convert one second of audio at a time
-    int input_buffer_sz = input.params().time_to_bytes(1);
-
-    int read_count = 0;
-
-    while (!input.at_end()) {
-      if (cancelled && *cancelled) {
-        break;
-      }
-
-      // Read up to one second of audio from WAV file
-      QByteArray read_samples = input.read(input_buffer_sz);
-
-      // Determine how many samples this is
-      int in_sample_count = input.params().bytes_to_samples(read_samples.size());
-
-      ConformInternal(resampler, &conformed_output, read_samples.data(), in_sample_count);
-
-      read_count += read_samples.size();
-      emit IndexProgress(qRound(100.0 * static_cast<double>(read_count) / static_cast<double>(input.data_length())));
-    }
-
-    // Flush resampler
-    ConformInternal(resampler, &conformed_output, nullptr, 0);
-
-    // Clean up
-    swr_free(&resampler);
-    conformed_output.close();
-    input.close();
-
-    // If we cancelled, the conform didn't finish so remove it
-    if (cancelled && *cancelled) {
-      QFile(conformed_fn).remove();
-    } else {
-      std::static_pointer_cast<AudioStream>(stream())->append_conformed_version(params);
-    }
-  } else {
-    qWarning() << "Failed to conform file:" << stream()->footage()->filename();
-  }
-}*/
-
-void Decoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const char* in_data, int in_sample_count)
-{
-  // Determine how many samples the output will be
-  int out_sample_count = swr_get_out_samples(resampler, in_sample_count);
-
-  // Allocate array for the amount of samples we'll need
-  QByteArray out_samples;
-  out_samples.resize(output->params().samples_to_bytes(out_sample_count));
-
-  char* out_data = out_samples.data();
-
-  // Convert samples
-  int convert_count = swr_convert(resampler,
-                                  reinterpret_cast<uint8_t**>(&out_data),
-                                  out_sample_count,
-                                  reinterpret_cast<const uint8_t**>(&in_data),
-                                  in_sample_count);
-
-  if (convert_count != out_sample_count) {
-    out_samples.resize(output->params().samples_to_bytes(convert_count));
-  }
-
-  output->write(out_samples);
-}
-
-QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
+QString Decoder::GetConformedFilename(const AudioParams &params)
 {
   QString index_fn = GetIndexFilename();
 
@@ -294,17 +177,17 @@ QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
   return index_fn;
 }
 
-bool Decoder::ProxyVideo(const QAtomicInt *, int )
+QString Decoder::GetIndexFilename()
+{
+  return QDir(stream_->footage()->project()->cache_path()).filePath(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()).append(QString::number(stream()->index())));
+}
+
+bool Decoder::ConformAudio(const QAtomicInt *, const AudioParams& )
 {
   return false;
 }
 
-bool Decoder::ConformAudio(const QAtomicInt *, const AudioRenderingParams& )
-{
-  return false;
-}
-
-bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
+bool Decoder::HasConformedVersion(const AudioParams &params)
 {
   if (stream()->type() != Stream::kAudio) {
     return false;
@@ -333,7 +216,7 @@ bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
 void Decoder::SignalProcessingProgress(const int64_t &ts)
 {
   if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
-    emit IndexProgress(qRound(100.0 * static_cast<double>(ts) / static_cast<double>(stream()->duration())));
+    emit IndexProgress(static_cast<double>(ts) / static_cast<double>(stream()->duration()));
   }
 }
 

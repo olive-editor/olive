@@ -24,10 +24,12 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-#include "../videorenderworker.h"
+#include "common/timerange.h"
+#include "node/value.h"
+#include "openglcolorprocessor.h"
 #include "openglframebuffer.h"
-#include "openglshadercache.h"
 #include "opengltexturecache.h"
+#include "render/shaderinfo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -38,6 +40,15 @@ public:
   OpenGLProxy(QObject* parent = nullptr);
 
   virtual ~OpenGLProxy() override;
+
+  static void CreateInstance();
+
+  static void DestroyInstance();
+
+  static OpenGLProxy* instance()
+  {
+    return instance_;
+  }
 
   /**
    * @brief Initialize OpenGL instance in whatever thread this object is a part of
@@ -64,16 +75,26 @@ public:
 
   void Close();
 
-  void SetParameters(const VideoRenderingParams& params);
-
 public slots:
-  void RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node, const OLIVE_NAMESPACE::TimeRange &range, OLIVE_NAMESPACE::NodeValueDatabase &input_params, OLIVE_NAMESPACE::NodeValueTable& output_params);
+  QVariant RunNodeAccelerated(const OLIVE_NAMESPACE::Node *node,
+                              const OLIVE_NAMESPACE::TimeRange &range,
+                              const OLIVE_NAMESPACE::ShaderJob &job,
+                              const OLIVE_NAMESPACE::VideoParams &params);
 
-  void TextureToBuffer(const QVariant& texture, int width, int height, const QMatrix4x4& matrix, void *buffer, int linesize);
+  void TextureToBuffer(const QVariant& texture,
+                       OLIVE_NAMESPACE::FramePtr frame,
+                       const QMatrix4x4& matrix);
 
-  OLIVE_NAMESPACE::NodeValue FrameToValue(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::StreamPtr stream);
+  QVariant FrameToValue(OLIVE_NAMESPACE::FramePtr frame,
+                        OLIVE_NAMESPACE::StreamPtr stream,
+                        const OLIVE_NAMESPACE::VideoParams &params,
+                        const OLIVE_NAMESPACE::RenderMode::Mode &mode);
+
+  QVariant PreCachedFrameToValue(OLIVE_NAMESPACE::FramePtr frame);
 
 private:
+  OpenGLShaderPtr ResolveShaderFromCache(const Node* node, const QString &shader_id);
+
   QOpenGLContext* ctx_;
   QOffscreenSurface surface_;
 
@@ -81,15 +102,15 @@ private:
 
   OpenGLFramebuffer buffer_;
 
-  ColorProcessorCache color_cache_;
-
-  VideoRenderingParams video_params_;
+  OpenGLColorProcessorCache color_cache_;
 
   OpenGLShaderPtr copy_pipeline_;
 
-  OpenGLShaderCache shader_cache_;
+  QHash<QString, OpenGLShaderPtr> shader_cache_;
 
   OpenGLTextureCache texture_cache_;
+
+  static OpenGLProxy* instance_;
 
 private slots:
   void FinishInit();

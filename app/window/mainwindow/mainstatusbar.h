@@ -48,10 +48,16 @@ protected:
 private slots:
   void UpdateStatus();
 
+  void SetProgressBarValue(double d);
+
+  void ConnectedTaskDeleted();
+
 private:
   TaskManager* manager_;
 
   QProgressBar* bar_;
+
+  Task* connected_task_;
 
 };
 

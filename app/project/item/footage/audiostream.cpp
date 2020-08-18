@@ -64,7 +64,7 @@ void AudioStream::set_sample_rate(const int &sample_rate)
   sample_rate_ = sample_rate;
 }
 
-bool AudioStream::try_start_conforming(const AudioRenderingParams &params)
+bool AudioStream::try_start_conforming(const AudioParams &params)
 {
   QMutexLocker locker(proxy_access_lock());
 
@@ -77,14 +77,14 @@ bool AudioStream::try_start_conforming(const AudioRenderingParams &params)
   return false;
 }
 
-bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
+bool AudioStream::has_conformed_version(const AudioParams &params)
 {
   QMutexLocker locker(proxy_access_lock());
 
   return conformed_.contains(params);
 }
 
-void AudioStream::append_conformed_version(const AudioRenderingParams &params)
+void AudioStream::append_conformed_version(const AudioParams &params)
 {
   {
     QMutexLocker locker(proxy_access_lock());

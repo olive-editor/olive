@@ -14,37 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
 add_subdirectory(opengl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-
-  render/backend/exporter.h
-  render/backend/exporter.cpp
-  render/backend/exportparams.h
-  render/backend/exportparams.cpp
-
-  render/backend/renderbackend.h
-  render/backend/renderbackend.cpp
-  render/backend/renderworker.h
-  render/backend/renderworker.cpp
-
-  render/backend/audiorenderbackend.h
-  render/backend/audiorenderbackend.cpp
-  render/backend/audiorenderworker.h
-  render/backend/audiorenderworker.cpp
-  
-  render/backend/videorenderbackend.h
-  render/backend/videorenderbackend.cpp
-  render/backend/videorenderframecache.h
-  render/backend/videorenderframecache.cpp
-  render/backend/videorenderworker.h
-  render/backend/videorenderworker.cpp
-
-  render/backend/rendercache.h
   render/backend/colorprocessorcache.h
   render/backend/decodercache.h
-  
+  render/backend/renderbackend.h
+  render/backend/renderbackend.cpp
+  render/backend/renderticket.h
+  render/backend/renderticket.cpp
+  render/backend/renderticketwatcher.h
+  render/backend/renderticketwatcher.cpp
+  render/backend/renderworker.h
+  render/backend/renderworker.cpp
   PARENT_SCOPE
 )

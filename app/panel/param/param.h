@@ -34,15 +34,14 @@ public:
   ParamPanel(QWidget* parent);
 
 public slots:
-  void SetNodes(QList<Node*> nodes);
+  void SelectNodes(const QList<Node*>& nodes);
+  void DeselectNodes(const QList<Node*>& nodes);
 
   virtual void SetTimestamp(const int64_t& timestamp) override;
 
   virtual void DeleteSelected() override;
 
 signals:
-  void TimeTargetChanged(Node* node);
-
   void RequestSelectNode(const QList<Node*>& target);
 
   void FoundGizmos(Node* node);
@@ -53,14 +52,15 @@ protected:
 private slots:
   void CreateCurvePanel(NodeInput* input);
 
-  void OpeningNode(Node* n);
-
-  void ClosingNode(Node* n);
-
   void ClosingCurvePanel();
 
 private:
   QHash<NodeInput*, CurvePanel*> open_curve_panels_;
+
+private slots:
+  void ParamViewTimeChanged(const int64_t& time);
+
+  void CurvePanelTimeChanged(const int64_t& time);
 
 };
 

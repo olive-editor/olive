@@ -24,9 +24,12 @@
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
+#include "block/transition/crossdissolve/crossdissolvetransition.h"
+#include "block/transition/diptocolor/diptocolortransition.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
 #include "generator/solid/solid.h"
+#include "generator/text/text.h"
 #include "filter/blur/blur.h"
 #include "filter/stroke/stroke.h"
 #include "input/media/video/video.h"
@@ -47,7 +50,7 @@ void NodeFactory::Initialize()
 
   // Add internal types
   for (int i=0;i<kInternalNodeCount;i++) {
-    library_.append(CreateInternal(static_cast<InternalID>(i)));
+    library_.append(CreateFromFactoryIndex(static_cast<InternalID>(i)));
   }
 
   /*
@@ -62,13 +65,18 @@ void NodeFactory::Destroy()
   library_.clear();
 }
 
-Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item)
+Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::CategoryID restrict_to)
 {
   Menu* menu = new Menu(parent);
   menu->setToolTipsVisible(true);
 
   for (int i=0;i<library_.size();i++) {
     Node* n = library_.at(i);
+
+    if (restrict_to != Node::kCategoryUnknown && !n->Category().contains(restrict_to)) {
+      // Skip this node
+      continue;
+    }
 
     // Make sure nodes are up-to-date with the current translation
     n->Retranslate();
@@ -164,7 +172,7 @@ Node *NodeFactory::CreateFromID(const QString &id)
   return nullptr;
 }
 
-Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
+Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
 {
   switch (id) {
   case kClipBlock:
@@ -201,6 +209,12 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
+  case kTextGenerator:
+    return new TextGenerator();
+  case kCrossDissolveTransition:
+    return new CrossDissolveTransition();
+  case kDipToColorTransition:
+    return new DipToColorTransition();
 
   case kInternalNodeCount:
     break;

@@ -27,6 +27,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
 
@@ -45,18 +46,20 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "project/projectimportmanager.h"
-#include "project/projectloadmanager.h"
-#include "project/projectsavemanager.h"
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
+#include "render/shaderinfo.h"
+#include "task/project/import/import.h"
+#include "task/project/load/load.h"
+#include "task/project/save/save.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
+#include "widget/viewer/viewer.h"
 #include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -77,17 +80,17 @@ Core *Core::instance()
   return &instance_;
 }
 
-bool Core::Start()
+int Core::execute(QCoreApplication* a)
 {
+  int exit_code = 1;
+
   //
   // Parse command line arguments
   //
 
-  QCoreApplication* app = QCoreApplication::instance();
-
   QCommandLineParser parser;
-  parser.addHelpOption();
-  parser.addVersionOption();
+  QCommandLineOption help_option = parser.addHelpOption();
+  QCommandLineOption version_option = parser.addVersionOption();
 
   // Project from command line option
   // FIXME: What's the correct way to make a visually "optional" positional argument, or is manually adding square
@@ -103,7 +106,15 @@ bool Core::Start()
   parser.addOption(headless_export_option);
 
   // Parse options
-  parser.process(*app);
+  parser.process(*a);
+
+  if (parser.isSet(help_option) || parser.isSet(version_option)) {
+    // These options don't launch any of the application proper
+    return a->exec();
+  }
+
+  // Start core
+  OLIVE_NAMESPACE::Core::instance()->Start();
 
   QStringList args = parser.positionalArguments();
 
@@ -111,6 +122,67 @@ bool Core::Start()
   if (!args.isEmpty()) {
     startup_project_ = args.first();
   }
+
+  gui_active_ = !parser.isSet(headless_export_option);
+
+  if (gui_active_) {
+
+    // Start GUI
+    StartGUI(parser.isSet(fullscreen_option));
+
+    // If we have a startup
+    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
+
+    // Run application loop and receive exit code
+    exit_code = a->exec();
+
+  } else {
+
+    if (parser.isSet(headless_export_option)) {
+      // Start a headless export
+      if (StartHeadlessExport()) {
+        exit_code = 0;
+      }
+    }
+
+  }
+
+  // Clear core memory
+  OLIVE_NAMESPACE::Core::instance()->Stop();
+
+  return exit_code;
+}
+
+void Core::DeclareTypesForQt()
+{
+  qRegisterMetaType<rational>();
+  qRegisterMetaType<OpenGLTexturePtr>();
+  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
+  qRegisterMetaType<NodeValue>();
+  qRegisterMetaType<NodeValueTable>();
+  qRegisterMetaType<NodeValueDatabase>();
+  qRegisterMetaType<FramePtr>();
+  qRegisterMetaType<SampleBufferPtr>();
+  qRegisterMetaType<AudioParams>();
+  qRegisterMetaType<NodeKeyframe::Type>();
+  qRegisterMetaType<Decoder::RetrieveState>();
+  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
+  qRegisterMetaType<Color>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
+  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
+  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
+  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
+  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams::Interlacing>();
+  qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
+  qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
+}
+
+void Core::Start()
+{
+  // Load application config
+  Config::Load();
 
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
@@ -124,72 +196,20 @@ bool Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
-  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
-  Config::Current().SetDefaults();
-
-  // Load application config
-  Config::Load();
-
+  // Initialize OpenGL service
+  OpenGLProxy::CreateInstance();
 
   //
   // Start application
   //
 
   qInfo() << "Using Qt version:" << qVersion();
-
-  gui_active_ = !parser.isSet(headless_export_option);
-
-  if (gui_active_) {
-
-    // Start GUI
-    StartGUI(parser.isSet(fullscreen_option));
-
-    // Load startup project
-    if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
-      QMessageBox::warning(main_window(),
-                           tr("Failed to open startup file"),
-                           tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
-                           QMessageBox::Ok);
-
-      startup_project_.clear();
-    }
-
-    if (startup_project_.isEmpty()) {
-      // If no load project is set, create a new one on open
-      CreateNewProject();
-    } else {
-      OpenProjectInternal(startup_project_);
-    }
-
-    return true;
-
-  } else {
-
-    if (parser.isSet(headless_export_option)) {
-
-      if (startup_project_.isEmpty()) {
-        qCritical().noquote() << tr("You must specify a project file to export");
-      } else {
-        OpenProjectInternal(startup_project_);
-
-        qDebug() << "Ready for exporting!";
-
-        return true;
-      }
-
-    }
-
-    // Error fallback
-    return false;
-
-  }
 }
 
 void Core::Stop()
 {
   // Save Config
-  //Config::Save();
+  Config::Save();
 
   // Save recently opened projects
   {
@@ -204,6 +224,8 @@ void Core::Stop()
       recent_projects_file.close();
     }
   }
+
+  OpenGLProxy::DestroyInstance();
 
   MenuShared::DestroyInstance();
 
@@ -239,7 +261,7 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  ProjectImportManager* pim = new ProjectImportManager(model, parent, urls);
+  ProjectImportTask* pim = new ProjectImportTask(model, parent, urls);
 
   if (!pim->GetFileCount()) {
     // No files to import
@@ -247,9 +269,10 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  connect(pim, &ProjectImportManager::ImportComplete, this, &Core::ImportTaskComplete, Qt::BlockingQueuedConnection);
-
   TaskDialog* task_dialog = new TaskDialog(pim, tr("Importing..."), main_window());
+
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ImportTaskComplete);
+
   task_dialog->open();
 }
 
@@ -258,14 +281,24 @@ const Tool::Item &Core::tool() const
   return tool_;
 }
 
-const Tool::AddableObject &Core::selected_addable_object() const
+const Tool::AddableObject &Core::GetSelectedAddableObject() const
 {
   return addable_object_;
+}
+
+const QString &Core::GetSelectedTransition() const
+{
+  return selected_transition_;
 }
 
 void Core::SetSelectedAddableObject(const Tool::AddableObject &obj)
 {
   addable_object_ = obj;
+}
+
+void Core::SetSelectedTransitionObject(const QString &obj)
+{
+  selected_transition_ = obj;
 }
 
 void Core::ClearOpenRecentList()
@@ -379,7 +412,7 @@ void Core::DialogExportShow()
   TimeBasedPanel* latest_time_based = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
   if (latest_time_based && latest_time_based->GetConnectedViewer()) {
-    if (latest_time_based->GetConnectedViewer()->Length() == 0) {
+    if (latest_time_based->GetConnectedViewer()->GetLength() == 0) {
       QMessageBox::critical(main_window_,
                             tr("Error"),
                             tr("This Sequence is empty. There is nothing to export."),
@@ -482,8 +515,21 @@ void Core::AddOpenProject(ProjectPtr p)
   emit ProjectOpened(p.get());
 }
 
-void Core::ImportTaskComplete(QUndoCommand *command)
+void Core::AddOpenProjectFromTask(Task *task)
 {
+  QList<ProjectPtr> projects = static_cast<ProjectLoadTask*>(task)->GetLoadedProjects();
+  QList<MainWindowLayoutInfo> layouts = static_cast<ProjectLoadTask*>(task)->GetLoadedLayouts();
+
+  for (int i=0; i<projects.size(); i++) {
+    AddOpenProject(projects.at(i));
+    main_window_->LoadLayout(layouts.at(i));
+  }
+}
+
+void Core::ImportTaskComplete(Task* task)
+{
+  QUndoCommand *command = static_cast<ProjectImportTask*>(task)->GetCommand();
+
   undo_stack_.pushIfHasChildren(command);
 }
 
@@ -523,29 +569,110 @@ void Core::ProjectWasModified(bool e)
   }
 }
 
-void Core::DeclareTypesForQt()
+bool Core::StartHeadlessExport()
 {
-  qRegisterMetaType<NodeDependency>();
-  qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
-  qRegisterMetaType<NodeValueTable>();
-  qRegisterMetaType<NodeValueDatabase>();
-  qRegisterMetaType<FramePtr>();
-  qRegisterMetaType<SampleBufferPtr>();
-  qRegisterMetaType<AudioRenderingParams>();
-  qRegisterMetaType<NodeKeyframe::Type>();
-  qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
-  qRegisterMetaType<Color>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
+  if (startup_project_.isEmpty()) {
+    qCritical().noquote() << tr("You must specify a project file to export");
+    return false;
+  }
+
+  if (!QFileInfo::exists(startup_project_)) {
+    qCritical().noquote() << tr("Specified project does not exist");
+    return false;
+  }
+
+  // Start a load task and try running it
+  ProjectLoadTask plm(startup_project_);
+  CLITaskDialog task_dialog(&plm);
+
+  if (task_dialog.Run()) {
+    ProjectPtr p = plm.GetLoadedProjects().first();
+    QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
+
+    // Check if this project contains sequences
+    if (items.isEmpty()) {
+      qCritical().noquote() << tr("Project contains no sequences, nothing to export");
+      return false;
+    }
+
+    SequencePtr sequence = nullptr;
+
+    // Check if this project contains multiple sequences
+    if (items.size() > 1) {
+      qInfo().noquote() << tr("This project has multiple sequences. Which do you wish to export?");
+      for (int i=0;i<items.size();i++) {
+        std::cout << "[" << i << "] " << items.at(i)->name().toStdString();
+      }
+
+      QTextStream stream(stdin);
+      QString sequence_read;
+      int sequence_index = -1;
+      QString quit_code = QStringLiteral("q");
+      std::string prompt = tr("Enter number (or %1 to cancel): ").arg(quit_code).toStdString();
+      forever {
+        std::cout << prompt;
+
+        stream.readLineInto(&sequence_read);
+
+        if (!QString::compare(sequence_read, quit_code, Qt::CaseInsensitive)) {
+          return false;
+        }
+
+        bool ok;
+        sequence_index = sequence_read.toInt(&ok);
+
+        if (ok && sequence_index >= 0 && sequence_index < items.size()) {
+          break;
+        } else {
+          qCritical().noquote() << tr("Invalid sequence number");
+        }
+      }
+
+      sequence = std::static_pointer_cast<Sequence>(items.at(sequence_index));
+    } else {
+      sequence = std::static_pointer_cast<Sequence>(items.first());
+    }
+
+    ExportParams params;
+    ExportTask export_task(sequence->viewer_output(), p->color_manager(), params);
+    CLITaskDialog export_dialog(&export_task);
+    if (export_dialog.Run()) {
+      qInfo().noquote() << tr("Export succeeded");
+      return true;
+    } else {
+      qInfo().noquote() << tr("Export failed: %1").arg(export_task.GetError());
+      return false;
+    }
+  } else {
+    qCritical().noquote() << tr("Project failed to load: %1").arg(plm.GetError());
+    return false;
+  }
+}
+
+void Core::OpenStartupProject()
+{
+  // Load startup project
+  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+    QMessageBox::warning(main_window_,
+                         tr("Failed to open startup file"),
+                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                         QMessageBox::Ok);
+
+    startup_project_.clear();
+  }
+
+  if (startup_project_.isEmpty()) {
+    // If no load project is set, create a new one on open
+    CreateNewProject();
+  } else {
+    OpenProjectInternal(startup_project_);
+  }
 }
 
 void Core::StartGUI(bool full_screen)
 {
   // Set UI style
-  qApp->setStyle(QStyleFactory::create("Fusion"));
-  StyleManager::SetStyle(StyleManager::DefaultStyle());
+  StyleManager::Init();
 
   // Set up shared menus
   MenuShared::CreateInstance();
@@ -602,11 +729,11 @@ void Core::StartGUI(bool full_screen)
 void Core::SaveProjectInternal(ProjectPtr project)
 {
   // Create save manager
-  ProjectSaveManager* psm = new ProjectSaveManager(project);
+  ProjectSaveTask* psm = new ProjectSaveTask(project);
+  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
 
-  connect(psm, &ProjectSaveManager::ProjectSaveSucceeded, this, &Core::ProjectSaveSucceeded);
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
 
-  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window());
   task_dialog->open();
 }
 
@@ -620,8 +747,10 @@ void Core::SaveAutorecovery()
   }
 }
 
-void Core::ProjectSaveSucceeded(ProjectPtr p)
+void Core::ProjectSaveSucceeded(Task* task)
 {
+  ProjectPtr p = static_cast<ProjectSaveTask*>(task)->GetProject();
+
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
@@ -742,85 +871,6 @@ bool Core::CloseAllExceptActiveProject()
   return true;
 }
 
-QList<rational> Core::SupportedFrameRates()
-{
-  QList<rational> frame_rates;
-
-  frame_rates.append(rational(10, 1));            // 10 FPS
-  frame_rates.append(rational(15, 1));            // 15 FPS
-  frame_rates.append(rational(24000, 1001));      // 23.976 FPS
-  frame_rates.append(rational(24, 1));            // 24 FPS
-  frame_rates.append(rational(25, 1));            // 25 FPS
-  frame_rates.append(rational(30000, 1001));      // 29.97 FPS
-  frame_rates.append(rational(30, 1));            // 30 FPS
-  frame_rates.append(rational(48000, 1001));      // 47.952 FPS
-  frame_rates.append(rational(48, 1));            // 48 FPS
-  frame_rates.append(rational(50, 1));            // 50 FPS
-  frame_rates.append(rational(60000, 1001));      // 59.94 FPS
-  frame_rates.append(rational(60, 1));            // 60 FPS
-
-  return frame_rates;
-}
-
-QList<int> Core::SupportedSampleRates()
-{
-  QList<int> sample_rates;
-
-  sample_rates.append(8000);         // 8000 Hz
-  sample_rates.append(11025);        // 11025 Hz
-  sample_rates.append(16000);        // 16000 Hz
-  sample_rates.append(22050);        // 22050 Hz
-  sample_rates.append(24000);        // 24000 Hz
-  sample_rates.append(32000);        // 32000 Hz
-  sample_rates.append(44100);        // 44100 Hz
-  sample_rates.append(48000);        // 48000 Hz
-  sample_rates.append(88200);        // 88200 Hz
-  sample_rates.append(96000);        // 96000 Hz
-
-  return sample_rates;
-}
-
-QList<uint64_t> Core::SupportedChannelLayouts()
-{
-  QList<uint64_t> channel_layouts;
-
-  channel_layouts.append(AV_CH_LAYOUT_MONO);
-  channel_layouts.append(AV_CH_LAYOUT_STEREO);
-  channel_layouts.append(AV_CH_LAYOUT_2_1);
-  channel_layouts.append(AV_CH_LAYOUT_5POINT1);
-  channel_layouts.append(AV_CH_LAYOUT_7POINT1);
-
-  return channel_layouts;
-}
-
-QString Core::FrameRateToString(const rational &frame_rate)
-{
-  return tr("%1 FPS").arg(frame_rate.toDouble());
-}
-
-QString Core::SampleRateToString(const int &sample_rate)
-{
-  return tr("%1 Hz").arg(sample_rate);
-}
-
-QString Core::ChannelLayoutToString(const uint64_t &layout)
-{
-  switch (layout) {
-  case AV_CH_LAYOUT_MONO:
-    return tr("Mono");
-  case AV_CH_LAYOUT_STEREO:
-    return tr("Stereo");
-  case AV_CH_LAYOUT_2_1:
-    return tr("2.1");
-  case AV_CH_LAYOUT_5POINT1:
-    return tr("5.1");
-  case AV_CH_LAYOUT_7POINT1:
-    return tr("7.1");
-  default:
-    return tr("Unknown (0x%1)").arg(layout, 1, 16);
-  }
-}
-
 QString Core::GetProjectFilter()
 {
   return QStringLiteral("%1 (*.ove)").arg(tr("Olive Project"));
@@ -850,6 +900,11 @@ bool Core::SaveProjectAs(ProjectPtr p)
                                             GetProjectFilter());
 
   if (!fn.isEmpty()) {
+    QString extension(QStringLiteral(".ove"));
+    if (!fn.endsWith(extension, Qt::CaseInsensitive)) {
+      fn.append(extension);
+    }
+
     p->set_filename(fn);
 
     SaveProjectInternal(p);
@@ -886,24 +941,13 @@ void Core::OpenProjectInternal(const QString &filename)
     }
   }
 
-  ProjectLoadManager* plm = new ProjectLoadManager(filename);
+  ProjectLoadTask* plm = new ProjectLoadTask(filename);
 
-  if (gui_active_) {
+  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
 
-    // We use a blocking queued connection here because we want to ensure we have this project instance before the
-    // ProjectLoadManager is destroyed
-    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
+  connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
 
-    TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
-    task_dialog->open();
-
-  } else {
-
-    connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject);
-
-    CLITaskDialog task_dialog(plm);
-
-  }
+  task_dialog->open();
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)
@@ -943,6 +987,38 @@ QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &
 void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
 {
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
+}
+
+void Core::LabelNodes(const QList<Node *> &nodes) const
+{
+  if (nodes.isEmpty()) {
+    return;
+  }
+
+  bool ok;
+
+  QString start_label = nodes.first()->GetLabel();
+
+  for (int i=1; i<nodes.size(); i++) {
+    if (nodes.at(i)->GetLabel() != start_label) {
+      // Not all the nodes share the same name, so we'll start with a blank one
+      start_label.clear();
+      break;
+    }
+  }
+
+  QString s = QInputDialog::getText(main_window_,
+                                    tr("Label Node"),
+                                    tr("Set node label"),
+                                    QLineEdit::Normal,
+                                    start_label,
+                                    &ok);
+
+  if (ok) {
+    foreach (Node* n, nodes) {
+      n->SetLabel(s);
+    }
+  }
 }
 
 SequencePtr Core::CreateNewSequenceForProject(Project* project) const
@@ -1099,6 +1175,40 @@ bool Core::CloseAllProjects(bool auto_open_new)
   }
 
   return true;
+}
+
+void Core::CacheActiveSequence(bool in_out_only)
+{
+  TimeBasedPanel* p = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  if (p && p->GetConnectedViewer()) {
+    // Hacky but works for now
+
+    // Find Viewer attached to this TimeBasedPanel
+    QList<ViewerPanel*> all_viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanel>();
+
+    ViewerPanel* found_panel = nullptr;
+
+    foreach (ViewerPanel* viewer, all_viewers) {
+      if (viewer->GetConnectedViewer() == p->GetConnectedViewer()) {
+        found_panel = viewer;
+        break;
+      }
+    }
+
+    if (found_panel) {
+      if (in_out_only) {
+        found_panel->CacheSequenceInOut();
+      } else {
+        found_panel->CacheEntireSequence();
+      }
+    } else {
+      QMessageBox::critical(main_window_,
+                            tr("Failed to cache sequence"),
+                            tr("No active viewer found with this sequence."),
+                            QMessageBox::Ok);
+    }
+  }
 }
 
 bool Core::CloseAllProjects()

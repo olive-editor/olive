@@ -177,7 +177,7 @@ void NodeViewItem::SetNode(Node *n)
       if (p->type() == NodeParam::kInput) {
         NodeInput* input = static_cast<NodeInput*>(p);
 
-        if (input->IsConnectable()) {
+        if (input->is_connectable()) {
           node_inputs_.append(input);
         }
       }
@@ -251,7 +251,9 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       QRectF input_rect = GetInputRect(i);
 
       if (highlighted_index_ == i) {
-        painter->fillRect(input_rect, QColor(255, 255, 255, 64));
+        QColor highlight_col = app_pal.color(QPalette::Text);
+        highlight_col.setAlpha(64);
+        painter->fillRect(input_rect, highlight_col);
       }
 
       painter->drawText(input_rect, Qt::AlignCenter, node_inputs_.at(i)->name());
@@ -559,7 +561,9 @@ void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsRectItem::mouseDoubleClickEvent(event);
 
-  SetExpanded(!IsExpanded());
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    SetExpanded(!IsExpanded());
+  }
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

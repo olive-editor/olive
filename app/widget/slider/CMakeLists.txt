@@ -24,6 +24,8 @@ set(OLIVE_SOURCES
   widget/slider/sliderbase.cpp
   widget/slider/sliderlabel.h
   widget/slider/sliderlabel.cpp
+  widget/slider/sliderladder.h
+  widget/slider/sliderladder.cpp
   widget/slider/stringslider.h
   widget/slider/stringslider.cpp
   widget/slider/timeslider.h

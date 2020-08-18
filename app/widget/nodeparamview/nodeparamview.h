@@ -37,8 +37,13 @@ class NodeParamView : public TimeBasedWidget
 public:
   NodeParamView(QWidget* parent = nullptr);
 
-  void SetNodes(QList<Node*> nodes);
-  const QList<Node*>& nodes();
+  void SelectNodes(const QList<Node*>& nodes);
+  void DeselectNodes(const QList<Node*>& nodes);
+
+  const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
+  {
+    return items_;
+  }
 
   Node* GetTimeTarget() const;
 
@@ -47,15 +52,7 @@ public:
 signals:
   void InputDoubleClicked(NodeInput* input);
 
-  void TimeTargetChanged(Node* target);
-
   void RequestSelectNode(const QList<Node*>& target);
-
-  void OpenedNode(Node* n);
-
-  void ClosedNode(Node* n);
-
-  void FoundGizmos(Node* n);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -64,6 +61,8 @@ protected:
   virtual void TimebaseChangedEvent(const rational&) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
+  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+
 private:
   void UpdateItemTime(const int64_t &timestamp);
 
@@ -71,20 +70,20 @@ private:
 
   KeyframeView* keyframe_view_;
 
-  QList<Node*> nodes_;
-
-  QList<NodeParamViewItem*> items_;
+  QMap<Node*, NodeParamViewItem*> items_;
 
   QScrollBar* vertical_scrollbar_;
 
-  QGraphicsRectItem* bottom_item_;
-
   int last_scroll_val_;
+
+  QWidget* param_widget_area_;
 
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
-  void ForceKeyframeViewToScroll(int min, int max);
+  void ForceKeyframeViewToScroll();
+
+  void PlaceKeyframesOnView();
 
 };
 
