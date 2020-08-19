@@ -24,6 +24,7 @@
 #include <QCheckBox>
 #include <QDialog>
 #include <QListWidget>
+#include <QMap>
 #include <QMenuBar>
 #include <QStackedWidget>
 #include <QTabWidget>
@@ -86,6 +87,8 @@ private:
   int TabIndex(QString title);
 
   QListWidget* list_widget_;
+
+  QMap<QString, int> tab_index_;
 
   QStackedWidget* preference_pane_stack_;
 

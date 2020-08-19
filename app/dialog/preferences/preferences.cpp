@@ -25,7 +25,6 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QApplication>
-#include <QList>
 
 #include "config/config.h"
 #include "tabs/preferencesgeneraltab.h"
@@ -166,16 +165,15 @@ void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)
 {
   list_widget_->addItem(title);
   preference_pane_stack_->addWidget(tab);
+  tab_index_.insert(title, tab_index_.size());
 
   tabs_.append(tab);
 }
 
 int PreferencesDialog::TabIndex(QString title)
 {
-  QList<QListWidgetItem*> list = list_widget_->findItems(title, Qt::MatchExactly);
-  // Tab should exist, this is more to check for typos/bugs
-  Q_ASSERT(!list.empty());
-  return list_widget_->row(list.first());
+  Q_ASSERT(tab_index_.contains(title));
+  return tab_index_[title];
 }
 
 OLIVE_NAMESPACE_EXIT
