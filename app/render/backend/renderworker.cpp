@@ -189,16 +189,19 @@ NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const 
         continue;
       }
 
-      // Stretch samples here
-      rational abs_speed = qAbs(b->speed());
+      // FIXME: Doesn't handle reversing
+      if (b->speed_input()->is_keyframing() || b->speed_input()->is_connected()) {
+        // FIXME: We'll need to calculate the speed hoo boy
+      } else {
+        double speed_value = b->speed_input()->get_standard_value().toDouble();
 
-      if (abs_speed != 1) {
-        samples_from_this_block->speed(abs_speed.toDouble());
-      }
-
-      if (b->is_reversed()) {
-        // Reverse the audio buffer
-        samples_from_this_block->reverse();
+        if (qIsNull(speed_value)) {
+          // Just silence, don't think there's any other practical application of 0 speed audio
+          samples_from_this_block->fill(0);
+        } else if (!qFuzzyCompare(speed_value, 1.0)) {
+          // Multiply time
+          samples_from_this_block->speed(speed_value);
+        }
       }
 
       int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());

@@ -113,23 +113,6 @@ private:
   rational new_media_in_;
 };
 
-class BlockSetSpeedCommand : public UndoCommand {
-public:
-  BlockSetSpeedCommand(Block* block, const rational& new_speed, QUndoCommand* parent = nullptr);
-
-  virtual Project* GetRelevantProject() const override;
-
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
-
-private:
-  Block* block_;
-
-  rational old_speed_;
-  rational new_speed_;
-};
-
 class TrackRippleRemoveBlockCommand : public UndoCommand {
 public:
   TrackRippleRemoveBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);

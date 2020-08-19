@@ -596,29 +596,6 @@ Project *BlockSplitPreservingLinksCommand::GetRelevantProject() const
   return static_cast<Sequence*>(blocks_.first()->parent())->project();
 }
 
-BlockSetSpeedCommand::BlockSetSpeedCommand(Block *block, const rational &new_speed, QUndoCommand *parent) :
-  UndoCommand(parent),
-  block_(block),
-  old_speed_(block->speed()),
-  new_speed_(new_speed)
-{
-}
-
-Project *BlockSetSpeedCommand::GetRelevantProject() const
-{
-  return static_cast<Sequence*>(block_->parent())->project();
-}
-
-void BlockSetSpeedCommand::redo_internal()
-{
-  block_->set_speed(new_speed_);
-}
-
-void BlockSetSpeedCommand::undo_internal()
-{
-  block_->set_speed(old_speed_);
-}
-
 TimelineRippleDeleteGapsAtRegionsCommand::TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput *vo, const TimeRangeList &regions, QUndoCommand *parent) :
   UndoCommand(parent),
   timeline_(vo),

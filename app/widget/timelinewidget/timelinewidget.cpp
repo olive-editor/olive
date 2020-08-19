@@ -29,7 +29,6 @@
 #include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "dialog/sequence/sequence.h"
-#include "dialog/speedduration/speedduration.h"
 #include "node/block/transition/transition.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
@@ -1070,11 +1069,6 @@ void TimelineWidget::ShowContextMenu()
 
     menu.addSeparator();
 
-    QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
-    connect(speed_duration_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialog);
-
-    menu.addSeparator();
-
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, [this](){
       QList<TimelineViewBlockItem*> block_items = GetSelectedBlocks();
@@ -1102,26 +1096,6 @@ void TimelineWidget::ShowContextMenu()
   }
 
   menu.exec(QCursor::pos());
-}
-
-void TimelineWidget::ShowSpeedDurationDialog()
-{
-  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
-  QList<ClipBlock*> selected_clips;
-
-  foreach (TimelineViewBlockItem* item, selected) {
-    if (item->block()->type() == Block::kClip) {
-      selected_clips.append(static_cast<ClipBlock*>(item->block()));
-    }
-  }
-
-  if (selected_clips.isEmpty()) {
-    // SpeedDurationDialog expects at least one clip
-    return;
-  }
-
-  SpeedDurationDialog speed_diag(timebase(), selected_clips, this);
-  speed_diag.exec();
 }
 
 void TimelineWidget::DeferredScrollAction()

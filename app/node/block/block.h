@@ -62,13 +62,6 @@ public:
   rational media_in() const;
   void set_media_in(const rational& media_in);
 
-  rational media_out() const;
-
-  rational speed() const;
-  void set_speed(const rational& speed);
-  bool is_still() const;
-  bool is_reversed() const;
-
   bool is_enabled() const;
   void set_enabled(bool e);
 

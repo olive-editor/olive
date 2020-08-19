@@ -27,7 +27,6 @@ add_subdirectory(projectproperties)
 add_subdirectory(rendercancel)
 add_subdirectory(richtext)
 add_subdirectory(sequence)
-add_subdirectory(speedduration)
 add_subdirectory(task)
 
 set(OLIVE_SOURCES

@@ -558,8 +558,6 @@ private slots:
 
   void ShowContextMenu();
 
-  void ShowSpeedDurationDialog();
-
   void DeferredScrollAction();
 
   void ShowSequenceDialog();
