@@ -106,7 +106,7 @@ bool FFmpegDecoder::Open()
     if (!frame_pool) {
       // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
       //        this a dynamic value somehow or a configurable value?
-      frame_pool = new FFmpegFramePool(64);
+      frame_pool = new FFmpegFramePool(32);
       frame_pool_map_.insert(stream().get(), frame_pool);
     }
 
