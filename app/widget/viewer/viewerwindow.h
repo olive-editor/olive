@@ -38,8 +38,21 @@ public:
 
   /**
    * @brief Used to adjust resulting picture to be the right aspect ratio
+   *
+   * Equivalent to calling SetResolution and SetPixelAspectRatio, just slightly faster since we
+   * only calculate the matrix once rather than twice.
+   */
+  void SetVideoParams(const VideoParams &params);
+
+  /**
+   * @brief Used to adjust resulting picture to be the right aspect ratio
    */
   void SetResolution(int width, int height);
+
+  /**
+   * @brief Used to adjust resulting picture to be the right aspect ratio
+   */
+  void SetPixelAspectRatio(const rational& pixel_aspect);
 
   ViewerQueue* queue() {
     return &queue_;
@@ -58,6 +71,8 @@ private slots:
   void UpdateFromQueue();
 
 private:
+  void UpdateMatrix();
+
   ViewerDisplayWidget* display_widget_;
 
   ViewerQueue queue_;
@@ -65,6 +80,12 @@ private:
   ViewerPlaybackTimer timer_;
 
   rational playback_timebase_;
+
+  int width_;
+
+  int height_;
+
+  rational pixel_aspect_;
 
 };
 

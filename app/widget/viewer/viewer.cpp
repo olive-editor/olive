@@ -321,7 +321,8 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
   connect(vw->display_widget(), &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   if (GetConnectedNode()) {
-    vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
+    vw->SetVideoParams(GetConnectedNode()->video_params());
+    vw->display_widget()->SetDeinterlacing(vw->display_widget()->IsDeinterlacing());
   }
 
   vw->display_widget()->SetImage(display_widget_->last_loaded_buffer());
@@ -1086,7 +1087,9 @@ void ViewerWidget::SetViewerPixelAspect(const rational &ratio)
 {
   sizer_->SetPixelAspectRatio(ratio);
 
-  // FIXME: Update windows too
+  foreach (ViewerWindow* vw, windows_) {
+    vw->SetPixelAspectRatio(ratio);
+  }
 }
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
@@ -1108,7 +1111,9 @@ void ViewerWidget::InterlacingChangedSlot(VideoParams::Interlacing interlacing)
   // Automatically set a "sane" deinterlacing option
   display_widget_->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
 
-  // FIXME: Set windows too
+  foreach (ViewerWindow* vw, windows_) {
+    vw->display_widget()->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
+  }
 }
 
 void ViewerWidget::UpdateRendererVideoParameters()
