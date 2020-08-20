@@ -978,9 +978,9 @@ TrackReplaceBlockWithGapCommand::TrackReplaceBlockWithGapCommand(TrackOutput *tr
   UndoCommand(command),
   track_(track),
   block_(block),
-  we_created_gap_(false),
-  gap_(nullptr),
-  merged_gap_(nullptr)
+  existing_gap_(nullptr),
+  existing_merged_gap_(nullptr),
+  our_gap_(nullptr)
 {
 }
 
@@ -991,65 +991,66 @@ Project *TrackReplaceBlockWithGapCommand::GetRelevantProject() const
 
 void TrackReplaceBlockWithGapCommand::redo_internal()
 {
-  TimeRange invalidate_range;
-
   track_->BeginOperation();
 
-  // If the block has no next, it's at the end of the track and there's no need to create a gap
-  if (block_->next()) {
-    invalidate_range = TimeRange(block_->in(), block_->out());
+  // Invalidate the range inhabited by this block
+  TimeRange invalidate_range(block_->in(), block_->out());
 
+  if (block_->next()) {
+    // Block has a next, which means it's NOT at the end of the sequence and thus requires a gap
     rational new_gap_length = block_->length();
 
-    bool previous_is_a_gap = (block_->previous() && block_->previous()->type() == Block::kGap);
-    bool next_is_a_gap = (block_->next() && block_->next()->type() == Block::kGap);
+    Block* previous = block_->previous();
+    Block* next = block_->next();
 
-    if (previous_is_a_gap) {
-      // Extend gap before this block
-      gap_ = static_cast<GapBlock*>(block_->previous());
+    bool previous_is_a_gap = (previous && previous->type() == Block::kGap);
+    bool next_is_a_gap = (next && next->type() == Block::kGap);
 
-      // If the next is also a gap, we'll merge the two
-      if (next_is_a_gap) {
-        merged_gap_ = static_cast<GapBlock*>(block_->next());
+    if (previous_is_a_gap && next_is_a_gap) {
+      // Clip is preceded and followed by a gap, so we'll merge the two
+      existing_gap_ = static_cast<GapBlock*>(previous);
 
-        new_gap_length += merged_gap_->length();
-        track_->RippleRemoveBlock(merged_gap_);
-        TakeNodeFromParentGraph(merged_gap_, &memory_manager_);
-      }
+      existing_merged_gap_ = static_cast<GapBlock*>(next);
+      new_gap_length += existing_merged_gap_->length();
+      track_->RippleRemoveBlock(existing_merged_gap_);
+      TakeNodeFromParentGraph(existing_merged_gap_, &memory_manager_);
+    } else if (previous_is_a_gap) {
+      // Extend this gap to fill space left by block
+      existing_gap_ = static_cast<GapBlock*>(previous);
     } else if (next_is_a_gap) {
-      // Extend gap after this block
-      gap_ = static_cast<GapBlock*>(block_->next());
+      // Extend this gap to fill space left by block
+      existing_gap_ = static_cast<GapBlock*>(next);
     }
 
-    if (gap_) {
+    if (existing_gap_) {
       // Extend an existing gap
-      new_gap_length += gap_->length();
-      gap_->set_length_and_media_out(new_gap_length);
+      new_gap_length += existing_gap_->length();
+      existing_gap_->set_length_and_media_out(new_gap_length);
       track_->RippleRemoveBlock(block_);
+
+      existing_gap_precedes_ = (existing_gap_ == previous);
     } else {
-      // No gap exists, create one
-      gap_ = new GapBlock();
-      gap_->set_length_and_media_out(new_gap_length);
-      static_cast<NodeGraph*>(track_->parent())->AddNode(gap_);
-      track_->ReplaceBlock(block_, gap_);
-      we_created_gap_ = true;
+      // No gap exists to fill this space, create a new one and swap it in
+      our_gap_ = new GapBlock();
+      our_gap_->set_length_and_media_out(new_gap_length);
+      static_cast<NodeGraph*>(track_->parent())->AddNode(our_gap_);
+      track_->ReplaceBlock(block_, our_gap_);
     }
 
   } else {
-    rational earliest_change = block_->in();
+    // Block is at the end of the track, simply remove it
 
-    // Handle the gap being at the end where no gap is necessary
-    track_->RippleRemoveBlock(block_);
+    // Determine if it's proceeded by a gap, and remove that gap if so
+    Block* preceding = block_->previous();
+    if (preceding && preceding->type() == Block::kGap) {
+      track_->RippleRemoveBlock(preceding);
+      TakeNodeFromParentGraph(preceding, &memory_manager_);
 
-    // If there were also gaps leading up to this block, clean them up here
-    if (!track_->Blocks().isEmpty() && track_->Blocks().last()->type() == Block::kGap) {
-      merged_gap_ = static_cast<GapBlock*>(track_->Blocks().last());
-      earliest_change = merged_gap_->in();
-      track_->RippleRemoveBlock(merged_gap_);
-      TakeNodeFromParentGraph(merged_gap_, &memory_manager_);
+      existing_merged_gap_ = static_cast<GapBlock*>(preceding);
     }
 
-    invalidate_range = TimeRange(earliest_change, RATIONAL_MAX);
+    // Remove block in question
+    track_->RippleRemoveBlock(block_);
   }
 
   track_->EndOperation();
@@ -1059,56 +1060,60 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
 
 void TrackReplaceBlockWithGapCommand::undo_internal()
 {
-  TimeRange invalidate_range;
-
   track_->BeginOperation();
 
-  if (gap_) {
+  if (our_gap_) {
 
-    if (we_created_gap_) {
-      // We made this gap, simply swap our gap back
-      track_->ReplaceBlock(gap_, block_);
-      delete TakeNodeFromParentGraph(gap_);
-      gap_ = nullptr;
-    } else {
-      // We must have extended an existing gap
-      rational original_gap_length = gap_->length() - block_->length();
+    // We made this gap, simply swap our gap back
+    track_->ReplaceBlock(our_gap_, block_);
+    delete TakeNodeFromParentGraph(our_gap_);
+    our_gap_ = nullptr;
 
-      // If we merged two gaps together, restore it now
-      if (merged_gap_) {
-        original_gap_length -= merged_gap_->length();
-        static_cast<NodeGraph*>(track_->parent())->AddNode(merged_gap_);
-        track_->InsertBlockAfter(merged_gap_, gap_);
-      }
+  } else if (existing_gap_) {
 
-      // Restore original block
-      track_->InsertBlockAfter(block_, gap_);
+    // If we're here, assume that we extended an existing gap
+    rational original_gap_length = existing_gap_->length() - block_->length();
 
-      // Restore gap's original length
-      gap_->set_length_and_media_out(original_gap_length);
+    // If we merged two gaps together, restore the second one now
+    if (existing_merged_gap_) {
+      original_gap_length -= existing_merged_gap_->length();
+      static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
+      track_->InsertBlockAfter(existing_merged_gap_, existing_gap_);
+      existing_merged_gap_ = nullptr;
     }
 
-    invalidate_range = TimeRange(block_->in(), block_->out());
+    // Restore original block
+    if (existing_gap_precedes_) {
+      track_->InsertBlockAfter(block_, existing_gap_);
+    } else {
+      track_->InsertBlockBefore(block_, existing_gap_);
+    }
+
+    // Restore gap's original length
+    existing_gap_->set_length_and_media_out(original_gap_length);
+
+    existing_gap_ = nullptr;
 
   } else {
 
-    // If there's no `gap_`, we must have removed the block at the end
-    invalidate_range = TimeRange(track_->track_length(), RATIONAL_MAX);
+    // Our gap and existing gap were both null, our block must have been at the end and thus
+    // required no gap extension/replacement
 
-    if (merged_gap_) {
-      static_cast<NodeGraph*>(track_->parent())->AddNode(merged_gap_);
-      track_->AppendBlock(merged_gap_);
-    }
+    // However, we may have removed an unnecessary gap that preceded it
+     if (existing_merged_gap_) {
+       static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
+       track_->AppendBlock(existing_merged_gap_);
+       existing_merged_gap_ = nullptr;
+     }
 
-    track_->AppendBlock(block_);
+     // Restore block
+     track_->AppendBlock(block_);
 
   }
 
-  merged_gap_ = nullptr;
-
   track_->EndOperation();
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
 }
 
 TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :

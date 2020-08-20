@@ -483,6 +483,12 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QList<Block *> &blocks,
                                             QUndoCommand *command)
 {
   foreach (Block* b, blocks) {
+    if (b->type() == Block::kGap) {
+      // No point in replacing a gap with a gap, and TrackReplaceBlockWithGapCommand will clear
+      // up any extraneous gaps
+      continue;
+    }
+
     TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
 
     new TrackReplaceBlockWithGapCommand(original_track, b, command);

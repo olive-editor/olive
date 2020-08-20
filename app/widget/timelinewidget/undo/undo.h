@@ -399,9 +399,10 @@ private:
   TrackOutput* track_;
   Block* block_;
 
-  bool we_created_gap_;
-  GapBlock* gap_;
-  GapBlock* merged_gap_;
+  GapBlock* existing_gap_;
+  GapBlock* existing_merged_gap_;
+  bool existing_gap_precedes_;
+  GapBlock* our_gap_;
 
   QObject memory_manager_;
 
