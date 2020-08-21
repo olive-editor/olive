@@ -133,12 +133,7 @@ int NodeViewItem::DefaultItemHeight()
 
 int NodeViewItem::DefaultItemWidth()
 {
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHH");;
-}
-
-int NodeViewItem::DefaultMaximumTextWidth()
-{
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHH");;
+  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHH");;
 }
 
 int NodeViewItem::DefaultItemBorder()
@@ -281,35 +276,57 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       node_label = node_->GetLabel();
     }
 
-    {
-      QFont f;
-      QFontMetrics fm(f);
+    QFont f;
+    QFontMetrics fm(f);
 
-      int max_text_width = DefaultMaximumTextWidth();
+    // Draw right or down arrow based on expanded state
+    int icon_size = fm.height() / 2;
+    int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
+    int icon_full_size = icon_size + icon_padding * 2;
+    const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+    expand_icon.paint(painter, QRect(title_bar_rect_.x() + icon_padding,
+                                     title_bar_rect_.y() + icon_padding,
+                                     icon_size,
+                                     icon_size));
 
-      if (QFontMetricsWidth(fm, node_label) > max_text_width) {
-        QString concatenated;
+    // Calculate how much space we have for text
+    int item_width = title_bar_rect_.width();
+    int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
+    int label_width = QFontMetricsWidth(fm, node_label);
 
-        do {
-          node_label.chop(1);
-          concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
-        } while (QFontMetricsWidth(fm, concatenated) > max_text_width);
+    // Concatenate text if necessary (adds a "..." to the end and removes characters until the
+    // string fits in the bounds)
+    if (label_width > max_text_width) {
+      QString concatenated;
 
-        node_label = concatenated;
-      }
+      do {
+        node_label.chop(1);
+        concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
+      } while ((label_width = QFontMetricsWidth(fm, concatenated)) > max_text_width);
+
+      node_label = concatenated;
     }
 
+    // Determine the text color (automatically calculate from node background color)
     if (node_color.GetRoughLuminance() > 0.66) {
       painter->setPen(Qt::black);
     } else {
       painter->setPen(Qt::white);
     }
 
-    // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(title_bar_rect_,
-                      Qt::AlignCenter,
-                      node_label);
+    // Determine X position (favors horizontal centering unless it'll overrun the arrow)
+    QRectF text_rect = title_bar_rect_;
+    Qt::Alignment text_align = Qt::AlignCenter;
+    int likely_x = item_width / 2 - label_width / 2;
+    if (likely_x < icon_full_size) {
+      text_rect.adjust(icon_full_size, 0, 0, 0);
+      text_align = Qt::AlignLeft | Qt::AlignVCenter;
+    }
 
+    // Draw the text in a rect (the rect is sized around text already in the constructor)
+    painter->drawText(text_rect,
+                      text_align,
+                      node_label);
   }
 
   // Draw final border

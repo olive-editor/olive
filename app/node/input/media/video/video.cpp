@@ -41,6 +41,11 @@ QString VideoInput::Name() const
   return tr("Video Input");
 }
 
+QString VideoInput::ShortName() const
+{
+  return tr("Video");
+}
+
 QString VideoInput::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.videoinput");
