@@ -48,8 +48,38 @@ public:
 
   QString GetTrackName();
 
-  const int& GetTrackHeight() const;
-  void SetTrackHeight(const int& height);
+  const double& GetTrackHeight() const;
+  void SetTrackHeight(const double& height);
+
+  int GetTrackHeightInPixels() const
+  {
+    return InternalHeightToPixelHeight(GetTrackHeight());
+  }
+
+  void SetTrackHeightInPixels(int h)
+  {
+    SetTrackHeight(PixelHeightToInternalHeight(h));
+  }
+
+  static int InternalHeightToPixelHeight(double h)
+  {
+    return qRound(h * QFontMetrics(QFont()).height());
+  }
+
+  static double PixelHeightToInternalHeight(int h)
+  {
+    return double(h) / double(QFontMetrics(QFont()).height());
+  }
+
+  static int GetDefaultTrackHeightInPixels()
+  {
+    return InternalHeightToPixelHeight(kTrackHeightDefault);
+  }
+
+  static int GetMinimumTrackHeightInPixels()
+  {
+    return InternalHeightToPixelHeight(kTrackHeightMinimum);
+  }
 
   virtual void Retranslate() override;
 
@@ -172,12 +202,6 @@ public:
 
   virtual bool IsTrack() const override;
 
-  static int GetTrackHeightIncrement();
-
-  static int GetDefaultTrackHeight();
-
-  static int GetTrackHeightMinimum();
-
   static QString GetDefaultTrackName(Timeline::TrackType type, int index);
 
   bool IsMuted() const;
@@ -197,6 +221,10 @@ public:
   {
     return &waveform_lock_;
   }
+
+  static const double kTrackHeightDefault;
+  static const double kTrackHeightMinimum;
+  static const double kTrackHeightInterval;
 
 public slots:
   void SetTrackName(const QString& name);
@@ -224,7 +252,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChanged(int height);
+  void TrackHeightChangedInPixels(int pixel_height);
 
   /**
    * @brief Signal emitted when the muted setting changes
@@ -264,7 +292,7 @@ private:
 
   rational track_length_;
 
-  int track_height_;
+  double track_height_;
 
   QString track_name_;
 

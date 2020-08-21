@@ -84,7 +84,9 @@ void TrackView::ConnectTrackList(TrackList *list)
     foreach (TrackOutput* track, list_->GetTracks()) {
       TrackViewItem* item = new TrackViewItem(track);
       items_.append(item);
-      splitter_->Insert(track->Index(), track->GetTrackHeight(), item);
+      splitter_->Insert(track->Index(),
+                        track->GetTrackHeightInPixels(),
+                        item);
     }
 
     connect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
@@ -120,12 +122,14 @@ void TrackView::ScrollbarRangeChanged(int, int max)
 
 void TrackView::TrackHeightChanged(int index, int height)
 {
-  list_->GetTrackAt(index)->SetTrackHeight(height);
+  list_->GetTrackAt(index)->SetTrackHeightInPixels(height);
 }
 
 void TrackView::InsertTrack(TrackOutput *track)
 {
-  splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track));
+  splitter_->Insert(track->Index(),
+                    track->GetTrackHeightInPixels(),
+                    new TrackViewItem(track));
 }
 
 void TrackView::RemoveTrack(TrackOutput *track)

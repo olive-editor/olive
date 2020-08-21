@@ -190,7 +190,7 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
     connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
     connect(connected_track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
     connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
+    connect(connected_track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
     connected_track->set_track_type(type_);
 
@@ -233,7 +233,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     disconnect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
     disconnect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
     disconnect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    disconnect(track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
+    disconnect(track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
     emit TrackListChanged();
 

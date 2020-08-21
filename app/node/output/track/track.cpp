@@ -29,6 +29,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const double TrackOutput::kTrackHeightDefault = 3.0;
+const double TrackOutput::kTrackHeightMinimum = 1.5;
+const double TrackOutput::kTrackHeightInterval = 0.5;
+
 TrackOutput::TrackOutput() :
   track_type_(Timeline::kTrackTypeNone),
   index_(-1),
@@ -48,7 +52,7 @@ TrackOutput::TrackOutput() :
   AddInput(muted_input_);
 
   // Set default height
-  track_height_ = GetDefaultTrackHeight();
+  track_height_ = kTrackHeightDefault;
 }
 
 void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
@@ -96,21 +100,21 @@ QString TrackOutput::GetTrackName()
   return track_name_;
 }
 
-const int &TrackOutput::GetTrackHeight() const
+const double &TrackOutput::GetTrackHeight() const
 {
   return track_height_;
 }
 
-void TrackOutput::SetTrackHeight(const int &height)
+void TrackOutput::SetTrackHeight(const double &height)
 {
   track_height_ = height;
-  emit TrackHeightChanged(track_height_);
+  emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
 void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
 {
   if (reader->name() == QStringLiteral("height")) {
-    SetTrackHeight(reader->readElementText().toInt());
+    SetTrackHeight(reader->readElementText().toDouble());
   } else {
     Node::LoadInternal(reader, xml_node_data);
   }
@@ -385,21 +389,6 @@ const rational &TrackOutput::track_length() const
 bool TrackOutput::IsTrack() const
 {
   return true;
-}
-
-int TrackOutput::GetTrackHeightIncrement()
-{
-  return qApp->fontMetrics().height() / 2;
-}
-
-int TrackOutput::GetDefaultTrackHeight()
-{
-  return qApp->fontMetrics().height() * 3;
-}
-
-int TrackOutput::GetTrackHeightMinimum()
-{
-  return qApp->fontMetrics().height() * 3 / 2;
 }
 
 QString TrackOutput::GetDefaultTrackName(Timeline::TrackType type, int index)

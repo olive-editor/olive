@@ -573,7 +573,7 @@ void TimelineWidget::IncreaseTrackHeight()
 
   // Increase the height of each track by one "unit"
   foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(t->GetTrackHeight() + t->GetTrackHeightIncrement());
+    t->SetTrackHeight(t->GetTrackHeight() + TrackOutput::kTrackHeightInterval);
   }
 }
 
@@ -587,7 +587,7 @@ void TimelineWidget::DecreaseTrackHeight()
 
   // Decrease the height of each track by one "unit"
   foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(qMax(t->GetTrackHeight() - t->GetTrackHeightIncrement(), t->GetTrackHeightMinimum()));
+    t->SetTrackHeight(qMax(t->GetTrackHeight() - TrackOutput::kTrackHeightInterval, TrackOutput::kTrackHeightMinimum));
   }
 }
 

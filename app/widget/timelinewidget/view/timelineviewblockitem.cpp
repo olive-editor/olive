@@ -119,7 +119,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
       painter->setPen(Qt::lightGray);
     }
 
-    int text_top = TrackOutput::GetTrackHeightMinimum() / 2 - painter->fontMetrics().height() / 2;
+    int text_top = TrackOutput::GetMinimumTrackHeightInPixels() / 2 - painter->fontMetrics().height() / 2;
     QRectF text_rect = rect();
     text_rect.adjust(0, text_top, 0, 0);
     painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->GetLabel());

@@ -207,7 +207,7 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
   int line_y = 0;
 
   foreach (TrackOutput* track, connected_track_list_->GetTracks()) {
-    line_y += track->GetTrackHeight();
+    line_y += track->GetTrackHeightInPixels();
 
     // One px gap between tracks
     line_y++;
@@ -375,10 +375,10 @@ int TimelineView::GetTrackY(int track_index) const
 int TimelineView::GetTrackHeight(int track_index) const
 {
   if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
-    return TrackOutput::GetDefaultTrackHeight();
+    return TrackOutput::GetDefaultTrackHeightInPixels();
   }
 
-  return connected_track_list_->GetTrackAt(track_index)->GetTrackHeight();
+  return connected_track_list_->GetTrackAt(track_index)->GetTrackHeightInPixels();
 }
 
 QPoint TimelineView::GetScrollCoordinates() const
