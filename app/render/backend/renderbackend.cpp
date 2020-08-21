@@ -20,6 +20,7 @@
 
 #include "renderbackend.h"
 
+#include <QApplication>
 #include <QDateTime>
 #include <QThread>
 
@@ -39,6 +40,7 @@ QThreadPool RenderBackend::thread_pool_;
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   viewer_node_(nullptr),
+  video_force_download_resolution_(false),
   autocache_enabled_(false),
   autocache_paused_(false),
   generate_audio_previews_(false),
@@ -252,11 +254,6 @@ void RenderBackend::SetAudioParams(const AudioParams &params)
   audio_params_ = params;
 }
 
-void RenderBackend::SetVideoDownloadMatrix(const QMatrix4x4 &mat)
-{
-  video_download_matrix_ = mat;
-}
-
 std::list<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
 {
   // FIXME: Magic number
@@ -424,6 +421,7 @@ void RenderBackend::RunNextJob()
 
       worker->SetVideoParams(video_params_);
       worker->SetAudioParams(audio_params_);
+      worker->SetForceDownloadResolution(video_force_download_resolution_);
       worker->SetVideoDownloadMatrix(video_download_matrix_);
       worker->SetRenderMode(render_mode_);
       worker->SetPreviewGenerationEnabled(generate_audio_previews_);
@@ -520,11 +518,13 @@ void RenderBackend::AutoCacheVideoInvalidated(const TimeRange &range)
   ClearVideoQueue();
 
   // Hash these frames since that should be relatively quick.
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange({range});
-  autocache_hash_tasks_.insert(watcher, frames);
-  connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheHashesGenerated);
-  watcher->SetTicket(Hash(frames));
+  if (!(qApp->mouseButtons() & Qt::LeftButton)) {
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange({range});
+    autocache_hash_tasks_.insert(watcher, frames);
+    connect(watcher, &RenderTicketWatcher::Finished, this, &RenderBackend::AutoCacheHashesGenerated);
+    watcher->SetTicket(Hash(frames));
+  }
 }
 
 void RenderBackend::AutoCacheAudioInvalidated(const TimeRange &range)

@@ -66,6 +66,9 @@ bool ExportTask::Run()
 
   if (params_.video_enabled()) {
 
+    // Ensure renderer always provides the same resolution
+    backend()->SetForceDownloadResolution(true);
+
     // If a transformation matrix is applied to this video, create it here
     if (params_.video_scaling_method() != ExportParams::kStretch) {
       QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),

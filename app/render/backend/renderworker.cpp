@@ -38,6 +38,7 @@ const int RenderWorker::kMaxDecoderLife = 6000;
 
 RenderWorker::RenderWorker(RenderBackend* parent) :
   parent_(parent),
+  video_force_download_resolution_(false),
   available_(true),
   generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline)
@@ -123,15 +124,19 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
   }
 
   FramePtr frame = Frame::Create();
-  frame->set_video_params(VideoParams(video_params_.width(),
-                                      video_params_.height(),
-                                      video_params_.time_base(),
-                                      output_format,
-                                      video_params_.pixel_aspect_ratio(),
-                                      video_params_.interlacing(),
-                                      video_params_.divider()));
   frame->set_timestamp(time);
-  frame->allocate();
+
+  if (video_force_download_resolution_ || texture.isNull()) {
+    // If we're setting the resolution ourselves or we're zeroing it out, allocate the frame now
+    frame->set_video_params(VideoParams(video_params_.width(),
+                                        video_params_.height(),
+                                        video_params_.time_base(),
+                                        output_format,
+                                        video_params_.pixel_aspect_ratio(),
+                                        video_params_.interlacing(),
+                                        video_params_.divider()));
+    frame->allocate();
+  }
 
   if (texture.isNull()) {
     // Blank frame out
@@ -312,7 +317,8 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
 
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
-  if (node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
+  if (render_mode_ == RenderMode::kOffline
+      && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     QByteArray hash = HashNode(node, video_params(), time);
 
     FramePtr f = viewer_->video_frame_cache()->LoadCacheFrame(hash);

@@ -52,15 +52,44 @@ public:
 
   void Release();
 
-  const int& width() const;
+  const VideoParams& params() const
+  {
+    return params_;
+  }
 
-  const int& height() const;
+  const int& width() const
+  {
+    return params_.effective_width();
+  }
 
-  const PixelFormat::Format &format() const;
+  const int& height() const
+  {
+    return params_.effective_height();
+  }
 
-  const GLuint& texture() const;
+  const PixelFormat::Format &format() const
+  {
+    return params_.format();
+  }
 
-  const int& divider() const;
+  const GLuint& texture() const
+  {
+    return texture_;
+  }
+
+  const int& divider() const
+  {
+    return params_.divider();
+  }
+
+  /**
+   * @brief Changes the pixel aspect ratio metadata of this textuer
+   *
+   * This metadata is important for our render pipeline, but we don't need to do any re-allocation
+   * to set it like we do with other VideoParam changes, so we provide a function to change only
+   * the PAR here.
+   */
+  void SetPixelAspectRatio(const rational& r);
 
   void Upload(FramePtr frame);
   void Upload(Frame* frame);

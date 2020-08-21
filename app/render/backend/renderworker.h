@@ -65,6 +65,11 @@ public:
     audio_params_ = params;
   }
 
+  void SetForceDownloadResolution(bool e)
+  {
+    video_force_download_resolution_ = e;
+  }
+
   void SetVideoDownloadMatrix(const QMatrix4x4& mat)
   {
     video_download_matrix_ = mat;
@@ -169,6 +174,7 @@ private:
 
   QHash<Stream*, CachedStill> still_image_cache_;
 
+  bool video_force_download_resolution_;
   QMatrix4x4 video_download_matrix_;
 
   QMutex decoder_lock_;

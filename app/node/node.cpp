@@ -375,6 +375,9 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
           // Alpha associated setting
           hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+
+          // Pixel aspect ratio
+          hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
         }
 
         // Footage timestamp

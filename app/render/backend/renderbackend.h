@@ -131,7 +131,15 @@ public:
 
   void SetAudioParams(const AudioParams& params);
 
-  void SetVideoDownloadMatrix(const QMatrix4x4& mat);
+  void SetForceDownloadResolution(bool e)
+  {
+    video_force_download_resolution_ = e;
+  }
+
+  void SetVideoDownloadMatrix(const QMatrix4x4& mat)
+  {
+    video_download_matrix_ = mat;
+  }
 
   static std::list<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
@@ -162,6 +170,7 @@ private:
 
   // VIDEO MEMBERS
   VideoParams video_params_;
+  bool video_force_download_resolution_;
   QMatrix4x4 video_download_matrix_;
 
   // AUDIO MEMBERS

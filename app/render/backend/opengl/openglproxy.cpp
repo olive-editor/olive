@@ -148,30 +148,6 @@ QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const Video
 
     VideoParams frame_params = frame->video_params();
 
-    // Check frame aspect ratio
-    rational true_pixel_aspect_ratio = frame_params.pixel_aspect_ratio() / params.pixel_aspect_ratio();
-
-    if (true_pixel_aspect_ratio != 1) {
-      int new_width = frame_params.width();
-      int new_height = frame_params.height();
-
-      // Scale the frame in a way that does not reduce the resolution
-      if (frame_params.pixel_aspect_ratio() > 1) {
-        // Make wider
-        new_width = qRound(static_cast<double>(new_width) * frame_params.pixel_aspect_ratio().toDouble());
-      } else {
-        // Make taller
-        new_height = qRound(static_cast<double>(new_height) / frame_params.pixel_aspect_ratio().toDouble());
-      }
-
-      frame_params = VideoParams(new_width,
-                                 new_height,
-                                 frame_params.format(),
-                                 frame_params.pixel_aspect_ratio(),
-                                 frame_params.interlacing(),
-                                 frame_params.divider());
-    }
-
     PixelFormat::Format texture_fmt;
     if (PixelFormat::FormatHasAlphaChannel(frame_params.format())) {
       texture_fmt = PixelFormat::GetFormatWithAlphaChannel(params.format());
@@ -385,8 +361,18 @@ QVariant OpenGLProxy::RunNodeAccelerated(const Node *node,
         // Set texture resolution if shader wants it
         int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()));
         if (res_param_location > -1) {
+          int adjusted_width = texture->texture()->width() * texture->texture()->divider();
+
+          // Adjust virtual width by pixel aspect if necessary
+          if (texture->texture()->params().pixel_aspect_ratio() != 1
+              || params.pixel_aspect_ratio() != 1) {
+            double relative_pixel_aspect = texture->texture()->params().pixel_aspect_ratio().toDouble() / params.pixel_aspect_ratio().toDouble();
+
+            adjusted_width = qRound(static_cast<double>(adjusted_width) * relative_pixel_aspect);
+          }
+
           shader->setUniformValue(res_param_location,
-                                  static_cast<GLfloat>(texture->texture()->width() * texture->texture()->divider()),
+                                  adjusted_width,
                                   static_cast<GLfloat>(texture->texture()->height() * texture->texture()->divider()));
         }
       }
@@ -506,6 +492,12 @@ void OpenGLProxy::TextureToBuffer(const QVariant& tex_in,
   }
 
   OpenGLTextureCache::ReferencePtr download_tex;
+
+  if (!frame->is_allocated()) {
+    // If the frame isn't allocated, we'll assume that we're allocating it to the texture dimensions
+    frame->set_video_params(texture->texture()->params());
+    frame->allocate();
+  }
 
   functions_->glViewport(0, 0, frame->width(), frame->height());
 

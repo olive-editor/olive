@@ -81,6 +81,8 @@ protected:
 
   virtual void ShiftEvent(const rational& from, const rational& to) override;
 
+  virtual void InvalidateEvent(const TimeRange& range) override;
+
 private:
   QMap<rational, QByteArray> time_hash_map_;
 

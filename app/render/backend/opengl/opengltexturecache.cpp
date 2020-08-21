@@ -64,6 +64,8 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, co
     texture->Create(ctx, params);
   }
 
+  texture->SetPixelAspectRatio(params.pixel_aspect_ratio());
+
   ReferencePtr ref = std::make_shared<Reference>(this, texture);
   existing_references_.append(ref.get());
 

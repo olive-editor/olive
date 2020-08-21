@@ -100,29 +100,15 @@ void OpenGLTexture::Release()
   created_ctx_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-const int &OpenGLTexture::width() const
+void OpenGLTexture::SetPixelAspectRatio(const rational &r)
 {
-  return params_.effective_width();
-}
-
-const int &OpenGLTexture::height() const
-{
-  return params_.effective_height();
-}
-
-const PixelFormat::Format &OpenGLTexture::format() const
-{
-  return params_.format();
-}
-
-const GLuint &OpenGLTexture::texture() const
-{
-  return texture_;
-}
-
-const int &OpenGLTexture::divider() const
-{
-  return params_.divider();
+  params_ = VideoParams(params_.width(),
+                        params_.height(),
+                        params_.time_base(),
+                        params_.format(),
+                        r,
+                        params_.interlacing(),
+                        params_.divider());
 }
 
 void OpenGLTexture::Upload(FramePtr frame)

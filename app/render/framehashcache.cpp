@@ -253,7 +253,8 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn) const
     frame = Frame::Create();
     frame->set_video_params(VideoParams(width,
                                         height,
-                                        image_format));
+                                        image_format,
+                                        rational::fromDouble(file.header().pixelAspectRatio())));
 
     frame->allocate();
 
@@ -333,6 +334,15 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   }
 }
 
+void FrameHashCache::InvalidateEvent(const TimeRange &range)
+{
+  QVector<rational> invalid_frames = GetFrameListFromTimeRange({range});
+
+  foreach (const rational& r, invalid_frames) {
+    time_hash_map_.remove(r);
+  }
+}
+
 void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
 {
   QString cache_dir = GetCacheDirectory();
@@ -401,6 +411,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   header.compression() = Imf::DWAA_COMPRESSION;
   header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
+  header.pixelAspectRatio() = vparam.pixel_aspect_ratio().toDouble();
 
   Imf::OutputFile out(filename.toUtf8(), header, 0);
 
