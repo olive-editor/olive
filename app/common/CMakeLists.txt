@@ -21,6 +21,8 @@ set(OLIVE_SOURCES
   common/cancelableobject.h
   common/channellayout.h
   common/clamp.h
+  common/commandlineparser.h
+  common/commandlineparser.cpp
   common/crashhandler.h
   common/crashhandler.cpp
   common/crashpadinterface.cpp

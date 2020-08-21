@@ -52,12 +52,62 @@ class Core : public QObject
 {
   Q_OBJECT
 public:
+  class CoreParams
+  {
+  public:
+    CoreParams();
+
+    enum RunMode {
+      kRunNormal,
+      kHeadlessExport,
+      kHeadlessPreCache
+    };
+
+    bool fullscreen() const
+    {
+      return run_fullscreen_;
+    }
+
+    void set_fullscreen(bool e)
+    {
+      run_fullscreen_ = e;
+    }
+
+    RunMode run_mode() const
+    {
+      return mode_;
+    }
+
+    void set_run_mode(RunMode m)
+    {
+      mode_ = m;
+    }
+
+    const QString startup_project() const
+    {
+      return startup_project_;
+    }
+
+    void set_startup_project(const QString& p)
+    {
+      startup_project_ = p;
+    }
+
+  private:
+    RunMode mode_;
+
+    QString startup_project_;
+
+    bool run_fullscreen_;
+
+  };
+
   /**
    * @brief Core Constructor
    *
    * Currently empty
    */
-  Core();
+  Core(const CoreParams& params);
 
   /**
    * @brief Core object accessible from anywhere in the code
@@ -66,7 +116,10 @@ public:
    */
   static Core* instance();
 
-  int execute(QCoreApplication *a);
+  const CoreParams& core_params() const
+  {
+    return core_params_;
+  }
 
   /**
    * @brief Start Olive Core
@@ -408,14 +461,6 @@ private:
   MainWindow* main_window_;
 
   /**
-   * @brief Internal startup project object
-   *
-   * If the user specifies a project file on the command line, the command line parser in Start() will write the
-   * project URL here to be loaded once Olive has finished initializing.
-   */
-  QString startup_project_;
-
-  /**
    * @brief List of currently open projects
    */
   QList<ProjectPtr> open_projects_;
@@ -456,14 +501,14 @@ private:
   QStringList recent_projects_;
 
   /**
-   * @brief Internal variable for whether the GUI is active
+   * @brief Parameters set up in main() determining how the program should run
    */
-  bool gui_active_;
+  CoreParams core_params_;
 
   /**
    * @brief Static singleton core instance
    */
-  static Core instance_;
+  static Core* instance_;
 
 private slots:
   void SaveAutorecovery();

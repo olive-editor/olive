@@ -22,7 +22,6 @@
 
 #include <QApplication>
 #include <QClipboard>
-#include <QCommandLineParser>
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -64,93 +63,23 @@
 
 OLIVE_NAMESPACE_ENTER
 
-Core Core::instance_;
+Core* Core::instance_ = nullptr;
 
-Core::Core() :
+Core::Core(const CoreParams& params) :
   main_window_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
-  gui_active_(false)
+  core_params_(params)
 {
+  // Store reference to this object, making the assumption that Core will only ever be made in
+  // main(). This will obviously break if not.
+  instance_ = this;
 }
 
 Core *Core::instance()
 {
-  return &instance_;
-}
-
-int Core::execute(QCoreApplication* a)
-{
-  int exit_code = 1;
-
-  //
-  // Parse command line arguments
-  //
-
-  QCommandLineParser parser;
-  QCommandLineOption help_option = parser.addHelpOption();
-  QCommandLineOption version_option = parser.addVersionOption();
-
-  // Project from command line option
-  // FIXME: What's the correct way to make a visually "optional" positional argument, or is manually adding square
-  // brackets like this correct?
-  parser.addPositionalArgument("[project]", tr("Project to open on startup"));
-
-  // Create fullscreen option
-  QCommandLineOption fullscreen_option({"f", "fullscreen"}, tr("Start in full screen mode"));
-  parser.addOption(fullscreen_option);
-
-  // Create headless export option
-  QCommandLineOption headless_export_option({"x", "export"}, tr("Export project from command line"));
-  parser.addOption(headless_export_option);
-
-  // Parse options
-  parser.process(*a);
-
-  if (parser.isSet(help_option) || parser.isSet(version_option)) {
-    // These options don't launch any of the application proper
-    return a->exec();
-  }
-
-  // Start core
-  OLIVE_NAMESPACE::Core::instance()->Start();
-
-  QStringList args = parser.positionalArguments();
-
-  // Detect project to load on startup
-  if (!args.isEmpty()) {
-    startup_project_ = args.first();
-  }
-
-  gui_active_ = !parser.isSet(headless_export_option);
-
-  if (gui_active_) {
-
-    // Start GUI
-    StartGUI(parser.isSet(fullscreen_option));
-
-    // If we have a startup
-    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
-
-    // Run application loop and receive exit code
-    exit_code = a->exec();
-
-  } else {
-
-    if (parser.isSet(headless_export_option)) {
-      // Start a headless export
-      if (StartHeadlessExport()) {
-        exit_code = 0;
-      }
-    }
-
-  }
-
-  // Clear core memory
-  OLIVE_NAMESPACE::Core::instance()->Stop();
-
-  return exit_code;
+  return instance_;
 }
 
 void Core::DeclareTypesForQt()
@@ -204,6 +133,22 @@ void Core::Start()
   //
 
   qInfo() << "Using Qt version:" << qVersion();
+
+  switch (core_params_.run_mode()) {
+  case CoreParams::kRunNormal:
+    // Start GUI
+    StartGUI(core_params_.fullscreen());
+
+    // If we have a startup
+    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
+    break;
+  case CoreParams::kHeadlessExport:
+    qInfo() << "Headless export is not fully implemented yet";
+    break;
+  case CoreParams::kHeadlessPreCache:
+    qInfo() << "Headless pre-cache is not fully implemented yet";
+    break;
+  }
 }
 
 void Core::Stop()
@@ -571,18 +516,20 @@ void Core::ProjectWasModified(bool e)
 
 bool Core::StartHeadlessExport()
 {
-  if (startup_project_.isEmpty()) {
+  const QString& startup_project = core_params_.startup_project();
+
+  if (startup_project.isEmpty()) {
     qCritical().noquote() << tr("You must specify a project file to export");
     return false;
   }
 
-  if (!QFileInfo::exists(startup_project_)) {
+  if (!QFileInfo::exists(startup_project)) {
     qCritical().noquote() << tr("Specified project does not exist");
     return false;
   }
 
   // Start a load task and try running it
-  ProjectLoadTask plm(startup_project_);
+  ProjectLoadTask plm(startup_project);
   CLITaskDialog task_dialog(&plm);
 
   if (task_dialog.Run()) {
@@ -651,21 +598,24 @@ bool Core::StartHeadlessExport()
 
 void Core::OpenStartupProject()
 {
+  const QString& startup_project = core_params_.startup_project();
+  bool startup_project_exists = !startup_project.isEmpty() && QFileInfo::exists(startup_project);
+
   // Load startup project
-  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+  if (!startup_project_exists && !startup_project.isEmpty()) {
     QMessageBox::warning(main_window_,
                          tr("Failed to open startup file"),
-                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                         tr("The project \"%1\" doesn't exist. "
+                            "A new project will be started instead.").arg(startup_project),
                          QMessageBox::Ok);
-
-    startup_project_.clear();
   }
 
-  if (startup_project_.isEmpty()) {
+  if (startup_project_exists) {
+    // If a startup project was set and exists, open it now
+    OpenProjectInternal(startup_project);
+  } else {
     // If no load project is set, create a new one on open
     CreateNewProject();
-  } else {
-    OpenProjectInternal(startup_project_);
   }
 }
 
@@ -1226,6 +1176,12 @@ void Core::OpenProject()
   if (!file.isEmpty()) {
     OpenProjectInternal(file);
   }
+}
+
+Core::CoreParams::CoreParams() :
+  mode_(kRunNormal),
+  run_fullscreen_(false)
+{
 }
 
 OLIVE_NAMESPACE_EXIT
