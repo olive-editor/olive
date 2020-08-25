@@ -30,7 +30,7 @@ class CommandLineParser
 public:
   ~CommandLineParser();
 
-  DISABLE_COPY_MOVE(CommandLineParser);
+  DISABLE_COPY_MOVE(CommandLineParser)
 
   class Option {
   public:
