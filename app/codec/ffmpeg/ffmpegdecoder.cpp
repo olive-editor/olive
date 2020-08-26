@@ -50,7 +50,7 @@ OLIVE_NAMESPACE_ENTER
 
 QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instance_map_;
 QMutex FFmpegDecoder::instance_map_lock_;
-QHash< Stream*, FFmpegFramePool* > FFmpegDecoder::frame_pool_map_;
+QHash< FFmpegDecoder::FFmpegFramePoolKey, FFmpegDecoder::FFmpegFramePoolValue > FFmpegDecoder::frame_pool_map_;
 
 // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
 //        this a dynamic value somehow or a configurable value?
@@ -101,16 +101,19 @@ bool FFmpegDecoder::Open()
     // Video optimizes with multiple instances that we can swap between
     QMutexLocker map_locker(&instance_map_lock_);
 
-    FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
+    VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
-    if (!frame_pool) {
+    FFmpegFramePoolKey key = {vs->width(), vs->height(), src_pix_fmt_};
+    FFmpegFramePoolValue& frame_pool = frame_pool_map_[key];
+
+    if (!frame_pool.pool) {
       // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
       //        this a dynamic value somehow or a configurable value?
-      frame_pool = new FFmpegFramePool(32);
-      frame_pool_map_.insert(stream().get(), frame_pool);
+      frame_pool.pool = new FFmpegFramePool(32);
     }
+    frame_pool.handles++;
 
-    our_instance->SetFramePool(frame_pool);
+    our_instance->SetFramePool(frame_pool.pool);
 
     instance_map_[stream().get()].append(our_instance);
   } else {
@@ -200,7 +203,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
       const QList<FFmpegDecoderInstance*>& instances = instance_map_.value(stream().get());
 
-      FFmpegFramePool* pool = frame_pool_map_.value(stream().get());
+      FFmpegFramePool* pool = frame_pool_map_.value({vs->width(), vs->height(), src_pix_fmt_}).pool;
 
       if (pool->width() != divided_width || pool->height() != divided_height) {
         // Clear all instance queues
@@ -406,9 +409,14 @@ void FFmpegDecoder::Close()
       instance_map_.insert(stream().get(), list);
 
       // If there are no more instances, destroy frame pool
-      if (list.isEmpty()) {
-        FFmpegFramePool* frame_pool = frame_pool_map_.take(stream().get());
-        delete frame_pool;
+      VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
+      FFmpegFramePoolKey frame_pool_key = {vs->width(), vs->height(), src_pix_fmt_};
+      FFmpegFramePoolValue& frame_pool_info = frame_pool_map_[frame_pool_key];
+      frame_pool_info.handles--;
+
+      if (frame_pool_info.handles == 0) {
+        delete frame_pool_info.pool;
+        frame_pool_map_.remove(frame_pool_key);
       }
 
       // We're done with the list now, we can unlock it and allow others to use it
@@ -1445,6 +1453,11 @@ void FFmpegDecoderInstance::ClearTimerEvent()
   cache_lock()->lock();
   RemoveFramesBefore(QDateTime::currentMSecsSinceEpoch() - kMaxFrameLife);
   cache_lock()->unlock();
+}
+
+uint qHash(const FFmpegDecoder::FFmpegFramePoolKey &r)
+{
+  return ::qHash(r.width) ^ ::qHash(r.height) ^ ::qHash(r.format);
 }
 
 OLIVE_NAMESPACE_EXIT

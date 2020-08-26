@@ -158,6 +158,17 @@ public:
 
   virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams& p) override;
 
+  struct FFmpegFramePoolKey {
+    int width;
+    int height;
+    AVPixelFormat format;
+
+    bool operator==(const FFmpegFramePoolKey& k) const
+    {
+      return width == k.width && height == k.height && format == k.format;
+    }
+  };
+
 private:
   /**
    * @brief Handle an error
@@ -199,11 +210,18 @@ private:
   AVPixelFormat ideal_pix_fmt_;
   PixelFormat::Format native_pix_fmt_;
 
+  struct FFmpegFramePoolValue {
+    FFmpegFramePool* pool = nullptr;
+    int handles = 0;
+  };
+
   static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;
-  static QHash< Stream*, FFmpegFramePool* > frame_pool_map_;
+  static QHash< FFmpegFramePoolKey, FFmpegFramePoolValue > frame_pool_map_;
   static QMutex instance_map_lock_;
 
 };
+
+uint qHash(const FFmpegDecoder::FFmpegFramePoolKey& r);
 
 OLIVE_NAMESPACE_EXIT
 
