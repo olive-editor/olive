@@ -147,6 +147,9 @@ QString FrameHashCache::GetFormatExtension()
 
 QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_list, const rational &timebase)
 {
+  // If timebase is null, this will be an infinite loop
+  Q_ASSERT(!timebase.isNull());
+
   QVector<rational> times;
 
   while (!range_list.isEmpty()) {

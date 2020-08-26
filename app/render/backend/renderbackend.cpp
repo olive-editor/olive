@@ -148,6 +148,10 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
     copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
     copy_map_.insert(viewer_node_, copied_viewer_node_);
 
+    // We begin an operation and never end it which prevents the copy from unnecessarily
+    // invalidating its own cache
+    copied_viewer_node_->BeginOperation();
+
     NodeGraphChanged(viewer_node_->texture_input());
     NodeGraphChanged(viewer_node_->samples_input());
     ProcessUpdateQueue();
