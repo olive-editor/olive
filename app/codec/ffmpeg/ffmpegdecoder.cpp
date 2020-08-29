@@ -889,13 +889,15 @@ QWaitCondition *FFmpegDecoderInstance::cache_wait_cond()
   return &cache_wait_cond_;
 }
 
-bool FFmpegDecoderInstance::IsWorking() const
+bool FFmpegDecoderInstance::IsWorking()
 {
+  QMutexLocker locker(&is_working_mutex_);
   return is_working_;
 }
 
 void FFmpegDecoderInstance::SetWorking(bool working)
 {
+  QMutexLocker locker(&is_working_mutex_);
   is_working_ = working;
 }
 
@@ -1113,7 +1115,12 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
       }
 
       // Clear early frames
-      TruncateCacheRangeTo(second_ts_);
+      int removed = TruncateCacheRangeTo(second_ts_);
+
+      if (removed == 0 && MemoryPoolLimitReached()) {
+        // Relinquish a frame if we have to conserve memory
+        RemoveFirstFrame();
+      }
 
       // Append this frame and signal to other threads that a new frame has arrived
       cached_frames_.append(cached);
@@ -1295,19 +1302,30 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::GetFrameFromCache(const int64
 void FFmpegDecoderInstance::RemoveFramesBefore(const qint64 &t)
 {
   // We keep one frame in memory as an identifier for what pts the decoder is up to
-  while (cached_frames_.size() > 1 && cached_frames_.first()->last_accessed() < t) {
-    cached_frames_.removeFirst();
-    cache_at_zero_ = false;
+  int min_frames = (MemoryPoolLimitReached() && !IsWorking()) ? 0 : 1;
+
+  while (cached_frames_.size() > min_frames && cached_frames_.first()->last_accessed() < t) {
+    RemoveFirstFrame();
   }
 }
 
-void FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
+int FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
 {
+  int counter = 0;
+
   // We keep one frame in memory as an identifier for what pts the decoder is up to
   while (cached_frames_.size() > 1 && (RangeEnd() - RangeStart()) > t) {
-    cached_frames_.removeFirst();
-    cache_at_zero_ = false;
+    RemoveFirstFrame();
+    counter++;
   }
+
+  return counter;
+}
+
+void FFmpegDecoderInstance::RemoveFirstFrame()
+{
+  cached_frames_.removeFirst();
+  cache_at_zero_ = false;
 }
 
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :

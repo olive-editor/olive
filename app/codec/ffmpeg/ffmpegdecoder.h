@@ -62,7 +62,8 @@ public:
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void RemoveFramesBefore(const qint64& t);
-  void TruncateCacheRangeTo(const qint64& t);
+  int TruncateCacheRangeTo(const qint64& t);
+  void RemoveFirstFrame();
 
   AVFormatContext* fmt_ctx() const
   {
@@ -90,7 +91,7 @@ public:
   QMutex* cache_lock();
   QWaitCondition* cache_wait_cond();
 
-  bool IsWorking() const;
+  bool IsWorking();
   void SetWorking(bool working);
 
 private:
@@ -119,6 +120,7 @@ private:
   int64_t cache_target_time_;
 
   bool is_working_;
+  QMutex is_working_mutex_;
 
   bool cache_at_zero_;
   bool cache_at_eof_;

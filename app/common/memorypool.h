@@ -32,6 +32,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
+extern size_t memory_pool_consumption;
+extern QMutex memory_pool_consumption_lock;
+bool MemoryPoolLimitReached();
+
 template <typename T>
 /**
  * @brief MemoryPool base class
@@ -198,6 +202,7 @@ public:
     Arena(MemoryPool* parent) {
       parent_ = parent;
       data_ = nullptr;
+      allocated_sz_ = 0;
     }
 
     ~Arena() {
@@ -207,6 +212,10 @@ public:
       }
 
       delete [] data_;
+
+      memory_pool_consumption_lock.lock();
+      memory_pool_consumption -= allocated_sz_;
+      memory_pool_consumption_lock.unlock();
     }
 
     DISABLE_COPY_MOVE(Arena)
@@ -264,9 +273,15 @@ public:
 
       element_sz_ = ele_sz;
 
-      if ((data_ = new char[element_sz_ * nb_elements])) {
+      allocated_sz_ = element_sz_ * nb_elements;
+
+      if ((data_ = new char[allocated_sz_])) {
         available_.resize(nb_elements);
         available_.fill(true);
+
+        memory_pool_consumption_lock.lock();
+        memory_pool_consumption += allocated_sz_;
+        memory_pool_consumption_lock.unlock();
 
         return true;
       } else {
@@ -288,6 +303,8 @@ public:
     MemoryPool* parent_;
 
     char* data_;
+
+    size_t allocated_sz_;
 
     QVector<bool> available_;
 
