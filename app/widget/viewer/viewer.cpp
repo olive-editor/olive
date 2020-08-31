@@ -435,8 +435,13 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 {
   Q_ASSERT(speed != 0);
 
+  if (!GetConnectedNode()) {
+    // Do nothing if no viewer node is attached
+    return;
+  }
+
   if (timebase().isNull()) {
-    qWarning() << "ViewerWidget can't play with an invalid timebase";
+    qCritical() << "ViewerWidget can't play with an invalid timebase";
     return;
   }
 
