@@ -115,17 +115,21 @@ void CommandLineParser::PrintHelp(const char* filename)
   }
 
   const char* basename;
+  bool path = true;
 #ifdef Q_OS_WINDOWS
   basename = strrchr(filename, '\\');
   if (!basename) {
     basename = strrchr(filename, '/');
   }
+  if (!basename) {
+    basename = filename;
+    path = false;
+  }
 #else
   basename = strrchr(filename, '/');
 #endif
 
-  printf("Usage: %s [options] %s\n\n", basename + 1, positional_args.toUtf8().constData());
-
+  printf("Usage: %s [options] %s\n\n", path ? basename + 1 : basename, positional_args.toUtf8().constData());
   foreach (const KnownOption& o, options_) {
     QString all_args;
 
