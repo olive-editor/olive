@@ -121,6 +121,9 @@ void CommandLineParser::PrintHelp(const char* filename)
   if (!basename) {
     basename = strrchr(filename, '/');
   }
+  // If no slashes are found we are probably running Olive from the executables own directory
+  // so we set basename equal to the filename (olive-editor.exe). This ensures basename is
+  // always valid.
   if (!basename) {
     basename = filename;
     path = false;
