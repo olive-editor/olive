@@ -288,7 +288,7 @@ PixelFormat::Format OIIODecoder::GetFormatFromOIIOBasetype(const OIIO::ImageSpec
 
 rational OIIODecoder::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
 {
-  return rational::fromDouble(spec.extra_attribs.get_float("PixelAspectRatio", 1));
+  return rational::fromDouble(spec.get_float_attribute("PixelAspectRatio", 1));
 }
 
 bool OIIODecoder::FileTypeIsSupported(const QString& fn)

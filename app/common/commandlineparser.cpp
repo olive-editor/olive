@@ -124,8 +124,15 @@ void CommandLineParser::PrintHelp(const char* filename)
   basename = strrchr(filename, '/');
 #endif
 
-  printf("Usage: %s [options] %s\n\n", basename + 1, positional_args.toUtf8().constData());
+  if (basename) {
+    // Slash found, increment pointer to avoid showing the slash itself
+    basename++;
+  } else {
+    // If no slashes are found, assume string is already a basename
+    basename = filename;
+  }
 
+  printf("Usage: %s [options] %s\n\n", basename, positional_args.toUtf8().constData());
   foreach (const KnownOption& o, options_) {
     QString all_args;
 

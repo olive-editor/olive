@@ -22,6 +22,7 @@
 #define COMMANDLINEPARSER_H
 
 #include <QStringList>
+#include <QVector>
 
 #include "common/define.h"
 
