@@ -246,6 +246,8 @@ private slots:
 
   void AutoCacheVideoDownloaded();
 
+  void QueuedInputRemoved();
+
 };
 
 OLIVE_NAMESPACE_EXIT

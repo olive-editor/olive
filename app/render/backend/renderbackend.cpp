@@ -324,10 +324,13 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
       return;
     }
 
-    // Check if this dependency graph is already queued
-    if (source->parentNode()->OutputsTo(queued_input, true, true)) {
-      // In which case, no further copy is necessary
-      return;
+    // Check if this input supersedes an already queued input
+    if ((source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))
+        || queued_input->parentNode()->OutputsTo(source, true, true)) {
+      // In which case, we don't need to queue it and can queue our own
+      graph_update_queue_.removeAt(i);
+      disconnect(queued_input, &NodeInput::destroyed, this, &RenderBackend::QueuedInputRemoved);
+      i--;
     }
 
     // Check if the source is a member of this array, in which case it'll be copied eventually anyway
@@ -336,16 +339,15 @@ void RenderBackend::NodeGraphChanged(NodeInput *source)
       return;
     }
 
-    // Check if this input supersedes an already queued input
-    if (queued_input->parentNode()->OutputsTo(source, true, true)
-        || (source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))) {
-      // In which case, we don't need to queue it and can queue our own
-      graph_update_queue_.removeAt(i);
-      i--;
+    // Check if this dependency graph is already queued
+    if (source->parentNode()->OutputsTo(queued_input, true, true)) {
+      // In which case, no further copy is necessary
+      return;
     }
   }
 
   graph_update_queue_.append(source);
+  connect(source, &NodeInput::destroyed, this, &RenderBackend::QueuedInputRemoved);
 }
 
 void RenderBackend::Close()
@@ -668,6 +670,13 @@ void RenderBackend::AutoCacheVideoDownloaded()
   delete watcher;
 }
 
+void RenderBackend::QueuedInputRemoved()
+{
+  NodeInput* i = static_cast<NodeInput*>(sender());
+  disconnect(i, &NodeInput::destroyed, this, &RenderBackend::QueuedInputRemoved);
+  graph_update_queue_.removeOne(i);
+}
+
 //#define PRINT_UPDATE_QUEUE_INFO
 void RenderBackend::ProcessUpdateQueue()
 {
@@ -681,6 +690,8 @@ void RenderBackend::ProcessUpdateQueue()
 #ifdef PRINT_UPDATE_QUEUE_INFO
     qDebug() << " " << i->parentNode()->id() << i->id();
 #endif
+    disconnect(i, &NodeInput::destroyed, this, &RenderBackend::QueuedInputRemoved);
+
     CopyNodeInputValue(i);
   }
 

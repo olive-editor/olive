@@ -549,68 +549,6 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
   UpdateInOutFrom(new_index);
 
   InputConnectionChanged(edge);
-
-  /*
-  // Determine what node was just connected
-  Node* connected_node = edge->output()->parentNode();
-
-  // If this node is a block, we can do something with it
-  if (connected_node->IsBlock()) {
-    Block* connected_block = static_cast<Block*>(connected_node);
-
-    // See where this input falls in our internal "block cache"
-    Block* next = nullptr;
-    for (int i=block_input_->IndexOfSubParameter(edge->input())+1; i<block_input_->GetSize(); i++) {
-      Node* that_node = block_input_->At(i)->get_connected_node();
-
-      // If we find a block, this is the block that will follow the one just connected
-      if (that_node && that_node->IsBlock()) {
-        next = static_cast<Block*>(that_node);
-        break;
-      }
-    }
-
-    int real_block_index;
-
-    // Either insert or append depending on if we found a "next" block
-    if (next) {
-      // Insert block before this next block
-      real_block_index = block_cache_.indexOf(next);
-      block_cache_.insert(real_block_index, connected_block);
-
-      // Update values with next
-      next->set_previous(connected_block);
-      connected_block->set_next(next);
-    } else {
-      // No "next", this block must come at the end
-      real_block_index = block_cache_.size();
-      block_cache_.append(connected_block);
-
-      // Update next value
-      connected_block->set_next(nullptr);
-    }
-
-    // For all blocks after the block we inserted (including it), update the "previous" and "next"
-    // fields as well as the in/out values
-    if (real_block_index == 0) {
-      connected_block->set_previous(nullptr);
-    } else {
-      Block* prev = block_cache_.at(real_block_index - 1);
-
-      connected_block->set_previous(prev);
-      prev->set_next(connected_block);
-    }
-
-    UpdateInOutFrom(real_block_index);
-
-    // Make connections to this block
-    connect(connected_block, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
-
-    emit BlockAdded(connected_block);
-  }
-
-  InputConnectionChanged(edge);
-  */
 }
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
@@ -646,36 +584,6 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 
     emit BlockRemoved(b);
   }
-
-  /*
-  // See what kind of node was just connected
-  Node* connected_node = edge->output()->parentNode();
-
-  // If this was a block, we would have put it in our block cache in BlockConnected()
-  int index_of_block = block_cache_.indexOf(static_cast<Block*>(connected_node));
-  if (index_of_block > -1) {
-    Block* connected_block = static_cast<Block*>(connected_node);
-
-    // Determine what index this block was in our cache and remove it
-    block_cache_.removeAt(index_of_block);
-
-    // If there were blocks following this one, update their ins/outs
-    UpdateInOutFrom(index_of_block);
-
-    // Join the previous and next blocks together
-    if (connected_block->previous()) {
-      connected_block->previous()->set_next(connected_block->next());
-    }
-
-    if (connected_block->next()) {
-      connected_block->next()->set_previous(connected_block->previous());
-    }
-
-    disconnect(connected_block, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
-
-    emit BlockRemoved(connected_block);
-  }
-  */
 
   InputConnectionChanged(edge);
 }
