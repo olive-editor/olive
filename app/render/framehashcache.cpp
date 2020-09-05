@@ -220,12 +220,17 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) cons
   }
 }
 
+FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)
+{
+  return LoadCacheFrame(CachePathName(cache_path, hash));
+}
+
 FramePtr FrameHashCache::LoadCacheFrame(const QByteArray &hash) const
 {
   return LoadCacheFrame(CachePathName(hash));
 }
 
-FramePtr FrameHashCache::LoadCacheFrame(const QString &fn) const
+FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 {
   FramePtr frame = nullptr;
 
@@ -372,9 +377,14 @@ void FrameHashCache::ProjectInvalidated(Project *p)
 
 QString FrameHashCache::CachePathName(const QByteArray& hash) const
 {
+  return CachePathName(GetCacheDirectory(), hash);
+}
+
+QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArray &hash)
+{
   QString ext = GetFormatExtension();
 
-  QDir cache_dir(QDir(GetCacheDirectory()).filePath(QString(hash.left(1).toHex())));
+  QDir cache_dir(QDir(cache_path).filePath(QString(hash.left(1).toHex())));
   cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1%2").arg(QString(hash.mid(1).toHex()), ext);
@@ -383,7 +393,7 @@ QString FrameHashCache::CachePathName(const QByteArray& hash) const
   QMetaObject::invokeMethod(DiskManager::instance(),
                             "Accessed",
                             Qt::QueuedConnection,
-                            Q_ARG(QString, GetCacheDirectory()),
+                            Q_ARG(QString, cache_path),
                             Q_ARG(QByteArray, hash));
 
   return cache_dir.filePath(filename);

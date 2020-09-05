@@ -318,10 +318,11 @@ QVariant RenderWorker::ProcessFrameGeneration(const Node* node, const GenerateJo
 QVariant RenderWorker::GetCachedFrame(const Node* node, const rational& time)
 {
   if (render_mode_ == RenderMode::kOffline
+      && !cache_path_.isEmpty()
       && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     QByteArray hash = HashNode(node, video_params(), time);
 
-    FramePtr f = viewer_->video_frame_cache()->LoadCacheFrame(hash);
+    FramePtr f = FrameHashCache::LoadCacheFrame(cache_path_, hash);
 
     if (f) {
       // The cached frame won't load with the correct divider by default, so we enforce it here

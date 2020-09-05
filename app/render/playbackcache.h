@@ -67,6 +67,8 @@ public:
     return !invalidated_.isEmpty();
   }
 
+  QString GetCacheDirectory() const;
+
 signals:
   void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);
 
@@ -86,8 +88,6 @@ protected:
   virtual void ShiftEvent(const rational& from, const rational& to);
 
   Project* GetProject() const;
-
-  QString GetCacheDirectory() const;
 
   struct JobIdentifier {
     TimeRange range;

@@ -59,12 +59,14 @@ public:
    * @brief Return the path of the cached image at this time
    */
   QString CachePathName(const QByteArray &hash) const;
+  static QString CachePathName(const QString& cache_path, const QByteArray &hash);
 
   bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  static FramePtr LoadCacheFrame(const QString& cache_path, const QByteArray& hash);
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
-  FramePtr LoadCacheFrame(const QString& fn) const;
+  static FramePtr LoadCacheFrame(const QString& fn);
 
   static QString GetFormatExtension();
 

@@ -50,11 +50,6 @@ public:
     available_ = a;
   }
 
-  void SetViewerNode(ViewerOutput* viewer)
-  {
-    viewer_ = viewer;
-  }
-
   void SetVideoParams(const VideoParams& params)
   {
     video_params_ = params;
@@ -88,6 +83,11 @@ public:
   void SetPreviewGenerationEnabled(bool e)
   {
     generate_audio_previews_ = e;
+  }
+
+  void SetCachePath(const QString& s)
+  {
+    cache_path_ = s;
   }
 
   void Hash(RenderTicketPtr ticket, ViewerOutput* viewer, const QVector<rational>& times);
@@ -186,13 +186,13 @@ private:
 
   bool generate_audio_previews_;
 
-  ViewerOutput* viewer_;
-
   QHash<Node*, Node*>* copy_map_;
 
   RenderMode::Mode render_mode_;
 
   QTimer* cleanup_timer_;
+
+  QString cache_path_;
 
   static const int kMaxDecoderLife;
 

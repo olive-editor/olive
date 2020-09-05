@@ -430,7 +430,7 @@ void RenderBackend::RunNextJob()
       worker->SetRenderMode(render_mode_);
       worker->SetPreviewGenerationEnabled(generate_audio_previews_);
       worker->SetCopyMap(&copy_map_);
-      worker->SetViewerNode(viewer_node_);
+      worker->SetCachePath(viewer_node_->video_frame_cache()->GetCacheDirectory());
 
       // Move ticket from queue to running list
       RenderTicketPtr ticket = render_queue_.front();
