@@ -21,6 +21,7 @@
 #ifndef VIEWERSIZER_H
 #define VIEWERSIZER_H
 
+#include <QScrollBar>
 #include <QWidget>
 
 #include "common/define.h"
@@ -69,13 +70,13 @@ public:
    */
   void SetZoom(int percent);
 
-signals:
-  void RequestMatrix(const QMatrix4x4& matrix);
+public slots:
+  void HandDragMove(int x, int y);
 
-  /**
-   * @brief Tells the viewerdisplay widget if the image is enlarged to be bigger than the widget or not.
-   */
-  void IsZoomed(bool flag);
+signals:
+  void RequestScale(const QMatrix4x4& matrix);
+
+  void RequestTranslate(const QMatrix4x4& matrix);
 
 protected:
   /**
@@ -88,6 +89,8 @@ private:
    * @brief Main sizing function, resizes widget_ to fit aspect_ratio_ (or hides if aspect ratio is 0)
    */
   void UpdateSize();
+
+  int GetZoomedValue(int value);
 
   /**
    * @brief Reference to widget
@@ -108,6 +111,12 @@ private:
    * @brief Internal zoom value
    */
   int zoom_;
+
+  QScrollBar* horiz_scrollbar_;
+  QScrollBar* vert_scrollbar_;
+
+private slots:
+  void ScrollBarMoved();
 
 };
 

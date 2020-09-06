@@ -73,12 +73,6 @@ public:
   QMatrix4x4 GetMatrixTranslate();
 
   /**
-   * @brief Return the complete translation and scale matrix
-   * This must be used if you want the entire transformation pipeline (scale and translate).
-   */
-  QMatrix4x4 GetCompleteMatrix();
-
-  /**
    * @brief Return the complete translation and scale matrix but with the Y translation flipped
    * as OpenGL stores textures "upside down".
    */
@@ -92,12 +86,6 @@ public:
   void SetTime(const rational& time);
 
   FramePtr last_loaded_buffer() const;
-
-  /**
-   * @brief Return a QTransform that contains all the scale and translation data (inc. mouse drags)
-   * that can be used to set the world transform for a QPainter.
-   */
-  QTransform GenerateWorldTransform();
 
   /**
    * @brief Transform a point from viewer space to the buffer space.
@@ -117,7 +105,7 @@ public slots:
    * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
    */
   void SetMatrixTranslate(const QMatrix4x4& mat);
- 
+
   /**
   * @brief Set the scale matrix.
   */
@@ -141,17 +129,10 @@ public slots:
   void SetImage(FramePtr in_buffer);
 
   /**
-   * @brief Set zoomed_ flag if the viewersizer has zoomed the image to be larger than the widget.
-   *
-   * If the image is smaller than the widget the translation is reset so the image is centered.
-   */
-  void IsZoomed(bool flag);
-
-  /**
    * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
    * normal type.
    */
-  void ToolChanged(Tool::Item tool);
+  void UpdateCursor();
 
   /**
    * @brief Enables/disables a basic deinterlace on the viewer
@@ -163,6 +144,21 @@ signals:
    * @brief Signal emitted when the user starts dragging from the viewer
    */
   void DragStarted();
+
+  /**
+   * @brief Signal emitted when a hand drag starts
+   */
+  void HandDragStarted();
+
+  /**
+   * @brief Signal emitted when a hand drag moves
+   */
+  void HandDragMoved(int x, int y);
+
+  /**
+   * @brief Signal emitted when a hand drag ends
+   */
+  void HandDragEnded();
 
   /**
    * @brief Signal emitted when cursor color is enabled and the user's mouse position changes
@@ -206,6 +202,12 @@ private:
 
   rational GetGizmoTime();
 
+  bool IsHandDrag(QMouseEvent* event) const;
+
+  void UpdateMatrix();
+
+  QTransform GenerateWorldTransform();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -221,7 +223,10 @@ private:
    */
   QMatrix4x4 scale_matrix_;
 
-
+  /**
+   * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied
+   */
+  QMatrix4x4 combined_matrix_;
 
   bool signal_cursor_color_;
 
@@ -238,24 +243,10 @@ private:
   FramePtr last_loaded_buffer_;
 
   /**
-   * @brief Tells us if the image is zoomed in to be larger than the container widget.
-   */
-  bool zoomed_;
-
-  /**
    * @brief Position of mouse to calculate delta from.
    */
-  QPoint position_;
-
-  /**
-   * @brief Set if the hand tool is selected.
-   */
-  bool hand_tool_;
-
-  /**
-   * @brief Set if the hand tool is selected and viewer is clicked.
-   */
-  bool hand_tool_clicked_;
+  QPoint hand_last_drag_pos_;
+  bool hand_dragging_;
 
   bool deinterlace_;
 
