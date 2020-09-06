@@ -30,6 +30,7 @@
 #include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
+#include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
@@ -66,7 +67,22 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
-  const QMatrix4x4& GetMatrix();
+  /**
+  * @brief Return the translation only matrix.
+  */
+  QMatrix4x4 GetMatrixTranslate();
+
+  /**
+   * @brief Return the complete translation and scale matrix
+   * This must be used if you want the entire transformation pipeline (scale and translate).
+   */
+  QMatrix4x4 GetCompleteMatrix();
+
+  /**
+   * @brief Return the complete translation and scale matrix but with the Y translation flipped
+   * as OpenGL stores textures "upside down".
+   */
+  QMatrix4x4 GetCompleteMatrixFlippedYTranslation();
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -76,6 +92,18 @@ public:
   void SetTime(const rational& time);
 
   FramePtr last_loaded_buffer() const;
+
+  /**
+   * @brief Return a QTransform that contains all the scale and translation data (inc. mouse drags)
+   * that can be used to set the world transform for a QPainter.
+   */
+  QTransform GenerateWorldTransform();
+
+  /**
+   * @brief Transform a point from viewer space to the buffer space.
+   * Multiplies by the inverted transform matrix to undo the scaling and translation.
+   */
+  QPoint TransformViewerSpaceToBufferSpace(QPoint pos);
 
   bool IsDeinterlacing() const
   {
@@ -88,7 +116,12 @@ public slots:
    *
    * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
    */
-  void SetMatrix(const QMatrix4x4& mat);
+  void SetMatrixTranslate(const QMatrix4x4& mat);
+ 
+  /**
+  * @brief Set the scale matrix.
+  */
+  void SetMatrixZoom(const QMatrix4x4& mat);
 
   /**
    * @brief Enables or disables whether this color at the cursor should be emitted
@@ -106,6 +139,19 @@ public slots:
    * each time.
    */
   void SetImage(FramePtr in_buffer);
+
+  /**
+   * @brief Set zoomed_ flag if the viewersizer has zoomed the image to be larger than the widget.
+   *
+   * If the image is smaller than the widget the translation is reset so the image is centered.
+   */
+  void IsZoomed(bool flag);
+
+  /**
+   * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
+   * normal type.
+   */
+  void ToolChanged(Tool::Item tool);
 
   /**
    * @brief Enables/disables a basic deinterlace on the viewer
@@ -166,9 +212,16 @@ private:
   OpenGLTexture texture_;
 
   /**
-   * @brief Drawing matrix (defaults to identity)
+   * @brief Translation only matrix (defaults to identity).
    */
-  QMatrix4x4 matrix_;
+  QMatrix4x4 translate_matrix_;
+
+  /**
+   * @breif Scale only matrix.
+   */
+  QMatrix4x4 scale_matrix_;
+
+
 
   bool signal_cursor_color_;
 
@@ -183,6 +236,26 @@ private:
   rational time_;
 
   FramePtr last_loaded_buffer_;
+
+  /**
+   * @brief Tells us if the image is zoomed in to be larger than the container widget.
+   */
+  bool zoomed_;
+
+  /**
+   * @brief Position of mouse to calculate delta from.
+   */
+  QPoint position_;
+
+  /**
+   * @brief Set if the hand tool is selected.
+   */
+  bool hand_tool_;
+
+  /**
+   * @brief Set if the hand tool is selected and viewer is clicked.
+   */
+  bool hand_tool_clicked_;
 
   bool deinterlace_;
 

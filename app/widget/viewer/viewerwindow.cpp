@@ -137,7 +137,7 @@ void ViewerWindow::UpdateMatrix()
     mat.scale(1.0f, window_ar / image_ar, 1.0f);
   }
 
-  display_widget_->SetMatrix(mat);
+  display_widget_->SetMatrixZoom(mat);
 }
 
 OLIVE_NAMESPACE_EXIT

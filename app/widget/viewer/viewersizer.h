@@ -72,6 +72,11 @@ public:
 signals:
   void RequestMatrix(const QMatrix4x4& matrix);
 
+  /**
+   * @brief Tells the viewerdisplay widget if the image is enlarged to be bigger than the widget or not.
+   */
+  void IsZoomed(bool flag);
+
 protected:
   /**
    * @brief Listen for resize events to ensure the child widget remains correctly sized

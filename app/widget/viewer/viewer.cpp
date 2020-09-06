@@ -75,7 +75,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
-  connect(sizer_, &ViewerSizer::RequestMatrix, display_widget_, &ViewerDisplayWidget::SetMatrix);
+  connect(sizer_, &ViewerSizer::RequestMatrix, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
+  connect(sizer_, &ViewerSizer::IsZoomed, display_widget_, &ViewerDisplayWidget::IsZoomed);
   sizer_->SetWidget(display_widget_);
 
   // Create waveform view when audio is connected and video isn't
@@ -289,9 +290,9 @@ void ViewerWidget::SetColorMenuEnabled(bool enabled)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  display_widget_->SetMatrix(mat);
+  display_widget_->SetMatrixZoom(mat);
   foreach (ViewerWindow* vw, windows_) {
-    vw->display_widget()->SetMatrix(mat);
+    vw->display_widget()->SetMatrixZoom(mat);
   }
 }
 

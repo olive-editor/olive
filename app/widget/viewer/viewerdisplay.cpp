@@ -35,6 +35,7 @@
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/pixelformat.h"
+#include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -44,8 +45,13 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   gizmos_(nullptr),
   gizmo_click_(false),
   last_loaded_buffer_(nullptr),
+  zoomed_(false),
+  hand_tool_clicked_(false),
   deinterlace_(false)
 {
+  connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
+  // Initilises hand_tool_ based on currently selected tool.
+  ToolChanged(Core::instance()->tool());
 }
 
 ViewerDisplayWidget::~ViewerDisplayWidget()
@@ -53,10 +59,53 @@ ViewerDisplayWidget::~ViewerDisplayWidget()
   ContextCleanup();
 }
 
-void ViewerDisplayWidget::SetMatrix(const QMatrix4x4 &mat)
+void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
-  matrix_ = mat;
+  translate_matrix_ = mat;
   update();
+}
+
+void ViewerDisplayWidget::SetMatrixZoom(const QMatrix4x4 &mat)
+{
+  scale_matrix_ = mat;
+  update();
+}
+
+void ViewerDisplayWidget::IsZoomed(bool flag)
+{
+  zoomed_ = flag;
+  // If the image is smaller than the container widget we reset the translation.
+  if (!flag) {
+    QMatrix4x4 mat; // defaults to identity matrix.
+    SetMatrixTranslate(mat);
+  }
+}
+
+void ViewerDisplayWidget::ToolChanged(Tool::Item tool)
+{
+  if (tool == Tool::kHand) {
+    hand_tool_ = true;
+    setCursor(Qt::OpenHandCursor);
+  } else {
+    hand_tool_ = false;
+    unsetCursor();
+  }
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrix()
+{
+  QMatrix4x4 mat;
+  // Images is scaled, then translated.
+  return translate_matrix_ * scale_matrix_ * mat;
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrixFlippedYTranslation() {
+  QMatrix4x4 mat;
+  // Image is scaled, then translated.
+  mat =  translate_matrix_ * scale_matrix_ * mat;
+  // Y translation is flipped for OpenGL usage
+  *(mat.data() + 13) = *(mat.data() + 13) * -1.0f;
+  return mat;
 }
 
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
@@ -139,12 +188,58 @@ FramePtr ViewerDisplayWidget::last_loaded_buffer() const
   return last_loaded_buffer_;
 }
 
+QTransform ViewerDisplayWidget::GenerateWorldTransform()
+{
+  /*
+   * Get matrix elements (roughly) as below in column major order
+   *
+   * | Sx 0  0  Tx |
+   * | 0  Sy 0  Ty |
+   * | 0  0  Sz Tz |
+   * | 0  0  0  1  |
+   */
+  float *data = GetCompleteMatrix().data();
+  QTransform world;
+  // Move corner of canvas to correct point
+  world.translate(width() * 0.5 - width() * *(data)*0.5, height() * 0.5 - height() * *(data + 5) * 0.5);
+  // Scale
+  world.scale(*(data), *(data + 5));
+  // Translate for mouse movement
+  world.translate(*(data + 12) * width() * 0.5 / *(data), *(data + 13) * height() * 0.5 / *(data + 5));
+
+  return world;
+}
+
+QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
+{
+  /*
+  * Inversion will only fail if the viewer has been scaled by 0 in any direction
+  * which I think should never happen.
+  */
+  return pos * GenerateWorldTransform().inverted();
+}
+
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (gizmos_
-      && gizmos_->GizmoPress(gizmo_db_, event->pos(), QVector2D(GetTexturePosition(size())), size())) {
+  if (event->button() == Qt::LeftButton && gizmos_
+      && gizmos_->GizmoPress(gizmo_db_, TransformViewerSpaceToBufferSpace(event->pos()),
+          QVector2D(GetTexturePosition(size())), size())) {
     gizmo_click_ = true;
     gizmo_drag_time_ = GetGizmoTime();
+    return;
+  }
+
+  // Reset translation.
+  if (event->button() == Qt::MiddleButton && event->modifiers() & Qt::ControlModifier) {
+    QMatrix4x4 mat; // Identity matrix
+    SetMatrixTranslate(mat);
+    return;
+  }
+
+  // If translation is enabled get current position in preperation for move event.
+  if ((event->button() == Qt::MiddleButton || hand_tool_) && zoomed_) {
+    position_ = event->pos();
+    if (hand_tool_) hand_tool_clicked_ = true;
     return;
   }
 
@@ -157,8 +252,28 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
+  // Only allow translation if the image is larger than the container widget
+  if ((event->buttons() & Qt::MiddleButton || hand_tool_clicked_) && zoomed_) {
+    QPointF delta = event->pos() - position_;
+    // Scale delta to widget size
+    delta.setX(2 * delta.x() / width());
+    delta.setY(2 * delta.y() / height());
+
+    QMatrix4x4 mat;
+    mat = GetMatrixTranslate();
+
+    mat.translate(delta.x(), delta.y());
+    SetMatrixTranslate(mat);
+
+    // Get new start position
+    position_ = event-> pos();
+    return;
+  }
+
   if (gizmo_click_) {
-    gizmos_->GizmoMove(event->pos(), QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
+    gizmos_->GizmoMove(TransformViewerSpaceToBufferSpace(event->pos()),
+        QVector2D(GetTexturePosition(size())), gizmo_drag_time_);
+    update();
     return;
   }
 
@@ -172,7 +287,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
                           static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
                           0);
 
-      pixel_pos = pixel_pos * matrix_.inverted();
+      pixel_pos = GetCompleteMatrix().inverted() * pixel_pos;
 
       int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * last_loaded_buffer_->width());
       int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * last_loaded_buffer_->height());
@@ -194,7 +309,14 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
     return;
   }
 
+  hand_tool_clicked_ = false;
+
   QOpenGLWidget::mouseReleaseEvent(event);
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetMatrixTranslate()
+{
+  return translate_matrix_;
 }
 
 void ViewerDisplayWidget::initializeGL()
@@ -226,12 +348,14 @@ void ViewerDisplayWidget::paintGL()
     color_service()->pipeline()->release();
 
     // Blit using the color service
-    color_service()->ProcessOpenGL(true, matrix_);
+    color_service()->ProcessOpenGL(true, GetCompleteMatrixFlippedYTranslation());
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
   }
+
+  QTransform world = GenerateWorldTransform();
 
   // Draw gizmos if we have any
   if (gizmos_) {
@@ -242,12 +366,15 @@ void ViewerDisplayWidget::paintGL()
     gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
     QPainter p(this);
+    p.setWorldTransform(world);
     gizmos_->DrawGizmos(gizmo_db_, &p, QVector2D(GetTexturePosition(size())), size());
   }
 
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
     QPainter p(this);
+    p.setWorldTransform(world);
+
     p.setPen(Qt::lightGray);
     p.setBrush(Qt::NoBrush);
 
