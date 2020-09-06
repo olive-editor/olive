@@ -414,14 +414,14 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
    * | 0  0  Sz Tz |
    * | 0  0  0  1  |
    */
-  float *data = combined_matrix_.data();
+  float *d = combined_matrix_.data();
   QTransform world;
   // Move corner of canvas to correct point
-  world.translate(width() * 0.5 - width() * *(data)*0.5, height() * 0.5 - height() * *(data + 5) * 0.5);
+  world.translate(width() * 0.5 - width() * *(d)*0.5, height() * 0.5 - height() * *(d + 5) * 0.5);
   // Scale
-  world.scale(*(data), *(data + 5));
+  world.scale(*(d), *(d + 5));
   // Translate for mouse movement
-  world.translate(*(data + 12) * width() * 0.5 / *(data), *(data + 13) * height() * 0.5 / *(data + 5));
+  world.translate(*(d + 12) * width() * 0.5 / *(d), *(d + 13) * height() * 0.5 / *(d + 5));
 
   return world;
 }
