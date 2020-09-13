@@ -1,8 +1,8 @@
 ---
-name: Crash Related
-about:  Crash related
+name: Crash
+about: Report a fatal crash that resulted in Olive unexpectedly closing.
 title: "[CRASH]"
-labels: "CRASH, TRIAGE"
+labels: "Crash, Triage"
 assignees: ''
 
 ---
@@ -12,4 +12,8 @@ assignees: ''
 
 **Summary**
 
-**Additional Information / Output / Backtrace**
+**Steps to Reproduce**
+
+**Backtrace**
+
+**Additional Information**

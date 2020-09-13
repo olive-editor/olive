@@ -1,8 +1,9 @@
 ---
-name: Node / DAG Related
-about:  Node / DAG related
+name: Node/Compositing
+about:  Report an issue related to the node-based compositing system, including node graph
+usability issues, issues working with node effects, issues with composited output, etc.
 title: "[NODES]"
-labels: "NODES, TRIAGE"
+labels: "Nodes/Compositing, Triage"
 assignees: ''
 
 ---

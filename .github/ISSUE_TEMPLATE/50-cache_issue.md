@@ -1,8 +1,9 @@
 ---
-name: Cache Update / Refresh Related
-about:  Cache update / refresh related
+name: Disk Cache
+about:  Report an issue related to the disk cache system, including failure to cache, frames
+being set to appear at the wrong time, disk space or memory usage issues, etc.
 title: "[CACHE]"
-labels: "CACHE, TRIAGE"
+labels: "Disk Cache, Triage"
 assignees: ''
 
 ---

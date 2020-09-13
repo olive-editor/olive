@@ -1,14 +1,13 @@
 ---
-name: Unsupported Olive 0.1.X Version
-about: Reports for Olive 0.1.X are unsupported. Do not post them.
-title: "[GARBAGE]"
-labels: "GARBAGE"
+name: Legacy Olive 0.1.x issue
+about: Olive 0.1 is no longer supported and issues made about it will be automatically closed.
+title: "[UNSUPPORTED]"
+labels: "Legacy (Unsupported)"
 assignees: ''
 
 ---
 
-# Not Supporting Olive 0.1.X In Any Way
-Please do not post any issue regarding Olive 0.1.X. Submitting to this
-issue template may result in a permanent ban from this issue tracker.
+# Olive 0.1 is unsupported
 
-**All reports regarding Olive 0.1.X will be closed immediately.**
+Unfortunately no one is supporting Olive 0.1 at this time. Any reports pertaining to it will be
+closed to keep the issue tracker focused on supported versions.

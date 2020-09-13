@@ -1,12 +1,15 @@
 ---
-name: Codec Related
-about: Codec input / output related
+name: Codec
+about: Report an issue related to codec handling, including importing footage or any footage usage
+issues while editing.
 title: "[CODEC]"
-labels: "CODEC, TRIAGE"
+labels: "Codec, Triage"
 assignees: ''
 
 ---
 **Commit Hash**
+
+**Platform**
 
 **Summary**
 
