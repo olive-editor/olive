@@ -56,6 +56,7 @@ jobs:
   
     - name: Acquire zlib
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z && set PATH=%cd%;%PATH%
+      shell: cmd
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
