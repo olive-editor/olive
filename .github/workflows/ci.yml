@@ -26,8 +26,28 @@ jobs:
       run: cmake -E make_directory ${{runner.workspace}}/build
       
     - name: Acquire FFmpeg
-      # Acquires FFmpeg 4.2.3 from remote server
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z && 7z x ffmpeg-win.7z
+      
+    - name: Acquire OpenColorIO
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ocio-win.7z && 7z x ocio-win.7z
+  
+    - name: Acquire OpenEXR
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/openexr-win.7z && 7z x openexr-win.7z
+  
+    - name: Acquire OpenImageIO
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/oiio-win.7z && 7z x oiio-win.7z
+  
+    - name: Acquire libpng
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libpng-win.7z && 7z x libpng-win.7z
+  
+    - name: Acquire libtiff
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libtiff-win.7z && 7z x libtiff-win.7z
+  
+    - name: Acquire turbojpeg
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-win.7z && 7z x turbojpeg-win.7z
+  
+    - name: Acquire zlib
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
