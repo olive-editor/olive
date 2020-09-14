@@ -55,7 +55,6 @@ jobs:
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-win.7z && 7z x turbojpeg-win.7z
   
     - name: Acquire zlib
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z
 
     - name: Configure CMake
