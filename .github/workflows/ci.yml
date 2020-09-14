@@ -25,7 +25,7 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{runner.workspace}}/build
       
-    - name: Acquire FFmpeg:
+    - name: Acquire FFmpeg
       # Acquires FFmpeg 4.2.3 from remote server
       run: wget -c http://olivevideoeditor.org/deps/ffmpeg-win.7z
 
