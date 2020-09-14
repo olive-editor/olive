@@ -55,7 +55,7 @@ jobs:
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-win.7z && 7z x turbojpeg-win.7z
   
     - name: Acquire zlib
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z && set ZLIB_ROOT=%cd%
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
