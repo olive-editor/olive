@@ -28,6 +28,11 @@ jobs:
     - name: Enable Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1.3.0
       
+    - name: Acquire Qt
+      uses: jurplel/install-qt-action@v2.8.0
+      with:
+        version: 5.15.1
+      
     - name: Acquire FFmpeg
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z && 7z x ffmpeg-win.7z
       
