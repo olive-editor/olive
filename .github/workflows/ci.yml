@@ -25,6 +25,9 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{runner.workspace}}/build
       
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.3.0
+      
     - name: Acquire FFmpeg
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z && 7z x ffmpeg-win.7z
       
@@ -57,7 +60,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "NMake Makefiles"
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
