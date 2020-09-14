@@ -82,7 +82,7 @@ jobs:
 
     - name: Create Package
       working-directory: ${{runner.workspace}}/build
-      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && windeployqt olive-editor\olive-editor.exe && copy ..\bin\*.dll olive-editor
+      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor
     
     - name: Deploy Portable
       working-directory: ${{runner.workspace}}/build/olive-editor
