@@ -24,6 +24,10 @@ jobs:
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{runner.workspace}}/build
+      
+    - name: Acquire FFmpeg:
+      # Acquires FFmpeg 4.2.3 from remote server
+      run: wget -c http://olivevideoeditor.org/deps/ffmpeg-win.7z
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
