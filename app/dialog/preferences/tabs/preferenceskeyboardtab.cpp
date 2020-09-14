@@ -190,7 +190,7 @@ void PreferencesKeyboardTab::load_shortcut_file() {
   if (!fn.isEmpty()) {
     QFile f(fn);
     if (f.exists() && f.open(QFile::ReadOnly)) {
-      QByteArray ba = f.readAll();
+      QString ba = f.readAll();
       f.close();
       for (int i=0;i<key_shortcut_fields_.size();i++) {
         int index = ba.indexOf(key_shortcut_fields_.at(i)->action_name());
