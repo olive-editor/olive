@@ -1,10 +1,9 @@
 ---
-name: Legacy Olive 0.1.x issue
+name: Legacy Olive 0.1.x issue ⛔
 about: Olive 0.1 is no longer supported and issues made about it will be automatically closed.
 title: "[UNSUPPORTED]"
 labels: "Legacy (Unsupported)"
 assignees: ''
-
 ---
 
 # Olive 0.1 is unsupported
