@@ -26,7 +26,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     macdeployqt $BUNDLE_NAME
 
     # Fix other deps that macdeployqt missed
-    wget -c -nv https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
+    curl -sLOC - https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
     python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
     # Fix deps on crash handler
