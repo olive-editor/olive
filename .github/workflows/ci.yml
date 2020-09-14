@@ -27,7 +27,7 @@ jobs:
       
     - name: Acquire FFmpeg
       # Acquires FFmpeg 4.2.3 from remote server
-      run: wget -c http://olivevideoeditor.org/deps/ffmpeg-win.7z
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
