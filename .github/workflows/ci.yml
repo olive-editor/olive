@@ -34,31 +34,24 @@ jobs:
         version: 5.15.1
       
     - name: Acquire FFmpeg
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z && 7z x ffmpeg-win.7z
       
     - name: Acquire OpenColorIO
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ocio-win.7z && 7z x ocio-win.7z
   
     - name: Acquire OpenEXR
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/openexr-win.7z && 7z x openexr-win.7z
   
     - name: Acquire OpenImageIO
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/oiio-win.7z && 7z x oiio-win.7z
   
     - name: Acquire libpng
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libpng-win.7z && 7z x libpng-win.7z
   
     - name: Acquire libtiff
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libtiff-win.7z && 7z x libtiff-win.7z
   
     - name: Acquire turbojpeg
-      working-directory: ${{runner.workspace}}/build
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-win.7z && 7z x turbojpeg-win.7z
   
     - name: Acquire zlib
@@ -73,7 +66,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja" --debug-output
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
