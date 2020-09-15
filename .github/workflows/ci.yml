@@ -61,6 +61,12 @@ jobs:
   
     - name: Acquire Boost
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-win.7z && 7z x boost-win.7z
+    
+    # Crashpad requires Python 2.7
+    - name: Set up Python 2.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
       
     - name: Acquire Crashpad
       shell: cmd
