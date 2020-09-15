@@ -17,7 +17,7 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: windows-latest
     env:
-      PKGNAME: Olive-${GITHUB_SHA::8}-Windows-x86_64
+      PKGNAME: Olive-${{GITHUB_SHA::8}}-Windows-x86_64
 
     steps:
     - uses: actions/checkout@v2
@@ -61,6 +61,10 @@ jobs:
   
     - name: Acquire Boost
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-win.7z && 7z x boost-win.7z
+      
+    - name: Acquire Crashpad
+      shell: cmd
+      run: git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git && set PATH=%PATH%;%GITHUB_WORKSPACE%\depot_tools && fetch crashpad && cd crashpad && gn gen out/Default && sed -i "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja && ninja.exe -C out/Default
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
@@ -70,7 +74,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: PATH=$GITHUB_WORKSPACE:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
+      run: PATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/crashpad:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
