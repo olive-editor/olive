@@ -65,7 +65,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: export ZLIB_ROOT=$GITHUB_WORKSPACE && cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
+      run: PATH=$GITHUB_WORKSPACE:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
@@ -79,3 +79,17 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C $BUILD_TYPE
+
+    - name: Create Package
+      working-directory: ${{runner.workspace}}/build
+      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor
+    
+    - name: Deploy Portable
+      working-directory: ${{runner.workspace}}/build/olive-editor
+      run: copy nul olive-editor\portable && 7z a Olive-Windows-x86_64.zip olive-editor
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Olive-Windows-x86_64.zip
+        path: ${{runner.workspace}}/build/Olive-Windows-x86_64.zip
