@@ -19,6 +19,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      
+    - name: Create empty file
+      shell: cmd
+      run: type NUL > empty.txt
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
