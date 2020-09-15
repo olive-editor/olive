@@ -65,9 +65,7 @@ jobs:
     - name: Acquire Crashpad
       shell: cmd
       run: |
-        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git |
-        && depot_tools\fetch crashpad && cd crashpad && ..\depot_tools\gn gen out/Default |
-        && sed -i "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja && ninja.exe -C out/Default
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git && depot_tools\fetch crashpad && cd crashpad && ..\depot_tools\gn gen out/Default && sed -i "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja && ninja.exe -C out/Default
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
