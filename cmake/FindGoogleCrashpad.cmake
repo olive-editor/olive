@@ -54,25 +54,27 @@ elseif(UNIX)
           "${CRASHPAD_LOCATION}"
           "$ENV{CRASHPAD_LOCATION}"
           "${CRASHPAD_BASE_DIR}"
+      PATH_SUFFIXES
+          "out/Default"
   )
 endif()
 
 # Find the libraries we need
 set (_crashpad_components
-  client/client
-  util/util
-  third_party/mini_chromium/mini_chromium/base/base)
+  client
+  util
+  third_party/mini_chromium/mini_chromium/base
+  compat)
 foreach (COMPONENT ${_crashpad_components})
-  string(REGEX MATCH "^(.*[\\\/])" SUBDIR ${COMPONENT})
-  string(REGEX MATCH "([^\/]+$)" SHORT_COMPONENT ${COMPONENT})
-  string(TOUPPER ${SHORT_COMPONENT} UPPERCOMPONENT)
+  get_filename_component(SHORT_COMPONENT ${COMPONENT} NAME)
+  string(TOUPPER ${SHORT_COMPONENT} UPPER_COMPONENT)
 
-  find_library(CRASHPAD_${UPPERCOMPONENT}_LIB
+  find_library(CRASHPAD_${UPPER_COMPONENT}_LIB
                 ${SHORT_COMPONENT}
-                HINTS "${CRASHPAD_LIBRARY_DIRS}/obj/${SUBDIR}"
+                HINTS "${CRASHPAD_LIBRARY_DIRS}/obj/${COMPONENT}"
   )
 
-  list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPERCOMPONENT}_LIB})
+  list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
 endforeach()
 
 find_package_handle_standard_args(GoogleCrashpad
