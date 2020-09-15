@@ -17,7 +17,7 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: windows-latest
     env:
-      PKGNAME: Olive-${{GITHUB_SHA::8}}-Windows-x86_64
+      PKGNAME: Olive-%HASH%-Windows-x86_64
 
     steps:
     - uses: actions/checkout@v2
@@ -88,15 +88,23 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C $BUILD_TYPE
+      
+    - name: Get Git short hash
+      id: vars
+      run: echo ::set-output name=git_shorthash::$(git rev-parse --short=8 ${{github.sha}})
 
     - name: Create Package
       working-directory: ${{runner.workspace}}/build
       shell: cmd
+      env:
+        HASH: ${{steps.vars.outputs.git_shorthash}}
       run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && copy app\olive-editor.pdb olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor
     
     - name: Deploy Installer
       working-directory: ${{runner.workspace}}/build
       shell: cmd
+      env:
+        HASH: ${{steps.vars.outputs.git_shorthash}}
       run: copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* . && copy %GITHUB_WORKSPACE%\LICENSE . && "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
     
     - name: Deploy Portable
