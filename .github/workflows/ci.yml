@@ -56,6 +56,9 @@ jobs:
   
     - name: Acquire zlib
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z
+  
+    - name: Acquire Boost
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-win.7z && 7z x boost-win.7z
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
