@@ -182,6 +182,9 @@ if (GoogleCrashpad_FOUND)
     ${OLIVE_TARGET}
     PRIVATE
     ${CRASHPAD_LIBRARIES}
+    # TODO: UNIX only? Or is it empty on Windows anyway?
+    # HACK: crashpad compat lib needs libdl.so (-ldl)
+    ${CMAKE_DL_LIBS}
     )
 endif()
 
