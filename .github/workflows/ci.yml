@@ -73,17 +73,17 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config $BUILD_TYPE
 
+    - name: Create Package
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: mkdir olive-editor && cp app/olive-editor.exe olive-editor && windeployqt olive-editor/olive-editor.exe && cp $GITHUB_WORKSPACE/bin/*.dll olive-editor
+
     - name: Test
       working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C $BUILD_TYPE
-
-    - name: Create Package
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: mkdir olive-editor && cp app/olive-editor.exe olive-editor && windeployqt olive-editor/olive-editor.exe && cp $GITHUB_WORKSPACE/bin/*.dll olive-editor
     
     - name: Deploy Portable
       working-directory: ${{runner.workspace}}/build/olive-editor
