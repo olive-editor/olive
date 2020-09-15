@@ -381,22 +381,37 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
   }
 }
 
+void NodeInput::ValidateVectorString(QStringList* list, int count)
+{
+  while (list->size() < count) {
+    list->append(QStringLiteral("0"));
+  }
+}
+
 QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string, bool value_is_a_key_track)
 {
   if (!value_is_a_key_track && data_type == kVec2) {
     QStringList vals = string.split(':');
 
+    ValidateVectorString(&vals, 2);
+
     return QVector2D(vals.at(0).toFloat(), vals.at(1).toFloat());
   } else if (!value_is_a_key_track && data_type == kVec3) {
     QStringList vals = string.split(':');
+
+    ValidateVectorString(&vals, 3);
 
     return QVector3D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat());
   } else if (!value_is_a_key_track && data_type == kVec4) {
     QStringList vals = string.split(':');
 
+    ValidateVectorString(&vals, 4);
+
     return QVector4D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat());
   } else if (!value_is_a_key_track && data_type == kColor) {
     QStringList vals = string.split(':');
+
+    ValidateVectorString(&vals, 4);
 
     return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
   } else if (data_type == kInt) {

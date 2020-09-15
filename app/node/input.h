@@ -321,6 +321,8 @@ private:
 
   void SaveConnections(QXmlStreamWriter* writer) const;
 
+  static void ValidateVectorString(QStringList* list, int count);
+
   /**
    * @brief Returns whether a data type can be interpolated or not
    */
