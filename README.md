@@ -4,19 +4,15 @@ Olive is a free non-linear video editor for Windows, macOS, and Linux.
 
 ![screen](https://www.olivevideoeditor.org/img/screenshot.jpg)
 
-**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn) | [Code Documentation](http://olivevideoeditor.org/doxygen/)
-
-**NOTE: The issue tracker is temporarily closed while Olive's core is getting rewritten. We apologize for any inconvenience. Please check back soon for the next release, as well as the [Patreon page](https://www.patreon.com/olivevideoeditor) for news and updates.**
-
-
+**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn) | [Patreon](https://www.patreon.com/olivevideoeditor)
 
 ## Getting Started with Olive:
 
-Installation of Olive is available at: https://olivevideoeditor.org/download.php
+Binaries of Olive are available at: https://olivevideoeditor.org/download.php
 
-Instructions on how to use Olive are available on our wiki: https://github.com/olive-editor/olive/wiki/Overview-Guide
+Some tutorials can be seen on the GitHub Wiki: https://github.com/olive-editor/olive/wiki/Overview-Guide
 
-**NOTE: Olive is Alpha Software, and it should be treated as highly unstable. Work at your own risk.**
+**NOTE: Olive is alpha software and is considered highly unstable. While we highly appreciate users testing and providing usage information, please use at your own risk.**
 
 ## Support Olive:
 
@@ -24,10 +20,6 @@ Please consider supporting Olive:
 
 [![Become a Patron](https://olivevideoeditor.org/img/become_a_patron_button.png)](https://www.patreon.com/olivevideoeditor)
 
-**NOTE: It is strongly discouraged to use or compile the `master` branch in its current state as it's under heavy restructuring. Please use the 0.1.x code from the "Releases" tab instead.**
-
 ## Compiling from Source:
 
 Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile.php).
-
-Olive has Doxygen-compatible documentation hosted at http://olivevideoeditor.org/doxygen/. You can also run `doxygen` in the source root directory to generate a local copy.
