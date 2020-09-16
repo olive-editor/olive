@@ -61,17 +61,9 @@ jobs:
   
     - name: Acquire Boost
       run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-win.7z && 7z x boost-win.7z
-    
-    # Crashpad requires Python 2.7
-    - name: Set up Python 2.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 2.7
       
     - name: Acquire Crashpad
-      shell: cmd
-      run: |
-        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git && depot_tools\fetch crashpad && cd crashpad && ..\depot_tools\gn gen out/Default && sed -i "s/${cflags_c}/${cflags_c} \/MD/g" out\Default\toolchain.ninja && ninja.exe -C out/Default
+      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/crashpad-win.7z && 7z x crashpad-win.7z
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
