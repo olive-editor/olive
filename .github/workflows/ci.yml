@@ -32,7 +32,7 @@ jobs:
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
       run: |
-        cmake -E make_directory ${{runner.workspace}}/build
+        cmake -E make_directory ${{ runner.workspace }}/build
 
     - name: Enable Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1.3.0
@@ -96,7 +96,7 @@ jobs:
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       # Note the current convention is to use the -S and -B options here to specify source
       # and build directories, but this is only available with CMake 3.13 and higher.
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
@@ -105,14 +105,14 @@ jobs:
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
 
     - name: Build
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: bash
       # Execute the build. You can specify a specific target with "--target <NAME>"
       run: |
         cmake --build . --config $BUILD_TYPE
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: bash
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
@@ -120,7 +120,7 @@ jobs:
         ctest -C $BUILD_TYPE
 
     - name: Create Package
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: cmd
       run: |
         mkdir olive-editor
@@ -131,7 +131,7 @@ jobs:
         copy %GITHUB_WORKSPACE%\out\Default\crashpad_handler.exe olive-editor
 
     - name: Deploy Installer
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: cmd
       run: |
         copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* .
@@ -139,17 +139,17 @@ jobs:
         "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
 
     - name: Deploy Portable
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: cmd
       run: |
         type NUL > olive-editor\portable
         7z a %PKGNAME%.zip olive-editor
 
     - name: Export Crashpad Symbols and Upload To Server
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       shell: cmd
       env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+        GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
       run: |
         curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
         dump_syms app\olive-editor.pdb > olive-editor.sym
@@ -157,9 +157,9 @@ jobs:
 
     - name: Upload Installer to Nightly Page
       shell: bash
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+        GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
       run: |
         curl -X POST -F file=@$PKGNAME.exe \
           -F key="$GH_AUTH_KEY" \
@@ -170,9 +170,9 @@ jobs:
 
     - name: Upload Portable to Nightly Page
       shell: bash
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{ runner.workspace }}/build
       env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+        GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
       run: |
         curl -X POST -F file=@$PKGNAME.zip \
           -F key="$GH_AUTH_KEY" \
@@ -184,11 +184,11 @@ jobs:
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{env.PKGNAME}}.exe
-        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.exe
+        name: ${{ env.PKGNAME }}.exe
+        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
     - name: Upload Portable Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{env.PKGNAME}}.zip
-        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.zip
+        name: ${{ env.PKGNAME }}.zip
+        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
