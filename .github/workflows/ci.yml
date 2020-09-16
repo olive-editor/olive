@@ -17,9 +17,6 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: windows-latest
 
-    env:
-      PKGNAME: Olive-${GITHUB_SHA:8}-Windows-x86_64
-
     steps:
     - name: Set package name
       shell: bash
