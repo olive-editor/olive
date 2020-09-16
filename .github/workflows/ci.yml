@@ -22,7 +22,7 @@ jobs:
       
     - name: Generate Package Name
       id: vars
-      run: echo ::set-env name=PKGNAME::Olive-${GITHUB_SHA::8}-Windows-x86_64
+      run: echo '::set-env name=PKGNAME::Olive-${env.GITHUB_SHA::8}-Windows-x86_64'
       
     - name: Test package name
       shell: cmd
