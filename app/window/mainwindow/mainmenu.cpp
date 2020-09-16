@@ -20,6 +20,7 @@
 
 #include "mainmenu.h"
 
+#include <QDesktopServices>
 #include <QEvent>
 #include <QStyleFactory>
 
@@ -273,6 +274,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   //
   help_menu_ = new Menu(this);
   help_action_search_item_ = help_menu_->AddItem("actionsearch", this, &MainMenu::ActionSearchTriggered, "/");
+  help_menu_->addSeparator();
+  help_feedback_item_ = help_menu_->AddItem("feedback", this, &MainMenu::HelpFeedbackTriggered);
   help_menu_->addSeparator();
   help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
 
@@ -621,6 +624,11 @@ void MainMenu::SequenceCacheInOutTriggered()
   Core::instance()->CacheActiveSequence(true);
 }
 
+void MainMenu::HelpFeedbackTriggered()
+{
+  QDesktopServices::openUrl(QStringLiteral("https://github.com/olive-editor/olive/issues"));
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -718,6 +726,7 @@ void MainMenu::Retranslate()
   // Help menu
   help_menu_->setTitle(tr("&Help"));
   help_action_search_item_->setText(tr("A&ction Search"));
+  help_feedback_item_->setText(tr("Send &Feedback..."));
   help_about_item_->setText(tr("&About..."));
 }
 
