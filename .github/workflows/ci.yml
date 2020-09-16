@@ -16,8 +16,6 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: windows-latest
-    env:
-      PKGNAME: Olive-%HASH%-Windows-x86_64
 
     steps:
     - uses: actions/checkout@v2
@@ -88,31 +86,31 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C $BUILD_TYPE
       
-    - name: Get Git short hash
+    - name: Generate Package Name
       id: vars
-      run: echo ::set-output name=git_shorthash::$(git rev-parse --short=8 ${{github.sha}})
+      run: echo ::set-output name=pkgname::Olive-$(git rev-parse --short=8 ${{github.sha}})-Windows-x86_64
 
     - name: Create Package
       working-directory: ${{runner.workspace}}/build
       shell: cmd
-      env:
-        HASH: ${{steps.vars.outputs.git_shorthash}}
       run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && copy app\olive-editor.pdb olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor && copy %GITHUB_WORKSPACE%\out\Default\crashpad_handler.exe olive-editor
     
     - name: Deploy Installer
       working-directory: ${{runner.workspace}}/build
       shell: cmd
       env:
-        HASH: ${{steps.vars.outputs.git_shorthash}}
+        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* . && copy %GITHUB_WORKSPACE%\LICENSE . && "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
     
     - name: Deploy Portable
       working-directory: ${{runner.workspace}}/build
       shell: cmd
+      env:
+        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
     
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: Windows (x86_64)
-        path: ${{runner.workspace}}/build/${PKGNAME}.*
+        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.*
