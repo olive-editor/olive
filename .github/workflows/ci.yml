@@ -21,6 +21,9 @@ jobs:
       PKGNAME: Olive-${GITHUB_SHA:8}-Windows-x86_64
 
     steps:
+    - name: Set package name
+      run: echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-Windows-x86_64)"
+          
     - name: Test package name
       shell: cmd
       run: echo 'Package name is' %PKGNAME%
