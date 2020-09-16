@@ -88,7 +88,7 @@ jobs:
       
     - name: Generate Package Name
       id: vars
-      run: echo ::set-output name=pkgname::Olive-$(git rev-parse --short=8 ${{github.sha}})-Windows-x86_64
+      run: echo ::set-env name=PKGNAME::Olive-$(git rev-parse --short=8 ${{github.sha}})-Windows-x86_64
 
     - name: Create Package
       working-directory: ${{runner.workspace}}/build
@@ -98,15 +98,11 @@ jobs:
     - name: Deploy Installer
       working-directory: ${{runner.workspace}}/build
       shell: cmd
-      env:
-        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* . && copy %GITHUB_WORKSPACE%\LICENSE . && "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
     
     - name: Deploy Portable
       working-directory: ${{runner.workspace}}/build
       shell: cmd
-      env:
-        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
     
     - name: Export Crashpad Symbols and Upload To Server
@@ -117,11 +113,11 @@ jobs:
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{steps.vars.outputs.pkgname}}.exe
-        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.exe
+        name: ${{env.PKGNAME}}.exe
+        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.exe
   
     - name: Upload Portable Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{steps.vars.outputs.pkgname}}.zip
-        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.zip
+        name: ${{env.PKGNAME}}.zip
+        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.zip
