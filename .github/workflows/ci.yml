@@ -73,7 +73,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: PATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/crashpad:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
+      run: PATH=$GITHUB_WORKSPACE:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
@@ -97,7 +97,7 @@ jobs:
       shell: cmd
       env:
         HASH: ${{steps.vars.outputs.git_shorthash}}
-      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && copy app\olive-editor.pdb olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor
+      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && copy app\olive-editor.pdb olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor && copy %GITHUB_WORKSPACE%\out\Default\crashpad_handler.exe olive-editor
     
     - name: Deploy Installer
       working-directory: ${{runner.workspace}}/build
