@@ -109,8 +109,14 @@ jobs:
         PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
     
-    - name: Upload artifact
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: Windows (x86_64)
-        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.*
+        name: ${{steps.vars.outputs.pkgname}}.exe
+        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.exe
+  
+    - name: Upload Portable Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{steps.vars.outputs.pkgname}}.zip
+        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.zip
