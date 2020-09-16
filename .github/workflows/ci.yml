@@ -109,6 +109,11 @@ jobs:
         PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
     
+    - name: Export Crashpad Symbols and Upload To Server
+      working-directory: ${{runner.workspace}}/build
+      shell: cmd
+      run: curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe && dump_syms app\olive-editor.pdb > olive-editor.sym && curl -F symfile=@olive-editor.sym https://olivevideoeditor.org/crashpad/symbols.php
+    
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
       with:
