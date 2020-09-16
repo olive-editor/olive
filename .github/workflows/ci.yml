@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   windows:
@@ -172,6 +175,7 @@ jobs:
           -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
           -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
           https://olivevideoeditor.org/dl/push.php
+      if: github.event_name != 'pull_request'
 
     - name: Upload Portable to Nightly Page
       shell: bash
@@ -186,6 +190,7 @@ jobs:
           -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
           -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
           https://olivevideoeditor.org/dl/push.php
+      if: github.event_name != 'pull_request'
 
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
