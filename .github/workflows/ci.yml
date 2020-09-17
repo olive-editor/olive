@@ -137,7 +137,7 @@ jobs:
       run: |
         copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* .
         copy %GITHUB_WORKSPACE%\LICENSE .
-        "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
+        makensis -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
 
     - name: Deploy Portable
       working-directory: ${{ runner.workspace }}/build
