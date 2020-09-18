@@ -135,7 +135,7 @@ void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int 
 
       counter++;
 
-      emit ProgressChanged((counter * 100) / file_count_);
+      emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(file_count_));
 
     }
   }
