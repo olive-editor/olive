@@ -39,6 +39,7 @@ QMap<QString, QString> StyleManager::available_themes_;
 
 void StyleManager::UseOSNativeStyling(QWidget *widget)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0) || QT_VERSION > QT_VERSION_CHECK(5, 15, 1)
 #if defined(Q_OS_WINDOWS)
   QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
   widget->setStyle(s);
@@ -47,6 +48,7 @@ void StyleManager::UseOSNativeStyling(QWidget *widget)
   QStyle* s = QStyleFactory::create(QStringLiteral("macintosh"));
   widget->setStyle(s);
   widget->setPalette(s->standardPalette());
+#endif
 #endif
 }
 
