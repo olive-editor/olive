@@ -122,7 +122,10 @@ void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int 
 
       f->set_project(nullptr);
 
-      if (f->status() != Footage::kInvalid) {
+      if (f->status() == Footage::kInvalid) {
+        // Add to list so we can tell the user about it later
+        invalid_files_.append(file_info.absoluteFilePath());
+      } else {
         // Create undoable command that adds the items to the model
         new ProjectViewModel::AddItemCommand(model_,
                                              folder,
