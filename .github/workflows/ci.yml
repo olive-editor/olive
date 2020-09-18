@@ -17,7 +17,14 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: windows-latest
 
+    env:
+      PKGNAME: Olive-${GITHUB_SHA:8}-Windows-x86_64
+
     steps:
+    - name: Set package name
+      shell: bash
+      run: echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-Windows-x86_64)"
+      
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
@@ -85,10 +92,6 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C $BUILD_TYPE
-      
-    - name: Generate Package Name
-      id: vars
-      run: echo ::set-output name=pkgname::Olive-$(git rev-parse --short=8 ${{github.sha}})-Windows-x86_64
 
     - name: Create Package
       working-directory: ${{runner.workspace}}/build
@@ -98,19 +101,42 @@ jobs:
     - name: Deploy Installer
       working-directory: ${{runner.workspace}}/build
       shell: cmd
-      env:
-        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* . && copy %GITHUB_WORKSPACE%\LICENSE . && "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
     
     - name: Deploy Portable
       working-directory: ${{runner.workspace}}/build
       shell: cmd
-      env:
-        PKGNAME: ${{steps.vars.outputs.pkgname}}
       run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
     
-    - name: Upload artifact
+    - name: Export Crashpad Symbols and Upload To Server
+      working-directory: ${{runner.workspace}}/build
+      shell: cmd
+      env:
+        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+      run: curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe && dump_syms app\olive-editor.pdb > olive-editor.sym && curl -X POST -F symfile=@olive-editor.sym -F key="%GH_AUTH_KEY%" https://olivevideoeditor.org/crashpad/symbols.php
+    
+    - name: Upload Installer to Nightly Page
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      env:
+        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+      run: curl -X POST -F file=@$PKGNAME.exe -F key="$GH_AUTH_KEY" -F hash="$GITHUB_SHA" -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" https://olivevideoeditor.org/dl/push.php
+      
+    - name: Upload Portable to Nightly Page
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      env:
+        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
+      run: curl -X POST -F file=@$PKGNAME.zip -F key="$GH_AUTH_KEY" -F hash="$GITHUB_SHA" -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" https://olivevideoeditor.org/dl/push.php
+    
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: Windows (x86_64)
-        path: ${{runner.workspace}}/build/${{steps.vars.outputs.pkgname}}.*
+        name: ${{env.PKGNAME}}.exe
+        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.exe
+  
+    - name: Upload Portable Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.PKGNAME}}.zip
+        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.zip
