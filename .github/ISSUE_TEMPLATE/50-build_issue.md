@@ -6,7 +6,7 @@ labels: "Building/Packaging, Triage"
 assignees: ''
 
 ---
-**Commit Hash**
+**Commit Hash (8 character string of letters/numbers in title bar)**
 
 **Platform**
 
