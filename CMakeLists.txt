@@ -67,6 +67,8 @@ find_package(FFMPEG 3.0 REQUIRED
   swresample
 )
 
+find_package(OpenTimelineIO REQUIRED)
+
 find_package(GoogleCrashpad)
 
 if (NOT GoogleCrashpad_FOUND)
