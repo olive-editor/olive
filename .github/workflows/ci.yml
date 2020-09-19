@@ -209,6 +209,7 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       shell: cmd
       run: |
+        curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
         copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* .
         copy %GITHUB_WORKSPACE%\LICENSE .
         makensis -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
