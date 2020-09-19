@@ -26,7 +26,7 @@ jobs:
             os: macos-latest
             dep-suffix: mac.zip
             extract-tool: sudo unzip -d /usr/local -o
-            cmake-gen: "Unix Makefiles"
+            cmake-gen: \"Unix Makefiles\"
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
