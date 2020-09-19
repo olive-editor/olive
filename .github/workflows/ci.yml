@@ -26,7 +26,7 @@ jobs:
             os: macos-latest
             dep-suffix: mac.zip
             extract-tool: sudo unzip -d /usr/local -o
-            cmake-gen: \"Unix Makefiles\"
+            cmake-gen: Unix Makefiles
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
@@ -159,7 +159,7 @@ jobs:
         CMAKE_GEN: ${{ matrix.cmake-gen }}
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G $CMAKE_GEN
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "$CMAKE_GEN"
 
     - name: Build
       working-directory: ${{ runner.workspace }}/build
