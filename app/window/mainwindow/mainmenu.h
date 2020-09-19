@@ -180,6 +180,8 @@ private slots:
   void SequenceCacheTriggered();
   void SequenceCacheInOutTriggered();
 
+  void HelpFeedbackTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
@@ -276,6 +278,7 @@ private:
 
   Menu* help_menu_;
   QAction* help_action_search_item_;
+  QAction* help_feedback_item_;
   QAction* help_about_item_;
 
 };

@@ -477,14 +477,19 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
     // Retrieve metadata about the media
     avformat_find_stream_info(fmt_ctx, nullptr);
 
+    QVector<StreamPtr> streams(fmt_ctx->nb_streams);
+
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 
       AVStream* avstream = fmt_ctx->streams[i];
 
+      // Find decoder for this stream, if it exists we can proceed
+      AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
+
       StreamPtr str;
 
-      if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+      if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && decoder) {
 
         bool image_is_still = false;
         rational pixel_aspect_ratio;
@@ -564,7 +569,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
         str = image_stream;
 
-      } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+      } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && decoder) {
 
         // Create an audio stream object
         AudioStreamPtr audio_stream = std::make_shared<AudioStream>();
@@ -600,7 +605,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
           str->set_type(Stream::kAttachment);
           break;
         default:
-          // We should never realistically get here, but we make an "invalid" stream just in case
+          // Fallback to an unknown stream
           str->set_type(Stream::kUnknown);
           break;
         }
@@ -611,11 +616,27 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
       str->set_timebase(avstream->time_base);
       str->set_duration(avstream->duration);
 
-      f->add_stream(str);
+      streams[i] = str;
     }
 
-    // As long as we can open the container and retrieve information, this was a successful probe
-    result = true;
+    // Check if we could pick up any streams in this file
+    bool found_valid_streams = false;
+
+    foreach (StreamPtr stream, streams) {
+      if (stream->type() != Stream::kUnknown) {
+        found_valid_streams = true;
+        break;
+      }
+    }
+
+    if (found_valid_streams) {
+      // Copy streams over
+      foreach (StreamPtr stream, streams) {
+        f->add_stream(stream);
+      }
+
+      result = true;
+    }
   }
 
   // Free all memory
@@ -1330,6 +1351,7 @@ void FFmpegDecoderInstance::RemoveFirstFrame()
 
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :
   fmt_ctx_(nullptr),
+  codec_ctx_(nullptr),
   opts_(nullptr),
   scale_ctx_(nullptr),
   scale_divider_(0),

@@ -42,6 +42,16 @@ public:
     return command_;
   }
 
+  const QStringList& GetInvalidFiles() const
+  {
+    return invalid_files_;
+  }
+
+  bool HasInvalidFiles() const
+  {
+    return !invalid_files_.isEmpty();
+  }
+
 protected:
   virtual bool Run() override;
 
@@ -57,6 +67,8 @@ private:
   QFileInfoList filenames_;
 
   int file_count_;
+
+  QStringList invalid_files_;
 
 };
 

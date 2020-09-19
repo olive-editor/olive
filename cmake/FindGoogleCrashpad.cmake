@@ -45,6 +45,8 @@ if (WIN32)
           "${CRASHPAD_LOCATION}"
           "$ENV{CRASHPAD_LOCATION}"
           "${CRASHPAD_BASE_DIR}"
+      PATH_SUFFIXES
+          "out/Default"
   )
 elseif(UNIX)
   # Assuming macOS works this way, don't actually know

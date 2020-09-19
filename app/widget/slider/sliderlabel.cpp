@@ -51,10 +51,12 @@ SliderLabel::SliderLabel(QWidget *parent) :
 
 void SliderLabel::mousePressEvent(QMouseEvent *e)
 {
-  if (e->modifiers() & Qt::AltModifier) {
-    emit RequestReset();
-  } else {
-    emit LabelPressed();
+  if (e->button() == Qt::LeftButton) {
+    if (e->modifiers() & Qt::AltModifier) {
+      emit RequestReset();
+    } else {
+      emit LabelPressed();
+    }
   }
 }
 

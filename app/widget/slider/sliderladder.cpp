@@ -103,9 +103,7 @@ void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  drag_timer_.stop();
-
-  emit Released();
+  this->close();
 }
 
 void SliderLadder::showEvent(QShowEvent *event)
@@ -113,6 +111,15 @@ void SliderLadder::showEvent(QShowEvent *event)
   QWidget::showEvent(event);
 
   drag_timer_.start();
+}
+
+void SliderLadder::closeEvent(QCloseEvent *event)
+{
+  Q_UNUSED(event)
+
+  drag_timer_.stop();
+
+  emit Released();
 }
 
 void SliderLadder::TimerUpdate()

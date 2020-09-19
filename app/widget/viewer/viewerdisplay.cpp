@@ -99,7 +99,11 @@ void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 
 void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
 {
-  last_loaded_buffer_ = in_buffer;
+  if (in_buffer && in_buffer->is_allocated()) {
+    last_loaded_buffer_ = in_buffer;
+  } else {
+    last_loaded_buffer_ = nullptr;
+  }
 
   if (last_loaded_buffer_) {
     makeCurrent();

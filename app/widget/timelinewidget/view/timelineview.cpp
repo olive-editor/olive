@@ -46,6 +46,7 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
   viewport()->setMouseTracking(true);
 }
 

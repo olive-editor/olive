@@ -566,7 +566,9 @@ QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 
 bool ViewerWidget::FrameExistsAtTime(const rational &time)
 {
-  return GetConnectedNode() && time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength();
+  return GetConnectedNode()
+      && ((time >= 0 && time < GetConnectedNode()->video_frame_cache()->GetLength())
+          || GetConnectedNode()->video_frame_cache()->GetLength().isNull());
 }
 
 void ViewerWidget::SetDisplayImage(FramePtr frame, bool main_only)
