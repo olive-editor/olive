@@ -186,6 +186,19 @@ if (GoogleCrashpad_FOUND)
     # HACK: crashpad compat lib needs libdl.so (-ldl)
     ${CMAKE_DL_LIBS}
     )
+
+  # TODO: Test if this actually works on Windows/macOS
+  if(WIN32)
+    set(CRASHPAD_HANDLER "crashpad_handler.exe")
+  else()
+    set(CRASHPAD_HANDLER "crashpad_handler")
+  endif()
+  add_custom_command(
+    TARGET ${OLIVE_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER}
+    $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+  )
 endif()
 
 # Set compiler definitions
