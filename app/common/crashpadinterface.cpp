@@ -25,20 +25,54 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
 
 #include "filefunctions.h"
 
+#ifdef Q_OS_WINDOWS
+#include <Windows.h>
+#endif
+
 // Copied from base::FilePath to match its macro
 #if defined(OS_POSIX)
-  // On most platforms, native pathnames are char arrays, and the encoding
-  // may or may not be specified.  On Mac OS X, native pathnames are encoded
-  // in UTF-8.
-  #define TO_BASE_STRING_TYPE(x) x.toStdString()
+// On most platforms, native pathnames are char arrays, and the encoding
+// may or may not be specified.  On Mac OS X, native pathnames are encoded
+// in UTF-8.
+#define TO_BASE_STRING_TYPE(x) x.toStdString()
 #elif defined(OS_WIN)
-  // On Windows, for Unicode-aware applications, native pathnames are wchar_t
-  // arrays encoded in UTF-16.
-  #define TO_BASE_STRING_TYPE(x) x.toStdWString()
+// On Windows, for Unicode-aware applications, native pathnames are wchar_t
+// arrays encoded in UTF-16.
+#define TO_BASE_STRING_TYPE(x) x.toStdWString()
 #endif  // OS_WIN
+
+crashpad::CrashpadClient *client;
+
+bool ShowCrashConfirmation()
+{
+  QString msg = QCoreApplication::translate("CrashReport",
+                                            "We're sorry, Olive has crashed. "
+                                            "Would you like to send an error report to "
+                                            "help developers fix this issue?\n\n"
+                                            "Crash reports are anonymous and only send "
+                                            "non-specific details about your computer and"
+                                            "how the crash occurred.");
+
+  return (QMessageBox::critical(nullptr,
+                                QString(),
+                                msg,
+                                QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
+}
+
+#ifdef Q_OS_WINDOWS
+LONG WINAPI Win32ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
+{
+  if (ShowCrashConfirmation()) {
+    client->DumpAndCrash(ExceptionInfo);
+  }
+
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+#endif
 
 bool InitializeCrashpad()
 {
@@ -73,9 +107,15 @@ bool InitializeCrashpad()
   settings->SetUploadsEnabled(true);
 
   // Start crash handler
-  crashpad::CrashpadClient *client = new crashpad::CrashpadClient();
+  client = new crashpad::CrashpadClient();
   bool status = client->StartHandler(handler, reports_dir, metrics_dir,
                                      url, annotations, arguments, true, true);
+
+  // Override Crashpad exception filter with our own
+#ifdef Q_OS_WINDOWS
+  SetUnhandledExceptionFilter(Win32ExceptionHandler);
+#endif
+
   return status;
 }
 

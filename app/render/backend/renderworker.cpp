@@ -126,7 +126,7 @@ void RenderWorker::RenderFrame(RenderTicketPtr ticket, ViewerOutput* viewer, con
   FramePtr frame = Frame::Create();
   frame->set_timestamp(time);
 
-  if (video_force_download_resolution_ || texture.isNull()) {
+  if (video_force_download_resolution_) {
     // If we're setting the resolution ourselves or we're zeroing it out, allocate the frame now
     frame->set_video_params(VideoParams(video_params_.width(),
                                         video_params_.height(),

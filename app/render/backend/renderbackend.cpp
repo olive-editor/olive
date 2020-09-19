@@ -375,13 +375,6 @@ void RenderBackend::RunNextJob()
     return;
   }
 
-  // Check if params are valid
-  if (!video_params_.is_valid()
-      || !audio_params_.is_valid()) {
-    qDebug() << "Failed to run job, parameters are invalid";
-    return;
-  }
-
   // If we have a value update queued, check if all workers are available and proceed from there
   if (autocache_enabled_ && !graph_update_queue_.isEmpty()) {
     bool all_workers_available = true;
@@ -449,6 +442,8 @@ void RenderBackend::RunNextJob()
 
       switch (ticket->GetType()) {
       case RenderTicket::kTypeHash:
+        Q_ASSERT(video_params_.is_valid());
+
         QtConcurrent::run(&thread_pool_,
                           worker,
                           &RenderWorker::Hash,
@@ -458,6 +453,8 @@ void RenderBackend::RunNextJob()
         break;
       case RenderTicket::kTypeVideo:
       {
+        Q_ASSERT(video_params_.is_valid());
+
         rational frame = ticket->GetTime().value<rational>();
 
         QtConcurrent::run(&thread_pool_,
@@ -474,6 +471,8 @@ void RenderBackend::RunNextJob()
         break;
       }
       case RenderTicket::kTypeAudio:
+        Q_ASSERT(audio_params_.is_valid());
+
         QtConcurrent::run(&thread_pool_,
                           worker,
                           &RenderWorker::RenderAudio,
