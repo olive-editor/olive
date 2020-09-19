@@ -66,7 +66,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
-        7z x ffmpeg-$DEP_SUFFIX
+        $EXTRACT_TOOL ffmpeg-$DEP_SUFFIX
 
     - name: Acquire OpenColorIO
       shell: bash
@@ -75,7 +75,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
-        7z x ocio-$DEP_SUFFIX
+        $EXTRACT_TOOL ocio-$DEP_SUFFIX
 
     - name: Acquire OpenEXR
       shell: bash
@@ -84,7 +84,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
-        7z x openexr-$DEP_SUFFIX
+        $EXTRACT_TOOL openexr-$DEP_SUFFIX
 
     - name: Acquire OpenImageIO
       shell: bash
@@ -93,7 +93,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
-        7z x oiio-$DEP_SUFFIX
+        $EXTRACT_TOOL oiio-$DEP_SUFFIX
 
     - name: Acquire libpng
       shell: bash
@@ -102,7 +102,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libpng-$DEP_SUFFIX
-        7z x libpng-$DEP_SUFFIX
+        $EXTRACT_TOOL libpng-$DEP_SUFFIX
 
     - name: Acquire libtiff
       shell: bash
@@ -111,7 +111,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libtiff-$DEP_SUFFIX
-        7z x libtiff-$DEP_SUFFIX
+        $EXTRACT_TOOL libtiff-$DEP_SUFFIX
 
     - name: Acquire turbojpeg
       shell: bash
@@ -120,16 +120,16 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-$DEP_SUFFIX
-        7z x turbojpeg-$DEP_SUFFIX
+        $EXTRACT_TOOL turbojpeg-$DEP_SUFFIX
 
     - name: Acquire zlib
       shell: bash
       env:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
-      EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-$DEP_SUFFIX
-        7z x zlib-$DEP_SUFFIX
+        $EXTRACT_TOOL zlib-$DEP_SUFFIX
       if: matrix.os == 'windows-latest'
 
     - name: Acquire Boost
@@ -139,7 +139,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-$DEP_SUFFIX
-        7z x boost-$DEP_SUFFIX
+        $EXTRACT_TOOL boost-$DEP_SUFFIX
 
     - name: Acquire Crashpad
       shell: bash
@@ -148,7 +148,7 @@ jobs:
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
         curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
-        7z x crashpad-$DEP_SUFFIX
+        $EXTRACT_TOOL crashpad-$DEP_SUFFIX
 
     - name: Configure CMake
       shell: bash
