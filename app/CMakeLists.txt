@@ -188,6 +188,7 @@ if (GoogleCrashpad_FOUND)
     )
 
   # TODO: Test if this actually works on Windows/macOS
+  # Also, copying it to the build folder is only useful for local testing
   if(WIN32)
     set(CRASHPAD_HANDLER "crashpad_handler.exe")
   else()
@@ -198,6 +199,11 @@ if (GoogleCrashpad_FOUND)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER}
     $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+  )
+
+  install(
+    PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER}
+    DESTINATION bin
   )
 endif()
 
