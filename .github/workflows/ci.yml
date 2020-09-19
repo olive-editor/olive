@@ -32,17 +32,17 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - if: matrix.os == 'windows-latest'
       - name: Set package name
         shell: bash
+        if: matrix.os == 'windows-latest'
         run: |
           echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-Windows-x86_64)"
 
-    - if: matrix.os == 'macos-latest'
-      - name: Set package name
-        shell: bash
-        run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-macOS)"
+    - name: Set package name
+      shell: bash
+      if: matrix.os == 'macos-latest'
+      run: |
+        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-macOS)"
 
     - uses: actions/checkout@v2
 
