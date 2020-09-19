@@ -18,13 +18,15 @@ jobs:
             os: windows-latest
             dep-suffix: win.7z
             extract-tool: 7z x
+            cmake-gen: Ninja
           - build: 2
             build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os: macos-latest
             dep-suffix: mac.zip
-            extract-tool: unzip
+            extract-tool: sudo unzip -d /
+            cmake-gen: "Unix Makefiles"
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
@@ -153,22 +155,11 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ runner.workspace }}/build
+      env:
+        CMAKE_GEN: ${{ matrix.cmake-gen }}
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
-        OPENEXR_ROOT=$GITHUB_WORKSPACE \
-        FFMPEG_ROOT=$GITHUB_WORKSPACE \
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G Ninja
-      if: matrix.os == 'windows-latest'
-
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{ runner.workspace }}/build
-      run: |
-        PATH=$GITHUB_WORKSPACE:$PATH \
-        OPENEXR_ROOT=$GITHUB_WORKSPACE \
-        FFMPEG_ROOT=$GITHUB_WORKSPACE \
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
-      if: matrix.os == 'macos-latest'
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G $CMAKE_GEN
 
     - name: Build
       working-directory: ${{ runner.workspace }}/build
