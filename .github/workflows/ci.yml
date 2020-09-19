@@ -155,6 +155,7 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
+        OPENEXR_ROOT=$GITHUB_WORKSPACE \
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
     - name: Build
