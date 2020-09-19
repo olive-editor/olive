@@ -349,6 +349,22 @@ void MainWindow::ProjectClose(Project *p)
       CloseSequence(seq);
     }
   }
+
+  // Close any open footage in footage viewer
+  QList<ItemPtr> footage = p->get_items_of_type(Item::kFootage);
+  QList<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
+
+  if (!footage_in_viewer.isEmpty()) {
+    // FootageViewer only has the one footage item
+    Footage* f = footage_in_viewer.first();
+
+    foreach (ItemPtr i, footage) {
+      if (f == i.get()) {
+        footage_viewer_panel_->SetFootage(nullptr);
+        break;
+      }
+    }
+  }
 }
 
 void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
