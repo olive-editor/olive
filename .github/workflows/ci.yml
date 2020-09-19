@@ -156,6 +156,7 @@ jobs:
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
         OPENEXR_ROOT=$GITHUB_WORKSPACE \
+        FFMPEG_ROOT=$GITHUB_WORKSPACE \
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
     - name: Build
