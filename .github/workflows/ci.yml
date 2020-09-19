@@ -155,7 +155,7 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "Ninja"
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
     - name: Build
       working-directory: ${{ runner.workspace }}/build
@@ -294,3 +294,6 @@ jobs:
           -F key="%GH_AUTH_KEY%" ^
           https://olivevideoeditor.org/crashpad/symbols.php
       if: matrix.os == 'windows-latest'
+
+  macos:
+
