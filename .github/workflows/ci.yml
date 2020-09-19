@@ -25,7 +25,7 @@ jobs:
             os-name: macOS
             os: macos-latest
             dep-suffix: mac.zip
-            extract-tool: sudo unzip -d /
+            extract-tool: sudo unzip -d /usr/local -o
             cmake-gen: "Unix Makefiles"
     name: |
       ${{ matrix.os-name }}
