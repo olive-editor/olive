@@ -190,6 +190,7 @@ jobs:
       env:
         BUNDLE_NAME: Olive.app
       run: |
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
         mv app/$BUNDLE_NAME .
         macdeployqt $BUNDLE_NAME
         curl -fLOSs --retry 3 https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
