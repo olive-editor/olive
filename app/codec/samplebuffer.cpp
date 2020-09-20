@@ -289,7 +289,8 @@ void SampleBuffer::allocate_sample_buffer(float ***data, int nb_channels, int nb
   *data = new float* [nb_channels];
 
   for (int i=0;i<nb_channels;i++) {
-    (*data)[i] = new float[nb_samples];
+    // Initialise all values to 0.
+    (*data)[i] = new float[nb_samples]{};
   }
 }
 

@@ -254,18 +254,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
         mixed_samples->data()[i][j] = PerformAll<float, float>(operation, samples_a->data()[i][j], samples_b->data()[i][j]);
       }
     }
-
-    if (max_samples > min_samples) {
-      // Fill in remainder space with 0s
-      int remainder = max_samples - min_samples;
-
-      for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
-        memset(mixed_samples->data()[i] + min_samples * sizeof(float),
-               0,
-               remainder * sizeof(float));
-      }
-    }
-
+  
     output.Push(NodeParam::kSamples, QVariant::fromValue(mixed_samples), this);
     break;
   }
