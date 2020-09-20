@@ -141,8 +141,8 @@ jobs:
           cp app/olive-editor.exe olive-editor
           cp app/olive-editor.pdb olive-editor
           windeployqt olive-editor/olive-editor.exe
-          cp ../bin/*.dll olive-editor
-          cp ../out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
         elif [ "$MATRIX_OS" == "macos-latest " ]
         then
           export BUNDLE_NAME=Olive.app
@@ -162,8 +162,8 @@ jobs:
         then
           # Create Installer Executable
           curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-          cp ../app/packaging/windows/nsis/* .
-          cp ../LICENSE .
+          cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
+          cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
           makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
           # Create Portable ZIP
