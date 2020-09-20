@@ -141,8 +141,8 @@ jobs:
           cp app/olive-editor.exe olive-editor
           cp app/olive-editor.pdb olive-editor
           windeployqt olive-editor/olive-editor.exe
-          cp $GITHUB_WORKSPACE/bin/*.dll olive-editor
-          cp $GITHUB_WORKSPACE/out/Default/crashpad_handler.exe olive-editor
+          cp ../bin/*.dll olive-editor
+          cp ../out/Default/crashpad_handler.exe olive-editor
         elif [ "$MATRIX_OS" == "macos-latest " ]
         then
           export BUNDLE_NAME=Olive.app
@@ -156,20 +156,20 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       shell: bash
       env:
-        PLATFORM: ${{ matrix.os-name }}
+        MATRIX_OS: ${{ matrix.os }}
       run: |
-        if [ "$PLATFORM" == "Windows" ]
+        if [ "$MATRIX_OS" == "windows-latest" ]
         then
           # Create Installer Executable
           curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-          cp $GITHUB_WORKSPACE/app/packaging/windows/nsis/* .
-          cp $GITHUB_WORKSPACE/LICENSE .
+          cp ../app/packaging/windows/nsis/* .
+          cp ../LICENSE .
           makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
           7z a $PKGNAME.zip olive-editor
-        elif [ "$PLATFORM" == "macOS" ]
+        elif [ "$MATRIX_OS" == "macos-latest" ]
         then
           zip -r $PKGNAME.zip Olive.app
         fi
@@ -179,9 +179,9 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       env:
         GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        PLATFORM: ${{ matrix.os-name }}
+        MATRIX_OS: ${{ matrix.os }}
       run: |
-        if [ "$PLATFORM" == "Windows" ]
+        if [ "$MATRIX_OS" == "windows-latest" ]
         then
           curl -X POST \
             -F file=@$PKGNAME.exe \
@@ -198,7 +198,7 @@ jobs:
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://olivevideoeditor.org/dl/push.php
-        elif [ "$PLATFORM" == "macOS" ]
+        elif [ "$MATRIX_OS" == "macos-latest" ]
         then
           curl -X POST \
             -F file=@$PKGNAME.zip \
