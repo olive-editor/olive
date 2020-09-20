@@ -15,44 +15,46 @@ jobs:
             build-type: RelWithDebInfo
             compiler-name: MSVC 16.x
             os-name: Windows
+            os-arch: x86_64
             os: windows-latest
+            cmake-gen: Ninja
             dep-suffix: win.7z
             extract-tool: 7z x
-            cmake-gen: Ninja
           - build: 2
             build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
+            os-arch: x86_64
             os: macos-latest
+            cmake-gen: Unix Makefiles
             dep-suffix: mac.zip
             extract-tool: sudo unzip -d /usr/local -o
-            cmake-gen: Unix Makefiles
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }}>
     runs-on: ${{ matrix.os }}
 
+    env:
+      DOWNLOAD_TOOL: curl -fLOSs --retry 3
+
     steps:
-    - name: Set package name
+    - name: Checkout Source Code
+      uses: actions/checkout@v2
+
+    - name: Automatically Generate Package Name
       shell: bash
-      if: matrix.os == 'windows-latest'
+      env:
+        PLATFORM: ${{ matrix.os-name }}
+        ARCH: ${{ matrix.os-arch }}
       run: |
-        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-Windows-x86_64)"
+        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-$PLATFORM-$ARCH)"
 
-    - name: Set package name
-      shell: bash
-      if: matrix.os == 'macos-latest'
-      run: |
-        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-macOS)"
-
-    - uses: actions/checkout@v2
-
-    - name: Create Build Environment
+    - name: Create Build Folder
       run: |
         cmake -E make_directory ${{ runner.workspace }}/build
 
-    - name: Enable Developer Command Prompt
+    - name: Enable Developer Command Prompt (Windows)
       uses: ilammy/msvc-dev-cmd@v1.3.0
       if: matrix.os == 'windows-latest'
 
@@ -67,7 +69,7 @@ jobs:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
         $EXTRACT_TOOL ffmpeg-$DEP_SUFFIX
 
     - name: Acquire OpenColorIO
@@ -76,7 +78,7 @@ jobs:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
         $EXTRACT_TOOL ocio-$DEP_SUFFIX
 
     - name: Acquire OpenEXR
@@ -85,7 +87,7 @@ jobs:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
         $EXTRACT_TOOL openexr-$DEP_SUFFIX
 
     - name: Acquire OpenImageIO
@@ -94,54 +96,8 @@ jobs:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
         $EXTRACT_TOOL oiio-$DEP_SUFFIX
-
-    - name: Acquire libpng
-      shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
-      run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libpng-$DEP_SUFFIX
-        $EXTRACT_TOOL libpng-$DEP_SUFFIX
-
-    - name: Acquire libtiff
-      shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
-      run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libtiff-$DEP_SUFFIX
-        $EXTRACT_TOOL libtiff-$DEP_SUFFIX
-
-    - name: Acquire turbojpeg
-      shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
-      run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-$DEP_SUFFIX
-        $EXTRACT_TOOL turbojpeg-$DEP_SUFFIX
-
-    - name: Acquire zlib
-      shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
-      run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-$DEP_SUFFIX
-        $EXTRACT_TOOL zlib-$DEP_SUFFIX
-      if: matrix.os == 'windows-latest'
-
-    - name: Acquire Boost
-      shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
-      run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-$DEP_SUFFIX
-        $EXTRACT_TOOL boost-$DEP_SUFFIX
 
     - name: Acquire Crashpad
       shell: bash
@@ -149,7 +105,7 @@ jobs:
         DEP_SUFFIX: ${{ matrix.dep-suffix }}
         EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
         $EXTRACT_TOOL crashpad-$DEP_SUFFIX
 
     - name: Configure CMake
@@ -175,112 +131,100 @@ jobs:
 
     - name: Create Package
       working-directory: ${{ runner.workspace }}/build
-      shell: cmd
-      run: |
-        mkdir olive-editor
-        copy app\olive-editor.exe olive-editor
-        copy app\olive-editor.pdb olive-editor
-        windeployqt olive-editor\olive-editor.exe
-        copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor
-        copy %GITHUB_WORKSPACE%\out\Default\crashpad_handler.exe olive-editor
-      if: matrix.os == 'windows-latest'
-
-    - name: Create Package
-      working-directory: ${{ runner.workspace }}/build
+      shell: bash
       env:
-        BUNDLE_NAME: Olive.app
+        PLATFORM: ${{ matrix.os-name }}
       run: |
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
-        mv app/$BUNDLE_NAME .
-        macdeployqt $BUNDLE_NAME
-        curl -fLOSs --retry 3 https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-        python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
-      if: matrix.os == 'macos-latest'
+        if [ "$PLATFORM" == "Windows" ]
+        then
+          mkdir olive-editor
+          cp app/olive-editor.exe olive-editor
+          cp app/olive-editor.pdb olive-editor
+          windeployqt olive-editor/olive-editor.exe
+          copy $GITHUB_WORKSPACE/bin/*.dll olive-editor
+          copy $GITHUB_WORKSPACE/out/Default/crashpad_handler.exe olive-editor
+        elif [ "$PLATFORM" == "macOS" ]
+        then
+          export BUNDLE_NAME=Olive.app
+          mv app/$BUNDLE_NAME .
+          macdeployqt $BUNDLE_NAME
+          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+        fi
 
-    - name: Deploy Installer
+    - name: Deploy Packages
       working-directory: ${{ runner.workspace }}/build
-      shell: cmd
+      shell: bash
+      env:
+        PLATFORM: ${{ matrix.os-name }}
       run: |
-        curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-        copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* .
-        copy %GITHUB_WORKSPACE%\LICENSE .
-        makensis -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
-      if: matrix.os == 'windows-latest'
+        if [ "$PLATFORM" == "Windows" ]
+        then
+          # Create Installer Executable
+          curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
+          copy $GITHUB_WORKSPACE\app\packaging\windows\nsis\* .
+          copy $GITHUB_WORKSPACE\LICENSE .
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
-    - name: Deploy Portable
-      working-directory: ${{ runner.workspace }}/build
-      shell: cmd
-      run: |
-        type NUL > olive-editor\portable
-        7z a %PKGNAME%.zip olive-editor
-      if: matrix.os == 'windows-latest'
+          # Create Portable ZIP
+          type NUL > olive-editor\portable
+          7z a $PKGNAME.zip olive-editor
+        elif [ "$PLATFORM" == "macOS" ]
+        then
+          zip -r $PKGNAME.zip Olive.app
+        fi
 
-    - name: Deploy Package
-      working-directory: ${{ runner.workspace }}/build
-      run: |
-        zip -r $PKGNAME.zip $BUNDLE_NAME
-      if: matrix.os == 'macos-latest'
-
-    - name: Upload Installer to Nightly Page
+    - name: Upload Packages to Nightly Page
       shell: bash
       working-directory: ${{ runner.workspace }}/build
       env:
         GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        PLATFORM: ${{ matrix.os-name }}
       run: |
-        curl -X POST \
-          -F file=@$PKGNAME.exe \
-          -F key="$GH_AUTH_KEY" \
-          -F hash="$GITHUB_SHA" \
-          -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-          -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-          https://olivevideoeditor.org/dl/push.php
-      if: matrix.os == 'windows-latest' && github.event_name != 'pull_request'
+        if [ "$PLATFORM" == "Windows" ]
+        then
+          curl -X POST \
+            -F file=@$PKGNAME.exe \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
 
-    - name: Upload Portable to Nightly Page
-      shell: bash
-      working-directory: ${{ runner.workspace }}/build
-      env:
-        GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-      run: |
-        curl -X POST \
-          -F file=@$PKGNAME.zip \
-          -F key="$GH_AUTH_KEY" \
-          -F hash="$GITHUB_SHA" \
-          -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-          -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-          https://olivevideoeditor.org/dl/push.php
-      if: matrix.os == 'windows-latest' && github.event_name != 'pull_request'
+          curl -X POST \
+            -F file=@$PKGNAME.zip \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+        elif [ "$PLATFORM" == "macOS" ]
+        then
+          curl -X POST \
+            -F file=@$PKGNAME.zip \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+        fi
+      if: github.event_name != 'pull_request'
 
-    - name: Upload Artifact to Nightly Page
-      shell: bash
-      working-directory: ${{ runner.workspace }}/build
-      env:
-        GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-      run: |
-        curl -X POST \
-          -F file=@$PKGNAME.zip \
-          -F key="$GH_AUTH_KEY" \
-          -F hash="$GITHUB_SHA" \
-          -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-          -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-          https://olivevideoeditor.org/dl/push.php
-      if: matrix.os == 'macos-latest' && github.event_name != 'pull_request'
-
-    - name: Upload Installer Artifact to GitHub
+    - name: Upload Installer Artifact to GitHub (Windows)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.PKGNAME }}.exe
         path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
       if: matrix.os == 'windows-latest'
 
-    - name: Upload Portable Artifact to GitHub
+    - name: Upload Portable Artifact to GitHub (Windows)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.PKGNAME }}.zip
         path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
       if: matrix.os == 'windows-latest'
 
-    - name: Upload Artifact to GitHub
+    - name: Upload Artifact to GitHub (macOS)
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.PKGNAME }}.zip
@@ -289,14 +233,14 @@ jobs:
 
     - name: Export Crashpad Symbols and Upload To Server
       working-directory: ${{ runner.workspace }}/build
-      shell: cmd
+      shell: bash
       env:
         GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
       run: |
         curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-        dump_syms app\olive-editor.pdb > olive-editor.sym
+        dump_syms app/olive-editor.pdb > olive-editor.sym
         curl -X POST ^
           -F symfile=@olive-editor.sym ^
-          -F key="%GH_AUTH_KEY%" ^
+          -F key="$GH_AUTH_KEY" ^
           https://olivevideoeditor.org/crashpad/symbols.php
       if: matrix.os == 'windows-latest'
