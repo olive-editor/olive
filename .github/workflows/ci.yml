@@ -133,17 +133,17 @@ jobs:
       working-directory: ${{ runner.workspace }}/build
       shell: bash
       env:
-        PLATFORM: ${{ matrix.os-name }}
+        MATRIX_OS: ${{ matrix.os }}
       run: |
-        if [ "$PLATFORM" == "Windows" ]
+        if [ "$MATRIX_OS" == "windows-latest" ]
         then
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
           cp app/olive-editor.pdb olive-editor
           windeployqt olive-editor/olive-editor.exe
-          copy $GITHUB_WORKSPACE/bin/*.dll olive-editor
-          copy $GITHUB_WORKSPACE/out/Default/crashpad_handler.exe olive-editor
-        elif [ "$PLATFORM" == "macOS" ]
+          cp $GITHUB_WORKSPACE/bin/*.dll olive-editor
+          cp $GITHUB_WORKSPACE/out/Default/crashpad_handler.exe olive-editor
+        elif [ "$MATRIX_OS" == "macos-latest " ]
         then
           export BUNDLE_NAME=Olive.app
           mv app/$BUNDLE_NAME .
@@ -162,12 +162,12 @@ jobs:
         then
           # Create Installer Executable
           curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-          copy $GITHUB_WORKSPACE\app\packaging\windows\nsis\* .
-          copy $GITHUB_WORKSPACE\LICENSE .
+          cp $GITHUB_WORKSPACE/app/packaging/windows/nsis/* .
+          cp $GITHUB_WORKSPACE/LICENSE .
           makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
           # Create Portable ZIP
-          type NUL > olive-editor\portable
+          echo -n > olive-editor/portable
           7z a $PKGNAME.zip olive-editor
         elif [ "$PLATFORM" == "macOS" ]
         then
