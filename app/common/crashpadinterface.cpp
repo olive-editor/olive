@@ -81,7 +81,11 @@ bool InitializeCrashpad()
   // FIXME: On Linux, probably should put this in a subdir so that it doesn't conflict with
   //        anything else in /usr/bin
 
+#ifdef Q_OS_WINDOWS
   base::FilePath handler(TO_BASE_STRING_TYPE(QDir(exe_dir).filePath(QStringLiteral("crashpad_handler.exe"))));
+#else
+  base::FilePath handler(TO_BASE_STRING_TYPE(QDir(exe_dir).filePath(QStringLiteral("crashpad_handler"))));
+#endif
 
   base::FilePath reports_dir(TO_BASE_STRING_TYPE(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath("reports")));
 
