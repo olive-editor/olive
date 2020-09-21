@@ -68,6 +68,8 @@ private:
 
   static bool FileTypeIsSupported(const QString& fn);
 
+  static QSize GetImageDimensions(const QString& fn);
+
   bool OpenImageHandler(const QString& fn);
 
   void CloseImageHandle();
