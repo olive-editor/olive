@@ -268,6 +268,10 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
 
   foreach (Footage* f, footage) {
     foreach (StreamPtr s, f->streams()) {
+      if (!s->enabled()) {
+        continue;
+      }
+
       switch (s->type()) {
       case Stream::kVideo:
       {

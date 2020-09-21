@@ -47,11 +47,11 @@ private:
 
   Footage* footage_;
 
+  Sequence sequence_;
+
   VideoInput* video_node_;
 
   AudioInput* audio_node_;
-
-  ViewerOutput* viewer_node_;
 
   QHash<Footage*, int64_t> cached_timestamps_;
 
