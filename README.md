@@ -1,18 +1,16 @@
-# Olive Video Editor [![Build Status](https://travis-ci.org/olive-editor/olive.svg?branch=master)](https://travis-ci.org/olive-editor/olive) [![Build Status](https://ci.appveyor.com/api/projects/status/5s4jabxayg51rv95?svg=true)](https://ci.appveyor.com/project/itsmattkc/olive)
+# Olive Video Editor [![Build status](https://github.com/olive-editor/olive/workflows/CI/badge.svg?branch=master)](https://github.com/olive-editor/olive/actions?query=branch%3Amaster)
 
 Olive is a free non-linear video editor for Windows, macOS, and Linux.
 
-![screen](https://www.olivevideoeditor.org/img/screenshot.jpg)
+![screen](https://olivevideoeditor.org/img/020-2.png)
 
-**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn) | [Patreon](https://www.patreon.com/olivevideoeditor)
-
-## Getting Started with Olive:
-
-Binaries of Olive are available at: https://olivevideoeditor.org/download.php
-
-Some tutorials can be seen on the GitHub Wiki: https://github.com/olive-editor/olive/wiki/Overview-Guide
+**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Binaries](https://olivevideoeditor.org/download.php) | [Twitter](https://twitter.com/oliveteam) | [Discord](https://discord.gg/4Ae9KZn) | [Patreon](https://www.patreon.com/olivevideoeditor) | [Tutorials](https://github.com/olive-editor/olive/wiki/Overview-Guide)
 
 **NOTE: Olive is alpha software and is considered highly unstable. While we highly appreciate users testing and providing usage information, please use at your own risk.**
+
+## Binaries
+
+[Nightly binaries are available on the website.](https://olivevideoeditor.org/download.php)
 
 ## Support Olive:
 

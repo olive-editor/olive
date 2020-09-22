@@ -139,14 +139,21 @@ jobs:
         then
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
+          cp app/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
+          windeployqt olive-editor/olive-crashhandler.exe
           windeployqt olive-editor/olive-editor.exe
           cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/minidump_stackwalk/* olive-editor
         elif [ "$MATRIX_OS" == "macos-latest" ]
         then
           export BUNDLE_NAME=Olive.app
           mv app/$BUNDLE_NAME .
+
+          # HACK: OCIO doesn't link it's library properly so we need to manually correct
+          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+
           macdeployqt $BUNDLE_NAME
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
