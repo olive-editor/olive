@@ -45,11 +45,10 @@ jobs:
       image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: olive-editor/olive
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
 
-      - name: Configure
+      - name: Configure CMake
         run: |
           mkdir build
           cd build
@@ -63,30 +62,34 @@ jobs:
         run: |
           cmake --build .
 
-      - name: Install
+      - name: Test
         working-directory: build
         run: |
-          cmake --install app --prefix appdir/usr
+          ctest -C ${{ matrix.build-type }}
 
-      - name: Bundle
-        id: bundle
+      - name: Create Package
+        id: package
         working-directory: build
         env:
           ARCH: x86_64
         run: |
-          export VERSION=${GITHUB_SHA::8}
+          cmake --install app --prefix appdir/usr
+          VERSION=${GITHUB_SHA::8}
+          export VERSION
           /usr/local/linuxdeployqt-x86_64.AppImage \
           appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
           -appimage \
           --appimage-extract-and-run
           filename=$(echo Olive*.AppImage)
-          mv "${filename}" "${filename/x86_64/Linux-x86_64}"
+          pkgname="${filename/x86_64/Linux-x86_64}"
+          mv "${filename}" "${pkgname}"
+          echo "::set-output name=pkgname::${pkgname}"
           echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
-      - name: Upload artifact
+      - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.bundle.outputs.artifact }}
+          name: ${{ steps.package.outputs.artifact }}
           path: build/Olive*.AppImage
 
   windows:
