@@ -21,12 +21,13 @@ jobs:
             os-arch: x86_64
             os: windows-latest
             cmake-gen: Ninja
-            dep-suffix: win.7z
-            extract-tool: 7z x
+    env:
+      EXTRACT_TOOL: 7z x
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
-       ${{ matrix.build-type }}>
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -39,7 +40,7 @@ jobs:
         PLATFORM: ${{ matrix.os-name }}
         ARCH: ${{ matrix.os-arch }}
       run: |
-        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-$PLATFORM-$ARCH)"
+        echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
 
     - name: Create Build Folder
       run: |
@@ -55,57 +56,40 @@ jobs:
 
     - name: Acquire FFmpeg
       shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
-        $EXTRACT_TOOL ffmpeg-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-win.7z
+        $EXTRACT_TOOL ffmpeg-win.7z
 
     - name: Acquire OpenColorIO
       shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
-        $EXTRACT_TOOL ocio-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-win.7z
+        $EXTRACT_TOOL ocio-win.7z
 
     - name: Acquire OpenEXR
       shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
-        $EXTRACT_TOOL openexr-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-win.7z
+        $EXTRACT_TOOL openexr-win.7z
 
     - name: Acquire OpenImageIO
       shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
-        $EXTRACT_TOOL oiio-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-win.7z
+        $EXTRACT_TOOL oiio-win.7z
 
     - name: Acquire Crashpad
       shell: bash
-      env:
-        DEP_SUFFIX: ${{ matrix.dep-suffix }}
-        EXTRACT_TOOL: ${{ matrix.extract-tool }}
       run: |
-        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
-        $EXTRACT_TOOL crashpad-$DEP_SUFFIX
+        $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-win.7z
+        $EXTRACT_TOOL crashpad-win.7z
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ runner.workspace }}/build
-      env:
-        CMAKE_GEN: ${{ matrix.cmake-gen }}
       run: |
         PATH=$GITHUB_WORKSPACE:$PATH \
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "$CMAKE_GEN"
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
     - name: Build
       working-directory: ${{ runner.workspace }}/build
@@ -207,12 +191,13 @@ jobs:
             os-arch: x86_64
             os: macos-latest
             cmake-gen: Unix Makefiles
-            dep-suffix: mac.zip
-            extract-tool: sudo unzip -d /usr/local -o
+    env:
+      EXTRACT_TOOL: sudo unzip -d /usr/local -o
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
-       ${{ matrix.build-type }}>
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -225,7 +210,7 @@ jobs:
           PLATFORM: ${{ matrix.os-name }}
           ARCH: ${{ matrix.os-arch }}
         run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-$PLATFORM-$ARCH)"
+          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
 
       - name: Create Build Folder
         run: |
@@ -238,57 +223,40 @@ jobs:
 
       - name: Acquire FFmpeg
         shell: bash
-        env:
-          DEP_SUFFIX: ${{ matrix.dep-suffix }}
-          EXTRACT_TOOL: ${{ matrix.extract-tool }}
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
-          $EXTRACT_TOOL ffmpeg-$DEP_SUFFIX
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-mac.zip
+          $EXTRACT_TOOL ffmpeg-mac.zip
 
       - name: Acquire OpenColorIO
         shell: bash
-        env:
-          DEP_SUFFIX: ${{ matrix.dep-suffix }}
-          EXTRACT_TOOL: ${{ matrix.extract-tool }}
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
-          $EXTRACT_TOOL ocio-$DEP_SUFFIX
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-mac.zip
+          $EXTRACT_TOOL ocio-mac.zip
 
       - name: Acquire OpenEXR
         shell: bash
-        env:
-          DEP_SUFFIX: ${{ matrix.dep-suffix }}
-          EXTRACT_TOOL: ${{ matrix.extract-tool }}
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
-          $EXTRACT_TOOL openexr-$DEP_SUFFIX
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-mac.zip
+          $EXTRACT_TOOL openexr-mac.zip
 
       - name: Acquire OpenImageIO
         shell: bash
-        env:
-          DEP_SUFFIX: ${{ matrix.dep-suffix }}
-          EXTRACT_TOOL: ${{ matrix.extract-tool }}
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
-          $EXTRACT_TOOL oiio-$DEP_SUFFIX
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-mac.zip
+          $EXTRACT_TOOL oiio-mac.zip
 
       - name: Acquire Crashpad
         shell: bash
-        env:
-          DEP_SUFFIX: ${{ matrix.dep-suffix }}
-          EXTRACT_TOOL: ${{ matrix.extract-tool }}
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
-          $EXTRACT_TOOL crashpad-$DEP_SUFFIX
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-mac.zip
+          $EXTRACT_TOOL crashpad-mac.zip
 
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
-        env:
-          CMAKE_GEN: ${{ matrix.cmake-gen }}
         run: |
           PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "$CMAKE_GEN"
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
