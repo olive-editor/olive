@@ -51,6 +51,7 @@ Block::Block() :
 
   speed_input_ = new NodeInput("speed_in", NodeParam::kFloat);
   speed_input_->set_standard_value(1.0);
+  speed_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
   AddInput(speed_input_);
 
   // A block's length must be greater than 0
