@@ -39,6 +39,7 @@ KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
 {
   SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
   connect(this, &KeyframeViewBase::customContextMenuRequested, this, &KeyframeViewBase::ShowContextMenu);
   connect(scene(), &QGraphicsScene::selectionChanged, this, &KeyframeViewBase::AutoSelectKeyTimeNeighbors);
