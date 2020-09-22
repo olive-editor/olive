@@ -18,73 +18,91 @@ include(FindPackageHandleStandardArgs)
 
 # Try to find include files
 find_path(CRASHPAD_CLIENT_INCLUDE_DIR
-        client/crashpad_client.h
-    HINTS
-        "${CRASHPAD_LOCATION}"
-        "$ENV{CRASHPAD_LOCATION}"
-        "${CRASHPAD_BASE_DIR}"
+    client/crashpad_client.h
+  HINTS
+    "${CRASHPAD_LOCATION}"
+    "$ENV{CRASHPAD_LOCATION}"
+    "${CRASHPAD_BASE_DIR}"
 )
 list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_CLIENT_INCLUDE_DIR})
 
 find_path(CRASHPAD_BASE_INCLUDE_DIR
-        base/files/file_path.h
-    HINTS
-        "${CRASHPAD_LOCATION}"
-        "$ENV{CRASHPAD_LOCATION}"
-        "${CRASHPAD_BASE_DIR}"
-    PATH_SUFFIXES
-        "third_party/mini_chromium/mini_chromium"
+    base/files/file_path.h
+  HINTS
+    "${CRASHPAD_LOCATION}"
+    "$ENV{CRASHPAD_LOCATION}"
+    "${CRASHPAD_BASE_DIR}"
+  PATH_SUFFIXES
+    "third_party/mini_chromium/mini_chromium"
 )
 list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_BASE_INCLUDE_DIR})
 
 # Try to find build files
 if (WIN32)
   find_path(CRASHPAD_LIBRARY_DIRS
-          obj/client/client.lib
-      HINTS
-          "${CRASHPAD_LOCATION}"
-          "$ENV{CRASHPAD_LOCATION}"
-          "${CRASHPAD_BASE_DIR}"
-      PATH_SUFFIXES
-          "out/Default"
+      obj/client/client.lib
+    HINTS
+      "${CRASHPAD_LOCATION}"
+      "$ENV{CRASHPAD_LOCATION}"
+      "${CRASHPAD_BASE_DIR}"
+    PATH_SUFFIXES
+      "out/Default"
   )
 elseif(UNIX)
   # Assuming macOS works this way, don't actually know
   find_path(CRASHPAD_LIBRARY_DIRS
-          obj/client/libclient.a
-      HINTS
-          "${CRASHPAD_LOCATION}"
-          "$ENV{CRASHPAD_LOCATION}"
-          "${CRASHPAD_BASE_DIR}"
-      PATH_SUFFIXES
-          "out/Default"
+      obj/client/libclient.a
+    HINTS
+      "${CRASHPAD_LOCATION}"
+      "$ENV{CRASHPAD_LOCATION}"
+      "${CRASHPAD_BASE_DIR}"
+    PATH_SUFFIXES
+      "out/Default"
   )
 endif()
 
 # Find the libraries we need
 set (_crashpad_components
-  client/client
-  util/util
-  third_party/mini_chromium/mini_chromium/base/base)
+  client
+  util
+  third_party/mini_chromium/mini_chromium/base
+  compat)
 foreach (COMPONENT ${_crashpad_components})
-  string(REGEX MATCH "^(.*[\\\/])" SUBDIR ${COMPONENT})
-  string(REGEX MATCH "([^\/]+$)" SHORT_COMPONENT ${COMPONENT})
-  string(TOUPPER ${SHORT_COMPONENT} UPPERCOMPONENT)
+  get_filename_component(SHORT_COMPONENT ${COMPONENT} NAME)
+  string(TOUPPER ${SHORT_COMPONENT} UPPER_COMPONENT)
 
-  find_library(CRASHPAD_${UPPERCOMPONENT}_LIB
-                ${SHORT_COMPONENT}
-                HINTS "${CRASHPAD_LIBRARY_DIRS}/obj/${SUBDIR}"
+  find_library(CRASHPAD_${UPPER_COMPONENT}_LIB
+      ${SHORT_COMPONENT}
+    HINTS
+      "${CRASHPAD_LIBRARY_DIRS}/obj/${COMPONENT}"
   )
 
-  list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPERCOMPONENT}_LIB})
+  list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
 endforeach()
 
 if (UNIX AND NOT APPLE)
-  list(APPEND CRASHPAD_LIBRARIES ${CMAKE_DL_LIBS} Threads::Threads)
+  list(APPEND CRASHPAD_LIBRARIES
+    ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
+    Threads::Threads # Link against libpthread.so (-lpthread)
+  )
+endif()
+
+# Find Breakpad's minidump_stackwalk
+if (UNIX)
+  find_path(BREAKPAD_BIN_DIR
+    minidump_stackwalk
+  HINTS
+    "${BREAKPAD_LOCATION}"
+    "$ENV{BREAKPAD_LOCATION}"
+    "${BREAKPAD_BASE_DIR}"
+  PATH_SUFFIXES
+    breakpad/bin
+  )
 endif()
 
 find_package_handle_standard_args(GoogleCrashpad
-    REQUIRED_VARS
-        CRASHPAD_LIBRARIES
-        CRASHPAD_INCLUDE_DIRS
+  REQUIRED_VARS
+    CRASHPAD_LIBRARIES
+    CRASHPAD_INCLUDE_DIRS
+    BREAKPAD_BIN_DIR
 )
