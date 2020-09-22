@@ -79,6 +79,13 @@ foreach (COMPONENT ${_crashpad_components})
   list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
 endforeach()
 
+if (UNIX AND NOT APPLE)
+  list(APPEND CRASHPAD_LIBRARIES
+    ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
+    Threads::Threads # Link against libpthread.so (-lpthread)
+  )
+endif()
+
 find_package_handle_standard_args(GoogleCrashpad
     REQUIRED_VARS
         CRASHPAD_LIBRARIES

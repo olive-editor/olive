@@ -37,6 +37,7 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
 {
   if (!channels_) {
     qWarning() << "Failed to write samples - channel count is zero";
+    return;
   }
 
   int start_index = time_to_samples(start);

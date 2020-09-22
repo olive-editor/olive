@@ -68,11 +68,17 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 
   // Heuristically determine whether this file is part of an image sequence or not
   if (GetImageSequenceDigitCount(f->filename()) > 0) {
+    QSize dim(in->spec().width, in->spec().height);
+
     int64_t ind = GetImageSequenceIndex(f->filename());
 
     // Check if files around exist around it with that follow a sequence
-    if (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind - 1))
-        || QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind + 1))) {
+    QString previous_img_fn = TransformImageSequenceFileName(f->filename(), ind - 1);
+    QString next_img_fn = TransformImageSequenceFileName(f->filename(), ind + 1);
+
+    // GetImageDimensions will return a 0,0 size if the file doesn't exist, so it's safe to check
+    // both existence and matching size with this
+    if (GetImageDimensions(previous_img_fn) == dim || GetImageDimensions(next_img_fn) == dim) {
       // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
       // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
       QMetaObject::invokeMethod(Core::instance(),
@@ -314,6 +320,25 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
   }
 
   return true;
+}
+
+QSize OIIODecoder::GetImageDimensions(const QString &fn)
+{
+  QSize sz;
+  auto in = OIIO::ImageInput::open(fn.toStdString());
+
+  if (in) {
+    sz.setWidth(in->spec().width);
+    sz.setHeight(in->spec().height);
+
+    in->close();
+
+#if OIIO_VERSION < 10903
+    OIIO::ImageInput::destroy(in);
+#endif
+  }
+
+  return sz;
 }
 
 bool OIIODecoder::OpenImageHandler(const QString &fn)

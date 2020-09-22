@@ -5,7 +5,6 @@ title: "[UNSUPPORTED]"
 labels: "Legacy (Unsupported)"
 assignees: ''
 ---
-
 # Olive 0.1 is unsupported
 
 Unfortunately no one is supporting Olive 0.1 at this time. Any reports pertaining to it will be

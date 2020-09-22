@@ -23,10 +23,9 @@ set(OLIVE_SOURCES
   common/clamp.h
   common/commandlineparser.h
   common/commandlineparser.cpp
-  common/crashhandler.h
-  common/crashhandler.cpp
-  common/crashpadinterface.cpp
   common/crashpadinterface.h
+  common/crashpadinterface.cpp
+  common/crashpadutils.h
   common/debug.h
   common/debug.cpp
   common/define.h
