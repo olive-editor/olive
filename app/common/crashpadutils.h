@@ -18,15 +18,23 @@
 
 ***/
 
-#ifndef CRASHHANDLER_H
-#define CRASHHANDLER_H
+#ifndef CRASHPADUTILS_H
+#define CRASHPADUTILS_H
 
-#include "common/define.h"
+#include <client/crashpad_client.h>
 
-OLIVE_NAMESPACE_ENTER
+// Copied from base::FilePath to match its macro
+#if defined(OS_POSIX)
+// On most platforms, native pathnames are char arrays, and the encoding
+// may or may not be specified.  On Mac OS X, native pathnames are encoded
+// in UTF-8.
+#define QSTRING_TO_BASE_STRING(x) x.toStdString()
+#define BASE_STRING_TO_QSTRING(x) QString::fromStdString(x)
+#elif defined(OS_WIN)
+// On Windows, for Unicode-aware applications, native pathnames are wchar_t
+// arrays encoded in UTF-16.
+#define QSTRING_TO_BASE_STRING(x) x.toStdWString()
+#define BASE_STRING_TO_QSTRING(x) QString::fromStdWString(x)
+#endif  // OS_WIN
 
-void crash_handler(int sig);
-
-OLIVE_NAMESPACE_EXIT
-
-#endif // CRASHHANDLER_H
+#endif // CRASHPADUTILS_H

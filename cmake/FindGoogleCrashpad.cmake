@@ -79,6 +79,10 @@ foreach (COMPONENT ${_crashpad_components})
   list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPERCOMPONENT}_LIB})
 endforeach()
 
+if (UNIX AND NOT APPLE)
+  list(APPEND CRASHPAD_LIBRARIES ${CMAKE_DL_LIBS} Threads::Threads)
+endif()
+
 find_package_handle_standard_args(GoogleCrashpad
     REQUIRED_VARS
         CRASHPAD_LIBRARIES
