@@ -9,6 +9,86 @@ env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 3
 
 jobs:
+  linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [1, 2]
+        include:
+          - build: 1
+            build-type: RelWithDebInfo
+            cc-compiler: gcc
+            cxx-compiler: g++
+            compiler-name: GCC 9.3.1
+            cmake-gen: Ninja
+            os-name: Linux (CentOS 7)
+            vfx-cy: 2021
+            ci-common-version: 2
+          - build: 2
+            build-type: RelWithDebInfo
+            cc-compiler: clang
+            cxx-compiler: clang++
+            compiler-name: Clang 10.0.0
+            cmake-gen: Ninja
+            os-name: Linux (CentOS 7)
+            vfx-cy: 2021
+            ci-common-version: 2
+    name: |
+      ${{ matrix.os-name }}
+      <${{ matrix.compiler-name }},
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }},
+       VFX CY${{ matrix.vfx-cy }},
+       CI Common Version ${{ matrix.ci-common-version }}>
+    runs-on: ubuntu-latest
+    container:
+      image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: olive-editor/olive
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
+            -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}"
+
+      - name: Build
+        working-directory: build
+        run: |
+          cmake --build .
+
+      - name: Install
+        working-directory: build
+        run: |
+          cmake --install app --prefix appdir/usr
+
+      - name: Bundle
+        id: bundle
+        working-directory: build
+        env:
+          ARCH: x86_64
+        run: |
+          export VERSION=${GITHUB_SHA::8}
+          /usr/local/linuxdeployqt-x86_64.AppImage \
+          appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
+          -appimage \
+          --appimage-extract-and-run
+          filename=$(echo Olive*.AppImage)
+          mv "${filename}" "${filename/x86_64/Linux-x86_64}"
+          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.bundle.outputs.artifact }}
+          path: build/Olive*.AppImage
+
   windows:
     strategy:
       matrix:
