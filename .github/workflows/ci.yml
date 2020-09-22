@@ -92,6 +92,21 @@ jobs:
           name: ${{ steps.package.outputs.artifact }}
           path: build/Olive*.AppImage
 
+      - name: Upload Packages to Nightly Page
+        working-directory: build
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+          PKGNAME: ${{ steps.package.outputs.pkgname }}
+        if: github.event_name == 'push' && matrix.cc-compiler == 'gcc'
+        run: |
+          curl -X POST \
+            -F file="@$PKGNAME" \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git show -s --format=%ct)" \
+            -F comment="$(git show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+
   windows:
     strategy:
       matrix:
