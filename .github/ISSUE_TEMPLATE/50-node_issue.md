@@ -4,12 +4,14 @@ about:  Report an issue related to the node-based compositing system, including 
 title: "[NODES]"
 labels: "Nodes/Compositing, Triage"
 assignees: ''
-
 ---
-**Commit Hash (8 character string of letters/numbers in title bar)**
+**Commit Hash** <!-- 8 character string of letters/numbers in title bar (e.g. 3ea173c9) -->
+
 
 **Platform**
 
+
 **Summary**
+
 
 **Additional Information / Output**

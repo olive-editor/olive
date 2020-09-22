@@ -4,12 +4,14 @@ about:  Report an issue related to general user interface usability, including b
 title: "[UI]"
 labels: "User Interface, Triage"
 assignees: ''
-
 ---
-**Commit Hash (8 character string of letters/numbers in title bar)**
+**Commit Hash** <!-- 8 character string of letters/numbers in title bar (e.g. 3ea173c9) -->
+
 
 **Platform**
 
+
 **Summary**
+
 
 **Additional Information / Output**
