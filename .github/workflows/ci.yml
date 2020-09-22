@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+env:
+  DOWNLOAD_TOOL: curl -fLOSs --retry 3
+
 jobs:
   windows:
     strategy:
@@ -20,23 +23,11 @@ jobs:
             cmake-gen: Ninja
             dep-suffix: win.7z
             extract-tool: 7z x
-          - build: 2
-            build-type: RelWithDebInfo
-            compiler-name: Clang LLVM
-            os-name: macOS
-            os-arch: x86_64
-            os: macos-latest
-            cmake-gen: Unix Makefiles
-            dep-suffix: mac.zip
-            extract-tool: sudo unzip -d /usr/local -o
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }}>
     runs-on: ${{ matrix.os }}
-
-    env:
-      DOWNLOAD_TOOL: curl -fLOSs --retry 3
 
     steps:
     - name: Checkout Source Code
@@ -56,7 +47,6 @@ jobs:
 
     - name: Enable Developer Command Prompt (Windows)
       uses: ilammy/msvc-dev-cmd@v1.3.0
-      if: matrix.os == 'windows-latest'
 
     - name: Acquire Qt
       uses: jurplel/install-qt-action@v2.8.0
@@ -132,111 +122,65 @@ jobs:
     - name: Create Package
       working-directory: ${{ runner.workspace }}/build
       shell: bash
-      env:
-        MATRIX_OS: ${{ matrix.os }}
       run: |
-        if [ "$MATRIX_OS" == "windows-latest" ]
-        then
-          mkdir olive-editor
-          cp app/olive-editor.exe olive-editor
-          cp app/olive-crashhandler.exe olive-editor
-          cp app/olive-editor.pdb olive-editor
-          windeployqt olive-editor/olive-crashhandler.exe
-          windeployqt olive-editor/olive-editor.exe
-          cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/minidump_stackwalk/* olive-editor
-        elif [ "$MATRIX_OS" == "macos-latest" ]
-        then
-          export BUNDLE_NAME=Olive.app
-          mv app/$BUNDLE_NAME .
-
-          # HACK: OCIO doesn't link it's library properly so we need to manually correct
-          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
-
-          macdeployqt $BUNDLE_NAME
-          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
-        fi
+        mkdir olive-editor
+        cp app/olive-editor.exe olive-editor
+        cp app/olive-crashhandler.exe olive-editor
+        cp app/olive-editor.pdb olive-editor
+        windeployqt olive-editor/olive-crashhandler.exe
+        windeployqt olive-editor/olive-editor.exe
+        cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
+        cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
+        cp $(cygpath $GITHUB_WORKSPACE)/minidump_stackwalk/* olive-editor
 
     - name: Deploy Packages
       working-directory: ${{ runner.workspace }}/build
       shell: bash
-      env:
-        MATRIX_OS: ${{ matrix.os }}
       run: |
-        if [ "$MATRIX_OS" == "windows-latest" ]
-        then
-          # Create Installer Executable
-          curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-          cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
-          cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
+        # Create Installer Executable
+        $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
+        cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
+        cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
+        makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
-          # Create Portable ZIP
-          echo -n > olive-editor/portable
-          7z a $PKGNAME.zip olive-editor
-        elif [ "$MATRIX_OS" == "macos-latest" ]
-        then
-          zip -r $PKGNAME.zip Olive.app
-        fi
+        # Create Portable ZIP
+        echo -n > olive-editor/portable
+        7z a $PKGNAME.zip olive-editor
+
+    - name: Upload Installer Artifact to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.PKGNAME }}.exe
+        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
+
+    - name: Upload Portable Artifact to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.PKGNAME }}.zip
+        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
 
     - name: Upload Packages to Nightly Page
       shell: bash
       working-directory: ${{ runner.workspace }}/build
       env:
         GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
-        MATRIX_OS: ${{ matrix.os }}
+      if: github.event_name == 'push'
       run: |
-        if [ "$MATRIX_OS" == "windows-latest" ]
-        then
-          curl -X POST \
-            -F file=@$PKGNAME.exe \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
+        curl -X POST \
+          -F file=@$PKGNAME.exe \
+          -F key="$GH_AUTH_KEY" \
+          -F hash="$GITHUB_SHA" \
+          -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+          -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+          https://olivevideoeditor.org/dl/push.php
 
-          curl -X POST \
-            -F file=@$PKGNAME.zip \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
-        elif [ "$MATRIX_OS" == "macos-latest" ]
-        then
-          curl -X POST \
-            -F file=@$PKGNAME.zip \
-            -F key="$GH_AUTH_KEY" \
-            -F hash="$GITHUB_SHA" \
-            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
-            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
-        fi
-      if: github.event_name != 'pull_request'
-
-    - name: Upload Installer Artifact to GitHub (Windows)
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PKGNAME }}.exe
-        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
-      if: matrix.os == 'windows-latest'
-
-    - name: Upload Portable Artifact to GitHub (Windows)
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PKGNAME }}.zip
-        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
-      if: matrix.os == 'windows-latest'
-
-    - name: Upload Artifact to GitHub (macOS)
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PKGNAME }}.zip
-        path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
-      if: matrix.os == 'macos-latest'
+        curl -X POST \
+          -F file=@$PKGNAME.zip \
+          -F key="$GH_AUTH_KEY" \
+          -F hash="$GITHUB_SHA" \
+          -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+          -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+          https://olivevideoeditor.org/dl/push.php
 
     - name: Export Crashpad Symbols and Upload To Server
       working-directory: ${{ runner.workspace }}/build
@@ -250,4 +194,151 @@ jobs:
           -F symfile=@olive-editor.sym \
           -F key="$GH_AUTH_KEY" \
           https://olivevideoeditor.org/crashpad/symbols.php
-      if: matrix.os == 'windows-latest'
+
+  macos:
+    strategy:
+      matrix:
+        build: [1]
+        include:
+          - build: 1
+            build-type: RelWithDebInfo
+            compiler-name: Clang LLVM
+            os-name: macOS
+            os-arch: x86_64
+            os: macos-latest
+            cmake-gen: Unix Makefiles
+            dep-suffix: mac.zip
+            extract-tool: sudo unzip -d /usr/local -o
+    name: |
+      ${{ matrix.os-name }}
+      <${{ matrix.compiler-name }},
+       ${{ matrix.build-type }}>
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Automatically Generate Package Name
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.os-name }}
+          ARCH: ${{ matrix.os-arch }}
+        run: |
+          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-$PLATFORM-$ARCH)"
+
+      - name: Create Build Folder
+        run: |
+          cmake -E make_directory ${{ runner.workspace }}/build
+
+      - name: Acquire Qt
+        uses: jurplel/install-qt-action@v2.8.0
+        with:
+          version: 5.15.1
+
+      - name: Acquire FFmpeg
+        shell: bash
+        env:
+          DEP_SUFFIX: ${{ matrix.dep-suffix }}
+          EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-$DEP_SUFFIX
+          $EXTRACT_TOOL ffmpeg-$DEP_SUFFIX
+
+      - name: Acquire OpenColorIO
+        shell: bash
+        env:
+          DEP_SUFFIX: ${{ matrix.dep-suffix }}
+          EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-$DEP_SUFFIX
+          $EXTRACT_TOOL ocio-$DEP_SUFFIX
+
+      - name: Acquire OpenEXR
+        shell: bash
+        env:
+          DEP_SUFFIX: ${{ matrix.dep-suffix }}
+          EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-$DEP_SUFFIX
+          $EXTRACT_TOOL openexr-$DEP_SUFFIX
+
+      - name: Acquire OpenImageIO
+        shell: bash
+        env:
+          DEP_SUFFIX: ${{ matrix.dep-suffix }}
+          EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-$DEP_SUFFIX
+          $EXTRACT_TOOL oiio-$DEP_SUFFIX
+
+      - name: Acquire Crashpad
+        shell: bash
+        env:
+          DEP_SUFFIX: ${{ matrix.dep-suffix }}
+          EXTRACT_TOOL: ${{ matrix.extract-tool }}
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-$DEP_SUFFIX
+          $EXTRACT_TOOL crashpad-$DEP_SUFFIX
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        env:
+          CMAKE_GEN: ${{ matrix.cmake-gen }}
+        run: |
+          PATH=$GITHUB_WORKSPACE:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "$CMAKE_GEN"
+
+      - name: Build
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          cmake --build .
+
+      - name: Test
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          ctest -C ${{ matrix.build-type }}
+
+      - name: Create Package
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          export BUNDLE_NAME=Olive.app
+          mv app/$BUNDLE_NAME .
+
+          # HACK: OCIO doesn't link it's library properly so we need to manually correct
+          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+
+          macdeployqt $BUNDLE_NAME
+          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+
+      - name: Deploy Packages
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          zip -r $PKGNAME.zip Olive.app
+
+      - name: Upload Packages to Nightly Page
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST \
+            -F file=@$PKGNAME.zip \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+
+      - name: Upload Artifact to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PKGNAME }}.zip
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
