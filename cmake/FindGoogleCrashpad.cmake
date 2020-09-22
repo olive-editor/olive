@@ -87,8 +87,22 @@ if (UNIX AND NOT APPLE)
   )
 endif()
 
+# Find Breakpad's minidump_stackwalk
+if (UNIX)
+  find_path(BREAKPAD_BIN_DIR
+    minidump_stackwalk
+  HINTS
+    "${BREAKPAD_LOCATION}"
+    "$ENV{BREAKPAD_LOCATION}"
+    "${BREAKPAD_BASE_DIR}"
+  PATH_SUFFIXES
+    breakpad/bin
+  )
+endif()
+
 find_package_handle_standard_args(GoogleCrashpad
-    REQUIRED_VARS
-        CRASHPAD_LIBRARIES
-        CRASHPAD_INCLUDE_DIRS
+  REQUIRED_VARS
+    CRASHPAD_LIBRARIES
+    CRASHPAD_INCLUDE_DIRS
+    BREAKPAD_BIN_DIR
 )
