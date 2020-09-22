@@ -2,5 +2,7 @@
 * text=auto
 
 # Enforce LF line endings on source files
-*.h     text    eol=lf
-*.cpp   text    eol=lf
+*.h        text eol=lf
+*.cpp      text eol=lf
+*.sh       text eol=lf
+*.desktop  text eol=lf
