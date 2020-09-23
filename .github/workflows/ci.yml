@@ -105,7 +105,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git show -s --format=%ct)" \
             -F comment="$(git show -s --format=%B)" \
-            http://ci.olivevideoeditor.org/push.php
+            https://ci.olivevideoeditor.org/push.php
 
   windows:
     strategy:
@@ -155,31 +155,31 @@ jobs:
       - name: Acquire FFmpeg
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-win.7z
           $EXTRACT_TOOL ffmpeg-win.7z
 
       - name: Acquire OpenColorIO
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-win.7z
           $EXTRACT_TOOL ocio-win.7z
 
       - name: Acquire OpenEXR
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-win.7z
           $EXTRACT_TOOL openexr-win.7z
 
       - name: Acquire OpenImageIO
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-win.7z
           $EXTRACT_TOOL oiio-win.7z
 
       - name: Acquire Crashpad
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-win.7z
           $EXTRACT_TOOL crashpad-win.7z
 
       - name: Configure CMake
@@ -254,7 +254,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            http://ci.olivevideoeditor.org/push.php
+            https://ci.olivevideoeditor.org/push.php
 
           curl -X POST \
             -F file=@$PKGNAME.zip \
@@ -262,7 +262,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            http://ci.olivevideoeditor.org/push.php
+            https://ci.olivevideoeditor.org/push.php
 
       - name: Export Crashpad Symbols and Upload To Server
         working-directory: ${{ runner.workspace }}/build
@@ -322,31 +322,31 @@ jobs:
       - name: Acquire FFmpeg
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-mac.zip
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-mac.zip
           $EXTRACT_TOOL ffmpeg-mac.zip
 
       - name: Acquire OpenColorIO
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-mac.zip
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-mac.zip
           $EXTRACT_TOOL ocio-mac.zip
 
       - name: Acquire OpenEXR
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-mac.zip
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-mac.zip
           $EXTRACT_TOOL openexr-mac.zip
 
       - name: Acquire OpenImageIO
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-mac.zip
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-mac.zip
           $EXTRACT_TOOL oiio-mac.zip
 
       - name: Acquire Crashpad
         shell: bash
         run: |
-          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-mac.zip
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-mac.zip
           $EXTRACT_TOOL crashpad-mac.zip
 
       - name: Configure CMake
@@ -407,4 +407,4 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            http://ci.olivevideoeditor.org/push.php
+            https://ci.olivevideoeditor.org/push.php
