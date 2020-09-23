@@ -66,7 +66,8 @@ set (_crashpad_components
   client
   util
   third_party/mini_chromium/mini_chromium/base
-  compat)
+  compat
+)
 foreach (COMPONENT ${_crashpad_components})
   get_filename_component(SHORT_COMPONENT ${COMPONENT} NAME)
   string(TOUPPER ${SHORT_COMPONENT} UPPER_COMPONENT)
@@ -79,13 +80,6 @@ foreach (COMPONENT ${_crashpad_components})
 
   list(APPEND CRASHPAD_LIBRARIES ${CRASHPAD_${UPPER_COMPONENT}_LIB})
 endforeach()
-
-if (UNIX AND NOT APPLE)
-  list(APPEND CRASHPAD_LIBRARIES
-    ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
-    Threads::Threads # Link against libpthread.so (-lpthread)
-  )
-endif()
 
 # Find Breakpad's minidump_stackwalk
 if (UNIX)
@@ -102,7 +96,17 @@ endif()
 
 find_package_handle_standard_args(GoogleCrashpad
   REQUIRED_VARS
-    CRASHPAD_LIBRARIES
-    CRASHPAD_INCLUDE_DIRS
+    CRASHPAD_CLIENT_LIB
+    CRASHPAD_UTIL_LIB
+    CRASHPAD_BASE_LIB
     BREAKPAD_BIN_DIR
+    CRASHPAD_CLIENT_INCLUDE_DIR
+    CRASHPAD_BASE_INCLUDE_DIR
 )
+
+if (UNIX AND NOT APPLE)
+  list(APPEND CRASHPAD_LIBRARIES
+    ${CMAKE_DL_LIBS} # Crashpad compat lib needs libdl.so (-ldl)
+    Threads::Threads # Link against libpthread.so (-lpthread)
+  )
+endif()
