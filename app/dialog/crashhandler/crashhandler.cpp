@@ -41,6 +41,8 @@ OLIVE_NAMESPACE_ENTER
 CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash_time)
 {
   setWindowTitle(tr("Olive"));
+  setWindowFlags(Qt::WindowStaysOnTopHint);
+
   crash_time_ = QString(crash_time).toULongLong();
   report_dir_ = report_dir;
 
