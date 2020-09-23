@@ -82,17 +82,15 @@ foreach (COMPONENT ${_crashpad_components})
 endforeach()
 
 # Find Breakpad's minidump_stackwalk
-if (UNIX)
-  find_path(BREAKPAD_BIN_DIR
-    minidump_stackwalk
-  HINTS
-    "${BREAKPAD_LOCATION}"
-    "$ENV{BREAKPAD_LOCATION}"
-    "${BREAKPAD_BASE_DIR}"
-  PATH_SUFFIXES
-    breakpad/bin
-  )
-endif()
+find_path(BREAKPAD_BIN_DIR
+  "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}"
+HINTS
+  "${BREAKPAD_LOCATION}"
+  "$ENV{BREAKPAD_LOCATION}"
+  "${BREAKPAD_BASE_DIR}"
+PATH_SUFFIXES
+  breakpad/bin
+)
 
 find_package_handle_standard_args(GoogleCrashpad
   REQUIRED_VARS
