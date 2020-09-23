@@ -105,7 +105,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git show -s --format=%ct)" \
             -F comment="$(git show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
+            http://ci.olivevideoeditor.org/push.php
 
   windows:
     strategy:
@@ -254,7 +254,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
+            http://ci.olivevideoeditor.org/push.php
 
           curl -X POST \
             -F file=@$PKGNAME.zip \
@@ -262,7 +262,7 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
+            http://ci.olivevideoeditor.org/push.php
 
       - name: Export Crashpad Symbols and Upload To Server
         working-directory: ${{ runner.workspace }}/build
@@ -407,4 +407,4 @@ jobs:
             -F hash="$GITHUB_SHA" \
             -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
-            https://olivevideoeditor.org/dl/push.php
+            http://ci.olivevideoeditor.org/push.php
