@@ -23,7 +23,6 @@
 
 #ifdef USE_CRASHPAD
 
-#include <client/crashpad_client.h>
 #include <client/crash_report_database.h>
 #include <client/settings.h>
 

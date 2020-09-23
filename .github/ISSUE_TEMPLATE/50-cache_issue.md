@@ -4,12 +4,14 @@ about:  Report an issue related to the disk cache system, including failure to c
 title: "[CACHE]"
 labels: "Disk Cache, Triage"
 assignees: ''
-
 ---
-**Commit Hash**
+**Commit Hash** <!-- 8 character string of letters/numbers in title bar (e.g. 3ea173c9) -->
+
 
 **Platform**
 
+
 **Summary**
+
 
 **Additional Information / Output**

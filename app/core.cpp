@@ -51,6 +51,7 @@
 #include "render/pixelformat.h"
 #include "render/shaderinfo.h"
 #include "task/project/import/import.h"
+#include "task/project/import/importerrordialog.h"
 #include "task/project/load/load.h"
 #include "task/project/save/save.h"
 #include "task/taskmanager.h"
@@ -473,7 +474,14 @@ void Core::AddOpenProjectFromTask(Task *task)
 
 void Core::ImportTaskComplete(Task* task)
 {
-  QUndoCommand *command = static_cast<ProjectImportTask*>(task)->GetCommand();
+  ProjectImportTask* import_task = static_cast<ProjectImportTask*>(task);
+
+  QUndoCommand *command = import_task->GetCommand();
+
+  if (import_task->HasInvalidFiles()) {
+    ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);
+    d.exec();
+  }
 
   undo_stack_.pushIfHasChildren(command);
 }

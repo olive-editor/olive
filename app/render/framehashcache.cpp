@@ -358,11 +358,16 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
     return;
   }
 
+  TimeRangeList ranges_to_invalidate;
   QMap<rational, QByteArray>::const_iterator i;
   for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
     if (i.value() == hash) {
-      Invalidate(TimeRange(i.key(), i.key() + timebase_));
+      ranges_to_invalidate.InsertTimeRange(TimeRange(i.key(), i.key() + timebase_));
     }
+  }
+
+  foreach (const TimeRange& range, ranges_to_invalidate) {
+    Invalidate(range);
   }
 }
 

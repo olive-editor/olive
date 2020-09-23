@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   task/project/import/import.h
   task/project/import/import.cpp
+  task/project/import/importerrordialog.h
+  task/project/import/importerrordialog.cpp
   PARENT_SCOPE
 )

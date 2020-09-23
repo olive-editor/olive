@@ -178,13 +178,68 @@ if (GoogleCrashpad_FOUND)
     ${OLIVE_TARGET}
     PRIVATE
     ${CRASHPAD_INCLUDE_DIRS}
-    )
+  )
 
   target_link_libraries(
     ${OLIVE_TARGET}
     PRIVATE
     ${CRASHPAD_LIBRARIES}
+  )
+
+  set(OLIVE_CRASH_TARGET "olive-crashhandler")
+
+  set(OLIVE_CRASH_SOURCES
+    dialog/crashhandler/crashhandler.h
+    dialog/crashhandler/crashhandler.cpp
+    dialog/crashhandler/crashhandlermain.cpp
+  )
+
+  if (WIN32)
+    add_executable(
+      ${OLIVE_CRASH_TARGET}
+      WIN32
+      ${OLIVE_CRASH_SOURCES}
     )
+  else()
+    add_executable(
+      ${OLIVE_CRASH_TARGET}
+      ${OLIVE_CRASH_SOURCES}
+    )
+  endif()
+
+  target_include_directories(
+    ${OLIVE_CRASH_TARGET}
+    PRIVATE
+    ${CRASHPAD_INCLUDE_DIRS}
+    )
+
+  target_link_libraries(
+    ${OLIVE_CRASH_TARGET}
+    PRIVATE
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::Network
+    ${CRASHPAD_LIBRARIES}
+  )
+
+  set(CRASHPAD_HANDLER "crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}")
+  set(MINIDUMP_STACKWALK "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}")
+
+  if(UNIX AND NOT APPLE)
+    install(TARGETS ${OLIVE_TARGET} ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
+    install(PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} DESTINATION bin)
+    install(PROGRAMS ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} DESTINATION bin)
+  endif()
+
+  if(APPLE)
+    # Move crash handler executables inside Mac app bundle
+    add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+    )
+  endif()
 endif()
 
 # Set compiler definitions
@@ -208,44 +263,4 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_EXTRACT_ALL "YES")
   set(DOXYGEN_EXTRACT_PRIVATE "YES")
   doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
-endif()
-
-set(OLIVE_CRASH_TARGET "olive-crashhandler")
-
-set(OLIVE_CRASH_SOURCES
-  dialog/crashhandler/crashhandler.h
-  dialog/crashhandler/crashhandler.cpp
-  dialog/crashhandler/crashhandlermain.cpp
-)
-
-if (WIN32)
-  add_executable(
-    ${OLIVE_CRASH_TARGET}
-    WIN32
-    ${OLIVE_CRASH_SOURCES}
-  )
-else()
-  add_executable(
-    ${OLIVE_CRASH_TARGET}
-    ${OLIVE_CRASH_SOURCES}
-  )
-endif()
-
-target_link_libraries(
-  ${OLIVE_CRASH_TARGET}
-  PRIVATE
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
-)
-
-if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
-endif()
-
-if(APPLE)
-  # Move crash handler program inside Mac app bundle
-  add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-  )
 endif()

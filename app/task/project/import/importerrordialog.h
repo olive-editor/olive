@@ -18,15 +18,23 @@
 
 ***/
 
-#ifndef CRASHHANDLER_H
-#define CRASHHANDLER_H
+#ifndef PROJECTIMPORTERRORDIALOG_H
+#define PROJECTIMPORTERRORDIALOG_H
+
+#include <QDialog>
 
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-void crash_handler(int sig);
+class ProjectImportErrorDialog : public QDialog
+{
+  Q_OBJECT
+public:
+  ProjectImportErrorDialog(const QStringList& filenames, QWidget* parent = nullptr);
+
+};
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // CRASHHANDLER_H
+#endif // PROJECTIMPORTERRORDIALOG_H

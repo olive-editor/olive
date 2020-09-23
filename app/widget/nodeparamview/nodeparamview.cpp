@@ -136,6 +136,9 @@ void NodeParamView::SelectNodes(const QList<Node *> &nodes)
     connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
     connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
 
+    // Set time target
+    item->SetTimeTarget(GetTimeTarget());
+
     items_.insert(n, item);
   }
 

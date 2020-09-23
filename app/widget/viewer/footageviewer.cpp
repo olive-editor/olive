@@ -33,8 +33,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   footage_(nullptr)
 {
   video_node_ = new VideoInput();
+  sequence_.AddNode(video_node_);
+
   audio_node_ = new AudioInput();
-  viewer_node_ = new ViewerOutput();
+  sequence_.AddNode(audio_node_);
 
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
@@ -55,17 +57,29 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     ConnectViewerNode(nullptr);
 
-    NodeParam::DisconnectEdge(video_node_->output(), viewer_node_->texture_input());
-    NodeParam::DisconnectEdge(audio_node_->output(), viewer_node_->samples_input());
+    NodeParam::DisconnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
+    NodeParam::DisconnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
   }
 
   footage_ = footage;
 
   if (footage_) {
+    // Update sequence media name
+    sequence_.viewer_output()->set_media_name(footage_->name());
+
+    // Reset parameters and then attempt to set from footage
+    sequence_.set_default_parameters();
+    sequence_.set_parameters_from_footage({footage_});
+
+    // Use first of each stream
     VideoStreamPtr video_stream = nullptr;
     AudioStreamPtr audio_stream = nullptr;
 
     foreach (StreamPtr s, footage_->streams()) {
+      if (!s->enabled()) {
+        continue;
+      }
+
       if (!audio_stream && s->type() == Stream::kAudio) {
         audio_stream = std::static_pointer_cast<AudioStream>(s);
       }
@@ -80,42 +94,17 @@ void FootageViewerWidget::SetFootage(Footage *footage)
       }
     }
 
-    viewer_node_->set_media_name(footage_->name());
-
     if (video_stream) {
       video_node_->SetFootage(video_stream);
-      viewer_node_->set_video_params(VideoParams(video_stream->width(),
-                                                 video_stream->height(),
-                                                 video_stream->frame_rate().flipped(),
-                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                                 video_stream->pixel_aspect_ratio(),
-                                                 video_stream->interlacing(),
-                                                 VideoParams::generate_auto_divider(video_stream->width(), video_stream->height())));
-      NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
-    } else {
-      int width = Config::Current()["DefaultSequenceWidth"].toInt();
-      int height = Config::Current()["DefaultSequenceHeight"].toInt();
-
-      viewer_node_->set_video_params(VideoParams(width,
-                                                 height,
-                                                 Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                                                 static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                                 Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
-                                                 Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
-                                                 VideoParams::generate_auto_divider(width, height)));
+      NodeParam::ConnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
     }
 
     if (audio_stream) {
       audio_node_->SetFootage(audio_stream);
-      viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout(), SampleFormat::kInternalFormat));
-      NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
-    } else {
-      viewer_node_->set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                                     Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
-                                     SampleFormat::kInternalFormat));
+      NodeParam::ConnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
     }
 
-    ConnectViewerNode(viewer_node_, footage_->project()->color_manager());
+    ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());
 
     SetTimestamp(cached_timestamps_.value(footage_, 0));
   }

@@ -1,4 +1,4 @@
-name: CMake
+name: CI
 
 on:
   push:
@@ -6,137 +6,405 @@ on:
       - master
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: RelWithDebInfo
+  DOWNLOAD_TOOL: curl -fLOSs --retry 3
 
 jobs:
-  build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
-    runs-on: windows-latest
-
-    env:
-      PKGNAME: Olive-${GITHUB_SHA:8}-Windows-x86_64
+  linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [1, 2]
+        include:
+          - build: 1
+            build-type: RelWithDebInfo
+            cc-compiler: gcc
+            cxx-compiler: g++
+            compiler-name: GCC 9.3.1
+            cmake-gen: Ninja
+            os-name: Linux (CentOS 7)
+            vfx-cy: 2021
+            ci-common-version: 2
+          - build: 2
+            build-type: RelWithDebInfo
+            cc-compiler: clang
+            cxx-compiler: clang++
+            compiler-name: Clang 10.0.0
+            cmake-gen: Ninja
+            os-name: Linux (CentOS 7)
+            vfx-cy: 2021
+            ci-common-version: 2
+    name: |
+      ${{ matrix.os-name }}
+      <${{ matrix.compiler-name }},
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }},
+       VFX CY${{ matrix.vfx-cy }},
+       CI Common Version ${{ matrix.ci-common-version }}>
+    runs-on: ubuntu-latest
+    container:
+      image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
 
     steps:
-    - name: Set package name
-      shell: bash
-      run: echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-Windows-x86_64)"
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
+            -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}"
 
-    - name: Create Build Environment
-      # Some projects don't allow in-source building, so create a separate build directory
-      # We'll use this as our working directory for all subsequent commands
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      - name: Build
+        working-directory: build
+        run: |
+          cmake --build .
 
-    - name: Enable Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1.3.0
+      - name: Test
+        working-directory: build
+        run: |
+          ctest -C ${{ matrix.build-type }}
 
-    - name: Acquire Qt
-      uses: jurplel/install-qt-action@v2.8.0
-      with:
-        version: 5.15.1
+      - name: Create Package
+        id: package
+        working-directory: build
+        env:
+          ARCH: x86_64
+        run: |
+          cmake --install app --prefix appdir/usr
+          VERSION=${GITHUB_SHA::8}
+          export VERSION
+          /usr/local/linuxdeployqt-x86_64.AppImage \
+          appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
+          -appimage \
+          --appimage-extract-and-run
+          filename=$(echo Olive*.AppImage)
+          pkgname="${filename/x86_64/Linux-x86_64}"
+          mv "${filename}" "${pkgname}"
+          echo "::set-output name=pkgname::${pkgname}"
+          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
-    - name: Acquire FFmpeg
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ffmpeg-win.7z && 7z x ffmpeg-win.7z
+      - name: Upload Artifact to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.package.outputs.artifact }}
+          path: build/Olive*.AppImage
 
-    - name: Acquire OpenColorIO
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/ocio-win.7z && 7z x ocio-win.7z
+      - name: Upload Packages to Nightly Page
+        working-directory: build
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+          PKGNAME: ${{ steps.package.outputs.pkgname }}
+        if: github.event_name == 'push' && matrix.cc-compiler == 'gcc'
+        run: |
+          curl -X POST \
+            -F file="@$PKGNAME" \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git show -s --format=%ct)" \
+            -F comment="$(git show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
 
-    - name: Acquire OpenEXR
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/openexr-win.7z && 7z x openexr-win.7z
+  windows:
+    strategy:
+      matrix:
+        build: [1]
+        include:
+          - build: 1
+            build-type: RelWithDebInfo
+            compiler-name: MSVC 16.x
+            os-name: Windows
+            os-arch: x86_64
+            os: windows-latest
+            cmake-gen: Ninja
+    env:
+      EXTRACT_TOOL: 7z x
+    name: |
+      ${{ matrix.os-name }}
+      <${{ matrix.compiler-name }},
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }}>
+    runs-on: ${{ matrix.os }}
 
-    - name: Acquire OpenImageIO
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/oiio-win.7z && 7z x oiio-win.7z
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
 
-    - name: Acquire libpng
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libpng-win.7z && 7z x libpng-win.7z
+      - name: Automatically Generate Package Name
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.os-name }}
+          ARCH: ${{ matrix.os-arch }}
+        run: |
+          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
 
-    - name: Acquire libtiff
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/libtiff-win.7z && 7z x libtiff-win.7z
+      - name: Create Build Folder
+        run: |
+          cmake -E make_directory ${{ runner.workspace }}/build
 
-    - name: Acquire turbojpeg
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/turbojpeg-win.7z && 7z x turbojpeg-win.7z
+      - name: Enable Developer Command Prompt (Windows)
+        uses: ilammy/msvc-dev-cmd@v1.3.0
 
-    - name: Acquire zlib
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/zlib-win.7z && 7z x zlib-win.7z
+      - name: Acquire Qt
+        uses: jurplel/install-qt-action@v2.8.0
+        with:
+          version: 5.15.1
 
-    - name: Acquire Boost
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/boost-win.7z && 7z x boost-win.7z
+      - name: Acquire FFmpeg
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-win.7z
+          $EXTRACT_TOOL ffmpeg-win.7z
 
-    - name: Acquire Crashpad
-      run: curl -fLOSs --retry 3 http://olivevideoeditor.org/deps/crashpad-win.7z && 7z x crashpad-win.7z
+      - name: Acquire OpenColorIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-win.7z
+          $EXTRACT_TOOL ocio-win.7z
 
-    - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      # Note the current convention is to use the -S and -B options here to specify source
-      # and build directories, but this is only available with CMake 3.13 and higher.
-      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: PATH=$GITHUB_WORKSPACE:$PATH cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Ninja"
+      - name: Acquire OpenEXR
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-win.7z
+          $EXTRACT_TOOL openexr-win.7z
 
-    - name: Build
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
+      - name: Acquire OpenImageIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-win.7z
+          $EXTRACT_TOOL oiio-win.7z
 
-    - name: Test
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C $BUILD_TYPE
+      - name: Acquire Crashpad
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-win.7z
+          $EXTRACT_TOOL crashpad-win.7z
 
-    - name: Create Package
-      working-directory: ${{runner.workspace}}/build
-      shell: cmd
-      run: mkdir olive-editor && copy app\olive-editor.exe olive-editor && copy app\olive-editor.pdb olive-editor && windeployqt olive-editor\olive-editor.exe && copy %GITHUB_WORKSPACE%\bin\*.dll olive-editor && copy %GITHUB_WORKSPACE%\out\Default\crashpad_handler.exe olive-editor
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        run: |
+          PATH=$GITHUB_WORKSPACE:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
-    - name: Deploy Installer
-      working-directory: ${{runner.workspace}}/build
-      shell: cmd
-      run: curl -fLOSs https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe && copy %GITHUB_WORKSPACE%\app\packaging\windows\nsis\* . && copy %GITHUB_WORKSPACE%\LICENSE . && "C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
+      - name: Build
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          cmake --build .
 
-    - name: Deploy Portable
-      working-directory: ${{runner.workspace}}/build
-      shell: cmd
-      run: type NUL > olive-editor\portable && 7z a %PKGNAME%.zip olive-editor
+      - name: Test
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          ctest -C ${{ matrix.build-type }}
 
-    - name: Export Crashpad Symbols and Upload To Server
-      working-directory: ${{runner.workspace}}/build
-      shell: cmd
-      env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
-      run: curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe && dump_syms app\olive-editor.pdb > olive-editor.sym && curl -X POST -F symfile=@olive-editor.sym -F key="%GH_AUTH_KEY%" https://olivevideoeditor.org/crashpad/symbols.php
+      - name: Create Package
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          mkdir olive-editor
+          cp app/olive-editor.exe olive-editor
+          cp app/olive-crashhandler.exe olive-editor
+          cp app/olive-editor.pdb olive-editor
+          windeployqt olive-editor/olive-crashhandler.exe
+          windeployqt olive-editor/olive-editor.exe
+          cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/breakpad/bin/* olive-editor
 
-    - name: Upload Installer to Nightly Page
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
-      run: curl -X POST -F file=@$PKGNAME.exe -F key="$GH_AUTH_KEY" -F hash="$GITHUB_SHA" -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" https://olivevideoeditor.org/dl/push.php
+      - name: Deploy Packages
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          # Create Installer Executable
+          $DOWNLOAD_TOOL https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
+          cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
+          cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" olive.nsi
 
-    - name: Upload Portable to Nightly Page
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      env:
-        GH_AUTH_KEY: ${{secrets.GH_AUTH_KEY}}
-      run: curl -X POST -F file=@$PKGNAME.zip -F key="$GH_AUTH_KEY" -F hash="$GITHUB_SHA" -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" https://olivevideoeditor.org/dl/push.php
+          # Create Portable ZIP
+          echo -n > olive-editor/portable
+          7z a $PKGNAME.zip olive-editor
 
-    - name: Upload Installer Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{env.PKGNAME}}.exe
-        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.exe
+      - name: Upload Installer Artifact to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PKGNAME }}.exe
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
-    - name: Upload Portable Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{env.PKGNAME}}.zip
-        path: ${{runner.workspace}}/build/${{env.PKGNAME}}.zip
+      - name: Upload Portable Artifact to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PKGNAME }}.zip
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+
+      - name: Upload Packages to Nightly Page
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST \
+            -F file=@$PKGNAME.exe \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+
+          curl -X POST \
+            -F file=@$PKGNAME.zip \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
+
+      - name: Export Crashpad Symbols and Upload To Server
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        run: |
+          curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
+          ./dump_syms app/olive-editor.pdb > olive-editor.sym
+          curl -X POST \
+            -F symfile=@olive-editor.sym \
+            -F key="$GH_AUTH_KEY" \
+            https://olivevideoeditor.org/crashpad/symbols.php
+
+  macos:
+    strategy:
+      matrix:
+        build: [1]
+        include:
+          - build: 1
+            build-type: RelWithDebInfo
+            compiler-name: Clang LLVM
+            os-name: macOS
+            os-arch: x86_64
+            os: macos-latest
+            cmake-gen: Unix Makefiles
+    env:
+      EXTRACT_TOOL: sudo unzip -d /usr/local -o
+    name: |
+      ${{ matrix.os-name }}
+      <${{ matrix.compiler-name }},
+       ${{ matrix.build-type }},
+       ${{ matrix.cmake-gen }}>
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Automatically Generate Package Name
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.os-name }}
+          ARCH: ${{ matrix.os-arch }}
+        run: |
+          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
+
+      - name: Create Build Folder
+        run: |
+          cmake -E make_directory ${{ runner.workspace }}/build
+
+      - name: Acquire Qt
+        uses: jurplel/install-qt-action@v2.8.0
+        with:
+          version: 5.15.1
+
+      - name: Acquire FFmpeg
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ffmpeg-mac.zip
+          $EXTRACT_TOOL ffmpeg-mac.zip
+
+      - name: Acquire OpenColorIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/ocio-mac.zip
+          $EXTRACT_TOOL ocio-mac.zip
+
+      - name: Acquire OpenEXR
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/openexr-mac.zip
+          $EXTRACT_TOOL openexr-mac.zip
+
+      - name: Acquire OpenImageIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/oiio-mac.zip
+          $EXTRACT_TOOL oiio-mac.zip
+
+      - name: Acquire Crashpad
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL http://olivevideoeditor.org/deps/crashpad-mac.zip
+          $EXTRACT_TOOL crashpad-mac.zip
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        run: |
+          PATH=$GITHUB_WORKSPACE:$PATH \
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+
+      - name: Build
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          cmake --build .
+
+      - name: Test
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          ctest -C ${{ matrix.build-type }}
+
+      - name: Create Package
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          export BUNDLE_NAME=Olive.app
+          mv app/$BUNDLE_NAME .
+
+          # HACK: OCIO doesn't link it's library properly so we need to manually correct
+          install_name_tool -change libOpenColorIO.1.dylib @rpath/libOpenColorIO.1.dylib $BUNDLE_NAME/Contents/MacOS/Olive
+
+          macdeployqt $BUNDLE_NAME
+          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+
+      - name: Deploy Packages
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: |
+          zip -r $PKGNAME.zip Olive.app
+
+      - name: Upload Artifact to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PKGNAME }}.zip
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+
+      - name: Upload Packages to Nightly Page
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        env:
+          GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST \
+            -F file=@$PKGNAME.zip \
+            -F key="$GH_AUTH_KEY" \
+            -F hash="$GITHUB_SHA" \
+            -F time="$(git -C $GITHUB_WORKSPACE show -s --format=%ct)" \
+            -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
+            https://olivevideoeditor.org/dl/push.php
