@@ -213,7 +213,7 @@ jobs:
           windeployqt olive-editor/olive-editor.exe
           cp $(cygpath $GITHUB_WORKSPACE)/bin/*.dll olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $GITHUB_WORKSPACE)/minidump_stackwalk/* olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/breakpad/bin/* olive-editor
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
