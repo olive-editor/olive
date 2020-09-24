@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
 
 #include "mainmenu.h"
 #include "mainstatusbar.h"
@@ -44,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
   taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
   taskbar_interface_ = nullptr;
+  QWindowsWindowFunctions::setHasBorderInFullScreenDefault(true);
 #endif
 
   // Create empty central widget - we don't actually want a central widget (so we set its maximum
