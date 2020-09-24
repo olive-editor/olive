@@ -71,49 +71,62 @@ bool LinuxExceptionHandler(int, siginfo_t*, ucontext_t*)
 
 bool InitializeCrashpad()
 {
-  QString exe_dir = QCoreApplication::applicationDirPath();
+  QString handler_fn;
 
+  // Determine filename of handler from platform
 #ifdef OS_WIN
-  base::FilePath handler(QSTRING_TO_BASE_STRING(QDir(exe_dir).filePath(QStringLiteral("crashpad_handler.exe"))));
+  handler_fn = QStringLiteral("crashpad_handler.exe");
 #else
-  // FIXME: On Linux, probably should put this in a subdir so that it doesn't conflict with
-  //        anything else in /usr/bin
-  base::FilePath handler(QSTRING_TO_BASE_STRING(QDir(exe_dir).filePath(QStringLiteral("crashpad_handler"))));
+  handler_fn = QStringLiteral("crashpad_handler");
 #endif
 
-  base::FilePath reports_dir = GenerateReportPathForCrashpad();
+  // Generate absolute path
+  QString handler_abs_path = QDir(QCoreApplication::applicationDirPath()).filePath(handler_fn);
 
-  base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
+  bool status = false;
 
-  // Metadata that will be posted to the server with the crash report map
-  std::map<std::string, std::string> annotations;
+  if (QFileInfo::exists(handler_abs_path)) {
+    base::FilePath handler(QSTRING_TO_BASE_STRING(handler_fn));
 
-  // Disable crashpad rate limiting so that all crashes have dmp files
-  std::vector<std::string> arguments;
-  arguments.push_back("--no-rate-limit");
-  arguments.push_back("--no-upload-gzip");
+    base::FilePath reports_dir = GenerateReportPathForCrashpad();
 
-  // Initialize Crashpad database
-  std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(reports_dir);
-  if (database == NULL) return false;
+    base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
 
-  // Disable automated crash uploads
-  crashpad::Settings *settings = database->GetSettings();
-  if (settings == NULL) return false;
-  settings->SetUploadsEnabled(false);
+    // Metadata that will be posted to the server with the crash report map
+    std::map<std::string, std::string> annotations;
 
-  // Start crash handler
-  client = new crashpad::CrashpadClient();
-  bool status = client->StartHandler(handler, reports_dir, metrics_dir,
-                                     "https://olivevideoeditor.org/crashpad/report.php",
-                                     annotations, arguments, true, true);
+    // Disable crashpad rate limiting so that all crashes have dmp files
+    std::vector<std::string> arguments;
+    arguments.push_back("--no-rate-limit");
+    arguments.push_back("--no-upload-gzip");
+
+    // Initialize Crashpad database
+    std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(reports_dir);
+    if (database == NULL) return false;
+
+    // Disable automated crash uploads
+    crashpad::Settings *settings = database->GetSettings();
+    if (settings == NULL) return false;
+    settings->SetUploadsEnabled(false);
+
+    // Start crash handler
+    client = new crashpad::CrashpadClient();
+    status = client->StartHandler(handler, reports_dir, metrics_dir,
+                                  "https://olivevideoeditor.org/crashpad/report.php",
+                                  annotations, arguments, true, true);
+  }
+
 
   // Override Crashpad exception filter with our own
+  if (status) {
 #if defined(OS_WIN)
-  SetUnhandledExceptionFilter(Win32ExceptionHandler);
+    SetUnhandledExceptionFilter(Win32ExceptionHandler);
 #elif defined(OS_LINUX)
-  crashpad::CrashpadClient::SetFirstChanceExceptionHandler(LinuxExceptionHandler);
+    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(LinuxExceptionHandler);
 #endif
+  } else {
+    qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
+  }
 
   return status;
 }
