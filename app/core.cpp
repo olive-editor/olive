@@ -29,6 +29,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#ifdef Q_OS_WINDOWS
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 #include "audio/audiomanager.h"
 #include "cli/clitask/clitaskdialog.h"
@@ -655,11 +658,18 @@ void Core::StartGUI(bool full_screen)
 
   // Create main window and open it
   main_window_ = new MainWindow();
+
   if (full_screen) {
     main_window_->showFullScreen();
   } else {
     main_window_->showMaximized();
   }
+
+#ifdef Q_OS_WINDOWS
+  // Workaround for Qt bug where menus don't appear in full screen mode
+  // See: https://doc.qt.io/qt-5/windows-issues.html
+  QWindowsWindowFunctions::setHasBorderInFullScreen(main_window_->windowHandle(), true);
+#endif
 
   // When a new project is opened, update the mainwindow
   connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
