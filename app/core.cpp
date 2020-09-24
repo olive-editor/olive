@@ -355,22 +355,29 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  SequenceViewerPanel* latest_sequence = PanelManager::instance()->MostRecentlyFocused<SequenceViewerPanel>();
+  // First try the most recently focused time based window
+  TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
-  if (latest_sequence && latest_sequence->GetConnectedViewer()) {
-    if (latest_sequence->GetConnectedViewer()->GetLength() == 0) {
+  // If that fails try defaulting to the first timeline (i.e. if a project has just been loaded).
+  if (!time_panel->GetConnectedViewer()) {
+    // Safe to assume there will always be one timeline.
+    time_panel = PanelManager::instance()->GetPanelsOfType<TimelinePanel>().first();
+  }
+
+  if (time_panel && time_panel->GetConnectedViewer()) {
+    if (time_panel->GetConnectedViewer()->GetLength() == 0) {
       QMessageBox::critical(main_window_,
                             tr("Error"),
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      ExportDialog ed(latest_sequence->GetConnectedViewer(), main_window_);
+      ExportDialog ed(time_panel->GetConnectedViewer(), main_window_);
       ed.exec();
     }
   } else {
     QMessageBox::critical(main_window_,
                           tr("Error"),
-                          tr("No valid sequence detected.\nMake sure a sequence is loaded and it has a connected Viewer node."),
+                          tr("No valid sequence detected.\n\nMake sure a sequence is loaded and it has a connected Viewer node."),
                           QMessageBox::Ok);
   }
 }
