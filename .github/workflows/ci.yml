@@ -12,7 +12,8 @@ on:
       - 'README.md'
 
 env:
-  DOWNLOAD_TOOL: curl -fLOSs --retry 3
+  DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
+  UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
 
 jobs:
   linux:
@@ -105,7 +106,7 @@ jobs:
           PKGNAME: ${{ steps.package.outputs.pkgname }}
         if: github.event_name == 'push' && matrix.cc-compiler == 'gcc'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file="@$PKGNAME" \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -254,7 +255,7 @@ jobs:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.exe \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -262,7 +263,7 @@ jobs:
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://ci.olivevideoeditor.org/push.php
 
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.zip \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -276,7 +277,8 @@ jobs:
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         run: |
-          curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
+          curl -fLSs --retry 2 --retry-delay 60 \
+            https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
           ./dump_syms app/olive-editor.pdb > olive-editor.sym
           curl -X POST \
             -F symfile=@olive-editor.sym \
@@ -407,7 +409,7 @@ jobs:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.zip \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
