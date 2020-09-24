@@ -45,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
   taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
   taskbar_interface_ = nullptr;
+
+  // Needed to allow menus etc. to draw over the main window in fullscreen mode.
   QWindowsWindowFunctions::setHasBorderInFullScreenDefault(true);
 #endif
 
