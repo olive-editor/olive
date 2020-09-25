@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/FUNDING.yml'
+      - 'docker/**'
+      - 'CONTRIBUTING.md'
+      - 'README.md'
 
 env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 3
