@@ -14,27 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(ffmpeg)
-add_subdirectory(oiio)
-add_subdirectory(otio)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  codec/decoder.h
-  codec/decoder.cpp
-  codec/encoder.h
-  codec/encoder.cpp
-  codec/exportcodec.h
-  codec/exportcodec.cpp
-  codec/exportformat.h
-  codec/exportformat.cpp
-  codec/frame.h
-  codec/frame.cpp
-  codec/samplebuffer.h
-  codec/samplebuffer.cpp
-  codec/waveinput.h
-  codec/waveinput.cpp
-  codec/waveoutput.h
-  codec/waveoutput.cpp
+  codec/otio/otiodecoder.h
+  codec/otio/otiodecoder.cpp
   PARENT_SCOPE
 )
