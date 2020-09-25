@@ -29,6 +29,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#ifdef Q_OS_WINDOWS
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 #include "audio/audiomanager.h"
 #include "cli/clitask/clitaskdialog.h"
@@ -374,18 +377,30 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  TimeBasedPanel* latest_time_based = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  // First try the most recently focused time based window
+  TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
-  if (latest_time_based && latest_time_based->GetConnectedViewer()) {
-    if (latest_time_based->GetConnectedViewer()->GetLength() == 0) {
+  // If that fails try defaulting to the first timeline (i.e. if a project has just been loaded).
+  if (!time_panel->GetConnectedViewer()) {
+    // Safe to assume there will always be one timeline.
+    time_panel = PanelManager::instance()->GetPanelsOfType<TimelinePanel>().first();
+  }
+
+  if (time_panel && time_panel->GetConnectedViewer()) {
+    if (time_panel->GetConnectedViewer()->GetLength() == 0) {
       QMessageBox::critical(main_window_,
                             tr("Error"),
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      ExportDialog ed(latest_time_based->GetConnectedViewer(), main_window_);
+      ExportDialog ed(time_panel->GetConnectedViewer(), main_window_);
       ed.exec();
     }
+  } else {
+    QMessageBox::critical(main_window_,
+                          tr("Error"),
+                          tr("No valid sequence detected.\n\nMake sure a sequence is loaded and it has a connected Viewer node."),
+                          QMessageBox::Ok);
   }
 }
 
@@ -674,11 +689,18 @@ void Core::StartGUI(bool full_screen)
 
   // Create main window and open it
   main_window_ = new MainWindow();
+
   if (full_screen) {
     main_window_->showFullScreen();
   } else {
     main_window_->showMaximized();
   }
+
+#ifdef Q_OS_WINDOWS
+  // Workaround for Qt bug where menus don't appear in full screen mode
+  // See: https://doc.qt.io/qt-5/windows-issues.html
+  QWindowsWindowFunctions::setHasBorderInFullScreen(main_window_->windowHandle(), true);
+#endif
 
   // When a new project is opened, update the mainwindow
   connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);

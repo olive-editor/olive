@@ -1,1 +1,0 @@
-NOTE: This build is by no means stable or intended for serious use. It's a complete rewrite of the entire program and only here to simplify testing of what has been implemented. For any serious work, stick to the 0.1.x releases below.

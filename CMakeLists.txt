@@ -84,20 +84,12 @@ endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   find_package(Git)
   if(GIT_FOUND)
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_HASH
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
   endif()
-elseif(UNIX AND NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "OpenBSD")
-  # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
-  # (see https://answers.launchpad.net/launchpad/+question/678556)
-  execute_process(COMMAND sh -c "grep -Po '(?<=-)(([a-z0-9])\\w+)(?=\\+)' -m 1 changelog"
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/debian
-    OUTPUT_VARIABLE GIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
 endif()
 if(DEFINED GIT_HASH)
   message("Olive: Git hash = " "${GIT_HASH}")
