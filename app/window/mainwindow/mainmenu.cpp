@@ -64,7 +64,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_export_media_item_ = file_export_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
 #ifdef USE_OTIO
   file_export_menu_->addSeparator();
-  file_export_otio_item_ = file_export_menu_->AddItem("exportotio", Core::instance(), &Core::DialogExportShow);
+  file_export_otio_item_ = file_export_menu_->AddItem("exportotio", Core::instance(), &Core::ExportActiveSequenceAsOTIO);
 #endif
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
