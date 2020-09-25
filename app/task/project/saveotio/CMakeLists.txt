@@ -14,12 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(import)
-add_subdirectory(load)
-add_subdirectory(save)
-add_subdirectory(saveotio)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  task/project/saveotio/projectsaveasotiotask.h
+  task/project/saveotio/projectsaveasotiotask.cpp
   PARENT_SCOPE
 )

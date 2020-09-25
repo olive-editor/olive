@@ -102,6 +102,14 @@ AVRational rational::toAVRational() const
   return r;
 }
 
+#ifdef USE_OTIO
+opentime::RationalTime rational::toRationalTime() const
+{
+  // Is this the best way of doing this?
+  return opentime::RationalTime::from_seconds(toDouble());
+}
+#endif
+
 rational rational::flipped() const
 {
   return rational(denom_, numer_);

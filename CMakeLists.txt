@@ -69,7 +69,11 @@ find_package(FFMPEG 3.0 REQUIRED
   swresample
 )
 
-find_package(OpenTimelineIO REQUIRED)
+find_package(OpenTimelineIO)
+
+if (NOT OpenTimelineIO_FOUND)
+  message("   OpenTimelineIO interchange will be disabled.")
+endif()
 
 find_package(GoogleCrashpad)
 

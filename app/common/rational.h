@@ -7,6 +7,10 @@
 #define RATIONAL_H
 #include <iostream>
 
+#ifdef USE_OTIO
+#include <opentime/rationalTime.h>
+#endif
+
 #include <QDebug>
 #include <QMetaType>
 
@@ -95,6 +99,10 @@ public:
   double toDouble() const;
 
   AVRational toAVRational() const;
+
+#ifdef USE_OTIO
+  opentime::RationalTime toRationalTime() const;
+#endif
 
   // Produce "flipped" version
   rational flipped() const;

@@ -54,6 +54,7 @@
 #include "task/project/import/importerrordialog.h"
 #include "task/project/load/load.h"
 #include "task/project/save/save.h"
+#include "task/project/saveotio/projectsaveasotiotask.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -264,6 +265,24 @@ void Core::CreateNewProject()
 
   AddOpenProject(std::make_shared<Project>());
 }
+
+#ifdef USE_OTIO
+void Core::ExportActiveSequenceAsOTIO()
+{
+  QString fn = QFileDialog::getSaveFileName(main_window_,
+                                            tr("Export as OpenTimelineIO"),
+                                            QString(),
+                                            tr("OpenTimelineIO (*.otio)"));
+
+  if (!fn.isEmpty()) {
+    fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("otio"));
+
+    ProjectSaveAsOTIOTask* task = new ProjectSaveAsOTIOTask();
+    TaskDialog* dialog = new TaskDialog(task, tr("Export Sequence"), main_window_);
+    dialog->open();
+  }
+}
+#endif
 
 const bool &Core::snapping() const
 {
@@ -858,10 +877,7 @@ bool Core::SaveProjectAs(ProjectPtr p)
                                             GetProjectFilter());
 
   if (!fn.isEmpty()) {
-    QString extension(QStringLiteral(".ove"));
-    if (!fn.endsWith(extension, Qt::CaseInsensitive)) {
-      fn.append(extension);
-    }
+    fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("ove"));
 
     p->set_filename(fn);
 

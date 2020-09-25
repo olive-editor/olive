@@ -378,6 +378,13 @@ public slots:
    */
   void CreateNewProject();
 
+#ifdef USE_OTIO
+  /**
+   * @brief Exports the active sequence to OpenTimelineIO
+   */
+  void ExportActiveSequenceAsOTIO();
+#endif
+
 signals:
   /**
    * @brief Signal emitted when a project is opened

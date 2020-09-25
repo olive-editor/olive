@@ -170,4 +170,21 @@ bool FileFunctions::DirectoryIsValid(const QString &dir, bool try_to_create)
   return false;
 }
 
+QString FileFunctions::EnsureFilenameExtension(QString fn, const QString &extension)
+{
+  // No-op if either input is empty
+  if (!fn.isEmpty() && !extension.isEmpty()) {
+    QString extension_with_dot;
+
+    extension_with_dot.append('.');
+    extension_with_dot.append(extension);
+
+    if (!fn.endsWith(extension_with_dot, Qt::CaseInsensitive)) {
+      fn.append(extension_with_dot);
+    }
+  }
+
+  return fn;
+}
+
 OLIVE_NAMESPACE_EXIT

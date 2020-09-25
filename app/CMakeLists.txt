@@ -123,7 +123,6 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-  ${OTIO_INCLUDE_DIRS}
   ${OPENEXR_INCLUDES}
 
   # HACK: Brew on macOS separates OpenEXR and IlmBase into two folders even though they seem to
@@ -152,7 +151,6 @@ target_link_libraries(
   FFMPEG::swresample
   ${OCIO_LIBRARIES}
   ${OIIO_LIBRARIES}
-  ${OTIO_LIBRARIES}
   ${OPENEXR_LIBRARIES}
 )
 
@@ -167,6 +165,23 @@ elseif (APPLE)
     ${OLIVE_TARGET}
     PRIVATE
     "-framework ApplicationServices"
+  )
+endif()
+
+# Enable OTIO if found
+if (OpenTimelineIO_FOUND)
+  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_OTIO)
+
+  target_include_directories(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${OTIO_INCLUDE_DIRS}
+  )
+
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${OTIO_LIBRARIES}
   )
 endif()
 

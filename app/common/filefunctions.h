@@ -54,6 +54,17 @@ public:
 
   static bool DirectoryIsValid(const QString& dir, bool try_to_create);
 
+  /**
+   * @brief Ensures a given filename has a certain extension
+   *
+   * Checks if the filename has the extension provided and appends it if not. The extension is
+   * checked case-insensitive. The extension should be provided with no dot (e.g. "ove" rather than
+   * ".ove").
+
+   * @return The filename provided either untouched or with the extension appended to it.
+   */
+  static QString EnsureFilenameExtension(QString fn, const QString& extension);
+
 };
 
 
