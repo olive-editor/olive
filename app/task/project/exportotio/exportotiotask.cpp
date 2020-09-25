@@ -18,7 +18,7 @@
 
 ***/
 
-#include "projectsaveasotiotask.h"
+#include "exportotiotask.h"
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/gap.h>
@@ -29,21 +29,20 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ProjectSaveAsOTIOTask::ProjectSaveAsOTIOTask(Sequence *sequence) :
-  sequence_(sequence)
+ExportOTIOTask::ExportOTIOTask(ViewerOutput *sequence, const QString &filename) :
+  sequence_(sequence),
+  filename_(filename)
 {
-  SetTitle(tr("Saving '%1' as OpenTimelineIO").arg(sequence->name()));
+  SetTitle(tr("Saving '%1' as OpenTimelineIO").arg(sequence_->media_name()));
 }
 
-bool ProjectSaveAsOTIOTask::Run()
+bool ExportOTIOTask::Run()
 {
   auto otio_timeline = new opentimelineio::v1_0::Timeline();
 
-  ViewerOutput* viewer = sequence_->viewer_output();
-
   opentimelineio::v1_0::ErrorStatus es;
 
-  foreach (TrackOutput* track, viewer->track_list(Timeline::kTrackTypeVideo)->GetTracks()) {
+  foreach (TrackOutput* track, sequence_->track_list(Timeline::kTrackTypeVideo)->GetTracks()) {
     auto otio_track = new opentimelineio::v1_0::Track();
 
     otio_track->set_kind("Video");
@@ -105,7 +104,9 @@ bool ProjectSaveAsOTIOTask::Run()
     }
   }
 
-  return true;
+  otio_timeline->to_json_file(filename_.toStdString(), &es);
+
+  return (es == opentimelineio::v1_0::ErrorStatus::OK);
 }
 
 OLIVE_NAMESPACE_EXIT

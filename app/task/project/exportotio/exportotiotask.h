@@ -26,17 +26,19 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class ProjectSaveAsOTIOTask : public Task
+class ExportOTIOTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectSaveAsOTIOTask(Sequence* sequence);
+  ExportOTIOTask(ViewerOutput* sequence, const QString& filename);
 
 protected:
   virtual bool Run() override;
 
 private:
-  Sequence* sequence_;
+  ViewerOutput* sequence_;
+
+  QString filename_;
 
 };
 
