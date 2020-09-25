@@ -35,12 +35,6 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
-  enum ExportCodec {
-    kCodecEXR,
-    kCodecPNG,
-    kCodecTIFF
-  };
-
   virtual QString id() override;
 
   virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
