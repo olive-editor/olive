@@ -53,11 +53,11 @@
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 #include "render/shaderinfo.h"
+#include "task/project/exportotio/exportotiotask.h"
 #include "task/project/import/import.h"
 #include "task/project/import/importerrordialog.h"
 #include "task/project/load/load.h"
 #include "task/project/save/save.h"
-#include "task/project/saveotio/projectsaveasotiotask.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -272,17 +272,21 @@ void Core::CreateNewProject()
 #ifdef USE_OTIO
 void Core::ExportActiveSequenceAsOTIO()
 {
-  QString fn = QFileDialog::getSaveFileName(main_window_,
-                                            tr("Export as OpenTimelineIO"),
-                                            QString(),
-                                            tr("OpenTimelineIO (*.otio)"));
+  ViewerOutput* sequence = GetSequenceToExport();
 
-  if (!fn.isEmpty()) {
-    fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("otio"));
+  if (sequence) {
+    QString fn = QFileDialog::getSaveFileName(main_window_,
+                                              tr("Export as OpenTimelineIO"),
+                                              QString(),
+                                              tr("OpenTimelineIO (*.otio)"));
 
-    ProjectSaveAsOTIOTask* task = new ProjectSaveAsOTIOTask();
-    TaskDialog* dialog = new TaskDialog(task, tr("Export Sequence"), main_window_);
-    dialog->open();
+    if (!fn.isEmpty()) {
+      fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("otio"));
+
+      ExportOTIOTask* task = new ExportOTIOTask(sequence, fn);
+      TaskDialog* dialog = new TaskDialog(task, tr("Export Sequence"), main_window_);
+      dialog->open();
+    }
   }
 }
 #endif
@@ -377,30 +381,11 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  // First try the most recently focused time based window
-  TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  ViewerOutput* sequence = GetSequenceToExport();
 
-  // If that fails try defaulting to the first timeline (i.e. if a project has just been loaded).
-  if (!time_panel->GetConnectedViewer()) {
-    // Safe to assume there will always be one timeline.
-    time_panel = PanelManager::instance()->GetPanelsOfType<TimelinePanel>().first();
-  }
-
-  if (time_panel && time_panel->GetConnectedViewer()) {
-    if (time_panel->GetConnectedViewer()->GetLength() == 0) {
-      QMessageBox::critical(main_window_,
-                            tr("Error"),
-                            tr("This Sequence is empty. There is nothing to export."),
-                            QMessageBox::Ok);
-    } else {
-      ExportDialog ed(time_panel->GetConnectedViewer(), main_window_);
-      ed.exec();
-    }
-  } else {
-    QMessageBox::critical(main_window_,
-                          tr("Error"),
-                          tr("No valid sequence detected.\n\nMake sure a sequence is loaded and it has a connected Viewer node."),
-                          QMessageBox::Ok);
+  if (sequence) {
+    ExportDialog ed(sequence, main_window_);
+    ed.exec();
   }
 }
 
@@ -734,6 +719,36 @@ void Core::SaveProjectInternal(ProjectPtr project)
   connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
 
   task_dialog->open();
+}
+
+ViewerOutput *Core::GetSequenceToExport()
+{
+  // First try the most recently focused time based window
+  TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  // If that fails try defaulting to the first timeline (i.e. if a project has just been loaded).
+  if (!time_panel->GetConnectedViewer()) {
+    // Safe to assume there will always be one timeline.
+    time_panel = PanelManager::instance()->GetPanelsOfType<TimelinePanel>().first();
+  }
+
+  if (time_panel && time_panel->GetConnectedViewer()) {
+    if (time_panel->GetConnectedViewer()->GetLength() == 0) {
+      QMessageBox::critical(main_window_,
+                            tr("Error"),
+                            tr("This Sequence is empty. There is nothing to export."),
+                            QMessageBox::Ok);
+    } else {
+      return time_panel->GetConnectedViewer();
+    }
+  } else {
+    QMessageBox::critical(main_window_,
+                          tr("Error"),
+                          tr("No valid sequence detected.\n\nMake sure a sequence is loaded and it has a connected Viewer node."),
+                          QMessageBox::Ok);
+  }
+
+  return nullptr;
 }
 
 void Core::SaveAutorecovery()

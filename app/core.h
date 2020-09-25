@@ -463,6 +463,11 @@ private:
   void SaveProjectInternal(ProjectPtr project);
 
   /**
+   * @brief Retrieves the currently most active sequence for exporting
+   */
+  ViewerOutput* GetSequenceToExport();
+
+  /**
    * @brief Internal main window object
    */
   MainWindow* main_window_;
