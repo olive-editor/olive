@@ -27,6 +27,11 @@ Node *AudioInput::copy() const
   return new AudioInput();
 }
 
+Stream::Type AudioInput::type() const
+{
+	return Stream::kAudio;
+}
+
 QString AudioInput::Name() const
 {
   return tr("Audio Input");

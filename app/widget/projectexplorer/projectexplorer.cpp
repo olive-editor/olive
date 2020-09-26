@@ -558,6 +558,57 @@ void ProjectExplorer::DeleteSelected()
       }
     }
 
+    if (item_ptr->type() == Item::kFootage) {
+      // Get all sequences
+      QList<ItemPtr> sequences =  model_.project()->get_items_of_type(Item::kSequence);
+
+      // If no sequences exist we don't need to do anything clever here
+      if (!sequences.isEmpty()) {
+        // Footage can contain multiple streams, all of which need to be dealt with
+        foreach (StreamPtr stream, static_cast<Footage*>(item_ptr.get())->streams()) {
+
+          // Check each sequence to see if it contains the footage in question
+          foreach (ItemPtr seq, sequences) {
+
+            Sequence* s = static_cast<Sequence*>(seq.get());
+
+            // Loop through nodes to find our Footage node
+            foreach (Node* node, s->nodes()) {
+
+              // Check if node is of the right type
+              if (node->IsMedia() && static_cast<MediaInput*>(node)->type() == stream.get()->type()) {
+                // Check the streams are the same
+                if (static_cast<MediaInput*>(node)->footage() == stream) {
+                  // Loop through nodes and set any that point to the Footage node to null
+                  foreach (Node* check_node, s->nodes()) {
+                    // Skip itself
+                    if (check_node == node) {
+                      continue;
+                    }
+                    if (check_node->GetImmediateDependencies().contains(node)) {
+                      QList<NodeInput*> inputs = check_node->GetInputsIncludingArrays();
+
+                      foreach (NodeInput* input, inputs) {
+                        foreach (NodeEdgePtr edge, input->edges()) {
+                          Node* connected = edge->output()->parentNode();
+
+                          if (connected == node) {
+                            input->DisconnectEdge(edge);
+                          }
+                        }
+                      }
+                    }
+                  }
+                  static_cast<MediaInput*>(node)->SetFootage(nullptr);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
   }
 
