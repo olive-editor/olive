@@ -23,7 +23,7 @@ if(UNIX)
             "/opt/otio"
     )
     find_path(OTIO_LIBRARY_DIR
-            libOpenTimelineIO.so
+            libopentimelineio.so
         HINTS
             "${OTIO_LOCATION}"
             "$ENV{OTIO_LOCATION}"
@@ -41,7 +41,7 @@ elseif(WIN32)
             "$ENV{OTIO_LOCATION}"
     )
     find_path(OTIO_LIBRARY_DIR
-            OpenTimelineIO.lib
+            opentimelineio.lib
         HINTS
             "${OTIO_LOCATION}"
             "$ENV{OTIO_LOCATION}"
@@ -54,7 +54,7 @@ elseif(WIN32)
 endif()
 
 find_path(OTIO_INCLUDE_DIR
-        OpenTimelineIO/timeline.h
+        opentimelineio/timeline.h
     HINTS
         "${OTIO_LOCATION}"
         "$ENV{OTIO_LOCATION}"
@@ -82,7 +82,7 @@ find_path(OTIO_DEPS_INCLUDE_DIR
 list(APPEND OTIO_INCLUDE_DIRS ${OTIO_DEPS_INCLUDE_DIR})
 
 find_path(OT_INCLUDE_DIR
-        OpenTime/rationalTime.h
+        opentime/rationalTime.h
     HINTS
         "${OTIO_LOCATION}"
         "$ENV{OTIO_LOCATION}"
@@ -96,7 +96,7 @@ find_path(OT_INCLUDE_DIR
 list(APPEND OTIO_INCLUDE_DIRS ${OT_INCLUDE_DIR})
 
 find_library(OTIO_LIBRARY
-        OpenTimelineIO
+        opentimelineio
     HINTS
         "${OTIO_LOCATION}"
         "$ENV{OTIO_LOCATION}"
@@ -110,7 +110,7 @@ find_library(OTIO_LIBRARY
 list(APPEND OTIO_LIBRARIES ${OTIO_LIBRARY})
 
 find_library(OT_LIBRARY
-        OpenTime
+        opentime
     HINTS
         "${OTIO_LOCATION}"
         "$ENV{OTIO_LOCATION}"
