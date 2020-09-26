@@ -218,7 +218,7 @@ void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_
 
       if (is_sequence) {
         // User has confirmed it is a still image, let's set it accordingly.
-        video_stream->set_video_type(VideoStream::kVideoTypeVideo);
+        video_stream->set_video_type(VideoStream::kVideoTypeImageSequence);
 
         rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
         video_stream->set_timebase(default_timebase);
