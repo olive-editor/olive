@@ -86,7 +86,7 @@ bool InitializeCrashpad()
   bool status = false;
 
   if (QFileInfo::exists(handler_abs_path)) {
-    base::FilePath handler(QSTRING_TO_BASE_STRING(handler_fn));
+    base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
 
     base::FilePath reports_dir = GenerateReportPathForCrashpad();
 
