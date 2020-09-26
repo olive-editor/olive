@@ -43,6 +43,7 @@ Footage::~Footage()
 
 void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
+  /*
   QXmlStreamAttributes attributes = reader->attributes();
 
   foreach (const QXmlStreamAttribute& attr, attributes) {
@@ -110,6 +111,7 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
       reader->skipCurrentElement();
     }
   }
+  */
 }
 
 void Footage::Save(QXmlStreamWriter *writer) const
@@ -128,25 +130,18 @@ void Footage::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // footage
 }
 
-const Footage::Status& Footage::status() const
-{
-  return status_;
-}
-
-void Footage::set_status(const Footage::Status &status)
-{
-  status_ = status;
-
-  UpdateTooltip();
-}
-
 void Footage::Clear()
 {
   // Clear all streams
   ClearStreams();
 
   // Reset ready state
-  set_status(kUnprobed);
+  valid_ = false;
+}
+
+void Footage::SetValid()
+{
+  valid_ = true;
 }
 
 const QString &Footage::filename() const
@@ -210,34 +205,21 @@ void Footage::set_decoder(const QString &id)
 
 QIcon Footage::icon()
 {
-  switch (status_) {
-  case kUnprobed:
-  case kUnindexed:
-    // FIXME Set a waiting icon
-    return QIcon();
-  case kReady:
-    if (HasStreamsOfType(Stream::kVideo)) {
+  if (valid_ && !streams_.isEmpty()) {
+    StreamPtr first_stream = streams_.first();
 
-      // Prioritize the video icon
-      return icon::Video;
-
-    } else if (HasStreamsOfType(Stream::kAudio)) {
-
-      // Otherwise assume it's audio only
+    if (first_stream->type() == Stream::kVideo) {
+      if (std::static_pointer_cast<VideoStream>(first_stream)->video_type() == VideoStream::kVideoTypeStill) {
+        return icon::Image;
+      } else {
+        return icon::Video;
+      }
+    } else if (first_stream->type() == Stream::kAudio) {
       return icon::Audio;
-
-    } else if (HasStreamsOfType(Stream::kImage)) {
-
-      // Otherwise assume it's an image
-      return icon::Image;
-
     }
-    /* fall-through */
-  case kInvalid:
-    return icon::Error;
   }
 
-  return QIcon();
+  return icon::Error;
 }
 
 QString Footage::duration()
@@ -248,7 +230,7 @@ QString Footage::duration()
   rational longest;
 
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+    if (stream->enabled() && (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio)) {
       rational this_stream_dur = Timecode::timestamp_to_time(stream->duration(),
                                                              stream->timebase());
 
@@ -300,7 +282,8 @@ QString Footage::rate()
     return QString();
   }
 
-  if (HasStreamsOfType(Stream::kVideo)) {
+  if (HasStreamsOfType(Stream::kVideo)
+      && std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo))->video_type() != VideoStream::kVideoTypeStill) {
     // This is a video editor, prioritize video streams
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo));
     return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
@@ -331,10 +314,6 @@ quint64 Footage::get_enabled_stream_flags() const
 
 void Footage::ClearStreams()
 {
-  if (streams_.empty()) {
-    return;
-  }
-
   // Delete all streams
   streams_.clear();
 }
@@ -343,7 +322,7 @@ bool Footage::HasStreamsOfType(const Stream::Type &type) const
 {
   // Return true if any streams are video streams
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == type) {
+    if (stream->enabled() && stream->type() == type) {
       return true;
     }
   }
@@ -354,7 +333,7 @@ bool Footage::HasStreamsOfType(const Stream::Type &type) const
 StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
 {
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == type) {
+    if (stream->enabled() && stream->type() == type) {
       return stream;
     }
   }
@@ -364,62 +343,21 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
 
 void Footage::UpdateTooltip()
 {
-  switch (status_) {
-  case kUnprobed:
-    set_tooltip(QCoreApplication::translate("Footage", "Waiting for probe"));
-    break;
-  case kUnindexed:
-    set_tooltip(QCoreApplication::translate("Footage", "Waiting for index"));
-    break;
-  case kReady:
-  {
+  if (valid_) {
     QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
 
     if (!streams_.isEmpty()) {
-      tip.append("\n");
-
-      for (int i=0;i<streams_.size();i++) {
-
-        StreamPtr s = streams_.at(i);
-
-        switch (s->type()) {
-        case Stream::kVideo:
-        case Stream::kImage:
-        {
-          ImageStreamPtr vs = std::static_pointer_cast<ImageStream>(s);
-
-          tip.append(
-                QCoreApplication::translate("Footage",
-                                            "\nVideo %1: %2x%3").arg(QString::number(i),
-                                                                     QString::number(vs->width()),
-                                                                     QString::number(vs->height()))
-                );
-          break;
-        }
-        case Stream::kAudio:
-        {
-          AudioStreamPtr as = std::static_pointer_cast<AudioStream>(s);
-
-          tip.append(
-                QCoreApplication::translate("Footage",
-                                            "\nAudio %1: %2 channels %3 Hz").arg(QString::number(i),
-                                                                                 QString::number(as->channels()),
-                                                                                 QString::number(as->sample_rate()))
-                );
-          break;
-        }
-        default:
-          break;
+      foreach (StreamPtr s, streams_) {
+        if (s->enabled()) {
+          tip.append("\n");
+          tip.append(s->description());
         }
       }
     }
 
     set_tooltip(tip);
-  }
-    break;
-  case kInvalid:
-    set_tooltip(QCoreApplication::translate("Footage", "An error occurred probing this footage"));
-    break;
+  } else {
+    set_tooltip(QCoreApplication::translate("Footage", "This footage is not valid for use"));
   }
 }
 

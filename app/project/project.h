@@ -96,6 +96,11 @@ private:
 
   QString cache_path_;
 
+private slots:
+  void ColorConfigChanged();
+
+  void DefaultColorSpaceChanged();
+
 };
 
 using ProjectPtr = std::shared_ptr<Project>;

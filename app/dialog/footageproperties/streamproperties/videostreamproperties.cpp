@@ -35,7 +35,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 
 OLIVE_NAMESPACE_ENTER
 
-VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
+VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
   stream_(stream)
 {
   QGridLayout* video_layout = new QGridLayout(this);
@@ -86,7 +86,7 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
 
   row++;
 
-  if (IsImageSequence(stream.get())) {
+  if (stream->video_type() == VideoStream::kVideoTypeImageSequence) {
     QGroupBox* imgseq_group = new QGroupBox(tr("Image Sequence"));
     QGridLayout* imgseq_layout = new QGridLayout(imgseq_group);
 
@@ -143,7 +143,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
                                  parent);
   }
 
-  if (IsImageSequence(stream_.get())) {
+  if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream_);
 
     int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
@@ -162,7 +162,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
 
 bool VideoStreamProperties::SanityCheck()
 {
-  if (IsImageSequence(stream_.get())) {
+  if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
     if (imgseq_start_time_->GetValue() >= imgseq_end_time_->GetValue()) {
       QMessageBox::critical(this,
                             tr("Invalid Configuration"),
@@ -175,12 +175,7 @@ bool VideoStreamProperties::SanityCheck()
   return true;
 }
 
-bool VideoStreamProperties::IsImageSequence(ImageStream *stream)
-{
-  return (stream->type() == Stream::kVideo && static_cast<VideoStream*>(stream)->is_image_sequence());
-}
-
-VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
+VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           VideoParams::Interlacing interlacing,

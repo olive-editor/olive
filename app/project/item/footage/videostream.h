@@ -21,17 +21,105 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include "imagestream.h"
+#include "render/pixelformat.h"
+#include "render/videoparams.h"
+#include "stream.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class VideoStream : public ImageStream
+/**
+ * @brief A Stream derivative containing video-specific information
+ */
+class VideoStream : public Stream
 {
   Q_OBJECT
 public:
   VideoStream();
 
+  enum VideoType {
+    kVideoTypeVideo,
+    kVideoTypeStill,
+    kVideoTypeImageSequence
+  };
+
   virtual QString description() const override;
+
+  VideoType video_type() const
+  {
+    return video_type_;
+  }
+
+  void set_video_type(VideoType t)
+  {
+    video_type_ = t;
+  }
+
+  const int& width() const
+  {
+    return width_;
+  }
+
+  void set_width(const int& width)
+  {
+    width_ = width;
+  }
+
+  const int& height() const
+  {
+    return height_;
+  }
+
+  void set_height(const int& height)
+  {
+    height_ = height;
+  }
+
+  const PixelFormat::Format& format() const
+  {
+    return format_;
+  }
+
+  void set_format(const PixelFormat::Format& format)
+  {
+    format_ = format;
+  }
+
+  bool premultiplied_alpha() const;
+  void set_premultiplied_alpha(bool e);
+
+  const QString& colorspace(bool default_if_empty = true) const;
+  void set_colorspace(const QString& color);
+
+  QString get_colorspace_match_string() const;
+
+  VideoParams::Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
+  void set_interlacing(VideoParams::Interlacing i)
+  {
+    interlacing_ = i;
+
+    emit ParametersChanged();
+  }
+
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    // Auto-correct null aspect ratio to 1:1
+    if (r.isNull()) {
+      pixel_aspect_ratio_ = 1;
+    } else {
+      pixel_aspect_ratio_ = r;
+    }
+
+    emit ParametersChanged();
+  }
 
   /**
    * @brief Get this video stream's frame rate
@@ -49,23 +137,32 @@ public:
 
   int64_t get_time_in_timebase_units(const rational& time) const;
 
-  /*
-  int64_t get_closest_timestamp_in_frame_index(const rational& time);
-  int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
+  virtual QIcon icon() const override;
 
-  void clear_frame_index();
-  void append_frame_index(const int64_t& ts);
-  bool is_frame_index_ready();
-  int64_t last_frame_index_timestamp();
+public slots:
+  void ColorConfigChanged();
 
-  bool load_frame_index(const QString& s);
-  bool save_frame_index(const QString& s);
-  */
+  void DefaultColorSpaceChanged();
+
+protected:
+  virtual void LoadCustomParameters(QXmlStreamReader *reader) override;
+
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
 
 private:
-  rational frame_rate_;
+  int width_;
+  int height_;
+  bool premultiplied_alpha_;
+  QString colorspace_;
+  VideoParams::Interlacing interlacing_;
 
-  //QVector<int64_t> frame_index_;
+  VideoType video_type_;
+
+  PixelFormat::Format format_;
+
+  rational pixel_aspect_ratio_;
+
+  rational frame_rate_;
 
   int64_t start_time_;
 

@@ -84,8 +84,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
         audio_stream = std::static_pointer_cast<AudioStream>(s);
       }
 
-      if (!video_stream
-          && (s->type() == Stream::kVideo || s->type() == Stream::kImage)) {
+      if (!video_stream && s->type() == Stream::kVideo) {
         video_stream = std::static_pointer_cast<VideoStream>(s);
       }
 

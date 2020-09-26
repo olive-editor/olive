@@ -20,6 +20,8 @@
 
 #include "otiodecoder.h"
 
+#include <opentimelineio/timeline.h>
+
 OLIVE_NAMESPACE_ENTER
 
 OTIODecoder::OTIODecoder()
@@ -32,9 +34,21 @@ QString OTIODecoder::id()
   return QStringLiteral("otio");
 }
 
-bool OTIODecoder::Probe(Footage* f, const QAtomicInt* cancelled)
+ItemPtr OTIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
-  return false;
+  if (filename.endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+    opentimelineio::v1_0::ErrorStatus es;
+
+    auto timeline = static_cast<opentimelineio::v1_0::Timeline*>(opentimelineio::v1_0::SerializableObjectWithMetadata::from_json_file(filename.toStdString(), &es));
+
+    if (es != opentimelineio::v1_0::ErrorStatus::OK) {
+      return nullptr;
+    }
+
+    qDebug() << "Found" << timeline->video_tracks().size() << "video tracks";
+  }
+
+  return nullptr;
 }
 
 OLIVE_NAMESPACE_EXIT

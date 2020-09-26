@@ -85,7 +85,7 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
-  if (stream()->type() == Stream::kImage || stream()->type() == Stream::kVideo) {
+  if (stream()->type() == Stream::kVideo) {
     // Get an Olive compatible AVPixelFormat
     src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
@@ -130,12 +130,12 @@ bool FFmpegDecoder::Open()
 FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &divider)
 {
   // This is a still image
-  ImageStreamPtr is = std::static_pointer_cast<ImageStream>(stream());
+  VideoStreamPtr is = std::static_pointer_cast<VideoStream>(stream());
 
   QString img_filename = stream()->footage()->filename();
 
   // If it's an image sequence, we'll probably need to transform the filename
-  if (stream()->type() == Stream::kVideo) {
+  if (is->video_type() == VideoStream::kVideoTypeImageSequence) {
     int64_t ts = std::static_pointer_cast<VideoStream>(stream())->get_time_in_timebase_units(timecode);
 
     img_filename = TransformImageSequenceFileName(stream()->footage()->filename(), ts);
@@ -173,22 +173,20 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
     return nullptr;
   }
 
-  if (stream()->type() != Stream::kImage && stream()->type() != Stream::kVideo) {
+  if (stream()->type() != Stream::kVideo) {
     return nullptr;
   }
 
-  ImageStreamPtr is = std::static_pointer_cast<ImageStream>(stream());
+  VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
-  if (stream()->type() == Stream::kImage
-      || std::static_pointer_cast<VideoStream>(stream())->is_image_sequence()) {
+  if (vs->video_type() == VideoStream::kVideoTypeStill
+      || vs->video_type() == VideoStream::kVideoTypeImageSequence) {
 
     return RetrieveStillImage(timecode, divider);
 
   } else {
 
     FFmpegFramePool::ElementPtr return_frame = nullptr;
-
-    VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
     int64_t target_ts = vs->get_time_in_timebase_units(timecode);
 
@@ -450,26 +448,21 @@ bool FFmpegDecoder::SupportsAudio()
   return true;
 }
 
-bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
+ItemPtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
-  if (open_) {
-    qWarning() << "Probe must be called while the Decoder is closed";
-    return false;
-  }
-
   // Variable for receiving errors from FFmpeg
   int error_code;
 
   // Result to return
-  bool result = false;
+  FootagePtr footage = nullptr;
 
   // Convert QString to a C string
-  QByteArray ba = f->filename().toUtf8();
-  const char* filename = ba.constData();
+  QByteArray ba = filename.toUtf8();
+  const char* filename_c = ba.constData();
 
   // Open file in a format context
   AVFormatContext* fmt_ctx = nullptr;
-  error_code = avformat_open_input(&fmt_ctx, filename, nullptr, nullptr);
+  error_code = avformat_open_input(&fmt_ctx, filename_c, nullptr, nullptr);
 
   // Handle format context error
   if (error_code == 0) {
@@ -502,7 +495,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
           AVFrame* frame = av_frame_alloc();
 
           {
-            FFmpegDecoderInstance instance(filename, i);
+            FFmpegDecoderInstance instance(filename_c, i);
 
             // Read first frame and retrieve some metadata
             if (instance.GetFrame(pkt, frame) >= 0) {
@@ -548,26 +541,24 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
           av_packet_free(&pkt);
         }
 
-        ImageStreamPtr image_stream;
+        VideoStreamPtr video_stream = std::make_shared<VideoStream>();
 
         if (image_is_still) {
-          image_stream = std::make_shared<ImageStream>();
+          video_stream->set_video_type(VideoStream::kVideoTypeStill);
         } else {
-          VideoStreamPtr video_stream = std::make_shared<VideoStream>();
+          video_stream->set_video_type(VideoStream::kVideoTypeVideo);
 
           video_stream->set_frame_rate(frame_rate);
           video_stream->set_start_time(avstream->start_time);
-
-          image_stream = video_stream;
         }
 
-        image_stream->set_width(avstream->codecpar->width);
-        image_stream->set_height(avstream->codecpar->height);
-        image_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
-        image_stream->set_interlacing(interlacing);
-        image_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
+        video_stream->set_width(avstream->codecpar->width);
+        video_stream->set_height(avstream->codecpar->height);
+        video_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
+        video_stream->set_interlacing(interlacing);
+        video_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
 
-        str = image_stream;
+        str = video_stream;
 
       } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && decoder) {
 
@@ -630,19 +621,20 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
     }
 
     if (found_valid_streams) {
+      // We actually have footage we can return instead of nullptr
+      footage = std::make_shared<Footage>();
+
       // Copy streams over
       foreach (StreamPtr stream, streams) {
-        f->add_stream(stream);
+        footage->add_stream(stream);
       }
-
-      result = true;
     }
   }
 
   // Free all memory
   avformat_close_input(&fmt_ctx);
 
-  return result;
+  return footage;
 }
 
 void FFmpegDecoder::FFmpegError(int error_code)
@@ -834,8 +826,8 @@ FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height,
   copy->set_video_params(VideoParams(width,
                                      height,
                                      native_pix_fmt_,
-                                     std::static_pointer_cast<ImageStream>(stream())->pixel_aspect_ratio(),
-                                     std::static_pointer_cast<ImageStream>(stream())->interlacing(),
+                                     std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
+                                     std::static_pointer_cast<VideoStream>(stream())->interlacing(),
                                      divider));
   copy->set_timestamp(ts);
   copy->allocate();

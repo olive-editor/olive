@@ -51,6 +51,11 @@ QList<Footage *> FootageViewerPanel::GetSelectedFootage() const
 
 void FootageViewerPanel::SetFootage(Footage *f)
 {
+  if (!f->IsValid()) {
+    // Do nothing if footage is invalid
+    return;
+  }
+
   static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->SetFootage(f);
 
   if (f) {

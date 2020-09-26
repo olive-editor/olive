@@ -33,7 +33,10 @@ public:
 
   virtual QString id() override;
 
-  virtual bool Probe(Footage* f, const QAtomicInt* cancelled) override;
+  virtual bool Open() override {return false;}
+  virtual void Close() override {}
+
+  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
 };
 

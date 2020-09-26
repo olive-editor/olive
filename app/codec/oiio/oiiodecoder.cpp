@@ -45,86 +45,34 @@ QString OIIODecoder::id()
   return QStringLiteral("oiio");
 }
 
-bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
+ItemPtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
-  if (!FileTypeIsSupported(f->filename())) {
-    return false;
+  if (!FileTypeIsSupported(filename)) {
+    return nullptr;
   }
 
-  std::string std_filename = f->filename().toStdString();
+  std::string std_filename = filename.toStdString();
 
   auto in = OIIO::ImageInput::open(std_filename);
 
   if (!in) {
-    return false;
+    return nullptr;
   }
 
   if (!strcmp(in->format_name(), "FFmpeg movie")) {
     // If this is FFmpeg via OIIO, fall-through to our native FFmpeg decoder
-    return false;
+    return nullptr;
   }
 
-  is_sequence_ = false;
+  FootagePtr footage = std::make_shared<Footage>();
 
-  // Heuristically determine whether this file is part of an image sequence or not
-  if (GetImageSequenceDigitCount(f->filename()) > 0) {
-    QSize dim(in->spec().width, in->spec().height);
-
-    int64_t ind = GetImageSequenceIndex(f->filename());
-
-    // Check if files around exist around it with that follow a sequence
-    QString previous_img_fn = TransformImageSequenceFileName(f->filename(), ind - 1);
-    QString next_img_fn = TransformImageSequenceFileName(f->filename(), ind + 1);
-
-    // GetImageDimensions will return a 0,0 size if the file doesn't exist, so it's safe to check
-    // both existence and matching size with this
-    if (GetImageDimensions(previous_img_fn) == dim || GetImageDimensions(next_img_fn) == dim) {
-      // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
-      // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
-      QMetaObject::invokeMethod(Core::instance(),
-                                "ConfirmImageSequence",
-                                Qt::BlockingQueuedConnection,
-                                Q_RETURN_ARG(bool, is_sequence_),
-                                Q_ARG(QString, f->filename()));
-    }
-  }
-
-  ImageStreamPtr image_stream;
-
-  if (is_sequence_) {
-    VideoStreamPtr video_stream = std::make_shared<VideoStream>();
-    image_stream = video_stream;
-
-    rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
-    video_stream->set_timebase(default_timebase);
-    video_stream->set_frame_rate(default_timebase.flipped());
-    video_stream->set_image_sequence(true);
-
-    int64_t seq_index = GetImageSequenceIndex(f->filename());
-
-    int64_t start_index = seq_index;
-    int64_t end_index = seq_index;
-
-    // Heuristic to find the first and last images (users can always override this later in FootagePropertiesDialog)
-    while (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), start_index-1))) {
-      start_index--;
-    }
-
-    while (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), end_index+1))) {
-      end_index++;
-    }
-
-    video_stream->set_start_time(start_index);
-
-    video_stream->set_duration(end_index - start_index + 1);
-  } else {
-    image_stream = std::make_shared<ImageStream>();
-  }
+  VideoStreamPtr image_stream = std::make_shared<VideoStream>();
 
   image_stream->set_width(in->spec().width);
   image_stream->set_height(in->spec().height);
   image_stream->set_format(GetFormatFromOIIOBasetype(in->spec()));
   image_stream->set_pixel_aspect_ratio(GetPixelAspectRatioFromOIIO(in->spec()));
+  image_stream->set_video_type(VideoStream::kVideoTypeStill);
 
   // Images will always have just one stream
   image_stream->set_index(0);
@@ -135,7 +83,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
   image_stream->set_premultiplied_alpha(true);
 
   // Get stats for this image and dump them into the Footage file
-  f->add_stream(image_stream);
+  footage->add_stream(image_stream);
 
   // If we're here, we have a successful image open
   in->close();
@@ -144,7 +92,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
   OIIO::ImageInput::destroy(in);
 #endif
 
-  return true;
+  return footage;
 }
 
 bool OIIODecoder::Open()
@@ -320,25 +268,6 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
   }
 
   return true;
-}
-
-QSize OIIODecoder::GetImageDimensions(const QString &fn)
-{
-  QSize sz;
-  auto in = OIIO::ImageInput::open(fn.toStdString());
-
-  if (in) {
-    sz.setWidth(in->spec().width);
-    sz.setHeight(in->spec().height);
-
-    in->close();
-
-#if OIIO_VERSION < 10903
-    OIIO::ImageInput::destroy(in);
-#endif
-  }
-
-  return sz;
 }
 
 bool OIIODecoder::OpenImageHandler(const QString &fn)

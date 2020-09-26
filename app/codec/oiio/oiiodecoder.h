@@ -37,7 +37,7 @@ public:
 
   virtual QString id() override;
 
-  virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
+  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
   virtual bool Open() override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
@@ -62,8 +62,6 @@ private:
 
   static bool FileTypeIsSupported(const QString& fn);
 
-  static QSize GetImageDimensions(const QString& fn);
-
   bool OpenImageHandler(const QString& fn);
 
   void CloseImageHandle();
@@ -71,8 +69,6 @@ private:
   PixelFormat::Format pix_fmt_;
 
   bool is_rgba_;
-
-  bool is_sequence_;
 
   OIIO::ImageBuf* buffer_;
 

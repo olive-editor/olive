@@ -21,8 +21,6 @@ set(OLIVE_SOURCES
   project/item/footage/audiostream.cpp
   project/item/footage/footage.h
   project/item/footage/footage.cpp
-  project/item/footage/imagestream.h
-  project/item/footage/imagestream.cpp
   project/item/footage/stream.h
   project/item/footage/stream.cpp
   project/item/footage/videostream.h

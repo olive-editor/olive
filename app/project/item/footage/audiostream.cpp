@@ -96,4 +96,9 @@ void AudioStream::append_conformed_version(const AudioParams &params)
   emit ConformAppended(params);
 }
 
+QIcon AudioStream::icon() const
+{
+  return icon::Audio;
+}
+
 OLIVE_NAMESPACE_EXIT

@@ -102,7 +102,7 @@ public:
    * TRUE if the Decoder was able to decode this file. FALSE if not. This function should have filled the Footage
    * object with metadata if it returns TRUE. Otherwise, the Footage object should be untouched.
    */
-  virtual bool Probe(Footage* f, const QAtomicInt* cancelled) = 0;
+  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Open media/allocate memory
@@ -199,7 +199,7 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static bool ProbeMedia(Footage* f, const QAtomicInt *cancelled);
+  static ItemPtr ProbeMedia(const QString& filename, const QAtomicInt *cancelled);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -232,6 +232,12 @@ public:
    */
   bool HasConformedVersion(const AudioParams& params);
 
+  static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
+
+  static int GetImageSequenceDigitCount(const QString& filename);
+
+  static int64_t GetImageSequenceIndex(const QString& filename);
+
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
@@ -248,12 +254,6 @@ protected:
   QString GetConformedFilename(const AudioParams &params);
 
   QString GetIndexFilename();
-
-  static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
-
-  static int GetImageSequenceDigitCount(const QString& filename);
-
-  static int64_t GetImageSequenceIndex(const QString& filename);
 
   bool open_;
 

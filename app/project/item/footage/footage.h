@@ -27,7 +27,6 @@
 #include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
-#include "project/item/footage/imagestream.h"
 #include "project/item/footage/videostream.h"
 #include "timeline/timelinepoints.h"
 
@@ -43,13 +42,6 @@ OLIVE_NAMESPACE_ENTER
 class Footage : public Item, public TimelinePoints
 {
 public:
-  enum Status {
-    kUnprobed,
-    kUnindexed,
-    kReady,
-    kInvalid
-  };
-
   /**
    * @brief Footage Constructor
    */
@@ -73,26 +65,6 @@ public:
   virtual void Save(QXmlStreamWriter *writer) const override;
 
   /**
-   * @brief Check the ready state of this Footage object
-   *
-   * @return
-   *
-   * If the Footage has been successfully probed, this will return TRUE.
-   */
-  const Status& status() const;
-
-  /**
-   * @brief Set ready state
-   *
-   * This should only be set by olive::ProbeMedia. Sets the Footage's current status to a member of enum
-   * Footage::Status.
-   *
-   * This function also runs UpdateIcon() and UpdateTooltip(). If you need to override the tooltip (e.g. for an error
-   * message), you must run set_tooltip() *after* running set_status();
-   */
-  void set_status(const Status& status);
-
-  /**
    * @brief Reset Footage state ready for running through Probe() again
    *
    * If a Footage object needs to be re-probed (e.g. source file changes or Footage is linked to a new file), its
@@ -103,6 +75,16 @@ public:
    * to worry about this.
    */
   void Clear();
+
+  bool IsValid() const
+  {
+    return valid_;
+  }
+
+  /**
+   * @brief Sets this footage to valid and ready to use
+   */
+  void SetValid();
 
   /**
    * @brief Return the current filename of this Footage object
@@ -255,14 +237,11 @@ private:
   QList<StreamPtr> streams_;
 
   /**
-   * @brief Internal ready setting
-   */
-  Status status_;
-
-  /**
    * @brief Internal attached decoder ID
    */
   QString decoder_;
+
+  bool valid_;
 
 };
 

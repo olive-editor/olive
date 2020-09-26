@@ -26,7 +26,7 @@ QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &i
 {
   Q_UNUSED(input_time)
 
-  ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+  VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
 
   return QSize(image_stream->width(), image_stream->height());
 }

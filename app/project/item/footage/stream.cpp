@@ -78,7 +78,6 @@ Footage *Stream::footage() const
 void Stream::set_footage(Footage *f)
 {
   footage_ = f;
-  FootageSetEvent(footage_);
 }
 
 const rational &Stream::timebase() const
@@ -123,29 +122,14 @@ void Stream::set_enabled(bool e)
   enabled_ = e;
 }
 
-QIcon Stream::IconFromType(const Stream::Type &type)
+QIcon Stream::icon() const
 {
-  switch (type) {
-  case Stream::kVideo:
-    return icon::Video;
-  case Stream::kImage:
-    return icon::Image;
-  case Stream::kAudio:
-    return icon::Audio;
-  default:
-    break;
-  }
-
   return QIcon();
 }
 
 QMutex *Stream::proxy_access_lock()
 {
   return &proxy_access_lock_;
-}
-
-void Stream::FootageSetEvent(Footage*)
-{
 }
 
 void Stream::LoadCustomParameters(QXmlStreamReader* reader)

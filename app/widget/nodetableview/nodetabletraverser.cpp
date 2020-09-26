@@ -24,7 +24,7 @@ OLIVE_NAMESPACE_ENTER
 
 QVariant NodeTableTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
   return QVariant::fromValue(VideoParams(video_stream->width(),
                                          video_stream->height(),

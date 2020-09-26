@@ -36,6 +36,11 @@ Project::Project() :
   autorecovery_saved_(true)
 {
   root_.set_project(this);
+
+  connect(&color_manager_, &ColorManager::ConfigChanged,
+          this, &Project::ColorConfigChanged);
+  connect(&color_manager_, &ColorManager::DefaultInputColorSpaceChanged,
+          this, &Project::DefaultColorSpaceChanged);
 }
 
 void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const QAtomicInt* cancelled)
@@ -208,6 +213,32 @@ const QString &Project::cache_path(bool default_if_empty) const
     return DiskManager::instance()->GetDefaultCachePath();
   }
   return cache_path_;
+}
+
+void Project::ColorConfigChanged()
+{
+  QList<ItemPtr> footage = this->get_items_of_type(Item::kFootage);
+
+  foreach (ItemPtr item, footage) {
+    foreach (StreamPtr s, std::static_pointer_cast<Footage>(item)->streams()) {
+      if (s->type() == Stream::kVideo) {
+        std::static_pointer_cast<VideoStream>(s)->ColorConfigChanged();
+      }
+    }
+  }
+}
+
+void Project::DefaultColorSpaceChanged()
+{
+  QList<ItemPtr> footage = this->get_items_of_type(Item::kFootage);
+
+  foreach (ItemPtr item, footage) {
+    foreach (StreamPtr s, std::static_pointer_cast<Footage>(item)->streams()) {
+      if (s->type() == Stream::kVideo) {
+        std::static_pointer_cast<VideoStream>(s)->DefaultColorSpaceChanged();
+      }
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

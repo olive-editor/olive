@@ -28,6 +28,7 @@
 #include <QXmlStreamWriter>
 
 #include "common/rational.h"
+#include "ui/icons/icons.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -52,8 +53,7 @@ public:
     kAudio,
     kData,
     kSubtitle,
-    kAttachment,
-    kImage = 100
+    kAttachment
   };
 
   /**
@@ -90,13 +90,11 @@ public:
   bool enabled() const;
   void set_enabled(bool e);
 
-  static QIcon IconFromType(const Type& type);
+  virtual QIcon icon() const;
 
   QMutex* proxy_access_lock();
 
 protected:
-  virtual void FootageSetEvent(Footage*);
-
   virtual void LoadCustomParameters(QXmlStreamReader *reader);
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;

@@ -35,19 +35,17 @@ OLIVE_NAMESPACE_ENTER
 class VideoStreamProperties : public StreamProperties
 {
 public:
-  VideoStreamProperties(ImageStreamPtr stream);
+  VideoStreamProperties(VideoStreamPtr stream);
 
   virtual void Accept(QUndoCommand* parent) override;
 
   virtual bool SanityCheck() override;
 
 private:
-  static bool IsImageSequence(ImageStream* stream);
-
   /**
    * @brief Attached video stream
    */
-  ImageStreamPtr stream_;
+  VideoStreamPtr stream_;
 
   /**
    * @brief Setting for associated/premultiplied alpha
@@ -86,7 +84,7 @@ private:
 
   class VideoStreamChangeCommand : public UndoCommand {
   public:
-    VideoStreamChangeCommand(ImageStreamPtr stream,
+    VideoStreamChangeCommand(VideoStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
                              VideoParams::Interlacing interlacing,
@@ -100,7 +98,7 @@ private:
     virtual void undo_internal() override;
 
   private:
-    ImageStreamPtr stream_;
+    VideoStreamPtr stream_;
 
     bool new_premultiplied_;
     QString new_colorspace_;

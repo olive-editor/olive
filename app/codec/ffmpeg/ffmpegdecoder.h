@@ -146,7 +146,7 @@ public:
   // Destructor
   virtual ~FFmpegDecoder() override;
 
-  virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
+  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
   virtual bool Open() override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;

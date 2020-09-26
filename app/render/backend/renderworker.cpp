@@ -369,8 +369,8 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 
 QVariant RenderWorker::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
-  rational time_match = (stream->type() == Stream::kImage) ? rational() : input_time;
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
+  rational time_match = (video_stream->video_type() == VideoStream::kVideoTypeStill) ? 0 : input_time;
   QString colorspace_match = video_stream->get_colorspace_match_string();
 
   QVariant value;

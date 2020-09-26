@@ -24,6 +24,7 @@
 #include <QFileInfoList>
 #include <QUndoCommand>
 
+#include "codec/decoder.h"
 #include "project/projectviewmodel.h"
 #include "task/task.h"
 
@@ -56,7 +57,15 @@ protected:
   virtual bool Run() override;
 
 private:
-  void Import(Folder* folder, const QFileInfoList &import, int& counter, QUndoCommand *parent_command);
+  void Import(Folder* folder, QFileInfoList import, int& counter, QUndoCommand *parent_command);
+
+  void ValidateImageSequence(ItemPtr item, QFileInfoList &info_list, int index);
+
+  static bool ItemIsStillImageFootageOnly(ItemPtr item);
+
+  static bool CompareStillImageSize(ItemPtr item, const QSize& sz);
+
+  static int64_t GetImageSequenceLimit(const QString &start_fn, int64_t start, bool up);
 
   QUndoCommand* command_;
 
@@ -69,6 +78,8 @@ private:
   int file_count_;
 
   QStringList invalid_files_;
+
+  QList<QString> image_sequence_ignore_files_;
 
 };
 

@@ -23,21 +23,35 @@
 #include <QFile>
 
 #include "common/timecodefunctions.h"
+#include "common/xmlutils.h"
+#include "footage.h"
+#include "project/project.h"
+#include "render/colormanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
 VideoStream::VideoStream() :
+  premultiplied_alpha_(false),
+  interlacing_(VideoParams::kInterlaceNone),
+  video_type_(VideoStream::kVideoTypeVideo),
+  pixel_aspect_ratio_(1),
   start_time_(0),
   is_image_sequence_(false)
 {
-  set_type(kVideo);
+  set_type(Stream::kVideo);
 }
 
 QString VideoStream::description() const
 {
-  return QCoreApplication::translate("Stream", "%1: Video - %2x%3").arg(QString::number(index()),
-                                                                        QString::number(width()),
-                                                                        QString::number(height()));
+  if (video_type_ == VideoStream::kVideoTypeStill) {
+    return QCoreApplication::translate("Stream", "%1: Image - %2x%3").arg(QString::number(index()),
+                                                                          QString::number(width()),
+                                                                          QString::number(height()));
+  } else {
+    return QCoreApplication::translate("Stream", "%1: Video - %2x%3").arg(QString::number(index()),
+                                                                          QString::number(width()),
+                                                                          QString::number(height()));
+  }
 }
 
 const rational &VideoStream::frame_rate() const
@@ -76,125 +90,88 @@ int64_t VideoStream::get_time_in_timebase_units(const rational &time) const
   return Timecode::time_to_timestamp(time, timebase()) + start_time();
 }
 
-/*
-int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)
+QIcon VideoStream::icon() const
 {
-  // Get rough approximation of what the timestamp would be in this timebase
-  int64_t target_ts = Timecode::time_to_timestamp(time, timebase());
-
-  // Find closest actual timebase in the file
-  return get_closest_timestamp_in_frame_index(target_ts);
+  if (video_type_ == kVideoTypeStill) {
+    return icon::Image;
+  } else {
+    return icon::Video;
+  }
 }
 
-int64_t VideoStream::get_closest_timestamp_in_frame_index(int64_t timestamp)
+void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
 {
-  QMutexLocker locker(proxy_access_lock());
-
-  if (!frame_index_.isEmpty()) {
-    if (timestamp <= frame_index_.first()) {
-      return frame_index_.first();
-    } else if (timestamp >= frame_index_.last()) {
-      return frame_index_.last();
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("colorspace")) {
+      set_colorspace(reader->readElementText());
     } else {
-      // Use index to find closest frame in file
-      for (int i=1;i<frame_index_.size();i++) {
-        int64_t this_ts = frame_index_.at(i);
+      reader->skipCurrentElement();
+    }
+  }
+}
 
-        if (this_ts == timestamp) {
-          return timestamp;
-        } else if (this_ts > timestamp) {
-          return frame_index_.at(i - 1);
-        }
-      }
+void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement("colorspace", colorspace_);
+}
+
+bool VideoStream::premultiplied_alpha() const
+{
+  return premultiplied_alpha_;
+}
+
+void VideoStream::set_premultiplied_alpha(bool e)
+{
+  premultiplied_alpha_ = e;
+
+  emit ParametersChanged();
+}
+
+const QString &VideoStream::colorspace(bool default_if_empty) const
+{
+  if (colorspace_.isEmpty() && default_if_empty) {
+    return footage()->project()->color_manager()->GetDefaultInputColorSpace();
+  } else {
+    return colorspace_;
+  }
+}
+
+void VideoStream::set_colorspace(const QString &color)
+{
+  colorspace_ = color;
+
+  emit ParametersChanged();
+}
+
+QString VideoStream::get_colorspace_match_string() const
+{
+  return QStringLiteral("%1:%2").arg(footage()->project()->color_manager()->GetConfigFilename(),
+                                     colorspace());
+}
+
+void VideoStream::ColorConfigChanged()
+{
+  ColorManager* color_manager = footage()->project()->color_manager();
+
+  // Check if this colorspace is in the new config
+  if (!colorspace_.isEmpty()) {
+    QStringList colorspaces = color_manager->ListAvailableColorspaces();
+    if (!colorspaces.contains(colorspace_)) {
+      // Set to empty if not
+      colorspace_.clear();
     }
   }
 
-  return -1;
+  // Either way, the color calculation has likely changed so we signal here
+  emit ParametersChanged();
 }
-*/
 
-/*
-void VideoStream::clear_frame_index()
+void VideoStream::DefaultColorSpaceChanged()
 {
-  {
-    QMutexLocker locker(&index_access_lock_);
-
-    frame_index_.clear();
+  // If no colorspace is set, this stream uses the default color space and it's just changed
+  if (colorspace_.isEmpty()) {
+    emit ParametersChanged();
   }
-
-  emit IndexChanged();
 }
-
-void VideoStream::append_frame_index(const int64_t &ts)
-{
-  {
-    QMutexLocker locker(&index_access_lock_);
-
-    frame_index_.append(ts);
-  }
-
-  emit IndexChanged();
-}
-
-bool VideoStream::is_frame_index_ready()
-{
-  QMutexLocker locker(&index_access_lock_);
-
-  return !frame_index_.isEmpty() && frame_index_.last() == VideoStream::kEndTimestamp;
-}
-
-int64_t VideoStream::last_frame_index_timestamp()
-{
-  QMutexLocker locker(&index_access_lock_);
-
-  return frame_index_.last();
-}
-
-bool VideoStream::load_frame_index(const QString &s)
-{
-  // Load index from file
-  QFile index_file(s);
-
-  if (index_file.exists() && index_file.open(QFile::ReadOnly)) {
-    {
-      QMutexLocker locker(&index_access_lock_);
-
-      // Resize based on filesize
-      frame_index_.resize(static_cast<size_t>(index_file.size()) / sizeof(int64_t));
-
-      // Read frame index into vector
-      index_file.read(reinterpret_cast<char*>(frame_index_.data()),
-                      index_file.size());
-    }
-
-    index_file.close();
-
-    emit IndexChanged();
-
-    return true;
-  }
-
-  return false;
-}
-
-bool VideoStream::save_frame_index(const QString &s)
-{
-  QFile index_file(s);
-
-  if (index_file.open(QFile::WriteOnly)) {
-    // Write index in binary
-    QMutexLocker locker(&index_access_lock_);
-
-    index_file.write(reinterpret_cast<const char*>(frame_index_.constData()),
-                     frame_index_.size() * static_cast<int>(sizeof(int64_t)));
-
-    index_file.close();
-
-    return true;
-  }
-
-  return false;
-}
-*/
 
 OLIVE_NAMESPACE_EXIT

@@ -189,8 +189,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
       StreamPtr s = v.data().value<StreamPtr>();
 
       if (s) {
-        if (s->type() == Stream::kVideo
-            || s->type() == Stream::kImage) {
+        if (s->type() == Stream::kVideo) {
           take_this_value_list = &video_footage_to_retrieve;
         } else if (s->type() == Stream::kAudio) {
           take_this_value_list = &audio_footage_to_retrieve;

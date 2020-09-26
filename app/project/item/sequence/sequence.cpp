@@ -278,33 +278,29 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
         VideoStream* vs = static_cast<VideoStream*>(s.get());
 
         // If this is a video stream, use these parameters
-        if (!found_video_params && !vs->frame_rate().isNull()) {
+        if (!found_video_params) {
+          rational using_timebase;
+
+          if (vs->video_type() == VideoStream::kVideoTypeStill) {
+            // If this is a still image, we'll use it's resolution but won't set
+            // `found_video_params` in case something with a frame rate comes along which we'll
+            // prioritize
+            using_timebase = video_params().time_base();
+          } else {
+            using_timebase = vs->frame_rate().flipped();
+            found_video_params = true;
+          }
+
           set_video_params(VideoParams(vs->width(),
                                        vs->height(),
-                                       vs->frame_rate().flipped(),
+                                       using_timebase,
                                        static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
                                        vs->pixel_aspect_ratio(),
                                        vs->interlacing(),
                                        VideoParams::generate_auto_divider(vs->width(), vs->height())));
-          found_video_params = true;
         }
         break;
       }
-      case Stream::kImage:
-        if (!found_video_params) {
-          // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
-          // something with a frame rate comes along which we'll prioritize
-          ImageStream* is = static_cast<ImageStream*>(s.get());
-
-          set_video_params(VideoParams(is->width(),
-                                       is->height(),
-                                       video_params().time_base(),
-                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                       is->pixel_aspect_ratio(),
-                                       is->interlacing(),
-                                       VideoParams::generate_auto_divider(is->width(), is->height())));
-        }
-        break;
       case Stream::kAudio:
         if (!found_audio_params) {
           AudioStream* as = static_cast<AudioStream*>(s.get());

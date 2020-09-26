@@ -95,7 +95,7 @@ bool OpenGLProxy::Init()
 
 QVariant OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const VideoParams& params, const RenderMode::Mode& mode)
 {
-  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
   // Set up OCIO context
   QString colorspace_match = video_stream->get_colorspace_match_string();

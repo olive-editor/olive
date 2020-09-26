@@ -98,22 +98,19 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders() {
   return decoders;
 }
 
-bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
+ItemPtr Decoder::ProbeMedia(const QString &filename, const QAtomicInt* cancelled)
 {
   // Check for a valid filename
-  if (f->filename().isEmpty()) {
+  if (filename.isEmpty()) {
     qWarning() << "Tried to probe media with an empty filename";
-    return false;
+    return nullptr;
   }
 
   // Check file exists
-  if (!QFileInfo::exists(f->filename())) {
-    qWarning() << "Tried to probe file that doesn't exist:" << f->filename();
-    return false;
+  if (!QFileInfo::exists(filename)) {
+    qWarning() << "Tried to probe file that doesn't exist:" << filename;
+    return nullptr;
   }
-
-  // Reset Footage state for probing
-  f->Clear();
 
   // Create list to iterate through
   QVector<DecoderPtr> decoder_list = ReceiveListOfAllDecoders();
@@ -122,30 +119,31 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
   for (int i=0;i<decoder_list.size();i++) {
 
     if (cancelled && *cancelled) {
-      return false;
+      return nullptr;
     }
 
     DecoderPtr decoder = decoder_list.at(i);
 
-    if (decoder->Probe(f, cancelled)) {
+    ItemPtr item = decoder->Probe(filename, cancelled);
 
-      // We found a Decoder, so we can set this media as valid
-      f->set_status(Footage::kReady);
+    if (item) {
 
-      // Attach the successful Decoder to this Footage object
-      f->set_decoder(decoder->id());
+      if (item->type() == Item::kFootage) {
+        // Attach the successful Decoder to this Footage object
+        FootagePtr footage = std::static_pointer_cast<Footage>(item);
+        footage->set_decoder(decoder->id());
+        footage->SetValid();
+      }
+
 
       // FIXME: Cache the results so we don't have to probe if this media is added a second time
 
-      return true;
+      return item;
     }
   }
 
   // We aren't able to use this Footage
-  f->set_status(Footage::kInvalid);
-  f->set_decoder(QString());
-
-  return false;
+  return nullptr;
 }
 
 DecoderPtr Decoder::CreateFromID(const QString &id)

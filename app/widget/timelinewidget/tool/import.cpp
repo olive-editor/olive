@@ -44,7 +44,6 @@ Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
   switch (stream_type) {
   case Stream::kVideo:
-  case Stream::kImage:
     return Timeline::kTrackTypeVideo;
   case Stream::kAudio:
     return Timeline::kTrackTypeAudio;
@@ -99,8 +98,12 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
       // Check if Item is Footage
       if (item->type() == Item::kFootage) {
 
-        // If the Item is Footage, we can create a Ghost from it
-        dragged_footage_.append(DraggedFootage(static_cast<Footage*>(item), enabled_streams));
+        Footage* f = static_cast<Footage*>(item);
+
+        if (f->IsValid()) {
+          // If the Item is Footage, we can create a Ghost from it
+          dragged_footage_.append(DraggedFootage(f, enabled_streams));
+        }
 
       }
     }
@@ -237,7 +240,8 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
 
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
-      if (stream->type() == Stream::kImage) {
+      if (stream->type() == Stream::kVideo
+          && std::static_pointer_cast<VideoStream>(stream)->video_type() == VideoStream::kVideoTypeStill) {
         // Stream is essentially length-less - we may use the default still image length in config,
         // or we may use another stream's length depending on the circumstance
         contains_image_stream = true;
@@ -414,7 +418,6 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
 
       switch (footage_stream->type()) {
       case Stream::kVideo:
-      case Stream::kImage:
       {
         VideoInput* video_input = new VideoInput();
         video_input->SetFootage(footage_stream);

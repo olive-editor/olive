@@ -53,6 +53,8 @@ public:
   bool has_conformed_version(const AudioParams& params);
   void append_conformed_version(const AudioParams& params);
 
+  virtual QIcon icon() const override;
+
 signals:
   void ConformAppended(OLIVE_NAMESPACE::AudioParams params);
 

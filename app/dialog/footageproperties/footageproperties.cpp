@@ -78,8 +78,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
     switch (stream->type()) {
     case Stream::kVideo:
-    case Stream::kImage:
-      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<ImageStream>(stream)));
+      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<VideoStream>(stream)));
       break;
     case Stream::kAudio:
       stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
@@ -90,8 +89,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
     if (first_usable_stream == -1
         && (stream->type() == Stream::kVideo
-            || stream->type() == Stream::kAudio
-            || stream->type() == Stream::kImage)) {
+            || stream->type() == Stream::kAudio)) {
       first_usable_stream = i;
     }
   }

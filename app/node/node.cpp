@@ -28,7 +28,7 @@
 #include "common/xmlutils.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
-#include "project/item/footage/imagestream.h"
+#include "project/item/footage/videostream.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -366,8 +366,8 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
         // Footage stream
         hash.addData(QString::number(stream->index()).toUtf8());
 
-        if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
-          ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+        if (stream->type() == Stream::kVideo) {
+          VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
 
           // Current color config and space
           hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
