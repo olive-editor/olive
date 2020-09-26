@@ -276,11 +276,17 @@ public:
    */
   QList<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
 
+  /**
+   * @brief Find nodes of a certain type that this Node takes inputs from
+   */
+  template<class T>
+  QList<T*> FindInputNodes() const;
+
   template<class T>
   /**
    * @brief Find a node of a certain type that this Node outputs to
    */
-  T* FindOutputNode();
+  QList<T *>  FindOutputNode();
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -471,6 +477,12 @@ private:
 
   void DisconnectInput(NodeInput* input);
 
+  template<class T>
+  static void FindInputNodeInternal(const Node* n, QList<T *>& list);
+
+  template<class T>
+  static void FindOutputNodeInternal(const Node* n, QList<T *>& list);
+
   QList<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
   QList<NodeParam *> params_;
@@ -498,34 +510,62 @@ private:
 };
 
 template<class T>
+void Node::FindInputNodeInternal(const Node* n, QList<T *>& list)
+{
+  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+
+  foreach (NodeInput* input, inputs) {
+    if (input->is_connected()) {
+      Node* connected = input->get_connected_node();
+      T* cast_test = dynamic_cast<T*>(connected);
+
+      if (cast_test) {
+        list.append(cast_test);
+      }
+
+      FindInputNodeInternal<T>(connected, list);
+    }
+  }
+}
+
+template<class T>
+QList<T *> Node::FindInputNodes() const
+{
+  QList<T *> list;
+
+  FindInputNodeInternal<T>(this, list);
+
+  return list;
+}
+
+template<class T>
 T* Node::ValueToPtr(const QVariant &ptr)
 {
   return reinterpret_cast<T*>(ptr.value<quintptr>());
 }
 
 template<class T>
-Node* FindOutputNodeInternal(Node* n) {
+void Node::FindOutputNodeInternal(const Node* n, QList<T *>& list) {
   foreach (NodeEdgePtr edge, n->output()->edges()) {
     Node* connected = edge->input()->parentNode();
     T* cast_test = dynamic_cast<T*>(connected);
 
     if (cast_test) {
-      return cast_test;
-    } else {
-      Node* drill_test = FindOutputNodeInternal<T>(connected);
-      if (drill_test) {
-        return drill_test;
-      }
+      list.append(cast_test);
     }
-  }
 
-  return nullptr;
+    FindOutputNodeInternal<T>(connected);
+  }
 }
 
 template<class T>
-T* Node::FindOutputNode()
+QList<T *> Node::FindOutputNode()
 {
-  return static_cast<T*>(FindOutputNodeInternal<T>(this));
+  QList<T *> list;
+
+  FindOutputNodeInternal<T>(this, list);
+
+  return list;
 }
 
 OLIVE_NAMESPACE_EXIT

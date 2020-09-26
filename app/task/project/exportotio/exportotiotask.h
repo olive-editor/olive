@@ -21,6 +21,9 @@
 #ifndef PROJECTSAVEASOTIOTASK_H
 #define PROJECTSAVEASOTIOTASK_H
 
+#include <opentimelineio/timeline.h>
+#include <opentimelineio/track.h>
+
 #include "project/item/sequence/sequence.h"
 #include "task/task.h"
 
@@ -36,6 +39,10 @@ protected:
   virtual bool Run() override;
 
 private:
+  opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
+
+  bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
+
   ViewerOutput* sequence_;
 
   QString filename_;
