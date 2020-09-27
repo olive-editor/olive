@@ -559,7 +559,7 @@ QList<Node*> ProjectExplorer::GetItemNodes(Item* item, Item::Type type)
           // Loop through nodes to find our Footage node
           foreach (Node* node, s->nodes()) {
             // Check if node is of the right type
-            if (node->IsMedia() && static_cast<MediaInput*>(node)->type() == stream.get()->type()) {
+            if (node->IsMedia()){
               // Check the streams are the same
               if (static_cast<MediaInput*>(node)->footage() == stream) {
                 nodes.append(node);
