@@ -85,6 +85,12 @@ public:
 
   void DeleteSelected();
 
+  /**
+   * @brief Check if an item is in use anywhere and return any relevant input nodes
+   * kFootage has two streams that need to be handled
+   */
+  QList<Node*> GetItemNodes(Item* item, Item::Type type);
+
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
