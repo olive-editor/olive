@@ -117,9 +117,9 @@ private:
 
   /**
    * @brief Check if an item is in use anywhere and return any relevant input nodes
-   * kFootage has two streams that need to be handled
+   * Returns a QList as Footage has two streams that need to be handled
    */
-  QList<Node*> GetItemNodes(Item* item, Item::Type type);
+  QList<Node*> GetFootageNodes(Item* item);
 
   /**
    * @brief Simple convenience function for adding a view to this stacked widget

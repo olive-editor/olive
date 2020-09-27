@@ -537,7 +537,7 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
-QList<Node*> ProjectExplorer::GetItemNodes(Item* item, Item::Type type) 
+QList<Node*> ProjectExplorer::GetFootageNodes(Item* item) 
 {
   // Output list list
   QList<Node*> nodes;
@@ -547,7 +547,7 @@ QList<Node*> ProjectExplorer::GetItemNodes(Item* item, Item::Type type)
   // Get item pointer.
   ItemPtr item_ptr = item->get_shared_ptr();
 
-  if (type == Item::kFootage) {
+  if (item_ptr.get()->type() == Item::kFootage) {
     // If no sequences exist we don't need to do anything clever here
     if (!sequences.isEmpty()) {
       // Footage can contain multiple streams, all of which need to be dealt with
@@ -621,7 +621,7 @@ void ProjectExplorer::DeleteSelected()
     if (item_ptr->type() == Item::kFootage) {
       
       // Check if nodes exists
-      QList<Node*> nodes = GetItemNodes(item, Item::kFootage);
+      QList<Node*> nodes = GetFootageNodes(item);
       if (!nodes.isEmpty()){
         FootageDeleteResponse response = DeleteWarningMessage();
         if (response == kOffline) {
