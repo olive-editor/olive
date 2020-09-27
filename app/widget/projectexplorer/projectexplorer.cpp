@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QMessageBox>
 #include <QProcess>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -558,8 +559,7 @@ QList<Node*> ProjectExplorer::GetItemNodes(Item* item, Item::Type type)
           // Loop through nodes to find our Footage node
           foreach (Node* node, s->nodes()) {
             // Check if node is of the right type
-            if (node->IsMedia() && static_cast<MediaInput*>(node)->type() == stream.get()->type() ||
-                static_cast<MediaInput*>(node)->type() == Stream::kImage) {
+            if (node->IsMedia() && static_cast<MediaInput*>(node)->type() == stream.get()->type()) {
               // Check the streams are the same
               if (static_cast<MediaInput*>(node)->footage() == stream) {
                 nodes.append(node);
@@ -571,6 +571,28 @@ QList<Node*> ProjectExplorer::GetItemNodes(Item* item, Item::Type type)
     }
   }
   return nodes;
+}
+
+ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage()
+{
+  QMessageBox msgBox;
+  msgBox.setText(tr("This footage is in use."));
+  msgBox.setInformativeText(tr("Do you want to offline the footage or entirely delete it from the timeline?"));
+  QPushButton* offline = msgBox.addButton(tr("Offline Footage"), QMessageBox::ApplyRole);
+  QPushButton* deleteClips = msgBox.addButton(tr("Delete Clips"), QMessageBox::ApplyRole);
+  msgBox.setStandardButtons(QMessageBox::Cancel);
+  msgBox.setIcon(QMessageBox::Warning);
+
+  msgBox.exec();
+
+  if (msgBox.clickedButton() == offline) {
+    return kOffline;
+  }
+  if (msgBox.clickedButton() == deleteClips) {
+    return kDelete;
+  }
+
+  return kCancel;
 }
 
 void ProjectExplorer::DeleteSelected()
@@ -601,38 +623,16 @@ void ProjectExplorer::DeleteSelected()
       // Check if nodes exists
       QList<Node*> nodes = GetItemNodes(item, Item::kFootage);
       if (!nodes.isEmpty()){
-        // Loop through Footage nodes
-        foreach (Node* node, nodes) {
-
-          // Loop through sequences
-          QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
-          foreach (ItemPtr seq, sequences) {
-            Sequence* s = static_cast<Sequence*>(seq.get());
-
-            // Check all nodes to see if they're linked
-            foreach (Node* check_node, s->nodes()) {
-              // Skip itself
-              if (nodes.contains(check_node)) {
-                continue;
-              }
-              if (check_node->GetImmediateDependencies().contains(node)) {
-                QList<NodeInput*> inputs = check_node->GetInputsIncludingArrays();
-
-                foreach (NodeInput* input, inputs) {
-                  foreach (NodeEdgePtr edge, input->edges()) {
-                    Node* connected = edge->output()->parentNode();
-
-                    if (connected == node) {
-                      input->DisconnectEdge(edge);
-                    }
-                  }
-                }
-              }
-            }
+        FootageDeleteResponse response = DeleteWarningMessage();
+        if (response == kOffline) {
+          // Loop through Footage nodes
+          foreach (Node* node, nodes) {
+            // Set footage to be null
+            static_cast<MediaInput*>(node)->SetFootage(nullptr);
           }
-
-          // Set footage to be null
-          static_cast<MediaInput*>(node)->SetFootage(nullptr);
+        }
+        if (response == kCancel) {
+          return;
         }
       }
     }
