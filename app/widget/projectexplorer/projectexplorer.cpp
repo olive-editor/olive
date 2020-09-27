@@ -537,11 +537,11 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
-QList<Node*> ProjectExplorer::GetFootageNodes(Item* item) 
+QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
 {
   // Output list list
-  QList<Node*> nodes;
-  
+  QMap<Node*, StreamPtr> nodes;
+
   // Get all sequences.
   QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
   // Get item pointer.
@@ -562,7 +562,7 @@ QList<Node*> ProjectExplorer::GetFootageNodes(Item* item)
             if (node->IsMedia()){
               // Check the streams are the same
               if (static_cast<MediaInput*>(node)->footage() == stream) {
-                nodes.append(node);
+                nodes.insert(node, stream);
               }
             }
           }
@@ -615,29 +615,32 @@ void ProjectExplorer::DeleteSelected()
       if (Core::instance()->main_window()->IsSequenceOpen(s)) {
         Core::instance()->main_window()->CloseSequence(s);
       }
+
+      new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
     }
 
     // If this is a footage item, clean up if necessary
     if (item_ptr->type() == Item::kFootage) {
       
       // Check if nodes exists
-      QList<Node*> nodes = GetFootageNodes(item);
+      QMap<Node*, StreamPtr> nodes = GetFootageNodes(item);
       if (!nodes.isEmpty()){
+        // Warn user and ask them what to do
         FootageDeleteResponse response = DeleteWarningMessage();
         if (response == kOffline) {
-          // Loop through Footage nodes
-          foreach (Node* node, nodes) {
-            // Set footage to be null
-            static_cast<MediaInput*>(node)->SetFootage(nullptr);
-          }
+          new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, nodes, command);
+        }
+        if (response == kDelete) {
+          // Get all sequences.
+          QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
         }
         if (response == kCancel) {
+          delete command;
           return;
         }
       }
     }
-
-    new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

@@ -119,7 +119,7 @@ private:
    * @brief Check if an item is in use anywhere and return any relevant input nodes
    * Returns a QList as Footage has two streams that need to be handled
    */
-  QList<Node*> GetFootageNodes(Item* item);
+  QMap<Node*, StreamPtr> GetFootageNodes(Item* item);
 
   /**
    * @brief Simple convenience function for adding a view to this stacked widget
