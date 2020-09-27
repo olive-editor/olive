@@ -577,7 +577,6 @@ ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage()
 {
   QMessageBox msgBox;
   msgBox.setText(tr("This footage is in use."));
-  msgBox.setInformativeText(tr("Do you want to offline the footage or entirely delete it from the timeline?"));
   QPushButton* offline = msgBox.addButton(tr("Offline Footage"), QMessageBox::ApplyRole);
   QPushButton* deleteClips = msgBox.addButton(tr("Delete Clips"), QMessageBox::ApplyRole);
   msgBox.setStandardButtons(QMessageBox::Cancel);

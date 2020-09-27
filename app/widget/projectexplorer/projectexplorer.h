@@ -117,7 +117,8 @@ private:
 
   /**
    * @brief Check if an item is in use anywhere and return any relevant input nodes
-   * Returns a QList as Footage has two streams that need to be handled
+   *
+   * Returns a QMap pairing a Footage node to its StreamPtr
    */
   QMap<Node*, StreamPtr> GetFootageNodes(Item* item);
 
