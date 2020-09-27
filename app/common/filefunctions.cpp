@@ -73,7 +73,7 @@ QString FileFunctions::GetApplicationPath()
 
 QString FileFunctions::GetTempFilePath()
 {
-  QString temp_path = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+  QString temp_path = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation))
                            .filePath(QCoreApplication::organizationName()))
                    .filePath(QCoreApplication::applicationName());
 
