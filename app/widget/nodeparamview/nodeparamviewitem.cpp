@@ -38,14 +38,6 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   // Create title bar widget
   title_bar_ = new NodeParamViewItemTitleBar(this);
 
-  QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
-
-  title_bar_collapse_btn_ = new CollapseButton();
-  title_bar_layout->addWidget(title_bar_collapse_btn_);
-
-  title_bar_lbl_ = new QLabel(title_bar_);
-  title_bar_layout->addWidget(title_bar_lbl_);
-
   // Add title bar to widget
   this->setTitleBarWidget(title_bar_);
 
@@ -65,8 +57,8 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
-  connect(title_bar_collapse_btn_, &QPushButton::toggled, this, &NodeParamViewItem::SetExpanded);
-  connect(title_bar_, &NodeParamViewItemTitleBar::DoubleClicked, this, &NodeParamViewItem::ToggleExpanded);
+  connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItem::SetExpanded);
+  connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItem::PinToggled);
 
   QWidget* body_container = new QWidget();
   body_container->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -122,9 +114,9 @@ void NodeParamViewItem::Retranslate()
   node_->Retranslate();
 
   if (node_->GetLabel().isEmpty()) {
-    title_bar_lbl_->setText(node_->Name());
+    title_bar_->SetText(node_->Name());
   } else {
-    title_bar_lbl_->setText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
+    title_bar_->SetText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
   }
 
   body_->Retranslate();
@@ -133,8 +125,7 @@ void NodeParamViewItem::Retranslate()
 void NodeParamViewItem::SetExpanded(bool e)
 {
   body_->setVisible(e);
-  title_bar_->SetBorderVisible(e);
-  title_bar_collapse_btn_->setChecked(e);
+  title_bar_->SetExpanded(e);
 }
 
 bool NodeParamViewItem::IsExpanded() const
@@ -151,11 +142,29 @@ NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
   QWidget(parent),
   draw_border_(true)
 {
+  QHBoxLayout* layout = new QHBoxLayout(this);
+
+  collapse_btn_ = new CollapseButton();
+  connect(collapse_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::ExpandedStateChanged);
+  layout->addWidget(collapse_btn_);
+
+  lbl_ = new QLabel();
+  layout->addWidget(lbl_);
+
+  // Place next buttons on the far side
+  layout->addStretch();
+
+  QPushButton* pin_btn = new QPushButton(QStringLiteral("P"));
+  pin_btn->setCheckable(true);
+  pin_btn->setFixedSize(pin_btn->sizeHint().height(), pin_btn->sizeHint().height());
+  layout->addWidget(pin_btn);
+  connect(pin_btn, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::PinToggled);
 }
 
-void NodeParamViewItemTitleBar::SetBorderVisible(bool e)
+void NodeParamViewItemTitleBar::SetExpanded(bool e)
 {
   draw_border_ = e;
+  collapse_btn_->setChecked(e);
 
   update();
 }
@@ -178,7 +187,7 @@ void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
   QWidget::mouseDoubleClickEvent(event);
 
-  emit DoubleClicked();
+  collapse_btn_->click();
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :

@@ -77,6 +77,8 @@ signals:
 
   void RequestSelectNode(const QList<Node*>& target);
 
+  void NodeOrderChanged(const QList<Node*>& nodes);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -90,6 +92,10 @@ private:
   void UpdateItemTime(const int64_t &timestamp);
 
   void QueueKeyframePositionUpdate();
+
+  void SignalNodeOrder();
+
+  void RemoveNode(Node* n);
 
   KeyframeView* keyframe_view_;
 
@@ -105,12 +111,18 @@ private:
   // docking windows
   QMainWindow* param_widget_area_;
 
+  QList<Node*> pinned_nodes_;
+
+  QList<Node*> active_nodes_;
+
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
   void UpdateGlobalScrollBar();
 
   void PlaceKeyframesOnView();
+
+  void PinNode(bool pin);
 
 };
 

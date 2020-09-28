@@ -43,10 +43,17 @@ class NodeParamViewItemTitleBar : public QWidget
 public:
   NodeParamViewItemTitleBar(QWidget* parent = nullptr);
 
-  void SetBorderVisible(bool e);
+  void SetExpanded(bool e);
+
+  void SetText(const QString& s)
+  {
+    lbl_->setText(s);
+  }
 
 signals:
-  void DoubleClicked();
+  void ExpandedStateChanged(bool e);
+
+  void PinToggled(bool e);
 
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
@@ -55,6 +62,10 @@ protected:
 
 private:
   bool draw_border_;
+
+  QLabel* lbl_;
+
+  CollapseButton* collapse_btn_;
 
 };
 
@@ -141,6 +152,8 @@ signals:
 
   void RequestSelectNode(const QList<Node*>& node);
 
+  void PinToggled(bool e);
+
 public slots:
   void SetExpanded(bool e);
 
@@ -151,10 +164,6 @@ protected:
 
 private:
   NodeParamViewItemTitleBar* title_bar_;
-
-  QLabel* title_bar_lbl_;
-
-  CollapseButton* title_bar_collapse_btn_;
 
   NodeParamViewItemBody* body_;
 
