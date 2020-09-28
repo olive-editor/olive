@@ -32,21 +32,14 @@ CurvePanel::CurvePanel(QWidget *parent) :
   Retranslate();
 }
 
-NodeInput *CurvePanel::GetInput() const
-{
-  return static_cast<CurveWidget*>(GetTimeBasedWidget())->GetInput();
-}
-
 void CurvePanel::DeleteSelected()
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->DeleteSelected();
 }
 
-void CurvePanel::SetInput(NodeInput *input)
+void CurvePanel::SetNodes(const QList<Node *> &nodes)
 {
-  static_cast<CurveWidget*>(GetTimeBasedWidget())->SetInput(input);
-
-  Retranslate();
+  static_cast<CurveWidget*>(GetTimeBasedWidget())->SetNodes(nodes);
 }
 
 void CurvePanel::IncreaseTrackHeight()
@@ -66,13 +59,6 @@ void CurvePanel::Retranslate()
   TimeBasedPanel::Retranslate();
 
   SetTitle(tr("Curve Editor"));
-
-  NodeInput* connected_input = static_cast<CurveWidget*>(GetTimeBasedWidget())->GetInput();
-  if (connected_input) {
-    SetSubtitle(connected_input->name());
-  } else {
-    SetSubtitle(QString());
-  }
 }
 
 OLIVE_NAMESPACE_EXIT

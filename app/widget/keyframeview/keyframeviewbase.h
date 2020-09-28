@@ -42,6 +42,8 @@ public:
 
   void RemoveKeyframesOfNode(Node* n);
 
+  void RemoveKeyframesOfInput(NodeInput* i);
+
 public slots:
   void RemoveKeyframe(NodeKeyframePtr key);
 

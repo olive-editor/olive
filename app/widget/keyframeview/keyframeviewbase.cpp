@@ -79,10 +79,15 @@ void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
   QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
-    foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
-      foreach (NodeKeyframePtr key, track) {
-        RemoveKeyframe(key);
-      }
+    RemoveKeyframesOfInput(i);
+  }
+}
+
+void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *i)
+{
+  foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
+    foreach (NodeKeyframePtr key, track) {
+      RemoveKeyframe(key);
     }
   }
 }

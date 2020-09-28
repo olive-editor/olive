@@ -139,6 +139,7 @@ void NodeParamView::SelectNodes(const QList<Node *> &nodes)
 
       item->setAllowedAreas(Qt::LeftDockWidgetArea);
       item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
+      item->SetExpanded(node_expanded_state_.value(n, true));
 
       connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
       connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
@@ -176,6 +177,9 @@ void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
 
   foreach (Node* n, nodes) {
     if (!pinned_nodes_.contains(n)) {
+      // Store expanded state
+      node_expanded_state_.insert(n, items_.value(n)->IsExpanded());
+
       // Remove all keyframes from this node
       RemoveNode(n);
 

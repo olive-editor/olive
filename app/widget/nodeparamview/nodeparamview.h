@@ -115,6 +115,8 @@ private:
 
   QList<Node*> active_nodes_;
 
+  QMap<Node*, bool> node_expanded_state_;
+
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 

@@ -42,6 +42,12 @@ public:
 
   void SetTrackVisible(int track, bool visible);
 
+  void ConnectInput(NodeInput* input);
+
+  void DisconnectNode(Node* node);
+
+  void DisconnectInput(NodeInput* input);
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
 
@@ -85,6 +91,8 @@ private:
   QList<BezierControlPointItem*> bezier_control_points_;
 
   QVector<bool> track_visible_;
+
+  QList<NodeInput*> connected_inputs_;
 
   int track_count_;
 

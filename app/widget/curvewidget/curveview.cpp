@@ -75,6 +75,55 @@ void CurveView::SetTrackVisible(int track, bool visible)
   SetKeyframeTrackVisible(track, visible);
 }
 
+void CurveView::ConnectInput(NodeInput *input)
+{
+  if (connected_inputs_.contains(input)) {
+    // Input wasn't connected, do nothing
+    return;
+  }
+
+  // Add keyframes from this input
+  foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+    foreach (NodeKeyframePtr key, track) {
+      this->AddKeyframe(key);
+    }
+  }
+
+  // Append to the list
+  connected_inputs_.append(input);
+
+  // Connect add/remove signals
+  connect(input, &NodeInput::KeyframeAdded, this, &CurveView::AddKeyframe);
+  connect(input, &NodeInput::KeyframeRemoved, this, &CurveView::RemoveKeyframe);
+}
+
+void CurveView::DisconnectNode(Node *node)
+{
+  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+
+  foreach (NodeInput* i, inputs) {
+    DisconnectInput(i);
+  }
+}
+
+void CurveView::DisconnectInput(NodeInput *input)
+{
+  if (!connected_inputs_.contains(input)) {
+    // Input wasn't connected, do nothing
+    return;
+  }
+
+  // Remove keyframes belonging to this input
+  RemoveKeyframesOfInput(input);
+
+  // Remove from the list
+  connected_inputs_.removeOne(input);
+
+  // Disconnect add/remove signals
+  disconnect(input, &NodeInput::KeyframeAdded, this, &CurveView::AddKeyframe);
+  disconnect(input, &NodeInput::KeyframeRemoved, this, &CurveView::RemoveKeyframe);
+}
+
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 {
   if (timebase().isNull()) {
@@ -273,10 +322,8 @@ QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime(int track)
 {
   QList<NodeKeyframe *> sorted;
 
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
-    NodeKeyframe* key = iterator.key();
+  for (auto it=item_map().cbegin();it!=item_map().cend();it++) {
+    NodeKeyframe* key = it.key();
 
     if (key->track() != track) {
       continue;
