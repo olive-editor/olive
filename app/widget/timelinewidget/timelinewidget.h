@@ -103,6 +103,8 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
+  static void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
+
 signals:
   void BlocksSelected(const QList<Block*>& selected_blocks);
 
@@ -459,8 +461,6 @@ private:
   rational GetToolTipTimebase() const;
 
   void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
-
-  void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
 
   void SetBlockLinksSelected(Block *block, bool selected);
 

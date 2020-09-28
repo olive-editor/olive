@@ -505,16 +505,11 @@ void TimelineWidget::DeleteSelected(bool ripple)
 {
   QList<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
   QList<Block*> blocks_to_delete;
-  QList<TrackReference> tracks_affected;
 
   foreach (TimelineViewBlockItem* item, selected_list) {
     Block* b = item->block();
 
     blocks_to_delete.append(b);
-
-    if (!tracks_affected.contains(item->Track())) {
-      tracks_affected.append(item->Track());
-    }
   }
 
   // No-op if nothing is selected
