@@ -49,18 +49,26 @@ NodeParamView::NodeParamView(QWidget *parent) :
   splitter->addWidget(scroll_area);
 
   // Param widget
-  param_widget_area_ = new QWidget();
-  scroll_area->setWidget(param_widget_area_);
+  param_widget_container_ = new NodeParamViewParamContainer();
+  connect(param_widget_container_, &NodeParamViewParamContainer::Resized, this, &NodeParamView::UpdateGlobalScrollBar);
+  scroll_area->setWidget(param_widget_container_);
 
-  // Set up scroll area layout
-  param_layout_ = new QVBoxLayout(param_widget_area_);
-  param_layout_->setSpacing(0);
+  param_widget_area_ = new QMainWindow();
 
-  // KeyframeView is offset by a ruler, so to stay synchronized with it, we should be too
-  param_layout_->setContentsMargins(0, ruler()->height(), 0, 0);
+  // Disable dock widgets from tabbing and disable glitchy animations
+  param_widget_area_->setDockOptions(static_cast<QMainWindow::DockOption>(0));
 
-  // Add a stretch to allow empty space at the bottom of the layout
-  param_layout_->addStretch();
+  // HACK: Hide the main window separators (unfortunately the cursors still appear)
+  param_widget_area_->setStyleSheet(QStringLiteral("QMainWindow::separator {background: rgba(0, 0, 0, 0)}"));
+
+  QVBoxLayout* param_widget_container_layout = new QVBoxLayout(param_widget_container_);
+  QMargins param_widget_margin = param_widget_container_layout->contentsMargins();
+  param_widget_margin.setTop(ruler()->height());
+  param_widget_container_layout->setContentsMargins(param_widget_margin);
+  param_widget_container_layout->setSpacing(0);
+  param_widget_container_layout->addWidget(param_widget_area_);
+
+  param_widget_container_layout->addStretch(INT_MAX);
 
   // Set up keyframe view
   QWidget* keyframe_area = new QWidget();
@@ -100,9 +108,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
   layout->addWidget(vertical_scrollbar_);
 
   // Connect scrollbars together
-  connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, vertical_scrollbar_, &QScrollBar::setRange);
-  connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, this, &NodeParamView::ForceKeyframeViewToScroll);
-
+  //connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, vertical_scrollbar_, &QScrollBar::setRange);
+  //connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, this, &NodeParamView::ForceKeyframeViewToScroll);
   connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
   connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
   connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
@@ -125,27 +132,29 @@ NodeParamView::NodeParamView(QWidget *parent) :
 void NodeParamView::SelectNodes(const QList<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
-    NodeParamViewItem* item = new NodeParamViewItem(n);
+    NodeParamViewItem* item = new NodeParamViewItem(n, param_widget_area_);
 
-    // Insert the widget before the stretch
-    param_layout_->insertWidget(param_layout_->count() - 1, item);
+    item->setAllowedAreas(Qt::LeftDockWidgetArea);
+    item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
 
     connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
     connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
     connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
     connect(item, &NodeParamViewItem::InputDoubleClicked, this, &NodeParamView::InputDoubleClicked);
     connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
+    connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
 
     // Set time target
     item->SetTimeTarget(GetTimeTarget());
 
     items_.insert(n, item);
+    param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
   }
 
   UpdateItemTime(GetTimestamp());
 
   // Re-arrange keyframes
-  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+  QueueKeyframePositionUpdate();
 }
 
 void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
@@ -159,7 +168,7 @@ void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
   }
 
   // Re-arrange keyframes
-  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+  QueueKeyframePositionUpdate();
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
@@ -167,6 +176,8 @@ void NodeParamView::resizeEvent(QResizeEvent *event)
   QWidget::resizeEvent(event);
 
   vertical_scrollbar_->setPageStep(vertical_scrollbar_->height());
+
+  UpdateGlobalScrollBar();
 }
 
 void NodeParamView::ScaleChangedEvent(const double &scale)
@@ -223,14 +234,22 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
   }
 }
 
+void NodeParamView::QueueKeyframePositionUpdate()
+{
+  QMetaObject::invokeMethod(this, "PlaceKeyframesOnView", Qt::QueuedConnection);
+}
+
 void NodeParamView::ItemRequestedTimeChanged(const rational &time)
 {
   SetTimeAndSignal(Timecode::time_to_timestamp(time, keyframe_view_->timebase()));
 }
 
-void NodeParamView::ForceKeyframeViewToScroll()
+void NodeParamView::UpdateGlobalScrollBar()
 {
-  keyframe_view_->SetMaxScroll(param_widget_area_->height() - ruler()->height());
+  int height_offscreen = param_widget_container_->height() - ruler()->height();
+
+  keyframe_view_->SetMaxScroll(height_offscreen);
+  vertical_scrollbar_->setRange(0, height_offscreen - keyframe_view_->height());
 }
 
 void NodeParamView::PlaceKeyframesOnView()

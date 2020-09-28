@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEM_H
 #define NODEPARAMVIEWITEM_H
 
+#include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -36,12 +37,25 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewItemTitleBar : public QWidget {
+class NodeParamViewItemTitleBar : public QWidget
+{
+  Q_OBJECT
 public:
   NodeParamViewItemTitleBar(QWidget* parent = nullptr);
 
+  void SetBorderVisible(bool e);
+
+signals:
+  void DoubleClicked();
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
+
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+private:
+  bool draw_border_;
+
 };
 
 class NodeParamViewItemBody : public QWidget {
@@ -99,7 +113,7 @@ private slots:
 
 };
 
-class NodeParamViewItem : public QWidget
+class NodeParamViewItem : public QDockWidget
 {
   Q_OBJECT
 public:
@@ -110,6 +124,8 @@ public:
   void SetTime(const rational& time);
 
   Node* GetNode() const;
+
+  bool IsExpanded() const;
 
 public slots:
   void SignalAllKeyframes();
@@ -124,6 +140,11 @@ signals:
   void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QList<Node*>& node);
+
+public slots:
+  void SetExpanded(bool e);
+
+  void ToggleExpanded();
 
 protected:
   virtual void changeEvent(QEvent *e) override;

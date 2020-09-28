@@ -32,16 +32,11 @@
 OLIVE_NAMESPACE_ENTER
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
-  QWidget(parent),
+  QDockWidget(parent),
   node_(node)
 {
-  QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setSpacing(0);
-  main_layout->setMargin(0);
-
   // Create title bar widget
   title_bar_ = new NodeParamViewItemTitleBar(this);
-  title_bar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   QHBoxLayout* title_bar_layout = new QHBoxLayout(title_bar_);
 
@@ -52,7 +47,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   title_bar_layout->addWidget(title_bar_lbl_);
 
   // Add title bar to widget
-  main_layout->addWidget(title_bar_);
+  this->setTitleBarWidget(title_bar_);
 
   // Create and add contents widget
   QVector<NodeInput*> inputs;
@@ -70,10 +65,23 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
   connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
-  connect(title_bar_collapse_btn_, &QPushButton::toggled, body_, &NodeParamViewItemBody::setVisible);
-  main_layout->addWidget(body_);
+  connect(title_bar_collapse_btn_, &QPushButton::toggled, this, &NodeParamViewItem::SetExpanded);
+  connect(title_bar_, &NodeParamViewItemTitleBar::DoubleClicked, this, &NodeParamViewItem::ToggleExpanded);
+
+  QWidget* body_container = new QWidget();
+  body_container->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+  QHBoxLayout* body_container_layout = new QHBoxLayout(body_container);
+  body_container_layout->setSpacing(0);
+  body_container_layout->setMargin(0);
+  body_container_layout->addWidget(body_);
+  this->setWidget(body_container);
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
+
+  setBackgroundRole(QPalette::Base);
+  setAutoFillBackground(true);
+
+  setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
   Retranslate();
 }
@@ -122,21 +130,55 @@ void NodeParamViewItem::Retranslate()
   body_->Retranslate();
 }
 
-NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
-  QWidget(parent)
+void NodeParamViewItem::SetExpanded(bool e)
 {
+  body_->setVisible(e);
+  title_bar_->SetBorderVisible(e);
+  title_bar_collapse_btn_->setChecked(e);
+}
+
+bool NodeParamViewItem::IsExpanded() const
+{
+  return body_->isVisible();
+}
+
+void NodeParamViewItem::ToggleExpanded()
+{
+  SetExpanded(!IsExpanded());
+}
+
+NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
+  QWidget(parent),
+  draw_border_(true)
+{
+}
+
+void NodeParamViewItemTitleBar::SetBorderVisible(bool e)
+{
+  draw_border_ = e;
+
+  update();
 }
 
 void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
-  QPainter p(this);
+  if (draw_border_) {
+    QPainter p(this);
 
-  // Draw bottom border using text color
-  int bottom = height() - 1;
-  p.setPen(palette().text().color());
-  p.drawLine(0, bottom, width(), bottom);
+    // Draw bottom border using text color
+    int bottom = height() - 1;
+    p.setPen(palette().text().color());
+    p.drawLine(0, bottom, width(), bottom);
+  }
+}
+
+void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  QWidget::mouseDoubleClickEvent(event);
+
+  emit DoubleClicked();
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :

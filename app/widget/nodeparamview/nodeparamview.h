@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEW_H
 #define NODEPARAMVIEW_H
 
+#include <QMainWindow>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -30,6 +31,28 @@
 #include "widget/timebased/timebased.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class NodeParamViewParamContainer : public QWidget
+{
+  Q_OBJECT
+public:
+  NodeParamViewParamContainer(QWidget* parent = nullptr) :
+    QWidget(parent)
+  {
+  }
+
+protected:
+  virtual void resizeEvent(QResizeEvent *event) override
+  {
+    QWidget::resizeEvent(event);
+
+    emit Resized(event->size().height());
+  }
+
+signals:
+  void Resized(int new_height);
+
+};
 
 class NodeParamView : public TimeBasedWidget
 {
@@ -66,7 +89,7 @@ protected:
 private:
   void UpdateItemTime(const int64_t &timestamp);
 
-  QVBoxLayout* param_layout_;
+  void QueueKeyframePositionUpdate();
 
   KeyframeView* keyframe_view_;
 
@@ -76,12 +99,16 @@ private:
 
   int last_scroll_val_;
 
-  QWidget* param_widget_area_;
+  NodeParamViewParamContainer* param_widget_container_;
+
+  // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
+  // docking windows
+  QMainWindow* param_widget_area_;
 
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
-  void ForceKeyframeViewToScroll();
+  void UpdateGlobalScrollBar();
 
   void PlaceKeyframesOnView();
 
