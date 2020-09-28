@@ -26,6 +26,7 @@
 
 #include "core.h"
 #include "node/input/media/media.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -640,5 +641,37 @@ void ProjectViewModel::OfflineFootageCommand::undo_internal()
     ++it;
   }
 }
+
+ProjectViewModel::DeleteFootageCommand::DeleteFootageCommand(ProjectViewModel* model, ItemPtr item,
+  QList<Block*> blocks, QUndoCommand* parent) :
+  UndoCommand(parent),
+  model_(model),
+  item_(item),
+  blocks_(blocks) 
+{
+  deleteCommand_ = new QUndoCommand();
+  removalCommand_ = new QUndoCommand();
+}
+
+Project *ProjectViewModel::DeleteFootageCommand::GetRelevantProject() const
+{
+  return model_->project();
+}
+
+void ProjectViewModel::DeleteFootageCommand::redo_internal()
+{
+  TimelineWidget::ReplaceBlocksWithGaps(blocks_, true, deleteCommand_);
+  Core::instance()->undo_stack()->pushIfHasChildren(deleteCommand_);
+
+  new ProjectViewModel::RemoveItemCommand(model_, item_, removalCommand_);
+  Core::instance()->undo_stack()->pushIfHasChildren(removalCommand_);
+}
+
+void ProjectViewModel::DeleteFootageCommand::undo_internal()
+{
+  removalCommand_->undo();
+  deleteCommand_->undo();
+}
+
 
 OLIVE_NAMESPACE_EXIT

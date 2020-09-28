@@ -25,6 +25,7 @@
 
 #include "project.h"
 #include "undo/undocommand.h"
+#include "node/block/block.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -213,6 +214,29 @@ public:
     Item* parent_;
 
     QMap<Node*, StreamPtr> nodes_;
+  };
+
+  class DeleteFootageCommand : public UndoCommand {
+  public:
+    DeleteFootageCommand(ProjectViewModel* model, ItemPtr item, QList<Block*> blocks, QUndoCommand* parent = nullptr);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo_internal() override;
+
+    virtual void undo_internal() override;
+
+  private:
+    ProjectViewModel* model_;
+
+    ItemPtr item_;
+
+    QList<Block*> blocks_;
+
+    QUndoCommand* deleteCommand_;
+
+    QUndoCommand* removalCommand_;
   };
 
 private:

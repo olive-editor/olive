@@ -37,6 +37,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -632,6 +633,24 @@ void ProjectExplorer::DeleteSelected()
         if (response == kDelete) {
           // Get all sequences.
           QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
+          QList<Block*> blocks;
+
+          foreach(ItemPtr seq, sequences) {
+            Sequence* s = static_cast<Sequence*>(seq.get());
+            // Loop through nodes in sequence
+            foreach(Node* node, s->nodes()) {
+
+              // For each Block see if it is linked to one of the Footage nodes add it to the delete list
+              if (node->IsBlock()) {
+                foreach(Node* input, nodes.keys()) {
+                  if(node->GetExclusiveDependencies().contains(input))
+                    blocks.append(static_cast<Block*>(node));
+                }
+              }
+            }
+          }
+          new ProjectViewModel::DeleteFootageCommand(&model_, item_ptr, blocks, command);
 
         }
         if (response == kCancel) {
