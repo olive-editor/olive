@@ -22,6 +22,7 @@
 
 #include <QDir>
 #include <QFloat16>
+#include <QStandardPaths>
 
 #include "common/define.h"
 #include "common/filefunctions.h"
@@ -82,7 +83,7 @@ void ColorManager::SetUpDefaultConfig()
   }
 
   // Extract OCIO config - kind of hacky, but it'll work
-  QString dir = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("ocioconf"));
+  QString dir = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(QStringLiteral("ocioconf"));
 
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
                                dir,
