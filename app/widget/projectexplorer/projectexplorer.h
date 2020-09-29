@@ -123,9 +123,9 @@ private:
   QMap<Node*, StreamPtr> GetFootageNodes(Item* item);
 
   /**
-   * @brief Get all the blocks associated with the given footage nodes
-   *
-   * Currently quite brute force.
+   * @brief Get all the blocks that solely rely on an input node
+   * 
+   * Ignores blocks that depend on multiple inputs
    */
   QList<Block*> GetFootageBlocks(QList<Node*> nodes);
 

@@ -38,6 +38,7 @@
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
 #include "widget/timelinewidget/timelinewidget.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -585,13 +586,23 @@ QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
     Sequence* s = static_cast<Sequence*>(seq.get());
     // Loop through nodes in sequence
     foreach (Node* node, s->nodes()) {
-      // For each Block see if it is linked to one of the Footage nodes add it to the delete list
+      // For each Block see if it solely depends on one of our input nodes and if so add to the block list
       if (node->IsBlock()) {
-        foreach (Node* input, nodes) {
-          if (node->GetDependencies().contains(input)) {
-            blocks.append(static_cast<Block*>(node));
+          int footage_deps = 0;
+
+          QList<Node*> dependancies = node->GetDependencies();
+          QSet<Node*> intersection = QSet<Node*>(dependancies.begin(), dependancies.end())
+                                         .intersect(QSet<Node*>(nodes.begin(), nodes.end()));
+          if (!intersection.isEmpty()) {
+            foreach (Node* dep, dependancies) {
+              if (dep->IsMedia()) {
+                footage_deps++;
+              }
+            }
+            if (footage_deps == 1) {
+              blocks.append(static_cast<Block*>(node));
+            }
           }
-        }
       }
     }
   }
@@ -658,8 +669,26 @@ void ProjectExplorer::DeleteSelected()
         if (response == kDelete) {
           QUndoCommand* deleteCommand = new QUndoCommand(command);
           TimelineWidget::ReplaceBlocksWithGaps(GetFootageBlocks(nodes.keys()), true, deleteCommand);
-
           new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
+          //Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+          // Catch any input nodes we missed do to complex composites etc.
+
+          QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
+          QList<Node*> nodes_to_delete;
+          foreach (ItemPtr seq, sequences) {
+            Sequence* s = static_cast<Sequence*>(seq.get());
+            foreach (Node* node, s->nodes()) {
+              if (node->IsMedia()) {
+                if (nodes.contains(node)) {
+                  nodes_to_delete.append(node);
+                }
+              }
+            }
+            QUndoCommand* deleteNodesCommand = new QUndoCommand(deleteCommand);
+            new NodeRemoveCommand(static_cast<NodeGraph*>(s), nodes_to_delete, deleteNodesCommand);
+          }
         }
         if (response == kCancel) {
           delete command;
