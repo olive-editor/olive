@@ -610,24 +610,30 @@ QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
   return blocks;
 }
 
-ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage()
+ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage(Item* item)
 {
-  QMessageBox msgBox;
-  msgBox.setText(tr("This footage is in use."));
-  QPushButton* offline = msgBox.addButton(tr("Offline Footage"), QMessageBox::ApplyRole);
-  QPushButton* deleteClips = msgBox.addButton(tr("Delete Clips"), QMessageBox::ApplyRole);
-  msgBox.setStandardButtons(QMessageBox::Cancel);
-  msgBox.setIcon(QMessageBox::Warning);
+  ItemPtr item_ptr = item->get_shared_ptr();
 
-  msgBox.exec();
+  if (item_ptr->type() == Item::kFootage) {
+    QString clip_name = static_cast<Footage*>(item_ptr.get())->filename().split("/").last();
 
-  if (msgBox.clickedButton() == offline) {
-    return kOffline;
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(clip_name);
+    msgBox.setText(clip_name + tr(" is in use."));
+    QPushButton* offline = msgBox.addButton(tr("Offline Footage"), QMessageBox::ApplyRole);
+    QPushButton* deleteClips = msgBox.addButton(tr("Delete Clips"), QMessageBox::ApplyRole);
+    msgBox.setStandardButtons(QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == offline) {
+      return kOffline;
+    }
+    if (msgBox.clickedButton() == deleteClips) {
+      return kDelete;
+    }
   }
-  if (msgBox.clickedButton() == deleteClips) {
-    return kDelete;
-  }
-
   return kCancel;
 }
 
@@ -662,7 +668,7 @@ void ProjectExplorer::DeleteSelected()
       QMap<Node*, StreamPtr> nodes = GetFootageNodes(item);
       if (!nodes.isEmpty()){
         // Warn user and ask them what to do
-        FootageDeleteResponse response = DeleteWarningMessage();
+        FootageDeleteResponse response = DeleteWarningMessage(item);
         if (response == kOffline) {
           new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, nodes, command);
         }

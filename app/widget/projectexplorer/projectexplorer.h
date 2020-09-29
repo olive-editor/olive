@@ -113,7 +113,7 @@ private:
    * 
    * Returns a FootageDeleteResponse
    */
-  FootageDeleteResponse DeleteWarningMessage();
+  FootageDeleteResponse DeleteWarningMessage(Item* item);
 
   /**
    * @brief Check if an item is in use anywhere and return any relevant input nodes
