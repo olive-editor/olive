@@ -308,7 +308,7 @@ void NodeParamView::ItemRequestedTimeChanged(const rational &time)
 
 void NodeParamView::UpdateGlobalScrollBar()
 {
-  int height_offscreen = param_widget_container_->height() - ruler()->height();
+  int height_offscreen = param_widget_container_->height() - ruler()->height() + scrollbar()->height();
 
   keyframe_view_->SetMaxScroll(height_offscreen);
   vertical_scrollbar_->setRange(0, height_offscreen - keyframe_view_->height());

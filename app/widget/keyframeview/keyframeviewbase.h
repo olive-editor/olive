@@ -62,8 +62,6 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node*) override;
 
-  void SetKeyframeTrackVisible(int track, bool visible);
-
   virtual void ContextMenuEvent(Menu &m);
 
 private:
@@ -97,8 +95,6 @@ private:
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool currently_autoselecting_;
-
-  QList<int> hidden_tracks_;
 
 private slots:
   void ShowContextMenu();

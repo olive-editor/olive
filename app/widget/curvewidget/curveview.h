@@ -38,10 +38,6 @@ public:
 
   virtual void Clear() override;
 
-  void SetTrackCount(int count);
-
-  void SetTrackVisible(int track, bool visible);
-
   void ConnectInput(NodeInput* input);
 
   void DisconnectNode(Node* node);
@@ -67,8 +63,6 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
-  QList<NodeKeyframe*> GetKeyframesSortedByTime(int track);
-
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 
@@ -80,7 +74,7 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  QColor GetKeyframeColor(int track) const;
+  QMap<const NodeInput::KeyframeTrack*, QColor> keyframe_colors_;
 
   int text_padding_;
 
@@ -90,11 +84,7 @@ private:
 
   QList<BezierControlPointItem*> bezier_control_points_;
 
-  QVector<bool> track_visible_;
-
   QList<NodeInput*> connected_inputs_;
-
-  int track_count_;
 
 private slots:
   void KeyframeValueChanged();

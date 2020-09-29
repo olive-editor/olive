@@ -109,10 +109,6 @@ KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
     item->SetScale(GetScale());
     item_map_.insert(key.get(), item);
     scene()->addItem(item);
-
-    if (hidden_tracks_.contains(key->track())) {
-      item->setVisible(false);
-    }
   }
 
   return item;
@@ -303,27 +299,6 @@ void KeyframeViewBase::TimeTargetChangedEvent(Node *target)
 
   for (i=item_map_.begin();i!=item_map_.end();i++) {
     i.value()->SetTimeTarget(target);
-  }
-}
-
-void KeyframeViewBase::SetKeyframeTrackVisible(int track, bool visible)
-{
-  if (!visible == hidden_tracks_.contains(track)) {
-    return;
-  }
-
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
-
-  for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
-    if (i.key()->track() == track) {
-      i.value()->setVisible(visible);
-    }
-  }
-
-  if (visible) {
-    hidden_tracks_.removeOne(track);
-  } else {
-    hidden_tracks_.append(track);
   }
 }
 
