@@ -112,6 +112,7 @@ private:
   NodeGraph* graph_;
   QList<Node*> nodes_;
   QList<NodeEdgePtr> edges_;
+  QMap<Block*, QList<Block*>> linked_blocks_;
 };
 
 class NodeRemoveWithExclusiveDeps : public UndoCommand {
