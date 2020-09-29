@@ -138,8 +138,19 @@ public:
 
   bool IsExpanded() const;
 
+  void SetHighlighted(bool e)
+  {
+    highlighted_ = e;
+
+    update();
+  }
+
 public slots:
   void SignalAllKeyframes();
+
+  void SetExpanded(bool e);
+
+  void ToggleExpanded();
 
 signals:
   void KeyframeAdded(NodeKeyframePtr key, int y);
@@ -154,13 +165,10 @@ signals:
 
   void PinToggled(bool e);
 
-public slots:
-  void SetExpanded(bool e);
-
-  void ToggleExpanded();
-
 protected:
   virtual void changeEvent(QEvent *e) override;
+
+  virtual void paintEvent(QPaintEvent *event) override;
 
 private:
   NodeParamViewItemTitleBar* title_bar_;
@@ -170,6 +178,8 @@ private:
   Node* node_;
 
   rational time_;
+
+  bool highlighted_;
 
 private slots:
   void Retranslate();

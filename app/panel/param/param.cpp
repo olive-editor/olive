@@ -30,6 +30,7 @@ ParamPanel::ParamPanel(QWidget* parent) :
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::NodeOrderChanged, this, &ParamPanel::NodeOrderChanged);
+  connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
   SetTimeBasedWidget(view);
 
   Retranslate();

@@ -82,12 +82,13 @@ MainWindow::MainWindow(QWidget *parent) :
   AppendTimelinePanel();
   audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
 
-  // Make connections to sequence viewer
+  // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
   connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
+  connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);

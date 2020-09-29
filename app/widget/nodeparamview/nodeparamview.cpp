@@ -20,6 +20,7 @@
 
 #include "nodeparamview.h"
 
+#include <QApplication>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
@@ -31,7 +32,8 @@ OLIVE_NAMESPACE_ENTER
 
 NodeParamView::NodeParamView(QWidget *parent) :
   TimeBasedWidget(true, false, parent),
-  last_scroll_val_(0)
+  last_scroll_val_(0),
+  focused_node_(nullptr)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -125,6 +127,12 @@ NodeParamView::NodeParamView(QWidget *parent) :
   SetScale(120);
 
   SetMaximumScale(TimelineViewBase::kMaximumScale);
+
+  // Pickup on widget focus changes
+  connect(qApp,
+          &QApplication::focusChanged,
+          this,
+          &NodeParamView::FocusChanged);
 }
 
 void NodeParamView::SelectNodes(const QList<Node *> &nodes)
@@ -157,6 +165,13 @@ void NodeParamView::SelectNodes(const QList<Node *> &nodes)
       param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
 
       changes_made = true;
+
+      if (!focused_node_ && n->HasGizmos()) {
+        // We'll focus this node now
+        item->SetHighlighted(true);
+        focused_node_ = n;
+        emit FocusedNodeChanged(focused_node_);
+      }
     }
   }
 
@@ -299,6 +314,11 @@ void NodeParamView::RemoveNode(Node *n)
   keyframe_view_->RemoveKeyframesOfNode(n);
 
   delete items_.take(n);
+
+  if (focused_node_ == n) {
+    focused_node_ = nullptr;
+    emit FocusedNodeChanged(nullptr);
+  }
 }
 
 void NodeParamView::ItemRequestedTimeChanged(const rational &time)
@@ -334,6 +354,38 @@ void NodeParamView::PinNode(bool pin)
     if (!active_nodes_.contains(node)) {
       RemoveNode(node);
     }
+  }
+}
+
+void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
+{
+  Q_UNUSED(old)
+
+  QObject* parent = now;
+  NodeParamViewItem* item;
+
+  while (parent) {
+    item = dynamic_cast<NodeParamViewItem*>(parent);
+
+    if (item) {
+      // Found it!
+      if (item->GetNode() != focused_node_) {
+        if (focused_node_) {
+          // De-focus current node
+          items_.value(focused_node_)->SetHighlighted(false);
+        }
+
+        focused_node_ = item->GetNode();
+
+        item->SetHighlighted(true);
+
+        emit FocusedNodeChanged(focused_node_);
+      }
+
+      break;
+    }
+
+    parent = parent->parent();
   }
 }
 

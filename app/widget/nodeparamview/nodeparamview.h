@@ -79,6 +79,8 @@ signals:
 
   void NodeOrderChanged(const QList<Node*>& nodes);
 
+  void FocusedNodeChanged(Node* n);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -117,6 +119,8 @@ private:
 
   QMap<Node*, bool> node_expanded_state_;
 
+  Node* focused_node_;
+
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
@@ -125,6 +129,8 @@ private slots:
   void PlaceKeyframesOnView();
 
   void PinNode(bool pin);
+
+  void FocusChanged(QWidget *old, QWidget *now);
 
 };
 

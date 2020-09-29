@@ -33,7 +33,8 @@ OLIVE_NAMESPACE_ENTER
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QDockWidget(parent),
-  node_(node)
+  node_(node),
+  highlighted_(false)
 {
   // Create title bar widget
   title_bar_ = new NodeParamViewItemTitleBar(this);
@@ -75,6 +76,8 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
 
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
+  setFocusPolicy(Qt::ClickFocus);
+
   Retranslate();
 }
 
@@ -107,6 +110,19 @@ void NodeParamViewItem::changeEvent(QEvent *e)
   }
 
   QWidget::changeEvent(e);
+}
+
+void NodeParamViewItem::paintEvent(QPaintEvent *event)
+{
+  QDockWidget::paintEvent(event);
+
+  // Draw border if focused
+  if (highlighted_) {
+    QPainter p(this);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(palette().highlight().color());
+    p.drawRect(rect().adjusted(0, 0, -1, -1));
+  }
 }
 
 void NodeParamViewItem::Retranslate()

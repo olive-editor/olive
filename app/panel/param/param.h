@@ -44,6 +44,8 @@ signals:
 
   void NodeOrderChanged(const QList<Node*>& nodes);
 
+  void FocusedNodeChanged(Node* n);
+
 protected:
   virtual void Retranslate() override;
 
