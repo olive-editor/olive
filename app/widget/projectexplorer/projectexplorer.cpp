@@ -542,7 +542,7 @@ void ProjectExplorer::DeselectAll()
 QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
 {
   // Output list list
-  QMap<Node*, StreamPtr> nodes;
+  QMap<Node*, StreamPtr> footage_nodes;
 
   // Get all sequences.
   QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
@@ -564,7 +564,7 @@ QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
             if (node->IsMedia()){
               // Check the streams are the same
               if (static_cast<MediaInput*>(node)->footage() == stream) {
-                nodes.insert(node, stream);
+                footage_nodes.insert(node, stream);
               }
             }
           }
@@ -572,7 +572,7 @@ QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
       }
     }
   }
-  return nodes;
+  return footage_nodes;
 }
 
 QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
@@ -594,11 +594,13 @@ QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
           QSet<Node*> intersection = QSet<Node*>(dependancies.begin(), dependancies.end())
                                          .intersect(QSet<Node*>(nodes.begin(), nodes.end()));
           if (!intersection.isEmpty()) {
+            // Count how many Media inputs this block depends on
             foreach (Node* dep, dependancies) {
               if (dep->IsMedia()) {
                 footage_deps++;
               }
             }
+            // If it only depends on one input we can safely delete it
             if (footage_deps == 1) {
               blocks.append(static_cast<Block*>(node));
             }
@@ -665,20 +667,20 @@ void ProjectExplorer::DeleteSelected()
     if (item_ptr->type() == Item::kFootage) {
       
       // Check if nodes exists
-      QMap<Node*, StreamPtr> nodes = GetFootageNodes(item);
-      if (!nodes.isEmpty()){
+      QMap<Node*, StreamPtr> footage_nodes = GetFootageNodes(item);
+      if (!footage_nodes.isEmpty()){
         // Warn user and ask them what to do
         FootageDeleteResponse response = DeleteWarningMessage(item);
         if (response == kOffline) {
-          new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, nodes, command);
+          new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, footage_nodes, command);
         }
         if (response == kDelete) {
           QUndoCommand* deleteCommand = new QUndoCommand(command);
-          TimelineWidget::ReplaceBlocksWithGaps(GetFootageBlocks(nodes.keys()), true, deleteCommand);
+          // Delete any non-composite blocks
+          TimelineWidget::ReplaceBlocksWithGaps(GetFootageBlocks(footage_nodes.keys()), true, deleteCommand);
           new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
-          //Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-          // Catch any input nodes we missed do to complex composites etc.
+          // Catch any input nodes we missed due to composites etc.
 
           QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
 
@@ -687,7 +689,7 @@ void ProjectExplorer::DeleteSelected()
             Sequence* s = static_cast<Sequence*>(seq.get());
             foreach (Node* node, s->nodes()) {
               if (node->IsMedia()) {
-                if (nodes.contains(node)) {
+                if (footage_nodes.contains(node)) {
                   nodes_to_delete.append(node);
                 }
               }
