@@ -218,7 +218,8 @@ public:
 
   class DeleteFootageCommand : public UndoCommand {
   public:
-    DeleteFootageCommand(ProjectViewModel* model, ItemPtr item, QList<Block*> blocks, QUndoCommand* parent = nullptr);
+    DeleteFootageCommand(ProjectViewModel* model, ItemPtr item, QMap<Node*, StreamPtr> nodes,
+                         QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
 
@@ -232,11 +233,13 @@ public:
 
     ItemPtr item_;
 
+    Item* parent_;
+
+    QMap<Node*, StreamPtr> nodes_;
+
     QList<Block*> blocks_;
 
     QUndoCommand* deleteCommand_;
-
-    QUndoCommand* removalCommand_;
   };
 
 private:

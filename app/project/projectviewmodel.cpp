@@ -642,15 +642,15 @@ void ProjectViewModel::OfflineFootageCommand::undo_internal()
   }
 }
 
-ProjectViewModel::DeleteFootageCommand::DeleteFootageCommand(ProjectViewModel* model, ItemPtr item,
-  QList<Block*> blocks, QUndoCommand* parent) :
+ProjectViewModel::DeleteFootageCommand::DeleteFootageCommand(ProjectViewModel *model, ItemPtr item,
+                                                             QMap<Node *, StreamPtr> nodes, QUndoCommand *parent)
+    :
   UndoCommand(parent),
   model_(model),
   item_(item),
-  blocks_(blocks) 
+  nodes_(nodes)
 {
   deleteCommand_ = new QUndoCommand();
-  removalCommand_ = new QUndoCommand();
 }
 
 Project *ProjectViewModel::DeleteFootageCommand::GetRelevantProject() const
@@ -660,16 +660,32 @@ Project *ProjectViewModel::DeleteFootageCommand::GetRelevantProject() const
 
 void ProjectViewModel::DeleteFootageCommand::redo_internal()
 {
+  QList<ItemPtr> sequences = model_->project()->get_items_of_type(Item::kSequence);
+
+  blocks_.clear();
+
+  foreach (ItemPtr seq, sequences) {
+    Sequence *s = static_cast<Sequence *>(seq.get());
+    // Loop through nodes in sequence
+    foreach (Node *node, s->nodes()) {
+      // For each Block see if it is linked to one of the Footage nodes add it to the delete list
+      if (node->IsBlock()) {
+        foreach (Node *input, nodes_.keys()) {
+          if (node->GetExclusiveDependencies().contains(input)) blocks_.append(static_cast<Block *>(node));
+        }
+      }
+    }
+  }
   TimelineWidget::ReplaceBlocksWithGaps(blocks_, true, deleteCommand_);
   Core::instance()->undo_stack()->pushIfHasChildren(deleteCommand_);
 
-  new ProjectViewModel::RemoveItemCommand(model_, item_, removalCommand_);
-  Core::instance()->undo_stack()->pushIfHasChildren(removalCommand_);
+  parent_ = item_->parent();
+  model_->RemoveChild(parent_, item_.get());
 }
 
 void ProjectViewModel::DeleteFootageCommand::undo_internal()
 {
-  removalCommand_->undo();
+  model_->AddChild(parent_, item_);
   deleteCommand_->undo();
 }
 

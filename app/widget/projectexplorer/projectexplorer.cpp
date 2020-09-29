@@ -650,7 +650,11 @@ void ProjectExplorer::DeleteSelected()
               }
             }
           }
-          new ProjectViewModel::DeleteFootageCommand(&model_, item_ptr, blocks, command);
+          //new ProjectViewModel::DeleteFootageCommand(&model_, item_ptr, blocks, command);
+
+          QUndoCommand* deleteCommand = new QUndoCommand(command);
+          TimelineWidget::ReplaceBlocksWithGaps(blocks, true, deleteCommand);
+          //Core::instance()->undo_stack()->pushIfHasChildren(deleteCommand);
 
         }
         if (response == kCancel) {
