@@ -574,6 +574,31 @@ QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
   return nodes;
 }
 
+QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
+{
+  // Get all sequences.
+  QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
+  QList<Block*> blocks;
+
+  foreach (ItemPtr seq, sequences) {
+    Sequence* s = static_cast<Sequence*>(seq.get());
+    // Loop through nodes in sequence
+    foreach (Node* node, s->nodes()) {
+      // For each Block see if it is linked to one of the Footage nodes add it to the delete list
+      if (node->IsBlock()) {
+        foreach (Node* input, nodes) {
+          if (node->GetExclusiveDependencies().contains(input)) {
+            blocks.append(static_cast<Block*>(node));
+          }
+        }
+      }
+    }
+  }
+
+  return blocks;
+}
+
 ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage()
 {
   QMessageBox msgBox;
@@ -631,31 +656,10 @@ void ProjectExplorer::DeleteSelected()
           new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, nodes, command);
         }
         if (response == kDelete) {
-          // Get all sequences.
-          QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
-
-          QList<Block*> blocks;
-
-          foreach(ItemPtr seq, sequences) {
-            Sequence* s = static_cast<Sequence*>(seq.get());
-            // Loop through nodes in sequence
-            foreach(Node* node, s->nodes()) {
-
-              // For each Block see if it is linked to one of the Footage nodes add it to the delete list
-              if (node->IsBlock()) {
-                foreach(Node* input, nodes.keys()) {
-                  if(node->GetExclusiveDependencies().contains(input))
-                    blocks.append(static_cast<Block*>(node));
-                }
-              }
-            }
-          }
-          //new ProjectViewModel::DeleteFootageCommand(&model_, item_ptr, blocks, command);
-
           QUndoCommand* deleteCommand = new QUndoCommand(command);
-          TimelineWidget::ReplaceBlocksWithGaps(blocks, true, deleteCommand);
-          //Core::instance()->undo_stack()->pushIfHasChildren(deleteCommand);
+          TimelineWidget::ReplaceBlocksWithGaps(GetFootageBlocks(nodes.keys()), true, deleteCommand);
 
+          new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
         }
         if (response == kCancel) {
           delete command;

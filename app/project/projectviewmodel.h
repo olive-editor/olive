@@ -216,32 +216,6 @@ public:
     QMap<Node*, StreamPtr> nodes_;
   };
 
-  class DeleteFootageCommand : public UndoCommand {
-  public:
-    DeleteFootageCommand(ProjectViewModel* model, ItemPtr item, QMap<Node*, StreamPtr> nodes,
-                         QUndoCommand* parent = nullptr);
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo_internal() override;
-
-    virtual void undo_internal() override;
-
-  private:
-    ProjectViewModel* model_;
-
-    ItemPtr item_;
-
-    Item* parent_;
-
-    QMap<Node*, StreamPtr> nodes_;
-
-    QList<Block*> blocks_;
-
-    QUndoCommand* deleteCommand_;
-  };
-
 private:
   /**
    * @brief Retrieve the index of `item` in its parent

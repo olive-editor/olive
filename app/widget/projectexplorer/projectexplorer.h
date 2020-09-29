@@ -123,6 +123,11 @@ private:
   QMap<Node*, StreamPtr> GetFootageNodes(Item* item);
 
   /**
+   * @brief Get all the blocks associated with the given footage nodes
+   */
+  QList<Block*> GetFootageBlocks(QList<Node*> nodes);
+
+  /**
    * @brief Simple convenience function for adding a view to this stacked widget
    *
    * Mainly for use in the constructor. Adds the view, connects its signals/slots, and sets the model.
