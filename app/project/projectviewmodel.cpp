@@ -26,7 +26,6 @@
 
 #include "core.h"
 #include "node/input/media/media.h"
-#include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 

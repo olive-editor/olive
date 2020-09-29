@@ -195,6 +195,9 @@ public:
 
   };
 
+  /**
+   * @brief An undo command for offlining footage when it is deleted from the project explorer
+   */
   class OfflineFootageCommand : public UndoCommand {
   public:
     OfflineFootageCommand(ProjectViewModel* model, ItemPtr item, QMap<Node*, StreamPtr> nodes,  QUndoCommand* parent = nullptr);

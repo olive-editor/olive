@@ -124,6 +124,8 @@ private:
 
   /**
    * @brief Get all the blocks associated with the given footage nodes
+   *
+   * Currently quite brute force.
    */
   QList<Block*> GetFootageBlocks(QList<Node*> nodes);
 

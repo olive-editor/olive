@@ -588,7 +588,7 @@ QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
       // For each Block see if it is linked to one of the Footage nodes add it to the delete list
       if (node->IsBlock()) {
         foreach (Node* input, nodes) {
-          if (node->GetExclusiveDependencies().contains(input)) {
+          if (node->GetDependencies().contains(input)) {
             blocks.append(static_cast<Block*>(node));
           }
         }
