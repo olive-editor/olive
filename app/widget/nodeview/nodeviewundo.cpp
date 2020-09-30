@@ -158,10 +158,9 @@ void NodeRemoveCommand::redo_internal()
     if (n->IsBlock()) {
       Block *b = static_cast<Block *>(n);
       if (b->HasLinks()) {
-        linked_blocks_.insert(b, b->linked_clips().toList());
-        foreach(Block * link, b->linked_clips()) {
-          b->Unlink(b, link);
-        }
+        BlockUnlinkAllCommand *unlink_command = new BlockUnlinkAllCommand(b);
+        unlink_command->redo();
+        block_unlink_commands_.append(unlink_command);
       }
     }
     graph_->TakeNode(n, &memory_manager_);
@@ -173,13 +172,12 @@ void NodeRemoveCommand::undo_internal()
   // Re-add nodes to graph
   foreach (Node* n, nodes_) {
     graph_->AddNode(n);
-    // If the node is a block re-link any previous links
-    if (n->IsBlock()) {
-      Block *b = static_cast<Block *>(n);
-      foreach(Block * link, linked_blocks_[b]) {
-        b->Link(b, link);
-      }
-    }
+  }
+
+  // Relink any blocks that were unlinked
+  foreach(BlockUnlinkAllCommand* command, block_unlink_commands_) {
+    command->undo();
+    delete command;
   }
 
   // Re-connect edges
@@ -188,7 +186,7 @@ void NodeRemoveCommand::undo_internal()
   }
 
   edges_.clear();
-  linked_blocks_.clear();
+  block_unlink_commands_.clear();
 }
 
 Project *NodeRemoveCommand::GetRelevantProject() const

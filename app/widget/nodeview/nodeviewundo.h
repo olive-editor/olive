@@ -27,6 +27,7 @@
 #include "node/node.h"
 #include "nodeviewitem.h"
 #include "undo/undocommand.h"
+#include "widget/timelinewidget/undo/undo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -112,7 +113,7 @@ private:
   NodeGraph* graph_;
   QList<Node*> nodes_;
   QList<NodeEdgePtr> edges_;
-  QMap<Block*, QList<Block*>> linked_blocks_;
+  QList<BlockUnlinkAllCommand*> block_unlink_commands_;
 };
 
 class NodeRemoveWithExclusiveDeps : public UndoCommand {
