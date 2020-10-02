@@ -31,6 +31,7 @@
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
 #include "filter/blur/blur.h"
+#include "filter/color/color.h"
 #include "filter/stroke/stroke.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
@@ -203,6 +204,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TimeInput();
   case kBlurFilter:
     return new BlurFilterNode();
+  case kColorFilter:
+    return new ColorFilterNode();
   case kSolidGenerator:
     return new SolidGenerator();
   case kMerge:
