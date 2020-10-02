@@ -29,17 +29,49 @@ TimelineWidget::EditTool::EditTool(TimelineWidget* parent) :
 
 void TimelineWidget::EditTool::MousePress(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  if (!(event->GetModifiers() & Qt::ShiftModifier)) {
+    parent()->DeselectAll();
+  }
 }
 
 void TimelineWidget::EditTool::MouseMove(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  if (dragging_) {
+    parent()->selections_ = start_selections_;
+    parent()->AddSelection(TimeRange(start_coord_.GetFrame(), event->GetFrame()),
+                           start_coord_.GetTrack());
+  } else {
+    start_selections_ = parent()->selections_;
+
+    dragging_ = true;
+
+    start_coord_ = event->GetCoordinates(true);
+
+    // Snap if we're snapping
+    if (Core::instance()->snapping()) {
+      rational movement;
+      parent()->SnapPoint({start_coord_.GetFrame()}, &movement);
+      if (!movement.isNull()) {
+        start_coord_.SetFrame(start_coord_.GetFrame() + movement);
+      }
+    }
+
+    dragging_ = true;
+  }
 }
 
 void TimelineWidget::EditTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  dragging_ = false;
+}
+
+void TimelineWidget::EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
+{
+  TimelineViewBlockItem* item = GetItemAtScenePos(event->GetCoordinates());
+
+  if (item && !parent()->GetTrackFromReference(item->Track())->IsLocked()) {
+    parent()->AddSelection(item);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

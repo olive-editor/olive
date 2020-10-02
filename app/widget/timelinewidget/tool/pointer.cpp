@@ -52,7 +52,6 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
   clicked_item_ = GetItemAtScenePos(event->GetCoordinates());
 
   bool selectable_item = (clicked_item_
-                          && clicked_item_->flags() & QGraphicsItem::ItemIsSelectable
                           && !parent()->GetTrackFromReference(clicked_item_->Track())->IsLocked());
 
   if (selectable_item) {
@@ -76,14 +75,14 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     }
 
     // If this item is already selected, no further selection needs to be made
-    if (clicked_item_->isSelected()) {
+    if (parent()->IsItemSelected(clicked_item_)) {
 
       // Collect item deselections
       QList<Block*> deselected_blocks;
 
       // If shift is held, deselect it
       if (event->GetModifiers() & Qt::ShiftModifier) {
-        clicked_item_->setSelected(false);
+        parent()->RemoveSelection(clicked_item_);
         deselected_blocks.append(clicked_item_->block());
 
         // If not holding alt, deselect all links as well
@@ -110,7 +109,7 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     QList<Block*> selected_blocks;
 
     // Select this item
-    clicked_item_->setSelected(true);
+    parent()->AddSelection(clicked_item_);
     selected_blocks.append(clicked_item_->block());
 
     // If not holding alt, select all links as well

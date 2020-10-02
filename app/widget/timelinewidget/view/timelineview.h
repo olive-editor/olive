@@ -59,6 +59,11 @@ public:
 
   void SetBeamCursor(const TimelineCoordinate& coord);
 
+  void SetSelectionList(QHash<TrackReference, TimeRangeList>* s)
+  {
+    selections_ = s;
+  }
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -107,6 +112,8 @@ private:
   void UserSetTime(const int64_t& time);
 
   void UpdatePlayheadRect();
+
+  QHash<TrackReference, TimeRangeList>* selections_;
 
   bool show_beam_cursor_;
 

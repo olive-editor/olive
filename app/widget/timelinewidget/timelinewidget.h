@@ -361,6 +361,13 @@ private:
     virtual void MousePress(TimelineViewMouseEvent *event) override;
     virtual void MouseMove(TimelineViewMouseEvent *event) override;
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+    virtual void MouseDoubleClick(TimelineViewMouseEvent *event) override;
+
+  private:
+    QHash<TrackReference, TimeRangeList> start_selections_;
+
+    TimelineCoordinate start_coord_;
+
   };
 
   class RazorTool : public BeamTool
@@ -480,6 +487,16 @@ private:
   QRubberBand rubberband_;
   QList<QGraphicsItem*> rubberband_already_selected_;
   QList<QGraphicsItem*> rubberband_now_selected_;
+
+  QHash<TrackReference, TimeRangeList> selections_;
+
+  void AddSelection(const TimeRange& time, const TrackReference& track);
+  void AddSelection(TimelineViewBlockItem* item);
+
+  void RemoveSelection(const TimeRange& time, const TrackReference& track);
+  void RemoveSelection(TimelineViewBlockItem* item);
+
+  bool IsItemSelected(TimelineViewBlockItem* item) const;
 
   Tool* GetActiveTool();
 

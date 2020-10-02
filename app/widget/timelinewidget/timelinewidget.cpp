@@ -107,6 +107,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view->SetSnapService(this);
+    view->SetSelectionList(&selections_);
 
     view_splitter_->addWidget(tview);
 
@@ -165,7 +166,7 @@ void TimelineWidget::Clear()
 
   QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
   for (iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
-    if (iterator.value()->isSelected()) {
+    if (IsItemSelected(iterator.value())) {
       deselected_blocks.append(iterator.key());
     }
 
@@ -384,8 +385,8 @@ void TimelineWidget::SelectAll()
   QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
 
   for (i=block_items_.constBegin(); i!=block_items_.end(); i++) {
-    if (!i.value()->isSelected()) {
-      i.value()->setSelected(true);
+    if (!IsItemSelected(i.value())) {
+      AddSelection(i.value());
       blocks_selected.append(i.key());
     }
   }
@@ -400,8 +401,8 @@ void TimelineWidget::DeselectAll()
   QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
 
   for (i=block_items_.constBegin(); i!=block_items_.end(); i++) {
-    if (i.value()->isSelected()) {
-      i.value()->setSelected(false);
+    if (IsItemSelected(i.value())) {
+      RemoveSelection(i.value());
       blocks_deselected.append(i.key());
     }
   }
@@ -791,7 +792,7 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 
     TimelineViewBlockItem* item = iterator.value();
 
-    if (item && item->isSelected()) {
+    if (item && IsItemSelected(item)) {
       list.append(item);
     }
   }
@@ -893,9 +894,8 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
-  if (GetConnectedNode() && active_tool_ != nullptr) {
-    active_tool_->MouseDoubleClick(event);
-    active_tool_ = nullptr;
+  if (GetConnectedNode()) {
+    GetActiveTool()->MouseDoubleClick(event);
   }
 }
 
@@ -968,7 +968,7 @@ void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
     TimelineViewBlockItem* item = block_items_.take(b);
     delete_items.append(item);
 
-    if (item->isSelected()) {
+    if (IsItemSelected(item)) {
       deselect_blocks.append(b);
     }
   }
@@ -1211,8 +1211,14 @@ void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
   TimelineViewBlockItem* link_item;
 
   foreach (Block* link, block->linked_clips()) {
-    if ((link_item = block_items_[link]) != nullptr) {
-      link_item->setSelected(selected);
+    link_item = block_items_.value(link);
+
+    if (link_item) {
+      if (selected) {
+        AddSelection(link_item);
+      } else {
+        RemoveSelection(link_item);
+      }
     }
   }
 }
@@ -1383,7 +1389,7 @@ void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_li
   // We don't touch any blocks that are already selected. If you want these to be deselected by
   // default, call DeselectAll() befoer calling StartRubberBandSelect()
   foreach (TimelineViewBlockItem* block, block_items_) {
-    if (block->isSelected()) {
+    if (IsItemSelected(block)) {
       rubberband_already_selected_.append(block);
     }
   }
@@ -1428,7 +1434,11 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
   }
 
   foreach (QGraphicsItem* item, rubberband_now_selected_) {
-    item->setSelected(false);
+    TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
+
+    if (block_item) {
+      RemoveSelection(block_item);
+    }
   }
 
   // Cache limit because we append to this array in this loop and don't need to process those
@@ -1446,7 +1456,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
 
     // Since new_selected_list is filtered by rubberband_already_selected_, this should certainly
     // be deselected by now
-    block_item->setSelected(true);
+    AddSelection(block_item);
 
     if (select_links) {
       // Select the block's links
@@ -1456,7 +1466,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
       TimelineViewBlockItem* link_item;
       foreach (Block* link, b->linked_clips()) {
         if ((link_item = block_items_[link]) != nullptr) {
-          link_item->setSelected(true);
+          AddSelection(link_item);
 
           if (!new_selected_list.contains(link_item)
               && !rubberband_already_selected_.contains(link_item)) {
@@ -1483,6 +1493,35 @@ void TimelineWidget::EndRubberBandSelect()
 
   rubberband_now_selected_.clear();
   rubberband_already_selected_.clear();
+}
+
+void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &track)
+{
+  selections_[track].InsertTimeRange(time);
+
+  views_.at(track.type())->view()->viewport()->update();
+}
+
+void TimelineWidget::AddSelection(TimelineViewBlockItem *item)
+{
+  AddSelection(item->block()->range(), item->Track());
+}
+
+void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference &track)
+{
+  selections_[track].RemoveTimeRange(time);
+
+  views_.at(track.type())->view()->viewport()->update();
+}
+
+void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
+{
+  RemoveSelection(item->block()->range(), item->Track());
+}
+
+bool TimelineWidget::IsItemSelected(TimelineViewBlockItem *item) const
+{
+  return selections_[item->Track()].ContainsTimeRange(item->block()->range());
 }
 
 struct SnapData {

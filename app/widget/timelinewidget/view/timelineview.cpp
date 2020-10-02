@@ -37,6 +37,7 @@ OLIVE_NAMESPACE_ENTER
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
+  selections_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr)
 {
@@ -241,6 +242,24 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
                       track_y,
                       cursor_x,
                       track_y + GetTrackHeight(track_index));
+  }
+
+  if (selections_ && !selections_->isEmpty()) {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(0, 0, 0, 64));
+
+    for (auto it=selections_->cbegin(); it!=selections_->cend(); it++) {
+      if (it.key().type() == connected_track_list_->type()) {
+        int track_index = it.key().index();
+
+        foreach (const TimeRange& range, it.value()) {
+          painter->drawRect(TimeToScene(range.in()),
+                            GetTrackY(track_index),
+                            TimeToScene(range.length()),
+                            GetTrackHeight(track_index));
+        }
+      }
+    }
   }
 }
 
