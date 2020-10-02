@@ -532,7 +532,7 @@ private slots:
   void ViewDragDropped(TimelineViewMouseEvent* event);
 
   void AddBlock(Block* block, TrackReference track);
-  void RemoveBlock(Block* block);
+  void RemoveBlock(const QList<Block*>& blocks);
 
   void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);

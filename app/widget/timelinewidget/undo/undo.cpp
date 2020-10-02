@@ -295,7 +295,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
     track_->RippleRemoveBlock(trim_in_);
     trim_out_->set_length_and_media_out(trim_out_old_length_);
 
-    delete TakeNodeFromParentGraph(trim_in_);
+    TakeNodeFromParentGraph(trim_in_, &memory_manager_);
 
   } else {
 
@@ -390,7 +390,7 @@ void TrackPlaceBlockCommand::undo_internal()
 
     if (gap_ != nullptr) {
       track_->RippleRemoveBlock(gap_);
-      delete TakeNodeFromParentGraph(gap_);
+      TakeNodeFromParentGraph(gap_, &memory_manager_);
     }
   } else {
     TrackRippleRemoveAreaCommand::undo_internal();
@@ -926,7 +926,7 @@ void BlockTrimCommand::undo_internal()
     if (we_created_adjacent_) {
       // If we created a gap, just remove it straight up
       track_->RippleRemoveBlock(adjacent_);
-      delete TakeNodeFromParentGraph(adjacent_);
+      TakeNodeFromParentGraph(adjacent_, &memory_manager_);
       adjacent_ = nullptr;
       we_created_adjacent_ = false;
     } else if (adjacent_) {
@@ -1066,7 +1066,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
 
     // We made this gap, simply swap our gap back
     track_->ReplaceBlock(our_gap_, block_);
-    delete TakeNodeFromParentGraph(our_gap_);
+    TakeNodeFromParentGraph(our_gap_, &memory_manager_);
     our_gap_ = nullptr;
 
   } else if (existing_gap_) {
@@ -1157,7 +1157,7 @@ void TrackSlideCommand::slide_internal(bool undo)
     if (we_created_in_adjacent_) {
       // This is a gap we made, we can just delete it entirely
       track_->RippleRemoveBlock(in_adjacent_);
-      delete TakeNodeFromParentGraph(in_adjacent_);
+      TakeNodeFromParentGraph(in_adjacent_, &memory_manager_);
       we_created_in_adjacent_ = false;
       in_adjacent_ = nullptr;
     } else if (in_adjacent_->parent() == &memory_manager_) {
@@ -1172,7 +1172,7 @@ void TrackSlideCommand::slide_internal(bool undo)
     if (we_created_out_adjacent_) {
       // This is a gap we made, we can just delete it entirely
       track_->RippleRemoveBlock(out_adjacent_);
-      delete TakeNodeFromParentGraph(out_adjacent_);
+      TakeNodeFromParentGraph(out_adjacent_, &memory_manager_);
       we_created_out_adjacent_ = false;
       out_adjacent_ = nullptr;
     } else if (out_adjacent_) {
@@ -1490,7 +1490,7 @@ void TrackListRippleToolCommand::undo_internal()
       GapBlock* gap = working_data_.at(i).created_gap;
 
       info.track->RippleRemoveBlock(gap);
-      delete TakeNodeFromParentGraph(gap);
+      TakeNodeFromParentGraph(gap, &memory_manager_);
     }
   }
 }
@@ -1593,7 +1593,7 @@ void TrackListInsertGaps::undo_internal()
   // Remove added gaps
   foreach (GapBlock* gap, gaps_added_) {
     TrackOutput::TrackFromBlock(gap)->RippleRemoveBlock(gap);
-    delete TakeNodeFromParentGraph(gap);
+    TakeNodeFromParentGraph(gap, &memory_manager_);
   }
   gaps_added_.clear();
 

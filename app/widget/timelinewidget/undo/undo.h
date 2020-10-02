@@ -589,6 +589,8 @@ private:
 
   BlockSplitPreservingLinksCommand* split_command_;
 
+  QObject memory_manager_;
+
 };
 
 class TransitionRemoveCommand : public UndoCommand {

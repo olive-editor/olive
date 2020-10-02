@@ -528,6 +528,8 @@ T* Node::FindOutputNode()
   return static_cast<T*>(FindOutputNodeInternal<T>(this));
 }
 
+using NodePtr = std::shared_ptr<Node>;
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // NODE_H

@@ -918,40 +918,62 @@ void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
 void TimelineWidget::AddBlock(Block *block, TrackReference track)
 {
   // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-  TimelineViewBlockItem* item = new TimelineViewBlockItem(block);
+  TimelineViewBlockItem* item = block_items_.value(block);
 
-  item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
-  item->SetScale(GetScale());
-  item->SetTrack(track);
-  item->SetTimebase(timebase());
+  if (!item) {
 
-  // Add to list of clip items that can be iterated through
-  block_items_.insert(block, item);
+    // Add to list of clip items that can be iterated through
+    item = new TimelineViewBlockItem(block);
+    block_items_.insert(block, item);
 
-  // Add item to graphics scene
-  views_.at(track.type())->view()->scene()->addItem(item);
+    // Set scale parameters
+    item->SetScale(GetScale());
+    item->SetTimebase(timebase());
+    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
+    item->SetTrack(track);
 
-  connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
-  connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-  connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
-  connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+    // Add item to graphics scene
+    views_.at(track.type())->view()->scene()->addItem(item);
+
+    connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+    connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+    connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+    connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+
+  } else if (item->Track() != track) {
+
+    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
+    item->SetTrack(track);
+
+  }
 }
 
-void TimelineWidget::RemoveBlock(Block *block)
+void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
 {
-  disconnect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
-  disconnect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-  disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
-  disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+  QList<TimelineViewBlockItem*> delete_items;
+  delete_items.reserve(blocks.size());
 
-  TimelineViewBlockItem* item = block_items_.take(block);
+  QList<Block*> deselect_blocks;
 
-  if (item->isSelected()) {
-    // Sending a list of one item all the time is not very efficient
-    emit BlocksDeselected({block});
+  foreach (Block* b, blocks) {
+    disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+    disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+    disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+    disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+
+    TimelineViewBlockItem* item = block_items_.take(b);
+    delete_items.append(item);
+
+    if (item->isSelected()) {
+      deselect_blocks.append(b);
+    }
   }
 
-  delete item;
+  if (!deselect_blocks.isEmpty()) {
+    emit BlocksDeselected(deselect_blocks);
+  }
+
+  qDeleteAll(delete_items);
 }
 
 void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
@@ -969,9 +991,7 @@ void TimelineWidget::RemoveTrack(TrackOutput *track)
   disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   disconnect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 
-  foreach (Block* b, track->Blocks()) {
-    RemoveBlock(b);
-  }
+  RemoveBlock(track->Blocks());
 }
 
 void TimelineWidget::TrackIndexChanged()

@@ -149,6 +149,64 @@ private:
 
 };
 
+class NodeGraphBeginOperationCommand : public UndoCommand {
+public:
+  NodeGraphBeginOperationCommand(NodeGraph* graph, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    graph_(graph)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return static_cast<Sequence*>(graph_)->project();
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    graph_->BeginOperation();
+  }
+
+  virtual void undo_internal() override
+  {
+    graph_->EndOperation();
+  }
+
+private:
+  NodeGraph* graph_;
+
+};
+
+class NodeGraphEndOperationCommand : public UndoCommand {
+public:
+  NodeGraphEndOperationCommand(NodeGraph* graph, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    graph_(graph)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return static_cast<Sequence*>(graph_)->project();
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    graph_->EndOperation();
+  }
+
+  virtual void undo_internal() override
+  {
+    graph_->BeginOperation();
+  }
+
+private:
+  NodeGraph* graph_;
+
+};
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // NODEVIEWUNDO_H

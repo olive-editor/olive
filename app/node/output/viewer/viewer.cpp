@@ -52,7 +52,7 @@ ViewerOutput::ViewerOutput() :
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
-    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
+    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::SignalBlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
     connect(list, &TrackList::TrackRemoved, this, &ViewerOutput::TrackRemoved);
     connect(list, &TrackList::TrackHeightChanged, this, &ViewerOutput::TrackHeightChangedSlot);
@@ -274,6 +274,27 @@ void ViewerOutput::set_media_name(const QString &name)
   emit MediaNameChanged(media_name_);
 }
 
+void ViewerOutput::SignalBlockAdded(Block *block, const TrackReference& track)
+{
+  if (!operation_stack_) {
+    emit BlockAdded(block, track);
+  } else {
+    cached_block_removed_.removeOne(block);
+    cached_block_added_.insert(block, track);
+  }
+}
+
+void ViewerOutput::SignalBlockRemoved(Block *block)
+{
+  if (!operation_stack_) {
+    emit BlockRemoved({block});
+  } else {
+    // We keep track of all blocks that are removed, even if we don't end up signalling them
+    cached_block_added_.remove(block);
+    cached_block_removed_.append(block);
+  }
+}
+
 void ViewerOutput::BeginOperation()
 {
   operation_stack_++;
@@ -285,13 +306,23 @@ void ViewerOutput::EndOperation()
 {
   operation_stack_--;
 
+  if (!operation_stack_) {
+    for (auto it=cached_block_added_.cbegin(); it!=cached_block_added_.cend(); it++) {
+      emit BlockAdded(it.key(), it.value());
+    }
+    cached_block_added_.clear();
+
+    emit BlockRemoved(cached_block_removed_);
+    cached_block_removed_.clear();
+  }
+
   Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)
 {
   Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
-  emit BlockAdded(block, TrackReference(type, index));
+  SignalBlockAdded(block, TrackReference(type, index));
 }
 
 void ViewerOutput::TrackListAddedTrack(TrackOutput *track)

@@ -40,10 +40,13 @@ public:
 
   bool operator==(const TrackReference& ref) const;
 
+  bool operator!=(const TrackReference& ref) const;
+
 private:
   Timeline::TrackType type_;
 
   int index_;
+
 };
 
 uint qHash(const TrackReference& r, uint seed);

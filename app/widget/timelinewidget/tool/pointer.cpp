@@ -555,6 +555,8 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
   QUndoCommand* command = new QUndoCommand();
 
+  new NodeGraphBeginOperationCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), command);
+
   foreach (const GhostBlockPair& p, blocks_trimming) {
     TimelineViewGhostItem* ghost = p.ghost;
 
@@ -675,6 +677,8 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       }
     }
   }
+
+  new NodeGraphEndOperationCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
