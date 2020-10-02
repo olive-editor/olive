@@ -20,22 +20,31 @@
 
 #include "edge.h"
 
+#include "input.h"
+#include "node.h"
+#include "output.h"
+
 OLIVE_NAMESPACE_ENTER
 
-NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input) :
-  output_(output),
-  input_(input)
+NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input)
 {
+  output_ = ParamToConnection(output);
+  input_ = ParamToConnection(input);
 }
 
-NodeOutput *NodeEdge::output()
+NodeOutput *NodeEdge::output() const
 {
-  return output_;
+  return output_.node->GetOutputWithID(output_.id);
 }
 
-NodeInput *NodeEdge::input()
+NodeInput *NodeEdge::input() const
 {
-  return input_;
+  return input_.node->GetInputWithID(input_.id);
+}
+
+NodeEdge::Connection NodeEdge::ParamToConnection(NodeParam *param)
+{
+  return {param->parentNode(), param->id()};
 }
 
 OLIVE_NAMESPACE_EXIT

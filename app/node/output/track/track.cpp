@@ -55,6 +55,11 @@ TrackOutput::TrackOutput() :
   track_height_ = kTrackHeightDefault;
 }
 
+TrackOutput::~TrackOutput()
+{
+  DisconnectAll();
+}
+
 void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
 {
   track_type_ = track_type;
@@ -553,7 +558,7 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 {
-  Block* b = static_cast<Block*>(edge->output()->parentNode());
+  Block* b = static_cast<Block*>(edge->output_node());
 
   if (block_cache_.contains(b)) {
     block_cache_.removeOne(b);

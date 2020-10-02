@@ -43,9 +43,7 @@ NodeParam::NodeParam(const QString &id) :
 NodeParam::~NodeParam()
 {
   // Clear all connected edges
-  while (!edges_.isEmpty()) {
-    DisconnectEdge(edges_.last());
-  }
+  DisconnectAll();
 }
 
 const QString NodeParam::id() const
@@ -111,7 +109,7 @@ const QVector<NodeEdgePtr> &NodeParam::edges()
 void NodeParam::DisconnectAll()
 {
   while (!edges_.isEmpty()) {
-    DisconnectEdge(edges_.first());
+    DisconnectEdge(edges_.last());
   }
 }
 

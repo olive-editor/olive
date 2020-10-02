@@ -319,19 +319,6 @@ void MainWindow::ProjectOpen(Project *p)
 
 void MainWindow::ProjectClose(Project *p)
 {
-  // Close project from project panel
-  foreach (ProjectPanel* panel, project_panels_) {
-    if (panel->project() == p) {
-      RemoveProjectPanel(panel);
-    }
-  }
-
-  foreach (ProjectPanel* panel, folder_panels_) {
-    if (panel->project() == p) {
-      panel->close();
-    }
-  }
-
   // Close any open sequences from project
   QList<ItemPtr> open_sequences = p->get_items_of_type(Item::kSequence);
 
@@ -356,6 +343,20 @@ void MainWindow::ProjectClose(Project *p)
         footage_viewer_panel_->SetFootage(nullptr);
         break;
       }
+    }
+  }
+
+  // Close any extra folder panels
+  foreach (ProjectPanel* panel, folder_panels_) {
+    if (panel->project() == p) {
+      panel->close();
+    }
+  }
+
+  // Close project from project panel
+  foreach (ProjectPanel* panel, project_panels_) {
+    if (panel->project() == p) {
+      RemoveProjectPanel(panel);
     }
   }
 }

@@ -397,7 +397,7 @@ void TrackPlaceBlockCommand::undo_internal()
   }
 
   for (;added_track_count_>0;added_track_count_--) {
-    timeline_->RemoveTrack();
+    timeline_->RemoveTrack(&memory_manager_);
   }
 }
 

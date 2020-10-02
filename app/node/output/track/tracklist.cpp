@@ -134,7 +134,7 @@ TrackOutput* TrackList::AddTrack()
   return track;
 }
 
-void TrackList::RemoveTrack()
+void TrackList::RemoveTrack(QObject* new_parent)
 {
   if (track_cache_.isEmpty()) {
     return;
@@ -144,7 +144,11 @@ void TrackList::RemoveTrack()
 
   GetParentGraph()->TakeNode(track);
 
-  delete track;
+  if (!new_parent) {
+    delete track;
+  } else {
+    track->setParent(new_parent);
+  }
 
   track_input_->RemoveLast();
 }

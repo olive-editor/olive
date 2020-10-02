@@ -36,6 +36,8 @@ class TrackOutput : public Node
 public:
   TrackOutput();
 
+  virtual ~TrackOutput() override;
+
   const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 

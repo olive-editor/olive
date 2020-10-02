@@ -271,6 +271,10 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
   disconnect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
+  foreach (TrackOutput* track, n->GetTracks()) {
+    RemoveTrack(track);
+  }
+
   ruler()->SetPlaybackCache(nullptr);
 
   SetTimebase(0);

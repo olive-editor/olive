@@ -47,6 +47,8 @@ class ViewerOutput : public Node
 public:
   ViewerOutput();
 
+  virtual ~ViewerOutput() override;
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;

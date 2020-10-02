@@ -44,7 +44,7 @@ public:
 
   TrackOutput *AddTrack();
 
-  void RemoveTrack();
+  void RemoveTrack(QObject *new_parent);
 
   const rational& GetTotalLength() const;
 

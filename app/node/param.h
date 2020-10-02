@@ -319,7 +319,7 @@ public:
   /**
    * @brief Disconnect any edges connecting this parameter to other parameters
    */
-  void DisconnectAll();
+  virtual void DisconnectAll();
 
   /**
    * @brief Connect an output parameter to an input parameter

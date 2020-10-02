@@ -922,8 +922,8 @@ void NodeView::UpdateBlockFilter()
 
   // Show only edges between those dependencies
   foreach (NodeViewEdge* edge, scene_.edge_map()) {
-    edge->setVisible((currently_visible.contains(edge->edge()->input()->parentNode())
-                      && currently_visible.contains(edge->edge()->output()->parentNode())));
+    edge->setVisible((currently_visible.contains(edge->edge()->input_node())
+                      && currently_visible.contains(edge->edge()->output_node())));
   }
 }
 
@@ -1024,7 +1024,7 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
 {
   scene_.RemoveEdge(edge);
 
-  Node* output_node = edge->output()->parentNode();
+  Node* output_node = edge->output_node();
 
   // Check if this disconnected node still connects to a selected block, in which case do nothing
   foreach (Block* b, selected_blocks_) {

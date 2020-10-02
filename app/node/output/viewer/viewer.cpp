@@ -62,6 +62,11 @@ ViewerOutput::ViewerOutput() :
   uuid_ = QUuid::createUuid();
 }
 
+ViewerOutput::~ViewerOutput()
+{
+  DisconnectAll();
+}
+
 Node *ViewerOutput::copy() const
 {
   return new ViewerOutput();
