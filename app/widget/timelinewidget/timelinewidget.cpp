@@ -30,6 +30,17 @@
 #include "common/timecodefunctions.h"
 #include "dialog/sequence/sequence.h"
 #include "node/block/transition/transition.h"
+#include "tool/add.h"
+#include "tool/beam.h"
+#include "tool/edit.h"
+#include "tool/pointer.h"
+#include "tool/razor.h"
+#include "tool/ripple.h"
+#include "tool/rolling.h"
+#include "tool/slide.h"
+#include "tool/slip.h"
+#include "tool/transition.h"
+#include "tool/zoom.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
 #include "widget/menu/menu.h"
@@ -352,22 +363,6 @@ void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, v
   } else {
     NodeCopyPasteWidget::PasteNodesFromClipboardInternal(reader, userdata);
   }
-}
-
-TimelineWidget::DraggedFootage TimelineWidget::FootageToDraggedFootage(Footage *f)
-{
-  return DraggedFootage(f, f->get_enabled_stream_flags());
-}
-
-QList<TimelineWidget::DraggedFootage> TimelineWidget::FootageToDraggedFootage(QList<Footage *> footage)
-{
-  QList<DraggedFootage> df;
-
-  foreach (Footage* f, footage) {
-    df.append(FootageToDraggedFootage(f));
-  }
-
-  return df;
 }
 
 rational TimelineWidget::GetToolTipTimebase() const
@@ -843,12 +838,7 @@ void TimelineWidget::ClearGhosts()
   HideSnaps();
 }
 
-bool TimelineWidget::HasGhosts()
-{
-  return !ghost_items_.isEmpty();
-}
-
-TimelineWidget::Tool *TimelineWidget::GetActiveTool()
+TimelineTool *TimelineWidget::GetActiveTool()
 {
   return tools_.at(Core::instance()->tool());
 }
@@ -875,7 +865,7 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
       active_tool_->MouseMove(event);
     } else {
       // Mouse is not down, attempt a hover event
-      Tool* hover_tool = GetActiveTool();
+      TimelineTool* hover_tool = GetActiveTool();
 
       if (hover_tool) {
         hover_tool->HoverMove(event);
@@ -1223,6 +1213,24 @@ void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
   }
 }
 
+void TimelineWidget::QueueScroll(int value)
+{
+  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
+  deferred_scroll_value_ = value;
+
+  QTimer::singleShot(0, this, &TimelineWidget::DeferredScrollAction);
+}
+
+TimelineView *TimelineWidget::GetFirstTimelineView()
+{
+  return views_.first()->view();
+}
+
+const QRect& TimelineWidget::GetRubberBandGeometry() const
+{
+  return rubberband_.geometry();
+}
+
 QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
                                                             Timeline::MovementMode mode)
 {
@@ -1517,6 +1525,40 @@ void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference
 void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
 {
   RemoveSelection(item->block()->range(), item->Track());
+}
+
+void TimelineWidget::ShiftSelections(const rational &diff)
+{
+  for (auto it=selections_.begin(); it!=selections_.end(); it++) {
+    for (auto it2=it.value().begin(); it2!=it.value().end(); it2++) {
+      (*it2) += diff;
+    }
+  }
+}
+
+void TimelineWidget::SetSelections(const TimelineWidget::Selections &s)
+{
+  selections_ = s;
+
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->viewport(),update();
+  }
+}
+
+TimelineViewBlockItem *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
+{
+  for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
+    Block* b = it.key();
+    TimelineViewBlockItem* item = it.value();
+
+    if (b->in() <= coord.GetFrame()
+        && b->out() > coord.GetFrame()
+        && item->Track() == coord.GetTrack()) {
+      return item;
+    }
+  }
+
+  return nullptr;
 }
 
 bool TimelineWidget::IsItemSelected(TimelineViewBlockItem *item) const

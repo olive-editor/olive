@@ -18,26 +18,25 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef BEAMTIMELINETOOL_H
+#define BEAMTIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "tool.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class BeamTool : public TimelineTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  BeamTool(TimelineWidget *parent);
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+  virtual void HoverMove(TimelineViewMouseEvent *event) override;
+
+protected:
+  TimelineCoordinate ValidatedCoordinate(TimelineCoordinate coord);
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // BEAMTIMELINETOOL_H

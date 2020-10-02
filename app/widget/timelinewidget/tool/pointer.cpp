@@ -32,12 +32,13 @@
 #include "core.h"
 #include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
+#include "pointer.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
-  Tool(parent),
+PointerTool::PointerTool(TimelineWidget *parent) :
+  TimelineTool(parent),
   movement_allowed_(true),
   trimming_allowed_(true),
   track_movement_allowed_(true),
@@ -46,10 +47,10 @@ TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
 {
 }
 
-void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
+void PointerTool::MousePress(TimelineViewMouseEvent *event)
 {
   // Determine if item clicked on is selectable
-  clicked_item_ = GetItemAtScenePos(event->GetCoordinates());
+  clicked_item_ = parent()->GetItemAtScenePos(event->GetCoordinates());
 
   bool selectable_item = (clicked_item_
                           && !parent()->GetTrackFromReference(clicked_item_->Track())->IsLocked());
@@ -130,7 +131,7 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
+void PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
     // Process rubberband select
@@ -154,7 +155,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 
     }
 
-    if (dragging_ && !parent()->ghost_items_.isEmpty()) {
+    if (dragging_ && !parent()->GetGhostItems().isEmpty()) {
 
       // We're already dragging AND we have ghosts to work with
       ProcessDrag(event->GetCoordinates());
@@ -163,7 +164,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
+void PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
     // Finish rubberband select
@@ -174,7 +175,7 @@ void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (dragging_) {
     // If we were dragging, process the end of the drag
-    if (!parent()->ghost_items_.isEmpty()) {
+    if (!parent()->GetGhostItems().isEmpty()) {
       FinishDrag(event);
     }
 
@@ -186,11 +187,11 @@ void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::PointerTool::HoverMove(TimelineViewMouseEvent *event)
+void PointerTool::HoverMove(TimelineViewMouseEvent *event)
 {
   if (trimming_allowed_) {
     // No dragging, but we still want to process cursors
-    TimelineViewBlockItem* block_at_cursor = GetItemAtScenePos(event->GetCoordinates());
+    TimelineViewBlockItem* block_at_cursor = parent()->GetItemAtScenePos(event->GetCoordinates());
 
     if (block_at_cursor) {
       switch (IsCursorInTrimHandle(block_at_cursor, event->GetSceneX())) {
@@ -217,7 +218,7 @@ void SetGhostToSlideMode(TimelineViewGhostItem* g)
   g->setData(TimelineViewGhostItem::kGhostIsSliding, true);
 }
 
-void TimelineWidget::PointerTool::InitiateDragInternal(TimelineViewBlockItem *clicked_item,
+void PointerTool::InitiateDragInternal(TimelineViewBlockItem *clicked_item,
                                                        Timeline::MovementMode trim_mode,
                                                        bool dont_roll_trims,
                                                        bool allow_nongap_rolling,
@@ -443,7 +444,7 @@ void TimelineWidget::PointerTool::InitiateDragInternal(TimelineViewBlockItem *cl
   }
 }
 
-void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
+void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
   // Calculate track movement
   int track_movement = track_movement_allowed_
@@ -469,7 +470,7 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 
   // Validate ghosts that are being moved (clips from other track types do NOT get moved)
   {
-    QVector<TimelineViewGhostItem*> validate_track_ghosts = parent()->ghost_items_;
+    QVector<TimelineViewGhostItem*> validate_track_ghosts = parent()->GetGhostItems();
     for (int i=0;i<validate_track_ghosts.size();i++) {
       if (validate_track_ghosts.at(i)->Track().type() != drag_track_type_) {
         validate_track_ghosts.removeAt(i);
@@ -480,8 +481,8 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
   }
 
   // Perform movement
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    switch (ghost->mode()) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    switch (ghost->GetMode()) {
     case Timeline::kNone:
       break;
     case Timeline::kTrimIn:
@@ -524,22 +525,22 @@ struct GhostBlockPair {
   Block* block;
 };
 
-void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
+void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   QList<GhostBlockPair> blocks_moving;
   QList<GhostBlockPair> blocks_sliding;
   QList<GhostBlockPair> blocks_trimming;
 
   // Sort ghosts depending on which ones are trimming, which are moving, and which are sliding
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     if (ghost->HasBeenAdjusted()) {
       Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
       if (ghost->data(TimelineViewGhostItem::kGhostIsSliding).toBool()) {
         blocks_sliding.append({ghost, b});
-      } else if (ghost->mode() == Timeline::kMove) {
+      } else if (ghost->GetMode() == Timeline::kMove) {
         blocks_moving.append({ghost, b});
-      } else if (Timeline::IsATrimMode(ghost->mode())) {
+      } else if (Timeline::IsATrimMode(ghost->GetMode())) {
         blocks_trimming.append({ghost, b});
       }
     }
@@ -563,8 +564,8 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       // Must be an ordinary trim/roll
       BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->GetAdjustedTrack()),
                                                  p.block,
-                                                 ghost->AdjustedLength(),
-                                                 ghost->mode(),
+                                                 ghost->GetAdjustedLength(),
+                                                 ghost->GetMode(),
                                                  command);
 
       c->SetTrimIsARollEdit(ghost->data(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
@@ -631,13 +632,13 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     foreach (const GhostBlockPair& p, blocks_sliding) {
       const TrackReference& track = p.ghost->Track();
 
-      switch (p.ghost->mode()) {
+      switch (p.ghost->GetMode()) {
       case Timeline::kNone:
         break;
       case Timeline::kMove:
       {
         // These all should have moved uniformly, so as long as this is set, it should be fine
-        movement = p.ghost->InAdjustment();
+        movement = p.ghost->GetInAdjustment();
 
         QList<Block*>& blocks_on_this_track = slide_info[track];
         bool inserted = false;
@@ -682,7 +683,7 @@ void TimelineWidget::PointerTool::FinishDrag(TimelineViewMouseEvent *event)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-Timeline::MovementMode TimelineWidget::PointerTool::IsCursorInTrimHandle(TimelineViewBlockItem *block, qreal cursor_x)
+Timeline::MovementMode PointerTool::IsCursorInTrimHandle(TimelineViewBlockItem *block, qreal cursor_x)
 {
   double kTrimHandle = QFontMetricsWidth(parent()->fontMetrics(), "H");
 
@@ -700,7 +701,7 @@ Timeline::MovementMode TimelineWidget::PointerTool::IsCursorInTrimHandle(Timelin
   }
 }
 
-void TimelineWidget::PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_item,
+void PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_item,
                                                Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, false, false);
@@ -708,10 +709,10 @@ void TimelineWidget::PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_it
 
 //#define HIDE_GAP_GHOSTS
 
-TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists)
+TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists)
 {
   if (check_if_exists) {
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
       if (Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)) == block) {
         return ghost;
       }
@@ -734,7 +735,7 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* blo
   return ghost;
 }
 
-TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const rational &in, const rational &out, const TrackReference& track, Timeline::MovementMode mode)
+TimelineViewGhostItem* PointerTool::AddGhostFromNull(const rational &in, const rational &out, const TrackReference& track, Timeline::MovementMode mode)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
@@ -752,21 +753,21 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const ratio
   return ghost;
 }
 
-void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode)
+void PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode)
 {
   ghost->SetMode(mode);
 
   // Prepare snap points (optimizes snapping for later)
   switch (mode) {
   case Timeline::kMove:
-    snap_points_.append(ghost->In());
-    snap_points_.append(ghost->Out());
+    snap_points_.append(ghost->GetIn());
+    snap_points_.append(ghost->GetOut());
     break;
   case Timeline::kTrimIn:
-    snap_points_.append(ghost->In());
+    snap_points_.append(ghost->GetIn());
     break;
   case Timeline::kTrimOut:
-    snap_points_.append(ghost->Out());
+    snap_points_.append(ghost->GetOut());
     break;
   default:
     break;
@@ -775,7 +776,7 @@ void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost,
   parent()->AddGhost(ghost);
 }
 
-bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
+bool PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
                                                   const QList<TimelineViewBlockItem*>& items,
                                                   const Timeline::MovementMode& mode)
 {
@@ -791,7 +792,7 @@ bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
   return true;
 }
 
-bool TimelineWidget::PointerTool::AddMovingTransitionsToClipGhost(Block* block,
+bool PointerTool::AddMovingTransitionsToClipGhost(Block* block,
                                                                   const TrackReference& track,
                                                                   Timeline::MovementMode movement,
                                                                   const QList<TimelineViewBlockItem*>& selected_items)
@@ -841,41 +842,41 @@ bool TimelineWidget::PointerTool::AddMovingTransitionsToClipGhost(Block* block,
   return ret;
 }
 
-rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement)
+rational PointerTool::ValidateInTrimming(rational movement)
 {
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->mode() != Timeline::kTrimIn) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMode() != Timeline::kTrimIn) {
       continue;
     }
 
     rational earliest_in = RATIONAL_MIN;
-    rational latest_in = ghost->Out();
+    rational latest_in = ghost->GetOut();
 
     if (!ghost->CanHaveZeroLength()) {
       latest_in -= parent()->timebase();
     }
 
     // Clamp adjusted value between the earliest and latest values
-    rational adjusted = ghost->In() + movement;
+    rational adjusted = ghost->GetIn() + movement;
     rational clamped = clamp(adjusted, earliest_in, latest_in);
 
     if (clamped != adjusted) {
-      movement = clamped - ghost->In();
+      movement = clamped - ghost->GetIn();
     }
   }
 
   return movement;
 }
 
-rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement)
+rational PointerTool::ValidateOutTrimming(rational movement)
 {
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->mode() != Timeline::kTrimOut) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMode() != Timeline::kTrimOut) {
       continue;
     }
 
     // Determine earliest and latest out points
-    rational earliest_out = ghost->In();
+    rational earliest_out = ghost->GetIn();
 
     if (!ghost->CanHaveZeroLength()) {
       earliest_out += parent()->timebase();
@@ -884,11 +885,11 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement)
     rational latest_out = RATIONAL_MAX;
 
     // Clamp adjusted value between the earliest and latest values
-    rational adjusted = ghost->Out() + movement;
+    rational adjusted = ghost->GetOut() + movement;
     rational clamped = clamp(adjusted, earliest_out, latest_out);
 
     if (clamped != adjusted) {
-      movement = clamped - ghost->Out();
+      movement = clamped - ghost->GetOut();
     }
   }
 

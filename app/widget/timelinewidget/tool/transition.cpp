@@ -23,16 +23,17 @@
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/block/transition/transition.h"
 #include "node/factory.h"
+#include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::TransitionTool::TransitionTool(TimelineWidget *parent) :
+TransitionTool::TransitionTool(TimelineWidget *parent) :
   AddTool(parent)
 {
 }
 
-void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
+void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = event->GetTrack();
   TrackOutput* t = parent()->GetTrackFromReference(track);
@@ -95,7 +96,7 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
   drag_start_point_ = cursor_frame;
 }
 
-void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
+void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!ghost_) {
     return;
@@ -104,12 +105,12 @@ void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
   MouseMoveInternal(event->GetFrame(), dual_transition_);
 }
 
-void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
+void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = ghost_->Track();
 
   if (ghost_) {
-    if (!ghost_->AdjustedLength().isNull()) {
+    if (!ghost_->GetAdjustedLength().isNull()) {
       TransitionBlock* transition;
 
       if (Core::instance()->GetSelectedTransition().isEmpty()) {
@@ -133,8 +134,8 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       if (dual_transition_) {
-        transition->set_length_and_media_out(ghost_->AdjustedLength());
-        transition->set_media_in(-ghost_->AdjustedLength()/2);
+        transition->set_length_and_media_out(ghost_->GetAdjustedLength());
+        transition->set_media_in(-ghost_->GetAdjustedLength()/2);
 
         // Block mouse is hovering over
         Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
@@ -143,8 +144,8 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* friend_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
 
         // Use ghost mode to determine which block is which
-        Block* out_block = (ghost_->mode() == Timeline::kTrimIn) ? friend_block : active_block;
-        Block* in_block = (ghost_->mode() == Timeline::kTrimIn) ? active_block : friend_block;
+        Block* out_block = (ghost_->GetMode() == Timeline::kTrimIn) ? friend_block : active_block;
+        Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
         new NodeEdgeAddCommand(out_block->output(),
@@ -158,11 +159,11 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
         NodeInput* transition_input_to_connect;
 
-        if (ghost_->mode() == Timeline::kTrimIn) {
-          transition->set_length_and_media_out(ghost_->AdjustedLength());
+        if (ghost_->GetMode() == Timeline::kTrimIn) {
+          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = transition->in_block_input();
         } else {
-          transition->set_length_and_media_out(ghost_->AdjustedLength());
+          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = transition->out_block_input();
         }
 

@@ -18,30 +18,31 @@
 
 ***/
 
+#include "edit.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::EditTool::EditTool(TimelineWidget* parent) :
+EditTool::EditTool(TimelineWidget* parent) :
   BeamTool(parent)
 {
 }
 
-void TimelineWidget::EditTool::MousePress(TimelineViewMouseEvent *event)
+void EditTool::MousePress(TimelineViewMouseEvent *event)
 {
   if (!(event->GetModifiers() & Qt::ShiftModifier)) {
     parent()->DeselectAll();
   }
 }
 
-void TimelineWidget::EditTool::MouseMove(TimelineViewMouseEvent *event)
+void EditTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (dragging_) {
-    parent()->selections_ = start_selections_;
+    parent()->SetSelections(start_selections_);
     parent()->AddSelection(TimeRange(start_coord_.GetFrame(), event->GetFrame()),
                            start_coord_.GetTrack());
   } else {
-    start_selections_ = parent()->selections_;
+    start_selections_ = parent()->GetSelections();
 
     dragging_ = true;
 
@@ -60,14 +61,14 @@ void TimelineWidget::EditTool::MouseMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::EditTool::MouseRelease(TimelineViewMouseEvent *event)
+void EditTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   dragging_ = false;
 }
 
-void TimelineWidget::EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
+void EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
 {
-  TimelineViewBlockItem* item = GetItemAtScenePos(event->GetCoordinates());
+  TimelineViewBlockItem* item = parent()->GetItemAtScenePos(event->GetCoordinates());
 
   if (item && !parent()->GetTrackFromReference(item->Track())->IsLocked()) {
     parent()->AddSelection(item);

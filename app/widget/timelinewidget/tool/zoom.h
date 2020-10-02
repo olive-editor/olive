@@ -18,26 +18,24 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef ZOOMTIMELINETOOL_H
+#define ZOOMTIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "tool.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class ZoomTool : public TimelineTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  ZoomTool(TimelineWidget* parent);
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+  virtual void MousePress(TimelineViewMouseEvent *event) override;
+  virtual void MouseMove(TimelineViewMouseEvent *event) override;
+  virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // ZOOMTIMELINETOOL_H

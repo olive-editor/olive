@@ -18,26 +18,26 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef RAZORTIMELINETOOL_H
+#define RAZORTIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "beam.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class RazorTool : public BeamTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  RazorTool(TimelineWidget* parent);
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+  virtual void MousePress(TimelineViewMouseEvent *event) override;
+  virtual void MouseMove(TimelineViewMouseEvent *event) override;
+  virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+
+private:
+  QVector<TrackReference> split_tracks_;
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // RAZORTIMELINETOOL_H

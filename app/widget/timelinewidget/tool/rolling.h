@@ -18,26 +18,23 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef ROLLINGTIMELINETOOL_H
+#define ROLLINGTIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "pointer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class RollingTool : public PointerTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  RollingTool(TimelineWidget* parent);
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+protected:
+  virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                            Timeline::MovementMode trim_mode) override;
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // ROLLINGTIMELINETOOL_H

@@ -48,10 +48,10 @@ public:
   static double CalculateScaleFromDimensions(double viewport_sz, double content_sz);
   static double CalculatePaddingFromDimensionScale(double viewport_sz);
 
-protected:
   double TimeToScene(const rational& time);
   rational SceneToTime(const double &x, bool round = false);
 
+protected:
   virtual void TimebaseChangedEvent(const rational&){}
 
   virtual void ScaleChangedEvent(const double&){}

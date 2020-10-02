@@ -18,23 +18,24 @@
 
 ***/
 
+#include "razor.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::RazorTool::RazorTool(TimelineWidget* parent) :
+RazorTool::RazorTool(TimelineWidget* parent) :
   BeamTool(parent)
 {
 }
 
-void TimelineWidget::RazorTool::MousePress(TimelineViewMouseEvent *event)
+void RazorTool::MousePress(TimelineViewMouseEvent *event)
 {
   split_tracks_.clear();
 
   MouseMove(event);
 }
 
-void TimelineWidget::RazorTool::MouseMove(TimelineViewMouseEvent *event)
+void RazorTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!dragging_) {
     drag_start_ = ValidatedCoordinate(event->GetCoordinates(true));
@@ -49,7 +50,7 @@ void TimelineWidget::RazorTool::MouseMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
+void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

@@ -18,26 +18,31 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef EDITTIMELINETOOL_H
+#define EDITTIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "beam.h"
+#include "tool.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class EditTool : public BeamTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  EditTool(TimelineWidget* parent);
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+  virtual void MousePress(TimelineViewMouseEvent *event) override;
+  virtual void MouseMove(TimelineViewMouseEvent *event) override;
+  virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+  virtual void MouseDoubleClick(TimelineViewMouseEvent *event) override;
+
+private:
+  QHash<TrackReference, TimeRangeList> start_selections_;
+
+  TimelineCoordinate start_coord_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // EDITTIMELINETOOL_H

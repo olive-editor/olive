@@ -50,17 +50,17 @@ public:
 
   bool CanHaveZeroLength() const;
 
-  bool CanMoveTracks() const;
+  bool GetCanMoveTracks() const;
   void SetCanMoveTracks(bool e);
 
   void SetInvisible(bool invisible);
 
-  const rational& In() const;
-  const rational& Out() const;
-  const rational& MediaIn() const;
+  const rational& GetIn() const;
+  const rational& GetOut() const;
+  const rational& GetMediaIn() const;
 
-  rational Length() const;
-  rational AdjustedLength() const;
+  rational GetLength() const;
+  rational GetAdjustedLength() const;
 
   void SetIn(const rational& in);
   void SetOut(const rational& out);
@@ -71,18 +71,18 @@ public:
   void SetTrackAdjustment(const int& track_adj);
   void SetMediaInAdjustment(const rational& media_in_adj);
 
-  const rational& InAdjustment() const;
-  const rational& OutAdjustment() const;
-  const rational& MediaInAdjustment() const;
-  const int& TrackAdjustment() const;
+  const rational& GetInAdjustment() const;
+  const rational& GetOutAdjustment() const;
+  const rational& GetMediaInAdjustment() const;
+  const int& GetTrackAdjustment() const;
 
   rational GetAdjustedIn() const;
   rational GetAdjustedOut() const;
   rational GetAdjustedMediaIn() const;
   TrackReference GetAdjustedTrack() const;
 
-  const Timeline::MovementMode& mode() const;
-  void SetMode(const Timeline::MovementMode& mode);
+  const Timeline::MovementMode& GetMode() const;
+  void SetMode(const Timeline::MovementMode& GetMode);
 
   bool HasBeenAdjusted() const;
 

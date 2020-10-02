@@ -20,6 +20,7 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+#include "add.h"
 #include "core.h"
 #include "node/factory.h"
 #include "node/generator/solid/solid.h"
@@ -28,13 +29,13 @@
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
+AddTool::AddTool(TimelineWidget *parent) :
   BeamTool(parent),
   ghost_(nullptr)
 {
 }
 
-void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
+void AddTool::MousePress(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = event->GetTrack();
 
@@ -78,7 +79,7 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
+void AddTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!ghost_) {
     return;
@@ -87,16 +88,16 @@ void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
   MouseMoveInternal(event->GetFrame(), event->GetModifiers() & Qt::AltModifier);
 }
 
-void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
+void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = ghost_->Track();
 
   if (ghost_) {
-    if (!ghost_->AdjustedLength().isNull()) {
+    if (!ghost_->GetAdjustedLength().isNull()) {
       QUndoCommand* command = new QUndoCommand();
 
       ClipBlock* clip = new ClipBlock();
-      clip->set_length_and_media_out(ghost_->AdjustedLength());
+      clip->set_length_and_media_out(ghost_->GetAdjustedLength());
       clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
@@ -156,14 +157,14 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
+void AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
 {
   // Calculate movement
   rational movement = cursor_frame - drag_start_point_;
 
   // Validation: Ensure in point never goes below 0
-  if (movement < -ghost_->In() || (outwards && -movement < -ghost_->In())) {
-    movement = -ghost_->In();
+  if (movement < -ghost_->GetIn() || (outwards && -movement < -ghost_->GetIn())) {
+    movement = -ghost_->GetIn();
   }
 
   // Snap movement

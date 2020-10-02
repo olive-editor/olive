@@ -21,36 +21,37 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "ripple.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
+RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
   SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+void RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                               Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, true, true, false);
 
-  if (parent()->ghost_items_.isEmpty()) {
+  if (!parent()->HasGhosts()) {
     return;
   }
 
   // Find the earliest ripple
   rational earliest_ripple = RATIONAL_MAX;
 
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     rational ghost_ripple_point;
 
     if (trim_mode == Timeline::kTrimIn) {
-      ghost_ripple_point = ghost->In();
+      ghost_ripple_point = ghost->GetIn();
     } else {
-      ghost_ripple_point = ghost->Out();
+      ghost_ripple_point = ghost->GetOut();
     }
 
     earliest_ripple = qMin(earliest_ripple, ghost_ripple_point);
@@ -65,7 +66,7 @@ void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_ite
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
       if (parent()->GetTrackFromReference(ghost->Track()) == track) {
         ghost_on_this_track_exists = true;
         break;
@@ -103,20 +104,20 @@ void TimelineWidget::RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_ite
   }
 }
 
-void TimelineWidget::RippleTool::FinishDrag(TimelineViewMouseEvent *event)
+void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
   QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
 
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     TrackOutput* track = parent()->GetTrackFromReference(ghost->Track());
 
     TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)),
                                                 Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock)),
                                                 track,
-                                                ghost->AdjustedLength(),
-                                                ghost->Length()};
+                                                ghost->GetAdjustedLength(),
+                                                ghost->GetLength()};
 
     info_list[track->track_type()].append(i);
   }

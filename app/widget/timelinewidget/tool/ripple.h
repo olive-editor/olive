@@ -18,26 +18,24 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef RIPPLETIMELINETOOL_H
+#define RIPPLETIMELINETOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "pointer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class RippleTool : public PointerTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
-}
+public:
+  RippleTool(TimelineWidget* parent);
+protected:
+  virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
-void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                             Timeline::MovementMode trim_mode)
-{
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
-}
+  virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+                            Timeline::MovementMode trim_mode) override;
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // RIPPLETIMELINETOOL_H

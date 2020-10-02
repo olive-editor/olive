@@ -87,7 +87,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeParam::kBoolean, true);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeParam::kBoolean, false);
-  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, TimelineWidget::kDWSAsk);
+  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
 
   SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);

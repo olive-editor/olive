@@ -18,21 +18,22 @@
 
 ***/
 
+#include "beam.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::BeamTool::BeamTool(TimelineWidget *parent) :
-  Tool(parent)
+BeamTool::BeamTool(TimelineWidget *parent) :
+  TimelineTool(parent)
 {
 }
 
-void TimelineWidget::BeamTool::HoverMove(TimelineViewMouseEvent *event)
+void BeamTool::HoverMove(TimelineViewMouseEvent *event)
 {
   parent()->SetViewBeamCursor(ValidatedCoordinate(event->GetCoordinates(true)));
 }
 
-TimelineCoordinate TimelineWidget::BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
+TimelineCoordinate BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
 {
   if (Core::instance()->snapping()) {
     rational movement;
