@@ -45,16 +45,7 @@ public:
 private:
   NodeInput* texture_input_;
 
-  NodeInput* method_input_;
-
-  NodeInput* radius_input_;
-
-  NodeInput* horiz_input_;
-
-  NodeInput* vert_input_;
-
-  NodeInput* repeat_edge_pixels_input_;
-
+  NodeInput* offset_input_;
 };
 
 OLIVE_NAMESPACE_EXIT

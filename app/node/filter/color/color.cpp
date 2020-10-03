@@ -27,21 +27,8 @@ ColorFilterNode::ColorFilterNode()
   texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
   AddInput(texture_input_);
 
-  method_input_ = new NodeInput("method_in", NodeParam::kCombo, 0);
-  AddInput(method_input_);
-
-  radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
-  radius_input_->set_property(QStringLiteral("min"), 0.0f);
-  AddInput(radius_input_);
-
-  horiz_input_ = new NodeInput("horiz_in", NodeParam::kBoolean, true);
-  AddInput(horiz_input_);
-
-  vert_input_ = new NodeInput("vert_in", NodeParam::kBoolean, true);
-  AddInput(vert_input_);
-
-  repeat_edge_pixels_input_ = new NodeInput("repeat_edge_pixels_in", NodeParam::kBoolean, false);
-  AddInput(repeat_edge_pixels_input_);
+  offset_input_ = new NodeInput("offset_in", NodeParam::kFloat, false);
+  AddInput(offset_input_);
 }
 
 Node *ColorFilterNode::copy() const
@@ -56,7 +43,7 @@ QString ColorFilterNode::Name() const
 
 QString ColorFilterNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.color");
+  return QStringLiteral("org.olivevideoeditor.Olive.colorgrade");
 }
 
 QList<Node::CategoryID> ColorFilterNode::Category() const
@@ -72,18 +59,13 @@ QString ColorFilterNode::Description() const
 void ColorFilterNode::Retranslate()
 {
   texture_input_->set_name(tr("Input"));
-  method_input_->set_name(tr("Method"));
-  method_input_->set_combobox_strings({ tr("Box"), tr("Gaussian") });
-  radius_input_->set_name(tr("Radius"));
-  horiz_input_->set_name(tr("Horizontal"));
-  vert_input_->set_name(tr("Vertical"));
-  repeat_edge_pixels_input_->set_name(tr("Repeat Edge Pixels"));
+  offset_input_->set_name(tr("Offset"));
 }
 
 ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(ReadFileAsString(":/shaders/blur.frag"), QString());
+  return ShaderCode(ReadFileAsString(":/shaders/colorgrade.frag"), QString());
 }
 
 NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
@@ -91,38 +73,13 @@ NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
   ShaderJob job;
 
   job.InsertValue(texture_input_, value);
-  job.InsertValue(method_input_, value);
-  job.InsertValue(radius_input_, value);
-  job.InsertValue(horiz_input_, value);
-  job.InsertValue(vert_input_, value);
-  job.InsertValue(repeat_edge_pixels_input_, value);
+  job.InsertValue(offset_input_, value);
 
   NodeValueTable table = value.Merge();
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(texture_input_).data().isNull()) {
-
-    // Check if radius > 0, and both "horiz" and/or "vert" are enabled
-    if ((job.GetValue(horiz_input_).data().toBool() || job.GetValue(vert_input_).data().toBool())
-        && job.GetValue(radius_input_).data().toDouble() > 0.0) {
-
-      // Set iteration count to 2 if we're blurring both horizontally and vertically
-      if (job.GetValue(horiz_input_).data().toBool() && job.GetValue(vert_input_).data().toBool()) {
-        job.SetIterations(2, texture_input_);
-      }
-
-      // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(repeat_edge_pixels_input_).data().toBool()) {
-        job.SetAlphaChannelRequired(true);
-      }
-
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
-
-    } else {
-      // If we're not performing the blur job, just push the texture
-      table.Push(job.GetValue(texture_input_));
-    }
-
+    table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
   }
 
   return table;
