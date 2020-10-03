@@ -32,7 +32,7 @@ OLIVE_NAMESPACE_ENTER
 /**
  * @brief A graphical representation of changes the user is making before they apply it
  */
-class TimelineViewGhostItem : public TimelineViewRect
+class TimelineViewGhostItem
 {
 public:
   enum DataType {
@@ -44,16 +44,14 @@ public:
     kTrimShouldBeIgnored
   };
 
-  TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
+  TimelineViewGhostItem();
 
-  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track, int y, int height);
+  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track);
 
   bool CanHaveZeroLength() const;
 
   bool GetCanMoveTracks() const;
   void SetCanMoveTracks(bool e);
-
-  void SetInvisible(bool invisible);
 
   const rational& GetIn() const;
   const rational& GetOut() const;
@@ -86,7 +84,35 @@ public:
 
   bool HasBeenAdjusted() const;
 
-  virtual void UpdateRect() override;
+  QVariant GetData(int key) const
+  {
+    return data_.value(key);
+  }
+
+  void SetData(int key, const QVariant& value)
+  {
+    data_.insert(key, value);
+  }
+
+  const TrackReference& GetTrack() const
+  {
+    return track_;
+  }
+
+  void SetTrack(const TrackReference& track)
+  {
+    track_ = track;
+  }
+
+  bool IsInvisible() const
+  {
+    return invisible_;
+  }
+
+  void SetInvisible(bool e)
+  {
+    invisible_ = e;
+  }
 
 protected:
 
@@ -107,6 +133,13 @@ private:
 
   bool can_have_zero_length_;
   bool can_move_tracks_;
+
+  TrackReference track_;
+
+  QHash<int, QVariant> data_;
+
+  bool invisible_;
+
 };
 
 OLIVE_NAMESPACE_EXIT

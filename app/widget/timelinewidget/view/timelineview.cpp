@@ -38,6 +38,7 @@ OLIVE_NAMESPACE_ENTER
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
   selections_(nullptr),
+  ghosts_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr)
 {
@@ -229,21 +230,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
   TimelineViewBase::drawForeground(painter, rect);
 
-  if (show_beam_cursor_
-      && connected_track_list_
-      && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
-    painter->setPen(Qt::gray);
-
-    double cursor_x = TimeToScene(cursor_coord_.GetFrame());
-    int track_index = cursor_coord_.GetTrack().index();
-    int track_y = GetTrackY(track_index);
-
-    painter->drawLine(cursor_x,
-                      track_y,
-                      cursor_x,
-                      track_y + GetTrackHeight(track_index));
-  }
-
+  // Draw selections
   if (selections_ && !selections_->isEmpty()) {
     painter->setPen(Qt::NoPen);
     painter->setBrush(QColor(0, 0, 0, 64));
@@ -260,6 +247,39 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
         }
       }
     }
+  }
+
+  // Draw ghosts
+  if (ghosts_ && !ghosts_->isEmpty()) {
+    painter->setPen(QPen(Qt::yellow, 2));
+    painter->setBrush(Qt::NoBrush);
+
+    foreach (TimelineViewGhostItem* ghost, (*ghosts_)) {
+      if (ghost->GetTrack().type() == connected_track_list_->type()) {
+        int track_index = ghost->GetAdjustedTrack().index();
+
+        painter->drawRect(TimeToScene(ghost->GetAdjustedIn()),
+                          GetTrackY(track_index),
+                          TimeToScene(ghost->GetAdjustedLength()),
+                          GetTrackHeight(track_index));
+      }
+    }
+  }
+
+  // Draw beam cursor
+  if (show_beam_cursor_
+      && connected_track_list_
+      && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
+    painter->setPen(Qt::gray);
+
+    double cursor_x = TimeToScene(cursor_coord_.GetFrame());
+    int track_index = cursor_coord_.GetTrack().index();
+    int track_y = GetTrackY(track_index);
+
+    painter->drawLine(cursor_x,
+                      track_y,
+                      cursor_x,
+                      track_y + GetTrackHeight(track_index));
   }
 }
 

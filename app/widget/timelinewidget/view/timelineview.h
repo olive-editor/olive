@@ -64,6 +64,11 @@ public:
     selections_ = s;
   }
 
+  void SetGhostList(QVector<TimelineViewGhostItem*>* ghosts)
+  {
+    ghosts_ = ghosts;
+  }
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -114,6 +119,8 @@ private:
   void UpdatePlayheadRect();
 
   QHash<TrackReference, TimeRangeList>* selections_;
+
+  QVector<TimelineViewGhostItem*>* ghosts_;
 
   bool show_beam_cursor_;
 
