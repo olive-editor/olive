@@ -108,30 +108,43 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
+  if (parent()->HasGhosts()) {
+    QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
 
-  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    TrackOutput* track = parent()->GetTrackFromReference(ghost->GetTrack());
+    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+      TrackOutput* track = parent()->GetTrackFromReference(ghost->GetTrack());
 
-    TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)),
-                                                Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock)),
-                                                track,
-                                                ghost->GetAdjustedLength(),
-                                                ghost->GetLength()};
+      TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)),
+                                                  Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock)),
+                                                  track,
+                                                  ghost->GetAdjustedLength(),
+                                                  ghost->GetLength()};
 
-    info_list[track->track_type()].append(i);
+      info_list[track->track_type()].append(i);
+    }
+
+    QUndoCommand* command = new QUndoCommand();
+
+    if (!info_list.isEmpty()) {
+      for (int i=0;i<info_list.size();i++) {
+        new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+                                       info_list.at(i),
+                                       drag_movement_mode(),
+                                       command);
+      }
+
+      TimelineWidgetSelections new_sel = parent()->GetSelections();
+      TimelineViewGhostItem* reference_ghost = parent()->GetGhostItems().first();
+      if (drag_movement_mode() == Timeline::kTrimIn) {
+        new_sel.TrimOut(-reference_ghost->GetInAdjustment());
+      } else {
+        new_sel.TrimOut(reference_ghost->GetOutAdjustment());
+      }
+      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  QUndoCommand* command = new QUndoCommand();
-
-  for (int i=0;i<info_list.size();i++) {
-    new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
-                                   info_list.at(i),
-                                   drag_movement_mode(),
-                                   command);
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -37,6 +37,10 @@ public:
 
   void ShiftTracks(Timeline::TrackType type, int diff);
 
+  void TrimIn(const rational& diff);
+
+  void TrimOut(const rational& diff);
+
 };
 
 OLIVE_NAMESPACE_EXIT

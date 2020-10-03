@@ -554,18 +554,32 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
   new NodeGraphBeginOperationCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), command);
 
-  foreach (const GhostBlockPair& p, blocks_trimming) {
-    TimelineViewGhostItem* ghost = p.ghost;
+  if (!blocks_trimming.isEmpty()) {
+    foreach (const GhostBlockPair& p, blocks_trimming) {
+      TimelineViewGhostItem* ghost = p.ghost;
 
-    if (!ghost->GetData(TimelineViewGhostItem::kTrimShouldBeIgnored).toBool()) {
-      // Must be an ordinary trim/roll
-      BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->GetAdjustedTrack()),
-                                                 p.block,
-                                                 ghost->GetAdjustedLength(),
-                                                 ghost->GetMode(),
-                                                 command);
+      if (!ghost->GetData(TimelineViewGhostItem::kTrimShouldBeIgnored).toBool()) {
+        // Must be an ordinary trim/roll
+        BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->GetAdjustedTrack()),
+                                                   p.block,
+                                                   ghost->GetAdjustedLength(),
+                                                   ghost->GetMode(),
+                                                   command);
 
-      c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
+        c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
+      }
+    }
+
+    if (blocks_moving.isEmpty() && blocks_sliding.isEmpty()) {
+      // Trim selections (deferring to moving/sliding blocks when necessary)
+      TimelineWidgetSelections new_sel = parent()->GetSelections();
+      TimelineViewGhostItem* reference_ghost = blocks_trimming.first().ghost;
+      if (reference_ghost->GetMode() == Timeline::kTrimIn) {
+        new_sel.TrimIn(reference_ghost->GetInAdjustment());
+      } else {
+        new_sel.TrimOut(reference_ghost->GetOutAdjustment());
+      }
+      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
   }
 
