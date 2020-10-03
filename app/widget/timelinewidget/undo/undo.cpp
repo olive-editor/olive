@@ -25,6 +25,7 @@
 #include "node/block/transition/transition.h"
 #include "node/graph.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -1694,6 +1695,24 @@ void TransitionRemoveCommand::undo_internal()
   track_->EndOperation();
 
   track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
+}
+
+TimelineSetSelectionsCommand::TimelineSetSelectionsCommand(TimelineWidget *timeline, const TimelineWidgetSelections &now, const TimelineWidgetSelections &old, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  timeline_(timeline),
+  old_(old),
+  now_(now)
+{
+}
+
+void TimelineSetSelectionsCommand::redo()
+{
+  timeline_->SetSelections(now_);
+}
+
+void TimelineSetSelectionsCommand::undo()
+{
+  timeline_->SetSelections(old_);
 }
 
 OLIVE_NAMESPACE_EXIT

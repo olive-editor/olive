@@ -30,6 +30,7 @@
 #include "node/output/track/tracklist.h"
 #include "timeline/timelinepoints.h"
 #include "undo/undocommand.h"
+#include "widget/timelinewidget/timelinewidgetselections.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -610,6 +611,23 @@ private:
 
   Block* out_block_;
   Block* in_block_;
+
+};
+
+class TimelineWidget;
+
+class TimelineSetSelectionsCommand : public QUndoCommand {
+public:
+  TimelineSetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineWidget* timeline_;
+  TimelineWidgetSelections old_;
+  TimelineWidgetSelections now_;
 
 };
 

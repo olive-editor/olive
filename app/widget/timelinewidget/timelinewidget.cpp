@@ -119,6 +119,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view->SetSnapService(this);
     view->SetSelectionList(&selections_);
+    view->SetGhostList(&ghost_items_);
 
     view_splitter_->addWidget(tview);
 
@@ -173,20 +174,17 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::Clear()
 {
-  QList<Block*> deselected_blocks;
-
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-  for (iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
-    if (IsItemSelected(iterator.value())) {
-      deselected_blocks.append(iterator.key());
-    }
-
+  // Delete all items
+  for (auto iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
     delete iterator.value();
   }
   block_items_.clear();
 
-  emit BlocksDeselected(deselected_blocks);
+  // Emit that we've deselected any selected blocks
+  emit BlocksDeselected(selected_blocks_);
+  selected_blocks_.clear();
 
+  // Set null timebase
   SetTimebase(0);
 }
 
@@ -234,10 +232,6 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
     if (iterator.value()) {
       iterator.value()->SetScale(scale);
     }
-  }
-
-  foreach (TimelineViewGhostItem* ghost, ghost_items_) {
-    ghost->SetScale(scale);
   }
 
   foreach (TimelineAndTrackView* view, views_) {
@@ -375,34 +369,31 @@ rational TimelineWidget::GetToolTipTimebase() const
 
 void TimelineWidget::SelectAll()
 {
-  QList<Block*> blocks_selected;
+  QList<Block*> newly_selected_blocks;
 
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
-
-  for (i=block_items_.constBegin(); i!=block_items_.end(); i++) {
-    if (!IsItemSelected(i.value())) {
-      AddSelection(i.value());
-      blocks_selected.append(i.key());
+  for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
+    if (!selected_blocks_.contains(it.key())) {
+      newly_selected_blocks.append(it.key());
+      AddSelection(it.key()->range(), it.value()->Track());
     }
   }
 
-  emit BlocksSelected(blocks_selected);
+  SignalSelectedBlocks(newly_selected_blocks);
 }
 
 void TimelineWidget::DeselectAll()
 {
-  QList<Block*> blocks_deselected;
+  // Clear selections
+  selections_.clear();
 
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
+  // Update all viewports
+  UpdateViewports();
 
-  for (i=block_items_.constBegin(); i!=block_items_.end(); i++) {
-    if (IsItemSelected(i.value())) {
-      RemoveSelection(i.value());
-      blocks_deselected.append(i.key());
-    }
-  }
+  // Emit signal that any previously selected block is no longer selected
+  emit BlocksDeselected(selected_blocks_);
 
-  emit BlocksDeselected(blocks_deselected);
+  // Empty selected blocks list
+  selected_blocks_.clear();
 }
 
 void TimelineWidget::RippleToIn()
@@ -543,6 +534,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // Replace clips with gaps (effectively deleting them)
   ReplaceBlocksWithGaps(clips_to_delete, true, command);
+
+  // Remove all selections
+  new TimelineSetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), command);
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {
@@ -780,16 +774,8 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;
 
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
-
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    TimelineViewBlockItem* item = iterator.value();
-
-    if (item && IsItemSelected(item)) {
-      list.append(item);
-    }
+  foreach (Block* b, selected_blocks_) {
+    list.append(block_items_.value(b));
   }
 
   return list;
@@ -950,20 +936,30 @@ void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
   QList<Block*> deselect_blocks;
 
   foreach (Block* b, blocks) {
+    // Disconnect all signals
     disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
     disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
     disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
     disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
+    // Take item from map
     TimelineViewBlockItem* item = block_items_.take(b);
-    delete_items.append(item);
 
-    if (IsItemSelected(item)) {
+    // If selected, deselect it
+    int select_index = selected_blocks_.indexOf(b);
+    if (select_index > -1) {
+      selected_blocks_.removeAt(select_index);
       deselect_blocks.append(b);
+      RemoveSelection(item);
     }
+
+    // Finally, delete item
+    delete item;
   }
 
   if (!deselect_blocks.isEmpty()) {
+    // We already removed the blocks from selected_blocks_, so we can signal directly rather than
+    // through
     emit BlocksDeselected(deselect_blocks);
   }
 
@@ -1171,9 +1167,9 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
-  ghost->SetScale(GetScale());
   ghost_items_.append(ghost);
-  views_.at(ghost->Track().type())->view()->scene()->addItem(ghost);
+
+  UpdateViewports(ghost->GetTrack().type());
 }
 
 void TimelineWidget::UpdateViewTimebases()
@@ -1229,6 +1225,22 @@ TimelineView *TimelineWidget::GetFirstTimelineView()
 const QRect& TimelineWidget::GetRubberBandGeometry() const
 {
   return rubberband_.geometry();
+}
+
+void TimelineWidget::SignalSelectedBlocks(const QList<Block *> &selected_blocks)
+{
+  selected_blocks_.append(selected_blocks);
+
+  emit BlocksSelected(selected_blocks);
+}
+
+void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blocks)
+{
+  foreach (Block* b, deselected_blocks) {
+    selected_blocks_.removeOne(b);
+  }
+
+  emit BlocksDeselected(deselected_blocks);
 }
 
 QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
@@ -1372,6 +1384,17 @@ void TimelineWidget::ShowSnap(const QList<rational> &times)
   }
 }
 
+void TimelineWidget::UpdateViewports(const Timeline::TrackType &type)
+{
+  if (type == Timeline::kTrackTypeNone) {
+    foreach (TimelineAndTrackView* tview, views_) {
+      tview->view()->viewport()->update();
+    }
+  } else {
+    views_.at(type)->view()->viewport()->update();
+  }
+}
+
 void TimelineWidget::HideSnaps()
 {
   foreach (TimelineAndTrackView* tview, views_) {
@@ -1396,10 +1419,8 @@ void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_li
 
   // We don't touch any blocks that are already selected. If you want these to be deselected by
   // default, call DeselectAll() befoer calling StartRubberBandSelect()
-  foreach (TimelineViewBlockItem* block, block_items_) {
-    if (IsItemSelected(block)) {
-      rubberband_already_selected_.append(block);
-    }
+  foreach (Block* b, selected_blocks_) {
+    rubberband_already_selected_.append(block_items_.value(b));
   }
 
   MoveRubberBandSelect(enable_selecting, select_links);
@@ -1507,7 +1528,7 @@ void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &t
 {
   selections_[track].InsertTimeRange(time);
 
-  views_.at(track.type())->view()->viewport()->update();
+  UpdateViewports(track.type());
 }
 
 void TimelineWidget::AddSelection(TimelineViewBlockItem *item)
@@ -1519,7 +1540,7 @@ void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference
 {
   selections_[track].RemoveTimeRange(time);
 
-  views_.at(track.type())->view()->viewport()->update();
+  UpdateViewports(track.type());
 }
 
 void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
@@ -1527,22 +1548,11 @@ void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
   RemoveSelection(item->block()->range(), item->Track());
 }
 
-void TimelineWidget::ShiftSelections(const rational &diff)
-{
-  for (auto it=selections_.begin(); it!=selections_.end(); it++) {
-    for (auto it2=it.value().begin(); it2!=it.value().end(); it2++) {
-      (*it2) += diff;
-    }
-  }
-}
-
-void TimelineWidget::SetSelections(const TimelineWidget::Selections &s)
+void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
 {
   selections_ = s;
 
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->viewport(),update();
-  }
+  UpdateViewports();
 }
 
 TimelineViewBlockItem *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
@@ -1559,11 +1569,6 @@ TimelineViewBlockItem *TimelineWidget::GetItemAtScenePos(const TimelineCoordinat
   }
 
   return nullptr;
-}
-
-bool TimelineWidget::IsItemSelected(TimelineViewBlockItem *item) const
-{
-  return selections_[item->Track()].ContainsTimeRange(item->block()->range());
 }
 
 struct SnapData {

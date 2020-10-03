@@ -34,6 +34,7 @@
 #include "widget/nodecopypaste/nodecopypaste.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timebased/timebased.h"
+#include "widget/timelinewidget/timelinewidgetselections.h"
 #include "widget/timelinewidget/tool/import.h"
 #include "widget/timelinewidget/tool/tool.h"
 
@@ -113,22 +114,18 @@ public:
     return block_items_;
   }
 
-  using Selections = QHash<TrackReference, TimeRangeList>;
-
   void AddSelection(const TimeRange& time, const TrackReference& track);
   void AddSelection(TimelineViewBlockItem* item);
 
   void RemoveSelection(const TimeRange& time, const TrackReference& track);
   void RemoveSelection(TimelineViewBlockItem* item);
 
-  void ShiftSelections(const rational& diff);
-
-  const Selections& GetSelections() const
+  const TimelineWidgetSelections& GetSelections() const
   {
     return selections_;
   }
 
-  void SetSelections(const Selections& s);
+  void SetSelections(const TimelineWidgetSelections &s);
 
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
 
@@ -159,7 +156,10 @@ public:
 
   rational GetToolTipTimebase() const;
 
-  bool IsItemSelected(TimelineViewBlockItem* item) const;
+  bool IsBlockSelected(Block* b) const
+  {
+    return selected_blocks_.contains(b);
+  }
 
   void SetBlockLinksSelected(Block *block, bool selected);
 
@@ -168,6 +168,10 @@ public:
   TimelineView* GetFirstTimelineView();
 
   const QRect &GetRubberBandGeometry() const;
+
+  void SignalSelectedBlocks(const QList<Block*>& selected_blocks);
+
+  void SignalDeselectedBlocks(const QList<Block*>& deselected_blocks);
 
 signals:
   void BlocksSelected(const QList<Block*>& selected_blocks);
@@ -203,13 +207,15 @@ private:
 
   void ShowSnap(const QList<rational>& times);
 
+  void UpdateViewports(const Timeline::TrackType& type = Timeline::kTrackTypeNone);
+
   QPoint drag_origin_;
 
   QRubberBand rubberband_;
   QList<QGraphicsItem*> rubberband_already_selected_;
   QList<QGraphicsItem*> rubberband_now_selected_;
 
-  Selections selections_;
+  TimelineWidgetSelections selections_;
 
   TimelineTool* GetActiveTool();
 
@@ -226,6 +232,8 @@ private:
   QList<TimelineAndTrackView*> views_;
 
   TimeSlider* timecode_label_;
+
+  QList<Block*> selected_blocks_;
 
   int deferred_scroll_value_;
 
