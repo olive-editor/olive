@@ -71,7 +71,7 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
+    Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
     new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn(), command);
   }

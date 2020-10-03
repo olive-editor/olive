@@ -142,9 +142,6 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
         ghost->SetOutAdjustment(time_movement);
         ghost->SetTrackAdjustment(track_movement);
 
-        TrackReference adjusted_track = ghost->GetAdjustedTrack();
-        ghost->SetYCoords(parent()->GetTrackY(adjusted_track), parent()->GetTrackHeight(adjusted_track));
-
         earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
       }
 
@@ -258,7 +255,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
       ghost->SetMode(Timeline::kMove);
 
       footage_ghosts.append(ghost);
@@ -404,7 +401,7 @@ void ImportTool::DropGhosts(bool insert)
     for (int i=0;i<parent()->GetGhostItems().size();i++) {
       TimelineViewGhostItem* ghost = parent()->GetGhostItems().at(i);
 
-      StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+      StreamPtr footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
 
       ClipBlock* clip = new ClipBlock();
       clip->set_media_in(ghost->GetMediaIn());
@@ -463,7 +460,7 @@ void ImportTool::DropGhosts(bool insert)
 
       // Link any clips so far that share the same Footage with this one
       for (int j=0;j<i;j++) {
-        StreamPtr footage_compare = parent()->GetGhostItems().at(j)->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+        StreamPtr footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
 
         if (footage_compare->footage() == footage_stream->footage()) {
           Block::Link(block_items.at(j), clip);

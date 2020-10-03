@@ -67,7 +67,7 @@ void RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
     bool ghost_on_this_track_exists = false;
 
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-      if (parent()->GetTrackFromReference(ghost->Track()) == track) {
+      if (parent()->GetTrackFromReference(ghost->GetTrack()) == track) {
         ghost_on_this_track_exists = true;
         break;
       }
@@ -96,7 +96,7 @@ void RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
           } else {
             // If next is NOT a gap, we'll need to create one, for which we'll use a null ghost
             ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
-            ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
+            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
           }
         }
       }
@@ -111,10 +111,10 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
   QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
 
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    TrackOutput* track = parent()->GetTrackFromReference(ghost->Track());
+    TrackOutput* track = parent()->GetTrackFromReference(ghost->GetTrack());
 
-    TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)),
-                                                Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock)),
+    TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)),
+                                                Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock)),
                                                 track,
                                                 ghost->GetAdjustedLength(),
                                                 ghost->GetLength()};

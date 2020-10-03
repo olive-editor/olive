@@ -72,7 +72,6 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
     ghost_->SetIn(drag_start_point_);
     ghost_->SetOut(drag_start_point_);
     ghost_->SetTrack(track);
-    ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
     parent()->AddGhost(ghost_);
 
     snap_points_.append(drag_start_point_);
@@ -90,7 +89,7 @@ void AddTool::MouseMove(TimelineViewMouseEvent *event)
 
 void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->Track();
+  const TrackReference& track = ghost_->GetTrack();
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {

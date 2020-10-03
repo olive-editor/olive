@@ -78,15 +78,14 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
   // Create ghost
   ghost_ = new TimelineViewGhostItem();
   ghost_->SetTrack(track);
-  ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
   ghost_->SetIn(transition_start_point);
   ghost_->SetOut(transition_start_point);
   ghost_->SetMode(trim_mode);
-  ghost_->setData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(block_at_time));
+  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(block_at_time));
 
   dual_transition_ = (other_block);
   if (other_block)
-    ghost_->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(other_block));
+    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(other_block));
 
   parent()->AddGhost(ghost_);
 
@@ -107,7 +106,7 @@ void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->Track();
+  const TrackReference& track = ghost_->GetTrack();
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {
@@ -138,10 +137,10 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         transition->set_media_in(-ghost_->GetAdjustedLength()/2);
 
         // Block mouse is hovering over
-        Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+        Block* active_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         // Block mouse is next to
-        Block* friend_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
+        Block* friend_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kReferenceBlock));
 
         // Use ghost mode to determine which block is which
         Block* out_block = (ghost_->GetMode() == Timeline::kTrimIn) ? friend_block : active_block;
@@ -156,7 +155,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                transition->in_block_input(),
                                command);
       } else {
-        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         NodeInput* transition_input_to_connect;
 
         if (ghost_->GetMode() == Timeline::kTrimIn) {

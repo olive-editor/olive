@@ -76,7 +76,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     }
 
     // If this item is already selected, no further selection needs to be made
-    if (parent()->IsItemSelected(clicked_item_)) {
+    if (parent()->IsBlockSelected(clicked_item_->block())) {
 
       // Collect item deselections
       QList<Block*> deselected_blocks;
@@ -93,7 +93,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
         }
       }
 
-      emit parent()->BlocksDeselected(deselected_blocks);
+      parent()->SignalDeselectedBlocks(deselected_blocks);
 
       return;
     }
@@ -119,7 +119,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
       selected_blocks.append(clicked_item_->block()->linked_clips().toList());
     }
 
-    emit parent()->BlocksSelected(selected_blocks);
+    parent()->SignalSelectedBlocks(selected_blocks);
 
   } else if (event->GetButton() == Qt::LeftButton) {
 
@@ -215,7 +215,7 @@ void PointerTool::HoverMove(TimelineViewMouseEvent *event)
 void SetGhostToSlideMode(TimelineViewGhostItem* g)
 {
   g->SetCanMoveTracks(false);
-  g->setData(TimelineViewGhostItem::kGhostIsSliding, true);
+  g->SetData(TimelineViewGhostItem::kGhostIsSliding, true);
 }
 
 void PointerTool::InitiateDragInternal(TimelineViewBlockItem *clicked_item,
@@ -427,16 +427,16 @@ void PointerTool::InitiateDragInternal(TimelineViewBlockItem *clicked_item,
 
         // If we have an adjacent block (for any reason), this is a roll edit and the adjacent is
         // expected to fill the remaining space (no gap needs to be created)
-        ghost->setData(TimelineViewGhostItem::kTrimIsARollEdit, static_cast<bool>(adjacent));
+        ghost->SetData(TimelineViewGhostItem::kTrimIsARollEdit, static_cast<bool>(adjacent));
 
         if (adjacent_ghost) {
           if (treat_trim_as_slide) {
             // We're sliding a transition rather than a pure trim/roll
             SetGhostToSlideMode(adjacent_ghost);
           } else if (block->type() == Block::kGap) {
-            ghost->setData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
+            ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
           } else {
-            adjacent_ghost->setData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
+            adjacent_ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
           }
         }
       }
@@ -472,7 +472,7 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   {
     QVector<TimelineViewGhostItem*> validate_track_ghosts = parent()->GetGhostItems();
     for (int i=0;i<validate_track_ghosts.size();i++) {
-      if (validate_track_ghosts.at(i)->Track().type() != drag_track_type_) {
+      if (validate_track_ghosts.at(i)->GetTrack().type() != drag_track_type_) {
         validate_track_ghosts.removeAt(i);
         i--;
       }
@@ -498,11 +498,8 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
       // Track movement is only legal for moving, not for trimming
       // Also, we only move the clips on the same track type that the drag started from
-      if (ghost->Track().type() == drag_track_type_) {
+      if (ghost->GetTrack().type() == drag_track_type_) {
         ghost->SetTrackAdjustment(track_movement);
-
-        const TrackReference& track = ghost->GetAdjustedTrack();
-        ghost->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
       }
       break;
     }
@@ -534,9 +531,9 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
   // Sort ghosts depending on which ones are trimming, which are moving, and which are sliding
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     if (ghost->HasBeenAdjusted()) {
-      Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
+      Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-      if (ghost->data(TimelineViewGhostItem::kGhostIsSliding).toBool()) {
+      if (ghost->GetData(TimelineViewGhostItem::kGhostIsSliding).toBool()) {
         blocks_sliding.append({ghost, b});
       } else if (ghost->GetMode() == Timeline::kMove) {
         blocks_moving.append({ghost, b});
@@ -560,7 +557,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
   foreach (const GhostBlockPair& p, blocks_trimming) {
     TimelineViewGhostItem* ghost = p.ghost;
 
-    if (!ghost->data(TimelineViewGhostItem::kTrimShouldBeIgnored).toBool()) {
+    if (!ghost->GetData(TimelineViewGhostItem::kTrimShouldBeIgnored).toBool()) {
       // Must be an ordinary trim/roll
       BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->GetAdjustedTrack()),
                                                  p.block,
@@ -568,7 +565,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                                  ghost->GetMode(),
                                                  command);
 
-      c->SetTrimIsARollEdit(ghost->data(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
+      c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
     }
   }
 
@@ -618,6 +615,12 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                  p.ghost->GetAdjustedIn(),
                                  command);
     }
+
+    // Adjust selections
+    TimelineWidgetSelections new_sel = parent()->GetSelections();
+    new_sel.ShiftTime(blocks_moving.first().ghost->GetInAdjustment());
+    new_sel.ShiftTracks(drag_track_type_, blocks_moving.first().ghost->GetTrackAdjustment());
+    new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
   }
 
   if (!blocks_sliding.isEmpty()) {
@@ -630,7 +633,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     rational movement;
 
     foreach (const GhostBlockPair& p, blocks_sliding) {
-      const TrackReference& track = p.ghost->Track();
+      const TrackReference& track = p.ghost->GetTrack();
 
       switch (p.ghost->GetMode()) {
       case Timeline::kNone:
@@ -675,6 +678,11 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                               movement,
                               command);
       }
+
+      // Adjust selections
+      TimelineWidgetSelections new_sel = parent()->GetSelections();
+      new_sel.ShiftTime(movement);
+      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
   }
 
@@ -713,16 +721,13 @@ TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, const TrackR
 {
   if (check_if_exists) {
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-      if (Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock)) == block) {
+      if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
         return ghost;
       }
     }
   }
 
-  TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block,
-                                                                  track,
-                                                                  parent()->GetTrackY(track),
-                                                                  parent()->GetTrackHeight(track));
+  TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block, track);
 
 #ifdef HIDE_GAP_GHOSTS
   if (block->type() == Block::kGap) {
@@ -742,7 +747,6 @@ TimelineViewGhostItem* PointerTool::AddGhostFromNull(const rational &in, const r
   ghost->SetIn(in);
   ghost->SetOut(out);
   ghost->SetTrack(track);
-  ghost->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
 
 #ifdef HIDE_GAP_GHOSTS
   ghost->SetInvisible(true);

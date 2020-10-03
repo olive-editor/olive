@@ -38,8 +38,18 @@ void EditTool::MousePress(TimelineViewMouseEvent *event)
 void EditTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (dragging_) {
+    rational end_frame = event->GetFrame(true);
+
+    if (Core::instance()->snapping()) {
+      rational movement;
+      parent()->SnapPoint({end_frame}, &movement);
+      if (!movement.isNull()) {
+        end_frame += movement;
+      }
+    }
+
     parent()->SetSelections(start_selections_);
-    parent()->AddSelection(TimeRange(start_coord_.GetFrame(), event->GetFrame()),
+    parent()->AddSelection(TimeRange(start_coord_.GetFrame(), end_frame),
                            start_coord_.GetTrack());
   } else {
     start_selections_ = parent()->GetSelections();

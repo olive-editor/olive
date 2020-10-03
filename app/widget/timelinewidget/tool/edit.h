@@ -23,6 +23,7 @@
 
 #include "beam.h"
 #include "tool.h"
+#include "widget/timelinewidget/timelinewidgetselections.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,7 +38,7 @@ public:
   virtual void MouseDoubleClick(TimelineViewMouseEvent *event) override;
 
 private:
-  QHash<TrackReference, TimeRangeList> start_selections_;
+  TimelineWidgetSelections start_selections_;
 
   TimelineCoordinate start_coord_;
 

@@ -80,10 +80,10 @@ int TimelineTool::ValidateTrackMovement(int movement, const QVector<TimelineView
 
       return 0;
 
-    } else if (ghost->Track().index() + movement < 0) {
+    } else if (ghost->GetTrack().index() + movement < 0) {
 
       // Prevents any ghosts from going to a non-existent negative track
-      movement = -ghost->Track().index();
+      movement = -ghost->GetTrack().index();
 
     }
   }
