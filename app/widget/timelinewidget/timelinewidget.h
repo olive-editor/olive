@@ -293,6 +293,8 @@ private slots:
 
   void ViewTimestampChanged(int64_t ts);
 
+  void ToolChanged();
+
 };
 
 OLIVE_NAMESPACE_EXIT

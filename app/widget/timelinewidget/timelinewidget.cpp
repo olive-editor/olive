@@ -162,6 +162,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   SetMaximumScale(TimelineViewBase::kMaximumScale);
   SetAutoSetTimebase(false);
+
+  connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -1163,6 +1165,11 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
 
   ruler()->SetTime(ts);
   emit TimeChanged(ts);
+}
+
+void TimelineWidget::ToolChanged()
+{
+  HideSnaps();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
