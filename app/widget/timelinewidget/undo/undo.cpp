@@ -243,10 +243,6 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     foreach (Block* remove_block, removed_blocks_) {
       track_->RippleRemoveBlock(remove_block);
 
-      BlockUnlinkAllCommand* unlink_command = new BlockUnlinkAllCommand(remove_block);
-      unlink_command->redo();
-      remove_block_commands_.append(unlink_command);
-
       NodeRemoveWithExclusiveDeps* remove_command = new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(remove_block->parent()), remove_block);
       remove_command->redo();
       remove_block_commands_.append(remove_command);
