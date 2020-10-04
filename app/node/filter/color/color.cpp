@@ -29,6 +29,15 @@ ColorFilterNode::ColorFilterNode()
 
   offset_input_ = new NodeInput("offset_in", NodeParam::kFloat, false);
   AddInput(offset_input_);
+
+  offset_r_input_ = new NodeInput("offset_r_in", NodeParam::kFloat, false);
+  AddInput(offset_r_input_);
+
+  offset_g_input_ = new NodeInput("offset_g_in", NodeParam::kFloat, false);
+  AddInput(offset_g_input_);
+
+  offset_b_input_ = new NodeInput("offset_b_in", NodeParam::kFloat, false);
+  AddInput(offset_b_input_);
 }
 
 Node *ColorFilterNode::copy() const
@@ -60,6 +69,9 @@ void ColorFilterNode::Retranslate()
 {
   texture_input_->set_name(tr("Input"));
   offset_input_->set_name(tr("Offset"));
+  offset_r_input_->set_name(tr("Offset Red"));
+  offset_g_input_->set_name(tr("Offset Green"));
+  offset_b_input_->set_name(tr("Offset Blue"));
 }
 
 ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
@@ -74,6 +86,9 @@ NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
 
   job.InsertValue(texture_input_, value);
   job.InsertValue(offset_input_, value);
+  job.InsertValue(offset_r_input_, value);
+  job.InsertValue(offset_g_input_, value);
+  job.InsertValue(offset_b_input_, value);
 
   NodeValueTable table = value.Merge();
 
