@@ -25,6 +25,7 @@
 
 #include "project.h"
 #include "undo/undocommand.h"
+#include "node/block/block.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -192,6 +193,30 @@ public:
 
     Item* parent_;
 
+  };
+
+  /**
+   * @brief An undo command for offlining footage when it is deleted from the project explorer
+   */
+  class OfflineFootageCommand : public UndoCommand {
+  public:
+    OfflineFootageCommand(ProjectViewModel* model, ItemPtr item, QMap<Node*, StreamPtr> nodes,  QUndoCommand* parent = nullptr);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo_internal() override;
+
+    virtual void undo_internal() override;
+
+  private:
+    ProjectViewModel* model_;
+
+    ItemPtr item_;
+
+    Item* parent_;
+
+    QMap<Node*, StreamPtr> nodes_;
   };
 
 private:

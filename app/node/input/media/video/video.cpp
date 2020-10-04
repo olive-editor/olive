@@ -36,6 +36,11 @@ Node *VideoInput::copy() const
   return new VideoInput();
 }
 
+Stream::Type VideoInput::type() const
+{
+	return Stream::kVideo;
+}
+
 QString VideoInput::Name() const
 {
   return tr("Video Input");

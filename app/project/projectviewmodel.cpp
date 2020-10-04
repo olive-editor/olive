@@ -25,6 +25,7 @@
 #include <QUrl>
 
 #include "core.h"
+#include "node/input/media/media.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -601,6 +602,43 @@ void ProjectViewModel::RemoveItemCommand::redo_internal()
 void ProjectViewModel::RemoveItemCommand::undo_internal()
 {
   model_->AddChild(parent_, item_);
+}
+
+ProjectViewModel::OfflineFootageCommand::OfflineFootageCommand(ProjectViewModel* model, ItemPtr item,
+    QMap<Node*, StreamPtr> nodes, QUndoCommand* parent) :
+    UndoCommand(parent),
+    model_(model),
+    item_(item),
+    nodes_(nodes)
+{
+}
+
+Project *ProjectViewModel::OfflineFootageCommand::GetRelevantProject() const
+{
+  return model_->project();
+}
+
+void ProjectViewModel::OfflineFootageCommand::redo_internal()
+{
+  QMap<Node *, StreamPtr>::const_iterator it = nodes_.constBegin();
+  while (it != nodes_.constEnd()) {
+    static_cast<MediaInput *>(it.key())->SetFootage(nullptr);
+    ++it;
+  }
+
+  parent_ = item_->parent();
+  model_->RemoveChild(parent_, item_.get());
+}
+
+void ProjectViewModel::OfflineFootageCommand::undo_internal()
+{
+  model_->AddChild(parent_, item_);
+
+  QMap<Node *, StreamPtr>::const_iterator it = nodes_.constBegin();
+  while (it != nodes_.constEnd()) {
+    static_cast<MediaInput *>(it.key())->SetFootage(it.value());
+    ++it;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

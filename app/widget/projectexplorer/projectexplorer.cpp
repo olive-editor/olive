@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QMessageBox>
 #include <QProcess>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -36,6 +37,8 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/timelinewidget/timelinewidget.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -536,6 +539,106 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
+QMap<Node*, StreamPtr> ProjectExplorer::GetFootageNodes(Item* item)
+{
+  // Output list list
+  QMap<Node*, StreamPtr> footage_nodes;
+
+  // Get all sequences.
+  QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+  // Get item pointer.
+  ItemPtr item_ptr = item->get_shared_ptr();
+
+  if (item_ptr.get()->type() == Item::kFootage) {
+    // If no sequences exist we don't need to do anything clever here
+    if (!sequences.isEmpty()) {
+      // Footage can contain multiple streams, all of which need to be dealt with
+      foreach (StreamPtr stream, static_cast<Footage*>(item_ptr.get())->streams()) {
+        // Check each sequence to see if it contains the footage in question
+        foreach (ItemPtr seq, sequences) {
+          Sequence* s = static_cast<Sequence*>(seq.get());
+
+          // Loop through nodes to find our Footage node
+          foreach (Node* node, s->nodes()) {
+            // Check if node is of the right type
+            if (node->IsMedia()){
+              // Check the streams are the same
+              if (static_cast<MediaInput*>(node)->footage() == stream) {
+                footage_nodes.insert(node, stream);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return footage_nodes;
+}
+
+QList<Block*> ProjectExplorer::GetFootageBlocks(QList<Node*> nodes)
+{
+  // Get all sequences.
+  QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
+  QList<Block*> blocks;
+
+  foreach (ItemPtr seq, sequences) {
+    Sequence* s = static_cast<Sequence*>(seq.get());
+    // Loop through nodes in sequence
+    foreach (Node* node, s->nodes()) {
+      // For each Block see if it solely depends on one of our input nodes and if so add to the block list
+      if (node->IsBlock()) {
+          int footage_deps = 0;
+
+          QList<Node*> dependancies = node->GetDependencies();
+          QSet<Node*> intersection = QSet<Node*>(dependancies.begin(), dependancies.end())
+                                         .intersect(QSet<Node*>(nodes.begin(), nodes.end()));
+          if (!intersection.isEmpty()) {
+            // Count how many Media inputs this block depends on
+            foreach (Node* dep, dependancies) {
+              if (dep->IsMedia()) {
+                footage_deps++;
+              }
+            }
+            // If it only depends on one input we can safely delete it
+            if (footage_deps == 1) {
+              blocks.append(static_cast<Block*>(node));
+            }
+          }
+      }
+    }
+  }
+
+  return blocks;
+}
+
+ProjectExplorer::FootageDeleteResponse ProjectExplorer::DeleteWarningMessage(Item* item)
+{
+  ItemPtr item_ptr = item->get_shared_ptr();
+
+  if (item_ptr->type() == Item::kFootage) {
+    QString clip_name = static_cast<Footage*>(item_ptr.get())->filename().split("/").last();
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(clip_name);
+    msgBox.setText(clip_name + tr(" is in use."));
+    QPushButton* offline = msgBox.addButton(tr("Offline Footage"), QMessageBox::ApplyRole);
+    QPushButton* deleteClips = msgBox.addButton(tr("Delete Clips"), QMessageBox::ApplyRole);
+    msgBox.setStandardButtons(QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == offline) {
+      return kOffline;
+    }
+    if (msgBox.clickedButton() == deleteClips) {
+      return kDelete;
+    }
+  }
+  return kCancel;
+}
+
 void ProjectExplorer::DeleteSelected()
 {
   QList<Item*> selected = SelectedItems();
@@ -556,9 +659,51 @@ void ProjectExplorer::DeleteSelected()
       if (Core::instance()->main_window()->IsSequenceOpen(s)) {
         Core::instance()->main_window()->CloseSequence(s);
       }
+
+      new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
     }
 
-    new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
+    // If this is a footage item, clean up if necessary
+    if (item_ptr->type() == Item::kFootage) {
+      
+      // Check if nodes exists
+      QMap<Node*, StreamPtr> footage_nodes = GetFootageNodes(item);
+      if (!footage_nodes.isEmpty()){
+        // Warn user and ask them what to do
+        FootageDeleteResponse response = DeleteWarningMessage(item);
+        if (response == kOffline) {
+          new ProjectViewModel::OfflineFootageCommand(&model_, item_ptr, footage_nodes, command);
+        }
+        if (response == kDelete) {
+          QUndoCommand* deleteCommand = new QUndoCommand(command);
+          // Delete any non-composite blocks
+          TimelineWidget::ReplaceBlocksWithGaps(GetFootageBlocks(footage_nodes.keys()), true, deleteCommand);
+          new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
+
+          // Catch any input nodes we missed due to composites etc.
+
+          QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+
+          QList<Node*> nodes_to_delete;
+          foreach (ItemPtr seq, sequences) {
+            Sequence* s = static_cast<Sequence*>(seq.get());
+            foreach (Node* node, s->nodes()) {
+              if (node->IsMedia()) {
+                if (footage_nodes.contains(node)) {
+                  nodes_to_delete.append(node);
+                }
+              }
+            }
+            QUndoCommand* deleteNodesCommand = new QUndoCommand(deleteCommand);
+            new NodeRemoveCommand(static_cast<NodeGraph*>(s), nodes_to_delete, deleteNodesCommand);
+          }
+        }
+        if (response == kCancel) {
+          delete command;
+          return;
+        }
+      }
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
