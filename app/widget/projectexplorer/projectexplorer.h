@@ -25,6 +25,7 @@
 #include <QTimer>
 #include <QTreeView>
 
+#include "node/input/media/media.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
@@ -101,26 +102,10 @@ signals:
   void DoubleClickedItem(Item* item);
 
 private:
-  enum FootageDeleteResponse {
-    kDelete,
-    kOffline,
-    kCancel
-  };
-
-
-  /**
-   * @brief Pop up a QMessageBox to warn the user if the deleted clips are in use
-   * 
-   * Returns a FootageDeleteResponse
-   */
-  FootageDeleteResponse DeleteWarningMessage(Item* item);
-
   /**
    * @brief Check if an item is in use anywhere and return any relevant input nodes
-   *
-   * Returns a QMap pairing a Footage node to its StreamPtr
    */
-  QMap<Node*, StreamPtr> GetFootageNodes(Item* item);
+  QList<MediaInput*> GetMediaNodesUsingFootage(Footage* item);
 
   /**
    * @brief Get all the blocks that solely rely on an input node
