@@ -74,7 +74,7 @@ public:
   {
   }
 
-  void InsertTimeRange(const TimeRange& range);
+  void InsertTimeRange(TimeRange range_to_add);
 
   void RemoveTimeRange(const TimeRange& remove);
 
