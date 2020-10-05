@@ -18,38 +18,37 @@
 
 ***/
 
-#include "audio.h"
+#include "projectexplorerundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-Node *AudioInput::copy() const
+OfflineFootageCommand::OfflineFootageCommand(const QList<MediaInput *> &media, QUndoCommand* parent) :
+  UndoCommand(parent)
 {
-  return new AudioInput();
+  foreach (MediaInput* i, media) {
+    stream_data_.insert(i, i->footage());
+  }
+
+  project_ = static_cast<Sequence*>(media.first()->parent())->project();
 }
 
-Stream::Type AudioInput::type() const
+Project *OfflineFootageCommand::GetRelevantProject() const
 {
-	return Stream::kAudio;
+  return project_;
 }
 
-QString AudioInput::Name() const
+void OfflineFootageCommand::redo_internal()
 {
-  return tr("Audio Input");
+  for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
+    it.key()->SetFootage(nullptr);
+  }
 }
 
-QString AudioInput::ShortName() const
+void OfflineFootageCommand::undo_internal()
 {
-  return tr("Audio");
-}
-
-QString AudioInput::id() const
-{
-  return QStringLiteral("org.olivevideoeditor.Olive.audioinput");
-}
-
-QString AudioInput::Description() const
-{
-  return tr("Import an audio footage stream.");
+  for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
+    it.key()->SetFootage(it.value());
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

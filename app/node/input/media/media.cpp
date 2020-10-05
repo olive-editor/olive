@@ -50,6 +50,11 @@ void MediaInput::SetFootage(StreamPtr f)
   footage_input_->set_standard_value(QVariant::fromValue(f));
 }
 
+bool MediaInput::IsMedia() const
+{
+  return true;
+}
+
 void MediaInput::Retranslate()
 {
   footage_input_->set_name(tr("Footage"));

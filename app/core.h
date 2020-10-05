@@ -268,6 +268,8 @@ public:
    */
   void CacheActiveSequence(bool in_out_only);
 
+  static const uint kProjectVersion;
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file

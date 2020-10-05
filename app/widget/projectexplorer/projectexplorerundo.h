@@ -18,38 +18,35 @@
 
 ***/
 
-#include "audio.h"
+#ifndef PROJECTEXPLORERUNDO_H
+#define PROJECTEXPLORERUNDO_H
+
+#include "node/input/media/media.h"
+#include "undo/undocommand.h"
 
 OLIVE_NAMESPACE_ENTER
 
-Node *AudioInput::copy() const
-{
-  return new AudioInput();
-}
+/**
+ * @brief An undo command for offlining footage when it is deleted from the project explorer
+ */
+class OfflineFootageCommand : public UndoCommand {
+public:
+  OfflineFootageCommand(const QList<MediaInput*>& media,  QUndoCommand* parent = nullptr);
 
-Stream::Type AudioInput::type() const
-{
-	return Stream::kAudio;
-}
+  virtual Project* GetRelevantProject() const override;
 
-QString AudioInput::Name() const
-{
-  return tr("Audio Input");
-}
+protected:
+  virtual void redo_internal() override;
 
-QString AudioInput::ShortName() const
-{
-  return tr("Audio");
-}
+  virtual void undo_internal() override;
 
-QString AudioInput::id() const
-{
-  return QStringLiteral("org.olivevideoeditor.Olive.audioinput");
-}
+private:
+  QMap<MediaInput*, StreamPtr> stream_data_;
 
-QString AudioInput::Description() const
-{
-  return tr("Import an audio footage stream.");
-}
+  Project* project_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // PROJECTEXPLORERUNDO_H

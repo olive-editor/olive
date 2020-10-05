@@ -154,6 +154,15 @@ void NodeRemoveCommand::redo_internal()
 
   // Take nodes from graph (TakeNode() will automatically disconnect edges)
   foreach (Node* n, nodes_) {
+    // If the node is a block, unlink any linked blocks before removing
+    if (n->IsBlock()) {
+      Block *b = static_cast<Block *>(n);
+      if (b->HasLinks()) {
+        BlockUnlinkAllCommand *unlink_command = new BlockUnlinkAllCommand(b);
+        unlink_command->redo();
+        block_unlink_commands_.append(unlink_command);
+      }
+    }
     graph_->TakeNode(n, &memory_manager_);
   }
 }
@@ -165,12 +174,19 @@ void NodeRemoveCommand::undo_internal()
     graph_->AddNode(n);
   }
 
+  // Relink any blocks that were unlinked
+  foreach(BlockUnlinkAllCommand* command, block_unlink_commands_) {
+    command->undo();
+    delete command;
+  }
+
   // Re-connect edges
   foreach (NodeEdgePtr edge, edges_) {
     NodeParam::ConnectEdge(edge->output(), edge->input());
   }
 
   edges_.clear();
+  block_unlink_commands_.clear();
 }
 
 Project *NodeRemoveCommand::GetRelevantProject() const
