@@ -169,9 +169,33 @@ public:
 
   const QRect &GetRubberBandGeometry() const;
 
-  void SignalSelectedBlocks(const QList<Block*>& selected_blocks);
+  /**
+   * @brief Track blocks that have newly been selected (this is preferred over emitting BlocksSelected directly)
+   *
+   * TimelineWidget keeps track of which blocks are selected internally. Calling this function will
+   * add to that list and emit a signal to other widgets that said blocks have been selected.
+   *
+   * @param selected_blocks
+   *
+   * The list of blocks to add to the internal selection list and signal.
+   *
+   * @param filter
+   *
+   * TRUE to automatically filter blocks that are already selected from the list. In most cases,
+   * this is preferable and should only be set to FALSE if the list is guaranteed not to contain
+   * already selected blocks (and therefore filtering can be skipped to save time).
+   */
+  void SignalSelectedBlocks(QList<Block *> selected_blocks, bool filter = true);
 
+  /**
+   * @brief Track blocks that have been newly deselected
+   */
   void SignalDeselectedBlocks(const QList<Block*>& deselected_blocks);
+
+  /**
+   * @brief Convenience function to deselect all blocks and signal them
+   */
+  void SignalDeselectedAllBlocks();
 
 signals:
   void BlocksSelected(const QList<Block*>& selected_blocks);
@@ -212,8 +236,8 @@ private:
   QPoint drag_origin_;
 
   QRubberBand rubberband_;
-  QList<QGraphicsItem*> rubberband_already_selected_;
-  QList<QGraphicsItem*> rubberband_now_selected_;
+  TimelineWidgetSelections rubberband_old_selections_;
+  QList<Block*> rubberband_now_selected_;
 
   TimelineWidgetSelections selections_;
 

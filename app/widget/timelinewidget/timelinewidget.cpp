@@ -183,8 +183,7 @@ void TimelineWidget::Clear()
   block_items_.clear();
 
   // Emit that we've deselected any selected blocks
-  emit BlocksDeselected(selected_blocks_);
-  selected_blocks_.clear();
+  SignalDeselectedAllBlocks();
 
   // Set null timebase
   SetTimebase(0);
@@ -380,7 +379,7 @@ void TimelineWidget::SelectAll()
     }
   }
 
-  SignalSelectedBlocks(newly_selected_blocks);
+  SignalSelectedBlocks(newly_selected_blocks, false);
 }
 
 void TimelineWidget::DeselectAll()
@@ -391,11 +390,8 @@ void TimelineWidget::DeselectAll()
   // Update all viewports
   UpdateViewports();
 
-  // Emit signal that any previously selected block is no longer selected
-  emit BlocksDeselected(selected_blocks_);
-
-  // Empty selected blocks list
-  selected_blocks_.clear();
+  // Clear list and emit signal
+  SignalDeselectedAllBlocks();
 }
 
 void TimelineWidget::RippleToIn()
@@ -1232,11 +1228,23 @@ const QRect& TimelineWidget::GetRubberBandGeometry() const
   return rubberband_.geometry();
 }
 
-void TimelineWidget::SignalSelectedBlocks(const QList<Block *> &selected_blocks)
+void TimelineWidget::SignalSelectedBlocks(QList<Block *> input, bool filter)
 {
-  selected_blocks_.append(selected_blocks);
+  if (filter) {
+    // If filtering, remove all the blocks that are already selected
+    for (int i=0; i<input.size(); i++) {
+      Block* b = input.at(i);
 
-  emit BlocksSelected(selected_blocks);
+      if (selected_blocks_.contains(b)) {
+        input.removeAt(i);
+        i--;
+      }
+    }
+  }
+
+  selected_blocks_.append(input);
+
+  emit BlocksSelected(input);
 }
 
 void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blocks)
@@ -1246,6 +1254,12 @@ void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blo
   }
 
   emit BlocksDeselected(deselected_blocks);
+}
+
+void TimelineWidget::SignalDeselectedAllBlocks()
+{
+  emit BlocksDeselected(selected_blocks_);
+  selected_blocks_.clear();
 }
 
 QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
@@ -1423,10 +1437,8 @@ void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_li
   rubberband_.show();
 
   // We don't touch any blocks that are already selected. If you want these to be deselected by
-  // default, call DeselectAll() befoer calling StartRubberBandSelect()
-  foreach (Block* b, selected_blocks_) {
-    rubberband_already_selected_.append(block_items_.value(b));
-  }
+  // default, call DeselectAll() before calling StartRubberBandSelect()
+  rubberband_old_selections_ = selections_;
 
   MoveRubberBandSelect(enable_selecting, select_links);
 }
@@ -1441,7 +1453,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
     return;
   }
 
-  QList<QGraphicsItem*> new_selected_list;
+  QList<QGraphicsItem*> items_in_rubberband;
 
   // Determine all items in the rubberband
   foreach (TimelineAndTrackView* tview, views_) {
@@ -1454,64 +1466,40 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
     // Normalize and get items in rect
     QList<QGraphicsItem*> rubberband_items = view->items(mapped_rect.normalized());
 
-    new_selected_list.append(rubberband_items);
+    items_in_rubberband.append(rubberband_items);
   }
 
-  // Filter out any items that were already selected
-  if (!rubberband_already_selected_.isEmpty()) {
-    for (int i=0; i<new_selected_list.size(); i++) {
-      if (rubberband_already_selected_.contains(new_selected_list.at(i))) {
-        new_selected_list.removeAt(i);
-        i--;
-      }
-    }
-  }
+  // Reset selection to whatever it was before
+  SetSelections(rubberband_old_selections_);
 
-  foreach (QGraphicsItem* item, rubberband_now_selected_) {
+  // Add any blocks in rubberband
+  rubberband_now_selected_.clear();
+  foreach (QGraphicsItem* item, items_in_rubberband) {
     TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
 
     if (block_item) {
-      RemoveSelection(block_item);
-    }
-  }
-
-  // Cache limit because we append to this array in this loop and don't need to process those
-  int lim = new_selected_list.size();
-  for (int i=0;i<lim;i++) {
-    TimelineViewBlockItem* block_item = static_cast<TimelineViewBlockItem*>(new_selected_list.at(i));
-    if (block_item->block()->type() == Block::kGap) {
-      continue;
-    }
-
-    TrackOutput* t = GetTrackFromReference(block_item->Track());
-    if (t && t->IsLocked()) {
-      continue;
-    }
-
-    // Since new_selected_list is filtered by rubberband_already_selected_, this should certainly
-    // be deselected by now
-    AddSelection(block_item);
-
-    if (select_links) {
-      // Select the block's links
       Block* b = block_item->block();
 
-      // Add its links to the list
-      TimelineViewBlockItem* link_item;
-      foreach (Block* link, b->linked_clips()) {
-        if ((link_item = block_items_[link]) != nullptr) {
-          AddSelection(link_item);
+      if (b->type() == Block::kGap) {
+        continue;
+      }
 
-          if (!new_selected_list.contains(link_item)
-              && !rubberband_already_selected_.contains(link_item)) {
-            new_selected_list.append(link_item);
-          }
+      TrackOutput* t = GetTrackFromReference(block_item->Track());
+      if (t && t->IsLocked()) {
+        continue;
+      }
+
+      AddSelection(block_item);
+      rubberband_now_selected_.append(block_item->block());
+
+      if (select_links) {
+        foreach (Block* link, b->linked_clips()) {
+          AddSelection(block_items_.value(link));
+          rubberband_now_selected_.append(link);
         }
       }
     }
   }
-
-  rubberband_now_selected_ = new_selected_list;
 }
 
 void TimelineWidget::EndRubberBandSelect()
@@ -1519,14 +1507,10 @@ void TimelineWidget::EndRubberBandSelect()
   rubberband_.hide();
 
   // Emit any blocks that were newly selected
-  QList<Block*> selected_blocks;
-  foreach (QGraphicsItem* item, rubberband_now_selected_) {
-    selected_blocks.append(static_cast<TimelineViewBlockItem*>(item)->block());
-  }
-  emit BlocksSelected(selected_blocks);
+  SignalSelectedBlocks(rubberband_now_selected_);
 
   rubberband_now_selected_.clear();
-  rubberband_already_selected_.clear();
+  rubberband_old_selections_.clear();
 }
 
 void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &track)
