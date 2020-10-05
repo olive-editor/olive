@@ -200,6 +200,10 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::SelectBlocks(const QList<Block *> &blocks)
 {
+  if (!graph_) {
+    return;
+  }
+
   selected_blocks_.append(blocks);
 
   SelectBlocksInternal();
@@ -207,6 +211,10 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
 
 void NodeView::DeselectBlocks(const QList<Block *> &blocks)
 {
+  if (!graph_) {
+    return;
+  }
+
   // Remove temporary associations
   foreach (Block* b, selected_blocks_) {
     if (!blocks.contains(b)) {
