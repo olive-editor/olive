@@ -666,9 +666,11 @@ void ProjectExplorer::DeleteSelected()
       }
 
       // Close footage if currently open in footage panel
-      FootageViewerPanel* footage_panel = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>().first();
-      if (footage_panel->GetSelectedFootage().contains(footage)) {
-        footage_panel->SetFootage(nullptr);
+      QList<FootageViewerPanel*> footage_panels = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>();
+      foreach (FootageViewerPanel* panel, footage_panels) {
+        if (panel->GetSelectedFootage().contains(footage)) {
+          panel->SetFootage(nullptr);
+        }
       }
       break;
     }

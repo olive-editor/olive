@@ -63,6 +63,15 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
   footage_ = footage;
 
+  if (!footage) {
+    // Set name to blank
+    sequence_.viewer_output()->set_media_name("");
+
+    // Clean up the audio waveform if it is in use
+    waveform()->SetViewer(nullptr);
+    waveform()->hide();
+  }
+
   if (footage_) {
     // Update sequence media name
     sequence_.viewer_output()->set_media_name(footage_->name());

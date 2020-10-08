@@ -63,10 +63,13 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
+  if (!playback_) {
+    return;
+  }
+
   const AudioParams& params = playback_->GetParameters();
 
-  if (!playback_
-      || playback_->GetPCMFilename().isEmpty()
+  if (playback_->GetPCMFilename().isEmpty()
       || !params.is_valid()) {
     return;
   }

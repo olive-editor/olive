@@ -87,6 +87,11 @@ public:
     return renderer_;
   }
 
+  AudioWaveformView* waveform()
+  {
+    return waveform_view_;
+  }
+
   ColorManager* color_manager() const
   {
     return display_widget_->color_manager();
