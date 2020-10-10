@@ -130,6 +130,8 @@ void TrackView::InsertTrack(TrackOutput *track)
 void TrackView::RemoveTrack(TrackOutput *track)
 {
   splitter_->Remove(track->Index());
+
+  // Update all tracks indexes now one has been removed.
   foreach (TrackOutput *t, list_->GetTracks()) {
     if (t->track_type() == track->track_type() && t->Index() > track->Index()) {
       t->SetIndex(t->Index() - 1);
