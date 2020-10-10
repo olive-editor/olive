@@ -110,6 +110,12 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
 
 void Menu::Init()
 {
+  // HACK: Disables embossing on disabled text for a slightly nicer UI
+  QPalette p = palette();
+  p.setColor(QPalette::Disabled, QPalette::Light, QColor(0, 0, 0, 0));
+  setPalette(p);
+
+  // If a native palette is available, it should override the one above
   StyleManager::UseOSNativeStyling(this);
 }
 
