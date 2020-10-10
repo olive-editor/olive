@@ -1230,6 +1230,10 @@ const QRect& TimelineWidget::GetRubberBandGeometry() const
 
 void TimelineWidget::SignalSelectedBlocks(QList<Block *> input, bool filter)
 {
+  if (input.isEmpty()) {
+    return;
+  }
+
   if (filter) {
     // If filtering, remove all the blocks that are already selected
     for (int i=0; i<input.size(); i++) {
@@ -1249,6 +1253,10 @@ void TimelineWidget::SignalSelectedBlocks(QList<Block *> input, bool filter)
 
 void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blocks)
 {
+  if (deselected_blocks.isEmpty()) {
+    return;
+  }
+
   foreach (Block* b, deselected_blocks) {
     selected_blocks_.removeOne(b);
   }
@@ -1258,8 +1266,10 @@ void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blo
 
 void TimelineWidget::SignalDeselectedAllBlocks()
 {
-  emit BlocksDeselected(selected_blocks_);
-  selected_blocks_.clear();
+  if (!selected_blocks_.isEmpty()) {
+    emit BlocksDeselected(selected_blocks_);
+    selected_blocks_.clear();
+  }
 }
 
 QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& playhead_time,
@@ -1474,6 +1484,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
 
   // Add any blocks in rubberband
   rubberband_now_selected_.clear();
+
   foreach (QGraphicsItem* item, items_in_rubberband) {
     TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
 
@@ -1489,13 +1500,17 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
         continue;
       }
 
-      AddSelection(block_item);
-      rubberband_now_selected_.append(block_item->block());
+      if (!rubberband_now_selected_.contains(b)) {
+        AddSelection(block_item);
+        rubberband_now_selected_.append(b);
+      }
 
       if (select_links) {
         foreach (Block* link, b->linked_clips()) {
-          AddSelection(block_items_.value(link));
-          rubberband_now_selected_.append(link);
+          if (!rubberband_now_selected_.contains(link)) {
+            AddSelection(block_items_.value(link));
+            rubberband_now_selected_.append(link);
+          }
         }
       }
     }
