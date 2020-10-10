@@ -96,15 +96,6 @@ QString TrackOutput::Description() const
             "a Sequence.");
 }
 
-QString TrackOutput::GetTrackName()
-{
-  if (track_name_.isEmpty()) {
-    return GetDefaultTrackName(track_type_, index_);
-  }
-
-  return track_name_;
-}
-
 const double &TrackOutput::GetTrackHeight() const
 {
   return track_height_;
@@ -436,11 +427,6 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   if (b) {
     b->Hash(hash, time);
   }
-}
-
-void TrackOutput::SetTrackName(const QString &name)
-{
-  track_name_ = name;
 }
 
 void TrackOutput::SetMuted(bool e)

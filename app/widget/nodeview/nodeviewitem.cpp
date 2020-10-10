@@ -287,10 +287,17 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     QString node_label;
 
-    if (node_->GetLabel().isEmpty()) {
-      node_label = node_->ShortName();
-    } else {
+    if (!node_->GetLabel().isEmpty()) {
+      // Use label directly if node has one
       node_label = node_->GetLabel();
+    } else if (node_->IsTrack()) {
+      // If node is a track, use a special track name to help users identify better
+      // Exception for tracks
+      TrackOutput* track = static_cast<TrackOutput*>(node_);
+      node_label = TrackOutput::GetDefaultTrackName(track->track_type(), track->Index());
+    } else {
+      // Otherwise, just use the node's short name
+      node_label = node_->ShortName();
     }
 
     QFont f;
