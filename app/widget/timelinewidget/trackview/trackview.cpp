@@ -68,11 +68,10 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
 void TrackView::ConnectTrackList(TrackList *list)
 {
   if (list_ != nullptr) {
-    /*foreach (TrackOutput *track, list_->GetTracks()) {
+    foreach (TrackOutput *track, list_->GetTracks()) {
       RemoveTrack(track);
     }
-    */
-    splitter_->RemoveAll(list_->GetTracks());
+
     disconnect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
     disconnect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
@@ -131,6 +130,11 @@ void TrackView::InsertTrack(TrackOutput *track)
 void TrackView::RemoveTrack(TrackOutput *track)
 {
   splitter_->Remove(track->Index());
+  foreach (TrackOutput *t, list_->GetTracks()) {
+    if (t->track_type() == track->track_type() && t->Index() > track->Index()) {
+      t->SetIndex(t->Index() - 1);
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT
