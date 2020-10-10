@@ -24,6 +24,7 @@
 #include <QSplitter>
 
 #include "common/define.h"
+#include "node/output/track/track.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -58,6 +59,7 @@ public:
 
   void Insert(int index, int height, QWidget* item);
   void Remove(int index);
+  void RemoveAll(QVector<TrackOutput *> tracks);
 
   void SetSpacerHeight(int height);
 

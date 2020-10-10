@@ -139,15 +139,31 @@ void TrackViewSplitter::Insert(int index, int height, QWidget *item)
 void TrackViewSplitter::Remove(int index)
 {
   QList<int> sz = sizes();
-
+  printf("count: %d, index: %d => ", count(), index);
   if (alignment_ == Qt::AlignBottom) {
     index = count() - 1 - index;
   }
-
+  printf("%d\n", index);
   sz.removeAt(index);
   delete widget(index);
 
   SetHeightWithSizes(sz);
+}
+
+void TrackViewSplitter::RemoveAll(QVector<TrackOutput *> tracks) {
+  foreach (TrackOutput *track, tracks) { 
+    int index = track->Index();
+    QList<int> sz = sizes();
+
+    if (alignment_ == Qt::AlignBottom) {
+      index = count() - 1;
+    }
+
+    sz.removeAt(index);
+    delete widget(index);
+
+    SetHeightWithSizes(sz); 
+  }
 }
 
 void TrackViewSplitter::SetSpacerHeight(int height)
