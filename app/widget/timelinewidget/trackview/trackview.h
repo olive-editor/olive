@@ -44,8 +44,6 @@ protected:
   virtual void resizeEvent(QResizeEvent *e) override;
 
 private:
-  QList<TrackViewItem*> items_;
-
   TrackList* list_;
 
   TrackViewSplitter* splitter_;
