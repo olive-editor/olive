@@ -42,7 +42,6 @@ TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent
   block_(block)
 {
   setBrush(Qt::white);
-  setCursor(Qt::DragMoveCursor);
 
   UpdateRect();
 }
