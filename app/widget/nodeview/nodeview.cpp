@@ -57,6 +57,10 @@ NodeView::NodeView(QWidget *parent) :
   scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  select_blocks_internal_timer_.setSingleShot(true);
+  select_blocks_internal_timer_.setInterval(100);
+  connect(&select_blocks_internal_timer_, &QTimer::timeout, this, &NodeView::SelectBlocksInternal);
 }
 
 NodeView::~NodeView()
@@ -206,7 +210,7 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
 
   selected_blocks_.append(blocks);
 
-  SelectBlocksInternal();
+  QueueSelectBlocksInternal();
 }
 
 void NodeView::DeselectBlocks(const QList<Block *> &blocks)
@@ -227,7 +231,7 @@ void NodeView::DeselectBlocks(const QList<Block *> &blocks)
     selected_blocks_.removeOne(b);
   }
 
-  SelectBlocksInternal();
+  QueueSelectBlocksInternal();
 }
 
 void NodeView::CopySelected(bool cut)
@@ -380,8 +384,8 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
       QRect edge_detect_rect(event->pos(), event->pos());
 
-      // FIXME: Hardcoded numbers
-      edge_detect_rect.adjust(-20, -20, 20, 20);
+      int edge_detect_radius = fontMetrics().height();
+      edge_detect_rect.adjust(-edge_detect_radius, -edge_detect_radius, edge_detect_radius, edge_detect_radius);
 
       QList<QGraphicsItem*> items = this->items(edge_detect_rect);
 
@@ -661,140 +665,6 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   }
 }
 
-void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
-{
-  QRectF destination_rect = n->rect();
-  destination_rect.translate(n->pos());
-
-  double x_movement = destination_rect.width() * 1.5;
-  double y_movement = destination_rect.height() * 1.5;
-
-  QList<QGraphicsItem*> items = scene()->items(destination_rect);
-
-  n->setPos(pos);
-
-  foreach (QGraphicsItem* item, items) {
-    if (item == n) {
-      continue;
-    }
-
-    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
-
-    if (!node_item) {
-      continue;
-    }
-
-    qDebug() << "Moving" << node_item->GetNode() << "for" << n->GetNode();
-
-    QPointF new_pos;
-
-    if (item->pos() == pos) {
-      qDebug() << "Same pos, need more info";
-
-      // Item positions are exact, we'll need more information to determine where this item should go
-      Node* ours = n->GetNode();
-      Node* theirs = node_item->GetNode();
-
-      bool moved = false;
-
-      new_pos = item->pos();
-
-      // Heuristic to determine whether to move the other item above or below
-      foreach (NodeEdgePtr our_edge, ours->output()->edges()) {
-        foreach (NodeEdgePtr their_edge, theirs->output()->edges()) {
-          if (our_edge->output()->parentNode() == their_edge->output()->parentNode()) {
-            qDebug() << "  They share a node that they output to";
-            if (our_edge->input()->index() > their_edge->input()->index()) {
-              // Their edge should go above ours
-              qDebug() << "    Our edge goes BELOW theirs";
-              new_pos.setY(new_pos.y() - y_movement);
-            } else {
-              // Our edge should go below ours
-              qDebug() << "    Our edge goes ABOVE theirs";
-              new_pos.setY(new_pos.y() + y_movement);
-            }
-
-            moved = true;
-
-            break;
-          }
-        }
-      }
-
-      // If we find anything, just move at random
-      if (!moved) {
-        new_pos.setY(new_pos.y() - y_movement);
-      }
-
-    } else if (item->pos().x() == pos.x()) {
-      qDebug() << "Same X, moving vertically";
-
-      // Move strictly up or down
-      new_pos = item->pos();
-
-      if (item->pos().y() < pos.y()) {
-        // Move further up
-        new_pos.setY(pos.y() - y_movement);
-      } else {
-        // Move further down
-        new_pos.setY(pos.y() + y_movement);
-      }
-    } else if (item->pos().y() == pos.y()) {
-      qDebug() << "Same Y, moving horizontally";
-
-      // Move strictly left or right
-      new_pos = item->pos();
-
-      if (item->pos().x() < pos.x()) {
-        // Move further up
-        new_pos.setX(pos.x() - x_movement);
-      } else {
-        // Move further down
-        new_pos.setX(pos.x() + x_movement);
-      }
-    } else {
-      qDebug() << "Diff pos, pushing in angle";
-
-      // The item does not have equal X or Y, attempt to push it away from `pos` in the direction it's in
-      double x_diff = item->pos().x() - pos.x();
-      double y_diff = item->pos().y() - pos.y();
-
-      double slope = y_diff / x_diff;
-      double y_int = item->pos().y() - slope * item->pos().x();
-
-      if (qAbs(slope) > 1.0) {
-        // Vertical difference is greater than horizontal difference, prioritize vertical movement
-        double desired_y = pos.y();
-
-        if (item->pos().y() > pos.y()) {
-          desired_y += y_movement;
-        } else {
-          desired_y -= y_movement;
-        }
-
-        double x = (desired_y - y_int) / slope;
-
-        new_pos = QPointF(x, desired_y);
-      } else {
-        // Horizontal difference is greater than vertical difference, prioritize horizontal movement
-        double desired_x = pos.x();
-
-        if (item->pos().x() > pos.x()) {
-          desired_x += x_movement;
-        } else {
-          desired_x -= x_movement;
-        }
-
-        double y = slope * desired_x + y_int;
-
-        new_pos = QPointF(desired_x, y);
-      }
-    }
-
-    PlaceNode(node_item, new_pos);
-  }
-}
-
 void NodeView::AttachNodesToCursor(const QList<Node *> &nodes)
 {
   QList<NodeViewItem*> items;
@@ -859,7 +729,7 @@ void NodeView::UpdateBlockFilter()
   }
 
   bool first = true;
-  QRectF last_rect;
+  QPointF last_bottom_right;
 
   QList<Node*> currently_visible;
 
@@ -891,9 +761,12 @@ void NodeView::UpdateBlockFilter()
     if (first) {
       first = false;
     } else {
-      QPointF desired_anchor_pos = last_rect.bottomRight() + QPointF(0, 2);
+      QPointF desired_anchor_pos = last_bottom_right + QPointF(0, 2);
 
       QPointF necessary_movement = anchor.topRight() - desired_anchor_pos;
+
+      // Calculate the bottom right from which we'll anchor the next rect
+      last_bottom_right = anchor.bottomRight() - necessary_movement;
 
       b->SetPosition(b->GetPosition() - necessary_movement);
       foreach (Node* d, deps) {
@@ -923,9 +796,6 @@ void NodeView::UpdateBlockFilter()
 
     // And lastly, add them all to our currently visible list
     currently_visible.append(deps);
-
-    // Cache this rect so we can calculate other rects
-    last_rect = anchor;
   }
 
   // Show only edges between those dependencies
@@ -950,10 +820,16 @@ void NodeView::DisassociateNode(Node *n, bool remove_from_map)
   disconnect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed);
 }
 
+void NodeView::QueueSelectBlocksInternal()
+{
+  select_blocks_internal_timer_.stop();
+  select_blocks_internal_timer_.start();
+}
+
 void NodeView::SelectBlocksInternal()
 {
   // Block scene signals while our selection is changing a lot
-  scene_.blockSignals(true);
+  DisconnectSelectionChangedSignal();
 
   if (filter_mode_ == kFilterShowSelectedBlocks) {
     UpdateBlockFilter();
@@ -970,7 +846,7 @@ void NodeView::SelectBlocksInternal()
   SelectWithDependencies(nodes);
 
   // Stop blocking signals and send a change signal now that all of our processing is done
-  scene_.blockSignals(false);
+  ConnectSelectionChangedSignal();
   SceneSelectionChangedSlot();
 
   if (!selected_blocks_.isEmpty()) {
