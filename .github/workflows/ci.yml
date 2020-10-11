@@ -145,7 +145,7 @@ jobs:
           PLATFORM: ${{ matrix.os-name }}
           ARCH: ${{ matrix.os-arch }}
         run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
+          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
 
       - name: Create Build Folder
         run: |
@@ -316,7 +316,7 @@ jobs:
           PLATFORM: ${{ matrix.os-name }}
           ARCH: ${{ matrix.os-arch }}
         run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
+          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
 
       - name: Create Build Folder
         run: |
