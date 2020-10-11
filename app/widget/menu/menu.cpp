@@ -100,14 +100,6 @@ void Menu::ConformItem(QAction *a, const QString &id, const QString &key)
   }
 }
 
-void Menu::SetBooleanAction(QAction *a, bool* boolean)
-{
-  // FIXME: Connect to some boolean function
-  a->setCheckable(true);
-  a->setChecked(*boolean);
-  a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
-}
-
 void Menu::Init()
 {
   // HACK: Disables embossing on disabled text for a slightly nicer UI
