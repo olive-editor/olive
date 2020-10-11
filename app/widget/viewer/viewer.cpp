@@ -703,19 +703,19 @@ void ViewerWidget::UpdateStack()
   if (ShouldForceWaveform()) {
     // If we have a node AND video is disconnected AND audio is connected, show waveform view
     stack_->setCurrentWidget(waveform_view_);
-    new_tb = GetConnectedNode()->audio_params().time_base();
+    //new_tb = GetConnectedNode()->audio_params().time_base();
   } else {
     // Otherwise show regular display
     stack_->setCurrentWidget(sizer_);
 
-    if (GetConnectedNode()) {
+    /*if (GetConnectedNode()) {
       new_tb = GetConnectedNode()->video_params().time_base();
-    }
+    }*/
   }
 
-  if (new_tb != timebase()) {
+  /*if (new_tb != timebase()) {
     SetTimebase(new_tb);
-  }
+  }*/
 }
 
 void ViewerWidget::ContextMenuSetFullScreen(QAction *action)
