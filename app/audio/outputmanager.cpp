@@ -30,8 +30,8 @@ OLIVE_NAMESPACE_ENTER
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
-  device_proxy_(this),
-  push_device_(nullptr)
+  push_device_(nullptr),
+  device_proxy_(this)
 {
 }
 
