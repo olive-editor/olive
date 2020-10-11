@@ -42,6 +42,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
 
   // Set width of playhead marker
   playhead_width_ = QFontMetricsWidth(fm, "H");
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -78,7 +80,9 @@ const int &SeekableWidget::GetScroll() const
 
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
-  SeekToScreenPoint(event->pos().x());
+  if (event->button() == Qt::LeftButton) {
+    SeekToScreenPoint(event->pos().x());
+  }
 }
 
 void SeekableWidget::mouseMoveEvent(QMouseEvent *event)

@@ -62,14 +62,6 @@ private slots:
   void ToolItemTriggered();
 
   /**
-   * @brief A slot for the timecode display menu items
-   *
-   * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
-   * timecode change throughout the rest of the application.
-   */
-  void TimecodeDisplayTriggered();
-
-  /**
    * @brief Slot triggered just before the File menu shows
    */
   void FileMenuAboutToShow();
@@ -226,12 +218,6 @@ private:
   QAction* view_increase_track_height_item_;
   QAction* view_decrease_track_height_item_;
   QAction* view_show_all_item_;
-  QActionGroup* frame_view_mode_group_;
-  QAction* view_timecode_view_dropframe_item_;
-  QAction* view_timecode_view_nondropframe_item_;
-  QAction* view_timecode_view_seconds_item_;
-  QAction* view_timecode_view_frames_item_;
-  QAction* view_timecode_view_milliseconds_item_;
   QAction* view_full_screen_item_;
   QAction* view_full_screen_viewer_item_;
 

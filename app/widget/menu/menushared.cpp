@@ -58,6 +58,34 @@ MenuShared::MenuShared()
   clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", this, &MenuShared::EnableDisableTriggered, "Shift+E");
   clip_nest_item_ = Menu::CreateItem(this, "nest", this, &MenuShared::NestTriggered);
 
+  // TimeRuler menu shared items
+  frame_view_mode_group_ = new QActionGroup(this);
+
+  view_timecode_view_dropframe_item_ = Menu::CreateItem(this, "modedropframe", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
+  view_timecode_view_dropframe_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
+
+  view_timecode_view_nondropframe_item_ = Menu::CreateItem(this, "modenondropframe", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
+  view_timecode_view_nondropframe_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
+
+  view_timecode_view_seconds_item_ = Menu::CreateItem(this, "modeseconds", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
+  view_timecode_view_seconds_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
+
+  view_timecode_view_frames_item_ = Menu::CreateItem(this, "modeframes", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_frames_item_->setData(Timecode::kFrames);
+  view_timecode_view_frames_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
+
+  view_timecode_view_milliseconds_item_ = Menu::CreateItem(this, "milliseconds", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
+  view_timecode_view_milliseconds_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
+
   Retranslate();
 }
 
@@ -115,6 +143,26 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_link_unlink_item_);
   m->addAction(clip_enable_disable_item_);
   m->addAction(clip_nest_item_);
+}
+
+void MenuShared::AddItemsForTimeRulerMenu(Menu *m)
+{
+  m->addAction(view_timecode_view_dropframe_item_);
+  m->addAction(view_timecode_view_nondropframe_item_);
+  m->addAction(view_timecode_view_seconds_item_);
+  m->addAction(view_timecode_view_frames_item_);
+  m->addAction(view_timecode_view_milliseconds_item_);
+}
+
+void MenuShared::AboutToShowTimeRulerActions()
+{
+  QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
+  foreach (QAction* a, timecode_display_actions) {
+    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
+      a->setChecked(true);
+      break;
+    }
+  }
 }
 
 MenuShared *MenuShared::instance()
@@ -211,6 +259,18 @@ void MenuShared::DefaultTransitionTriggered()
   qDebug() << "FIXME: Stub";
 }
 
+void MenuShared::TimecodeDisplayTriggered()
+{
+  // Assume the sender is a QAction
+  QAction* action = static_cast<QAction*>(sender());
+
+  // Assume its data() is a member of Timecode::Display
+  Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
+
+  // Set the current display mode
+  Core::instance()->SetTimecodeDisplay(display);
+}
+
 void MenuShared::Retranslate()
 {
   // "New" menu shared items
@@ -240,6 +300,13 @@ void MenuShared::Retranslate()
   clip_link_unlink_item_->setText(tr("Link/Unlink"));
   clip_enable_disable_item_->setText(tr("Enable/Disable"));
   clip_nest_item_->setText(tr("Nest"));
+
+  // TimeRuler menu shared items
+  view_timecode_view_frames_item_->setText(tr("Frames"));
+  view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
+  view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));
+  view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
+  view_timecode_view_seconds_item_->setText(tr("Seconds"));
 }
 
 OLIVE_NAMESPACE_EXIT
