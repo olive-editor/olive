@@ -53,7 +53,7 @@ public slots:
    * This will clear any pushed samples or QIODevices currently being read and will start reading from this next time
    * the audio output requests data.
    */
-  void PullFromDevice(const QString &filename, qint64 offset, int playback_speed);
+  void PullFromDevice(QIODevice* device, qint64 offset, int playback_speed);
 
   // Queued
   void ResetToPushMode();

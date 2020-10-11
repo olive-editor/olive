@@ -24,11 +24,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioOutputDeviceProxy::~AudioOutputDeviceProxy()
+AudioOutputDeviceProxy::AudioOutputDeviceProxy(QObject *parent) :
+  QIODevice(parent),
+  device_(nullptr)
 {
-  if (file_.isOpen()) {
-    file_.close();
-  }
 }
 
 void AudioOutputDeviceProxy::SetParameters(const AudioParams &params)
@@ -36,20 +35,23 @@ void AudioOutputDeviceProxy::SetParameters(const AudioParams &params)
   params_ = params;
 }
 
-void AudioOutputDeviceProxy::SetDevice(const QString &filename, qint64 offset, int playback_speed)
+void AudioOutputDeviceProxy::SetDevice(QIODevice* device, qint64 offset, int playback_speed)
 {
-  if (file_.isOpen()) {
-    file_.close();
+  if (device_) {
+    delete device_;
   }
 
-  file_.setFileName(filename);
+  device_ = device;
+  device_->setParent(this);
 
-  if (!file_.open(QFile::ReadOnly)) {
-    qCritical() << "Failed to open" << filename << "for audio playback";
+  if (!device_->open(QFile::ReadOnly)) {
+    qCritical() << "Failed to open IO device for audio playback";
+    delete device_;
+    device_ = nullptr;
     return;
   }
 
-  file_.seek(offset);
+  device_->seek(offset);
 
   playback_speed_ = playback_speed;
 
@@ -62,7 +64,8 @@ void AudioOutputDeviceProxy::close()
 {
   QIODevice::close();
 
-  file_.close();
+  delete device_;
+  device_ = nullptr;
 
   if (tempo_processor_.IsOpen()) {
     tempo_processor_.Close();
@@ -71,7 +74,7 @@ void AudioOutputDeviceProxy::close()
 
 qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 {
-  if (!file_.isOpen()) {
+  if (!device_) {
     return 0;
   }
 
@@ -111,21 +114,21 @@ qint64 AudioOutputDeviceProxy::ReverseAwareRead(char *data, qint64 maxlen)
 
   if (playback_speed_ < 0) {
     // If we're reversing, we'll seek back by maxlen bytes before we read
-    new_pos = file_.pos() - maxlen;
+    new_pos = device_->pos() - maxlen;
 
     if (new_pos < 0) {
-      maxlen = file_.pos();
+      maxlen = device_->pos();
 
       new_pos = 0;
     }
 
-    file_.seek(new_pos);
+    device_->seek(new_pos);
   }
 
-  qint64 read_count = file_.read(data, maxlen);
+  qint64 read_count = device_->read(data, maxlen);
 
   if (playback_speed_ < 0) {
-    file_.seek(new_pos);
+    device_->seek(new_pos);
 
     // Reverse the samples here
     AudioManager::ReverseBuffer(data, static_cast<int>(read_count), params_.samples_to_bytes(1));

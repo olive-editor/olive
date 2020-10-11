@@ -204,8 +204,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
   UpdateStack();
 
+  waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
   if (GetConnectedTimelinePoints()) {
-    waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
     waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
   }
 
@@ -512,23 +512,24 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
-    QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
-    QFile audio_src(audio_fn);
+    AudioPlaybackCache::PlaybackDevice* audio_src = GetConnectedNode()->audio_playback_cache()->CreatePlaybackDevice();
 
-    if (audio_src.open(QFile::ReadOnly)) {
+    if (audio_src->open(QIODevice::ReadOnly)) {
       const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
       // FIXME: Hardcoded scrubbing interval (20ms)
       int size_of_sample = params.time_to_bytes(rational(20, 1000));
 
       // Push audio
-      audio_src.seek(params.time_to_bytes(GetTime()));
-      QByteArray frame_audio = audio_src.read(size_of_sample);
+      audio_src->seek(params.time_to_bytes(GetTime()));
+      QByteArray frame_audio = audio_src->read(size_of_sample);
       AudioManager::instance()->SetOutputParams(params);
       AudioManager::instance()->PushToOutput(frame_audio);
 
-      audio_src.close();
+      audio_src->close();
     }
+
+    delete audio_src;
   }
 }
 
@@ -628,13 +629,11 @@ void ViewerWidget::FinishPlayPreprocess()
 {
   int64_t playback_start_time = ruler()->GetTime();
 
-  QString audio_fn = GetConnectedNode()->audio_playback_cache()->GetPCMFilename();
-  if (!audio_fn.isEmpty()) {
-    AudioManager::instance()->SetOutputParams(GetConnectedNode()->audio_playback_cache()->GetParameters());
-    AudioManager::instance()->StartOutput(audio_fn,
-                                          GetConnectedNode()->audio_playback_cache()->GetParameters().time_to_bytes(GetTime()),
-                                          playback_speed_);
-  }
+  AudioPlaybackCache* audio_cache = GetConnectedNode()->audio_playback_cache();
+  AudioManager::instance()->SetOutputParams(audio_cache->GetParameters());
+  AudioManager::instance()->StartOutput(audio_cache,
+                                        audio_cache->GetParameters().time_to_bytes(GetTime()),
+                                        playback_speed_);
 
   playback_timer_.Start(playback_start_time, playback_speed_, timebase_dbl());
 

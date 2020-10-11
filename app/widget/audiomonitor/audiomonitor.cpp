@@ -35,6 +35,7 @@ const int kMaximumSmoothness = 8;
 
 AudioMonitor::AudioMonitor(QWidget *parent) :
   QOpenGLWidget(parent),
+  file_(nullptr),
   cached_channels_(0)
 {
   values_.resize(kMaximumSmoothness);
@@ -43,11 +44,6 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
   connect(AudioManager::instance(), &AudioManager::OutputPushed, this, &AudioMonitor::OutputPushed);
   connect(AudioManager::instance(), &AudioManager::AudioParamsChanged, this, &AudioMonitor::SetParams);
   connect(AudioManager::instance(), &AudioManager::Stopped, this, &AudioMonitor::Stop);
-}
-
-AudioMonitor::~AudioMonitor()
-{
-  Stop();
 }
 
 void AudioMonitor::SetParams(const AudioParams &params)
@@ -63,18 +59,19 @@ void AudioMonitor::SetParams(const AudioParams &params)
   peaked_.fill(false);
 }
 
-void AudioMonitor::OutputDeviceSet(const QString &filename, qint64 offset, int playback_speed)
+void AudioMonitor::OutputDeviceSet(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
 {
   Stop();
 
-  file_.setFileName(filename);
+  file_ = cache->CreatePlaybackDevice(this);
 
-  if (!file_.open(QFile::ReadOnly)) {
-    qWarning() << "Failed to open" << filename;
+  if (!file_->open(QFile::ReadOnly)) {
+    qWarning() << "Failed to open IO device for AudioMonitor display";
+    Stop();
     return;
   }
 
-  file_.seek(offset);
+  file_->seek(offset);
 
   playback_speed_ = playback_speed;
 
@@ -85,9 +82,8 @@ void AudioMonitor::OutputDeviceSet(const QString &filename, qint64 offset, int p
 
 void AudioMonitor::Stop()
 {
-  if (file_.isOpen()) {
-    file_.close();
-  }
+  delete file_;
+  file_ = nullptr;
 }
 
 void AudioMonitor::OutputPushed(const QByteArray &d)
@@ -215,7 +211,7 @@ void AudioMonitor::paintGL()
 
   QVector<double> v(params_.channel_count(), 0);
 
-  if (file_.isOpen()) {
+  if (file_) {
     UpdateValuesFromFile(v);
   }
 
@@ -258,7 +254,7 @@ void AudioMonitor::paintGL()
     }
   }
 
-  if (all_zeroes && !file_.isOpen()) {
+  if (all_zeroes && !file_) {
     // Optimize by disabling the update loop
     SetUpdateLoop(false);
   }
@@ -287,18 +283,18 @@ void AudioMonitor::UpdateValuesFromFile(QVector<double>& v)
 
   if (playback_speed_ < 0) {
     // If reversing, jump back by the amount of bytes we're going to read
-    bytes_to_read = qMin(bytes_to_read, file_.pos());
+    bytes_to_read = qMin(bytes_to_read, file_->pos());
 
-    file_.seek(file_.pos() - bytes_to_read);
+    file_->seek(file_->pos() - bytes_to_read);
   }
 
   // Read bytes in from file
-  QByteArray b = file_.read(bytes_to_read);
+  QByteArray b = file_->read(bytes_to_read);
 
   if (playback_speed_ < 0) {
     // If reversing, head back to where we were before the read so that the next read starts
     // from where we left off
-    file_.seek(file_.pos() - bytes_to_read);
+    file_->seek(file_->pos() - bytes_to_read);
   }
 
   // If speed is not 1, transform it here

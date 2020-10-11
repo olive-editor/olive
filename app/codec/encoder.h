@@ -116,7 +116,9 @@ public:
 
   virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
   virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
-                          const QString& pcm_filename) = 0;
+                          QIODevice *file) = 0;
+  void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
+                  const QString& pcm_filename);
 
   virtual void Close() = 0;
 

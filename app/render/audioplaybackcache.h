@@ -33,6 +33,8 @@ class AudioPlaybackCache : public PlaybackCache
 public:
   AudioPlaybackCache(QObject* parent = nullptr);
 
+  virtual ~AudioPlaybackCache() override;
+
   AudioParams GetParameters()
   {
     return params_;
@@ -42,13 +44,81 @@ public:
 
   void WritePCM(const TimeRange &range, SampleBufferPtr samples, const qint64& job_time);
 
-  void WriteSilence(const TimeRange &range);
-
-  //void SetUuid(const QUuid& id);
-
-  const QString& GetPCMFilename() const;
+  void WriteSilence(const TimeRange &range, qint64 job_time);
 
   QList<TimeRange> GetValidRanges(const TimeRange &range, const qint64 &job_time);
+
+  class Segment
+  {
+  public:
+    Segment() = default;
+    Segment(const rational& length, const QString& s);
+
+    const rational& length() const
+    {
+      return length_;
+    }
+
+    void set_length(const rational& length)
+    {
+      length_ = length;
+    }
+
+    const QString& filename() const
+    {
+      return filename_;
+    }
+
+    void set_filename(const QString& filename)
+    {
+      filename_ = filename;
+    }
+
+  private:
+    QString filename_;
+
+    rational length_;
+
+  };
+
+  using Playlist = QVector<Segment>;
+
+  class PlaybackDevice : public QIODevice
+  {
+  public:
+    PlaybackDevice(const Playlist& playlist, QObject* parent = nullptr);
+
+    virtual ~PlaybackDevice() override;
+
+    virtual bool isSequential() const override
+    {
+      return false;
+    }
+
+    virtual bool seek(qint64 pos) override;
+
+    virtual qint64 size() const override;
+
+    virtual qint64 readData(char *data, qint64 maxSize) override;
+
+    virtual qint64 writeData(const char *data, qint64 maxSize) override
+    {
+      Q_UNUSED(data)
+      Q_UNUSED(maxSize)
+
+      return -1;
+    }
+
+  private:
+    Playlist playlist_;
+
+    int current_segment_;
+
+    qint64 segment_read_index_;
+
+  };
+
+  PlaybackDevice* CreatePlaybackDevice(QObject *parent = nullptr) const;
 
 signals:
   void ParametersChanged();
@@ -59,9 +129,23 @@ protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
 private:
-  void UpdateFilename(const QString& s);
+  static const rational kDefaultSegmentSize;
 
-  QString filename_;
+  Segment CloneSegment(const Segment& s) const;
+
+  Segment CreateSegment(const rational& length) const;
+
+  QString GenerateSegmentFilename() const;
+
+  void TrimSegmentIn(Segment* s, const rational& new_length);
+
+  void TrimSegmentOut(Segment* s, const rational& new_length);
+
+  void RemoveSegmentFromArray(int index);
+
+  Playlist segments_;
+
+  rational segment_length_;
 
   AudioParams params_;
 

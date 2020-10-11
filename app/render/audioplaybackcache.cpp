@@ -28,11 +28,20 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const rational AudioPlaybackCache::kDefaultSegmentSize = 5;
+
 AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
   PlaybackCache(parent)
 {
-  quint32 r = std::rand();
-  UpdateFilename(QString::number(r));
+}
+
+AudioPlaybackCache::~AudioPlaybackCache()
+{
+  // Segments are volatile, so delete them here
+  foreach (const Segment& s, segments_) {
+    QFile::remove(s.filename());
+  }
+  segments_.clear();
 }
 
 void AudioPlaybackCache::SetParameters(const AudioParams &params)
@@ -44,16 +53,10 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   params_ = params;
 
   // Restart empty file so there's always "something" to play
-  QFile f(filename_);
-  if (f.open(QFile::WriteOnly)) {
-    f.close();
-  }
+  segments_.clear();
 
   // Our current audio cache is unusable, so we truncate it automatically
-  TimeRange invalidate_range(0, GetLength());
-  if (invalidate_range.in() != invalidate_range.out()) {
-    Invalidate(invalidate_range);
-  }
+  InvalidateAll();
 
   emit ParametersChanged();
 }
@@ -65,148 +68,213 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     return;
   }
 
-  QFile f(filename_);
-  if (f.open(QFile::ReadWrite)) {
-    QByteArray a = samples->toPackedData();
+  // Determine if we have enough segments to pull this off
+  while (segment_length_ < range.out()) {
+    rational seg_sz = qMin(kDefaultSegmentSize, range.out() - segment_length_);
+    segments_.push_back(CreateSegment(seg_sz));
+    segment_length_ += seg_sz;
+  }
 
-    foreach (const TimeRange& r, valid_ranges) {
-      // Calculate destination offsets
-      qint64 start_offset = params_.time_to_bytes(r.in());
-      qint64 max_len = params_.time_to_bytes(r.out());
+  // Convert to packed data, which is what we store on disk
+  QByteArray a = samples->toPackedData();
 
-      if (f.size() < max_len) {
-        f.resize(max_len);
+  // Keep track of validated ranges so we can signal them all at once at the end
+  TimeRangeList ranges_we_validated;
+
+  // Write each valid range to the segments
+  foreach (const TimeRange& r, valid_ranges) {
+    rational this_segment_in = 0;
+
+    for (auto it=segments_.begin(); it!=segments_.end(); it++) {
+      rational this_segment_out = this_segment_in + (*it).length();
+
+      if (r.in() < this_segment_out) {
+        // We'll write at least something to this segment
+        QFile seg_file((*it).filename());
+
+        if (seg_file.open(QFile::ReadWrite)) {
+          // Calculate how much to write
+          rational this_write_in_point = qMax(r.in(), this_segment_in);
+          rational this_write_out_point = qMin(r.out(), this_segment_out);
+
+          // Calculate what the byte offsets are going to be in this segment file
+          rational in_point_relative = this_write_in_point - this_segment_in;
+          qint64 dst_offset = params_.time_to_bytes(in_point_relative);
+
+          // Calculate where to retrieve data from in the source buffer
+          qint64 src_offset = params_.time_to_bytes(this_write_in_point - range.in());
+
+          // Determine how many bytes need to be written
+          qint64 total_write_length = params_.time_to_bytes(this_write_out_point - this_write_in_point);
+
+          // Determine how many bytes we actually have in the source buffer
+          qint64 possible_write_length = qMin(qMax(qint64(0), a.size() - src_offset), total_write_length);
+
+          // Seek to our start offset
+          seg_file.seek(dst_offset);
+
+          // If we have source bytes to write, write them here
+          if (possible_write_length > 0) {
+            seg_file.write(a.data() + src_offset, possible_write_length);
+          }
+
+          if (possible_write_length < total_write_length) {
+            // Fill remaining space with silence
+            QByteArray s(total_write_length - possible_write_length, 0x00);
+            seg_file.write(s);
+          }
+
+          seg_file.close();
+
+          ranges_we_validated.InsertTimeRange(TimeRange(this_write_in_point, this_write_out_point));
+        } else {
+          qWarning() << "Failed to write PCM data to" << seg_file.fileName();
+        }
       }
 
-      // Calculate source offsets
-      qint64 sample_start = params_.time_to_bytes(r.in() - range.in());
-      qint64 sample_len = params_.time_to_bytes(r.length());
-      qint64 actual_write = qMin(sample_len, a.size() - sample_start);
-
-      f.seek(start_offset);
-      f.write(a.data() + sample_start, actual_write);
-
-      if (actual_write < sample_len) {
-        // Fill remaining space with silence
-        QByteArray s(sample_len - actual_write, 0x00);
-        f.write(s);
+      if (r.out() <= this_segment_out) {
+        // We've reached the end of this range, we can break out of the loop here
+        break;
       }
+
+      // Each segment is contiguous, so this out will be the next segment's in
+      this_segment_in = this_segment_out;
     }
+  }
 
-    f.close();
-
-    Validate(range);
-  } else {
-    qWarning() << "Failed to write PCM data to" << filename_;
+  foreach (const TimeRange& v, ranges_we_validated) {
+    Validate(v);
   }
 }
 
-void AudioPlaybackCache::WriteSilence(const TimeRange &range)
+void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 {
-  QFile f(filename_);
-  if (f.open(QFile::ReadWrite)) {
-    qint64 start_offset = params_.time_to_bytes(range.in());
-    qint64 max_len = params_.time_to_bytes(range.out());
-    qint64 write_len = max_len - start_offset;
-
-    if (f.size() < max_len) {
-      f.resize(max_len);
-    }
-
-    f.seek(start_offset);
-
-    QByteArray a(write_len, 0x00);
-    f.write(a);
-
-    f.close();
-
-    Validate(range);
-  } else {
-    qWarning() << "Failed to write PCM data to" << filename_;
-  }
+  // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
+  // it an empty sample buffer
+  WritePCM(range, std::make_shared<SampleBuffer>(), job_time);
 }
-
-/*
-void AudioPlaybackCache::SetUuid(const QUuid &id)
-{
-  UpdateFilename(id.toByteArray());
-}
-*/
 
 void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 {
-  qint64 from_offset = params_.time_to_bytes(from);
-  qint64 to_offset = params_.time_to_bytes(to);
-
-  if (from_offset == to_offset) {
+  if (from == to) {
     return;
   }
 
-  QFile f(filename_);
-  if (f.open(QFile::ReadWrite)) {
-    if (!f.size()) {
-      return;
-    }
+  int to_index = -1;
+  int from_index = -1;
+  rational to_start, from_start;
 
-    qint64 chunk = qAbs(to_offset - from_offset);
+  {
+    rational seg_start;
 
-    QByteArray buf(chunk, Qt::Uninitialized);
+    // Find which segments intersect with this shift event
+    for (int i=0; i<segments_.size(); i++) {
+      const Segment& seg = segments_.at(i);
 
-    if (to > from) {
-      // Shifting forwards, we must insert a new region and shift all the bytes there
+      rational seg_end = seg_start + seg.length();
 
-      // For shifting forwards, we copy bytes starting at the back so that bytes we need don't
-      // get overwritten.
-      qint64 read_offset = f.size();
-
-      f.resize(f.size() + chunk);
-
-      qint64 write_offset = f.size();
-
-      while (read_offset != from_offset) {
-
-        // Calculate how much will be read this time
-        qint64 chunk_sz = qMin(chunk, read_offset - from_offset);
-        read_offset -= chunk_sz;
-
-        // Read that chunk
-        f.seek(read_offset);
-        f.read(buf.data(), chunk_sz);
-
-        // Write it at the destination
-        write_offset -= chunk_sz;
-        f.seek(write_offset);
-        f.write(buf.data(), chunk_sz);
-
+      if (to_index == -1 && seg_end > to) {
+        to_index = i;
+        to_start = seg_start;
       }
 
-      // Replace remainder with silence
-      f.seek(from_offset);
-      buf.fill(0);
-      f.write(buf);
+      if (from_index == -1 && seg_end >= from) {
+        from_index = i;
+        from_start = seg_start;
+      }
 
+      if (to_index != -1 && from_index != -1) {
+        break;
+      }
+
+      seg_start = seg_end;
+    }
+  }
+
+  Segment& from_segment = segments_[from_index];
+  const rational& from_length = from_segment.length();
+  rational from_end = from_start + from_length;
+
+  if (from < to) {
+    // Shifting forwards, we must insert a new region and split a segment in half if necessary
+    int insert_index;
+
+    // Determine at what part of the array we'll be insert into
+    if (from == from_start) {
+      insert_index = from_index;
     } else {
-      // Shifting backwards, we will shift bytes and truncate
-
-      while (from_offset != f.size()) {
-        // Read region to be shifted
-        f.seek(from_offset);
-        qint64 read_sz = f.read(buf.data(), buf.size());
-        from_offset += read_sz;
-
-        // Write it at the destination
-        f.seek(to_offset);
-        to_offset += f.write(buf, read_sz);
-      }
-
-      // Truncate
-      f.resize(f.size() - chunk);
-
+      insert_index = from_index + 1;
     }
 
-    f.close();
+    if (from < from_end) {
+      // Split from segment into two
+      Segment second = CloneSegment(from_segment);
+
+      TrimSegmentOut(&from_segment, from - from_start);
+      TrimSegmentIn(&second, from_end - from);
+
+      segments_.insert(insert_index, second);
+    }
+
+    // Insert silent segments
+    rational time_to_insert = to - from;
+    rational inserted_time;
+
+    while (inserted_time < time_to_insert) {
+      rational new_seg_sz = qMin(kDefaultSegmentSize, time_to_insert - inserted_time);
+
+      segments_.insert(insert_index, CreateSegment(new_seg_sz));
+
+      inserted_time += new_seg_sz;
+    }
+
+    segment_length_ += time_to_insert;
+
   } else {
-    qWarning() << "Failed to write PCM data to" << filename_;
+    // Shifting backwards, we'll be removing segments and truncating them if necessary
+    Segment& to_segment = segments_[to_index];
+    const rational& to_length = to_segment.length();
+    rational to_end = to_start + to_length;
+
+    if (from_index == to_index) {
+      // Shift occurs in the same segment
+      if (to > to_start && from < to_end) {
+        // Split into two and process as normal
+        Segment second = CloneSegment(to_segment);
+        from_index++;
+        segments_.insert(from_index, second);
+      } else if (to == to_start && from == to_end) {
+        RemoveSegmentFromArray(to_index);
+      } else if (to == to_start) {
+        TrimSegmentIn(&to_segment, to_end - from);
+      } else {
+        TrimSegmentOut(&from_segment, to - to_start);
+      }
+    } else {
+      // Remove all central segments (if there are any)
+      while (from_index > to_index + 1) {
+        RemoveSegmentFromArray(to_index + 1);
+        from_index--;
+      }
+    }
+
+    if (from_index != to_index) {
+      // Remove or trim "to" segment
+      if (to == to_start) {
+        RemoveSegmentFromArray(to_index);
+      } else if (to < to_end) {
+        TrimSegmentOut(&to_segment, to - to_start);
+      }
+
+      // Remove or trim "from" segment
+      if (from == from_end) {
+        RemoveSegmentFromArray(from_index);
+      } else if (from > from_start) {
+        TrimSegmentIn(&from_segment, from_end - from);
+      }
+    }
+
+    segment_length_ -= (from - to);
   }
 }
 
@@ -216,9 +284,94 @@ void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational&
     return;
   }
 
-  if (newlen < old) {
-    QFile(filename_).resize(params_.time_to_bytes(newlen));
+  while (newlen < segment_length_) {
+    Segment& last_seg = segments_.back();
+
+    if (segment_length_ - last_seg.length() < newlen) {
+      // Truncate this segment rather than removing it
+      rational diff = segment_length_ - newlen;
+
+      TrimSegmentOut(&last_seg, last_seg.length() - diff);
+      segment_length_ -= diff;
+    } else {
+      // Remove last segment
+      segment_length_ -= last_seg.length();
+      RemoveSegmentFromArray(segments_.size() - 1);
+    }
   }
+}
+
+AudioPlaybackCache::Segment AudioPlaybackCache::CloneSegment(const AudioPlaybackCache::Segment &s) const
+{
+  Segment new_seg = s;
+
+  // Copy data to a new file
+  QString new_filename = GenerateSegmentFilename();
+  QFile::copy(s.filename(), new_filename);
+
+  new_seg.set_filename(new_filename);
+
+  return new_seg;
+}
+
+AudioPlaybackCache::Segment AudioPlaybackCache::CreateSegment(const rational &length) const
+{
+  Segment s(length, GenerateSegmentFilename());
+
+  // Create empty file
+  QFile f(s.filename());
+  if (f.open(QFile::WriteOnly)) {
+    f.close();
+  }
+
+  return s;
+}
+
+QString AudioPlaybackCache::GenerateSegmentFilename() const
+{
+  QString new_seg_filename;
+
+  do {
+    uint32_t r = std::rand();
+    new_seg_filename = QDir(GetCacheDirectory()).filePath(QStringLiteral("%1.pcm").arg(r));
+  } while (QFileInfo::exists(new_seg_filename));
+
+  return new_seg_filename;
+}
+
+void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, const rational &new_length)
+{
+  // Read filename
+  QFile f(s->filename());
+  if (f.open(QFile::ReadWrite)) {
+    // Read whole segment into memory
+    QByteArray data = f.readAll();
+
+    // Trim to new length
+    data = data.right(params_.time_to_bytes(new_length));
+
+    // Clear existing file
+    f.resize(0);
+
+    // Write trimmed data
+    f.write(data);
+
+    f.close();
+  }
+
+  s->set_length(new_length);
+}
+
+void AudioPlaybackCache::TrimSegmentOut(AudioPlaybackCache::Segment *s, const rational &new_length)
+{
+  QFile(s->filename()).resize(params_.time_to_bytes(new_length));
+  s->set_length(new_length);
+}
+
+void AudioPlaybackCache::RemoveSegmentFromArray(int index)
+{
+  QFile::remove(segments_.at(index).filename());
+  segments_.removeAt(index);
 }
 
 QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const qint64& job_time)
@@ -236,15 +389,110 @@ QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, cons
   return valid_ranges;
 }
 
-void AudioPlaybackCache::UpdateFilename(const QString &s)
+AudioPlaybackCache::PlaybackDevice *AudioPlaybackCache::CreatePlaybackDevice(QObject* parent) const
 {
-  filename_ = QDir(GetCacheDirectory()).filePath(s);
-  filename_.append(QStringLiteral(".pcm"));
+  return new PlaybackDevice(segments_, parent);
 }
 
-const QString &AudioPlaybackCache::GetPCMFilename() const
+AudioPlaybackCache::Segment::Segment(const rational &length, const QString &s)
 {
-  return filename_;
+  length_ = length;
+  filename_ = s;
+}
+
+AudioPlaybackCache::PlaybackDevice::PlaybackDevice(const AudioPlaybackCache::Playlist &playlist, QObject *parent) :
+  QIODevice(parent),
+  playlist_(playlist),
+  current_segment_(0),
+  segment_read_index_(0)
+{
+}
+
+AudioPlaybackCache::PlaybackDevice::~PlaybackDevice()
+{
+  close();
+}
+
+bool AudioPlaybackCache::PlaybackDevice::seek(qint64 pos)
+{
+  // Default behavior
+  QIODevice::seek(pos);
+
+  // Find which segment we're in
+  // FIXME: Inefficient
+  qint64 seg_start_bytes = 0;
+  for (int i=0; i<playlist_.size(); i++) {
+    const Segment& s = playlist_.at(i);
+
+    qint64 this_seg_sz = QFile(s.filename()).size();
+    qint64 seg_end_bytes = seg_start_bytes + this_seg_sz;
+
+    if (pos < seg_end_bytes) {
+      // This must be the segment we're looking for
+      current_segment_ = i;
+      segment_read_index_ = pos - seg_start_bytes;
+
+      // Succeeded at seeking to this position
+      return true;
+    }
+
+    seg_start_bytes = seg_end_bytes;
+  }
+
+  // Couldn't find this position in the file
+  return false;
+}
+
+qint64 AudioPlaybackCache::PlaybackDevice::size() const
+{
+  qint64 p = 0;
+
+  // FIXME: Inefficient
+  for (int i=0; i<playlist_.size(); i++) {
+    p += QFile(playlist_.at(i).filename()).size();
+  }
+
+  return p;
+}
+
+qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
+{
+  qint64 read_size = 0;
+
+  while (read_size < maxSize && current_segment_ < playlist_.size()) {
+    QFile segment_file(playlist_.at(current_segment_).filename());
+    if (segment_file.open(QFile::ReadOnly)) {
+      // Seek to our stored index of this segment
+      segment_file.seek(segment_read_index_);
+
+      // Determine how many bytes to read
+      qint64 this_read_length = qMin(segment_file.size() - segment_read_index_,
+                                     maxSize - read_size);
+
+      // Read those bytes
+      segment_file.read(data + read_size, this_read_length);
+
+      // Close the file
+      segment_file.close();
+
+      // Add to the read index
+      segment_read_index_ += this_read_length;
+
+      // Add to the read size
+      read_size += this_read_length;
+
+      // If we've reached the end of this segment, tick the counter over to the next segment
+      if (segment_read_index_ == segment_file.size()) {
+        // Jump to the next file
+        segment_read_index_ = 0;
+        current_segment_++;
+      }
+    } else {
+      qWarning() << "Failed to read data from segment";
+    }
+  }
+
+  return read_size;
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -43,7 +43,7 @@ public:
   virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) override;
 
   virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
-                          const QString& pcm_filename) override;
+                          QIODevice *file) override;
 
   virtual void Close() override;
 

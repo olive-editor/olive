@@ -30,6 +30,7 @@
 #include "common/define.h"
 #include "outputmanager.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -57,11 +58,9 @@ public:
   void PushToOutput(const QByteArray& samples);
 
   /**
-   * @brief Start playing audio from QIODevice
-   *
-   * This takes ownership of the QIODevice and will delete it when StopOutput() is called
+   * @brief Start playing audio from AudioPlaybackCache
    */
-  void StartOutput(const QString& filename, qint64 offset, int playback_speed);
+  void StartOutput(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   /**
    * @brief Stop audio output immediately
@@ -86,7 +85,7 @@ signals:
 
   void OutputNotified();
 
-  void OutputDeviceStarted(const QString& filename, qint64 offset, int playback_speed);
+  void OutputDeviceStarted(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   void AudioParamsChanged(const AudioParams& params);
 

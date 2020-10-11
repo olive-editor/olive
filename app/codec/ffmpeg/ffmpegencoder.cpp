@@ -185,10 +185,9 @@ fail:
   return success;
 }
 
-void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
+void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
 {
-  QFile pcm(pcm_filename);
-  if (pcm.open(QFile::ReadOnly)) {
+  if (file->open(QFile::ReadOnly)) {
     // Divide PCM stream into AVFrames
 
     // See if the codec defines a number of samples per frame
@@ -239,7 +238,7 @@ void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename
       int max_read = pcm_info.samples_to_bytes(samples_needed);
 
       // Read bytes from PCM
-      QByteArray input_data = pcm.read(max_read);
+      QByteArray input_data = file->read(max_read);
 
       // Use swresample to convert the data into the correct format
       const char* input_data_array = input_data.constData();
@@ -273,7 +272,7 @@ void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename
       }
 
       // Break if we've reached the end point
-      if (pcm.atEnd()) {
+      if (file->atEnd()) {
         break;
       }
     }
@@ -282,7 +281,9 @@ void FFmpegEncoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename
 
     swr_free(&swr_ctx);
 
-    pcm.close();
+    file->close();
+  } else {
+    qWarning() << "Failed to open audio IO device for encoding";
   }
 }
 
