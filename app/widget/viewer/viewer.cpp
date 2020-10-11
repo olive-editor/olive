@@ -242,6 +242,9 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);
+
+  // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
+  QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
@@ -687,7 +690,10 @@ void ViewerWidget::UpdateStack()
   } else {
     // Otherwise show regular display
     stack_->setCurrentWidget(sizer_);
-    new_tb = GetConnectedNode()->video_params().time_base();
+
+    if (GetConnectedNode()) {
+      new_tb = GetConnectedNode()->video_params().time_base();
+    }
   }
 
   if (new_tb != timebase()) {
