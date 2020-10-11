@@ -210,6 +210,8 @@ private:
 
   void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
 
+  bool ShouldForceWaveform() const;
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -292,6 +294,10 @@ private slots:
   void RendererGeneratedFrameForQueue();
 
   void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
+
+  void ManualSwitchToWaveform(bool e);
+
+  void TimeChangedFromWaveform(qint64 t);
 
 };
 

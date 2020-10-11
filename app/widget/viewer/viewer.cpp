@@ -115,7 +115,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   renderer_->SetPreviewGenerationEnabled(true);
 
   // Ensures that seeking on the waveform view updates the time as expected
-  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
+  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::TimeChangedFromWaveform);
+  connect(waveform_view_, &AudioWaveformView::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   // Ensures renderer is updated if the global pixel format is changed
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
@@ -143,7 +144,18 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   }
 
   controls_->SetTime(i);
-  waveform_view_->SetTime(i);
+
+  {
+    qint64 waveform_time;
+
+    if (waveform_view_->timebase() != this->timebase()) {
+      waveform_time = Timecode::rescale_timestamp(i, this->timebase(), waveform_view_->timebase());
+    } else {
+      waveform_time = i;
+    }
+
+    waveform_view_->SetTime(waveform_time);
+  }
 
   if (GetConnectedNode() && last_time_ != i) {
     rational time_set = Timecode::timestamp_to_time(i, timebase());
@@ -385,6 +397,13 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time
 void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
 {
   ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)));
+}
+
+bool ViewerWidget::ShouldForceWaveform() const
+{
+  return GetConnectedNode()
+      && !GetConnectedNode()->texture_input()->is_connected()
+      && GetConnectedNode()->samples_input()->is_connected();
 }
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
@@ -681,9 +700,7 @@ void ViewerWidget::UpdateStack()
 {
   rational new_tb;
 
-  if (GetConnectedNode()
-      && !GetConnectedNode()->texture_input()->is_connected()
-      && GetConnectedNode()->samples_input()->is_connected()) {
+  if (ShouldForceWaveform()) {
     // If we have a node AND video is disconnected AND audio is connected, show waveform view
     stack_->setCurrentWidget(waveform_view_);
     new_tb = GetConnectedNode()->audio_params().time_base();
@@ -789,139 +806,152 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
   Menu menu(static_cast<QWidget*>(sender()));
 
-  context_menu_widget_ = static_cast<ViewerDisplayWidget*>(sender());
+  context_menu_widget_ = dynamic_cast<ViewerDisplayWidget*>(sender());
 
-  // Color options
-  if (context_menu_widget_->color_manager() && color_menu_enabled_) {
-    {
-      Menu* ocio_display_menu = context_menu_widget_->GetDisplayMenu(&menu);
-      menu.addMenu(ocio_display_menu);
+  // ViewerDisplayWidget options
+  if (context_menu_widget_) {
+    // Color options
+    if (context_menu_widget_->color_manager() && color_menu_enabled_) {
+      {
+        Menu* ocio_display_menu = context_menu_widget_->GetDisplayMenu(&menu);
+        menu.addMenu(ocio_display_menu);
+      }
+
+      {
+        Menu* ocio_view_menu = context_menu_widget_->GetViewMenu(&menu);
+        menu.addMenu(ocio_view_menu);
+      }
+
+      {
+        Menu* ocio_look_menu = context_menu_widget_->GetLookMenu(&menu);
+        menu.addMenu(ocio_look_menu);
+      }
+
+      menu.addSeparator();
     }
 
     {
-      Menu* ocio_view_menu = context_menu_widget_->GetViewMenu(&menu);
-      menu.addMenu(ocio_view_menu);
+      // Viewer Zoom Level
+      Menu* zoom_menu = new Menu(tr("Zoom"), &menu);
+      menu.addMenu(zoom_menu);
+
+      int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
+      zoom_menu->addAction(tr("Fit"))->setData(0);
+      for (int i=0;i<8;i++) {
+        zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+      }
+
+      connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
     }
 
     {
-      Menu* ocio_look_menu = context_menu_widget_->GetLookMenu(&menu);
-      menu.addMenu(ocio_look_menu);
+      // Full Screen Menu
+      Menu* full_screen_menu = new Menu(tr("Full Screen"), &menu);
+      menu.addMenu(full_screen_menu);
+
+      for (int i=0;i<QGuiApplication::screens().size();i++) {
+        QScreen* s = QGuiApplication::screens().at(i);
+
+        QAction* a = full_screen_menu->addAction(tr("Screen %1: %2x%3").arg(QString::number(i),
+                                                                            QString::number(s->size().width()),
+                                                                            QString::number(s->size().height())));
+
+        a->setData(i);
+      }
+
+      connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
+    }
+
+    {
+      // Deinterlace Option
+      if (GetConnectedNode()->video_params().interlacing() != VideoParams::kInterlaceNone) {
+        QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
+        deinterlace_action->setCheckable(true);
+        deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
+        connect(deinterlace_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetDeinterlacing);
+      }
+    }
+
+    menu.addSeparator();
+
+    {
+      // Scopes
+      Menu* scopes_menu = new Menu(tr("Scopes"), &menu);
+      menu.addMenu(scopes_menu);
+
+      for (int i=0;i<ScopePanel::kTypeCount;i++) {
+        QAction* scope_action = scopes_menu->addAction(ScopePanel::TypeToName(static_cast<ScopePanel::Type>(i)));
+        scope_action->setData(i);
+      }
+
+      connect(scopes_menu, &Menu::triggered, this, &ViewerWidget::ContextMenuScopeTriggered);
+    }
+
+    menu.addSeparator();
+
+    {
+      Menu* cache_menu = new Menu(tr("Cache"), &menu);
+      menu.addMenu(cache_menu);
+
+      // Auto-cache
+      QAction* autocache_action = cache_menu->addAction(tr("Auto-Cache"));
+      autocache_action->setCheckable(true);
+      autocache_action->setChecked(!renderer_->IsAutoCachePaused());
+      connect(autocache_action, &QAction::triggered, this, &ViewerWidget::SetAutoCacheEnabled);
+
+      cache_menu->addSeparator();
+
+      // Stop auto-cache while playing
+      QAction* pause_autocache_while_playing = cache_menu->addAction(tr("Pause Auto-Cache During Playback"));
+      pause_autocache_while_playing->setCheckable(true);
+      pause_autocache_while_playing->setChecked(pause_autocache_during_playback_);
+      connect(pause_autocache_while_playing, &QAction::triggered, this, [this](bool e){
+        pause_autocache_during_playback_ = e;
+      });
+
+      cache_menu->addSeparator();
+
+      // Cache Entire Sequence
+      QAction* cache_entire_sequence = cache_menu->addAction(tr("Cache Entire Sequence"));
+      connect(cache_entire_sequence, &QAction::triggered, this, &ViewerWidget::CacheEntireSequence);
+
+      // Cache In/Out Sequence
+      QAction* cache_inout_sequence = cache_menu->addAction(tr("Cache Sequence In/Out"));
+      connect(cache_inout_sequence, &QAction::triggered, this, &ViewerWidget::CacheSequenceInOut);
+    }
+
+    menu.addSeparator();
+
+    {
+      // Safe Margins
+      Menu* safe_margin_menu = new Menu(tr("Safe Margins"), &menu);
+      menu.addMenu(safe_margin_menu);
+
+      QAction* safe_margin_off = safe_margin_menu->addAction(tr("Off"));
+      safe_margin_off->setCheckable(true);
+      safe_margin_off->setChecked(!context_menu_widget_->GetSafeMargin().is_enabled());
+      connect(safe_margin_off, &QAction::triggered, this, &ViewerWidget::ContextMenuDisableSafeMargins);
+
+      QAction* safe_margin_on = safe_margin_menu->addAction(tr("On"));
+      safe_margin_on->setCheckable(true);
+      safe_margin_on->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && !context_menu_widget_->GetSafeMargin().custom_ratio());
+      connect(safe_margin_on, &QAction::triggered, this, &ViewerWidget::ContextMenuSetSafeMargins);
+
+      QAction* safe_margin_custom = safe_margin_menu->addAction(tr("Custom Aspect"));
+      safe_margin_custom->setCheckable(true);
+      safe_margin_custom->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && context_menu_widget_->GetSafeMargin().custom_ratio());
+      connect(safe_margin_custom, &QAction::triggered, this, &ViewerWidget::ContextMenuSetCustomSafeMargins);
     }
 
     menu.addSeparator();
   }
 
   {
-    // Viewer Zoom Level
-    Menu* zoom_menu = new Menu(tr("Zoom"), &menu);
-    menu.addMenu(zoom_menu);
-
-    int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
-    zoom_menu->addAction(tr("Fit"))->setData(0);
-    for (int i=0;i<8;i++) {
-      zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
-    }
-
-    connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
-  }
-
-  {
-    // Full Screen Menu
-    Menu* full_screen_menu = new Menu(tr("Full Screen"), &menu);
-    menu.addMenu(full_screen_menu);
-
-    for (int i=0;i<QGuiApplication::screens().size();i++) {
-      QScreen* s = QGuiApplication::screens().at(i);
-
-      QAction* a = full_screen_menu->addAction(tr("Screen %1: %2x%3").arg(QString::number(i),
-                                                                          QString::number(s->size().width()),
-                                                                          QString::number(s->size().height())));
-
-      a->setData(i);
-    }
-
-    connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
-  }
-
-  {
-    // Deinterlace Option
-    if (GetConnectedNode()->video_params().interlacing() != VideoParams::kInterlaceNone) {
-      QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
-      deinterlace_action->setCheckable(true);
-      deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
-      connect(deinterlace_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetDeinterlacing);
-    }
-  }
-
-  menu.addSeparator();
-
-  {
-    // Scopes
-    Menu* scopes_menu = new Menu(tr("Scopes"), &menu);
-    menu.addMenu(scopes_menu);
-
-    for (int i=0;i<ScopePanel::kTypeCount;i++) {
-      QAction* scope_action = scopes_menu->addAction(ScopePanel::TypeToName(static_cast<ScopePanel::Type>(i)));
-      scope_action->setData(i);
-    }
-
-    connect(scopes_menu, &Menu::triggered, this, &ViewerWidget::ContextMenuScopeTriggered);
-  }
-
-  menu.addSeparator();
-
-  {
-    Menu* cache_menu = new Menu(tr("Cache"), &menu);
-    menu.addMenu(cache_menu);
-
-    // Auto-cache
-    QAction* autocache_action = cache_menu->addAction(tr("Auto-Cache"));
-    autocache_action->setCheckable(true);
-    autocache_action->setChecked(!renderer_->IsAutoCachePaused());
-    connect(autocache_action, &QAction::triggered, this, &ViewerWidget::SetAutoCacheEnabled);
-
-    cache_menu->addSeparator();
-
-    // Stop auto-cache while playing
-    QAction* pause_autocache_while_playing = cache_menu->addAction(tr("Pause Auto-Cache During Playback"));
-    pause_autocache_while_playing->setCheckable(true);
-    pause_autocache_while_playing->setChecked(pause_autocache_during_playback_);
-    connect(pause_autocache_while_playing, &QAction::triggered, this, [this](bool e){
-      pause_autocache_during_playback_ = e;
-    });
-
-    cache_menu->addSeparator();
-
-    // Cache Entire Sequence
-    QAction* cache_entire_sequence = cache_menu->addAction(tr("Cache Entire Sequence"));
-    connect(cache_entire_sequence, &QAction::triggered, this, &ViewerWidget::CacheEntireSequence);
-
-    // Cache In/Out Sequence
-    QAction* cache_inout_sequence = cache_menu->addAction(tr("Cache Sequence In/Out"));
-    connect(cache_inout_sequence, &QAction::triggered, this, &ViewerWidget::CacheSequenceInOut);
-  }
-
-  menu.addSeparator();
-
-  {
-    // Safe Margins
-    Menu* safe_margin_menu = new Menu(tr("Safe Margins"), &menu);
-    menu.addMenu(safe_margin_menu);
-
-    QAction* safe_margin_off = safe_margin_menu->addAction(tr("Off"));
-    safe_margin_off->setCheckable(true);
-    safe_margin_off->setChecked(!context_menu_widget_->GetSafeMargin().is_enabled());
-    connect(safe_margin_off, &QAction::triggered, this, &ViewerWidget::ContextMenuDisableSafeMargins);
-
-    QAction* safe_margin_on = safe_margin_menu->addAction(tr("On"));
-    safe_margin_on->setCheckable(true);
-    safe_margin_on->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && !context_menu_widget_->GetSafeMargin().custom_ratio());
-    connect(safe_margin_on, &QAction::triggered, this, &ViewerWidget::ContextMenuSetSafeMargins);
-
-    QAction* safe_margin_custom = safe_margin_menu->addAction(tr("Custom Aspect"));
-    safe_margin_custom->setCheckable(true);
-    safe_margin_custom->setChecked(context_menu_widget_->GetSafeMargin().is_enabled() && context_menu_widget_->GetSafeMargin().custom_ratio());
-    connect(safe_margin_custom, &QAction::triggered, this, &ViewerWidget::ContextMenuSetCustomSafeMargins);
+    QAction* show_waveform_action = menu.addAction(tr("Show Audio Waveform"));
+    show_waveform_action->setCheckable(true);
+    show_waveform_action->setChecked(stack_->currentWidget() == waveform_view_);
+    show_waveform_action->setEnabled(!ShouldForceWaveform());
+    connect(show_waveform_action, &QAction::triggered, this, &ViewerWidget::ManualSwitchToWaveform);
   }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
@@ -1161,6 +1191,25 @@ void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
   if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     QMetaObject::invokeMethod(this, "ForceUpdate", Qt::QueuedConnection);
   }
+}
+
+void ViewerWidget::ManualSwitchToWaveform(bool e)
+{
+  if (e) {
+    stack_->setCurrentWidget(waveform_view_);
+  } else {
+    stack_->setCurrentWidget(sizer_);
+  }
+}
+
+void ViewerWidget::TimeChangedFromWaveform(qint64 t)
+{
+  if (waveform_view_->timebase() != this->timebase()) {
+    // Transform time to our timebase
+    t = Timecode::rescale_timestamp(t, waveform_view_->timebase(), this->timebase());
+  }
+
+  SetTimeAndSignal(t);
 }
 
 void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
