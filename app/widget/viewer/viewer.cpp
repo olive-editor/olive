@@ -712,7 +712,6 @@ void ViewerWidget::UpdateStack()
       new_tb = GetConnectedNode()->video_params().time_base();
     }*/
   }
-
   /*if (new_tb != timebase()) {
     SetTimebase(new_tb);
   }*/

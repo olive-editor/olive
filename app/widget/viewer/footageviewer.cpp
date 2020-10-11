@@ -54,6 +54,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 {
   if (footage_) {
     cached_timestamps_.insert(footage_, GetTimestamp());
+    controls()->SetEndTime(0);
 
     ConnectViewerNode(nullptr);
 
@@ -110,6 +111,9 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());
 
     SetTimestamp(cached_timestamps_.value(footage_, 0));
+  }
+  else {
+    SetTimestamp(0);
   }
 }
 

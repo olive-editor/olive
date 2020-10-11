@@ -92,6 +92,11 @@ public:
     return display_widget_->color_manager();
   }
 
+  PlaybackControls* controls() const
+  {
+    return controls_;
+  }
+
   void SetGizmos(Node* node);
 
 public slots:

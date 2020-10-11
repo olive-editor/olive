@@ -186,6 +186,10 @@ void PlaybackControls::SetEndTime(const int64_t &r)
   end_tc_lbl_->setText(Timecode::timestamp_to_timecode(end_time_,
                                                        time_base_,
                                                        Core::instance()->GetTimecodeDisplay()));
+
+  if (end_time_ == 0) {
+    end_tc_lbl_->setVisible(false);
+  }
 }
 
 void PlaybackControls::ShowPauseButton()
