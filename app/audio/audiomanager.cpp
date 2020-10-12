@@ -77,7 +77,7 @@ bool AudioManager::IsRefreshingInputs()
 
 void AudioManager::PushToOutput(const QByteArray &samples)
 {
-  output_manager_.Push(samples);
+  output_manager_->Push(samples);
 
   emit OutputPushed(samples);
 }
@@ -88,10 +88,10 @@ void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int pla
   QIODevice* device = cache->CreatePlaybackDevice();
 
   // Move to output manager's thread
-  device->moveToThread(output_manager_.thread());
+  device->moveToThread(&output_thread_);
 
   // Queue to output manger in other thread
-  QMetaObject::invokeMethod(&output_manager_,
+  QMetaObject::invokeMethod(output_manager_,
                             "PullFromDevice",
                             Qt::QueuedConnection,
                             Q_ARG(QIODevice*, device),
@@ -103,7 +103,7 @@ void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int pla
 
 void AudioManager::StopOutput()
 {
-  QMetaObject::invokeMethod(&output_manager_,
+  QMetaObject::invokeMethod(output_manager_,
                             "ResetToPushMode",
                             Qt::QueuedConnection);
 
@@ -156,7 +156,7 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
     }
 
     if (info.isFormatSupported(format)) {
-      QMetaObject::invokeMethod(&output_manager_,
+      QMetaObject::invokeMethod(output_manager_,
                                 "SetOutputDevice",
                                 Qt::QueuedConnection,
                                 Q_ARG(const QAudioDeviceInfo&, info),
@@ -173,7 +173,7 @@ void AudioManager::SetOutputParams(const AudioParams &params)
   if (output_params_ != params) {
     output_params_ = params;
 
-    QMetaObject::invokeMethod(&output_manager_,
+    QMetaObject::invokeMethod(output_manager_,
                               "SetParameters",
                               Qt::QueuedConnection,
                               OLIVE_NS_ARG(AudioParams, params));
@@ -229,14 +229,15 @@ AudioManager::AudioManager() :
   RefreshDevices();
 
   output_thread_.start(QThread::TimeCriticalPriority);
-  output_manager_.moveToThread(&output_thread_);
+  output_manager_ = new AudioOutputManager();
+  output_manager_->moveToThread(&output_thread_);
 
-  connect(&output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
+  connect(output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
 }
 
 AudioManager::~AudioManager()
 {
-  QMetaObject::invokeMethod(&output_manager_, "Close", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(output_manager_, "deleteLater", Qt::BlockingQueuedConnection);
   output_thread_.quit();
   output_thread_.wait();
 }

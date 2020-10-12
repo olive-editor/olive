@@ -83,7 +83,7 @@ void AudioOutputManager::Close()
       device_proxy_.close();
     }
 
-    output_->deleteLater();
+    delete output_;
     output_ = nullptr;
   }
 }

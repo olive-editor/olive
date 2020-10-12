@@ -107,7 +107,7 @@ private:
   static AudioManager* instance_;
 
   QThread output_thread_;
-  AudioOutputManager output_manager_;
+  AudioOutputManager* output_manager_;
   bool output_is_set_;
 
   QAudioDeviceInfo output_device_info_;
