@@ -20,10 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [1, 2]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             cc-compiler: gcc
             cxx-compiler: g++
             compiler-name: GCC 9.3.1
@@ -31,8 +29,7 @@ jobs:
             os-name: Linux (CentOS 7)
             vfx-cy: 2021
             ci-common-version: 2
-          - build: 2
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
             compiler-name: Clang 10.0.0
@@ -117,10 +114,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        build: [1]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             compiler-name: MSVC 16.x
             os-name: Windows
             os-arch: x86_64
@@ -288,10 +283,8 @@ jobs:
   macos:
     strategy:
       matrix:
-        build: [1]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
