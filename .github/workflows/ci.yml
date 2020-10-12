@@ -152,10 +152,10 @@ jobs:
           cmake -E make_directory ${{ runner.workspace }}/build
 
       - name: Enable Developer Command Prompt (Windows)
-        uses: ilammy/msvc-dev-cmd@v1.3.0
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2.8.0
+        uses: jurplel/install-qt-action@v2
         with:
           version: 5.15.1
 
@@ -323,7 +323,7 @@ jobs:
           cmake -E make_directory ${{ runner.workspace }}/build
 
       - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2.8.0
+        uses: jurplel/install-qt-action@v2
         with:
           version: 5.15.1
 
