@@ -47,6 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -129,6 +131,8 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -298,6 +302,8 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
