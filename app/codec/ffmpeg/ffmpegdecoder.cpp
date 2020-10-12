@@ -583,6 +583,25 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
         audio_stream->set_channels(avstream->codecpar->channels);
         audio_stream->set_sample_rate(avstream->codecpar->sample_rate);
 
+        if (avstream->duration == AV_NOPTS_VALUE) {
+          // Loop through stream until we get the whole duration
+          FFmpegDecoderInstance instance(filename, i);
+
+          AVPacket* pkt = av_packet_alloc();
+          AVFrame* frame = av_frame_alloc();
+
+          int64_t new_dur;
+
+          do {
+            new_dur = frame->pts;
+          } while (instance.GetFrame(pkt, frame) >= 0);
+
+          avstream->duration = new_dur;
+
+          av_frame_free(&frame);
+          av_packet_free(&pkt);
+        }
+
         str = audio_stream;
 
       } else {
