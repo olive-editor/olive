@@ -75,8 +75,11 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
     segment_length_ += seg_sz;
   }
 
-  // Convert to packed data, which is what we store on disk
-  QByteArray a = samples->toPackedData();
+  QByteArray a;
+  if (samples) {
+    // Convert to packed data, which is what we store on disk
+    a = samples->toPackedData();
+  }
 
   // Keep track of validated ranges so we can signal them all at once at the end
   TimeRangeList ranges_we_validated;
