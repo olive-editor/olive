@@ -31,6 +31,7 @@
 
 #include "project/item/footage/footage.h"
 #include "undo/undocommand.h"
+#include "widget/clickablelabel/clickablelabel.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -95,6 +96,11 @@ private:
   };
 
   /**
+   * @brief Update list of streams available in the footage
+   */
+  void UpdateTrackList();
+
+  /**
    * @brief Stack of widgets that changes based on whether the stream is a video or audio stream
    */
   QStackedWidget* stacked_widget_;
@@ -108,6 +114,16 @@ private:
    * @brief Media name text field
    */
   QLineEdit* footage_name_field_;
+
+  /**
+   * @brief Media path text field
+   */
+  ClickableLabel* footage_path_field_;
+
+  /**
+   * @brief Footage invalid warning
+   */
+  QLabel* footage_invalid_warning_;
 
   /**
    * @brief Internal pointer to Media object (set in constructor)
@@ -129,6 +145,8 @@ private slots:
    * @brief Overridden accept function for saving the properties back to the Media class
    */
   void accept();
+
+  void RelinkFootage();
 
 };
 

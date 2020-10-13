@@ -30,8 +30,10 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QSpinBox>
+#include <QFileDialog>
 
 #include "core.h"
+#include "codec/decoder.h"
 #include "render/colormanager.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
@@ -55,6 +57,23 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   layout->addWidget(footage_name_field_, row, 1);
   row++;
 
+  layout->addWidget(new QLabel(tr("Path:")), row, 0);
+  footage_path_field_ = new ClickableLabel(footage_->filename());
+  layout->addWidget(footage_path_field_, row, 1);
+  row++;
+
+  footage_invalid_warning_ = new QLabel(tr("Footage is invalid, please re-link"));
+  footage_invalid_warning_->setStyleSheet("QLabel { color : red; }");
+  layout->addWidget(footage_invalid_warning_, row, 0, 1, -1, Qt::AlignHCenter);
+  footage_invalid_warning_->hide();
+  if (footage_->status() == Footage::Status::kInvalid) {
+    footage_invalid_warning_->show();
+    row++;
+  }
+
+  layout->addWidget(new QWidget(), row, 0);
+  row++;
+
   layout->addWidget(new QLabel(tr("Tracks:")), row, 0, 1, 2);
   row++;
 
@@ -66,35 +85,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   stacked_widget_ = new QStackedWidget();
   layout->addWidget(stacked_widget_, row, 0, 1, 2);
 
-  int first_usable_stream = -1;
-
-  for (int i=0;i<footage_->streams().size();i++) {
-    StreamPtr stream = footage_->stream(i);
-
-    QListWidgetItem* item = new QListWidgetItem(stream->description(), track_list);
-    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-    item->setCheckState(stream->enabled() ? Qt::Checked : Qt::Unchecked);
-    track_list->addItem(item);
-
-    switch (stream->type()) {
-    case Stream::kVideo:
-    case Stream::kImage:
-      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<ImageStream>(stream)));
-      break;
-    case Stream::kAudio:
-      stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
-      break;
-    default:
-      stacked_widget_->addWidget(new StreamProperties());
-    }
-
-    if (first_usable_stream == -1
-        && (stream->type() == Stream::kVideo
-            || stream->type() == Stream::kAudio
-            || stream->type() == Stream::kImage)) {
-      first_usable_stream = i;
-    }
-  }
+  UpdateTrackList();
 
   row++;
 
@@ -102,10 +93,43 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   buttons->setCenterButtons(true);
   layout->addWidget(buttons, row, 0, 1, 2);
 
+  connect(footage_path_field_, &ClickableLabel::MouseClicked, this, &FootagePropertiesDialog::RelinkFootage);
+
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
   connect(track_list, &QListWidget::currentRowChanged, stacked_widget_, &QStackedWidget::setCurrentIndex);
+}
+
+void FootagePropertiesDialog::UpdateTrackList()
+{
+  int first_usable_stream = -1;
+
+  for (int i = 0; i < footage_->streams().size(); i++) {
+    StreamPtr stream = footage_->stream(i);
+
+    QListWidgetItem *item = new QListWidgetItem(stream->description(), track_list);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(stream->enabled() ? Qt::Checked : Qt::Unchecked);
+    track_list->addItem(item);
+
+    switch (stream->type()) {
+      case Stream::kVideo:
+      case Stream::kImage:
+        stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<ImageStream>(stream)));
+        break;
+      case Stream::kAudio:
+        stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
+        break;
+      default:
+        stacked_widget_->addWidget(new StreamProperties());
+    }
+
+    if (first_usable_stream == -1 &&
+        (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio || stream->type() == Stream::kImage)) {
+      first_usable_stream = i;
+    }
+  }
 
   // Auto-select first item that actually has properties
   if (first_usable_stream >= 0) {
@@ -151,6 +175,18 @@ void FootagePropertiesDialog::accept() {
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   QDialog::accept();
+}
+
+void FootagePropertiesDialog::RelinkFootage()
+{
+  QString file = QFileDialog::getOpenFileName(this, tr("Open Footage"));
+
+  if (!file.isEmpty()) {
+    footage_->set_filename(file);
+    Decoder::ProbeMedia(footage_, 0);
+    footage_invalid_warning_->hide();
+    UpdateTrackList();
+  }
 }
 
 FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name, QUndoCommand* command) :
