@@ -521,7 +521,6 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 
   if (timeline_panels_.size() == 1) {
     // Leave our single remaining timeline panel open
-    panel->Clear();
     panel->ConnectViewerNode(nullptr);
   } else {
     timeline_panels_.removeOne(panel);

@@ -185,11 +185,6 @@ void TimelineWidget::Clear()
   // Emit that we've deselected any selected blocks
   SignalDeselectedAllBlocks();
 
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->track_view()->DisconnectTrackList();
-    tview->view()->ConnectTrackList(nullptr);
-  }
-
   // Set null timebase
   SetTimebase(0);
 }
