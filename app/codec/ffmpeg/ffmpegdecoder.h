@@ -62,7 +62,8 @@ public:
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void RemoveFramesBefore(const qint64& t);
-  int TruncateCacheRangeTo(const qint64& t);
+  int TruncateCacheRangeToTime(const qint64& t);
+  int TruncateCacheRangeToFrames(int nb_frames);
   void RemoveFirstFrame();
 
   AVFormatContext* fmt_ctx() const
