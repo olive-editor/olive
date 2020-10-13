@@ -22,6 +22,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QMessageBox>
 
 #include "codec/decoder.h"
 #include "common/xmlutils.h"
@@ -74,41 +75,54 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
     }
   }
 
-  Decoder::ProbeMedia(this, cancelled);
-
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
-
-    if (reader->name() == QStringLiteral("stream")) {
-      int stream_index = -1;
-      quintptr stream_ptr = 0;
-
-      XMLAttributeLoop(reader, attr) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (attr.name() == QStringLiteral("index")) {
-          stream_index = attr.value().toInt();
-        } else if (attr.name() == QStringLiteral("ptr")) {
-          stream_ptr = attr.value().toULongLong();
-        }
+  if (Decoder::ProbeMedia(this, cancelled)) {
+    while (XMLReadNextStartElement(reader)) {
+      if (cancelled && *cancelled) {
+        return;
       }
 
-      if (stream_index > -1 && stream_ptr > 0) {
-        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
+      if (reader->name() == QStringLiteral("stream")) {
+        int stream_index = -1;
+        quintptr stream_ptr = 0;
 
-        stream(stream_index)->Load(reader);
+        XMLAttributeLoop(reader, attr) {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
+          if (attr.name() == QStringLiteral("index")) {
+            stream_index = attr.value().toInt();
+          } else if (attr.name() == QStringLiteral("ptr")) {
+            stream_ptr = attr.value().toULongLong();
+          }
+        }
+
+        if (stream_index > -1 && stream_ptr > 0) {
+          xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
+
+          stream(stream_index)->Load(reader);
+        } else {
+          qWarning() << "Invalid stream found in project file";
+        }
+      } else if (reader->name() == QStringLiteral("points")) {
+        TimelinePoints::Load(reader);
       } else {
-        qWarning() << "Invalid stream found in project file";
+        reader->skipCurrentElement();
       }
-    } else if (reader->name() == QStringLiteral("points")) {
-      TimelinePoints::Load(reader);
-    } else {
-      reader->skipCurrentElement();
     }
+  } else {
+    xml_node_data.footage_ptrs.insert(-1, nullptr);
+    while (XMLReadNextStartElement(reader)) {
+      if (cancelled && *cancelled) {
+        return;
+      }
+      if (reader->name() == QStringLiteral("points")) {
+        TimelinePoints::Load(reader);
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+    set_status(kInvalid);
   }
 }
 
