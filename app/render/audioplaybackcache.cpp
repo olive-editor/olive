@@ -151,7 +151,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
-  WritePCM(range, std::make_shared<SampleBuffer>(), job_time);
+  WritePCM(range, nullptr, job_time);
 }
 
 void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
