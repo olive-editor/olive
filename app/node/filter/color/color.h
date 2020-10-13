@@ -46,10 +46,9 @@ private:
   NodeInput* texture_input_;
 
   NodeInput* offset_input_;
-  NodeInput* offset_r_input_;
-  NodeInput* offset_g_input_;
-  NodeInput* offset_b_input_;
+  NodeInput* lift_input_;
   NodeInput* gamma_input_;
+  NodeInput* gain_input_;
 };
 
 OLIVE_NAMESPACE_EXIT

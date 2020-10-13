@@ -19,6 +19,7 @@
 ***/
 
 #include "color.h"
+#include "QVector3D"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -27,20 +28,17 @@ ColorFilterNode::ColorFilterNode()
   texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
   AddInput(texture_input_);
 
-  offset_input_ = new NodeInput("offset_in", NodeParam::kFloat, 0.0f);
+  offset_input_ = new NodeInput("offset_in", NodeParam::kColor, QColor(0.0, 0.0, 0.0, 1.0));
   AddInput(offset_input_);
 
-  offset_r_input_ = new NodeInput("offset_r_in", NodeParam::kFloat, 0.0f);
-  AddInput(offset_r_input_);
+  lift_input_ = new NodeInput("lift_in", NodeParam::kColor, QColor(0.0, 0.0, 0.0, 1.0));
+  AddInput(lift_input_);
 
-  offset_g_input_ = new NodeInput("offset_g_in", NodeParam::kFloat, 0.0f);
-  AddInput(offset_g_input_);
-
-  offset_b_input_ = new NodeInput("offset_b_in", NodeParam::kFloat, 0.0f);
-  AddInput(offset_b_input_);
-
-  gamma_input_ = new NodeInput("gamma_in", NodeParam::kFloat, 1.0f);
+  gamma_input_ = new NodeInput("gamma_in", NodeParam::kColor, QColor(1.0, 1.0, 1.0, 1.0));
   AddInput(gamma_input_);
+
+  gain_input_ = new NodeInput("gain_in", NodeParam::kColor, QColor(1.0, 1.0, 1.0, 1.0));
+  AddInput(gain_input_);
 }
 
 Node *ColorFilterNode::copy() const
@@ -65,17 +63,16 @@ QList<Node::CategoryID> ColorFilterNode::Category() const
 
 QString ColorFilterNode::Description() const
 {
-  return tr("Blurs an image.");
+  return tr("Color grading");
 }
 
 void ColorFilterNode::Retranslate()
 {
   texture_input_->set_name(tr("Input"));
   offset_input_->set_name(tr("Offset"));
-  offset_r_input_->set_name(tr("Offset Red"));
-  offset_g_input_->set_name(tr("Offset Green"));
-  offset_b_input_->set_name(tr("Offset Blue"));
+  lift_input_->set_name(tr("Lift"));
   gamma_input_->set_name(tr("Gamma"));
+  gain_input_->set_name(tr("Gain"));
 }
 
 ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
@@ -90,10 +87,9 @@ NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
 
   job.InsertValue(texture_input_, value);
   job.InsertValue(offset_input_, value);
-  job.InsertValue(offset_r_input_, value);
-  job.InsertValue(offset_g_input_, value);
-  job.InsertValue(offset_b_input_, value);
+  job.InsertValue(lift_input_, value);
   job.InsertValue(gamma_input_, value);
+  job.InsertValue(gain_input_, value);
 
   NodeValueTable table = value.Merge();
 
