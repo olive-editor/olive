@@ -68,6 +68,8 @@ signals:
   void TrackHeightChanged(int index, int height);
 
 private:
+  void UpdateTrackIndexesFrom(int index);
+
   /**
    * @brief A cache of connected Tracks
    */

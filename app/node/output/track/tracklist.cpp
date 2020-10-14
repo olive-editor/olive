@@ -188,7 +188,8 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
         track_cache_.append(connected_track);
       }
 
-      connected_track->SetIndex(track_index);
+      // Update track indexes in the list (including this track)
+      UpdateTrackIndexesFrom(track_index);
     }
 
     connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
@@ -224,9 +225,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     track_cache_.removeAt(index_of_track);
 
     // Update indices for all subsequent tracks
-    for (int i=index_of_track; i<track_cache_.size(); i++) {
-      track_cache_.at(i)->SetIndex(i);
-    }
+    UpdateTrackIndexesFrom(index_of_track);
 
     // Traverse through Tracks uncaching and disconnecting them
     emit TrackRemoved(track);
@@ -242,6 +241,13 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     emit TrackListChanged();
 
     UpdateTotalLength();
+  }
+}
+
+void TrackList::UpdateTrackIndexesFrom(int index)
+{
+  for (int i=index; i<track_cache_.size(); i++) {
+    track_cache_.at(i)->SetIndex(i);
   }
 }
 
