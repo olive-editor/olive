@@ -194,8 +194,7 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
     }
   }
 
-  Segment& from_segment = segments_[from_index];
-  const rational& from_length = from_segment.length();
+  const rational& from_length = segments_[from_index].length();
   rational from_end = from_start + from_length;
 
   if (from < to) {
@@ -211,9 +210,9 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 
     if (from < from_end) {
       // Split from segment into two
-      Segment second = CloneSegment(from_segment);
+      Segment second = CloneSegment(segments_.at(from_index));
 
-      TrimSegmentOut(&from_segment, from - from_start);
+      TrimSegmentOut(&segments_[from_index], from - from_start);
       TrimSegmentIn(&second, from_end - from);
 
       segments_.insert(insert_index, second);
@@ -235,23 +234,22 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 
   } else {
     // Shifting backwards, we'll be removing segments and truncating them if necessary
-    Segment& to_segment = segments_[to_index];
-    const rational& to_length = to_segment.length();
+    const rational& to_length = segments_.at(to_index).length();
     rational to_end = to_start + to_length;
 
     if (from_index == to_index) {
       // Shift occurs in the same segment
       if (to > to_start && from < to_end) {
         // Split into two and process as normal
-        Segment second = CloneSegment(to_segment);
+        Segment second = CloneSegment(segments_.at(to_index));
         from_index++;
         segments_.insert(from_index, second);
       } else if (to == to_start && from == to_end) {
         RemoveSegmentFromArray(to_index);
       } else if (to == to_start) {
-        TrimSegmentIn(&to_segment, to_end - from);
+        TrimSegmentIn(&segments_[to_index], to_end - from);
       } else {
-        TrimSegmentOut(&from_segment, to - to_start);
+        TrimSegmentOut(&segments_[from_index], to - to_start);
       }
     } else {
       // Remove all central segments (if there are any)
@@ -265,15 +263,16 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
       // Remove or trim "to" segment
       if (to == to_start) {
         RemoveSegmentFromArray(to_index);
+        from_index--;
       } else if (to < to_end) {
-        TrimSegmentOut(&to_segment, to - to_start);
+        TrimSegmentOut(&segments_[to_index], to - to_start);
       }
 
       // Remove or trim "from" segment
       if (from == from_end) {
         RemoveSegmentFromArray(from_index);
       } else if (from > from_start) {
-        TrimSegmentIn(&from_segment, from_end - from);
+        TrimSegmentIn(&segments_[from_index], from_end - from);
       }
     }
 
