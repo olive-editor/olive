@@ -19,7 +19,7 @@
 ***/
 
 #include "color.h"
-#include "QVector3D"
+#include "QVector4D"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -28,13 +28,13 @@ ColorFilterNode::ColorFilterNode()
   texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
   AddInput(texture_input_);
 
-  slope_input_ = new NodeInput("slope_in", NodeParam::kVec3, QVector3D(1.0f, 1.0f, 1.0f));
+  slope_input_ = new NodeInput("slope_in", NodeParam::kVec4, QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
   AddInput(slope_input_);
 
-  offset_input_ = new NodeInput("offset_in", NodeParam::kVec3, QVector3D(0.0f, 0.0f, 0.0f));
+  offset_input_ = new NodeInput("offset_in", NodeParam::kVec4, QVector4D(0.0f, 0.0f, 0.0f, 0.0f));
   AddInput(offset_input_);
 
-  power_input_ = new NodeInput("power_in", NodeParam::kVec3, QVector3D(1.0f, 1.0f, 1.0f));
+  power_input_ = new NodeInput("power_in", NodeParam::kVec4, QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
   AddInput(power_input_);
 }
 
