@@ -75,55 +75,52 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
     }
   }
 
+  bool valid = false;
   if (Decoder::ProbeMedia(this, cancelled)) {
-    while (XMLReadNextStartElement(reader)) {
-      if (cancelled && *cancelled) {
-        return;
-      }
-
-      if (reader->name() == QStringLiteral("stream")) {
-        int stream_index = -1;
-        quintptr stream_ptr = 0;
-
-        XMLAttributeLoop(reader, attr) {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (attr.name() == QStringLiteral("index")) {
-            stream_index = attr.value().toInt();
-          } else if (attr.name() == QStringLiteral("ptr")) {
-            stream_ptr = attr.value().toULongLong();
-          }
-        }
-
-        if (stream_index > -1 && stream_ptr > 0) {
-          xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
-
-          stream(stream_index)->Load(reader);
-        } else {
-          qWarning() << "Invalid stream found in project file";
-        }
-      } else if (reader->name() == QStringLiteral("points")) {
-        TimelinePoints::Load(reader);
-      } else {
-        reader->skipCurrentElement();
-      }
-    }
+    valid = true;
   } else {
-    xml_node_data.footage_ptrs.insert(-1, nullptr);
-    while (XMLReadNextStartElement(reader)) {
-      if (cancelled && *cancelled) {
-        return;
-      }
-      if (reader->name() == QStringLiteral("points")) {
-        TimelinePoints::Load(reader);
-      } else {
-        reader->skipCurrentElement();
-      }
-    }
     set_status(kInvalid);
   }
+
+  while (XMLReadNextStartElement(reader)) {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
+    if (reader->name() == QStringLiteral("stream")) {
+      int stream_index = -1;
+      quintptr stream_ptr = 0;
+
+      XMLAttributeLoop(reader, attr) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (attr.name() == QStringLiteral("index")) {
+          stream_index = attr.value().toInt();
+        } else if (attr.name() == QStringLiteral("ptr")) {
+          stream_ptr = attr.value().toULongLong();
+        }
+      }
+
+      if (stream_index > -1 && stream_ptr > 0) {
+        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
+
+        if (status() == kReady) {
+          stream(stream_index)->Load(reader);
+        } else {
+          reader->skipCurrentElement();
+        }
+      } else {
+        qWarning() << "Invalid stream found in project file";
+      }
+    } else if (reader->name() == QStringLiteral("points")) {
+      TimelinePoints::Load(reader);
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
 }
 
 void Footage::Save(QXmlStreamWriter *writer) const
@@ -194,7 +191,10 @@ void Footage::add_stream(StreamPtr s)
 
 StreamPtr Footage::stream(int index) const
 {
-  return streams_.at(index);
+  if (streams_.count() > 0) {
+    return streams_.at(index);
+  }
+  return nullptr;
 }
 
 const QList<StreamPtr> &Footage::streams() const
