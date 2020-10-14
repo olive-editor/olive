@@ -37,6 +37,7 @@
 #include "render/colormanager.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
+#include "node/input/media/media.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -184,8 +185,22 @@ void FootagePropertiesDialog::RelinkFootage()
   if (!file.isEmpty()) {
     footage_->set_filename(file);
     Decoder::ProbeMedia(footage_, 0);
-    footage_invalid_warning_->hide();
-    UpdateTrackList();
+    if (footage_->status() == Footage::kReady) {
+      footage_invalid_warning_->hide();
+      UpdateTrackList();
+
+      QList<ItemPtr> sequences = footage_->project()->get_items_of_type(Item::kSequence);
+
+      foreach (ItemPtr s, sequences) {
+        const QList<Node *> &nodes = static_cast<Sequence *>(s.get())->nodes();
+        foreach (Node *n, nodes) {
+          if (n->IsMedia()) {
+            MediaInput *media_node = static_cast<MediaInput *>(n);
+            media_node->SetFootage(media_node->footage());
+          }
+        }
+      }
+    }
   }
 }
 
