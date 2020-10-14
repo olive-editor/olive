@@ -421,15 +421,13 @@ int ExportDialog::AlignEvenNumber(double d)
 
 ExportParams ExportDialog::GenerateParams() const
 {
-  RenderMode::Mode render_mode = RenderMode::kOnline;
-
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                   static_cast<int>(video_tab_->height_slider()->GetValue()),
                                   video_tab_->frame_rate_combobox()->GetFrameRate().flipped(),
-                                  PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
+                                  PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline),
                                   video_tab_->pixel_aspect_combobox()->GetPixelAspectRatio(),
                                   video_tab_->interlaced_combobox()->GetInterlaceMode(),
-                                  render_mode);
+                                  1);
 
   AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
                                   audio_tab_->channel_layout_combobox()->GetChannelLayout(),
