@@ -101,12 +101,16 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
   // Check for a valid filename
   if (f->filename().isEmpty()) {
     qWarning() << "Tried to probe media with an empty filename";
+    f->set_status(Footage::kInvalid);
+    f->set_decoder(QString());
     return false;
   }
 
   // Check file exists
   if (!QFileInfo::exists(f->filename())) {
     qWarning() << "Tried to probe file that doesn't exist:" << f->filename();
+    f->set_status(Footage::kInvalid);
+    f->set_decoder(QString());
     return false;
   }
 

@@ -75,12 +75,7 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
     }
   }
 
-  bool valid = false;
-  if (Decoder::ProbeMedia(this, cancelled)) {
-    valid = true;
-  } else {
-    set_status(kInvalid);
-  }
+  Decoder::ProbeMedia(this, cancelled);
 
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
