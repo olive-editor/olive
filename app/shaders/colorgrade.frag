@@ -1,10 +1,9 @@
 #version 150
 
 uniform sampler2D tex_in;
-uniform vec4 offset_in;
-uniform vec4 lift_in;
-uniform vec4 gamma_in;
-uniform vec4 gain_in;
+uniform vec3 slope_in;
+uniform vec3 offset_in;
+uniform vec3 power_in;
 
 uniform vec2 ove_resolution;
 uniform int ove_iteration;
@@ -18,18 +17,14 @@ void main(void) {
 
     vec3 rgb = texture_color.rgb;
 
+    // slope
+    rgb = rgb * slope_in;
+
     // offset
-    rgb = rgb +  offset_in.rgb;
+    rgb = rgb +  offset_in;
 
-    // lift
-    rgb = lift_in.rgb + rgb * (vec3(1.0, 1.0, 1.0) - lift_in.rgb);
-
-    // gamma
-    rgb = pow(rgb, vec3(1.0 / gamma_in.r, 1.0 / gamma_in.g, 1.0 / gamma_in.b));
-
-    // gain
-    rgb = gain_in.rgb * rgb;
-
+    // power
+    rgb = pow(rgb, power_in);
 
     fragColor =  vec4(rgb.r, rgb.g, rgb.b, 1.0);
 }

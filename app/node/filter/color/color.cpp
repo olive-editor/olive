@@ -28,17 +28,14 @@ ColorFilterNode::ColorFilterNode()
   texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
   AddInput(texture_input_);
 
-  offset_input_ = new NodeInput("offset_in", NodeParam::kColor, QColor(0.0, 0.0, 0.0, 1.0));
+  slope_input_ = new NodeInput("slope_in", NodeParam::kVec3, QVector3D(1.0f, 1.0f, 1.0f));
+  AddInput(slope_input_);
+
+  offset_input_ = new NodeInput("offset_in", NodeParam::kVec3, QVector3D(0.0f, 0.0f, 0.0f));
   AddInput(offset_input_);
 
-  lift_input_ = new NodeInput("lift_in", NodeParam::kColor, QColor(0.0, 0.0, 0.0, 1.0));
-  AddInput(lift_input_);
-
-  gamma_input_ = new NodeInput("gamma_in", NodeParam::kColor, QColor(1.0, 1.0, 1.0, 1.0));
-  AddInput(gamma_input_);
-
-  gain_input_ = new NodeInput("gain_in", NodeParam::kColor, QColor(1.0, 1.0, 1.0, 1.0));
-  AddInput(gain_input_);
+  power_input_ = new NodeInput("power_in", NodeParam::kVec3, QVector3D(1.0f, 1.0f, 1.0f));
+  AddInput(power_input_);
 }
 
 Node *ColorFilterNode::copy() const
@@ -69,10 +66,9 @@ QString ColorFilterNode::Description() const
 void ColorFilterNode::Retranslate()
 {
   texture_input_->set_name(tr("Input"));
+  slope_input_->set_name(tr("Slope"));
   offset_input_->set_name(tr("Offset"));
-  lift_input_->set_name(tr("Lift"));
-  gamma_input_->set_name(tr("Gamma"));
-  gain_input_->set_name(tr("Gain"));
+  power_input_->set_name(tr("Power"));
 }
 
 ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
@@ -86,10 +82,9 @@ NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
   ShaderJob job;
 
   job.InsertValue(texture_input_, value);
+  job.InsertValue(slope_input_, value);
   job.InsertValue(offset_input_, value);
-  job.InsertValue(lift_input_, value);
-  job.InsertValue(gamma_input_, value);
-  job.InsertValue(gain_input_, value);
+  job.InsertValue(power_input_, value);
 
   NodeValueTable table = value.Merge();
 
