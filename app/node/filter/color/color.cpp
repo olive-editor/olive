@@ -36,6 +36,9 @@ ColorFilterNode::ColorFilterNode()
 
   power_input_ = new NodeInput("power_in", NodeParam::kVec4, QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
   AddInput(power_input_);
+
+  power_pivot_input_ = new NodeInput("power_pivot_in", NodeParam::kFloat, 1.0f);
+  AddInput(power_pivot_input_);
 }
 
 Node *ColorFilterNode::copy() const
@@ -69,6 +72,7 @@ void ColorFilterNode::Retranslate()
   slope_input_->set_name(tr("Slope"));
   offset_input_->set_name(tr("Offset"));
   power_input_->set_name(tr("Power"));
+  power_pivot_input_->set_name(tr("Power Pivot"));
 }
 
 ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
@@ -85,6 +89,7 @@ NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(slope_input_, value);
   job.InsertValue(offset_input_, value);
   job.InsertValue(power_input_, value);
+  job.InsertValue(power_pivot_input_, value);
 
   NodeValueTable table = value.Merge();
 

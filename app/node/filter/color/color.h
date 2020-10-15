@@ -48,6 +48,7 @@ private:
   NodeInput* slope_input_;
   NodeInput* offset_input_;
   NodeInput* power_input_;
+  NodeInput* power_pivot_input_;
 };
 
 OLIVE_NAMESPACE_EXIT

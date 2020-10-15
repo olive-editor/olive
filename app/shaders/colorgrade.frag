@@ -4,6 +4,7 @@ uniform sampler2D tex_in;
 uniform vec4 slope_in;
 uniform vec4 offset_in;
 uniform vec4 power_in;
+uniform float power_pivot_in;
 
 uniform vec2 ove_resolution;
 uniform int ove_iteration;
@@ -24,7 +25,7 @@ void main(void) {
     color = color +  offset_in;
 
     // power
-    color = pow(color, power_in);
+    color = pow(color / power_pivot_in, power_in) * power_pivot_in;
 
     fragColor =  color;
 }
