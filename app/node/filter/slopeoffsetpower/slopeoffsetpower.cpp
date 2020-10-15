@@ -18,12 +18,12 @@
 
 ***/
 
-#include "color.h"
+#include "slopeoffsetpower.h"
 #include "QVector4D"
 
 OLIVE_NAMESPACE_ENTER
 
-ColorFilterNode::ColorFilterNode()
+SopFilterNode::SopFilterNode()
 {
   texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
   AddInput(texture_input_);
@@ -41,32 +41,32 @@ ColorFilterNode::ColorFilterNode()
   AddInput(power_pivot_input_);
 }
 
-Node *ColorFilterNode::copy() const
+Node *SopFilterNode::copy() const
 {
-  return new ColorFilterNode();
+  return new SopFilterNode();
 }
 
-QString ColorFilterNode::Name() const
+QString SopFilterNode::Name() const
 {
-  return tr("Color");
+  return tr("Slope Offset Power");
 }
 
-QString ColorFilterNode::id() const
+QString SopFilterNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.colorgrade");
+  return QStringLiteral("org.olivevideoeditor.Olive.slopeoffsetpower");
 }
 
-QList<Node::CategoryID> ColorFilterNode::Category() const
+QList<Node::CategoryID> SopFilterNode::Category() const
 {
   return {kCategoryFilter};
 }
 
-QString ColorFilterNode::Description() const
+QString SopFilterNode::Description() const
 {
-  return tr("Color grading");
+  return tr("Slope Offset Power color controls");
 }
 
-void ColorFilterNode::Retranslate()
+void SopFilterNode::Retranslate()
 {
   texture_input_->set_name(tr("Input"));
   slope_input_->set_name(tr("Slope"));
@@ -75,13 +75,13 @@ void ColorFilterNode::Retranslate()
   power_pivot_input_->set_name(tr("Power Pivot"));
 }
 
-ShaderCode ColorFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode SopFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
   return ShaderCode(ReadFileAsString(":/shaders/colorgrade.frag"), QString());
 }
 
-NodeValueTable ColorFilterNode::Value(NodeValueDatabase &value) const
+NodeValueTable SopFilterNode::Value(NodeValueDatabase &value) const
 {
   ShaderJob job;
 

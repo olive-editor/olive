@@ -18,17 +18,17 @@
 
 ***/
 
-#ifndef COLORFILTERNODE_H
-#define COLORFILTERNODE_H
+#ifndef SOPFILTERNODE_H
+#define SOPFILTERNODE_H
 
 #include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ColorFilterNode : public Node
+class SopFilterNode : public Node
 {
 public:
-  ColorFilterNode();
+  SopFilterNode();
 
   virtual Node* copy() const override;
 
@@ -53,4 +53,4 @@ private:
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // COLORFILTERNODE_H
+#endif // SOPFILTERNODE_H

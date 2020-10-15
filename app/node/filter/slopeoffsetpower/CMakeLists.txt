@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/filter/color/color.h
-  node/filter/color/color.cpp
+  node/filter/slopeoffsetpower/slopeoffsetpower.h
+  node/filter/slopeoffsetpower/slopeoffsetpower.cpp
   PARENT_SCOPE
 )
