@@ -348,7 +348,7 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 
   DecoderPtr decoder = decoder_cache_.value(stream.get());
 
-  if (!decoder && stream) {
+  if (!decoder && stream && stream->footage()->status() == Footage::kReady) {
     // Create a new Decoder here
     decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
@@ -357,9 +357,12 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
       decoder_cache_.insert(stream.get(), decoder);
     } else {
       decoder = nullptr;
+      stream->footage()->set_status(Footage::kInvalid);
       qWarning() << "Failed to open decoder for" << stream->footage()->filename()
                  << "::" << stream->index();
     }
+  } else {
+    decoder = nullptr;
   }
 
   decoder_age_.insert(stream.get(), QDateTime::currentMSecsSinceEpoch());
