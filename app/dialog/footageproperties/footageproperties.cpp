@@ -189,6 +189,7 @@ void FootagePropertiesDialog::RelinkFootage()
       footage_invalid_warning_->hide();
       UpdateTrackList();
 
+      // Loop through all nodes to see if any need to be re-linked to this footage
       QList<ItemPtr> sequences = footage_->project()->get_items_of_type(Item::kSequence);
 
       foreach (ItemPtr s, sequences) {
@@ -196,7 +197,16 @@ void FootagePropertiesDialog::RelinkFootage()
         foreach (Node *n, nodes) {
           if (n->IsMedia()) {
             MediaInput *media_node = static_cast<MediaInput *>(n);
-            media_node->SetFootage(media_node->footage());
+
+            StreamPtr node_stream = media_node->footage();
+
+            if (node_stream->footage() == footage_) {
+              foreach (StreamPtr str, footage_->streams()) {
+                if (node_stream->index() == str.get()->index()) {
+                  media_node->SetFootage(str);
+                }
+              }
+            }
           }
         }
       }

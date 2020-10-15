@@ -99,7 +99,19 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
       }
 
       if (stream_index > -1 && stream_ptr > 0) {
-        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
+        StreamPtr str;
+
+        // If footage hasn't been read properly assume streams ahven't been created and create
+        // our own that have enough info to link back to the originals if required
+        if (status() != kReady) {
+          str = std::make_shared<Stream>();
+          str->set_footage(this);
+          str->set_index(stream_index);
+          add_stream(str);
+        } else {
+          str = stream(stream_index);
+        }
+        xml_node_data.footage_ptrs.insert(stream_ptr, str);
 
         if (status() == kReady) {
           stream(stream_index)->Load(reader);
@@ -186,10 +198,7 @@ void Footage::add_stream(StreamPtr s)
 
 StreamPtr Footage::stream(int index) const
 {
-  if (streams_.count() > 0) {
-    return streams_.at(index);
-  }
-  return nullptr;
+  return streams_.at(index);
 }
 
 const QList<StreamPtr> &Footage::streams() const
