@@ -220,10 +220,12 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
 
 void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
 {
-  if (reader->name() == QStringLiteral("link")) {
-    xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
-  } else {
-    Node::LoadInternal(reader, xml_node_data);
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("link")) {
+      xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
+    } else {
+      reader->skipCurrentElement();
+    }
   }
 }
 

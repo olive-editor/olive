@@ -32,6 +32,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
+class Footage;
+using FootagePtr = std::shared_ptr<Footage>;
+
 /**
  * @brief A reference to an external media file with metadata in a project structure
  *
@@ -109,7 +112,7 @@ public:
    * The file's last modified timestamp is stored for potential organization in the ProjectExplorer. It can be
    * retrieved here.
    */
-  const QDateTime& timestamp() const;
+  const qint64 &timestamp() const;
 
   /**
    * @brief Set the last modified time/date
@@ -120,7 +123,7 @@ public:
    *
    * New last modified time/date
    */
-  void set_timestamp(const QDateTime& t);
+  void set_timestamp(const qint64 &t);
 
   /**
    * @brief Add a stream metadata object to this footage
@@ -199,6 +202,8 @@ public:
 
   StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
 
+  static bool CompareFootageToItsFilename(FootagePtr footage);
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array
@@ -229,7 +234,7 @@ private:
   /**
    * @brief Internal timestamp object
    */
-  QDateTime timestamp_;
+  qint64 timestamp_;
 
   /**
    * @brief Internal streams array
@@ -244,8 +249,6 @@ private:
   bool valid_;
 
 };
-
-using FootagePtr = std::shared_ptr<Footage>;
 
 OLIVE_NAMESPACE_EXIT
 

@@ -54,13 +54,13 @@ void TimelinePoints::Load(QXmlStreamReader *reader)
 
 void TimelinePoints::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("points"));
+  writer->writeStartElement(QStringLiteral("workarea"));
+    workarea_.Save(writer);
+  writer->writeEndElement(); // workarea
 
-  workarea_.Save(writer);
-
-  markers_.Save(writer);
-
-  writer->writeEndElement(); // points
+  writer->writeStartElement(QStringLiteral("markers"));
+    markers_.Save(writer);
+  writer->writeEndElement(); // markers
 }
 
 TimelineWorkArea *TimelinePoints::workarea()

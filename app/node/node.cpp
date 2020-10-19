@@ -95,34 +95,61 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       }
 
       param->Load(reader, xml_node_data, cancelled);
-    } else {
+    } else if (reader->name() == QStringLiteral("ptr")) {
+      xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
+    } else if (reader->name() == QStringLiteral("pos")) {
+      QPointF p;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("x")) {
+          p.setX(reader->readElementText().toDouble());
+        } else if (reader->name() == QStringLiteral("y")) {
+          p.setY(reader->readElementText().toDouble());
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+      SetPosition(p);
+    } else if (reader->name() == QStringLiteral("label")) {
+      SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
 
-void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
+void Node::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(custom_name.isEmpty() ? QStringLiteral("node") : custom_name);
+  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
-  writer->writeAttribute(QStringLiteral("id"), id());
+  writer->writeStartElement(QStringLiteral("pos"));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(GetPosition().x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(GetPosition().y()));
+  writer->writeEndElement(); // pos
 
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeAttribute(QStringLiteral("pos"),
-                         QStringLiteral("%1:%2").arg(QString::number(GetPosition().x()),
-                                                     QString::number(GetPosition().y())));
-
-  writer->writeAttribute(QStringLiteral("label"),
-                         GetLabel());
+  writer->writeTextElement(QStringLiteral("label"), GetLabel());
 
   foreach (NodeParam* param, parameters()) {
+    switch (param->type()) {
+    case NodeParam::kInput:
+      writer->writeStartElement(QStringLiteral("input"));
+      break;
+    case NodeParam::kOutput:
+      writer->writeStartElement(QStringLiteral("output"));
+      break;
+    }
+
     param->Save(writer);
+
+    writer->writeEndElement(); // input/output
   }
 
+  writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
-
-  writer->writeEndElement(); // node
+  writer->writeEndElement(); // custom
 }
 
 QString Node::ShortName() const
@@ -361,7 +388,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
         hash.addData(stream->footage()->filename().toUtf8());
 
         // Footage last modified date
-        hash.addData(stream->footage()->timestamp().toString().toUtf8());
+        hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
 
         // Footage stream
         hash.addData(QString::number(stream->index()).toUtf8());

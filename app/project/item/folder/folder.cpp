@@ -81,17 +81,27 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QA
 
 void Folder::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("folder"));
-
   writer->writeAttribute(QStringLiteral("name"), name());
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
   foreach (ItemPtr child, children()) {
-    child->Save(writer);
-  }
+    switch (child->type()) {
+    case Item::kFootage:
+      writer->writeStartElement(QStringLiteral("footage"));
+      break;
+    case Item::kSequence:
+      writer->writeStartElement(QStringLiteral("sequence"));
+      break;
+    case Item::kFolder:
+      writer->writeStartElement(QStringLiteral("folder"));
+      break;
+    }
 
-  writer->writeEndElement(); // folder
+    child->Save(writer);
+
+    writer->writeEndElement(); // footage/folder/sequence
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -35,8 +35,7 @@ VideoStream::VideoStream() :
   interlacing_(VideoParams::kInterlaceNone),
   video_type_(VideoStream::kVideoTypeVideo),
   pixel_aspect_ratio_(1),
-  start_time_(0),
-  is_image_sequence_(false)
+  start_time_(0)
 {
   set_type(Stream::kVideo);
 }
@@ -75,16 +74,6 @@ void VideoStream::set_start_time(const int64_t &start_time)
   emit ParametersChanged();
 }
 
-bool VideoStream::is_image_sequence() const
-{
-  return is_image_sequence_;
-}
-
-void VideoStream::set_image_sequence(bool e)
-{
-  is_image_sequence_ = e;
-}
-
 int64_t VideoStream::get_time_in_timebase_units(const rational &time) const
 {
   return Timecode::time_to_timestamp(time, timebase()) + start_time();
@@ -102,8 +91,26 @@ QIcon VideoStream::icon() const
 void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
 {
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("colorspace")) {
+    if (reader->name() == QStringLiteral("width")) {
+      set_width(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("height")) {
+      set_height(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("premultiplied")) {
+      set_premultiplied_alpha(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("interlacing")) {
+      set_interlacing(static_cast<VideoParams::Interlacing>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("type")) {
+      set_video_type(static_cast<VideoType>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("format")) {
+      set_format(static_cast<PixelFormat::Format>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("pixelaspect")) {
+      set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("framerate")) {
+      set_frame_rate(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("starttime")) {
+      set_start_time(reader->readElementText().toLongLong());
     } else {
       reader->skipCurrentElement();
     }
@@ -112,7 +119,16 @@ void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
 
 void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement("colorspace", colorspace_);
+  writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
+  writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
+  writer->writeTextElement(QStringLiteral("premultiplied"), QString::number(premultiplied_alpha_));
+  writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
+  writer->writeTextElement(QStringLiteral("type"), QString::number(video_type_));
+  writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+  writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_ratio_.toString());
+  writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+  writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
 }
 
 bool VideoStream::premultiplied_alpha() const

@@ -33,6 +33,9 @@
 OLIVE_NAMESPACE_ENTER
 
 class Footage;
+class Stream;
+using StreamPtr = std::shared_ptr<Stream>;
+struct XMLNodeData;
 
 /**
  * @brief A base class for keeping metadata about a media stream.
@@ -64,9 +67,9 @@ public:
   /**
    * @brief Required virtual destructor, serves no purpose
    */
-  virtual ~Stream();
+  virtual ~Stream() override;
 
-  void Load(QXmlStreamReader* reader);
+  static StreamPtr Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter *writer) const;
 
@@ -118,8 +121,6 @@ private:
   QMutex proxy_access_lock_;
 
 };
-
-using StreamPtr = std::shared_ptr<Stream>;
 
 OLIVE_NAMESPACE_EXIT
 

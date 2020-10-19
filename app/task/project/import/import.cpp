@@ -124,7 +124,7 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
           FootagePtr footage = std::static_pointer_cast<Footage>(item);
 
           footage->set_filename(file_path);
-          footage->set_timestamp(file_info.lastModified());
+          footage->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
 
           // See if this footage is an image sequence
           ValidateImageSequence(footage, import, i);
@@ -223,7 +223,6 @@ void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_
         rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
         video_stream->set_timebase(default_timebase);
         video_stream->set_frame_rate(default_timebase.flipped());
-        video_stream->set_image_sequence(true);
 
         video_stream->set_start_time(start_index);
         video_stream->set_duration(end_index - start_index + 1);

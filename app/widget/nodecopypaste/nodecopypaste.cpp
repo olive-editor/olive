@@ -23,6 +23,7 @@
 #include <QMessageBox>
 
 #include "core.h"
+#include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -39,10 +40,15 @@ void NodeCopyPasteWidget::CopyNodesToClipboard(const QList<Node *> &nodes, void 
   writer.writeStartElement(QStringLiteral("olive"));
 
   foreach (Node* n, nodes) {
+    writer.writeStartElement(QStringLiteral("node"));
+    writer.writeAttribute(QStringLiteral("id"), n->id());
     n->Save(&writer);
+    writer.writeEndElement(); // node
   }
 
+  writer.writeStartElement(QStringLiteral("custom"));
   CopyNodesToClipboardInternal(&writer, userdata);
+  writer.writeEndElement(); // custom
 
   writer.writeEndElement(); // olive
   writer.writeEndDocument();
@@ -67,15 +73,24 @@ QList<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUnd
     if (reader.name() == QStringLiteral("olive")) {
       while (XMLReadNextStartElement(&reader)) {
         if (reader.name() == QStringLiteral("node")) {
-          Node* node = XMLLoadNode(&reader);
+          Node* node = nullptr;
+
+          XMLAttributeLoop((&reader), attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              node = NodeFactory::CreateFromID(attr.value().toString());
+              break;
+            }
+          }
 
           if (node) {
             node->Load(&reader, xml_node_data, nullptr);
 
             pasted_nodes.append(node);
           }
+        } else if (reader.name() == QStringLiteral("custom")) {
+          PasteNodesFromClipboardInternal(&reader, xml_node_data, userdata);
         } else {
-          PasteNodesFromClipboardInternal(&reader, userdata);
+          reader.skipCurrentElement();
         }
       }
     } else {
@@ -157,7 +172,7 @@ void NodeCopyPasteWidget::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
 {
 }
 
-void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, void*)
+void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
   reader->skipCurrentElement();
 }

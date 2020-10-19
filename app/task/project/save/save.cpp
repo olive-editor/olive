@@ -51,7 +51,13 @@ bool ProjectSaveTask::Run()
 
     writer.writeTextElement("version", "0.2.0");
 
+    writer.writeTextElement("url", project_->filename());
+
+    writer.writeStartElement(QStringLiteral("project"));
+
     project_->Save(&writer);
+
+    writer.writeEndElement(); // project
 
     writer.writeEndElement(); // olive
 

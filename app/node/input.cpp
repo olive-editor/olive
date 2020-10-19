@@ -88,7 +88,7 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
       }
 
       if (attr.name() == QStringLiteral("keyframing")) {
-        set_is_keyframing(attr.value() == QStringLiteral("1"));
+        set_is_keyframing(attr.value().toInt());
       }
     }
   }
@@ -199,16 +199,16 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
       set_property(QStringLiteral("col_view"), reader->readElementText());
     } else if (reader->name() == QStringLiteral("cslook")) {
       set_property(QStringLiteral("col_look"), reader->readElementText());
-    } else {
+    } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data, cancelled);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
 
 void NodeInput::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("input");
-
   writer->writeAttribute("id", id());
 
   writer->writeAttribute("keyframing", QString::number(keyframing_));
@@ -258,9 +258,9 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
   SaveConnections(writer);
 
+  writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
-
-  writer->writeEndElement(); // input
+  writer->writeEndElement(); // custom
 }
 
 void NodeInput::SaveConnections(QXmlStreamWriter *writer) const

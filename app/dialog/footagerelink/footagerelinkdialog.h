@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2019  Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,33 +18,32 @@
 
 ***/
 
-#ifndef NODECOPYPASTEWIDGET_H
-#define NODECOPYPASTEWIDGET_H
+#ifndef FOOTAGERELINKDIALOG_H
+#define FOOTAGERELINKDIALOG_H
 
-#include <QWidget>
-#include <QUndoCommand>
+#include <QDialog>
+#include <QTreeWidget>
 
-#include "node/node.h"
-#include "project/item/sequence/sequence.h"
+#include "project/item/footage/footage.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeCopyPasteWidget
+class FootageRelinkDialog : public QDialog
 {
+  Q_OBJECT
 public:
-  NodeCopyPasteWidget() = default;
+  FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent = nullptr);
 
-protected:
-  void CopyNodesToClipboard(const QList<Node*>& nodes, void* userdata = nullptr);
+private:
+  QTreeWidget* table_;
 
-  QList<Node*> PasteNodesFromClipboard(Sequence *graph, QUndoCommand *command, void* userdata = nullptr);
+  QList<FootagePtr> footage_;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata);
-
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata);
+private slots:
+  void BrowseForFootage();
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // NODECOPYPASTEWIDGET_H
+#endif // FOOTAGERELINKDIALOG_H

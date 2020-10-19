@@ -811,7 +811,7 @@ uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
 bool FFmpegDecoder::StreamUsesMultipleInstances(StreamPtr stream)
 {
   return stream->type() == Stream::kVideo
-      && !std::static_pointer_cast<VideoStream>(stream)->is_image_sequence();
+      && std::static_pointer_cast<VideoStream>(stream)->video_type() != VideoStream::kVideoTypeStill;
 }
 
 FramePtr FFmpegDecoder::BuffersToNativeFrame(int divider, int width, int height, const rational& ts, uint8_t** input_data, int* input_linesize)

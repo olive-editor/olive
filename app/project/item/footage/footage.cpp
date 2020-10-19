@@ -24,6 +24,7 @@
 #include <QDir>
 
 #include "codec/decoder.h"
+#include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "core.h"
@@ -43,91 +44,45 @@ Footage::~Footage()
 
 void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
-  /*
-  QXmlStreamAttributes attributes = reader->attributes();
-
-  foreach (const QXmlStreamAttribute& attr, attributes) {
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("filename")) {
-      set_filename(attr.value().toString());
-    }
-  }
-
-  // Validate filename
-  if (!QFileInfo::exists(filename_)) {
-    // Absolute filename does not exist, use some heuristics to try relocating the file
-
-    if (xml_node_data.real_project_url != xml_node_data.saved_project_url) {
-      // Project path has changed, check if the file we're looking for is the same relative to the
-      // new project path
-      QDir saved_dir(QFileInfo(xml_node_data.saved_project_url).dir());
-      QDir true_dir(QFileInfo(xml_node_data.real_project_url).dir());
-
-      QString relative_filename = saved_dir.relativeFilePath(filename_);
-      QString transformed_abs_filename = true_dir.filePath(relative_filename);
-
-      if (QFileInfo::exists(transformed_abs_filename)) {
-        // Use this file instead
-        qInfo() << "Footage" << filename_ << "doesn't exist, using relative file" << transformed_abs_filename;
-        set_filename(transformed_abs_filename);
-      }
-    }
-  }
-
-  Decoder::ProbeMedia(this, cancelled);
-
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("stream")) {
-      int stream_index = -1;
-      quintptr stream_ptr = 0;
-
-      XMLAttributeLoop(reader, attr) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (attr.name() == QStringLiteral("index")) {
-          stream_index = attr.value().toInt();
-        } else if (attr.name() == QStringLiteral("ptr")) {
-          stream_ptr = attr.value().toULongLong();
-        }
-      }
-
-      if (stream_index > -1 && stream_ptr > 0) {
-        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
-
-        stream(stream_index)->Load(reader);
-      } else {
-        qWarning() << "Invalid stream found in project file";
-      }
+    if (reader->name() == QStringLiteral("name")) {
+      set_name(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("filename")) {
+      set_filename(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("stream")) {
+      add_stream(Stream::Load(reader, xml_node_data, cancelled));
+    } else if (reader->name() == QStringLiteral("timestamp")) {
+      set_timestamp(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("decoder")) {
+      set_decoder(reader->readElementText());
     } else if (reader->name() == QStringLiteral("points")) {
       TimelinePoints::Load(reader);
     } else {
       reader->skipCurrentElement();
     }
   }
-  */
 }
 
 void Footage::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("footage");
+  writer->writeTextElement(QStringLiteral("name"), name());
+  writer->writeTextElement(QStringLiteral("filename"), filename());
+  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
+  writer->writeTextElement(QStringLiteral("decoder"), decoder_);
 
-  writer->writeAttribute("name", name());
-  writer->writeAttribute("filename", filename());
-
-  TimelinePoints::Save(writer);
+  writer->writeStartElement(QStringLiteral("points"));
+    TimelinePoints::Save(writer);
+  writer->writeEndElement(); // points
 
   foreach (StreamPtr stream, streams_) {
-    stream->Save(writer);
+    writer->writeStartElement(QStringLiteral("stream"));
+      stream->Save(writer);
+    writer->writeEndElement(); // stream
   }
-
-  writer->writeEndElement(); // footage
 }
 
 void Footage::Clear()
@@ -154,12 +109,12 @@ void Footage::set_filename(const QString &s)
   filename_ = s;
 }
 
-const QDateTime &Footage::timestamp() const
+const qint64 &Footage::timestamp() const
 {
   return timestamp_;
 }
 
-void Footage::set_timestamp(const QDateTime &t)
+void Footage::set_timestamp(const qint64 &t)
 {
   timestamp_ = t;
 }
@@ -339,6 +294,32 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
   }
 
   return nullptr;
+}
+
+bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+{
+  // Heuristic to determine if file has changed
+  QFileInfo info(footage->filename());
+
+  if (info.exists()) {
+    if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
+      // Footage has not been modified and is where we expect
+      return true;
+    } else {
+      // Footage may have changed and we'll have to re-probe it. It also may not have, in which
+      // case nothing needs to change.
+      ItemPtr item = Decoder::ProbeMedia(footage->filename(), nullptr);
+
+      if (item && item->type() == footage->type()) {
+        // Item is the same type, that's a good sign. Let's look for any differences.
+        // FIXME: Implement this
+        return true;
+      }
+    }
+  }
+
+  // Footage file couldn't be found or resolved to something we didn't expect
+  return false;
 }
 
 void Footage::UpdateTooltip()

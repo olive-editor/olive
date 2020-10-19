@@ -55,8 +55,6 @@ void TimelineMarker::set_name(const QString &name)
 
 void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("markers"));
-
   foreach (TimelineMarker* marker, markers_) {
     writer->writeStartElement(QStringLiteral("marker"));
 
@@ -67,8 +65,6 @@ void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 
     writer->writeEndElement(); // marker
   }
-
-  writer->writeEndElement(); // markers
 }
 
 TimelineMarkerList::~TimelineMarkerList()

@@ -212,10 +212,14 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   if (!got_cached_frame) {
     // Retrieve video frames
     foreach (const NodeValue& v, video_footage_to_retrieve) {
-      QVariant value = ProcessVideoFootage(v.data().value<StreamPtr>(), range.in());
+      StreamPtr stream = v.data().value<StreamPtr>();
 
-      if (!value.isNull()) {
-        output_params.Push(NodeParam::kTexture, value, node);
+      if (stream->footage()->IsValid()) {
+        QVariant value = ProcessVideoFootage(stream, range.in());
+
+        if (!value.isNull()) {
+          output_params.Push(NodeParam::kTexture, value, node);
+        }
       }
     }
 
@@ -240,10 +244,14 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
 
   // Retrieve audio samples
   foreach (const NodeValue& v, audio_footage_to_retrieve) {
-    QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+    StreamPtr stream = v.data().value<StreamPtr>();
 
-    if (!value.isNull()) {
-      output_params.Push(NodeParam::kSamples, value, node);
+    if (stream->footage()->IsValid()) {
+      QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kSamples, value, node);
+      }
     }
   }
 

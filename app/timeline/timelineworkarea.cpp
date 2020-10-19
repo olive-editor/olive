@@ -81,13 +81,9 @@ void TimelineWorkArea::Load(QXmlStreamReader *reader)
 
 void TimelineWorkArea::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("workarea"));
-
   writer->writeAttribute(QStringLiteral("enabled"), QString::number(workarea_enabled_));
   writer->writeAttribute(QStringLiteral("in"), workarea_range_.in().toString());
   writer->writeAttribute(QStringLiteral("out"), workarea_range_.out().toString());
-
-  writer->writeEndElement(); // workarea
 }
 
 const rational &TimelineWorkArea::in() const

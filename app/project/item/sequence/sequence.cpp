@@ -121,7 +121,14 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       Node* node;
 
       if (reader->name() == QStringLiteral("node")) {
-        node = XMLLoadNode(reader);
+        node = nullptr;
+
+        XMLAttributeLoop(reader, attr) {
+          if (attr.name() == QStringLiteral("id")) {
+            node = NodeFactory::CreateFromID(attr.value().toString());
+            break;
+          }
+        }
       } else {
         node = viewer_output_;
       }
@@ -143,7 +150,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
   XMLLinkBlocks(xml_node_data);
 
   // Ensure this and all children are in the main thread
-  // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)
+  // NOTE: It might be good to move the Item system to QObjects so they inherit their thread
   if (thread() != qApp->thread()) {
     moveToThread(qApp->thread());
   }
@@ -151,8 +158,6 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
 
 void Sequence::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("sequence"));
-
   writer->writeAttribute(QStringLiteral("name"), name());
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
@@ -178,17 +183,23 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // audio
 
   // Write TimelinePoints
-  TimelinePoints::Save(writer);
+  writer->writeStartElement(QStringLiteral("points"));
+    TimelinePoints::Save(writer);
+  writer->writeEndElement(); // points
 
   foreach (Node* node, nodes()) {
     if (node != viewer_output_) {
+      writer->writeStartElement(QStringLiteral("node"));
+      writer->writeAttribute(QStringLiteral("id"), node->id());
       node->Save(writer);
+      writer->writeEndElement(); // node;
     }
   }
 
-  viewer_output_->Save(writer, QStringLiteral("viewer"));
-
-  writer->writeEndElement(); // sequence
+  writer->writeStartElement(QStringLiteral("viewer"));
+  writer->writeAttribute(QStringLiteral("id"), viewer_output_->id());
+  viewer_output_->Save(writer);
+  writer->writeEndElement(); // viewer;
 }
 
 void Sequence::add_default_nodes()

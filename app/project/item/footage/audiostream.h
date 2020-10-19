@@ -55,6 +55,11 @@ public:
 
   virtual QIcon icon() const override;
 
+protected:
+  virtual void LoadCustomParameters(QXmlStreamReader *reader) override;
+
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
+
 signals:
   void ConformAppended(OLIVE_NAMESPACE::AudioParams params);
 

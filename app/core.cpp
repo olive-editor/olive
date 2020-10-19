@@ -40,6 +40,7 @@
 #include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/export/export.h"
+#include "dialog/footagerelink/footagerelinkdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
@@ -482,12 +483,14 @@ void Core::AddOpenProject(ProjectPtr p)
 
 void Core::AddOpenProjectFromTask(Task *task)
 {
-  QList<ProjectPtr> projects = static_cast<ProjectLoadTask*>(task)->GetLoadedProjects();
-  QList<MainWindowLayoutInfo> layouts = static_cast<ProjectLoadTask*>(task)->GetLoadedLayouts();
+  ProjectLoadTask* load_task = static_cast<ProjectLoadTask*>(task);
 
-  for (int i=0; i<projects.size(); i++) {
-    AddOpenProject(projects.at(i));
-    main_window_->LoadLayout(layouts.at(i));
+  ProjectPtr project = load_task->GetLoadedProject();
+  MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
+
+  if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
+    AddOpenProject(project);
+    main_window_->LoadLayout(layout);
   }
 }
 
@@ -560,7 +563,7 @@ bool Core::StartHeadlessExport()
   CLITaskDialog task_dialog(&plm);
 
   if (task_dialog.Run()) {
-    ProjectPtr p = plm.GetLoadedProjects().first();
+    ProjectPtr p = plm.GetLoadedProject();
     QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
 
     // Check if this project contains sequences
@@ -1220,6 +1223,53 @@ void Core::CacheActiveSequence(bool in_out_only)
                             QMessageBox::Ok);
     }
   }
+}
+
+bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& project_saved_url)
+{
+  QList<FootagePtr> footage_we_couldnt_validate;
+
+  QList<ItemPtr> project_footage = project->get_items_of_type(Item::kFootage);
+
+  foreach (ItemPtr item, project_footage) {
+    FootagePtr footage = std::static_pointer_cast<Footage>(item);
+
+    if (!QFileInfo::exists(footage->filename())) {
+      // If the footage doesn't exist, it might have moved with the project
+      const QString& project_current_url = project->filename();
+
+      if (project_current_url != project_saved_url) {
+        // Project has definitely moved, try to resolve relative paths
+        QDir saved_dir(QFileInfo(project_saved_url).dir());
+        QDir true_dir(QFileInfo(project_current_url).dir());
+
+        QString relative_filename = saved_dir.relativeFilePath(footage->filename());
+        QString transformed_abs_filename = true_dir.filePath(relative_filename);
+
+        if (QFileInfo::exists(transformed_abs_filename)) {
+          // Use this file instead
+          qInfo() << "Resolved" << footage->filename() << "relatively to" << transformed_abs_filename;
+          footage->set_filename(transformed_abs_filename);
+        }
+      }
+    }
+
+    // Heuristically compare footage to file
+    if (Footage::CompareFootageToItsFilename(footage)) {
+      footage->SetValid();
+    } else {
+      footage_we_couldnt_validate.append(footage);
+    }
+  }
+
+  if (!footage_we_couldnt_validate.isEmpty()) {
+    FootageRelinkDialog frd(footage_we_couldnt_validate, main_window_);
+    if (frd.exec() == QDialog::Rejected) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 bool Core::CloseAllProjects()

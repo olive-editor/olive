@@ -111,12 +111,14 @@ void TrackOutput::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
+void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
 {
-  if (reader->name() == QStringLiteral("height")) {
-    SetTrackHeight(reader->readElementText().toDouble());
-  } else {
-    Node::LoadInternal(reader, xml_node_data);
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("height")) {
+      SetTrackHeight(reader->readElementText().toDouble());
+    } else {
+      reader->skipCurrentElement();
+    }
   }
 }
 

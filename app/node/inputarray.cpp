@@ -187,17 +187,19 @@ void NodeInputArray::RemoveAt(int index)
 
 void NodeInputArray::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
-  if (reader->name() == QStringLiteral("subparameters")) {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("input")) {
-        Append();
-        At(GetSize() - 1)->Load(reader, xml_node_data, cancelled);
-      } else {
-        reader->skipCurrentElement();
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("subparameters")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("input")) {
+          Append();
+          At(GetSize() - 1)->Load(reader, xml_node_data, cancelled);
+        } else {
+          reader->skipCurrentElement();
+        }
       }
+    } else {
+      reader->skipCurrentElement();
     }
-  } else {
-    NodeInput::Load(reader, xml_node_data, cancelled);
   }
 }
 
@@ -206,7 +208,9 @@ void NodeInputArray::SaveInternal(QXmlStreamWriter *writer) const
   writer->writeStartElement("subparameters");
 
   foreach (NodeInput* sub, sub_params_) {
-    sub->Save(writer);
+    writer->writeStartElement(QStringLiteral("input"));
+      sub->Save(writer);
+    writer->writeEndElement();
   }
 
   writer->writeEndElement(); // subparameters

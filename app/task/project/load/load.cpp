@@ -46,22 +46,18 @@ bool ProjectLoadTask::Run()
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
             qDebug() << "Project version:" << reader.readElementText();
+          } else if (reader.name() == QStringLiteral("url")) {
+            project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
-            ProjectPtr project = std::make_shared<Project>();
+            project_ = std::make_shared<Project>();
 
-            project->set_filename(filename_);
+            project_->set_filename(filename_);
 
-            MainWindowLayoutInfo layout;
-
-            project->Load(&reader, &layout, &IsCancelled());
+            project_->Load(&reader, &layout_info_, &IsCancelled());
 
             // Ensure project is in main thread
-            project->moveToThread(qApp->thread());
-
-            if (!IsCancelled()) {
-              projects_.append(project);
-              layout_info_.append(layout);
-            }
+            project_->moveToThread(qApp->thread());
+            break;
           } else {
             reader.skipCurrentElement();
           }

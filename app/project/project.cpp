@@ -47,13 +47,9 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
 {
   XMLNodeData xml_node_data;
 
-  // Set project filename (hacky)
-  xml_node_data.real_project_url = static_cast<QFile*>(reader->device())->fileName();
-
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("folder")) {
+    if (reader->name() == QStringLiteral("root")) {
 
-      // Assume this folder is our root
       root_.Load(reader, xml_node_data, cancelled);
 
     } else if (reader->name() == QStringLiteral("colormanagement")) {
@@ -82,11 +78,6 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
 
       *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
 
-    } else if (reader->name() == QStringLiteral("url")) {
-
-      // This should be read in before most other elements
-      xml_node_data.saved_project_url = reader->readElementText();
-
     } else {
 
       // Skip this
@@ -104,27 +95,23 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const
 
 void Project::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("project");
+  writer->writeTextElement(QStringLiteral("cachepath"), cache_path(false));
 
-  writer->writeTextElement("url", filename_);
-
-  writer->writeTextElement("cachepath", cache_path(false));
-
+  writer->writeStartElement(QStringLiteral("root"));
   root_.Save(writer);
+  writer->writeEndElement();
 
-  writer->writeStartElement("colormanagement");
+  writer->writeStartElement(QStringLiteral("colormanagement"));
 
-  writer->writeTextElement("config", color_manager_.GetConfigFilename());
+  writer->writeTextElement(QStringLiteral("config"), color_manager_.GetConfigFilename());
 
-  writer->writeTextElement("default", color_manager_.GetDefaultInputColorSpace());
+  writer->writeTextElement(QStringLiteral("default"), color_manager_.GetDefaultInputColorSpace());
 
   writer->writeEndElement(); // colormanagement
 
   // Save main window project layout
   MainWindowLayoutInfo main_window_info = Core::instance()->main_window()->SaveLayout();
   main_window_info.toXml(writer);
-
-  writer->writeEndElement(); // project
 }
 
 Folder *Project::root()

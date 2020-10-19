@@ -63,13 +63,9 @@ void NodeOutput::Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, cons
 
 void NodeOutput::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("output");
-
   writer->writeAttribute("id", id());
 
   writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeEndElement(); // output
 }
 
 OLIVE_NAMESPACE_EXIT

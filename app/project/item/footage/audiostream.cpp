@@ -20,6 +20,8 @@
 
 #include "audiostream.h"
 
+#include "common/xmlutils.h"
+
 OLIVE_NAMESPACE_ENTER
 
 AudioStream::AudioStream()
@@ -99,6 +101,28 @@ void AudioStream::append_conformed_version(const AudioParams &params)
 QIcon AudioStream::icon() const
 {
   return icon::Audio;
+}
+
+void AudioStream::LoadCustomParameters(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("channels")) {
+      set_channels(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("layout")) {
+      set_channel_layout(reader->readElementText().toULongLong());
+    } else if (reader->name() == QStringLiteral("rate")) {
+      set_sample_rate(reader->readElementText().toInt());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void AudioStream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("channels"), QString::number(channels_));
+  writer->writeTextElement(QStringLiteral("layout"), QString::number(layout_));
+  writer->writeTextElement(QStringLiteral("rate"), QString::number(sample_rate_));
 }
 
 OLIVE_NAMESPACE_EXIT

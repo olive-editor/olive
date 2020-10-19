@@ -39,8 +39,6 @@ class Item;
   QXmlStreamAttributes __attributes = reader->attributes(); \
   foreach (const QXmlStreamAttribute& item, __attributes)
 
-Node *XMLLoadNode(QXmlStreamReader* reader);
-
 struct XMLNodeData {
   struct SerializedConnection {
     NodeInput* input;
@@ -57,15 +55,13 @@ struct XMLNodeData {
     quintptr link;
   };
 
+  QHash<quintptr, Node*> node_ptrs;
   QHash<quintptr, NodeOutput*> output_ptrs;
   QList<SerializedConnection> desired_connections;
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
   QHash<quintptr, Item*> item_ptrs;
-
-  QString real_project_url;
-  QString saved_project_url;
 
 };
 

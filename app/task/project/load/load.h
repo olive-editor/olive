@@ -33,23 +33,35 @@ class ProjectLoadTask : public Task
 public:
   ProjectLoadTask(const QString& filename);
 
-  const QList<ProjectPtr>& GetLoadedProjects() const
+  ProjectPtr GetLoadedProject() const
   {
-    return projects_;
+    return project_;
   }
 
-  const QList<MainWindowLayoutInfo>& GetLoadedLayouts() const
+  MainWindowLayoutInfo GetLoadedLayout() const
   {
     return layout_info_;
+  }
+
+  /**
+   * @brief Returns the filename the project was saved as, but not necessarily where it is now
+   *
+   * May help for resolving relative paths.
+   */
+  const QString& GetFilenameProjectWasSavedAs() const
+  {
+    return project_saved_url_;
   }
 
 protected:
   virtual bool Run() override;
 
 private:
-  QList<ProjectPtr> projects_;
+  ProjectPtr project_;
 
-  QList<MainWindowLayoutInfo> layout_info_;
+  MainWindowLayoutInfo layout_info_;
+
+  QString project_saved_url_;
 
   QString filename_;
 

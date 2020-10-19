@@ -285,8 +285,6 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 
 void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
 {
-  writer->writeStartElement(QStringLiteral("timeline"));
-
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
   QList<TimelineViewBlockItem*>& selected = *static_cast<QList<TimelineViewBlockItem*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
@@ -314,38 +312,32 @@ void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void
 
     writer->writeEndElement();
   }
-
-  writer->writeEndElement(); // timeline
 }
 
-void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, void *userdata)
+void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData& xml_node_data, void *userdata)
 {
-  if (reader->name() == QStringLiteral("timeline")) {
-    QList<BlockPasteData>& paste_data = *static_cast<QList<BlockPasteData>*>(userdata);
+  QList<BlockPasteData>& paste_data = *static_cast<QList<BlockPasteData>*>(userdata);
 
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("block")) {
-        BlockPasteData bpd;
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("block")) {
+      BlockPasteData bpd;
 
-        foreach (QXmlStreamAttribute attr, reader->attributes()) {
-          if (attr.name() == QStringLiteral("ptr")) {
-            bpd.ptr = attr.value().toULongLong();
-          } else if (attr.name() == QStringLiteral("in")) {
-            bpd.in = rational::fromString(attr.value().toString());
-          } else if (attr.name() == QStringLiteral("tracktype")) {
-            bpd.track_type = static_cast<Timeline::TrackType>(attr.value().toInt());
-          } else if (attr.name() == QStringLiteral("trackindex")) {
-            bpd.track_index = attr.value().toInt();
-          }
+      foreach (QXmlStreamAttribute attr, reader->attributes()) {
+        if (attr.name() == QStringLiteral("ptr")) {
+          bpd.block = static_cast<Block*>(xml_node_data.node_ptrs.value(attr.value().toULongLong()));
+        } else if (attr.name() == QStringLiteral("in")) {
+          bpd.in = rational::fromString(attr.value().toString());
+        } else if (attr.name() == QStringLiteral("tracktype")) {
+          bpd.track_type = static_cast<Timeline::TrackType>(attr.value().toInt());
+        } else if (attr.name() == QStringLiteral("trackindex")) {
+          bpd.track_index = attr.value().toInt();
         }
-
-        paste_data.append(bpd);
-
-        reader->skipCurrentElement();
       }
+
+      paste_data.append(bpd);
+
+      reader->skipCurrentElement();
     }
-  } else {
-    NodeCopyPasteWidget::PasteNodesFromClipboardInternal(reader, userdata);
   }
 }
 
@@ -681,12 +673,7 @@ void TimelineWidget::Paste(bool insert)
     rational paste_end = GetTime();
 
     foreach (const BlockPasteData& bpd, paste_data) {
-      foreach (Node* n, pasted) {
-        if (n->property("xml_ptr") == bpd.ptr) {
-          paste_end = qMax(paste_end, paste_start + bpd.in + static_cast<Block*>(n)->length());
-          break;
-        }
-      }
+      paste_end = qMax(paste_end, paste_start + bpd.in + bpd.block->length());
     }
 
     if (paste_end != paste_start) {
@@ -695,17 +682,12 @@ void TimelineWidget::Paste(bool insert)
   }
 
   foreach (const BlockPasteData& bpd, paste_data) {
-    foreach (Node* n, pasted) {
-      if (n->property("xml_ptr") == bpd.ptr) {
-        qDebug() << "Placing" << n;
-        new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
-                                   bpd.track_index,
-                                   static_cast<Block*>(n),
-                                   paste_start + bpd.in,
-                                   command);
-        break;
-      }
-    }
+    qDebug() << "Placing" << bpd.block;
+    new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
+                               bpd.track_index,
+                               bpd.block,
+                               paste_start + bpd.in,
+                               command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

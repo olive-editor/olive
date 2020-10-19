@@ -132,9 +132,6 @@ public:
   const int64_t& start_time() const;
   void set_start_time(const int64_t& start_time);
 
-  bool is_image_sequence() const;
-  void set_image_sequence(bool e);
-
   int64_t get_time_in_timebase_units(const rational& time) const;
 
   virtual QIcon icon() const override;
@@ -165,8 +162,6 @@ private:
   rational frame_rate_;
 
   int64_t start_time_;
-
-  bool is_image_sequence_;
 
 };
 

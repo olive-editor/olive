@@ -95,7 +95,7 @@ public:
   /**
    * @brief Save this node into a text/XML format
    */
-  void Save(QXmlStreamWriter* writer, const QString& custom_name = QString()) const;
+  void Save(QXmlStreamWriter* writer) const;
 
   /**
    * @brief Return the name of the node

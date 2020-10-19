@@ -119,10 +119,10 @@ protected:
   virtual void DisconnectNodeInternal(ViewerOutput* n) override;
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, void* userdata) override;
+  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
 
   struct BlockPasteData {
-    quintptr ptr;
+    Block* block;
     rational in;
     Timeline::TrackType track_type;
     int track_index;
