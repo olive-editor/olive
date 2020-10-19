@@ -40,14 +40,14 @@ QList<Node::CategoryID> MediaInput::Category() const
   return {kCategoryInput};
 }
 
-StreamPtr MediaInput::footage()
+StreamPtr MediaInput::stream()
 {
   return footage_input_->get_standard_value().value<StreamPtr>();
 }
 
-void MediaInput::SetFootage(StreamPtr f)
+void MediaInput::SetStream(StreamPtr s)
 {
-  footage_input_->set_standard_value(QVariant::fromValue(f));
+  footage_input_->set_standard_value(QVariant::fromValue(s));
 }
 
 bool MediaInput::IsMedia() const

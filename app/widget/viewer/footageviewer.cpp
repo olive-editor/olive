@@ -57,8 +57,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     ConnectViewerNode(nullptr);
 
-    video_node_->SetFootage(nullptr);
-    audio_node_->SetFootage(nullptr);
+    video_node_->SetStream(nullptr);
+    audio_node_->SetStream(nullptr);
 
     NodeParam::DisconnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
     NodeParam::DisconnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
@@ -98,12 +98,12 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     }
 
     if (video_stream) {
-      video_node_->SetFootage(video_stream);
+      video_node_->SetStream(video_stream);
       NodeParam::ConnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
     }
 
     if (audio_stream) {
-      audio_node_->SetFootage(audio_stream);
+      audio_node_->SetStream(audio_stream);
       NodeParam::ConnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
     }
 
