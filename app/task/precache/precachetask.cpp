@@ -33,7 +33,7 @@ PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   backend()->SetRenderMode(RenderMode::kOffline);
 
   video_node_ = new VideoInput();
-  video_node_->SetFootage(footage);
+  video_node_->SetStream(footage);
 
   NodeParam::ConnectEdge(video_node_->output(), viewer()->texture_input());
 

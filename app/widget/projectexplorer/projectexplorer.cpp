@@ -554,7 +554,7 @@ QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
       if (n->IsMedia()) {
         MediaInput* media_node = static_cast<MediaInput*>(n);
 
-        if (media_node->footage()->footage() == item) {
+        if (media_node->stream()->footage() == item) {
           list.append(media_node);
         }
       }
