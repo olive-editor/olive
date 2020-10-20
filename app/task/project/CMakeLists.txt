@@ -14,7 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(exportotio)
+if(OpenTimelineIO_FOUND)
+  add_subdirectory(exportotio)
+endif()
+
 add_subdirectory(import)
 add_subdirectory(load)
 add_subdirectory(save)
