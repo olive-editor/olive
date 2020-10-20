@@ -24,7 +24,7 @@
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
-#include "project/item/sequence/sequence.h"
+#include "project/project.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -33,17 +33,19 @@ class ExportOTIOTask : public Task
 {
   Q_OBJECT
 public:
-  ExportOTIOTask(ViewerOutput* sequence, const QString& filename);
+  ExportOTIOTask(ProjectPtr project, const QString& filename);
 
 protected:
   virtual bool Run() override;
 
 private:
+  opentimelineio::v1_0::Timeline* SerializeTimeline(SequencePtr sequence);
+
   opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
 
   bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
 
-  ViewerOutput* sequence_;
+  ProjectPtr project_;
 
   QString filename_;
 

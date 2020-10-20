@@ -273,9 +273,9 @@ void Core::CreateNewProject()
 #ifdef USE_OTIO
 void Core::ExportActiveSequenceAsOTIO()
 {
-  ViewerOutput* sequence = GetSequenceToExport();
+  ProjectPtr project = GetActiveProject();
 
-  if (sequence) {
+  if (project) {
     QString fn = QFileDialog::getSaveFileName(main_window_,
                                               tr("Export as OpenTimelineIO"),
                                               QString(),
@@ -284,7 +284,7 @@ void Core::ExportActiveSequenceAsOTIO()
     if (!fn.isEmpty()) {
       fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("otio"));
 
-      ExportOTIOTask* task = new ExportOTIOTask(sequence, fn);
+      ExportOTIOTask* task = new ExportOTIOTask(project, fn);
       TaskDialog* dialog = new TaskDialog(task, tr("Export Sequence"), main_window_);
       dialog->open();
     }
