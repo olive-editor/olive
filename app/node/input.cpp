@@ -1075,7 +1075,9 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   for (int i=0;i<source->keyframe_tracks_.size();i++) {
     dest->keyframe_tracks_[i].clear();
     foreach (NodeKeyframePtr key, source->keyframe_tracks_.at(i)) {
-      dest->keyframe_tracks_[i].append(key->copy());
+      NodeKeyframePtr key_copy = key->copy();
+      key_copy->set_parent(dest);
+      dest->keyframe_tracks_[i].append(key_copy);
     }
   }
 
