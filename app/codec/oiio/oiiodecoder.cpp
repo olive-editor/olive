@@ -45,7 +45,7 @@ QString OIIODecoder::id()
   return QStringLiteral("oiio");
 }
 
-ItemPtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
   if (!FileTypeIsSupported(filename)) {
     return nullptr;

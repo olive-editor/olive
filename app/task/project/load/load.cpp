@@ -30,14 +30,13 @@
 OLIVE_NAMESPACE_ENTER
 
 ProjectLoadTask::ProjectLoadTask(const QString &filename) :
-  filename_(filename)
+  ProjectLoadBaseTask(filename)
 {
-  SetTitle(tr("Loading '%1'").arg(filename));
 }
 
 bool ProjectLoadTask::Run()
 {
-  QFile project_file(filename_);
+  QFile project_file(GetFilename());
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
@@ -62,7 +61,7 @@ bool ProjectLoadTask::Run()
           } else if (reader.name() == QStringLiteral("project")) {
             project_ = std::make_shared<Project>();
 
-            project_->set_filename(filename_);
+            project_->set_filename(GetFilename());
 
             project_->Load(&reader, &layout_info_, &IsCancelled());
 
@@ -95,7 +94,7 @@ bool ProjectLoadTask::Run()
     }
 
   } else {
-    SetError(tr("Failed to read file \"%1\" for reading.").arg(filename_));
+    SetError(tr("Failed to read file \"%1\" for reading.").arg(GetFilename()));
     return false;
   }
 }

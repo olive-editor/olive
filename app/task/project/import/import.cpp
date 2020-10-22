@@ -83,7 +83,8 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
       // Strip out "." and ".." (for some reason QDir::NoDotAndDotDot	doesn't work with entryInfoList, so we have to
       // check manually)
       for (int i=0;i<entry_list.size();i++) {
-        if (entry_list.at(i).fileName() == "." || entry_list.at(i).fileName() == "..") {
+        if (entry_list.at(i).fileName() == QStringLiteral(".")
+            || entry_list.at(i).fileName() == QStringLiteral("..")) {
           entry_list.removeAt(i);
           i--;
         }
@@ -109,26 +110,12 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
     } else {
 
-      QString file_path = file_info.absoluteFilePath();
-
-      // FIXME: Probe will fail if a project isn't set because ImageStream and its derivatives
-      //        try to connect to the project's ColorManager instance
-      ItemPtr item = Decoder::ProbeMedia(file_path, &IsCancelled());
+      FootagePtr item = Decoder::ProbeMedia(model_->project(), file_info.absoluteFilePath(),
+                                            &IsCancelled());
 
       if (item) {
-        // Setup metadata
-        item->set_name(file_info.fileName());
-        item->set_project(model_->project());
-
-        if (item->type() == Item::kFootage) {
-          FootagePtr footage = std::static_pointer_cast<Footage>(item);
-
-          footage->set_filename(file_path);
-          footage->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
-
-          // See if this footage is an image sequence
-          ValidateImageSequence(footage, import, i);
-        }
+        // See if this footage is an image sequence
+        ValidateImageSequence(item, import, i);
 
         // Create undoable command that adds the items to the model
         new ProjectViewModel::AddItemCommand(model_,

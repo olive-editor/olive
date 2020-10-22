@@ -141,6 +141,8 @@ public:
     video_download_matrix_ = mat;
   }
 
+  void IgnoreNextMouseButton();
+
   static std::list<TimeRange> SplitRangeIntoChunks(const TimeRange& r);
 
 public slots:
@@ -222,6 +224,8 @@ private:
   QMap<QFutureWatcher<bool>*, QByteArray> autocache_video_download_tasks_;
 
   QVector<QByteArray> autocache_currently_caching_hashes_;
+
+  bool ignore_next_mouse_button_;
 
 private slots:
   void WorkerFinished();

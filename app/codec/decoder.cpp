@@ -27,13 +27,13 @@
 #include "codec/ffmpeg/ffmpegcommon.h"
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
-#ifdef USE_OTIO
-#include "codec/otio/otiodecoder.h"
-#endif
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
+#ifdef USE_OTIO
+#include "task/project/loadotio/loadotio.h"
+#endif
 #include "task/taskmanager.h"
 #include "project/project.h"
 
@@ -92,16 +92,13 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders() {
 
   // The order in which these decoders are added is their priority when probing. Hence FFmpeg should usually be last,
   // since it supports so many formats and we presumably want to override those formats with a more specific decoder.
-#ifdef USE_OTIO
-  decoders.append(std::make_shared<OTIODecoder>());
-#endif
   decoders.append(std::make_shared<OIIODecoder>());
   decoders.append(std::make_shared<FFmpegDecoder>());
 
   return decoders;
 }
 
-ItemPtr Decoder::ProbeMedia(const QString &filename, const QAtomicInt* cancelled)
+FootagePtr Decoder::ProbeMedia(Project* project, const QString &filename, const QAtomicInt* cancelled)
 {
   // Check for a valid filename
   if (filename.isEmpty()) {
@@ -127,21 +124,22 @@ ItemPtr Decoder::ProbeMedia(const QString &filename, const QAtomicInt* cancelled
 
     DecoderPtr decoder = decoder_list.at(i);
 
-    ItemPtr item = decoder->Probe(filename, cancelled);
+    FootagePtr footage = decoder->Probe(filename, cancelled);
 
-    if (item) {
+    if (footage) {
+      QFileInfo file_info(filename);
+      footage->set_name(file_info.fileName());
+      footage->set_filename(filename);
 
-      if (item->type() == Item::kFootage) {
-        // Attach the successful Decoder to this Footage object
-        FootagePtr footage = std::static_pointer_cast<Footage>(item);
-        footage->set_decoder(decoder->id());
-        footage->SetValid();
-      }
+      footage->set_decoder(decoder->id());
+      footage->set_project(project);
+      footage->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
 
+      footage->SetValid();
 
       // FIXME: Cache the results so we don't have to probe if this media is added a second time
 
-      return item;
+      return footage;
     }
   }
 

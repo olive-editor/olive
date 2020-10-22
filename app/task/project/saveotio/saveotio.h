@@ -18,28 +18,37 @@
 
 ***/
 
-#ifndef OTIODECODER_H
-#define OTIODECODER_H
+#ifndef PROJECTSAVEASOTIOTASK_H
+#define PROJECTSAVEASOTIOTASK_H
 
-#include "codec/decoder.h"
+#include <opentimelineio/timeline.h>
+#include <opentimelineio/track.h>
+
+#include "project/project.h"
+#include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class OTIODecoder : public Decoder
+class SaveOTIOTask : public Task
 {
   Q_OBJECT
 public:
-  OTIODecoder();
+  SaveOTIOTask(ProjectPtr project);
 
-  virtual QString id() override;
+protected:
+  virtual bool Run() override;
 
-  virtual bool Open() override {return false;}
-  virtual void Close() override {}
+private:
+  opentimelineio::v1_0::Timeline* SerializeTimeline(SequencePtr sequence);
 
-  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
+
+  bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
+
+  ProjectPtr project_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // OTIODECODER_H
+#endif // PROJECTSAVEASOTIOTASK_H

@@ -15,7 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if(OpenTimelineIO_FOUND)
-  add_subdirectory(exportotio)
+  add_subdirectory(loadotio)
+  add_subdirectory(saveotio)
 endif()
 
 add_subdirectory(import)

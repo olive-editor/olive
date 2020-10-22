@@ -151,7 +151,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
 
   // Ensure this and all children are in the main thread
   // NOTE: It might be good to move the Item system to QObjects so they inherit their thread
-  if (thread() != qApp->thread()) {
+  if (QThread::currentThread() != qApp->thread()) {
     moveToThread(qApp->thread());
   }
 }

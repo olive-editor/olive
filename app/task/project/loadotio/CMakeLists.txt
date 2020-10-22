@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/project/exportotio/exportotiotask.h
-  task/project/exportotio/exportotiotask.cpp
+  task/project/loadotio/loadotio.h
+  task/project/loadotio/loadotio.cpp
   PARENT_SCOPE
 )

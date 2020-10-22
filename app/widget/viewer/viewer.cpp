@@ -1166,6 +1166,9 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
   renderer_->SetVideoParams(GetConnectedNode()->video_params());
 
+  // In case the user is pressing the mouse at this exact moment
+  renderer_->IgnoreNextMouseButton();
+
   GetConnectedNode()->video_frame_cache()->InvalidateAll();
 
   display_widget_->SetVideoParams(GetConnectedNode()->video_params());

@@ -18,7 +18,7 @@
 
 ***/
 
-#include "exportotiotask.h"
+#include "saveotio.h"
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -31,14 +31,13 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ExportOTIOTask::ExportOTIOTask(ProjectPtr project, const QString &filename) :
-  project_(project),
-  filename_(filename)
+SaveOTIOTask::SaveOTIOTask(ProjectPtr project) :
+  project_(project)
 {
   SetTitle(tr("Exporting project to OpenTimelineIO"));
 }
 
-bool ExportOTIOTask::Run()
+bool SaveOTIOTask::Run()
 {
   QList<ItemPtr> sequences = project_->get_items_of_type(Item::kSequence);
 
@@ -75,12 +74,12 @@ bool ExportOTIOTask::Run()
   if (serialized.size() == 1) {
     // Serialize timeline on its own
     auto t = serialized.front();
-    t->to_json_file(filename_.toStdString(), &es);
+    t->to_json_file(project_->filename().toStdString(), &es);
     t->possibly_delete();
   } else {
     // Serialize all into a SerializableCollection
     auto collection = new opentimelineio::v1_0::SerializableCollection("Sequences", serialized);
-    collection->to_json_file(filename_.toStdString(), &es);
+    collection->to_json_file(project_->filename().toStdString(), &es);
     collection->possibly_delete();
 
     // Delete all existing timelines
@@ -92,7 +91,7 @@ bool ExportOTIOTask::Run()
   return (es == opentimelineio::v1_0::ErrorStatus::OK);
 }
 
-opentimelineio::v1_0::Timeline *ExportOTIOTask::SerializeTimeline(SequencePtr sequence)
+opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
 {
   auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->name().toStdString());
 
@@ -105,7 +104,7 @@ opentimelineio::v1_0::Timeline *ExportOTIOTask::SerializeTimeline(SequencePtr se
   return otio_timeline;
 }
 
-opentimelineio::v1_0::Track *ExportOTIOTask::SerializeTrack(TrackOutput *track)
+opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
 {
   auto otio_track = new opentimelineio::v1_0::Track();
 
@@ -185,7 +184,7 @@ fail:
   return nullptr;
 }
 
-bool ExportOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Timeline* otio_timeline)
+bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Timeline* otio_timeline)
 {
   opentimelineio::v1_0::ErrorStatus es;
 

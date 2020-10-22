@@ -46,7 +46,8 @@ RenderBackend::RenderBackend(QObject *parent) :
   generate_audio_previews_(false),
   render_mode_(RenderMode::kOnline),
   autocache_has_changed_(false),
-  use_custom_autocache_range_(false)
+  use_custom_autocache_range_(false),
+  ignore_next_mouse_button_(false)
 {
   instance_lock_.lock();
   instances_.append(this);
@@ -256,6 +257,11 @@ void RenderBackend::SetVideoParams(const VideoParams &params)
 void RenderBackend::SetAudioParams(const AudioParams &params)
 {
   audio_params_ = params;
+}
+
+void RenderBackend::IgnoreNextMouseButton()
+{
+  ignore_next_mouse_button_ = true;
 }
 
 std::list<TimeRange> RenderBackend::SplitRangeIntoChunks(const TimeRange &r)
@@ -523,7 +529,8 @@ void RenderBackend::AutoCacheVideoInvalidated(const TimeRange &range)
   ClearVideoQueue();
 
   // Hash these frames since that should be relatively quick.
-  if (!(qApp->mouseButtons() & Qt::LeftButton)) {
+  if (ignore_next_mouse_button_ || !(qApp->mouseButtons() & Qt::LeftButton)) {
+    ignore_next_mouse_button_ = false;
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     QVector<rational> frames = viewer_node_->video_frame_cache()->GetFrameListFromTimeRange({range});
     autocache_hash_tasks_.insert(watcher, frames);

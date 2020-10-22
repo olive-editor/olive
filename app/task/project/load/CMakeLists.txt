@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   task/project/load/load.h
   task/project/load/load.cpp
+  task/project/load/loadbasetask.h
+  task/project/load/loadbasetask.cpp
   PARENT_SCOPE
 )

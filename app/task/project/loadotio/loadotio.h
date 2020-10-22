@@ -18,19 +18,19 @@
 
 ***/
 
-#ifndef PROJECTLOADMANAGER_H
-#define PROJECTLOADMANAGER_H
+#ifndef OTIODECODER_H
+#define OTIODECODER_H
 
-#include "loadbasetask.h"
-#include "window/mainwindow/mainwindowlayoutinfo.h"
+#include "project/project.h"
+#include "task/project/load/loadbasetask.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ProjectLoadTask : public ProjectLoadBaseTask
+class LoadOTIOTask : public ProjectLoadBaseTask
 {
   Q_OBJECT
 public:
-  ProjectLoadTask(const QString& filename);
+  LoadOTIOTask(const QString& filename);
 
 protected:
   virtual bool Run() override;
@@ -39,4 +39,4 @@ protected:
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // PROJECTLOADMANAGER_H
+#endif // OTIODECODER_H

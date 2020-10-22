@@ -450,7 +450,7 @@ bool FFmpegDecoder::SupportsAudio()
   return true;
 }
 
-ItemPtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
   // Variable for receiving errors from FFmpeg
   int error_code;
@@ -578,7 +578,7 @@ ItemPtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelle
 
         if (avstream->duration == AV_NOPTS_VALUE) {
           // Loop through stream until we get the whole duration
-          FFmpegDecoderInstance instance(filename, i);
+          FFmpegDecoderInstance instance(filename_c, i);
 
           AVPacket* pkt = av_packet_alloc();
           AVFrame* frame = av_frame_alloc();

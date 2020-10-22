@@ -18,39 +18,15 @@
 
 ***/
 
-#ifndef PROJECTSAVEASOTIOTASK_H
-#define PROJECTSAVEASOTIOTASK_H
-
-#include <opentimelineio/timeline.h>
-#include <opentimelineio/track.h>
-
-#include "project/project.h"
-#include "task/task.h"
+#include "loadbasetask.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportOTIOTask : public Task
+ProjectLoadBaseTask::ProjectLoadBaseTask(const QString &filename) :
+  project_(nullptr),
+  filename_(filename)
 {
-  Q_OBJECT
-public:
-  ExportOTIOTask(ProjectPtr project, const QString& filename);
-
-protected:
-  virtual bool Run() override;
-
-private:
-  opentimelineio::v1_0::Timeline* SerializeTimeline(SequencePtr sequence);
-
-  opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
-
-  bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
-
-  ProjectPtr project_;
-
-  QString filename_;
-
-};
+  SetTitle(tr("Loading '%1'").arg(filename));
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // PROJECTSAVEASOTIOTASK_H

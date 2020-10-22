@@ -37,7 +37,7 @@ public:
 
   virtual QString id() override;
 
-  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
   virtual bool Open() override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;

@@ -385,13 +385,6 @@ public slots:
    */
   void CreateNewProject();
 
-#ifdef USE_OTIO
-  /**
-   * @brief Exports the active sequence to OpenTimelineIO
-   */
-  void ExportActiveSequenceAsOTIO();
-#endif
-
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -426,7 +419,7 @@ private:
   /**
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
    */
-  static QString GetProjectFilter();
+  static QString GetProjectFilter(bool include_any_filter);
 
   /**
    * @brief Returns the filename where the recently opened/saved projects should be stored

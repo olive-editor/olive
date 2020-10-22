@@ -16,9 +16,6 @@
 
 add_subdirectory(ffmpeg)
 add_subdirectory(oiio)
-if(OpenTimelineIO_FOUND)
-  add_subdirectory(otio)
-endif()
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

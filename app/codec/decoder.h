@@ -102,7 +102,7 @@ public:
    * TRUE if the Decoder was able to decode this file. FALSE if not. This function should have filled the Footage
    * object with metadata if it returns TRUE. Otherwise, the Footage object should be untouched.
    */
-  virtual ItemPtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Open media/allocate memory
@@ -199,7 +199,7 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static ItemPtr ProbeMedia(const QString& filename, const QAtomicInt *cancelled);
+  static FootagePtr ProbeMedia(Project *project, const QString& filename, const QAtomicInt *cancelled);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID

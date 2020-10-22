@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  codec/otio/otiodecoder.h
-  codec/otio/otiodecoder.cpp
+  task/project/saveotio/saveotio.h
+  task/project/saveotio/saveotio.cpp
   PARENT_SCOPE
 )

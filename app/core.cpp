@@ -55,7 +55,8 @@
 #include "render/pixelformat.h"
 #include "render/shaderinfo.h"
 #ifdef USE_OTIO
-#include "task/project/exportotio/exportotiotask.h"
+#include "task/project/loadotio/loadotio.h"
+#include "task/project/saveotio/saveotio.h"
 #endif
 #include "task/project/import/import.h"
 #include "task/project/import/importerrordialog.h"
@@ -273,28 +274,6 @@ void Core::CreateNewProject()
   AddOpenProject(std::make_shared<Project>());
 }
 
-#ifdef USE_OTIO
-void Core::ExportActiveSequenceAsOTIO()
-{
-  ProjectPtr project = GetActiveProject();
-
-  if (project) {
-    QString fn = QFileDialog::getSaveFileName(main_window_,
-                                              tr("Export as OpenTimelineIO"),
-                                              QString(),
-                                              tr("OpenTimelineIO (*.otio)"));
-
-    if (!fn.isEmpty()) {
-      fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("otio"));
-
-      ExportOTIOTask* task = new ExportOTIOTask(project, fn);
-      TaskDialog* dialog = new TaskDialog(task, tr("Export Sequence"), main_window_);
-      dialog->open();
-    }
-  }
-}
-#endif
-
 const bool &Core::snapping() const
 {
   return snapping_;
@@ -486,7 +465,7 @@ void Core::AddOpenProject(ProjectPtr p)
 
 void Core::AddOpenProjectFromTask(Task *task)
 {
-  ProjectLoadTask* load_task = static_cast<ProjectLoadTask*>(task);
+  ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
   ProjectPtr project = load_task->GetLoadedProject();
   MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
@@ -719,7 +698,22 @@ void Core::StartGUI(bool full_screen)
 void Core::SaveProjectInternal(ProjectPtr project)
 {
   // Create save manager
-  ProjectSaveTask* psm = new ProjectSaveTask(project);
+  Task* psm;
+
+  if (project->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+#ifdef USE_OTIO
+    psm = new SaveOTIOTask(project);
+#else
+    QMessageBox::critical(main_window_,
+                          tr("Missing OpenTimelineIO Libraries"),
+                          tr("This build was compiled without OpenTimelineIO and therefore "
+                             "cannot open OpenTimelineIO files."));
+    return;
+#endif
+  } else {
+    psm = new ProjectSaveTask(project);
+  }
+
   TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
 
   connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
@@ -891,9 +885,24 @@ bool Core::CloseAllExceptActiveProject()
   return true;
 }
 
-QString Core::GetProjectFilter()
+QString Core::GetProjectFilter(bool include_any_filter)
 {
-  return QStringLiteral("%1 (*.ove)").arg(tr("Olive Project"));
+  QString filters;
+
+#ifdef USE_OTIO
+  if (include_any_filter) {
+    filters.append(QStringLiteral("All Supported Projects (*.ove *.otio);;"));
+  }
+#endif
+
+  // Append standard filter
+  filters.append(QStringLiteral("%1 (*.ove)").arg(tr("Olive Project")));
+
+#ifdef USE_OTIO
+  filters.append(QStringLiteral(";;%2 (*.otio)").arg(tr("OpenTimelineIO")));
+#endif
+
+  return filters;
 }
 
 QString Core::GetRecentProjectsFilePath()
@@ -914,13 +923,19 @@ bool Core::SaveProject(ProjectPtr p)
 
 bool Core::SaveProjectAs(ProjectPtr p)
 {
-  QString fn = QFileDialog::getSaveFileName(main_window_,
-                                            tr("Save Project As"),
-                                            QString(),
-                                            GetProjectFilter());
+  QFileDialog fd(main_window_, tr("Save Project As"));
 
-  if (!fn.isEmpty()) {
-    fn = FileFunctions::EnsureFilenameExtension(fn, QStringLiteral("ove"));
+  fd.setNameFilter(GetProjectFilter(false));
+
+  if (fd.exec() == QDialog::Accepted) {
+    QString fn = fd.selectedFiles().first();
+
+    // Somewhat hacky method of extracting the extension from the name filter
+    const QString& name_filter = fd.selectedNameFilter();
+    int ext_index = name_filter.indexOf(QStringLiteral("(*.")) + 3;
+    QString extension = name_filter.mid(ext_index, name_filter.size() - ext_index - 1);
+
+    fn = FileFunctions::EnsureFilenameExtension(fn, extension);
 
     p->set_filename(fn);
 
@@ -958,9 +973,25 @@ void Core::OpenProjectInternal(const QString &filename)
     }
   }
 
-  ProjectLoadTask* plm = new ProjectLoadTask(filename);
+  Task* load_task;
 
-  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+  if (filename.endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+    // Load OpenTimelineIO project
+#ifdef USE_OTIO
+    load_task = new LoadOTIOTask(filename);
+#else
+    QMessageBox::critical(main_window_,
+                          tr("Missing OpenTimelineIO Libraries"),
+                          tr("This build was compiled without OpenTimelineIO and therefore "
+                             "cannot open OpenTimelineIO files."));
+    return;
+#endif
+  } else {
+    // Fallback to regular OVE project
+    load_task = new ProjectLoadTask(filename);
+  }
+
+  TaskDialog* task_dialog = new TaskDialog(load_task, tr("Load Project"), main_window());
 
   connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
 
@@ -1237,7 +1268,7 @@ bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& pro
   foreach (ItemPtr item, project_footage) {
     FootagePtr footage = std::static_pointer_cast<Footage>(item);
 
-    if (!QFileInfo::exists(footage->filename())) {
+    if (!QFileInfo::exists(footage->filename()) && !project_saved_url.isEmpty()) {
       // If the footage doesn't exist, it might have moved with the project
       const QString& project_current_url = project->filename();
 
@@ -1285,7 +1316,7 @@ void Core::OpenProject()
   QString file = QFileDialog::getOpenFileName(main_window_,
                                               tr("Open Project"),
                                               QString(),
-                                              GetProjectFilter());
+                                              GetProjectFilter(true));
 
   if (!file.isEmpty()) {
     OpenProjectInternal(file);

@@ -39,23 +39,15 @@ public:
   {
   }
 
-  void Invalidate(const TimeRange& r);
-
-  void InvalidateAll();
-
   const rational& GetLength()
   {
     return length_;
   }
 
-  void SetLength(const rational& r);
-
   bool IsFullyValidated()
   {
     return invalidated_.isEmpty();
   }
-
-  void Shift(const rational& from, const rational& to);
 
   const TimeRangeList& GetInvalidatedRanges()
   {
@@ -68,6 +60,15 @@ public:
   }
 
   QString GetCacheDirectory() const;
+
+public slots:
+  void Invalidate(const TimeRange& r);
+
+  void InvalidateAll();
+
+  void SetLength(const rational& r);
+
+  void Shift(const rational& from, const rational& to);
 
 signals:
   void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);

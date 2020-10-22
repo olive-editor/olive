@@ -62,10 +62,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_menu_->addSeparator();
   file_export_menu_ = new Menu(file_menu_);
   file_export_media_item_ = file_export_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
-#ifdef USE_OTIO
-  file_export_menu_->addSeparator();
-  file_export_otio_item_ = file_export_menu_->AddItem("exportotio", Core::instance(), &Core::ExportActiveSequenceAsOTIO);
-#endif
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
   file_menu_->addSeparator();
@@ -606,9 +602,6 @@ void MainMenu::Retranslate()
   file_import_item_->setText(tr("&Import..."));
   file_export_menu_->setTitle(tr("&Export"));
   file_export_media_item_->setText(tr("&Media..."));
-#ifdef USE_OTIO
-  file_export_otio_item_->setText(tr("&OpenTimelineIO..."));
-#endif
   file_project_properties_item_->setText(tr("&Project Properties..."));
   file_close_all_projects_item_->setText(tr("Close All Projects"));
   file_exit_item_->setText(tr("E&xit"));
