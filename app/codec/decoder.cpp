@@ -27,7 +27,9 @@
 #include "codec/ffmpeg/ffmpegcommon.h"
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
+#ifdef USE_OTIO
 #include "codec/otio/otiodecoder.h"
+#endif
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
 #include "common/filefunctions.h"
@@ -90,8 +92,9 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders() {
 
   // The order in which these decoders are added is their priority when probing. Hence FFmpeg should usually be last,
   // since it supports so many formats and we presumably want to override those formats with a more specific decoder.
-
+#ifdef USE_OTIO
   decoders.append(std::make_shared<OTIODecoder>());
+#endif
   decoders.append(std::make_shared<OIIODecoder>());
   decoders.append(std::make_shared<FFmpegDecoder>());
 

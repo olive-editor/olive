@@ -54,7 +54,9 @@
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 #include "render/shaderinfo.h"
+#ifdef USE_OTIO
 #include "task/project/exportotio/exportotiotask.h"
+#endif
 #include "task/project/import/import.h"
 #include "task/project/import/importerrordialog.h"
 #include "task/project/load/load.h"
