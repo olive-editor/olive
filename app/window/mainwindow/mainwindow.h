@@ -70,8 +70,6 @@ public:
 
   ScopePanel* AppendScopePanel();
 
-  CurvePanel* AppendCurvePanel();
-
   enum ProgressStatus {
     kProgressNone,
     kProgressShow,
@@ -138,6 +136,7 @@ private:
   // Standard panels
   NodePanel* node_panel_;
   ParamPanel* param_panel_;
+  CurvePanel* curve_panel_;
   SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
   QList<ProjectPanel*> project_panels_;
@@ -146,7 +145,6 @@ private:
   QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
-  QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
   NodeTablePanel* table_panel_;

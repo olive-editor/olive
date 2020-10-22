@@ -12,17 +12,16 @@ on:
       - 'README.md'
 
 env:
-  DOWNLOAD_TOOL: curl -fLOSs --retry 3
+  DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
+  UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
 
 jobs:
   linux:
     strategy:
       fail-fast: false
       matrix:
-        build: [1, 2]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             cc-compiler: gcc
             cxx-compiler: g++
             compiler-name: GCC 9.3.1
@@ -30,8 +29,7 @@ jobs:
             os-name: Linux (CentOS 7)
             vfx-cy: 2021
             ci-common-version: 2
-          - build: 2
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
             compiler-name: Clang 10.0.0
@@ -49,6 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: olivevideoeditor/ci-olive:${{ matrix.vfx-cy }}.${{ matrix.ci-common-version }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -105,7 +105,7 @@ jobs:
           PKGNAME: ${{ steps.package.outputs.pkgname }}
         if: github.event_name == 'push' && matrix.cc-compiler == 'gcc'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file="@$PKGNAME" \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -116,10 +116,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        build: [1]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             compiler-name: MSVC 16.x
             os-name: Windows
             os-arch: x86_64
@@ -133,6 +131,8 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -144,17 +144,17 @@ jobs:
           PLATFORM: ${{ matrix.os-name }}
           ARCH: ${{ matrix.os-arch }}
         run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
+          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
 
       - name: Create Build Folder
         run: |
           cmake -E make_directory ${{ runner.workspace }}/build
 
       - name: Enable Developer Command Prompt (Windows)
-        uses: ilammy/msvc-dev-cmd@v1.3.0
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2.8.0
+        uses: jurplel/install-qt-action@v2
         with:
           version: 5.15.1
 
@@ -254,7 +254,7 @@ jobs:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.exe \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -262,7 +262,7 @@ jobs:
             -F comment="$(git -C $GITHUB_WORKSPACE show -s --format=%B)" \
             https://ci.olivevideoeditor.org/push.php
 
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.zip \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \
@@ -276,7 +276,8 @@ jobs:
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         run: |
-          curl -fLSs --retry 3 https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
+          curl -fLSs --retry 2 --retry-delay 60 \
+            https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
           ./dump_syms app/olive-editor.pdb > olive-editor.sym
           curl -X POST \
             -F symfile=@olive-editor.sym \
@@ -286,10 +287,8 @@ jobs:
   macos:
     strategy:
       matrix:
-        build: [1]
         include:
-          - build: 1
-            build-type: RelWithDebInfo
+          - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
@@ -303,6 +302,8 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout Source Code
@@ -314,14 +315,14 @@ jobs:
           PLATFORM: ${{ matrix.os-name }}
           ARCH: ${{ matrix.os-arch }}
         run: |
-          echo "::set-env name=PKGNAME::$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})"
+          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
 
       - name: Create Build Folder
         run: |
           cmake -E make_directory ${{ runner.workspace }}/build
 
       - name: Acquire Qt
-        uses: jurplel/install-qt-action@v2.8.0
+        uses: jurplel/install-qt-action@v2
         with:
           version: 5.15.1
 
@@ -407,7 +408,7 @@ jobs:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
         if: github.event_name == 'push'
         run: |
-          curl -X POST \
+          $UPLOAD_TOOL \
             -F file=@$PKGNAME.zip \
             -F key="$GH_AUTH_KEY" \
             -F hash="$GITHUB_SHA" \

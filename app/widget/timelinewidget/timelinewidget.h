@@ -34,6 +34,9 @@
 #include "widget/nodecopypaste/nodecopypaste.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timebased/timebased.h"
+#include "widget/timelinewidget/timelinewidgetselections.h"
+#include "widget/timelinewidget/tool/import.h"
+#include "widget/timelinewidget/tool/tool.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -46,13 +49,6 @@ class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteWidget, publi
 {
   Q_OBJECT
 public:
-  enum DropWithoutSequenceBehavior {
-    kDWSAsk,
-    kDWSAuto,
-    kDWSManual,
-    kDWSDisable
-  };
-
   TimelineWidget(QWidget* parent = nullptr);
 
   virtual ~TimelineWidget() override;
@@ -103,6 +99,104 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
+  static void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
+
+  /**
+   * @brief Retrieve the QGraphicsItem at a particular scene position
+   *
+   * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
+   * scene position
+   */
+  TimelineViewBlockItem* GetItemAtScenePos(const TimelineCoordinate &coord);
+
+  const QMap<Block*, TimelineViewBlockItem*>& GetBlockItems() const
+  {
+    return block_items_;
+  }
+
+  void AddSelection(const TimeRange& time, const TrackReference& track);
+  void AddSelection(TimelineViewBlockItem* item);
+
+  void RemoveSelection(const TimeRange& time, const TrackReference& track);
+  void RemoveSelection(TimelineViewBlockItem* item);
+
+  const TimelineWidgetSelections& GetSelections() const
+  {
+    return selections_;
+  }
+
+  void SetSelections(const TimelineWidgetSelections &s);
+
+  TrackOutput* GetTrackFromReference(const TrackReference& ref);
+
+  void SetViewBeamCursor(const TimelineCoordinate& coord);
+
+  const QVector<TimelineViewGhostItem*>& GetGhostItems() const
+  {
+    return ghost_items_;
+  }
+
+  void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
+
+  void StartRubberBandSelect(bool enable_selecting, bool select_links);
+  void MoveRubberBandSelect(bool enable_selecting, bool select_links);
+  void EndRubberBandSelect();
+
+  int GetTrackY(const TrackReference& ref);
+  int GetTrackHeight(const TrackReference& ref);
+
+  void AddGhost(TimelineViewGhostItem* ghost);
+
+  void ClearGhosts();
+
+  bool HasGhosts() const
+  {
+    return !ghost_items_.isEmpty();
+  }
+
+  rational GetToolTipTimebase() const;
+
+  bool IsBlockSelected(Block* b) const
+  {
+    return selected_blocks_.contains(b);
+  }
+
+  void SetBlockLinksSelected(Block *block, bool selected);
+
+  void QueueScroll(int value);
+
+  TimelineView* GetFirstTimelineView();
+
+  const QRect &GetRubberBandGeometry() const;
+
+  /**
+   * @brief Track blocks that have newly been selected (this is preferred over emitting BlocksSelected directly)
+   *
+   * TimelineWidget keeps track of which blocks are selected internally. Calling this function will
+   * add to that list and emit a signal to other widgets that said blocks have been selected.
+   *
+   * @param selected_blocks
+   *
+   * The list of blocks to add to the internal selection list and signal.
+   *
+   * @param filter
+   *
+   * TRUE to automatically filter blocks that are already selected from the list. In most cases,
+   * this is preferable and should only be set to FALSE if the list is guaranteed not to contain
+   * already selected blocks (and therefore filtering can be skipped to save time).
+   */
+  void SignalSelectedBlocks(QList<Block *> selected_blocks, bool filter = true);
+
+  /**
+   * @brief Track blocks that have been newly deselected
+   */
+  void SignalDeselectedBlocks(const QList<Block*>& deselected_blocks);
+
+  /**
+   * @brief Convenience function to deselect all blocks and signal them
+   */
+  void SignalDeselectedAllBlocks();
+
 signals:
   void BlocksSelected(const QList<Block*>& selected_blocks);
 
@@ -129,341 +223,6 @@ protected:
   };
 
 private:
-  class DraggedFootage {
-  public:
-    DraggedFootage(Footage* f, quint64 streams) :
-      footage_(f),
-      streams_(streams)
-    {
-    }
-
-    Footage* footage() const {
-      return footage_;
-    }
-
-    const quint64& streams() const {
-      return streams_;
-    }
-
-  private:
-    Footage* footage_;
-
-    quint64 streams_;
-
-  };
-
-  static DraggedFootage FootageToDraggedFootage(Footage* f);
-  static QList<DraggedFootage> FootageToDraggedFootage(QList<Footage*> footage);
-
-  class Tool
-  {
-  public:
-    Tool(TimelineWidget* parent);
-    virtual ~Tool();
-
-    virtual void MousePress(TimelineViewMouseEvent *){}
-    virtual void MouseMove(TimelineViewMouseEvent *){}
-    virtual void MouseRelease(TimelineViewMouseEvent *){}
-    virtual void MouseDoubleClick(TimelineViewMouseEvent *){}
-
-    virtual void HoverMove(TimelineViewMouseEvent *){}
-
-    virtual void DragEnter(TimelineViewMouseEvent *){}
-    virtual void DragMove(TimelineViewMouseEvent *){}
-    virtual void DragLeave(QDragLeaveEvent *){}
-    virtual void DragDrop(TimelineViewMouseEvent *){}
-
-    TimelineWidget* parent();
-
-    static Timeline::MovementMode FlipTrimMode(const Timeline::MovementMode& trim_mode);
-
-  protected:
-    /**
-     * @brief Retrieve the QGraphicsItem at a particular scene position
-     *
-     * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
-     * scene position
-     */
-    TimelineViewBlockItem* GetItemAtScenePos(const TimelineCoordinate &coord);
-
-    /**
-     * @brief Validates Ghosts that are moving horizontally (time-based)
-     *
-     * Validation is the process of ensuring that whatever movements the user is making are "valid" and "legal". This
-     * function's validation ensures that no Ghost's in point ends up in a negative timecode.
-     */
-    rational ValidateTimeMovement(rational movement);
-
-    /**
-     * @brief Validates Ghosts that are moving vertically (track-based)
-     *
-     * This function's validation ensures that no Ghost's track ends up in a negative (non-existent) track.
-     */
-    int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> &ghosts);
-
-    void GetGhostData(rational *earliest_point, rational *latest_point);
-
-    void InsertGapsAtGhostDestination(QUndoCommand* command);
-
-    QList<rational> snap_points_;
-
-    bool dragging_;
-
-    TimelineCoordinate drag_start_;
-
-  private:
-    TimelineWidget* parent_;
-
-  };
-
-  class BeamTool : public Tool
-  {
-  public:
-    BeamTool(TimelineWidget *parent);
-
-    virtual void HoverMove(TimelineViewMouseEvent *event) override;
-
-  protected:
-    TimelineCoordinate ValidatedCoordinate(TimelineCoordinate coord);
-
-  };
-
-  class PointerTool : public Tool
-  {
-  public:
-    PointerTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-
-    virtual void HoverMove(TimelineViewMouseEvent *event) override;
-
-  protected:
-    virtual void FinishDrag(TimelineViewMouseEvent *event);
-
-    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode);
-
-    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists = false);
-
-    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode);
-
-    /**
-     * @brief Validates Ghosts that are getting their in points trimmed
-     *
-     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
-     * Ghost's length becomes 0 or negative.
-     */
-    rational ValidateInTrimming(rational movement);
-
-    /**
-     * @brief Validates Ghosts that are getting their out points trimmed
-     *
-     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
-     * Ghost's length becomes 0 or negative.
-     */
-    rational ValidateOutTrimming(rational movement);
-
-    virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
-
-    void InitiateDragInternal(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode,
-                              bool dont_roll_trims,
-                              bool allow_nongap_rolling, bool slide_instead_of_moving);
-
-    const Timeline::MovementMode& drag_movement_mode() const
-    {
-      return drag_movement_mode_;
-    }
-
-    void SetMovementAllowed(bool e)
-    {
-      movement_allowed_ = e;
-    }
-
-    void SetTrimmingAllowed(bool e)
-    {
-      trimming_allowed_ = e;
-    }
-
-    void SetTrackMovementAllowed(bool e)
-    {
-      track_movement_allowed_ = e;
-    }
-
-    void SetGapTrimmingAllowed(bool e)
-    {
-      gap_trimming_allowed_ = e;
-    }
-
-  private:
-    Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
-
-    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
-
-    bool IsClipTrimmable(TimelineViewBlockItem* clip,
-                         const QList<TimelineViewBlockItem*>& items,
-                         const Timeline::MovementMode& mode);
-
-    void ProcessGhostsForSliding();
-
-    void ProcessGhostsForRolling();
-
-    bool AddMovingTransitionsToClipGhost(Block *block, const TrackReference &track, Timeline::MovementMode movement, const QList<TimelineViewBlockItem *> &selected_items);
-
-    bool movement_allowed_;
-    bool trimming_allowed_;
-    bool track_movement_allowed_;
-    bool gap_trimming_allowed_;
-    bool rubberband_selecting_;
-
-    Timeline::TrackType drag_track_type_;
-    Timeline::MovementMode drag_movement_mode_;
-
-    TimelineViewBlockItem* clicked_item_;
-
-  };
-
-  class ImportTool : public Tool
-  {
-  public:
-    ImportTool(TimelineWidget* parent);
-
-    virtual void DragEnter(TimelineViewMouseEvent *event) override;
-    virtual void DragMove(TimelineViewMouseEvent *event) override;
-    virtual void DragLeave(QDragLeaveEvent *event) override;
-    virtual void DragDrop(TimelineViewMouseEvent *event) override;
-
-    void PlaceAt(const QList<Footage*> &footage, const rational& start, bool insert);
-    void PlaceAt(const QList<DraggedFootage> &footage, const rational& start, bool insert);
-
-  private:
-    void FootageToGhosts(rational ghost_start, const QList<DraggedFootage>& footage, const rational &dest_tb, const int &track_start);
-
-    void PrepGhosts(const rational &frame, const int &track_index);
-
-    void DropGhosts(bool insert);
-
-    QList<DraggedFootage> dragged_footage_;
-
-    int import_pre_buffer_;
-
-  };
-
-  class EditTool : public BeamTool
-  {
-  public:
-    EditTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-  };
-
-  class RazorTool : public BeamTool
-  {
-  public:
-    RazorTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-
-  private:
-    QVector<TrackReference> split_tracks_;
-  };
-
-  class RippleTool : public PointerTool
-  {
-  public:
-    RippleTool(TimelineWidget* parent);
-  protected:
-    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
-
-    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode) override;
-  };
-
-  class RollingTool : public PointerTool
-  {
-  public:
-    RollingTool(TimelineWidget* parent);
-
-  protected:
-    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode) override;
-  };
-
-  class SlideTool : public PointerTool
-  {
-  public:
-    SlideTool(TimelineWidget* parent);
-
-  protected:
-    virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
-                              Timeline::MovementMode trim_mode) override;
-
-  };
-
-  class SlipTool : public PointerTool
-  {
-  public:
-    SlipTool(TimelineWidget* parent);
-
-  protected:
-    virtual void ProcessDrag(const TimelineCoordinate &mouse_pos) override;
-    virtual void FinishDrag(TimelineViewMouseEvent *event) override;
-  };
-
-  class ZoomTool : public Tool
-  {
-  public:
-    ZoomTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-
-  };
-
-  class AddTool : public BeamTool
-  {
-  public:
-    AddTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-
-  protected:
-    void MouseMoveInternal(const rational& cursor_frame, bool outwards);
-
-    TimelineViewGhostItem* ghost_;
-
-    rational drag_start_point_;
-  };
-
-  class TransitionTool : public AddTool
-  {
-  public:
-    TransitionTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-  private:
-    bool dual_transition_;
-  };
-
-  rational GetToolTipTimebase() const;
-
-  void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
-
-  void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
-
-  void SetBlockLinksSelected(Block *block, bool selected);
-
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
 
   void RippleTo(Timeline::MovementMode mode);
@@ -472,36 +231,33 @@ private:
 
   void ShowSnap(const QList<rational>& times);
 
+  void UpdateViewports(const Timeline::TrackType& type = Timeline::kTrackTypeNone);
+
   QPoint drag_origin_;
 
-  void StartRubberBandSelect(bool enable_selecting, bool select_links);
-  void MoveRubberBandSelect(bool enable_selecting, bool select_links);
-  void EndRubberBandSelect();
   QRubberBand rubberband_;
-  QList<QGraphicsItem*> rubberband_already_selected_;
-  QList<QGraphicsItem*> rubberband_now_selected_;
+  TimelineWidgetSelections rubberband_old_selections_;
+  QList<Block*> rubberband_now_selected_;
 
-  Tool* GetActiveTool();
+  TimelineWidgetSelections selections_;
 
-  QVector<Tool*> tools_;
+  TimelineTool* GetActiveTool();
+
+  QVector<TimelineTool*> tools_;
 
   ImportTool* import_tool_;
 
-  Tool* active_tool_;
-
-  void ClearGhosts();
-
-  bool HasGhosts();
+  TimelineTool* active_tool_;
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
   QMap<Block*, TimelineViewBlockItem*> block_items_;
 
-  TrackOutput* GetTrackFromReference(const TrackReference& ref);
-
   QList<TimelineAndTrackView*> views_;
 
   TimeSlider* timecode_label_;
+
+  QList<Block*> selected_blocks_;
 
   int deferred_scroll_value_;
 
@@ -509,16 +265,9 @@ private:
 
   QSplitter* view_splitter_;
 
-  int GetTrackY(const TrackReference& ref);
-  int GetTrackHeight(const TrackReference& ref);
-
   void CenterOn(qreal scene_pos);
 
-  void AddGhost(TimelineViewGhostItem* ghost);
-
   void UpdateViewTimebases();
-
-  void SetViewBeamCursor(const TimelineCoordinate& coord);
 
 private slots:
   void ViewMousePressed(TimelineViewMouseEvent* event);
@@ -532,7 +281,7 @@ private slots:
   void ViewDragDropped(TimelineViewMouseEvent* event);
 
   void AddBlock(Block* block, TrackReference track);
-  void RemoveBlock(Block* block);
+  void RemoveBlock(const QList<Block*>& blocks);
 
   void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);
@@ -567,6 +316,8 @@ private slots:
   void SetViewTimestamp(const int64_t& ts);
 
   void ViewTimestampChanged(int64_t ts);
+
+  void ToolChanged();
 
 };
 

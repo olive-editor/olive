@@ -32,12 +32,10 @@ class CurvePanel : public TimeBasedPanel
 public:
   CurvePanel(QWidget* parent);
 
-  NodeInput* GetInput() const;
-
   virtual void DeleteSelected() override;
 
 public slots:
-  void SetInput(NodeInput* input);
+  void SetNodes(const QList<Node*>& nodes);
 
   virtual void IncreaseTrackHeight() override;
 

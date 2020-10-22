@@ -25,6 +25,7 @@
 
 #include "project.h"
 #include "undo/undocommand.h"
+#include "node/block/block.h"
 
 OLIVE_NAMESPACE_ENTER
 

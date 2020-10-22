@@ -122,6 +122,11 @@ void Block::set_length_and_media_in(const rational &length)
   LengthChangedEvent(old_length, length, Timeline::kTrimIn);
 }
 
+TimeRange Block::range() const
+{
+  return TimeRange(in(), out());
+}
+
 Block *Block::previous()
 {
   return previous_;

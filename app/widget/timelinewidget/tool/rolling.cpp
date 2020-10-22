@@ -21,18 +21,19 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "rolling.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
+RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
   SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+void RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                                Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, true, false);

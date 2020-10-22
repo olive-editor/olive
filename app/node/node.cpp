@@ -467,6 +467,11 @@ bool Node::IsTrack() const
   return false;
 }
 
+bool Node::IsMedia() const
+{
+    return false;
+}
+
 const QList<NodeParam *>& Node::parameters() const
 {
   return params_;

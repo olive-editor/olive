@@ -24,18 +24,17 @@
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
-  TimelineViewRect(parent),
+TimelineViewGhostItem::TimelineViewGhostItem() :
   track_adj_(0),
   stream_(nullptr),
   mode_(Timeline::kNone),
   can_have_zero_length_(true),
-  can_move_tracks_(true)
+  can_move_tracks_(true),
+  invisible_(false)
 {
-  SetInvisible(false);
 }
 
-TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const TrackReference& track, int y, int height)
+TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const TrackReference& track)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
@@ -43,8 +42,7 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const Trac
   ghost->SetOut(block->out());
   ghost->SetMediaIn(block->media_in());
   ghost->SetTrack(track);
-  ghost->SetYCoords(y, height);
-  ghost->setData(kAttachedBlock, Node::PtrToValue(block));
+  ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
 
   switch (block->type()) {
   case Block::kClip:
@@ -66,7 +64,7 @@ bool TimelineViewGhostItem::CanHaveZeroLength() const
   return can_have_zero_length_;
 }
 
-bool TimelineViewGhostItem::CanMoveTracks() const
+bool TimelineViewGhostItem::GetCanMoveTracks() const
 {
   return can_move_tracks_;
 }
@@ -76,7 +74,7 @@ void TimelineViewGhostItem::SetCanMoveTracks(bool e)
   can_move_tracks_ = e;
 }
 
-void TimelineViewGhostItem::SetInvisible(bool invisible)
+/*void TimelineViewGhostItem::SetInvisible(bool invisible)
 {
   setBrush(Qt::NoBrush);
 
@@ -85,29 +83,29 @@ void TimelineViewGhostItem::SetInvisible(bool invisible)
   } else {
     setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
   }
-}
+}*/
 
-const rational &TimelineViewGhostItem::In() const
+const rational &TimelineViewGhostItem::GetIn() const
 {
   return in_;
 }
 
-const rational &TimelineViewGhostItem::Out() const
+const rational &TimelineViewGhostItem::GetOut() const
 {
   return out_;
 }
 
-const rational &TimelineViewGhostItem::MediaIn() const
+const rational &TimelineViewGhostItem::GetMediaIn() const
 {
   return media_in_;
 }
 
-rational TimelineViewGhostItem::Length() const
+rational TimelineViewGhostItem::GetLength() const
 {
   return out_ - in_;
 }
 
-rational TimelineViewGhostItem::AdjustedLength() const
+rational TimelineViewGhostItem::GetAdjustedLength() const
 {
   return GetAdjustedOut() - GetAdjustedIn();
 }
@@ -115,15 +113,11 @@ rational TimelineViewGhostItem::AdjustedLength() const
 void TimelineViewGhostItem::SetIn(const rational &in)
 {
   in_ = in;
-
-  UpdateRect();
 }
 
 void TimelineViewGhostItem::SetOut(const rational &out)
 {
   out_ = out;
-
-  UpdateRect();
 }
 
 void TimelineViewGhostItem::SetMediaIn(const rational &media_in)
@@ -134,15 +128,11 @@ void TimelineViewGhostItem::SetMediaIn(const rational &media_in)
 void TimelineViewGhostItem::SetInAdjustment(const rational &in_adj)
 {
   in_adj_ = in_adj;
-
-  UpdateRect();
 }
 
 void TimelineViewGhostItem::SetOutAdjustment(const rational &out_adj)
 {
   out_adj_ = out_adj;
-
-  UpdateRect();
 }
 
 void TimelineViewGhostItem::SetTrackAdjustment(const int &track_adj)
@@ -155,22 +145,22 @@ void TimelineViewGhostItem::SetMediaInAdjustment(const rational &media_in_adj)
   media_in_adj_ = media_in_adj;
 }
 
-const rational &TimelineViewGhostItem::InAdjustment() const
+const rational &TimelineViewGhostItem::GetInAdjustment() const
 {
   return in_adj_;
 }
 
-const rational &TimelineViewGhostItem::OutAdjustment() const
+const rational &TimelineViewGhostItem::GetOutAdjustment() const
 {
   return out_adj_;
 }
 
-const rational &TimelineViewGhostItem::MediaInAdjustment() const
+const rational &TimelineViewGhostItem::GetMediaInAdjustment() const
 {
   return media_in_adj_;
 }
 
-const int &TimelineViewGhostItem::TrackAdjustment() const
+const int &TimelineViewGhostItem::GetTrackAdjustment() const
 {
   return track_adj_;
 }
@@ -195,7 +185,7 @@ TrackReference TimelineViewGhostItem::GetAdjustedTrack() const
   return TrackReference(track_.type(), track_.index() + track_adj_);
 }
 
-const Timeline::MovementMode &TimelineViewGhostItem::mode() const
+const Timeline::MovementMode &TimelineViewGhostItem::GetMode() const
 {
   return mode_;
 }
@@ -207,19 +197,10 @@ void TimelineViewGhostItem::SetMode(const Timeline::MovementMode &mode)
 
 bool TimelineViewGhostItem::HasBeenAdjusted() const
 {
-  return InAdjustment() != 0
-      || OutAdjustment() != 0
-      || MediaInAdjustment() != 0
-      || TrackAdjustment() != 0;
-}
-
-void TimelineViewGhostItem::UpdateRect()
-{
-  rational length = GetAdjustedOut() - GetAdjustedIn();
-
-  setRect(0, y_, TimeToScene(length), height_ - 1);
-
-  setPos(TimeToScene(GetAdjustedIn()), 0);
+  return GetInAdjustment() != 0
+      || GetOutAdjustment() != 0
+      || GetMediaInAdjustment() != 0
+      || GetTrackAdjustment() != 0;
 }
 
 OLIVE_NAMESPACE_EXIT

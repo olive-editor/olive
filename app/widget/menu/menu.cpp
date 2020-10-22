@@ -100,16 +100,14 @@ void Menu::ConformItem(QAction *a, const QString &id, const QString &key)
   }
 }
 
-void Menu::SetBooleanAction(QAction *a, bool* boolean)
-{
-  // FIXME: Connect to some boolean function
-  a->setCheckable(true);
-  a->setChecked(*boolean);
-  a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
-}
-
 void Menu::Init()
 {
+  // HACK: Disables embossing on disabled text for a slightly nicer UI
+  QPalette p = palette();
+  p.setColor(QPalette::Disabled, QPalette::Light, QColor(0, 0, 0, 0));
+  setPalette(p);
+
+  // If a native palette is available, it should override the one above
   StyleManager::UseOSNativeStyling(this);
 }
 

@@ -21,11 +21,12 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "slide.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
+SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
@@ -33,7 +34,7 @@ TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                              Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, true, true);

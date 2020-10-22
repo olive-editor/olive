@@ -261,8 +261,25 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
         .arg(node_->Category().first())].value<Color>();
 
+    QLinearGradient grad;
+
+    grad.setStart(0, rect().top());
+    grad.setFinalStop(0, rect().bottom());
+
+    QColor node_color_as_qcolor = node_color.toQColor();
+
+    {
+      // Generate lighter color for gradient
+      qreal hue, sat, lightness;
+      node_color_as_qcolor.getHslF(&hue, &sat, &lightness);
+      lightness = qMin(1.0, lightness + 0.2);
+      grad.setColorAt(0.0, QColor::fromHslF(hue, sat, lightness));
+    }
+
+    grad.setColorAt(1.0, node_color_as_qcolor);
+
     painter->setPen(Qt::black);
-    painter->setBrush(node_color.toQColor());
+    painter->setBrush(grad);
 
     painter->drawRect(title_bar_rect_);
 
@@ -270,10 +287,17 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     QString node_label;
 
-    if (node_->GetLabel().isEmpty()) {
-      node_label = node_->ShortName();
-    } else {
+    if (!node_->GetLabel().isEmpty()) {
+      // Use label directly if node has one
       node_label = node_->GetLabel();
+    } else if (node_->IsTrack()) {
+      // If node is a track, use a special track name to help users identify better
+      // Exception for tracks
+      TrackOutput* track = static_cast<TrackOutput*>(node_);
+      node_label = TrackOutput::GetDefaultTrackName(track->track_type(), track->Index());
+    } else {
+      // Otherwise, just use the node's short name
+      node_label = node_->ShortName();
     }
 
     QFont f;
@@ -308,7 +332,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 
     // Determine the text color (automatically calculate from node background color)
-    if (node_color.GetRoughLuminance() > 0.66) {
+    if (node_color.GetRoughLuminance() > 0.5) {
       painter->setPen(Qt::black);
     } else {
       painter->setPen(Qt::white);

@@ -42,6 +42,9 @@ public:
   void AddItemsForEditMenu(Menu* m, bool for_clips);
   void AddItemsForInOutMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
+  void AddItemsForTimeRulerMenu(Menu* m);
+
+  void AboutToShowTimeRulerActions();
 
   static MenuShared* instance();
 
@@ -73,6 +76,14 @@ private:
   QAction* clip_link_unlink_item_;
   QAction* clip_enable_disable_item_;
   QAction* clip_nest_item_;
+
+  // TimeRuler menu shared items
+  QActionGroup* frame_view_mode_group_;
+  QAction* view_timecode_view_dropframe_item_;
+  QAction* view_timecode_view_nondropframe_item_;
+  QAction* view_timecode_view_seconds_item_;
+  QAction* view_timecode_view_frames_item_;
+  QAction* view_timecode_view_milliseconds_item_;
 
   static MenuShared* instance_;
 
@@ -110,6 +121,14 @@ private slots:
   void NestTriggered();
 
   void DefaultTransitionTriggered();
+
+  /**
+   * @brief A slot for the timecode display menu items
+   *
+   * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
+   * timecode change throughout the rest of the application.
+   */
+  void TimecodeDisplayTriggered();
 
 };
 

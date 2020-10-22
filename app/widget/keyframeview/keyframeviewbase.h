@@ -42,6 +42,8 @@ public:
 
   void RemoveKeyframesOfNode(Node* n);
 
+  void RemoveKeyframesOfInput(NodeInput* i);
+
 public slots:
   void RemoveKeyframe(NodeKeyframePtr key);
 
@@ -59,8 +61,6 @@ protected:
   virtual void KeyframeAboutToBeRemoved(NodeKeyframe* key);
 
   virtual void TimeTargetChangedEvent(Node*) override;
-
-  void SetKeyframeTrackVisible(int track, bool visible);
 
   virtual void ContextMenuEvent(Menu &m);
 
@@ -95,8 +95,6 @@ private:
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool currently_autoselecting_;
-
-  QList<int> hidden_tracks_;
 
 private slots:
   void ShowContextMenu();

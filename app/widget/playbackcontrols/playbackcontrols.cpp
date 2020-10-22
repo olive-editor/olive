@@ -161,7 +161,10 @@ void PlaybackControls::SetTimebase(const rational &r)
   time_base_ = r;
   cur_tc_lbl_->SetTimebase(r);
 
-  cur_tc_lbl_->setEnabled(!r.isNull());
+  cur_tc_lbl_->setVisible(!r.isNull());
+  end_tc_lbl_->setVisible(!r.isNull());
+
+  setEnabled(!r.isNull());
 }
 
 void PlaybackControls::SetAudioVideoDragButtonsVisible(bool e)

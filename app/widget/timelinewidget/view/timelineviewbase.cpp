@@ -44,16 +44,25 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   y_axis_enabled_(false),
   y_scale_(1.0)
 {
+  // Sets scene to our scene
   setScene(&scene_);
 
-  // Set default scale
+  // Set default scale (ensures non-zero scale from beginning)
   SetScale(1.0);
 
+  // Default to no default drag mode
   SetDefaultDragMode(NoDrag);
 
-  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
+  // Signal to update bounding rect when the scene changes
+  connect(&scene_, &QGraphicsScene::changed, this, &TimelineViewBase::UpdateSceneRect);
 
+  // Always enforce maximum scale
   SetMaximumScale(kMaximumScale);
+
+  // Workaround for Qt drawing issues with the default MinimalViewportUpdate. While this might be
+  // slower (Qt documentation says it may actually be faster in some situations),
+  // MinimalViewportUpdate causes all sorts of graphical crud building up in the scene
+  setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 }
 
 void TimelineViewBase::TimebaseChangedEvent(const rational &)

@@ -25,6 +25,7 @@
 #include <QXmlStreamReader>
 
 #include "common/xmlutils.h"
+#include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -45,7 +46,17 @@ bool ProjectLoadTask::Run()
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
-            qDebug() << "Project version:" << reader.readElementText();
+            uint project_version = reader.readElementText().toUInt();
+
+            if (project_version > Core::kProjectVersion) {
+              // Project is newer than we support
+              SetError(tr("This project is newer than this version of Olive and cannot be opened."));
+              return false;
+            } else if (project_version < 201003) { // Change this if we drop support for a project version
+              // Project is older than we support
+              SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+              return false;
+            }
           } else if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
@@ -62,6 +73,11 @@ bool ProjectLoadTask::Run()
             reader.skipCurrentElement();
           }
         }
+      } else if (reader.name() == QStringLiteral("project")) {
+        // 0.1 projects use "project" as the root instead of Olive. We don't currently support
+        // these projects
+        SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+        return false;
       } else {
         reader.skipCurrentElement();
       }

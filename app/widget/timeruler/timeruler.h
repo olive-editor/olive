@@ -64,6 +64,9 @@ private:
 
   PlaybackCache* playback_cache_;
 
+private slots:
+  void ShowContextMenu();
+
 };
 
 OLIVE_NAMESPACE_EXIT

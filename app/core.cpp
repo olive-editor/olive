@@ -70,6 +70,7 @@
 OLIVE_NAMESPACE_ENTER
 
 Core* Core::instance_ = nullptr;
+const uint Core::kProjectVersion = 201003;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),

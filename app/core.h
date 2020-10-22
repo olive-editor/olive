@@ -273,6 +273,8 @@ public:
    */
   bool ValidateFootageInLoadedProject(ProjectPtr project, const QString &project_saved_url);
 
+  static const uint kProjectVersion;
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file

@@ -25,6 +25,7 @@
 #include <QUrl>
 
 #include "core.h"
+#include "node/input/media/media.h"
 
 OLIVE_NAMESPACE_ENTER
 

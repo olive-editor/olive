@@ -369,6 +369,15 @@ public:
    */
   virtual bool IsTrack() const;
 
+
+  /**
+   * @brief Returns whether this Node is a "Media" type or not
+   *
+   * You shouldn't ever need to override this since all derivatives of Media will automatically have this set to true.
+   * It's just a more convenient way of checking than dynamic_casting.
+   */
+  virtual bool IsMedia() const;
+
   /**
    * @brief The main processing function
    *
@@ -567,6 +576,8 @@ QList<T *> Node::FindOutputNode()
 
   return list;
 }
+
+using NodePtr = std::shared_ptr<Node>;
 
 OLIVE_NAMESPACE_EXIT
 

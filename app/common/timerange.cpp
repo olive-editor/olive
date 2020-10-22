@@ -160,20 +160,25 @@ void TimeRange::normalize()
   length_ = out_ - in_;
 }
 
-void TimeRangeList::InsertTimeRange(const TimeRange &range)
+void TimeRangeList::InsertTimeRange(TimeRange range_to_add)
 {
+  // See if list contains this range
+  if (ContainsTimeRange(range_to_add)) {
+    return;
+  }
+
+  // Does not contain range, so we'll almost certainly be adding it in some way
   for (int i=0;i<size();i++) {
     const TimeRange& compare = at(i);
 
-    if (compare == range) {
-      return;
-    } else if (range.OverlapsWith(compare)) {
-      replace(i, TimeRange::Combine(range, compare));
-      return;
+    if (compare.OverlapsWith(range_to_add)) {
+      range_to_add = TimeRange::Combine(range_to_add, compare);
+      removeAt(i);
+      i--;
     }
   }
 
-  append(range);
+  append(range_to_add);
 }
 
 void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
@@ -190,15 +195,8 @@ void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
       sz--;
     } else if (compare.Contains(remove, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
-      TimeRange before(compare.in(), remove.in());
-      TimeRange after(remove.out(), compare.out());
-
-      this->removeAt(i);
-      i--;
-      sz--;
-
-      InsertTimeRange(before);
-      InsertTimeRange(after);
+      this->append(TimeRange(remove.out(), compare.out()));
+      compare.set_out(remove.in());
     } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
       // This element's out point overlaps the range's in, we'll trim it
       compare.set_out(remove.in());

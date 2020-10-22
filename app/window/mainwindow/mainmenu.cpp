@@ -121,32 +121,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   view_show_all_item_->setCheckable(true);
   view_menu_->addSeparator();
 
-  frame_view_mode_group_ = new QActionGroup(this);
-
-  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
-  view_timecode_view_dropframe_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
-
-  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
-  view_timecode_view_nondropframe_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
-
-  view_timecode_view_seconds_item_ = view_menu_->AddItem("modeseconds", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
-  view_timecode_view_seconds_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
-
-  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_frames_item_->setData(Timecode::kFrames);
-  view_timecode_view_frames_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
-
-  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
-  view_timecode_view_milliseconds_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
+  MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
 
   view_menu_->addSeparator();
 
@@ -307,18 +282,6 @@ void MainMenu::ToolItemTriggered()
   Core::instance()->SetTool(tool);
 }
 
-void MainMenu::TimecodeDisplayTriggered()
-{
-  // Assume the sender is a QAction
-  QAction* action = static_cast<QAction*>(sender());
-
-  // Assume its data() is a member of Timecode::Display
-  Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
-
-  // Set the current display mode
-  Core::instance()->SetTimecodeDisplay(display);
-}
-
 void MainMenu::FileMenuAboutToShow()
 {
   Project* active_project = Core::instance()->GetActiveProject().get();
@@ -349,13 +312,7 @@ void MainMenu::ViewMenuAboutToShow()
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 
   // Ensure checked timecode display mode is correct
-  QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
-  foreach (QAction* a, timecode_display_actions) {
-    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
-      a->setChecked(true);
-      break;
-    }
-  }
+  MenuShared::instance()->AboutToShowTimeRulerActions();
 }
 
 void MainMenu::ToolsMenuAboutToShow()
@@ -679,11 +636,6 @@ void MainMenu::Retranslate()
   view_increase_track_height_item_->setText(tr("Increase Track Height"));
   view_decrease_track_height_item_->setText(tr("Decrease Track Height"));
   view_show_all_item_->setText(tr("Toggle Show All"));
-  view_timecode_view_frames_item_->setText(tr("Frames"));
-  view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
-  view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));
-  view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
-  view_timecode_view_seconds_item_->setText(tr("Seconds"));
 
   // View menu (cont'd)
   view_full_screen_item_->setText(tr("Full Screen"));

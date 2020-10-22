@@ -27,6 +27,8 @@
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -53,6 +55,9 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
 
   // Force update if the default timecode display mode changes
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, static_cast<void (TimeRuler::*)()>(&TimeRuler::update));
+
+  // Connect context menu
+  connect(this, &TimeRuler::customContextMenuRequested, this, &TimeRuler::ShowContextMenu);
 }
 
 void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
@@ -295,6 +300,16 @@ void TimeRuler::TimebaseChangedEvent(const rational &tb)
 int TimeRuler::CacheStatusHeight() const
 {
   return fontMetrics().height() / 4;
+}
+
+void TimeRuler::ShowContextMenu()
+{
+  Menu m(this);
+
+  MenuShared::instance()->AddItemsForTimeRulerMenu(&m);
+  MenuShared::instance()->AboutToShowTimeRulerActions();
+
+  m.exec(QCursor::pos());
 }
 
 void TimeRuler::UpdateHeight()

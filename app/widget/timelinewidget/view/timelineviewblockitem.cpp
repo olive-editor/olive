@@ -42,11 +42,6 @@ TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent
   block_(block)
 {
   setBrush(Qt::white);
-  setCursor(Qt::DragMoveCursor);
-  setFlag(QGraphicsItem::ItemIsSelectable,
-          block_->type() == Block::kClip
-          || block_->type() == Block::kGap
-          || block_->type() == Block::kTransition);
 
   UpdateRect();
 }

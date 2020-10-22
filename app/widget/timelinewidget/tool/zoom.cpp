@@ -19,20 +19,21 @@
 ***/
 
 #include "widget/timelinewidget/timelinewidget.h"
+#include "zoom.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::ZoomTool::ZoomTool(TimelineWidget *parent) :
-  Tool(parent)
+ZoomTool::ZoomTool(TimelineWidget *parent) :
+  TimelineTool(parent)
 {
 }
 
-void TimelineWidget::ZoomTool::MousePress(TimelineViewMouseEvent *event)
+void ZoomTool::MousePress(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 }
 
-void TimelineWidget::ZoomTool::MouseMove(TimelineViewMouseEvent *event)
+void ZoomTool::MouseMove(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -45,15 +46,17 @@ void TimelineWidget::ZoomTool::MouseMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
+void ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
 {
+  int scroll_value;
+
   if (dragging_) {
     // Zoom into the rubberband selection
-    QRect screen_coords = parent()->rubberband_.geometry();
+    QRect screen_coords = parent()->GetRubberBandGeometry();
 
     parent()->EndRubberBandSelect();
 
-    TimelineView* reference_view = parent()->views_.first()->view();
+    TimelineView* reference_view = parent()->GetFirstTimelineView();
     QPointF scene_topleft = reference_view->mapToScene(reference_view->mapFrom(parent(), screen_coords.topLeft()));
     QPointF scene_bottomright = reference_view->mapToScene(reference_view->mapFrom(parent(), screen_coords.bottomRight()));
 
@@ -64,9 +67,10 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
     double scene_width = (scene_right - scene_left) / parent()->GetScale();
 
     double new_scale = qMin(TimelineViewBase::kMaximumScale, static_cast<double>(reference_view->viewport()->width()) / scene_width);
-    parent()->deferred_scroll_value_ = qMax(0, qRound(scene_left / parent()->GetScale() * new_scale));
 
     parent()->SetScale(new_scale);
+
+    scroll_value = qMax(0, qRound(scene_left / parent()->GetScale() * new_scale));
 
     dragging_ = false;
   } else {
@@ -86,11 +90,10 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
     // Adjust scroll location for new scale
     double frame_x = event->GetFrame().toDouble() * scale;
 
-    parent()->deferred_scroll_value_ = qMax(0, qRound(frame_x - parent()->views_.first()->view()->viewport()->width()/2));
+    scroll_value = qMax(0, qRound(frame_x - parent()->GetFirstTimelineView()->viewport()->width()/2));
   }
 
-  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
-  QTimer::singleShot(0, parent(), &TimelineWidget::DeferredScrollAction);
+  parent()->QueueScroll(scroll_value);
 }
 
 OLIVE_NAMESPACE_EXIT

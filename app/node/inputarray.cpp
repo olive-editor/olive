@@ -33,6 +33,12 @@ NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QV
 {
 }
 
+NodeInputArray::~NodeInputArray()
+{
+  // Clear all connected edges (make sure our override is called)
+  DisconnectAll();
+}
+
 bool NodeInputArray::IsArray() const
 {
   return true;
@@ -58,6 +64,10 @@ void NodeInputArray::SetSize(int size)
 
   if (size < old_size) {
     // If the new size is less, delete all extraneous parameters
+    for (int i=size;i<old_size;i++) {
+      sub_params_.at(i)->DisconnectAll();
+    }
+
     for (int i=size;i<old_size;i++) {
       delete sub_params_.at(i);
     }
@@ -114,6 +124,15 @@ NodeInput *NodeInputArray::Last() const
 const QVector<NodeInput *> &NodeInputArray::sub_params()
 {
   return sub_params_;
+}
+
+void NodeInputArray::DisconnectAll()
+{
+  NodeParam::DisconnectAll();
+
+  foreach (NodeInput* input, sub_params_) {
+    input->DisconnectAll();
+  }
 }
 
 void NodeInputArray::InsertAt(int index)

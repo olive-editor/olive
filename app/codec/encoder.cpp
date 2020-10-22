@@ -20,6 +20,8 @@
 
 #include "encoder.h"
 
+#include <QFile>
+
 #include "ffmpeg/ffmpegencoder.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -32,6 +34,12 @@ Encoder::Encoder(const EncodingParams &params) :
 const EncodingParams &Encoder::params() const
 {
   return params_;
+}
+
+void Encoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
+{
+  QFile f(pcm_filename);
+  WriteAudio(pcm_info, &f);
 }
 
 EncodingParams::EncodingParams() :

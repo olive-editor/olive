@@ -28,9 +28,9 @@ ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
 {
   NodeParamView* view = new NodeParamView();
-  connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
-  //connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
+  connect(view, &NodeParamView::NodeOrderChanged, this, &ParamPanel::NodeOrderChanged);
+  connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
   SetTimeBasedWidget(view);
 
   Retranslate();
@@ -50,14 +50,6 @@ void ParamPanel::DeselectNodes(const QList<Node *> &nodes)
   Retranslate();
 }
 
-void ParamPanel::SetTimestamp(const int64_t &timestamp)
-{
-  TimeBasedPanel::SetTimestamp(timestamp);
-
-  // Ensure all CurvePanels are updated with this time too
-  ParamViewTimeChanged(timestamp);
-}
-
 void ParamPanel::DeleteSelected()
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeleteSelected();
@@ -75,71 +67,6 @@ void ParamPanel::Retranslate()
     SetSubtitle(view->GetItemMap().firstKey()->Name());
   } else {
     SetSubtitle(tr("(multiple)"));
-  }
-}
-
-void ParamPanel::CreateCurvePanel(NodeInput *input)
-{
-  if (!input->is_keyframable()) {
-    return;
-  }
-
-  CurvePanel* panel = open_curve_panels_.value(input);
-
-  if (panel) {
-    panel->raise();
-    return;
-  }
-
-  NodeParamView* view = static_cast<NodeParamView*>(GetTimeBasedWidget());
-
-  panel = Core::instance()->main_window()->AppendCurvePanel();
-
-  panel->ConnectViewerNode(view->GetConnectedNode());
-  panel->SetTimestamp(view->GetTimestamp());
-  panel->SetInput(input);
-
-  connect(view, &NodeParamView::TimeChanged, this, &ParamPanel::ParamViewTimeChanged);
-  connect(panel, &CurvePanel::TimeChanged, this, &ParamPanel::CurvePanelTimeChanged);
-  connect(panel, &CurvePanel::CloseRequested, this, &ParamPanel::ClosingCurvePanel);
-
-  open_curve_panels_.insert(input, panel);
-}
-
-void ParamPanel::ClosingCurvePanel()
-{
-  CurvePanel* panel = static_cast<CurvePanel*>(sender());
-  open_curve_panels_.remove(panel->GetInput());
-}
-
-void ParamPanel::ParamViewTimeChanged(const int64_t &time)
-{
-  // Ensure all CurvePanels are updated with this time too
-  QHash<NodeInput*, CurvePanel*>::const_iterator i;
-
-  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
-    // If connected viewers are the same, set the timestamp
-    if (i.value()->GetConnectedViewer() == GetConnectedViewer()) {
-      i.value()->SetTimestamp(time);
-    }
-  }
-}
-
-void ParamPanel::CurvePanelTimeChanged(const int64_t &time)
-{
-  GetTimeBasedWidget()->SetTimestamp(time);
-  emit GetTimeBasedWidget()->TimeChanged(time);
-
-  CurvePanel* src = static_cast<CurvePanel*>(sender());
-
-  // Ensure all CurvePanels are updated with this time too
-  QHash<NodeInput*, CurvePanel*>::const_iterator i;
-
-  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
-    // If connected viewers are the same and the panel isn't the source, set the timestamp
-    if (i.value() != src && i.value()->GetConnectedViewer() == src->GetConnectedViewer()) {
-      i.value()->SetTimestamp(time);
-    }
   }
 }
 

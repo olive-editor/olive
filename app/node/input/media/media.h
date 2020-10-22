@@ -23,6 +23,7 @@
 
 #include "codec/decoder.h"
 #include "node/node.h"
+#include "project/item/footage/stream.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -35,10 +36,15 @@ class MediaInput : public Node
 public:
   MediaInput();
 
+  virtual Stream::Type type() const = 0;
+
   virtual QList<CategoryID> Category() const override;
 
   StreamPtr footage();
   void SetFootage(StreamPtr f);
+
+  virtual bool IsMedia() const override;
+
 
   virtual void Retranslate() override;
 

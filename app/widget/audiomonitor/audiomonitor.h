@@ -27,6 +27,7 @@
 
 #include "common/define.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,12 +37,10 @@ class AudioMonitor : public QOpenGLWidget
 public:
   AudioMonitor(QWidget* parent = nullptr);
 
-  virtual ~AudioMonitor() override;
-
 public slots:
   void SetParams(const AudioParams& params);
 
-  void OutputDeviceSet(const QString& filename, qint64 offset, int playback_speed);
+  void OutputDeviceSet(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   void Stop();
 
@@ -66,7 +65,7 @@ private:
 
   AudioParams params_;
 
-  QFile file_;
+  QIODevice* file_;
   qint64 last_time_;
 
   int playback_speed_;

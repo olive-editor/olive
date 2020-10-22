@@ -84,11 +84,7 @@ protected:
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
-  //virtual void scrollContentsBy(int dx, int dy) override;
-
 private:
-  void PlaceNode(NodeViewItem* n, const QPointF& pos);
-
   void AttachNodesToCursor(const QList<Node*>& nodes);
 
   void AttachItemsToCursor(const QList<NodeViewItem*>& items);
@@ -107,7 +103,9 @@ private:
   void AssociateNodeWithSelectedBlocks(Node* n);
   void DisassociateNode(Node* n, bool remove_from_map);
 
-  void SelectBlocksInternal();
+  void QueueSelectBlocksInternal();
+
+  QTimer select_blocks_internal_timer_;
 
   NodeGraph* graph_;
 
@@ -187,6 +185,8 @@ private slots:
    * @brief Receiver for the user changing the filter
    */
   void ContextMenuFilterChanged(QAction* action);
+
+  void SelectBlocksInternal();
 
 };
 

@@ -53,7 +53,7 @@ CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash
 
   summary_edit_ = new QTextEdit();
   summary_edit_->setPlaceholderText(tr("Describe what you were doing in as much detail as "
-                                      "possible. If you can, provide steps to reproduce this crash."));
+                                       "possible. If you can, provide steps to reproduce this crash."));
 
   layout->addWidget(summary_edit_);
 
@@ -166,6 +166,15 @@ void CrashHandlerDialog::ReadProcessFinished()
 
 void CrashHandlerDialog::SendErrorReport()
 {
+  if (summary_edit_->document()->isEmpty()) {
+    if (QMessageBox::question(this,
+                              tr("No Crash Summary"),
+                              tr("Are you sure you want to send an error report with no crash summary?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+      return;
+    }
+  }
+
   SetGUIObjectsEnabled(false);
 
   QNetworkAccessManager* manager = new QNetworkAccessManager();

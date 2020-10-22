@@ -122,7 +122,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
              || !download_futures.empty()
              || !audio_lookup_table.empty())) {
 
-    if (!IsCancelled() && !frame_queue.empty()) {
+    while (!IsCancelled() && !frame_queue.empty()) {
 
       // Pop another frame off the frame queue
       const HashTimePair& p = frame_queue.front();
@@ -168,7 +168,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
       frame_queue.pop_front();
     }
 
-    if (!IsCancelled() && !audio_queue.empty()) {
+    while (!IsCancelled() && !audio_queue.empty()) {
       audio_lookup_table.push_back({audio_queue.front(), backend_->RenderAudio(audio_queue.front())});
       audio_queue.pop_front();
     }

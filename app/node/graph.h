@@ -37,7 +37,7 @@ public:
   /**
    * @brief NodeGraph Constructor
    */
-  NodeGraph() = default;
+  NodeGraph();
 
   /**
    * @brief Destructively destroys all nodes in the graph
@@ -67,6 +67,10 @@ public:
    */
   bool ContainsNode(Node* n) const;
 
+  void BeginOperation();
+
+  void EndOperation();
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
@@ -90,6 +94,20 @@ signals:
 
 private:
   QList<Node*> node_children_;
+
+  int operation_stack_;
+
+  QList<Node*> cached_added_nodes_;
+  QList<Node*> cached_removed_nodes_;
+  QList<NodeEdgePtr> cached_added_edges_;
+  QList<NodeEdgePtr> cached_removed_edges_;
+
+private slots:
+  void SignalNodeAdded(Node *node);
+  void SignalNodeRemoved(Node* node);
+  void SignalEdgeAdded(NodeEdgePtr edge);
+  void SignalEdgeRemoved(NodeEdgePtr edge);
+
 };
 
 OLIVE_NAMESPACE_EXIT

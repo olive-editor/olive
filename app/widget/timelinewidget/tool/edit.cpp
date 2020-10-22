@@ -18,28 +18,71 @@
 
 ***/
 
+#include "edit.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::EditTool::EditTool(TimelineWidget* parent) :
+EditTool::EditTool(TimelineWidget* parent) :
   BeamTool(parent)
 {
 }
 
-void TimelineWidget::EditTool::MousePress(TimelineViewMouseEvent *event)
+void EditTool::MousePress(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  if (!(event->GetModifiers() & Qt::ShiftModifier)) {
+    parent()->DeselectAll();
+  }
 }
 
-void TimelineWidget::EditTool::MouseMove(TimelineViewMouseEvent *event)
+void EditTool::MouseMove(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  if (dragging_) {
+    rational end_frame = event->GetFrame(true);
+
+    if (Core::instance()->snapping()) {
+      rational movement;
+      parent()->SnapPoint({end_frame}, &movement);
+      if (!movement.isNull()) {
+        end_frame += movement;
+      }
+    }
+
+    parent()->SetSelections(start_selections_);
+    parent()->AddSelection(TimeRange(start_coord_.GetFrame(), end_frame),
+                           start_coord_.GetTrack());
+  } else {
+    start_selections_ = parent()->GetSelections();
+
+    dragging_ = true;
+
+    start_coord_ = event->GetCoordinates(true);
+
+    // Snap if we're snapping
+    if (Core::instance()->snapping()) {
+      rational movement;
+      parent()->SnapPoint({start_coord_.GetFrame()}, &movement);
+      if (!movement.isNull()) {
+        start_coord_.SetFrame(start_coord_.GetFrame() + movement);
+      }
+    }
+
+    dragging_ = true;
+  }
 }
 
-void TimelineWidget::EditTool::MouseRelease(TimelineViewMouseEvent *event)
+void EditTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
+  dragging_ = false;
+}
+
+void EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
+{
+  TimelineViewBlockItem* item = parent()->GetItemAtScenePos(event->GetCoordinates());
+
+  if (item && !parent()->GetTrackFromReference(item->Track())->IsLocked()) {
+    parent()->AddSelection(item);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

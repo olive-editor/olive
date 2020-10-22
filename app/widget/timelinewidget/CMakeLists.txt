@@ -29,5 +29,7 @@ set(OLIVE_SOURCES
   widget/timelinewidget/timelinescaledobject.cpp
   widget/timelinewidget/timelinewidget.h
   widget/timelinewidget/timelinewidget.cpp
+  widget/timelinewidget/timelinewidgetselections.h
+  widget/timelinewidget/timelinewidgetselections.cpp
   PARENT_SCOPE
 )

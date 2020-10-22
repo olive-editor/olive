@@ -54,6 +54,8 @@ public:
   void set_length_and_media_out(const rational &length);
   void set_length_and_media_in(const rational &length);
 
+  TimeRange range() const;
+
   Block* previous();
   Block* next();
   void set_previous(Block* previous);

@@ -36,6 +36,8 @@ class TrackOutput : public Node
 public:
   TrackOutput();
 
+  virtual ~TrackOutput() override;
+
   const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 
@@ -45,8 +47,6 @@ public:
   virtual QString id() const override;
   virtual QList<CategoryID> Category() const override;
   virtual QString Description() const override;
-
-  QString GetTrackName();
 
   const double& GetTrackHeight() const;
   void SetTrackHeight(const double& height);
@@ -227,8 +227,6 @@ public:
   static const double kTrackHeightInterval;
 
 public slots:
-  void SetTrackName(const QString& name);
-
   void SetMuted(bool e);
 
   void SetLocked(bool e);
@@ -293,8 +291,6 @@ private:
   rational track_length_;
 
   double track_height_;
-
-  QString track_name_;
 
   int index_;
 

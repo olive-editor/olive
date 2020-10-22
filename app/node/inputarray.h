@@ -31,6 +31,8 @@ class NodeInputArray : public NodeInput
 public:
   NodeInputArray(const QString &id, const DataType& type, const QVariant& default_value = 0);
 
+  virtual ~NodeInputArray() override;
+
   virtual bool IsArray() const override;
 
   int GetSize() const;
@@ -50,6 +52,8 @@ public:
   NodeInput* At(int index) const;
 
   const QVector<NodeInput*>& sub_params();
+
+  virtual void DisconnectAll() override;
 
 signals:
   void SizeChanged(int size);

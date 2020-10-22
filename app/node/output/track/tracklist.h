@@ -44,7 +44,7 @@ public:
 
   TrackOutput *AddTrack();
 
-  void RemoveTrack();
+  void RemoveTrack(QObject *new_parent);
 
   const rational& GetTotalLength() const;
 
@@ -68,6 +68,8 @@ signals:
   void TrackHeightChanged(int index, int height);
 
 private:
+  void UpdateTrackIndexesFrom(int index);
+
   /**
    * @brief A cache of connected Tracks
    */

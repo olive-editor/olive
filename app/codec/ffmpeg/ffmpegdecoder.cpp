@@ -107,9 +107,11 @@ bool FFmpegDecoder::Open()
     FFmpegFramePoolValue& frame_pool = frame_pool_map_[key];
 
     if (!frame_pool.pool) {
-      // FIXME: Hardcoded value. It seems to work fine, but is there a possibility we should make
-      //        this a dynamic value somehow or a configurable value?
-      frame_pool.pool = new FFmpegFramePool(32);
+      // Frames are allocated as threads * threads, to scale from each thread sharing one set
+      // to all of them working individually
+      int thread_count = QThread::idealThreadCount();
+      int max_memory_frame_count = thread_count * thread_count;
+      frame_pool.pool = new FFmpegFramePool(max_memory_frame_count);
     }
     frame_pool.handles++;
 
@@ -573,6 +575,25 @@ ItemPtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelle
         audio_stream->set_channel_layout(channel_layout);
         audio_stream->set_channels(avstream->codecpar->channels);
         audio_stream->set_sample_rate(avstream->codecpar->sample_rate);
+
+        if (avstream->duration == AV_NOPTS_VALUE) {
+          // Loop through stream until we get the whole duration
+          FFmpegDecoderInstance instance(filename, i);
+
+          AVPacket* pkt = av_packet_alloc();
+          AVFrame* frame = av_frame_alloc();
+
+          int64_t new_dur;
+
+          do {
+            new_dur = frame->pts;
+          } while (instance.GetFrame(pkt, frame) >= 0);
+
+          avstream->duration = new_dur;
+
+          av_frame_free(&frame);
+          av_packet_free(&pkt);
+        }
 
         str = audio_stream;
 
@@ -1087,6 +1108,9 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
         break;
       }
 
+      // Cut down to thread count - 1 before we acquire a new frame
+      TruncateCacheRangeToFrames(QThread::idealThreadCount() -1);
+
       FFmpegFramePool::ElementPtr cached = frame_pool_->Get();
 
       if (!cached) {
@@ -1125,14 +1149,6 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
         previous = nullptr;
       } else {
         previous = cached_frames_.last();
-      }
-
-      // Clear early frames
-      int removed = TruncateCacheRangeTo(second_ts_);
-
-      if (removed == 0 && MemoryPoolLimitReached()) {
-        // Relinquish a frame if we have to conserve memory
-        RemoveFirstFrame();
       }
 
       // Append this frame and signal to other threads that a new frame has arrived
@@ -1322,12 +1338,25 @@ void FFmpegDecoderInstance::RemoveFramesBefore(const qint64 &t)
   }
 }
 
-int FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
+int FFmpegDecoderInstance::TruncateCacheRangeToTime(const qint64 &t)
 {
   int counter = 0;
 
   // We keep one frame in memory as an identifier for what pts the decoder is up to
   while (cached_frames_.size() > 1 && (RangeEnd() - RangeStart()) > t) {
+    RemoveFirstFrame();
+    counter++;
+  }
+
+  return counter;
+}
+
+int FFmpegDecoderInstance::TruncateCacheRangeToFrames(int nb_frames)
+{
+  int counter = 0;
+
+  // We keep one frame in memory as an identifier for what pts the decoder is up to
+  while (cached_frames_.size() > nb_frames) {
     RemoveFirstFrame();
     counter++;
   }

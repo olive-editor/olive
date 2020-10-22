@@ -25,6 +25,7 @@ OLIVE_NAMESPACE_ENTER
 VolumeNode::VolumeNode()
 {
   samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
+  samples_input_->set_is_keyframable(false);
   AddInput(samples_input_);
 
   volume_input_ = new NodeInput("volume_in", NodeParam::kFloat, 1.0);

@@ -59,6 +59,8 @@ private slots:
 
   void LineEditCancelled();
 
+  void UpdateLabel();
+
 };
 
 OLIVE_NAMESPACE_EXIT

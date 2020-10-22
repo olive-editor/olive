@@ -35,6 +35,8 @@ public:
 
   virtual Node* copy() const override;
 
+  virtual Stream::Type type() const override;
+
   virtual QString Name() const override;
   virtual QString ShortName() const override;
   virtual QString id() const override;

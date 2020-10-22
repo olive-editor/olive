@@ -30,7 +30,8 @@ OLIVE_NAMESPACE_ENTER
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
-  push_device_(nullptr)
+  push_device_(nullptr),
+  device_proxy_(this)
 {
 }
 
@@ -82,12 +83,12 @@ void AudioOutputManager::Close()
       device_proxy_.close();
     }
 
-    output_->deleteLater();
+    delete output_;
     output_ = nullptr;
   }
 }
 
-void AudioOutputManager::PullFromDevice(const QString &filename, qint64 offset, int playback_speed)
+void AudioOutputManager::PullFromDevice(QIODevice *device, qint64 offset, int playback_speed)
 {
   if (!output_) {
     return;
@@ -99,7 +100,7 @@ void AudioOutputManager::PullFromDevice(const QString &filename, qint64 offset, 
   push_samples_.clear();
 
   // Pull from the device
-  device_proxy_.SetDevice(filename, offset, playback_speed);
+  device_proxy_.SetDevice(device, offset, playback_speed);
   device_proxy_.open(QIODevice::ReadOnly);
   output_->start(&device_proxy_);
 }

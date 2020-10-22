@@ -23,16 +23,17 @@
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/block/transition/transition.h"
 #include "node/factory.h"
+#include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::TransitionTool::TransitionTool(TimelineWidget *parent) :
+TransitionTool::TransitionTool(TimelineWidget *parent) :
   AddTool(parent)
 {
 }
 
-void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
+void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = event->GetTrack();
   TrackOutput* t = parent()->GetTrackFromReference(track);
@@ -77,15 +78,14 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
   // Create ghost
   ghost_ = new TimelineViewGhostItem();
   ghost_->SetTrack(track);
-  ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
   ghost_->SetIn(transition_start_point);
   ghost_->SetOut(transition_start_point);
   ghost_->SetMode(trim_mode);
-  ghost_->setData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(block_at_time));
+  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(block_at_time));
 
   dual_transition_ = (other_block);
   if (other_block)
-    ghost_->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(other_block));
+    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(other_block));
 
   parent()->AddGhost(ghost_);
 
@@ -95,7 +95,7 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
   drag_start_point_ = cursor_frame;
 }
 
-void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
+void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!ghost_) {
     return;
@@ -104,12 +104,12 @@ void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
   MouseMoveInternal(event->GetFrame(), dual_transition_);
 }
 
-void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
+void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->Track();
+  const TrackReference& track = ghost_->GetTrack();
 
   if (ghost_) {
-    if (!ghost_->AdjustedLength().isNull()) {
+    if (!ghost_->GetAdjustedLength().isNull()) {
       TransitionBlock* transition;
 
       if (Core::instance()->GetSelectedTransition().isEmpty()) {
@@ -133,18 +133,18 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       if (dual_transition_) {
-        transition->set_length_and_media_out(ghost_->AdjustedLength());
-        transition->set_media_in(-ghost_->AdjustedLength()/2);
+        transition->set_length_and_media_out(ghost_->GetAdjustedLength());
+        transition->set_media_in(-ghost_->GetAdjustedLength()/2);
 
         // Block mouse is hovering over
-        Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+        Block* active_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         // Block mouse is next to
-        Block* friend_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
+        Block* friend_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kReferenceBlock));
 
         // Use ghost mode to determine which block is which
-        Block* out_block = (ghost_->mode() == Timeline::kTrimIn) ? friend_block : active_block;
-        Block* in_block = (ghost_->mode() == Timeline::kTrimIn) ? active_block : friend_block;
+        Block* out_block = (ghost_->GetMode() == Timeline::kTrimIn) ? friend_block : active_block;
+        Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
         new NodeEdgeAddCommand(out_block->output(),
@@ -155,14 +155,14 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                transition->in_block_input(),
                                command);
       } else {
-        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         NodeInput* transition_input_to_connect;
 
-        if (ghost_->mode() == Timeline::kTrimIn) {
-          transition->set_length_and_media_out(ghost_->AdjustedLength());
+        if (ghost_->GetMode() == Timeline::kTrimIn) {
+          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = transition->in_block_input();
         } else {
-          transition->set_length_and_media_out(ghost_->AdjustedLength());
+          transition->set_length_and_media_out(ghost_->GetAdjustedLength());
           transition_input_to_connect = transition->out_block_input();
         }
 

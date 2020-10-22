@@ -55,6 +55,11 @@ TrackOutput::TrackOutput() :
   track_height_ = kTrackHeightDefault;
 }
 
+TrackOutput::~TrackOutput()
+{
+  DisconnectAll();
+}
+
 void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
 {
   track_type_ = track_type;
@@ -89,15 +94,6 @@ QString TrackOutput::Description() const
 {
   return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
             "a Sequence.");
-}
-
-QString TrackOutput::GetTrackName()
-{
-  if (track_name_.isEmpty()) {
-    return GetDefaultTrackName(track_type_, index_);
-  }
-
-  return track_name_;
 }
 
 const double &TrackOutput::GetTrackHeight() const
@@ -435,11 +431,6 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-void TrackOutput::SetTrackName(const QString &name)
-{
-  track_name_ = name;
-}
-
 void TrackOutput::SetMuted(bool e)
 {
   muted_input_->set_standard_value(e);
@@ -555,7 +546,7 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
 
 void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
 {
-  Block* b = static_cast<Block*>(edge->output()->parentNode());
+  Block* b = static_cast<Block*>(edge->output_node());
 
   if (block_cache_.contains(b)) {
     block_cache_.removeOne(b);

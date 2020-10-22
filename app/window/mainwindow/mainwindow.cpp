@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
   node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
   footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
+  curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
   table_panel_ = PanelManager::instance()->CreatePanel<NodeTablePanel>(this);
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
   pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
@@ -81,20 +82,32 @@ MainWindow::MainWindow(QWidget *parent) :
   AppendTimelinePanel();
   audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
 
-  // Make connections to sequence viewer
+  // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
   connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, node_panel_, &NodePanel::Select);
+  connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
+
+  // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
   connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
-  connect(param_panel_, &ParamPanel::FoundGizmos, sequence_viewer_panel_, &SequenceViewerPanel::SetGizmos);
+  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTimestamp);
+  connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
+  connect(curve_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
+  connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTimestamp);
+
+  // Connect node order signals
+  connect(param_panel_, &ParamPanel::NodeOrderChanged, curve_panel_, &CurvePanel::SetNodes);
+
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
 
   footage_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
   sequence_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
@@ -240,26 +253,6 @@ ScopePanel *MainWindow::AppendScopePanel()
   return AppendFloatingPanelInternal<ScopePanel>(scope_panels_);
 }
 
-CurvePanel *MainWindow::AppendCurvePanel()
-{
-  CurvePanel* p = AppendFloatingPanelInternal<CurvePanel>(curve_panels_);
-
-  sequence_viewer_panel_->ConnectTimeBasedPanel(p);
-
-  return p;
-
-  /*connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
-  connect(curve_panel_, &CurvePanel::TimeChanged, panel, &TimelinePanel::SetTime);
-  connect(param_panel_, &ParamPanel::SelectedInputChanged, curve_panel_, &CurvePanel::SetInput);
-  connect(param_panel_, &ParamPanel::TimebaseChanged, curve_panel_, &CurvePanel::SetTimebase);
-  connect(param_panel_, &ParamPanel::TimeTargetChanged, curve_panel_, &CurvePanel::SetTimeTarget);
-  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
-  connect(curve_panel_, &CurvePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(curve_panel_, &CurvePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);*/
-}
-
 void MainWindow::SetFullscreen(bool fullscreen)
 {
   if (fullscreen) {
@@ -326,19 +319,6 @@ void MainWindow::ProjectOpen(Project *p)
 
 void MainWindow::ProjectClose(Project *p)
 {
-  // Close project from project panel
-  foreach (ProjectPanel* panel, project_panels_) {
-    if (panel->project() == p) {
-      RemoveProjectPanel(panel);
-    }
-  }
-
-  foreach (ProjectPanel* panel, folder_panels_) {
-    if (panel->project() == p) {
-      panel->close();
-    }
-  }
-
   // Close any open sequences from project
   QList<ItemPtr> open_sequences = p->get_items_of_type(Item::kSequence);
 
@@ -363,6 +343,20 @@ void MainWindow::ProjectClose(Project *p)
         footage_viewer_panel_->SetFootage(nullptr);
         break;
       }
+    }
+  }
+
+  // Close any extra folder panels
+  foreach (ProjectPanel* panel, folder_panels_) {
+    if (panel->project() == p) {
+      panel->close();
+    }
+  }
+
+  // Close project from project panel
+  foreach (ProjectPanel* panel, project_panels_) {
+    if (panel->project() == p) {
+      RemoveProjectPanel(panel);
     }
   }
 }
@@ -495,12 +489,14 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
+  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTimestamp);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTimestamp);
   connect(panel, &TimelinePanel::BlocksSelected, node_panel_, &NodePanel::SelectBlocks);
   connect(panel, &TimelinePanel::BlocksDeselected, node_panel_, &NodePanel::DeselectBlocks);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
+  connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTimestamp);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
@@ -546,6 +542,7 @@ void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
+  curve_panel_->ConnectViewerNode(viewer);
 
   Sequence* seq = nullptr;
 
@@ -584,6 +581,10 @@ void MainWindow::SetDefaultLayout()
   param_panel_->show();
   tabifyDockWidget(footage_viewer_panel_, param_panel_);
   footage_viewer_panel_->raise();
+
+  curve_panel_->hide();
+  curve_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, curve_panel_);
 
   table_panel_->hide();
   table_panel_->setFloating(true);

@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEM_H
 #define NODEPARAMVIEWITEM_H
 
+#include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -36,12 +37,36 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeParamViewItemTitleBar : public QWidget {
+class NodeParamViewItemTitleBar : public QWidget
+{
+  Q_OBJECT
 public:
   NodeParamViewItemTitleBar(QWidget* parent = nullptr);
 
+  void SetExpanded(bool e);
+
+  void SetText(const QString& s)
+  {
+    lbl_->setText(s);
+  }
+
+signals:
+  void ExpandedStateChanged(bool e);
+
+  void PinToggled(bool e);
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
+
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+private:
+  bool draw_border_;
+
+  QLabel* lbl_;
+
+  CollapseButton* collapse_btn_;
+
 };
 
 class NodeParamViewItemBody : public QWidget {
@@ -99,7 +124,7 @@ private slots:
 
 };
 
-class NodeParamViewItem : public QWidget
+class NodeParamViewItem : public QDockWidget
 {
   Q_OBJECT
 public:
@@ -111,8 +136,21 @@ public:
 
   Node* GetNode() const;
 
+  bool IsExpanded() const;
+
+  void SetHighlighted(bool e)
+  {
+    highlighted_ = e;
+
+    update();
+  }
+
 public slots:
   void SignalAllKeyframes();
+
+  void SetExpanded(bool e);
+
+  void ToggleExpanded();
 
 signals:
   void KeyframeAdded(NodeKeyframePtr key, int y);
@@ -125,21 +163,23 @@ signals:
 
   void RequestSelectNode(const QList<Node*>& node);
 
+  void PinToggled(bool e);
+
 protected:
   virtual void changeEvent(QEvent *e) override;
 
+  virtual void paintEvent(QPaintEvent *event) override;
+
 private:
   NodeParamViewItemTitleBar* title_bar_;
-
-  QLabel* title_bar_lbl_;
-
-  CollapseButton* title_bar_collapse_btn_;
 
   NodeParamViewItemBody* body_;
 
   Node* node_;
 
   rational time_;
+
+  bool highlighted_;
 
 private slots:
   void Retranslate();

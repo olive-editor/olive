@@ -35,13 +35,11 @@ class AudioOutputDeviceProxy : public QIODevice
 {
   Q_OBJECT
 public:
-  AudioOutputDeviceProxy() = default;
-
-  virtual ~AudioOutputDeviceProxy() override;
+  AudioOutputDeviceProxy(QObject* parent = nullptr);
 
   void SetParameters(const AudioParams& params);
 
-  void SetDevice(const QString &filename, qint64 offset, int playback_speed);
+  void SetDevice(QIODevice *device, qint64 offset, int playback_speed);
 
   virtual void close() override;
 
@@ -53,7 +51,7 @@ protected:
 private:
   qint64 ReverseAwareRead(char* data, qint64 maxlen);
 
-  QFile file_;
+  QIODevice* device_;
 
   TempoProcessor tempo_processor_;
 

@@ -25,22 +25,22 @@
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::Tool::Tool(TimelineWidget *parent) :
+TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent)
 {
 }
 
-TimelineWidget::Tool::~Tool()
+TimelineTool::~TimelineTool()
 {
 }
 
-TimelineWidget *TimelineWidget::Tool::parent()
+TimelineWidget *TimelineTool::parent()
 {
   return parent_;
 }
 
-Timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
+Timeline::MovementMode TimelineTool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
 {
   if (trim_mode == Timeline::kTrimIn) {
     return Timeline::kTrimOut;
@@ -53,57 +53,37 @@ Timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const Timeline::Moveme
   return trim_mode;
 }
 
-TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)
+rational TimelineTool::ValidateTimeMovement(rational movement)
 {
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
-
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    Block* b = iterator.key();
-    TimelineViewBlockItem* item = iterator.value();
-
-    if (b->in() <= coord.GetFrame()
-        && b->out() > coord.GetFrame()
-        && item->Track() == coord.GetTrack()) {
-      return item;
-    }
-  }
-
-  return nullptr;
-}
-
-rational TimelineWidget::Tool::ValidateTimeMovement(rational movement)
-{
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->mode() != Timeline::kMove) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMode() != Timeline::kMove) {
       continue;
     }
 
     // Prevents any ghosts from going below 0:00:00 time
-    if (ghost->In() + movement < 0) {
-      movement = -ghost->In();
+    if (ghost->GetIn() + movement < 0) {
+      movement = -ghost->GetIn();
     }
   }
 
   return movement;
 }
 
-int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*>& ghosts)
+int TimelineTool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*>& ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != Timeline::kMove) {
+    if (ghost->GetMode() != Timeline::kMove) {
       continue;
     }
 
-    if (!ghost->CanMoveTracks()) {
+    if (!ghost->GetCanMoveTracks()) {
 
       return 0;
 
-    } else if (ghost->Track().index() + movement < 0) {
+    } else if (ghost->GetTrack().index() + movement < 0) {
 
       // Prevents any ghosts from going to a non-existent negative track
-      movement = -ghost->Track().index();
+      movement = -ghost->GetTrack().index();
 
     }
   }
@@ -111,12 +91,12 @@ int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<Time
   return movement;
 }
 
-void TimelineWidget::Tool::GetGhostData(rational *earliest_point, rational *latest_point)
+void TimelineTool::GetGhostData(rational *earliest_point, rational *latest_point)
 {
   rational ep = RATIONAL_MAX;
   rational lp = RATIONAL_MIN;
 
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     ep = qMin(ep, ghost->GetAdjustedIn());
     lp = qMax(lp, ghost->GetAdjustedOut());
   }
@@ -130,7 +110,7 @@ void TimelineWidget::Tool::GetGhostData(rational *earliest_point, rational *late
   }
 }
 
-void TimelineWidget::Tool::InsertGapsAtGhostDestination(QUndoCommand *command)
+void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
 {
   rational earliest_point, latest_point;
 

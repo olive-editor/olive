@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEW_H
 #define NODEPARAMVIEW_H
 
+#include <QMainWindow>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -30,6 +31,28 @@
 #include "widget/timebased/timebased.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class NodeParamViewParamContainer : public QWidget
+{
+  Q_OBJECT
+public:
+  NodeParamViewParamContainer(QWidget* parent = nullptr) :
+    QWidget(parent)
+  {
+  }
+
+protected:
+  virtual void resizeEvent(QResizeEvent *event) override
+  {
+    QWidget::resizeEvent(event);
+
+    emit Resized(event->size().height());
+  }
+
+signals:
+  void Resized(int new_height);
+
+};
 
 class NodeParamView : public TimeBasedWidget
 {
@@ -54,6 +77,10 @@ signals:
 
   void RequestSelectNode(const QList<Node*>& target);
 
+  void NodeOrderChanged(const QList<Node*>& nodes);
+
+  void FocusedNodeChanged(Node* n);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -66,7 +93,11 @@ protected:
 private:
   void UpdateItemTime(const int64_t &timestamp);
 
-  QVBoxLayout* param_layout_;
+  void QueueKeyframePositionUpdate();
+
+  void SignalNodeOrder();
+
+  void RemoveNode(Node* n);
 
   KeyframeView* keyframe_view_;
 
@@ -76,14 +107,30 @@ private:
 
   int last_scroll_val_;
 
-  QWidget* param_widget_area_;
+  NodeParamViewParamContainer* param_widget_container_;
+
+  // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
+  // docking windows
+  QMainWindow* param_widget_area_;
+
+  QList<Node*> pinned_nodes_;
+
+  QList<Node*> active_nodes_;
+
+  QMap<Node*, bool> node_expanded_state_;
+
+  Node* focused_node_;
 
 private slots:
   void ItemRequestedTimeChanged(const rational& time);
 
-  void ForceKeyframeViewToScroll();
+  void UpdateGlobalScrollBar();
 
   void PlaceKeyframesOnView();
+
+  void PinNode(bool pin);
+
+  void FocusChanged(QWidget *old, QWidget *now);
 
 };
 

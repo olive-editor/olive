@@ -57,6 +57,9 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     ConnectViewerNode(nullptr);
 
+    video_node_->SetFootage(nullptr);
+    audio_node_->SetFootage(nullptr);
+
     NodeParam::DisconnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
     NodeParam::DisconnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
   }
@@ -106,6 +109,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());
 
     SetTimestamp(cached_timestamps_.value(footage_, 0));
+  } else {
+    SetTimestamp(0);
   }
 }
 

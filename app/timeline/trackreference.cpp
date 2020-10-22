@@ -49,6 +49,11 @@ bool TrackReference::operator==(const TrackReference &ref) const
   return type_ == ref.type_ && index_ == ref.index_;
 }
 
+bool TrackReference::operator!=(const TrackReference &ref) const
+{
+  return !(*this == ref);
+}
+
 uint qHash(const TrackReference &r, uint seed)
 {
   // Not super efficient, but couldn't think of any better way to ensure a different hash each time

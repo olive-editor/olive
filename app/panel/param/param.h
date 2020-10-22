@@ -37,30 +37,17 @@ public slots:
   void SelectNodes(const QList<Node*>& nodes);
   void DeselectNodes(const QList<Node*>& nodes);
 
-  virtual void SetTimestamp(const int64_t& timestamp) override;
-
   virtual void DeleteSelected() override;
 
 signals:
   void RequestSelectNode(const QList<Node*>& target);
 
-  void FoundGizmos(Node* node);
+  void NodeOrderChanged(const QList<Node*>& nodes);
+
+  void FocusedNodeChanged(Node* n);
 
 protected:
   virtual void Retranslate() override;
-
-private slots:
-  void CreateCurvePanel(NodeInput* input);
-
-  void ClosingCurvePanel();
-
-private:
-  QHash<NodeInput*, CurvePanel*> open_curve_panels_;
-
-private slots:
-  void ParamViewTimeChanged(const int64_t& time);
-
-  void CurvePanelTimeChanged(const int64_t& time);
 
 };
 

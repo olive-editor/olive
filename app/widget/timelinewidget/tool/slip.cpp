@@ -24,30 +24,31 @@
 
 #include "common/timecodefunctions.h"
 #include "config/config.h"
+#include "slip.h"
 
 OLIVE_NAMESPACE_ENTER
 
-TimelineWidget::SlipTool::SlipTool(TimelineWidget *parent) :
+SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
 }
 
-void TimelineWidget::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
+void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
   // Determine frame movement
   rational time_movement = drag_start_.GetFrame() - mouse_pos.GetFrame();
 
   // Validate slip (enforce all ghosts moving in legal ways)
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->MediaIn() + time_movement < 0) {
-      time_movement = -ghost->MediaIn();
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMediaIn() + time_movement < 0) {
+      time_movement = -ghost->GetMediaIn();
     }
   }
 
   // Perform slip
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     ghost->SetMediaInAdjustment(time_movement);
   }
 
@@ -62,15 +63,15 @@ void TimelineWidget::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
                      parent());
 }
 
-void TimelineWidget::SlipTool::FinishDrag(TimelineViewMouseEvent *event)
+void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
   QUndoCommand* command = new QUndoCommand();
 
   // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
     new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn(), command);
   }

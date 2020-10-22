@@ -47,6 +47,8 @@ class ViewerOutput : public Node
 public:
   ViewerOutput();
 
+  virtual ~ViewerOutput() override;
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
@@ -139,7 +141,7 @@ signals:
   void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(Block* block);
+  void BlockRemoved(const QList<Block*>& blocks);
 
   void TrackAdded(TrackOutput* track, Timeline::TrackType type);
   void TrackRemoved(TrackOutput* track);
@@ -149,6 +151,9 @@ signals:
   void MediaNameChanged(const QString& name);
 
 private:
+  QMap<Block*, TrackReference> cached_block_added_;
+  QList<Block*> cached_block_removed_;
+
   QUuid uuid_;
 
   NodeInput* texture_input_;
@@ -185,6 +190,9 @@ private slots:
   void TrackListAddedTrack(TrackOutput* track);
 
   void TrackHeightChangedSlot(int index, int height);
+
+  void SignalBlockAdded(Block *block, const TrackReference &track);
+  void SignalBlockRemoved(Block *block);
 
 };
 
