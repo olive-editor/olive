@@ -26,7 +26,7 @@ OfflineFootageCommand::OfflineFootageCommand(const QList<MediaInput *> &media, Q
   UndoCommand(parent)
 {
   foreach (MediaInput* i, media) {
-    stream_data_.insert(i, i->footage());
+    stream_data_.insert(i, i->stream());
   }
 
   project_ = static_cast<Sequence*>(media.first()->parent())->project();
@@ -40,14 +40,14 @@ Project *OfflineFootageCommand::GetRelevantProject() const
 void OfflineFootageCommand::redo_internal()
 {
   for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
-    it.key()->SetFootage(nullptr);
+    it.key()->SetStream(nullptr);
   }
 }
 
 void OfflineFootageCommand::undo_internal()
 {
   for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
-    it.key()->SetFootage(it.value());
+    it.key()->SetStream(it.value());
   }
 }
 

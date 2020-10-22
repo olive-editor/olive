@@ -40,8 +40,8 @@ public:
 
   virtual QList<CategoryID> Category() const override;
 
-  StreamPtr footage();
-  void SetFootage(StreamPtr f);
+  StreamPtr stream();
+  void SetStream(StreamPtr s);
 
   virtual bool IsMedia() const override;
 

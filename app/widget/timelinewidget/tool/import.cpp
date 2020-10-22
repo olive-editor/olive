@@ -417,7 +417,7 @@ void ImportTool::DropGhosts(bool insert)
       case Stream::kVideo:
       {
         VideoInput* video_input = new VideoInput();
-        video_input->SetFootage(footage_stream);
+        video_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
         new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
@@ -439,7 +439,7 @@ void ImportTool::DropGhosts(bool insert)
       case Stream::kAudio:
       {
         AudioInput* audio_input = new AudioInput();
-        audio_input->SetFootage(footage_stream);
+        audio_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, audio_input, command);
 
         VolumeNode* volume_node = new VolumeNode();
