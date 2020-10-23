@@ -175,10 +175,10 @@ bool LoadOTIOTask::Run()
               MediaInput* media;
               if (track->track_type() == Timeline::kTrackTypeVideo) {
                 media = new VideoInput();
-                media->SetFootage(probed_item->get_first_stream_of_type(Stream::kVideo));
+                media->SetStream(probed_item->get_first_stream_of_type(Stream::kVideo));
               } else {
                 media = new AudioInput();
-                media->SetFootage(probed_item->get_first_stream_of_type(Stream::kAudio));
+                media->SetStream(probed_item->get_first_stream_of_type(Stream::kAudio));
               }
               sequence->AddNode(media);
 
