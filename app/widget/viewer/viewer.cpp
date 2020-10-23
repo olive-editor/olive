@@ -55,7 +55,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   override_color_manager_(nullptr),
   time_changed_from_timer_(false),
-  pause_autocache_during_playback_(true),
+  pause_autocache_during_playback_(false),
   prequeuing_(false)
 {
   // Set up main layout
