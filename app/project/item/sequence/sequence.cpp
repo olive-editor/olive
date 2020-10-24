@@ -46,15 +46,17 @@ Sequence::Sequence()
 
 void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  {
+    XMLAttributeLoop(reader, attr) {
+      if (cancelled && *cancelled) {
+        return;
+      }
 
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("ptr")) {
-      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+      if (attr.name() == QStringLiteral("name")) {
+        set_name(attr.value().toString());
+      } else if (attr.name() == QStringLiteral("ptr")) {
+        xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+      }
     }
   }
 
@@ -123,10 +125,12 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       if (reader->name() == QStringLiteral("node")) {
         node = nullptr;
 
-        XMLAttributeLoop(reader, attr) {
-          if (attr.name() == QStringLiteral("id")) {
-            node = NodeFactory::CreateFromID(attr.value().toString());
-            break;
+        {
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              node = NodeFactory::CreateFromID(attr.value().toString());
+              break;
+            }
           }
         }
       } else {
