@@ -170,6 +170,15 @@ public:
 
   };
 
+  /**
+   * @brief Create a QIODevice that can play whatever's in the cache currently
+   *
+   * This device will act very much like a QFile, transparently linking together various segments
+   * into what will appear to be a single contiguous file.
+   *
+   * The caller becomes responsible for ownership of the device, though the parent can be set
+   * automatically as an optional parameter to this function.
+   */
   PlaybackDevice* CreatePlaybackDevice(QObject *parent = nullptr) const;
 
 signals:

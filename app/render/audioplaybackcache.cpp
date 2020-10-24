@@ -66,10 +66,11 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   }
 
   // Determine if we have enough segments to pull this off
-  qint64 range_out_in_bytes = params_.time_to_bytes(range.out());
-  while (playlist_.GetLength() < range_out_in_bytes) {
-    qint64 seg_sz = qMin(kDefaultSegmentSize, range_out_in_bytes - playlist_.GetLength());
+  qint64 length_diff = params_.time_to_bytes(range.out()) - playlist_.GetLength();
+  while (length_diff > 0) {
+    qint64 seg_sz = qMin(kDefaultSegmentSize, length_diff);
     playlist_.push_back(CreateSegment(seg_sz, playlist_.GetLength()));
+    length_diff -= seg_sz;
   }
 
   QByteArray a;
@@ -179,29 +180,28 @@ void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational
       insert_index = from_index;
     } else {
       insert_index = from_index + 1;
-    }
 
-    if (from < from_end) {
-      // Split from segment into two
-      Segment second = CloneSegment(playlist_.at(from_index));
+      if (from < from_end) {
+        // Split from segment into two
+        Segment second = CloneSegment(playlist_.at(from_index));
 
-      TrimSegmentOut(&playlist_[from_index], from - from_start);
-      TrimSegmentIn(&second, from_end - from);
+        TrimSegmentOut(&playlist_[from_index], from - from_start);
+        TrimSegmentIn(&second, from_end - from);
 
-      playlist_.insert(insert_index, second);
+        playlist_.insert(insert_index, second);
+      }
     }
 
     // Insert silent segments
-    qint64 time_to_insert = params_.time_to_bytes(to - from);
-    qint64 inserted_time = 0;
+    qint64 time_to_insert = to - from;
 
-    while (inserted_time < time_to_insert) {
-      qint64 new_seg_sz = qMin(kDefaultSegmentSize, time_to_insert - inserted_time);
+    while (time_to_insert) {
+      qint64 new_seg_sz = qMin(kDefaultSegmentSize, time_to_insert);
 
       // Set offset to 0 for now and fill it in later
       playlist_.insert(insert_index, CreateSegment(new_seg_sz, 0));
 
-      inserted_time += new_seg_sz;
+      time_to_insert -= new_seg_sz;
     }
 
     UpdateOffsetsFrom(insert_index);
