@@ -82,11 +82,11 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
       // Strip out "." and ".." (for some reason QDir::NoDotAndDotDot	doesn't work with entryInfoList, so we have to
       // check manually)
-      for (int i=0;i<entry_list.size();i++) {
-        if (entry_list.at(i).fileName() == QStringLiteral(".")
-            || entry_list.at(i).fileName() == QStringLiteral("..")) {
-          entry_list.removeAt(i);
-          i--;
+      for (int j=0;j<entry_list.size();j++) {
+        if (entry_list.at(j).fileName() == QStringLiteral(".")
+            || entry_list.at(j).fileName() == QStringLiteral("..")) {
+          entry_list.removeAt(j);
+          j--;
         }
       }
 
