@@ -28,7 +28,7 @@
 
 OLIVE_NAMESPACE_ENTER
 
-const rational AudioPlaybackCache::kDefaultSegmentSize = 5;
+const qint64 AudioPlaybackCache::kDefaultSegmentSize = 5242880;
 
 AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
   PlaybackCache(parent)
@@ -38,10 +38,7 @@ AudioPlaybackCache::AudioPlaybackCache(QObject* parent) :
 AudioPlaybackCache::~AudioPlaybackCache()
 {
   // Segments are volatile, so delete them here
-  foreach (const Segment& s, segments_) {
-    QFile::remove(s.filename());
-  }
-  segments_.clear();
+  ClearPlaylist();
 }
 
 void AudioPlaybackCache::SetParameters(const AudioParams &params)
@@ -53,7 +50,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   params_ = params;
 
   // Restart empty file so there's always "something" to play
-  segments_.clear();
+  ClearPlaylist();
 
   // Our current audio cache is unusable, so we truncate it automatically
   InvalidateAll();
@@ -69,10 +66,10 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   }
 
   // Determine if we have enough segments to pull this off
-  while (segment_length_ < range.out()) {
-    rational seg_sz = qMin(kDefaultSegmentSize, range.out() - segment_length_);
-    segments_.push_back(CreateSegment(seg_sz));
-    segment_length_ += seg_sz;
+  qint64 range_out_in_bytes = params_.time_to_bytes(range.out());
+  while (playlist_.GetLength() < range_out_in_bytes) {
+    qint64 seg_sz = qMin(kDefaultSegmentSize, range_out_in_bytes - playlist_.GetLength());
+    playlist_.push_back(CreateSegment(seg_sz, playlist_.GetLength()));
   }
 
   QByteArray a;
@@ -88,8 +85,8 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
   foreach (const TimeRange& r, valid_ranges) {
     rational this_segment_in = 0;
 
-    for (auto it=segments_.begin(); it!=segments_.end(); it++) {
-      rational this_segment_out = this_segment_in + (*it).length();
+    for (auto it=playlist_.begin(); it!=playlist_.end(); it++) {
+      rational this_segment_out = this_segment_in + params_.bytes_to_time((*it).size());
 
       if (r.in() < this_segment_out) {
         // We'll write at least something to this segment
@@ -157,45 +154,21 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
   WritePCM(range, nullptr, job_time);
 }
 
-void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
+void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
-  if (from == to) {
+  if (from_in_time == to_in_time) {
+    // Nothing to be done
     return;
   }
 
-  int to_index = -1;
-  int from_index = -1;
-  rational to_start, from_start;
+  qint64 to = params_.time_to_bytes(to_in_time);
+  qint64 from = params_.time_to_bytes(from_in_time);
 
-  {
-    rational seg_start;
+  int to_index = playlist_.GetIndexOfPosition(to);
+  int from_index = playlist_.GetIndexOfPosition(from);
 
-    // Find which segments intersect with this shift event
-    for (int i=0; i<segments_.size(); i++) {
-      const Segment& seg = segments_.at(i);
-
-      rational seg_end = seg_start + seg.length();
-
-      if (to_index == -1 && seg_end > to) {
-        to_index = i;
-        to_start = seg_start;
-      }
-
-      if (from_index == -1 && seg_end >= from) {
-        from_index = i;
-        from_start = seg_start;
-      }
-
-      if (to_index != -1 && from_index != -1) {
-        break;
-      }
-
-      seg_start = seg_end;
-    }
-  }
-
-  const rational& from_length = segments_[from_index].length();
-  rational from_end = from_start + from_length;
+  qint64 from_start = playlist_.at(from_index).offset();
+  qint64 from_end = playlist_.at(from_index).end();
 
   if (from < to) {
     // Shifting forwards, we must insert a new region and split a segment in half if necessary
@@ -210,46 +183,47 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
 
     if (from < from_end) {
       // Split from segment into two
-      Segment second = CloneSegment(segments_.at(from_index));
+      Segment second = CloneSegment(playlist_.at(from_index));
 
-      TrimSegmentOut(&segments_[from_index], from - from_start);
+      TrimSegmentOut(&playlist_[from_index], from - from_start);
       TrimSegmentIn(&second, from_end - from);
 
-      segments_.insert(insert_index, second);
+      playlist_.insert(insert_index, second);
     }
 
     // Insert silent segments
-    rational time_to_insert = to - from;
-    rational inserted_time;
+    qint64 time_to_insert = params_.time_to_bytes(to - from);
+    qint64 inserted_time = 0;
 
     while (inserted_time < time_to_insert) {
-      rational new_seg_sz = qMin(kDefaultSegmentSize, time_to_insert - inserted_time);
+      qint64 new_seg_sz = qMin(kDefaultSegmentSize, time_to_insert - inserted_time);
 
-      segments_.insert(insert_index, CreateSegment(new_seg_sz));
+      // Set offset to 0 for now and fill it in later
+      playlist_.insert(insert_index, CreateSegment(new_seg_sz, 0));
 
       inserted_time += new_seg_sz;
     }
 
-    segment_length_ += time_to_insert;
+    UpdateOffsetsFrom(insert_index);
 
   } else {
     // Shifting backwards, we'll be removing segments and truncating them if necessary
-    const rational& to_length = segments_.at(to_index).length();
-    rational to_end = to_start + to_length;
+    qint64 to_start = playlist_.at(to_index).offset();
+    qint64 to_end = playlist_.at(to_index).end();
 
     if (from_index == to_index) {
       // Shift occurs in the same segment
       if (to > to_start && from < to_end) {
         // Split into two and process as normal
-        Segment second = CloneSegment(segments_.at(to_index));
+        Segment second = CloneSegment(playlist_.at(to_index));
         from_index++;
-        segments_.insert(from_index, second);
+        playlist_.insert(from_index, second);
       } else if (to == to_start && from == to_end) {
         RemoveSegmentFromArray(to_index);
       } else if (to == to_start) {
-        TrimSegmentIn(&segments_[to_index], to_end - from);
+        TrimSegmentIn(&playlist_[to_index], to_end - from);
       } else {
-        TrimSegmentOut(&segments_[from_index], to - to_start);
+        TrimSegmentOut(&playlist_[from_index], to - to_start);
       }
     } else {
       // Remove all central segments (if there are any)
@@ -265,40 +239,42 @@ void AudioPlaybackCache::ShiftEvent(const rational &from, const rational &to)
         RemoveSegmentFromArray(to_index);
         from_index--;
       } else if (to < to_end) {
-        TrimSegmentOut(&segments_[to_index], to - to_start);
+        TrimSegmentOut(&playlist_[to_index], to - to_start);
       }
 
       // Remove or trim "from" segment
       if (from == from_end) {
         RemoveSegmentFromArray(from_index);
       } else if (from > from_start) {
-        TrimSegmentIn(&segments_[from_index], from_end - from);
+        TrimSegmentIn(&playlist_[from_index], from_end - from);
       }
     }
 
-    segment_length_ -= (from - to);
+    UpdateOffsetsFrom(to_index);
   }
 }
 
 void AudioPlaybackCache::LengthChangedEvent(const rational& old, const rational& newlen)
 {
+  Q_UNUSED(old)
+
   if (!params_.is_valid()) {
     return;
   }
 
-  while (newlen < segment_length_) {
-    Segment& last_seg = segments_.back();
+  qint64 new_len_in_bytes = params_.time_to_bytes(newlen);
 
-    if (segment_length_ - last_seg.length() < newlen) {
+  while (new_len_in_bytes < playlist_.GetLength()) {
+    Segment& last_seg = playlist_.back();
+
+    if (playlist_.GetLength() - last_seg.size() < new_len_in_bytes) {
       // Truncate this segment rather than removing it
-      rational diff = segment_length_ - newlen;
+      qint64 diff = playlist_.GetLength() - new_len_in_bytes;
 
-      TrimSegmentOut(&last_seg, last_seg.length() - diff);
-      segment_length_ -= diff;
+      TrimSegmentOut(&last_seg, last_seg.size() - diff);
     } else {
       // Remove last segment
-      segment_length_ -= last_seg.length();
-      RemoveSegmentFromArray(segments_.size() - 1);
+      RemoveSegmentFromArray(playlist_.size() - 1);
     }
   }
 }
@@ -316,9 +292,11 @@ AudioPlaybackCache::Segment AudioPlaybackCache::CloneSegment(const AudioPlayback
   return new_seg;
 }
 
-AudioPlaybackCache::Segment AudioPlaybackCache::CreateSegment(const rational &length) const
+AudioPlaybackCache::Segment AudioPlaybackCache::CreateSegment(const qint64 &size, const qint64& offset) const
 {
-  Segment s(length, GenerateSegmentFilename());
+  Segment s(size, GenerateSegmentFilename());
+
+  s.set_offset(offset);
 
   // Create empty file
   QFile f(s.filename());
@@ -341,7 +319,7 @@ QString AudioPlaybackCache::GenerateSegmentFilename() const
   return new_seg_filename;
 }
 
-void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, const rational &new_length)
+void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, qint64 new_length)
 {
   // Read filename
   QFile f(s->filename());
@@ -350,10 +328,10 @@ void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, const rat
     QByteArray data = f.readAll();
 
     // Trim to new length
-    data = data.right(params_.time_to_bytes(new_length));
+    data = data.right(new_length);
 
-    // Clear existing file
-    f.resize(0);
+    // Seek to start and write
+    f.seek(0);
 
     // Write trimmed data
     f.write(data);
@@ -361,19 +339,47 @@ void AudioPlaybackCache::TrimSegmentIn(AudioPlaybackCache::Segment *s, const rat
     f.close();
   }
 
-  s->set_length(new_length);
+  s->set_size(new_length);
 }
 
-void AudioPlaybackCache::TrimSegmentOut(AudioPlaybackCache::Segment *s, const rational &new_length)
+void AudioPlaybackCache::TrimSegmentOut(AudioPlaybackCache::Segment *s, qint64 new_length)
 {
-  QFile(s->filename()).resize(params_.time_to_bytes(new_length));
-  s->set_length(new_length);
+  s->set_size(new_length);
 }
 
 void AudioPlaybackCache::RemoveSegmentFromArray(int index)
 {
-  QFile::remove(segments_.at(index).filename());
-  segments_.removeAt(index);
+  QFile::remove(playlist_.at(index).filename());
+  playlist_.removeAt(index);
+}
+
+void AudioPlaybackCache::ClearPlaylist()
+{
+  foreach (const Segment& s, playlist_) {
+    QFile::remove(s.filename());
+  }
+  playlist_.clear();
+}
+
+void AudioPlaybackCache::UpdateOffsetsFrom(int index)
+{
+  qint64 current_offset;
+
+  if (index == 0) {
+    current_offset = 0;
+  } else {
+    const Segment& previous = playlist_.at(index - 1);
+
+    current_offset = previous.offset() + previous.size();
+  }
+
+  for (int i=index; i<playlist_.size(); i++) {
+    Segment& s = playlist_[i];
+
+    s.set_offset(current_offset);
+
+    current_offset += s.size();
+  }
 }
 
 QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, const qint64& job_time)
@@ -393,13 +399,13 @@ QList<TimeRange> AudioPlaybackCache::GetValidRanges(const TimeRange& range, cons
 
 AudioPlaybackCache::PlaybackDevice *AudioPlaybackCache::CreatePlaybackDevice(QObject* parent) const
 {
-  return new PlaybackDevice(segments_, parent);
+  return new PlaybackDevice(playlist_, parent);
 }
 
-AudioPlaybackCache::Segment::Segment(const rational &length, const QString &s)
+AudioPlaybackCache::Segment::Segment(qint64 size, const QString &filename)
 {
-  length_ = length;
-  filename_ = s;
+  size_ = size;
+  filename_ = filename;
 }
 
 AudioPlaybackCache::PlaybackDevice::PlaybackDevice(const AudioPlaybackCache::Playlist &playlist, QObject *parent) :
@@ -421,54 +427,36 @@ bool AudioPlaybackCache::PlaybackDevice::seek(qint64 pos)
   QIODevice::seek(pos);
 
   // Find which segment we're in
-  // FIXME: Inefficient
-  qint64 seg_start_bytes = 0;
-  for (int i=0; i<playlist_.size(); i++) {
-    const Segment& s = playlist_.at(i);
+  current_segment_ = playlist_.GetIndexOfPosition(pos);
 
-    qint64 this_seg_sz = QFile(s.filename()).size();
-    qint64 seg_end_bytes = seg_start_bytes + this_seg_sz;
-
-    if (pos < seg_end_bytes) {
-      // This must be the segment we're looking for
-      current_segment_ = i;
-      segment_read_index_ = pos - seg_start_bytes;
-
-      // Succeeded at seeking to this position
-      return true;
-    }
-
-    seg_start_bytes = seg_end_bytes;
+  // Catch failure to find index
+  if (current_segment_ == -1) {
+    return false;
   }
 
-  // Couldn't find this position in the file
-  return false;
-}
+  // Find position in segment
+  segment_read_index_ = pos - playlist_.at(current_segment_).offset();
 
-qint64 AudioPlaybackCache::PlaybackDevice::size() const
-{
-  qint64 p = 0;
-
-  // FIXME: Inefficient
-  for (int i=0; i<playlist_.size(); i++) {
-    p += QFile(playlist_.at(i).filename()).size();
-  }
-
-  return p;
+  return true;
 }
 
 qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
 {
   qint64 read_size = 0;
 
-  while (read_size < maxSize && current_segment_ < playlist_.size()) {
-    QFile segment_file(playlist_.at(current_segment_).filename());
+  while (read_size < maxSize
+         && current_segment_ >= 0
+         && current_segment_ < playlist_.size()) {
+    const Segment& cs = playlist_.at(current_segment_);
+    qint64 current_segment_sz = cs.size();
+    QFile segment_file(cs.filename());
+
     if (segment_file.open(QFile::ReadOnly)) {
       // Seek to our stored index of this segment
       segment_file.seek(segment_read_index_);
 
       // Determine how many bytes to read
-      qint64 this_read_length = qMin(segment_file.size() - segment_read_index_,
+      qint64 this_read_length = qMin(current_segment_sz - segment_read_index_,
                                      maxSize - read_size);
 
       // Read those bytes
@@ -484,7 +472,7 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
       read_size += this_read_length;
 
       // If we've reached the end of this segment, tick the counter over to the next segment
-      if (segment_read_index_ == segment_file.size()) {
+      if (segment_read_index_ == current_segment_sz) {
         // Jump to the next file
         segment_read_index_ = 0;
         current_segment_++;
@@ -494,7 +482,60 @@ qint64 AudioPlaybackCache::PlaybackDevice::readData(char *data, qint64 maxSize)
     }
   }
 
-  return read_size;
+  if (read_size < maxSize) {
+    // Zero out remaining data
+    memset(data + read_size, 0, maxSize - read_size);
+  }
+
+  //return read_size;
+  return maxSize;
+}
+
+int AudioPlaybackCache::Playlist::GetIndexOfPosition(qint64 pos)
+{
+  if (this->isEmpty()
+      || pos < 0
+      || pos >= GetLength()) {
+    return -1;
+  }
+
+  if (pos < this->first().size()) {
+    return 0;
+  }
+
+  if (pos > this->last().offset()) {
+    return this->size() - 1;
+  }
+
+  int bottom = 0;
+  int top = this->size();
+
+  // Use a binary search to find the segment with the right offset
+  while (true) {
+    int mid = bottom + (top - bottom)/2;
+    const Segment& mid_segment = this->at(mid);
+
+    if (mid_segment.offset() <= pos
+        && mid_segment.offset() + mid_segment.size() > pos) {
+      return mid;
+    }
+
+    if (mid_segment.offset() > pos) {
+      // Segment we're looking for must be lower
+      top = mid;
+    } else {
+      // Segment we're looking for must be higher
+      bottom = mid;
+    }
+  }
+}
+
+qint64 AudioPlaybackCache::Playlist::GetLength() const
+{
+  if (this->isEmpty()) {
+    return 0;
+  }
+  return this->last().offset() + this->last().size();
 }
 
 OLIVE_NAMESPACE_EXIT
