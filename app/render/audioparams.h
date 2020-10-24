@@ -64,8 +64,8 @@ public:
     return format_;
   }
 
-  int time_to_bytes(const double& time) const;
-  int time_to_bytes(const rational& time) const;
+  qint64 time_to_bytes(const double& time) const;
+  qint64 time_to_bytes(const rational& time) const;
   int time_to_samples(const double& time) const;
   int time_to_samples(const rational& time) const;
   int samples_to_bytes(const int& samples) const;

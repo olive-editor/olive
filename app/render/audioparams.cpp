@@ -49,11 +49,11 @@ const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
   AV_CH_LAYOUT_7POINT1
 };
 
-int AudioParams::time_to_bytes(const double &time) const
+qint64 AudioParams::time_to_bytes(const double &time) const
 {
   Q_ASSERT(is_valid());
 
-  return time_to_samples(time) * channel_count() * bytes_per_sample_per_channel();
+  return qint64(time_to_samples(time)) * channel_count() * bytes_per_sample_per_channel();
 }
 
 bool AudioParams::operator==(const AudioParams &other) const
@@ -68,7 +68,7 @@ bool AudioParams::operator!=(const AudioParams &other) const
   return !(*this == other);
 }
 
-int AudioParams::time_to_bytes(const rational &time) const
+qint64 AudioParams::time_to_bytes(const rational &time) const
 {
   return time_to_bytes(time.toDouble());
 }
