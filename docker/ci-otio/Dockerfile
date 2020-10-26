@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-package-otio:2021.2 -f ci-otio/Dockerfile .
+#  docker build -t olivevideoeditor/ci-package-otio -f ci-otio/Dockerfile .
 
 ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting

@@ -18,7 +18,7 @@ FROM ${ASWF_PKG_ORG}/ci-package-oiio:${VFXPLATFORM_VERSION} as ci-package-oiio
 FROM ${ASWF_PKG_ORG}/ci-package-ocio:${VFXPLATFORM_VERSION} as ci-package-ocio
 FROM ${OLIVE_ORG}/ci-package-ffmpeg:${FFMPEG_VERSION} as ci-package-ffmpeg
 FROM ${OLIVE_ORG}/ci-package-crashpad:latest as ci-package-crashpad
-FROM ${OLIVE_ORG}/ci-package-otio:${VFXPLATFORM_VERSION}.${CI_COMMON_VERSION} as ci-package-otio
+FROM ${OLIVE_ORG}/ci-package-otio:latest as ci-package-otio
 
 FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-olive
 
