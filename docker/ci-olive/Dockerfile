@@ -26,7 +26,7 @@ ARG VFXPLATFORM_VERSION
 ARG PYTHON_VERSION=3.7
 
 LABEL maintainer="olivevideoeditor@gmail.com"
-
+LABEL com.vfxplatform.version=$VFXPLATFORM_VERSION
 LABEL org.opencontainers.image.name="olivevideoeditor/ci-olive"
 LABEL org.opencontainers.image.description="CentOS CI Olive Build Image"
 LABEL org.opencontainers.image.url="http://olivevideoeditor.org"

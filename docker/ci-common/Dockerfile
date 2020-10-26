@@ -21,7 +21,6 @@ ARG DTS_VERSION
 ARG CMAKE_VERSION
 
 LABEL maintainer="olivevideoeditor@gmail.com"
-
 LABEL org.opencontainers.image.name="$OLIVE_ORG/ci-common"
 LABEL org.opencontainers.image.description="CentOS CI Shared Image"
 LABEL org.opencontainers.image.url="http://olivevideoeditor.org"
