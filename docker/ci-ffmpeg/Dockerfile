@@ -33,6 +33,7 @@ LABEL org.opencontainers.image.url="http://olivevideoeditor.org"
 LABEL org.opencontainers.image.source="https://github.com/olive-editor/olive"
 LABEL org.opencontainers.image.vendor="Olive Team"
 LABEL org.opencontainers.image.version="1.0"
+LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 COPY scripts/build_ffmpeg.sh \
      /tmp/

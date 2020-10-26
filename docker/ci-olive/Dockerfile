@@ -18,6 +18,7 @@ FROM ${ASWF_PKG_ORG}/ci-package-oiio:${VFXPLATFORM_VERSION} as ci-package-oiio
 FROM ${ASWF_PKG_ORG}/ci-package-ocio:${VFXPLATFORM_VERSION} as ci-package-ocio
 FROM ${OLIVE_ORG}/ci-package-ffmpeg:${FFMPEG_VERSION} as ci-package-ffmpeg
 FROM ${OLIVE_ORG}/ci-package-crashpad:latest as ci-package-crashpad
+FROM ${OLIVE_ORG}/ci-package-otio:${VFXPLATFORM_VERSION}.${CI_COMMON_VERSION} as ci-package-otio
 
 FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-olive
 
@@ -33,6 +34,7 @@ LABEL org.opencontainers.image.url="http://olivevideoeditor.org"
 LABEL org.opencontainers.image.source="https://github.com/olive-editor/olive"
 LABEL org.opencontainers.image.vendor="Olive Team"
 LABEL org.opencontainers.image.version="1.0"
+LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 ENV PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH} \
     CRASHPAD_LOCATION=/usr/local/crashpad \
@@ -46,6 +48,7 @@ COPY --from=ci-package-oiio /. /usr/local/
 COPY --from=ci-package-ocio /. /usr/local/
 COPY --from=ci-package-ffmpeg /. /usr/local/
 COPY --from=ci-package-crashpad /. /usr/local/
+COPY --from=ci-package-otio /. /usr/local/
 
 RUN curl --location "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
       -o "/usr/local/linuxdeployqt-x86_64.AppImage" && \
