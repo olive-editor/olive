@@ -63,7 +63,8 @@ wait
 {
     # BitBucket dropped support for Mercurial repos
     #hg clone https://bitbucket.org/multicoreware/x265
-    git clone --depth 1 "https://bitbucket.org/multicoreware/x265_git.git" x265
+    # Need to fetch tags (off by default for shallow clones) or checkout a tag to avoid pkg-config error
+    git clone --depth 1 --branch "${X265_VERSION}" "https://bitbucket.org/multicoreware/x265_git.git" x265
     cd x265/build/linux
     cmake \
       -G "Unix Makefiles" \
