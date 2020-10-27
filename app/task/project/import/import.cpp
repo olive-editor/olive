@@ -281,7 +281,7 @@ int64_t ProjectImportTask::GetImageSequenceLimit(const QString& start_fn, int64_
     start = test_index;
   }
 
-  return test_index;
+  return start;
 }
 
 OLIVE_NAMESPACE_EXIT

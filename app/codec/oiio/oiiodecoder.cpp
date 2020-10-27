@@ -99,7 +99,20 @@ bool OIIODecoder::Open()
 {
   Q_ASSERT(stream());
 
-  if (stream()->type() != Stream::kVideo && !OpenImageHandler(stream()->footage()->filename())) {
+  if (stream()->type() != Stream::kVideo) {
+    // Guard against non-video types
+    return false;
+  }
+
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+
+  if (video_stream->video_type() == VideoStream::kVideoTypeVideo) {
+    // This decoder only handles kVideoTypeImageSequence and kVideoTypeStill
+    return false;
+  }
+
+  if (video_stream->video_type() == VideoStream::kVideoTypeStill
+      && !OpenImageHandler(stream()->footage()->filename())) {
     return false;
   }
 
@@ -111,11 +124,14 @@ bool OIIODecoder::Open()
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
 {
   if (!open_) {
+    qWarning() << "Tried to retrieve video on a decoder that's still closed";
     return nullptr;
   }
 
-  if (stream()->type() == Stream::kVideo) {
-    int64_t ts = std::static_pointer_cast<VideoStream>(stream())->get_time_in_timebase_units(timecode);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+
+  if (video_stream->video_type() == VideoStream::kVideoTypeImageSequence) {
+    int64_t ts = video_stream->get_time_in_timebase_units(timecode);
 
     if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts))) {
       return nullptr;
@@ -149,7 +165,7 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
 
   }
 
-  if (stream()->type() == Stream::kVideo) {
+  if (video_stream->video_type() == VideoStream::kVideoTypeImageSequence) {
     CloseImageHandle();
   }
 
