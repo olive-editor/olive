@@ -188,6 +188,12 @@ jobs:
           $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/crashpad-win.7z
           $EXTRACT_TOOL crashpad-win.7z
 
+      - name: Acquire OpenTimelineIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/otio-win.7z
+          $EXTRACT_TOOL otio-win.7z
+
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
