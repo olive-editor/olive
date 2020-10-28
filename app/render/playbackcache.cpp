@@ -33,7 +33,7 @@ void PlaybackCache::Invalidate(const TimeRange &r)
 {
   Q_ASSERT(r.in() != r.out());
 
-  invalidated_.InsertTimeRange(r);
+  invalidated_.insert(r);
 
   RemoveRangeFromJobs(r);
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
@@ -69,11 +69,11 @@ void PlaybackCache::SetLength(const rational &r)
     jobs_.clear();
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
-    invalidated_.InsertTimeRange(range_diff);
+    invalidated_.insert(range_diff);
     jobs_.append({range_diff, QDateTime::currentMSecsSinceEpoch()});
   } else {
     // If new length is smaller, removed hashes
-    invalidated_.RemoveTimeRange(range_diff);
+    invalidated_.remove(range_diff);
     RemoveRangeFromJobs(range_diff);
   }
 
@@ -123,7 +123,7 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
 
 void PlaybackCache::Validate(const TimeRange &r)
 {
-  invalidated_.RemoveTimeRange(r);
+  invalidated_.remove(r);
 
   emit Validated(r);
 }

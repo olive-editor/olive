@@ -531,7 +531,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
     TimeRangeList range_list;
 
     foreach (Block* b, blocks_to_delete) {
-      range_list.InsertTimeRange(TimeRange(b->in(), b->out()));
+      range_list.insert(TimeRange(b->in(), b->out()));
     }
 
     new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list, command);
@@ -1512,7 +1512,7 @@ void TimelineWidget::EndRubberBandSelect()
 
 void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &track)
 {
-  selections_[track].InsertTimeRange(time);
+  selections_[track].insert(time);
 
   UpdateViewports(track.type());
 }
@@ -1524,7 +1524,7 @@ void TimelineWidget::AddSelection(TimelineViewBlockItem *item)
 
 void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference &track)
 {
-  selections_[track].RemoveTimeRange(time);
+  selections_[track].remove(time);
 
   UpdateViewports(track.type());
 }

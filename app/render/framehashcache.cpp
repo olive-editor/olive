@@ -90,7 +90,7 @@ void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
     if (iterator.value() == hash) {
       TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
 
-      if (invalidated_ranges.ContainsTimeRange(frame_range)) {
+      if (invalidated_ranges.contains(frame_range)) {
         Validate(frame_range);
       }
     }
@@ -167,7 +167,7 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
     }
 
     times.append(snapped);
-    range_list.RemoveTimeRange(TimeRange(snapped, next));
+    range_list.remove(TimeRange(snapped, next));
   }
 
   return times;
@@ -362,7 +362,7 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   QMap<rational, QByteArray>::const_iterator i;
   for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
     if (i.value() == hash) {
-      ranges_to_invalidate.InsertTimeRange(TimeRange(i.key(), i.key() + timebase_));
+      ranges_to_invalidate.insert(TimeRange(i.key(), i.key() + timebase_));
     }
   }
 

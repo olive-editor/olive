@@ -136,7 +136,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   if (ignore_next_mouse_button_ || !(qApp->mouseButtons() & Qt::LeftButton)) {
     ignore_next_mouse_button_ = false;
 
-    invalidated_video_.InsertTimeRange(range);
+    invalidated_video_.insert(range);
 
     TryRender();
   }
@@ -147,7 +147,7 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   ClearQueue(false);
 
   // Start jobs to re-render the audio at this range, split into 2 second chunks
-  invalidated_audio_.InsertTimeRange(range);
+  invalidated_audio_.insert(range);
 
   TryRender();
 }

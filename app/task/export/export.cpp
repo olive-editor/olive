@@ -88,11 +88,11 @@ bool ExportTask::Run()
   TimeRangeList video_range, audio_range;
 
   if (params_.video_enabled()) {
-    video_range.append(range);
+    video_range = {range};
   }
 
   if (params_.audio_enabled()) {
-    audio_range.append(range);
+    audio_range = {range};
     audio_data_.SetLength(range.length());
   }
 

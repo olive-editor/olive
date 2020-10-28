@@ -176,42 +176,42 @@ void TimeRange::normalize()
   length_ = out_ - in_;
 }
 
-void TimeRangeList::InsertTimeRange(TimeRange range_to_add)
+void TimeRangeList::insert(TimeRange range_to_add)
 {
   // See if list contains this range
-  if (ContainsTimeRange(range_to_add)) {
+  if (contains(range_to_add)) {
     return;
   }
 
   // Does not contain range, so we'll almost certainly be adding it in some way
   for (int i=0;i<size();i++) {
-    const TimeRange& compare = at(i);
+    const TimeRange& compare = array_.at(i);
 
     if (compare.OverlapsWith(range_to_add)) {
       range_to_add = TimeRange::Combine(range_to_add, compare);
-      removeAt(i);
+      array_.removeAt(i);
       i--;
     }
   }
 
-  append(range_to_add);
+  array_.append(range_to_add);
 }
 
-void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
+void TimeRangeList::remove(const TimeRange &remove)
 {
   int sz = this->size();
 
   for (int i=0;i<sz;i++) {
-    TimeRange& compare = (*this)[i];
+    TimeRange& compare = array_[i];
 
     if (remove.Contains(compare)) {
       // This element is entirely encompassed in this range, remove it
-      this->removeAt(i);
+      array_.removeAt(i);
       i--;
       sz--;
     } else if (compare.Contains(remove, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
-      this->append(TimeRange(remove.out(), compare.out()));
+      array_.append(TimeRange(remove.out(), compare.out()));
       compare.set_out(remove.in());
     } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
       // This element's out point overlaps the range's in, we'll trim it
@@ -223,10 +223,10 @@ void TimeRangeList::RemoveTimeRange(const TimeRange &remove)
   }
 }
 
-bool TimeRangeList::ContainsTimeRange(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
+bool TimeRangeList::contains(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
 {
   for (int i=0;i<size();i++) {
-    if (at(i).Contains(range, in_inclusive, out_inclusive)) {
+    if (array_.at(i).Contains(range, in_inclusive, out_inclusive)) {
       return true;
     }
   }
@@ -234,12 +234,45 @@ bool TimeRangeList::ContainsTimeRange(const TimeRange &range, bool in_inclusive,
   return false;
 }
 
+void TimeRangeList::shift(const rational &diff)
+{
+  for (int i=0; i<array_.size(); i++) {
+    array_[i] += diff;
+  }
+}
+
+void TimeRangeList::trim_in(const rational &diff)
+{
+  // Re-do list since we want to handle overlaps
+  TimeRangeList temp = *this;
+
+  clear();
+
+  foreach (TimeRange r, temp) {
+    r.set_in(r.in() + diff);
+    insert(r);
+  }
+}
+
+void TimeRangeList::trim_out(const rational &diff)
+{
+  // Re-do list since we want to handle overlaps
+  TimeRangeList temp = *this;
+
+  clear();
+
+  foreach (TimeRange r, temp) {
+    r.set_out(r.out() + diff);
+    insert(r);
+  }
+}
+
 TimeRangeList TimeRangeList::Intersects(const TimeRange &range) const
 {
   TimeRangeList intersect_list;
 
   for (int i=0;i<size();i++) {
-    const TimeRange& compare = at(i);
+    const TimeRange& compare = array_.at(i);
 
     if (compare.out() <= range.in() || compare.in() >= range.out()) {
       // No intersect
@@ -249,7 +282,7 @@ TimeRangeList TimeRangeList::Intersects(const TimeRange &range) const
       TimeRange cropped(qMax(range.in(), compare.in()),
                         qMin(range.out(), compare.out()));
 
-      intersect_list.append(cropped);
+      intersect_list.insert(cropped);
     }
   }
 
@@ -261,7 +294,7 @@ void TimeRangeList::PrintTimeList()
   qDebug() << "TimeRangeList now contains:";
 
   for (int i=0;i<size();i++) {
-    qDebug() << "  " << at(i);
+    qDebug() << "  " << array_.at(i);
   }
 }
 
