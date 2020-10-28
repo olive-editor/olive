@@ -25,6 +25,7 @@
 #include "node/output/viewer/viewer.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
+#include "render/diskmanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -187,7 +188,7 @@ QString PlaybackCache::GetCacheDirectory() const
   if (project) {
     return project->cache_path();
   } else {
-    return QString();
+    return DiskManager::instance()->GetDefaultCachePath();
   }
 }
 
