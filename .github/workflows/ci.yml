@@ -158,29 +158,11 @@ jobs:
         with:
           version: 5.15.1
 
-      - name: Acquire FFmpeg
+      - name: Acquire Dependencies
         shell: bash
         run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ffmpeg-win.7z
-          $EXTRACT_TOOL ffmpeg-win.7z
-
-      - name: Acquire OpenColorIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-win.7z
-          $EXTRACT_TOOL ocio-win.7z
-
-      - name: Acquire OpenEXR
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/openexr-win.7z
-          $EXTRACT_TOOL openexr-win.7z
-
-      - name: Acquire OpenImageIO
-        shell: bash
-        run: |
-          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/oiio-win.7z
-          $EXTRACT_TOOL oiio-win.7z
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/dep-win.7z
+          $EXTRACT_TOOL dep-win.7z
 
       - name: Acquire Crashpad
         shell: bash
