@@ -24,7 +24,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "node/output/viewer/viewer.h"
-#include "render/backend/opengl/openglbackend.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -38,7 +37,7 @@ public:
 
 protected:
   void Render(const TimeRangeList &video_range,
-              const TimeRangeList &audio_range,
+              const TimeRangeList &audio_range, RenderMode::Mode mode,
               bool use_disk_cache);
 
   virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
@@ -49,26 +48,25 @@ protected:
 
   ViewerOutput* viewer() const
   {
-    return backend_->GetViewerNode();
+    return viewer_;
   }
 
-  VideoParams video_params() const
+  const VideoParams& video_params() const
   {
-    return backend_->GetVideoParams();
+    return video_params_;
   }
 
-  AudioParams audio_params() const
+  const AudioParams& audio_params() const
   {
-    return backend_->GetAudioParams();
-  }
-
-  RenderBackend* backend()
-  {
-    return backend_;
+    return audio_params_;
   }
 
 private:
-  RenderBackend* backend_;
+  ViewerOutput* viewer_;
+
+  VideoParams video_params_;
+
+  AudioParams audio_params_;
 
 };
 

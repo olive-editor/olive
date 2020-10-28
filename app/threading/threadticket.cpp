@@ -18,17 +18,16 @@
 
 ***/
 
-#include "renderticket.h"
+#include "threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTicket::RenderTicket(Type type, const QVariant &time) :
+RenderTicket::RenderTicket() :
+  started_(false),
   finished_(false),
-  cancelled_(false),
-  time_(time),
-  type_(type),
-  job_time_(0)
+  cancelled_(false)
 {
+  SetJobTime();
 }
 
 void RenderTicket::WaitForFinished()
@@ -42,12 +41,10 @@ void RenderTicket::WaitForFinished()
 
 QVariant RenderTicket::Get()
 {
-  QMutexLocker locker(&lock_);
+  WaitForFinished();
 
-  if (!finished_) {
-    wait_.wait(&lock_);
-  }
-
+  // We don't have to mutex around this because there is no way to write to `result_` after
+  // the ticket has finished and the above function blocks the calling thread until it is finished
   return result_;
 }
 
@@ -73,32 +70,50 @@ bool RenderTicket::WasCancelled()
   return cancelled_;
 }
 
-void RenderTicket::Finish(QVariant result)
+void RenderTicket::Start()
 {
   QMutexLocker locker(&lock_);
 
-  finished_ = true;
-  result_ = result;
+  if (!started_ && !finished_) {
+    started_ = true;
+  }
+}
 
-  wait_.wakeAll();
+void RenderTicket::Finish(QVariant result, bool cancelled)
+{
+  QMutexLocker locker(&lock_);
 
-  locker.unlock();
+  if (started_ && !finished_) {
+    finished_ = true;
+    cancelled_ = cancelled;
 
-  emit Finished();
+    result_ = result;
+
+    wait_.wakeAll();
+
+    locker.unlock();
+
+    emit Finished();
+  }
 }
 
 void RenderTicket::Cancel()
 {
   QMutexLocker locker(&lock_);
 
-  finished_ = true;
-  cancelled_ = true;
+  if (!finished_) {
+    cancelled_ = true;
 
-  wait_.wakeAll();
+    if (!started_) {
+      finished_ = true;
 
-  locker.unlock();
+      wait_.wakeAll();
 
-  emit Finished();
+      locker.unlock();
+
+      emit Finished();
+    }
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

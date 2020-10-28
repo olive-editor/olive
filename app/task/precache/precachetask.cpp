@@ -29,9 +29,6 @@ PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   viewer()->set_video_params(sequence->video_params());
   viewer()->set_audio_params(sequence->audio_params());
 
-  // Render fastest quality
-  backend()->SetRenderMode(RenderMode::kOffline);
-
   video_node_ = new VideoInput();
   video_node_->SetStream(footage);
 
@@ -39,13 +36,11 @@ PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
 
   SetTitle(tr("Pre-caching %1:%2").arg(footage->footage()->filename(),
                                        QString::number(footage->index())));
-
-  backend()->NodeGraphChanged(viewer()->texture_input());
-  backend()->ProcessUpdateQueue();
 }
 
 PreCacheTask::~PreCacheTask()
 {
+  // We created this viewer node ourselves, so now we should delete it
   delete viewer();
   delete video_node_;
 }
@@ -66,7 +61,7 @@ bool PreCacheTask::Run()
   }
   */
 
-  Render(video_range, TimeRangeList(), true);
+  Render(video_range, TimeRangeList(), RenderMode::kOnline, true);
 
   download_threads_.waitForDone();
 

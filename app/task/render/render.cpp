@@ -21,20 +21,20 @@
 #include "render.h"
 
 #include "common/timecodefunctions.h"
+#include "render/rendermanager.h"
+#include "threading/threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams)
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
+  viewer_(viewer),
+  video_params_(vparams),
+  audio_params_(aparams)
 {
-  backend_ = new OpenGLBackend();
-  backend_->SetViewerNode(viewer);
-  backend_->SetVideoParams(vparams);
-  backend_->SetAudioParams(aparams);
 }
 
 RenderTask::~RenderTask()
 {
-  delete backend_;
 }
 
 struct TimeHashFuturePair {
@@ -65,8 +65,10 @@ struct HashDownloadFuturePair {
 
 void RenderTask::Render(const TimeRangeList& video_range,
                         const TimeRangeList &audio_range,
+                        RenderMode::Mode mode,
                         bool use_disk_cache)
 {
+  /*
   double progress_counter = 0;
   double total_length = 0;
   double video_frame_sz = video_params().time_base().toDouble();
@@ -77,7 +79,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
     foreach (const TimeRange& r, audio_range) {
       total_length += r.length().toDouble();
 
-      std::list<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
+      std::list<TimeRange> ranges = r.Split(2);
       audio_queue.insert(audio_queue.end(), ranges.begin(), ranges.end());
     }
   }
@@ -93,7 +95,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
     total_length += video_frame_sz * times.size();
 
-    RenderTicketPtr hash_future = backend_->Hash(times);
+    RenderTicketPtr hash_future = RenderManager::instance()->Hash(viewer(), times);
     hashes = hash_future->Get().value<QVector<QByteArray> >();
     hash_job_time = hash_future->GetJobTime();
 
@@ -159,7 +161,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
 
         // If no existing disk cache was found, queue it now
         if (!hash_exists) {
-          render_lookup_table.push_back({p.hash, backend_->RenderFrame(p.time)});
+          render_lookup_table.push_back({p.hash, RenderManager::instance()->RenderFrame(viewer(), p.time, mode)});
           running_hashes.push_back(p.hash);
         }
       }
@@ -169,7 +171,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
     }
 
     while (!IsCancelled() && !audio_queue.empty()) {
-      audio_lookup_table.push_back({audio_queue.front(), backend_->RenderAudio(audio_queue.front())});
+      audio_lookup_table.push_back({audio_queue.front(), RenderManager::instance()->RenderAudio(viewer(), audio_queue.front())});
       audio_queue.pop_front();
     }
 
@@ -235,9 +237,7 @@ void RenderTask::Render(const TimeRangeList& video_range,
       }
     }
   }
-
-  // `Close` will block until all jobs are done making a safe deletion
-  backend_->Close();
+  */
 }
 
 OLIVE_NAMESPACE_EXIT

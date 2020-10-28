@@ -28,6 +28,7 @@
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/timerange.h"
+#include "node/output/viewer/viewer.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -35,13 +36,7 @@ class RenderTicket : public QObject
 {
   Q_OBJECT
 public:
-  enum Type {
-    kTypeHash,
-    kTypeVideo,
-    kTypeAudio
-  };
-
-  RenderTicket(Type type, const QVariant& time);
+  RenderTicket();
 
   qint64 GetJobTime() const
   {
@@ -51,16 +46,6 @@ public:
   void SetJobTime()
   {
     job_time_ = QDateTime::currentMSecsSinceEpoch();
-  }
-
-  const QVariant& GetTime() const
-  {
-    return time_;
-  }
-
-  Type GetType() const
-  {
-    return type_;
   }
 
   void WaitForFinished();
@@ -76,7 +61,9 @@ public:
     return &lock_;
   }
 
-  void Finish(QVariant result);
+  void Start();
+
+  void Finish(QVariant result, bool cancelled);
 
   void Cancel();
 
@@ -84,6 +71,8 @@ signals:
   void Finished();
 
 private:
+  bool started_;
+
   bool finished_;
 
   bool cancelled_;
@@ -93,10 +82,6 @@ private:
   QMutex lock_;
 
   QWaitCondition wait_;
-
-  QVariant time_;
-
-  Type type_;
 
   qint64 job_time_;
 

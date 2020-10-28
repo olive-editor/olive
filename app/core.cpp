@@ -53,6 +53,7 @@
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
+#include "render/rendermanager.h"
 #include "render/shaderinfo.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
@@ -135,8 +136,8 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Initialize OpenGL service
-  OpenGLProxy::CreateInstance();
+  // Initialize RenderManager
+  RenderManager::CreateInstance();
 
   //
   // Start application
@@ -180,7 +181,7 @@ void Core::Stop()
     }
   }
 
-  OpenGLProxy::DestroyInstance();
+  RenderManager::DestroyInstance();
 
   MenuShared::DestroyInstance();
 
@@ -197,6 +198,7 @@ void Core::Stop()
   NodeFactory::Destroy();
 
   delete main_window_;
+  main_window_ = nullptr;
 }
 
 MainWindow *Core::main_window()

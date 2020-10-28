@@ -38,6 +38,11 @@ SampleBufferPtr SampleBuffer::Create()
   return std::make_shared<SampleBuffer>();
 }
 
+SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, const rational &length)
+{
+  return CreateAllocated(audio_params, audio_params.time_to_samples(length));
+}
+
 SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, int samples_per_channel)
 {
   SampleBufferPtr buffer = Create();

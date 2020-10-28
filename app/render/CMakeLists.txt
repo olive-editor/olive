@@ -28,7 +28,9 @@ set(OLIVE_SOURCES
   render/colormanager.h
   render/colormanager.cpp
   render/colorprocessor.h
+  render/colorprocessorcache.h
   render/colorprocessor.cpp
+  render/decodercache.h
   render/diskmanager.h
   render/diskmanager.cpp
   render/framehashcache.h
@@ -39,6 +41,10 @@ set(OLIVE_SOURCES
   render/pixelformat.cpp
   render/playbackcache.h
   render/playbackcache.cpp
+  render/previewautocacher.h
+  render/previewautocacher.cpp
+  render/rendermanager.h
+  render/rendermanager.cpp
   render/rendermodes.h
   render/shaderinfo.h
   render/videoparams.h

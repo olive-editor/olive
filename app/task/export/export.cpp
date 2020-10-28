@@ -33,9 +33,6 @@ ExportTask::ExportTask(ViewerOutput* viewer_node,
   params_(params)
 {
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
-
-  // Render highest quality
-  backend()->SetRenderMode(RenderMode::kOnline);
 }
 
 bool ExportTask::Run()
@@ -66,9 +63,6 @@ bool ExportTask::Run()
 
   if (params_.video_enabled()) {
 
-    // Ensure renderer always provides the same resolution
-    backend()->SetForceDownloadResolution(true);
-
     // If a transformation matrix is applied to this video, create it here
     if (params_.video_scaling_method() != ExportParams::kStretch) {
       QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
@@ -77,7 +71,7 @@ bool ExportTask::Run()
                                                     params_.video_params().width(),
                                                     params_.video_params().height());
 
-      backend()->SetVideoDownloadMatrix(mat);
+      // FIXME: Re-implement this
     }
 
     // Create color processor
@@ -102,7 +96,7 @@ bool ExportTask::Run()
     audio_data_.SetLength(range.length());
   }
 
-  Render(video_range, audio_range, false);
+  Render(video_range, audio_range, RenderMode::kOnline, false);
 
   bool success = true;
 

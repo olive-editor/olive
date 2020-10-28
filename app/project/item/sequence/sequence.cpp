@@ -21,6 +21,7 @@
 #include "sequence.h"
 
 #include <QCoreApplication>
+#include <QThread>
 
 #include "config/config.h"
 #include "common/channellayout.h"

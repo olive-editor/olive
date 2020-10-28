@@ -56,6 +56,8 @@ public:
   const TimeRange& operator+=(const rational &rhs);
   const TimeRange& operator-=(const rational &rhs);
 
+  std::list<TimeRange> Split(const int &chunk_size) const;
+
 private:
   void normalize();
 

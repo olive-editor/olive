@@ -20,6 +20,7 @@
 
 #include "timerange.h"
 
+#include <QtMath>
 #include <utility>
 
 OLIVE_NAMESPACE_ENTER
@@ -146,6 +147,21 @@ const TimeRange &TimeRange::operator-=(const rational &rhs)
   set_range(in_ - rhs, out_ - rhs);
 
   return *this;
+}
+
+std::list<TimeRange> TimeRange::Split(const int &chunk_size) const
+{
+  std::list<TimeRange> split_ranges;
+
+  int start_time = qFloor(this->in().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+  int end_time = qCeil(this->out().toDouble() / static_cast<double>(chunk_size)) * chunk_size;
+
+  for (int i=start_time; i<end_time; i+=chunk_size) {
+    split_ranges.push_back(TimeRange(qMax(this->in(), rational(i)),
+                                     qMin(this->out(), rational(i + chunk_size))));
+  }
+
+  return split_ranges;
 }
 
 void TimeRange::normalize()

@@ -18,7 +18,7 @@
 
 ***/
 
-#include "renderticketwatcher.h"
+#include "threadticketwatcher.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -76,6 +76,13 @@ QVariant RenderTicketWatcher::Get()
     return ticket_->Get();
   } else {
     return QVariant();
+  }
+}
+
+void RenderTicketWatcher::Cancel()
+{
+  if (ticket_) {
+    ticket_->Cancel();
   }
 }
 

@@ -164,6 +164,8 @@ void ViewerOutput::set_video_params(const VideoParams &video)
   }
 
   emit VideoParamsChanged();
+
+  video_frame_cache_.InvalidateAll();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
@@ -171,6 +173,9 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
   audio_params_ = audio;
 
   emit AudioParamsChanged();
+
+  // This will automatically InvalidateAll
+  audio_playback_cache_.SetParameters(audio_params());
 }
 
 rational ViewerOutput::GetLength()

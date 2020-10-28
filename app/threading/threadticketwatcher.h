@@ -18,26 +18,44 @@
 
 ***/
 
-#include "openglbackend.h"
+#ifndef RENDERTICKETWATCHER_H
+#define RENDERTICKETWATCHER_H
 
-#include "openglworker.h"
+#include "threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
 
-OpenGLBackend::OpenGLBackend(QObject* parent) :
-  RenderBackend(parent)
+class RenderTicketWatcher : public QObject
 {
+  Q_OBJECT
+public:
+  RenderTicketWatcher(QObject* parent = nullptr);
 
-}
+  RenderTicketPtr GetTicket() const
+  {
+    return ticket_;
+  }
 
-OpenGLBackend::~OpenGLBackend()
-{
-  Close();
-}
+  void SetTicket(RenderTicketPtr ticket);
 
-RenderWorker *OpenGLBackend::CreateNewWorker()
-{
-  return new OpenGLWorker(this);
-}
+  void Cancel();
+
+  bool WasCancelled();
+
+  bool IsFinished();
+
+  void WaitForFinished();
+
+  QVariant Get();
+
+signals:
+  void Finished();
+
+private:
+  RenderTicketPtr ticket_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // RENDERTICKETWATCHER_H
