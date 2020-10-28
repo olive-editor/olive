@@ -69,6 +69,10 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
+  // Extract OCIO config - kind of hacky, but it'll work
+  // Must do this before setting C locale
+  QString dir = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(QStringLiteral("ocioconf"));
+
   OCIO_SET_C_LOCALE_FOR_SCOPE;
 
   if (!qgetenv("OCIO").isEmpty()) {
@@ -81,9 +85,6 @@ void ColorManager::SetUpDefaultConfig()
       qWarning() << "Failed to load config from OCIO environment variable config:" << e.what();
     }
   }
-
-  // Extract OCIO config - kind of hacky, but it'll work
-  QString dir = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(QStringLiteral("ocioconf"));
 
   FileFunctions::CopyDirectory(QStringLiteral(":/ocioconf"),
                                dir,
