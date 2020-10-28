@@ -37,6 +37,14 @@ class RenderManager : public ThreadPool
 {
   Q_OBJECT
 public:
+  enum Backend {
+    /// Graphics acceleration provided by OpenGL
+    kOpenGL,
+
+    /// No graphics rendering - used to test core threading logic
+    kDummy
+  };
+
   static void CreateInstance()
   {
     instance_ = new RenderManager();
