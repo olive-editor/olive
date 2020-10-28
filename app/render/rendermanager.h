@@ -91,11 +91,14 @@ public:
    */
   RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool prioritize = false);
 
+  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
+
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 
   enum TicketType {
     kTypeVideo,
-    kTypeAudio
+    kTypeAudio,
+    kTypeVideoDownload
   };
 
 signals:
@@ -104,6 +107,8 @@ private:
   static void RenderFrameInternal(RenderTicketPtr ticket);
 
   static void RenderAudioInternal(RenderTicketPtr ticket);
+
+  static void SaveFrameToCacheInternal(RenderTicketPtr ticket);
 
   RenderManager(QObject* parent = nullptr);
 

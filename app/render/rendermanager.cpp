@@ -98,6 +98,24 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   return ticket;
 }
 
+RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, bool prioritize)
+{
+  // Create ticket
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+
+  ticket->setProperty("cache", Node::PtrToValue(cache));
+  ticket->setProperty("frame", QVariant::fromValue(frame));
+  ticket->setProperty("hash", hash);
+  ticket->setProperty("type", kTypeVideoDownload);
+
+  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
+  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
+                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
+                            Q_ARG(bool, prioritize));
+
+  return ticket;
+}
+
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
   // Depending on the render ticket type, start a job
@@ -109,6 +127,9 @@ void RenderManager::RunTicket(RenderTicketPtr ticket) const
     break;
   case kTypeAudio:
     RenderAudioInternal(ticket);
+    break;
+  case kTypeVideoDownload:
+    SaveFrameToCacheInternal(ticket);
     break;
   default:
     // Fail
@@ -142,6 +163,17 @@ void RenderManager::RenderAudioInternal(RenderTicketPtr ticket)
   qDebug() << "STUB: Rendered" << time << "audio for" << viewer;
 
   ticket->Finish(QVariant::fromValue(SampleBuffer::CreateAllocated(viewer->audio_params(), time.length())), false);
+}
+
+void RenderManager::SaveFrameToCacheInternal(RenderTicketPtr ticket)
+{
+  FrameHashCache* cache = Node::ValueToPtr<FrameHashCache>(ticket->property("cache"));
+  FramePtr frame = ticket->property("frame").value<FramePtr>();
+  QByteArray hash = ticket->property("hash").toByteArray();
+
+  ticket->Start();
+
+  ticket->Finish(cache->SaveCacheFrame(hash, frame), false);
 }
 
 void RenderManager::WorkerGeneratedWaveform(RenderTicketPtr ticket, TrackOutput *track, AudioVisualWaveform samples, TimeRange range)

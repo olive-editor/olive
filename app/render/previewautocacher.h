@@ -136,7 +136,7 @@ private:
   QList<QFutureWatcher<void>*> hash_tasks_;
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
-  QMap<QFutureWatcher<bool>*, QByteArray> video_download_tasks_;
+  QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
 
   QVector<QByteArray> currently_caching_hashes_;
 

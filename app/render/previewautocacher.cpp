@@ -202,13 +202,13 @@ void PreviewAutoCacher::VideoRendered()
       const QByteArray& hash = video_tasks_.value(watcher);
 
       // Download frame in another thread
-      QFutureWatcher<bool>* w = new QFutureWatcher<bool>();
+      RenderTicketWatcher* w = new RenderTicketWatcher();
       video_download_tasks_.insert(w, hash);
-      connect(w, &QFutureWatcher<bool>::finished, this, &PreviewAutoCacher::VideoDownloaded);
-      w->setFuture(QtConcurrent::run(viewer_node_->video_frame_cache(),
-                                     &FrameHashCache::SaveCacheFrame,
-                                     hash,
-                                     watcher->Get().value<FramePtr>()));
+      connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
+      w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
+                                                               watcher->Get().value<FramePtr>(),
+                                                               hash,
+                                                               true));
     }
 
     video_tasks_.remove(watcher);
@@ -224,11 +224,11 @@ void PreviewAutoCacher::VideoRendered()
 
 void PreviewAutoCacher::VideoDownloaded()
 {
-  QFutureWatcher<bool>* watcher = static_cast<QFutureWatcher<bool>*>(sender());
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
   if (video_download_tasks_.contains(watcher)) {
-    if (!watcher->isCanceled()) {
-      if (watcher->result()) {
+    if (!watcher->WasCancelled()) {
+      if (watcher->Get().toBool()) {
         const QByteArray& hash = video_download_tasks_.value(watcher);
 
         currently_caching_hashes_.removeOne(hash);
@@ -375,12 +375,12 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
   auto copy = video_download_tasks_;
 
   for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-    it.key()->cancel();
+    it.key()->Cancel();
   }
   if (wait) {
     copy = video_download_tasks_;
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-      it.key()->waitForFinished();
+      it.key()->WaitForFinished();
     }
   }
 }
