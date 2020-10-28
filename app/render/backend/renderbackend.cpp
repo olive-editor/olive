@@ -139,6 +139,10 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
                &PlaybackCache::Invalidated,
                this,
                &RenderBackend::AutoCacheAudioInvalidated);
+
+    foreach (const WorkerData& worker, workers_) {
+      worker.worker->ClearDecoders();
+    }
   }
 
   if (viewer_node) {

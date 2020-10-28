@@ -107,6 +107,8 @@ public:
 
   void RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, const TimeRange& range);
 
+  void ClearDecoders();
+
 protected:
   virtual void TextureToFrame(const QVariant& texture, FramePtr frame, const QMatrix4x4 &mat) const = 0;
 

@@ -164,6 +164,11 @@ void RenderWorker::RenderAudio(RenderTicketPtr ticket, ViewerOutput* viewer, con
   emit FinishedJob();
 }
 
+void RenderWorker::ClearDecoders()
+{
+  decoder_cache_.clear();
+}
+
 NodeValueTable RenderWorker::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
 {
   if (track->track_type() == Timeline::kTrackTypeAudio) {
