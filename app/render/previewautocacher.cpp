@@ -327,6 +327,7 @@ void PreviewAutoCacher::ClearHashQueue(bool wait)
     (*it)->cancel();
   }
   if (wait) {
+    copy = hash_tasks_;
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       (*it)->waitForFinished();
     }
@@ -342,6 +343,7 @@ void PreviewAutoCacher::ClearVideoQueue(bool wait)
     it.key()->Cancel();
   }
   if (wait) {
+    copy = video_tasks_;
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->WaitForFinished();
     }
@@ -360,6 +362,7 @@ void PreviewAutoCacher::ClearAudioQueue(bool wait)
     it.key()->Cancel();
   }
   if (wait) {
+    copy = audio_tasks_;
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->WaitForFinished();
     }
@@ -375,6 +378,7 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
     it.key()->cancel();
   }
   if (wait) {
+    copy = video_download_tasks_;
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->waitForFinished();
     }
