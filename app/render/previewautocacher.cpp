@@ -98,7 +98,7 @@ void PreviewAutoCacher::NodeGraphChanged(NodeInput *source)
   connect(source, &NodeInput::destroyed, this, &PreviewAutoCacher::QueuedInputRemoved);
 }
 
-void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, const QVector<rational> &times, qint64 job_time)
+void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
@@ -110,7 +110,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, const QVector<ratio
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
 
     if (!hash_exists) {
-      hash_exists = QFileInfo::exists(viewer->video_frame_cache()->CachePathName(hash));
+      hash_exists = QFileInfo::exists(cache->CachePathName(hash));
 
       if (hash_exists) {
         existing_hashes.push_back(hash);
@@ -118,7 +118,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, const QVector<ratio
     }
 
     // Set hash in FrameHashCache's thread rather than in ours to prevent race conditions
-    QMetaObject::invokeMethod(viewer->video_frame_cache(), "SetHash", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(cache, "SetHash", Qt::QueuedConnection,
                               OLIVE_NS_ARG(rational, time),
                               Q_ARG(QByteArray, hash),
                               Q_ARG(qint64, job_time),
@@ -128,8 +128,6 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, const QVector<ratio
 
 void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 {
-  qDebug() << "Video invalidated";
-
   ClearQueue(false);
 
   // Hash these frames since that should be relatively quick.
@@ -162,6 +160,11 @@ void PreviewAutoCacher::HashesProcessed()
     RequeueFrames();
   }
 
+  // The cacher might be waiting for this job to finish
+  if (!graph_update_queue_.isEmpty()) {
+    TryRender();
+  }
+
   delete watcher;
 }
 
@@ -177,6 +180,11 @@ void PreviewAutoCacher::AudioRendered()
     }
 
     audio_tasks_.remove(watcher);
+  }
+
+  // The cacher might be waiting for this job to finish
+  if (!graph_update_queue_.isEmpty()) {
+    TryRender();
   }
 
   delete watcher;
@@ -204,6 +212,11 @@ void PreviewAutoCacher::VideoRendered()
     }
 
     video_tasks_.remove(watcher);
+  }
+
+  // The cacher might be waiting for this job to finish
+  if (!graph_update_queue_.isEmpty()) {
+    TryRender();
   }
 
   delete watcher;
@@ -277,14 +290,15 @@ void PreviewAutoCacher::ProcessUpdateQueue()
 #ifdef PRINT_UPDATE_QUEUE_INFO
   qDebug() << "Update queue took:" << (QDateTime::currentMSecsSinceEpoch() - t);
 #endif
+
+  last_update_time_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 bool PreviewAutoCacher::HasActiveJobs() const
 {
   return !hash_tasks_.isEmpty()
       || !audio_tasks_.isEmpty()
-      || !video_tasks_.isEmpty()
-      || !video_download_tasks_.isEmpty();
+      || !video_tasks_.isEmpty();
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -348,6 +362,21 @@ void PreviewAutoCacher::ClearAudioQueue(bool wait)
   if (wait) {
     for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
       it.key()->WaitForFinished();
+    }
+  }
+}
+
+void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
+{
+  // Create a copy because otherwise
+  auto copy = video_download_tasks_;
+
+  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+    it.key()->cancel();
+  }
+  if (wait) {
+    for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+      it.key()->waitForFinished();
     }
   }
 }
@@ -447,8 +476,6 @@ void PreviewAutoCacher::TryRender()
     }
 
     // No jobs are active, we can process the update queue
-    last_update_time_ = QDateTime::currentMSecsSinceEpoch();
-
     ProcessUpdateQueue();
 
     if (video_params_changed_) {
@@ -471,6 +498,7 @@ void PreviewAutoCacher::TryRender()
     connect(watcher, &QFutureWatcher<void>::finished, this, &PreviewAutoCacher::HashesProcessed);
     watcher->setFuture(QtConcurrent::run(&PreviewAutoCacher::GenerateHashes,
                                          copied_viewer_node_,
+                                         viewer_node_->video_frame_cache(),
                                          frames,
                                          last_update_time_));
 
@@ -591,13 +619,7 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
       // We'll need to wait for these since they work directly on the FrameHashCache. Frames will
       // be in the cache for later use.
-      {
-        QMap<QFutureWatcher<bool>*, QByteArray>::const_iterator i;
-        for (i=video_download_tasks_.constBegin(); i!=video_download_tasks_.constEnd(); i++) {
-          i.key()->waitForFinished();
-        }
-        video_download_tasks_.clear();
-      }
+      ClearVideoDownloadQueue(true);
 
       // No longer caching any hashes
       currently_caching_hashes_.clear();

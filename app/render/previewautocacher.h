@@ -81,6 +81,7 @@ public:
   void ClearHashQueue(bool wait = false);
   void ClearVideoQueue(bool wait = false);
   void ClearAudioQueue(bool wait = false);
+  void ClearVideoDownloadQueue(bool wait = false);
 
 public slots:
   /**
@@ -89,7 +90,7 @@ public slots:
   void NodeGraphChanged(NodeInput *source);
 
 private:
-  static void GenerateHashes(ViewerOutput* viewer, const QVector<rational>& times, qint64 job_time);
+  static void GenerateHashes(ViewerOutput* viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
   void CopyNodeInputValue(NodeInput* input);
   Node *CopyNodeConnections(Node *src_node);
