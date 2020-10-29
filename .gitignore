@@ -13,7 +13,7 @@ build/
 CmakeSettings.json
 
 #
-# Qt ignores taken from https://github.com/github/gitignore
+# Qt ignores taken from https://github.com/github/gitignore/blob/master/Qt.gitignore
 #
 
 # C++ objects and libs
@@ -24,6 +24,7 @@ CmakeSettings.json
 *.la
 *.lai
 *.so
+*.so.*
 *.dll
 *.dylib
 
@@ -46,6 +47,8 @@ ui_*.h
 *.jsc
 Makefile*
 *build-*
+*.qm
+*.prl
 
 # Qt unit tests
 target_wrapper.*
@@ -65,3 +68,5 @@ compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*
+
+*_qmlcache.qrc
