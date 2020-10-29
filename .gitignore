@@ -1,16 +1,35 @@
-*.pro.user*
-Makefile
-.qmake.stash
-effects/frei0r
-ts/*.qm
-docs
-history
-build/
-.DS_Store
+# CMake artifacts
+build*/
 
-.vscode
-.vs
+# Doxygen
+docs/
+
+# Visual Studio (Code)
+.localhistory/
+.history/
+.vscode/
+.vs/
 CmakeSettings.json
+
+# macOS General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Windows folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares (Windows)
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
 
 #
 # Qt ignores taken from https://github.com/github/gitignore/blob/master/Qt.gitignore
