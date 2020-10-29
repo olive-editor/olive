@@ -1,14 +1,15 @@
 # CMake artifacts
-build*/
+/build*/
 
 # Doxygen
-docs/
+/docs/
 
 # Visual Studio (Code)
 .localhistory/
 .history/
 .vscode/
 .vs/
+/out/
 CmakeSettings.json
 
 # macOS General
