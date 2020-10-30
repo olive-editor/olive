@@ -34,13 +34,19 @@ public:
   {
   }
 
-  void Cancel() {
+  void Cancel()
+  {
     cancelled_ = true;
+    CancelEvent();
   }
 
-  const QAtomicInt& IsCancelled() const {
+  const QAtomicInt& IsCancelled() const
+  {
     return cancelled_;
   }
+
+protected:
+  virtual void CancelEvent(){}
 
 private:
   QAtomicInt cancelled_;

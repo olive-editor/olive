@@ -96,7 +96,6 @@ void ThreadPool::ThreadDone()
 ThreadPoolThread::ThreadPoolThread(ThreadPool *parent)
 {
   pool_ = parent;
-  cancelled_ = false;
 
   // Ensures mutex is definitely locked by the time the thread is running
   mutex_.lock();
@@ -115,15 +114,9 @@ void ThreadPoolThread::RunTicket(RenderTicketPtr ticket)
   mutex_.unlock();
 }
 
-void ThreadPoolThread::Cancel()
-{
-  cancelled_ = true;
-  wait_cond_.wakeAll();
-}
-
 void ThreadPoolThread::run()
 {
-  while (!cancelled_) {
+  while (!IsCancelled()) {
     wait_cond_.wait(&mutex_);
 
     if (ticket_) {
@@ -133,6 +126,11 @@ void ThreadPoolThread::run()
 
     emit Done();
   }
+}
+
+void ThreadPoolThread::CancelEvent()
+{
+  wait_cond_.wakeAll();
 }
 
 OLIVE_NAMESPACE_EXIT

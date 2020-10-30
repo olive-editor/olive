@@ -23,6 +23,7 @@
 
 #include <QThread>
 
+#include "common/cancelableobject.h"
 #include "threading/threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -58,7 +59,7 @@ private slots:
 
 };
 
-class ThreadPoolThread : public QThread
+class ThreadPoolThread : public QThread, public CancelableObject
 {
   Q_OBJECT
 public:
@@ -73,6 +74,8 @@ public:
 protected:
   virtual void run() override;
 
+  virtual void CancelEvent() override;
+
 signals:
   void Done();
 
@@ -84,8 +87,6 @@ private:
   QMutex mutex_;
 
   QWaitCondition wait_cond_;
-
-  QAtomicInt cancelled_;
 
 };
 
