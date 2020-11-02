@@ -925,6 +925,7 @@ bool Core::SaveProjectAs(ProjectPtr p)
 {
   QFileDialog fd(main_window_, tr("Save Project As"));
 
+  fd.setAcceptMode(QFileDialog::AcceptSave);
   fd.setNameFilter(GetProjectFilter(false));
 
   if (fd.exec() == QDialog::Accepted) {
