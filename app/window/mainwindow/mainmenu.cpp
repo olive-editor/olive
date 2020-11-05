@@ -22,6 +22,7 @@
 
 #include <QDesktopServices>
 #include <QEvent>
+#include <QMessageBox>
 #include <QStyleFactory>
 
 #include "common/timecodefunctions.h"
@@ -30,6 +31,7 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "dialog/task/task.h"
 #include "panel/panelmanager.h"
+#include "render/diskmanager.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -165,6 +167,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   sequence_menu_ = new Menu(this, this, &MainMenu::SequenceMenuAboutToShow);
   sequence_cache_item_ = sequence_menu_->AddItem("seqcache", this, &MainMenu::SequenceCacheTriggered);
   sequence_cache_in_to_out_item_ = sequence_menu_->AddItem("seqcacheinout", this, &MainMenu::SequenceCacheInOutTriggered);
+  sequence_menu_->addSeparator();
+  sequence_cache_clear_ = sequence_menu_->AddItem("seqcacheclear", this, &MainMenu::SequenceCacheClearTriggered);
 
   //
   // WINDOW MENU
@@ -582,6 +586,24 @@ void MainMenu::SequenceCacheInOutTriggered()
   Core::instance()->CacheActiveSequence(true);
 }
 
+void MainMenu::SequenceCacheClearTriggered()
+{
+  QString path_ = Config::Current()["DiskCachePath"].toString();
+
+  if (QMessageBox::question(Core::instance()->main_window(),
+                            tr("Clear Disk Cache"),
+                            tr("Are you sure you want to clear the disk cache in '%1'?").arg(path_),
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+
+    if (!DiskManager::instance()->ClearDiskCache(path_)) {
+      QMessageBox::information(this,
+                               tr("Clear Disk Cache"),
+                               tr("Disk cache failed to fully clear. You may have to delete the cache files manually."),
+                               QMessageBox::Ok);
+    }
+  }
+}
+
 void MainMenu::HelpFeedbackTriggered()
 {
   QDesktopServices::openUrl(QStringLiteral("https://github.com/olive-editor/olive/issues"));
@@ -655,6 +677,7 @@ void MainMenu::Retranslate()
   sequence_menu_->setTitle(tr("&Sequence"));
   sequence_cache_item_->setText(tr("Cache Entire Sequence"));
   sequence_cache_in_to_out_item_->setText(tr("Cache Sequence In/Out"));
+  sequence_cache_clear_->setText(tr("Clear Disk Cache"));
 
   // Window menu
   window_menu_->setTitle("&Window");

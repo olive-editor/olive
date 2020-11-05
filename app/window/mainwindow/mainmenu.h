@@ -171,6 +171,7 @@ private slots:
 
   void SequenceCacheTriggered();
   void SequenceCacheInOutTriggered();
+  void SequenceCacheClearTriggered();
 
   void HelpFeedbackTriggered();
 
@@ -241,6 +242,7 @@ private:
   Menu* sequence_menu_;
   QAction* sequence_cache_item_;
   QAction* sequence_cache_in_to_out_item_;
+  QAction* sequence_cache_clear_;
 
   Menu* window_menu_;
   QAction* window_menu_separator_;
