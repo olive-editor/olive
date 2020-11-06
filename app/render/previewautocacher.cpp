@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "render/rendermanager.h"
+#include "render/renderprocessor.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -177,6 +178,35 @@ void PreviewAutoCacher::AudioRendered()
       viewer_node_->audio_playback_cache()->WritePCM(audio_tasks_.value(watcher),
                                                      watcher->Get().value<SampleBufferPtr>(),
                                                      watcher->GetTicket()->GetJobTime());
+
+      // Retrieve visual waveforms
+      QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
+      foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
+        // Find original track
+        TrackOutput* track = nullptr;
+
+        for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+          if (it.value() == waveform_info.track) {
+            track = static_cast<TrackOutput*>(it.key());
+            break;
+          }
+        }
+
+        if (track) {
+          QList<TimeRange> valid_ranges = viewer_node_->audio_playback_cache()->GetValidRanges(waveform_info.range,
+                                                                                               watcher->GetTicket()->GetJobTime());
+          if (!valid_ranges.isEmpty()) {
+            // Generate visual waveform in this background thread
+            track->waveform().set_channel_count(viewer_node_->audio_params().channel_count());
+
+            foreach (const TimeRange& r, valid_ranges) {
+              track->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+            }
+
+            emit track->PreviewChanged();
+          }
+        }
+      }
     }
 
     audio_tasks_.remove(watcher);

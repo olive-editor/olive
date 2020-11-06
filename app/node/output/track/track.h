@@ -217,11 +217,6 @@ public:
     return waveform_;
   }
 
-  QMutex* waveform_lock()
-  {
-    return &waveform_lock_;
-  }
-
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
@@ -297,7 +292,6 @@ private:
   bool locked_;
 
   AudioVisualWaveform waveform_;
-  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

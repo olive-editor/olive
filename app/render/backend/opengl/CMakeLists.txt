@@ -16,19 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/opengl/openglcolorprocessor.h
-  render/backend/opengl/openglcolorprocessor.cpp
-  render/backend/opengl/openglframebuffer.h
-  render/backend/opengl/openglframebuffer.cpp
-  render/backend/opengl/openglproxy.h
-  render/backend/opengl/openglproxy.cpp
-  render/backend/opengl/openglrenderfunctions.h
-  render/backend/opengl/openglrenderfunctions.cpp
-  render/backend/opengl/openglshader.h
-  render/backend/opengl/openglshader.cpp
-  render/backend/opengl/opengltexture.h
-  render/backend/opengl/opengltexture.cpp
-  render/backend/opengl/opengltexturecache.h
-  render/backend/opengl/opengltexturecache.cpp
+  render/backend/opengl/openglcontext.cpp
+  render/backend/opengl/openglcontext.h
   PARENT_SCOPE
 )

@@ -69,8 +69,6 @@ public:
 
   void RunTicket(RenderTicketPtr ticket);
 
-  void Cancel();
-
 protected:
   virtual void run() override;
 

@@ -18,5 +18,9 @@ add_subdirectory(opengl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  render/backend/rendercontext.cpp
+  render/backend/rendercontext.h
+  render/backend/rendercontextthreadwrapper.cpp
+  render/backend/rendercontextthreadwrapper.h
   PARENT_SCOPE
 )

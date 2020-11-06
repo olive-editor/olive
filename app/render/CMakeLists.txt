@@ -46,6 +46,8 @@ set(OLIVE_SOURCES
   render/rendermanager.h
   render/rendermanager.cpp
   render/rendermodes.h
+  render/renderprocessor.h
+  render/renderprocessor.cpp
   render/shaderinfo.h
   render/videoparams.h
   render/videoparams.cpp

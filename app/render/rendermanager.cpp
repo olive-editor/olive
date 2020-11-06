@@ -22,11 +22,14 @@
 
 #include <QApplication>
 #include <QDateTime>
+#include <QMatrix4x4>
 #include <QThread>
 
 #include "config/config.h"
 #include "core.h"
-#include "render/backend/opengl/openglproxy.h"
+#include "render/backend/opengl/openglcontext.h"
+#include "render/backend/rendercontextthreadwrapper.h"
+#include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"
 #include "window/mainwindow/mainwindow.h"
@@ -38,13 +41,8 @@ RenderManager* RenderManager::instance_ = nullptr;
 RenderManager::RenderManager(QObject *parent) :
   ThreadPool(QThread::IdlePriority, 0, parent)
 {
-  // Initialize OpenGL service
-  OpenGLProxy::CreateInstance();
-}
-
-RenderManager::~RenderManager()
-{
-  OpenGLProxy::DestroyInstance();
+  context_ = new RenderContextThreadWrapper(new OpenGLContext(), this);
+  context_->Init();
 }
 
 QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
@@ -63,13 +61,23 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational &time, RenderMode::Mode mode, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, const rational &time, RenderMode::Mode mode, bool prioritize)
+{
+  return RenderFrame(viewer, time, mode,
+                     QSize(),
+                     QMatrix4x4(),
+                     prioritize);
+}
+
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(time));
+  ticket->setProperty("size", force_size);
+  ticket->setProperty("matrix", matrix);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
 
@@ -81,7 +89,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational 
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, bool generate_waveforms, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -89,6 +97,7 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
+  ticket->setProperty("waveforms", generate_waveforms);
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
@@ -118,84 +127,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
 
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
-  // Depending on the render ticket type, start a job
-  TicketType type = ticket->property("type").value<TicketType>();
-
-  switch (type) {
-  case kTypeVideo:
-    RenderFrameInternal(ticket);
-    break;
-  case kTypeAudio:
-    RenderAudioInternal(ticket);
-    break;
-  case kTypeVideoDownload:
-    SaveFrameToCacheInternal(ticket);
-    break;
-  default:
-    // Fail
-    ticket->Cancel();
-  }
-}
-
-void RenderManager::RenderFrameInternal(RenderTicketPtr ticket)
-{
-  ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket->property("viewer"));
-  rational time = ticket->property("time").value<rational>();
-
-  ticket->Start();
-
-  qDebug() << "STUB: Rendered" << time << "frames for" << viewer;
-
-  FramePtr frame = Frame::Create();
-  frame->set_video_params(viewer->video_params());
-  frame->allocate();
-
-  ticket->Finish(QVariant::fromValue(frame), false);
-}
-
-void RenderManager::RenderAudioInternal(RenderTicketPtr ticket)
-{
-  ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket->property("viewer"));
-  TimeRange time = ticket->property("time").value<TimeRange>();
-
-  ticket->Start();
-
-  qDebug() << "STUB: Rendered" << time << "audio for" << viewer;
-
-  ticket->Finish(QVariant::fromValue(SampleBuffer::CreateAllocated(viewer->audio_params(), time.length())), false);
-}
-
-void RenderManager::SaveFrameToCacheInternal(RenderTicketPtr ticket)
-{
-  FrameHashCache* cache = Node::ValueToPtr<FrameHashCache>(ticket->property("cache"));
-  FramePtr frame = ticket->property("frame").value<FramePtr>();
-  QByteArray hash = ticket->property("hash").toByteArray();
-
-  ticket->Start();
-
-  ticket->Finish(cache->SaveCacheFrame(hash, frame), false);
-}
-
-void RenderManager::WorkerGeneratedWaveform(RenderTicketPtr ticket, TrackOutput *track, AudioVisualWaveform samples, TimeRange range)
-{
-  ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket->property("viewer"));
-
-  QList<TimeRange> valid_ranges = viewer->audio_playback_cache()->GetValidRanges(range,
-                                                                                              ticket->GetJobTime());
-  if (!valid_ranges.isEmpty()) {
-    // Generate visual waveform in this background thread
-    track->waveform_lock()->lock();
-
-    track->waveform().set_channel_count(viewer->audio_params().channel_count());
-
-    foreach (const TimeRange& r, valid_ranges) {
-      track->waveform().OverwriteSums(samples, r.in(), r.in() - range.in(), r.length());
-    }
-
-    track->waveform_lock()->unlock();
-
-    emit track->PreviewChanged();
-  }
+  RenderProcessor::Process(ticket, context_);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -29,6 +29,8 @@
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
+#include "node/traverser.h"
+#include "render/backend/rendercontext.h"
 #include "threading/threadpool.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -78,6 +80,7 @@ public:
    * This function is thread-safe.
    */
   RenderTicketPtr RenderFrame(ViewerOutput* viewer, const rational& time, RenderMode::Mode mode, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, bool prioritize = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -89,7 +92,7 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
 
   RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
 
@@ -104,20 +107,11 @@ public:
 signals:
 
 private:
-  static void RenderFrameInternal(RenderTicketPtr ticket);
-
-  static void RenderAudioInternal(RenderTicketPtr ticket);
-
-  static void SaveFrameToCacheInternal(RenderTicketPtr ticket);
-
   RenderManager(QObject* parent = nullptr);
-
-  virtual ~RenderManager() override;
 
   static RenderManager* instance_;
 
-private slots:
-  void WorkerGeneratedWaveform(OLIVE_NAMESPACE::RenderTicketPtr ticket, OLIVE_NAMESPACE::TrackOutput* track, OLIVE_NAMESPACE::AudioVisualWaveform samples, OLIVE_NAMESPACE::TimeRange range);
+  RenderContext* context_;
 
 };
 
