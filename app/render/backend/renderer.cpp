@@ -18,19 +18,25 @@
 
 ***/
 
-#include "rendercontext.h"
+#include "renderer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-RenderContext::RenderContext(QObject *parent) :
+Renderer::Renderer(QObject *parent) :
   QObject(parent)
 {
 
 }
 
-QVariant RenderContext::CreateTexture(const VideoParams &param)
+Renderer::TexturePtr Renderer::CreateTexture(const VideoParams &param, void *data, int linesize)
 {
-  return CreateTexture(param, nullptr, 0);
+  QVariant v = CreateNativeTexture(param, data, linesize);
+
+  if (v.isNull()) {
+    return nullptr;
+  }
+
+  return std::make_shared<Texture>(this, v, param);
 }
 
 OLIVE_NAMESPACE_EXIT

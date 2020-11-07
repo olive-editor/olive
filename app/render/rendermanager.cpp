@@ -27,8 +27,8 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "render/backend/opengl/openglcontext.h"
-#include "render/backend/rendercontextthreadwrapper.h"
+#include "render/backend/opengl/openglrenderer.h"
+#include "render/backend/rendererthreadwrapper.h"
 #include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"
@@ -41,7 +41,7 @@ RenderManager* RenderManager::instance_ = nullptr;
 RenderManager::RenderManager(QObject *parent) :
   ThreadPool(QThread::IdlePriority, 0, parent)
 {
-  context_ = new RenderContextThreadWrapper(new OpenGLContext(), this);
+  context_ = new RendererThreadWrapper(new OpenGLRenderer(), this);
   context_->Init();
 }
 

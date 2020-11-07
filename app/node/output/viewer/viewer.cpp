@@ -102,7 +102,6 @@ void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
   audio_playback_cache_.Shift(from, to);
 
   foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
-    QMutexLocker locker(track->waveform_lock());
     track->waveform().Shift(from, to);
   }
 }

@@ -36,16 +36,16 @@ public:
 protected:
   virtual void initializeGL() override;
 
-  virtual OpenGLShaderPtr CreateShader() override;
-  OpenGLShaderPtr CreateSecondaryShader();
+  virtual QVariant CreateShader() override;
+  QVariant CreateSecondaryShader();
 
   void AssertAdditionalTextures();
 
   virtual void DrawScope() override;
 
 private:
-  OpenGLShaderPtr pipeline_secondary_;
-  OpenGLTexture texture_row_sums_;
+  QVariant pipeline_secondary_;
+  QVariant texture_row_sums_;
 
 private slots:
   void CleanUp();

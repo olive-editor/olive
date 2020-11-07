@@ -23,7 +23,7 @@
 
 #include <QOpenGLWidget>
 
-#include "render/backend/opengl/openglcolorprocessor.h"
+#include "render/backend/renderer.h"
 #include "render/colormanager.h"
 #include "widget/menu/menu.h"
 
@@ -98,7 +98,7 @@ protected:
   /**
    * @brief Provides access to the color processor (nullptr if none is set)
    */
-  OpenGLColorProcessorPtr color_service();
+  ColorProcessorPtr color_service();
 
   /**
    * @brief Override when setting up OpenGL context
@@ -129,6 +129,11 @@ private:
   void ClearOCIOLutTexture();
 
   /**
+   * @brief Renderer abstraction
+   */
+  Renderer* attached_renderer_;
+
+  /**
    * @brief Connected color manager
    */
   ColorManager* color_manager_;
@@ -136,7 +141,7 @@ private:
   /**
    * @brief Color management service
    */
-  OpenGLColorProcessorPtr color_service_;
+  ColorProcessorPtr color_service_;
 
   /**
    * @brief Internal color transform storage

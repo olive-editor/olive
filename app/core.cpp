@@ -49,7 +49,6 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
@@ -96,8 +95,6 @@ Core *Core::instance()
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();

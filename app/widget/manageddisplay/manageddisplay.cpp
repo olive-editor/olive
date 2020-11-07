@@ -22,6 +22,8 @@
 
 #include <QMessageBox>
 
+#include "render/backend/opengl/openglrenderer.h"
+
 OLIVE_NAMESPACE_ENTER
 
 ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
@@ -30,6 +32,8 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   color_service_(nullptr)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
+
+  attached_renderer_ = new OpenGLRenderer();
 }
 
 ManagedDisplayWidget::~ManagedDisplayWidget()
@@ -102,7 +106,7 @@ void ManagedDisplayWidget::ColorConfigChanged()
   SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
 }
 
-OpenGLColorProcessorPtr ManagedDisplayWidget::color_service()
+ColorProcessorPtr ManagedDisplayWidget::color_service()
 {
   return color_service_;
 }
@@ -112,6 +116,8 @@ void ManagedDisplayWidget::ContextCleanup()
   makeCurrent();
 
   color_service_ = nullptr;
+
+  attached_renderer_->Destroy();
 
   doneCurrent();
 }
@@ -188,6 +194,8 @@ void ManagedDisplayWidget::initializeGL()
   SetupColorProcessor();
 
   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ManagedDisplayWidget::ContextCleanup, Qt::DirectConnection);
+
+  static_cast<OpenGLRenderer*>(attached_renderer_)->Init(context());
 }
 
 void ManagedDisplayWidget::EnableDefaultContextMenu()
@@ -280,11 +288,9 @@ void ManagedDisplayWidget::SetupColorProcessor()
 
     try {
 
-      color_service_ = OpenGLColorProcessor::Create(color_manager_,
-                                                    color_manager_->GetReferenceColorSpace(),
-                                                    color_transform_);
-
-      color_service_->Enable(context(), true);
+      color_service_ = ColorProcessor::Create(color_manager_,
+                                              color_manager_->GetReferenceColorSpace(),
+                                              color_transform_);
 
     } catch (OCIO::Exception& e) {
 

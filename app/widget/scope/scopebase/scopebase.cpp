@@ -54,7 +54,7 @@ void ScopeBase::showEvent(QShowEvent* e)
   UploadTextureFromBuffer();
 }
 
-OpenGLShaderPtr ScopeBase::CreateShader()
+QVariant ScopeBase::CreateShader()
 {
   return OpenGLShader::CreateDefault();
 }

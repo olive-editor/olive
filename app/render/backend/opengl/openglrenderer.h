@@ -23,19 +23,22 @@
 
 #include <QOffscreenSurface>
 #include <QOpenGLFunctions>
+#include <QOpenGLShader>
 #include <QThread>
 
-#include "render/backend/rendercontext.h"
+#include "render/backend/renderer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class OpenGLContext : public RenderContext
+class OpenGLRenderer : public Renderer
 {
   Q_OBJECT
 public:
-  OpenGLContext(QObject* parent = nullptr);
+  OpenGLRenderer(QObject* parent = nullptr);
 
-  virtual ~OpenGLContext() override;
+  virtual ~OpenGLRenderer() override;
+
+  void Init(QOpenGLContext* existing_ctx);
 
   virtual bool Init() override;
 
@@ -44,15 +47,20 @@ public slots:
 
   virtual void Destroy() override;
 
-  virtual QVariant CreateTexture(const VideoParams& param, void* data, int linesize) override;
+  virtual QVariant CreateNativeTexture(const VideoParams& p, void* data = nullptr, int linesize = 0) override;
 
-  virtual void DestroyTexture(QVariant texture) override;
+  virtual void DestroyNativeTexture(QVariant texture) override;
 
-  virtual void UploadToTexture(QVariant texture, void* data, int linesize) override;
+  virtual void UploadToTexture(Texture* texture, void* data, int linesize) override;
 
-  virtual void DownloadFromTexture(QVariant texture, void* data, int linesize) override;
+  virtual void DownloadFromTexture(Texture* texture, void* data, int linesize) override;
 
-  virtual VideoParams GetParamsFromTexture(QVariant texture) override;
+  virtual TexturePtr ProcessShader(const OLIVE_NAMESPACE::Node* node,
+                                   const OLIVE_NAMESPACE::TimeRange &range,
+                                   const OLIVE_NAMESPACE::ShaderJob &job,
+                                   const OLIVE_NAMESPACE::VideoParams &params) override;
+
+  virtual QVariant TransformColor(QVariant texture, ColorProcessorPtr processor) override;
 
 private:
   static GLint GetInternalFormat(PixelFormat::Format format);
@@ -67,10 +75,12 @@ private:
 
   QOffscreenSurface surface_;
 
-  QMap<GLuint, VideoParams> texture_params_;
+  QHash<QString, QOpenGLShaderProgram*> shader_cache_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::OpenGLRenderer::TexturePtr);
 
 #endif // OPENGLCONTEXT_H

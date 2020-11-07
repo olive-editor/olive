@@ -23,16 +23,16 @@
 
 #include <QThread>
 
-#include "rendercontext.h"
+#include "renderer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class RenderContextThreadWrapper : public RenderContext
+/*class RendererThreadWrapper : public Renderer
 {
 public:
-  RenderContextThreadWrapper(RenderContext* inner, QObject* parent = nullptr);
+  RendererThreadWrapper(Renderer* inner, QObject* parent = nullptr);
 
-  virtual ~RenderContextThreadWrapper() override
+  virtual ~RendererThreadWrapper() override
   {
     Destroy();
   }
@@ -52,14 +52,22 @@ public slots:
 
   virtual void DownloadFromTexture(QVariant texture, void* data, int linesize) override;
 
-  virtual VideoParams GetParamsFromTexture(QVariant texture) override;
+  virtual QVariant ProcessShader(const OLIVE_NAMESPACE::Node* node,
+                                 const OLIVE_NAMESPACE::TimeRange &range,
+                                 const OLIVE_NAMESPACE::ShaderJob &job,
+                                 const OLIVE_NAMESPACE::VideoParams &params) override;
+
+  virtual QVariant TransformColor(QVariant texture,
+                                  OLIVE_NAMESPACE::ColorProcessorPtr processor) override;
+
+  //virtual VideoParams GetParamsFromTexture(QVariant texture) override;
 
 private:
-  RenderContext* inner_;
+  Renderer* inner_;
 
   QThread* thread_;
 
-};
+};*/
 
 OLIVE_NAMESPACE_EXIT
 

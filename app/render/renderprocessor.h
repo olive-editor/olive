@@ -22,16 +22,16 @@
 #define RENDERPROCESSOR_H
 
 #include "node/traverser.h"
-#include "render/backend/rendercontext.h"
+#include "render/backend/renderer.h"
 #include "threading/threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class RenderProcessor : public NodeTraverser, public QObject
+class RenderProcessor : public QObject, public NodeTraverser
 {
   Q_OBJECT
 public:
-  static void Process(RenderTicketPtr ticket, RenderContext* render_ctx);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx);
 
   struct RenderedWaveform {
     const TrackOutput* track;
@@ -60,16 +60,18 @@ protected:
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, RenderContext* render_ctx);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx);
 
   void Run();
 
   RenderTicketPtr ticket_;
 
-  RenderContext* render_ctx_;
+  Renderer* render_ctx_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderProcessor::RenderedWaveform);
 
 #endif // RENDERPROCESSOR_H

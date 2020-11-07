@@ -25,9 +25,7 @@
 
 #include "node/node.h"
 #include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
 #include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "tool/tool.h"
@@ -211,7 +209,7 @@ private:
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  OpenGLTexture texture_;
+  QVariant texture_;
 
   /**
    * @brief Translation only matrix (defaults to identity).

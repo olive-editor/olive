@@ -25,7 +25,6 @@
 
 #include "common/qtutils.h"
 #include "node/node.h"
-#include "render/backend/opengl/openglrenderfunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -75,7 +74,7 @@ void HistogramScope::CleanUp()
   doneCurrent();
 }
 
-OpenGLShaderPtr HistogramScope::CreateShader()
+QVariant HistogramScope::CreateShader()
 {
   OpenGLShaderPtr pipeline = OpenGLShader::Create();
 

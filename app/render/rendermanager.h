@@ -30,7 +30,7 @@
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
-#include "render/backend/rendercontext.h"
+#include "render/backend/renderer.h"
 #include "threading/threadpool.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -111,12 +111,12 @@ private:
 
   static RenderManager* instance_;
 
-  RenderContext* context_;
+  Renderer* context_;
 
 };
 
-Q_DECLARE_METATYPE(RenderManager::TicketType);
-
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderManager::TicketType);
 
 #endif // RENDERBACKEND_H
