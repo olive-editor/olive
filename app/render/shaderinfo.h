@@ -122,6 +122,7 @@ public:
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
+    bilinear_ = true;
   }
 
   const QString& GetShaderID() const
@@ -150,12 +151,24 @@ public:
     return iterative_input_;
   }
 
+  bool GetBilinearFiltering() const
+  {
+    return bilinear_;
+  }
+
+  void SetBilinearFiltering(bool e)
+  {
+    bilinear_ = e;
+  }
+
 private:
   QString id_;
 
   int iterations_;
 
   NodeInput* iterative_input_;
+
+  bool bilinear_;
 
 };
 

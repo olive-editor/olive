@@ -23,7 +23,6 @@
 
 #include <QOpenGLWidget>
 
-#include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
 #include "render/colorprocessor.h"
 

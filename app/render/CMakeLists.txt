@@ -49,6 +49,7 @@ set(OLIVE_SOURCES
   render/renderprocessor.h
   render/renderprocessor.cpp
   render/shaderinfo.h
+  render/stillimagecache.h
   render/videoparams.h
   render/videoparams.cpp
   PARENT_SCOPE

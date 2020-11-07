@@ -44,6 +44,7 @@ set(OLIVE_SOURCES
   common/ratiodialog.cpp
   common/rational.h
   common/rational.cpp
+  common/threadsafemap.h
   common/threadedobject.h
   common/threadedobject.cpp
   common/timecodefunctions.h

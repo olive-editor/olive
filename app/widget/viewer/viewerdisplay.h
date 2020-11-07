@@ -22,10 +22,9 @@
 #define VIEWERGLWIDGET_H
 
 #include <QOpenGLWidget>
+#include <QMatrix4x4>
 
 #include "node/node.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "tool/tool.h"

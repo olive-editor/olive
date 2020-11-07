@@ -132,7 +132,7 @@ public slots:
                                    const OLIVE_NAMESPACE::ShaderJob &job,
                                    const OLIVE_NAMESPACE::VideoParams &params) = 0;
 
-  virtual QVariant TransformColor(QVariant texture, OLIVE_NAMESPACE::ColorProcessorPtr processor) = 0;
+  virtual TexturePtr TransformColor(Texture* texture, OLIVE_NAMESPACE::ColorProcessorPtr processor) = 0;
 
   virtual void Render() = 0;
 

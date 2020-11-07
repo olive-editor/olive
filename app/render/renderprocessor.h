@@ -23,6 +23,7 @@
 
 #include "node/traverser.h"
 #include "render/backend/renderer.h"
+#include "stillimagecache.h"
 #include "threading/threadticket.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -67,6 +68,8 @@ private:
   RenderTicketPtr ticket_;
 
   Renderer* render_ctx_;
+
+  StillImageCache* still_image_cache_;
 
 };
 

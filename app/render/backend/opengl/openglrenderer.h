@@ -22,8 +22,10 @@
 #define OPENGLCONTEXT_H
 
 #include <QOffscreenSurface>
+#include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
+#include <QOpenGLVertexArrayObject>
 #include <QThread>
 
 #include "render/backend/renderer.h"
@@ -60,7 +62,7 @@ public slots:
                                    const OLIVE_NAMESPACE::ShaderJob &job,
                                    const OLIVE_NAMESPACE::VideoParams &params) override;
 
-  virtual QVariant TransformColor(QVariant texture, ColorProcessorPtr processor) override;
+  virtual TexturePtr TransformColor(Texture* texture, OLIVE_NAMESPACE::ColorProcessorPtr processor) override;
 
 private:
   static GLint GetInternalFormat(PixelFormat::Format format);
@@ -69,11 +71,21 @@ private:
 
   static GLenum GetPixelType(PixelFormat::Format format);
 
+  void PrepareInputTexture(bool bilinear);
+
   QOpenGLContext* context_;
 
   QOpenGLFunctions* functions_;
 
   QOffscreenSurface surface_;
+
+  QOpenGLVertexArrayObject vao_;
+
+  QOpenGLBuffer vert_vbo_;
+
+  QOpenGLBuffer frag_vbo_;
+
+  GLuint framebuffer_;
 
   QHash<QString, QOpenGLShaderProgram*> shader_cache_;
 

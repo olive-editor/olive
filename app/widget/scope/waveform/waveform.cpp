@@ -36,7 +36,7 @@ WaveformScope::WaveformScope(QWidget* parent) :
 {
 }
 
-OpenGLShaderPtr WaveformScope::CreateShader()
+QVariant WaveformScope::CreateShader()
 {
   OpenGLShaderPtr pipeline = OpenGLShader::Create();
 

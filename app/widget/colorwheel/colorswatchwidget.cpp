@@ -22,8 +22,6 @@
 
 #include <QMouseEvent>
 
-#include "render/backend/opengl/openglrenderfunctions.h"
-
 OLIVE_NAMESPACE_ENTER
 
 ColorSwatchWidget::ColorSwatchWidget(QWidget *parent) :

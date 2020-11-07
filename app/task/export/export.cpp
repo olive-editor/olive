@@ -65,13 +65,13 @@ bool ExportTask::Run()
 
     // If a transformation matrix is applied to this video, create it here
     if (params_.video_scaling_method() != ExportParams::kStretch) {
-      QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
+      // FIXME: Re-implement this
+
+      /*QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
                                                     viewer()->video_params().width(),
                                                     viewer()->video_params().height(),
                                                     params_.video_params().width(),
-                                                    params_.video_params().height());
-
-      // FIXME: Re-implement this
+                                                    params_.video_params().height());*/
     }
 
     // Create color processor

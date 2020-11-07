@@ -24,6 +24,36 @@
 
 OLIVE_NAMESPACE_ENTER
 
+const QVector<GLfloat> blit_vertices = {
+  -1.0f, -1.0f, 0.0f,
+  1.0f, -1.0f, 0.0f,
+  1.0f, 1.0f, 0.0f,
+
+  -1.0f, -1.0f, 0.0f,
+  -1.0f, 1.0f, 0.0f,
+  1.0f, 1.0f, 0.0f
+};
+
+const QVector<GLfloat> blit_texcoords = {
+  0.0f, 0.0f,
+  1.0f, 0.0f,
+  1.0f, 1.0f,
+
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f
+};
+
+const QVector<GLfloat> flipped_blit_texcoords = {
+  0.0f, 1.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f,
+
+  0.0f, 1.0f,
+  0.0f, 0.0f,
+  1.0f, 0.0f
+};
+
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
   Renderer(parent),
   context_(nullptr)
@@ -75,18 +105,45 @@ void OpenGLRenderer::PostInit()
   // Store OpenGL functions instance
   functions_ = context_->functions();
   functions_->glBlendFunc(GL_ONE, GL_ZERO);
+
+  // Set up framebuffer used for various things
+  functions_->glGenFramebuffers(1, &framebuffer_);
+
+  // Set up vertex array object
+  vao_.create();
+
+  // Set up vertex buffer
+  vert_vbo_.create();
+  vert_vbo_.bind();
+  vert_vbo_.allocate(blit_vertices.constData(), blit_vertices.size() * sizeof(GLfloat));
+  vert_vbo_.release();
+
+  // Set up fragment buffer
+  frag_vbo_.create();
+  frag_vbo_.bind();
+  frag_vbo_.allocate(blit_texcoords.constData(), blit_texcoords.size() * sizeof(GLfloat));
+  frag_vbo_.release();
 }
 
 void OpenGLRenderer::Destroy()
 {
+  // Delete vertex array object
+  vao_.destroy();
+
+  // Delete framebuffer
+  functions_->glDeleteFramebuffers(1, &framebuffer_);
+
+  // Delete all shaders
+  qDeleteAll(shader_cache_);
+  shader_cache_.clear();
+
+  // Delete context if it belongs to us
   if (context_->parent() == this) {
     delete context_;
   }
   context_ = nullptr;
 
-  qDeleteAll(shader_cache_);
-  shader_cache_.clear();
-
+  // Destroy surface if we created it
   if (surface_.isValid()) {
     surface_.destroy();
   }
@@ -183,11 +240,11 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
     }
 
     if (frag_code.isEmpty()) {
-      frag_code = OpenGLShader::CodeDefaultFragment();
+      frag_code = Node::ReadFileAsString(QStringLiteral(":/shaders/default.frag"));
     }
 
     if (vert_code.isEmpty()) {
-      vert_code = OpenGLShader::CodeDefaultVertex();
+      vert_code = Node::ReadFileAsString(QStringLiteral(":/shaders/default.vert"));
     }
 
     shader = new QOpenGLShaderProgram(this);
@@ -354,8 +411,6 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
                           static_cast<GLfloat>(params.width()),
                           static_cast<GLfloat>(params.height()));
 
-  shader->release();
-
   // Create the output textures
   PixelFormat::Format output_format = (input_textures_have_alpha || job.GetAlphaChannelRequired())
       ? PixelFormat::GetFormatWithAlphaChannel(params.format())
@@ -393,14 +448,28 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
   for (int i=0; i<textures_to_bind.size(); i++) {
     functions_->glActiveTexture(GL_TEXTURE0 + i);
     functions_->glBindTexture(GL_TEXTURE_2D, textures_to_bind.at(i));
-    OpenGLRenderFunctions::PrepareToDraw(functions_);
+    PrepareInputTexture(job.GetBilinearFiltering());
   }
+
+  // Bind vertex array object
+  vao_.bind();
+
+  // Set buffers
+  int vertex_location = shader->attributeLocation("a_position");
+  vert_vbo_.bind();
+  functions_->glEnableVertexAttribArray(vertex_location);
+  functions_->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+  vert_vbo_.release();
+
+  int tex_location = shader->attributeLocation("a_texcoord");
+  frag_vbo_.bind();
+  functions_->glEnableVertexAttribArray(tex_location);
+  functions_->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+  frag_vbo_.release();
 
   for (int iteration=0; iteration<real_iteration_count; iteration++) {
     // Set iteration number
-    shader->bind();
     shader->setUniformValue("ove_iteration", iteration);
-    shader->release();
 
     // Replace iterative input
     if (iteration == 0) {
@@ -410,18 +479,22 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
       output_tex = dst_refs[iteration%2];
 
       functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
-      functions_->glBindTexture(GL_TEXTURE_2D, input_tex->texture()->texture());
-      OpenGLRenderFunctions::PrepareToDraw(functions_);
+      functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
+      PrepareInputTexture(job.GetBilinearFiltering());
     }
 
-    buffer_.Attach(output_tex, true);
-    buffer_.Bind();
+    functions_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+    functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                       GL_COLOR_ATTACHMENT0,
+                                       GL_TEXTURE_2D,
+                                       output_tex->id().value<GLuint>(),
+                                       0);
 
     // Blit this texture through this shader
-    OpenGLRenderFunctions::Blit(shader);
+    functions_->glDrawArrays(GL_TRIANGLES, 0, blit_vertices.size() / 3);
 
-    buffer_.Release();
-    buffer_.Detach();
+    // Reset framebuffer to default
+    functions_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 
   // Release any textures we bound before
@@ -430,15 +503,14 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
     functions_->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
+  // Release vertex array object
+  vao_.release();
+
+  // Release shader
+  shader->release();
+
   return output_tex;
 }
-
-/*VideoParams OpenGLRenderer::GetParamsFromTexture(QVariant texture)
-{
-  GLuint t = texture.value<GLuint>();
-
-  return texture_params_.value(t);
-}*/
 
 GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format)
 {
@@ -499,6 +571,23 @@ GLenum OpenGLRenderer::GetPixelType(PixelFormat::Format format)
   }
 
   return GL_INVALID_VALUE;
+}
+
+void OpenGLRenderer::PrepareInputTexture(bool bilinear)
+{
+  if (bilinear) {
+    // Use mipmapped bilinear
+    functions_->glGenerateMipmap(GL_TEXTURE_2D);
+    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  } else {
+    // Use nearest
+    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  }
+
+  functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 OLIVE_NAMESPACE_EXIT

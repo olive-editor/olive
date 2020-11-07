@@ -32,7 +32,7 @@ public:
   WaveformScope(QWidget* parent = nullptr);
 
 protected:
-  virtual OpenGLShaderPtr CreateShader() override;
+  virtual QVariant CreateShader() override;
 
   virtual void DrawScope() override;
 

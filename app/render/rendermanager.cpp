@@ -80,6 +80,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational 
   ticket->setProperty("matrix", matrix);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
+  ticket->setProperty("cache", viewer->video_frame_cache()->GetCacheDirectory());
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
