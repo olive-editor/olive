@@ -25,10 +25,12 @@
 #include <opentimelineio/gap.h>
 #include <opentimelineio/serializableCollection.h>
 #include <opentimelineio/timeline.h>
+#include <opentimelineio/transition.h>
 #include <QFileInfo>
 
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
+#include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
 #include "project/item/folder/folder.h"
@@ -122,6 +124,9 @@ bool LoadOTIOTask::Run()
         return false;
       }
 
+      Block* previous_block = nullptr;
+      bool prev_block_transition = false;
+
       for (auto otio_block_retainer : clip_map) {
 
         auto otio_block = otio_block_retainer.value;
@@ -136,27 +141,66 @@ bool LoadOTIOTask::Run()
 
           block = new GapBlock();
 
+        } else if (otio_block->schema_name() == "Transition") {
+
+          // Todo: Look into OTIO supported transitions and add them to Olive
+          block = new CrossDissolveTransition();
+
         } else {
 
           // We don't know what this is yet, just create a gap for now so that *something* is there
           qWarning() << "Found unknown block type:" << otio_block->schema_name().c_str();
           block = new GapBlock();
-
         }
 
-        block->SetLabel(QString::fromStdString(otio_block->name()));
-
-        rational start_time = rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->start_time().to_seconds());
-        rational duration = rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds());
-
-        block->set_media_in(start_time);
-        block->set_length_and_media_out(duration);
         sequence->AddNode(block);
+
+        block->SetLabel(QString::fromStdString(otio_block->name()));
+        rational start_time;
+        rational duration;
+
+        if (otio_block->schema_name() == "Clip" || otio_block->schema_name() == "Gap") {
+          start_time =
+              rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->start_time().to_seconds());
+          duration =
+              rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds());
+
+          block->set_media_in(start_time);
+          block->set_length_and_media_out(duration);
+        }
+
+        // If the previous block was a transition, connect the current block to it
+        if (prev_block_transition) {
+          TransitionBlock* previous_transition_block = static_cast<TransitionBlock*>(previous_block);
+          NodeParam::ConnectEdge(block->output(), previous_transition_block->in_block_input());
+          prev_block_transition = false;
+        }
+
+        if (otio_block->schema_name() == "Transition") {
+          TransitionBlock* transition_block = static_cast<TransitionBlock*>(block);
+          OTIO::Transition* otio_block_transition = static_cast<OTIO::Transition*>(otio_block);
+
+          duration = rational::fromDouble((otio_block_transition->in_offset() + otio_block_transition->out_offset()).to_seconds());
+          transition_block->set_length_and_media_out(duration);
+
+          if (previous_block) {
+            NodeParam::ConnectEdge(previous_block->output(), transition_block->out_block_input());
+
+            // Set how far the transition eats into the previous clip
+            transition_block->set_media_in(rational::fromDouble(-otio_block_transition->out_offset().to_seconds()));
+          }
+          prev_block_transition = true;
+        }
+
         track->AppendBlock(block);
+        // Update this after it's used but before any continue statements
+        previous_block = block;
 
         if (otio_block->schema_name() == "Clip") {
           auto otio_clip = static_cast<OTIO::Clip*>(otio_block);
-
+          if (!otio_clip->media_reference()) {
+            continue;
+          }
           if (otio_clip->media_reference()->schema_name() == "ExternalReference") {
             // Link footage
             QString footage_url = QString::fromStdString(static_cast<OTIO::ExternalReference*>(otio_clip->media_reference())->target_url());
