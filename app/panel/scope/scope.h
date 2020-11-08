@@ -62,6 +62,8 @@ private:
 
   QStackedWidget* stack_;
 
+  QStackedWidget* stack_ui_;
+
   QComboBox* scope_type_combobox_;
 
   WaveformScope* waveform_view_;

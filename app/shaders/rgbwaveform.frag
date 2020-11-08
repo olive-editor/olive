@@ -4,6 +4,7 @@ uniform sampler2D ove_maintex;
 uniform vec2 ove_resolution;
 uniform vec2 ove_viewport;
 uniform vec3 luma_coeffs;
+uniform vec4 channel_swizzle;
 
 uniform float waveform_scale;
 
@@ -36,6 +37,11 @@ void main(void) {
             step(vec4(1.0 - quantisation), cur_col) * intensity);
     }
 
-    col.rgb += vec3(col.w);
+    col = col*channel_swizzle;
+
+    if(channel_swizzle.w == 1){
+        col.rgb += vec3(col.w);
+    }
+    
     fragColor = vec4(col.rgb, 1.0);
 }

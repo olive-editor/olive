@@ -29,6 +29,7 @@ ScopeBase::ScopeBase(QWidget* parent) :
   buffer_(nullptr)
 {
   EnableDefaultContextMenu();
+  control_ui_ = new QWidget();
 }
 
 ScopeBase::~ScopeBase()
@@ -38,6 +39,11 @@ ScopeBase::~ScopeBase()
   if (context()) {
     disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ScopeBase::CleanUp);
   }
+}
+
+QWidget* ScopeBase::ControlUI()
+{
+  return control_ui_;
 }
 
 void ScopeBase::SetBuffer(Frame *frame)

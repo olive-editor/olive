@@ -37,6 +37,8 @@ public:
 
   virtual ~ScopeBase() override;
 
+  QWidget* ControlUI();
+
 public slots:
   void SetBuffer(Frame* frame);
 
@@ -66,8 +68,16 @@ protected:
     return framebuffer_;
   }
 
+  QWidget* control_ui_;
+
 private:
   void UploadTextureFromBuffer();
+
+   /**
+   * @brief Only needs to be implemented if the scope requires UI control. See waveform.cpp for an example
+   * Sets up the UI that control_ui_ points to.
+   */
+  virtual void SetupControlUI(){};
 
   OpenGLShaderPtr pipeline_;
 
