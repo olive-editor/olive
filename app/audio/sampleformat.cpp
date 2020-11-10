@@ -20,7 +20,7 @@
 
 #include "sampleformat.h"
 
-#include "core.h"
+#include <QCoreApplication>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -30,23 +30,23 @@ QString SampleFormat::GetSampleFormatName(const SampleFormat::Format &f)
 {
   switch (f) {
   case SAMPLE_FMT_U8:
-    return tr("Unsigned 8-bit");
+    return QCoreApplication::translate("SampleFormat", "Unsigned 8-bit");
   case SAMPLE_FMT_S16:
-    return tr("Signed 16-bit");
+    return QCoreApplication::translate("SampleFormat", "Signed 16-bit");
   case SAMPLE_FMT_S32:
-    return tr("Signed 32-bit");
+    return QCoreApplication::translate("SampleFormat", "Signed 32-bit");
   case SAMPLE_FMT_S64:
-    return tr("Signed 64-bit");
+    return QCoreApplication::translate("SampleFormat", "Signed 64-bit");
   case SAMPLE_FMT_FLT:
-    return tr("32-bit Float");
+    return QCoreApplication::translate("SampleFormat", "32-bit Float");
   case SAMPLE_FMT_DBL:
-    return tr("64-bit Float");
+    return QCoreApplication::translate("SampleFormat", "64-bit Float");
   case SAMPLE_FMT_COUNT:
   case SAMPLE_FMT_INVALID:
     break;
   }
 
-  return tr("Invalid");
+  return QCoreApplication::translate("SampleFormat", "Invalid");
 }
 
 OLIVE_NAMESPACE_EXIT

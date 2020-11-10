@@ -21,16 +21,14 @@
 #ifndef SAMPLEFORMAT_H
 #define SAMPLEFORMAT_H
 
-#include <QObject>
+#include <QString>
 
 #include "common/define.h"
-#include "render/rendermodes.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class SampleFormat : public QObject
+class SampleFormat
 {
-  Q_OBJECT
 public:
   SampleFormat() = default;
 
