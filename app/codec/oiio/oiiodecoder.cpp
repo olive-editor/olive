@@ -29,6 +29,7 @@
 #include "common/define.h"
 #include "config/config.h"
 #include "core.h"
+#include "oiiocommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -40,6 +41,11 @@ OIIODecoder::OIIODecoder() :
 {
 }
 
+OIIODecoder::~OIIODecoder()
+{
+  CloseInternal();
+}
+
 QString OIIODecoder::id()
 {
   return QStringLiteral("oiio");
@@ -47,6 +53,10 @@ QString OIIODecoder::id()
 
 FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
+  Q_UNUSED(cancelled)
+
+  // Filter out any file extensions that aren't expected to work - sometimes OIIO will crash trying
+  // to open a file that it can't if it's given one
   if (!FileTypeIsSupported(filename)) {
     return nullptr;
   }
@@ -59,8 +69,9 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
     return nullptr;
   }
 
+  // Filter out OIIO detecting an "FFmpeg movie", we have a native FFmpeg decoder that can handle
+  // it better
   if (!strcmp(in->format_name(), "FFmpeg movie")) {
-    // If this is FFmpeg via OIIO, fall-through to our native FFmpeg decoder
     return nullptr;
   }
 
@@ -70,8 +81,8 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
 
   image_stream->set_width(in->spec().width);
   image_stream->set_height(in->spec().height);
-  image_stream->set_format(GetFormatFromOIIOBasetype(in->spec()));
-  image_stream->set_pixel_aspect_ratio(GetPixelAspectRatioFromOIIO(in->spec()));
+  image_stream->set_format(OIIOCommon::GetFormatFromOIIOBasetype(in->spec()));
+  image_stream->set_pixel_aspect_ratio(OIIOCommon::GetPixelAspectRatioFromOIIO(in->spec()));
   image_stream->set_video_type(VideoStream::kVideoTypeStill);
 
   // Images will always have just one stream
@@ -95,45 +106,40 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
   return footage;
 }
 
-bool OIIODecoder::Open()
+bool OIIODecoder::OpenInternal()
 {
-  Q_ASSERT(stream());
+  // If we can open the filename provided, assume everything is working (even if this is an image
+  // sequence with potentially missing frame)
+  if (OpenImageHandler(stream()->footage()->filename())) {
+    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  if (stream()->type() != Stream::kVideo) {
-    // Guard against non-video types
-    return false;
+    if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
+      last_sequence_index_ = 0;
+    } else {
+      last_sequence_index_ = GetImageSequenceIndex(stream()->footage()->filename());
+    }
+
+    return true;
   }
-
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
-
-  if (video_stream->video_type() == VideoStream::kVideoTypeVideo) {
-    // This decoder only handles kVideoTypeImageSequence and kVideoTypeStill
-    return false;
-  }
-
-  if (video_stream->video_type() == VideoStream::kVideoTypeStill
-      && !OpenImageHandler(stream()->footage()->filename())) {
-    return false;
-  }
-
-  open_ = true;
-
-  return true;
+  return false;
 }
 
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
+FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int& divider)
 {
-  if (!open_) {
-    qWarning() << "Tried to retrieve video on a decoder that's still closed";
-    return nullptr;
-  }
-
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  if (video_stream->video_type() == VideoStream::kVideoTypeImageSequence) {
-    int64_t ts = video_stream->get_time_in_timebase_units(timecode);
+  int64_t sequence_index;
 
-    if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts))) {
+  if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
+    sequence_index = 0;
+  } else {
+    sequence_index = video_stream->get_time_in_timebase_units(timecode);
+  }
+
+  if (last_sequence_index_ != sequence_index) {
+    CloseImageHandle();
+
+    if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), sequence_index))) {
       return nullptr;
     }
   }
@@ -143,14 +149,14 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
   frame->set_video_params(VideoParams(buffer_->spec().width,
                                       buffer_->spec().height,
                                       pix_fmt_,
-                                      GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                                      OIIOCommon::GetPixelAspectRatioFromOIIO(buffer_->spec()),
                                       VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
                                       divider));
   frame->allocate();
 
   if (divider == 1) {
 
-    BufferToFrame(buffer_, frame);
+    OIIOCommon::BufferToFrame(buffer_, frame);
 
   } else {
 
@@ -161,104 +167,16 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
       qWarning() << "OIIO resize failed";
     }
 
-    BufferToFrame(&dst, frame);
+    OIIOCommon::BufferToFrame(&dst, frame);
 
-  }
-
-  if (video_stream->video_type() == VideoStream::kVideoTypeImageSequence) {
-    CloseImageHandle();
   }
 
   return frame;
 }
 
-void OIIODecoder::Close()
+void OIIODecoder::CloseInternal()
 {
   CloseImageHandle();
-}
-
-bool OIIODecoder::SupportsVideo()
-{
-  return true;
-}
-
-void OIIODecoder::FrameToBuffer(FramePtr frame, OIIO::ImageBuf *buf)
-{
-#if OIIO_VERSION < 20112
-  //
-  // Workaround for OIIO bug that ignores destination stride in versions OLDER than 2.1.12
-  //
-  // See more: https://github.com/OpenImageIO/oiio/pull/2487
-  //
-  int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
-
-  for (int i=0;i<buf->spec().height;i++) {
-    memcpy(
-#if OIIO_VERSION < 10903
-          reinterpret_cast<char*>(buf->localpixels()) + i * width_in_bytes,
-#else
-          reinterpret_cast<char*>(buf->localpixels()) + i * buf->scanline_stride(),
-#endif
-          frame->data() + i * frame->linesize_bytes(),
-          width_in_bytes);
-  }
-#else
-  buf->set_pixels(OIIO::ROI(),
-                  buf->spec().format,
-                  frame->data(),
-                  OIIO::AutoStride,
-                  frame->linesize_bytes());
-#endif
-}
-
-void OIIODecoder::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
-{
-#if OIIO_VERSION < 20112
-  //
-  // Workaround for OIIO bug that ignores destination stride in versions OLDER than 2.1.12
-  //
-  // See more: https://github.com/OpenImageIO/oiio/pull/2487
-  //
-  int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
-
-  for (int i=0;i<buf->spec().height;i++) {
-    memcpy(frame->data() + i * frame->linesize_bytes(),
-#if OIIO_VERSION < 10903
-           reinterpret_cast<const char*>(buf->localpixels()) + i * width_in_bytes,
-#else
-           reinterpret_cast<const char*>(buf->localpixels()) + i * buf->scanline_stride(),
-#endif
-           width_in_bytes);
-  }
-#else
-  buf->get_pixels(OIIO::ROI(),
-                  buf->spec().format,
-                  frame->data(),
-                  OIIO::AutoStride,
-                  frame->linesize_bytes());
-#endif
-}
-
-PixelFormat::Format OIIODecoder::GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec)
-{
-  bool has_alpha = (spec.nchannels == kRGBAChannels);
-
-  if (spec.format == OIIO::TypeDesc::UINT8) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA8 : PixelFormat::PIX_FMT_RGB8;
-  } else if (spec.format == OIIO::TypeDesc::UINT16) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA16U : PixelFormat::PIX_FMT_RGB16U;
-  } else if (spec.format == OIIO::TypeDesc::HALF) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA16F : PixelFormat::PIX_FMT_RGB16F;
-  } else if (spec.format == OIIO::TypeDesc::FLOAT) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F;
-  } else {
-    return PixelFormat::PIX_FMT_INVALID;
-  }
-}
-
-rational OIIODecoder::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
-{
-  return rational::fromDouble(spec.get_float_attribute("PixelAspectRatio", 1));
 }
 
 bool OIIODecoder::FileTypeIsSupported(const QString& fn)
@@ -299,7 +217,7 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
 
   is_rgba_ = (spec.nchannels == kRGBAChannels);
 
-  pix_fmt_ = GetFormatFromOIIOBasetype(spec);
+  pix_fmt_ = OIIOCommon::GetFormatFromOIIOBasetype(spec);
 
   if (pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";

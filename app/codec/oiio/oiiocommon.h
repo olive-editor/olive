@@ -18,44 +18,30 @@
 
 ***/
 
-#ifndef FFMPEGFRAMEPOOL_H
-#define FFMPEGFRAMEPOOL_H
+#ifndef OIIOCOMMON_H
+#define OIIOCOMMON_H
 
-#include "common/memorypool.h"
+#include <OpenImageIO/imageio.h>
+#include <OpenImageIO/imagebuf.h>
+
+#include "codec/frame.h"
 #include "render/pixelformat.h"
-#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class FFmpegFramePool : public MemoryPool<uint8_t>
+class OIIOCommon
 {
 public:
-  FFmpegFramePool(int element_count);
+  static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
 
-  void SetParameters(int width, int height, PixelFormat::Format format);
+  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
 
-  const int& width() const
-  {
-    return width_;
-  }
+  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
 
-  const int& height() const
-  {
-    return height_;
-  }
-
-protected:
-  virtual size_t GetElementSize() override;
-
-private:
-  int width_;
-
-  int height_;
-
-  PixelFormat::Format format_;
+  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // FFMPEGFRAMEPOOL_H
+#endif // OIIOCOMMON_H

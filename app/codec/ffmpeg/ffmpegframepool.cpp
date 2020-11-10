@@ -20,9 +20,7 @@
 
 #include "ffmpegframepool.h"
 
-extern "C" {
-#include <libavutil/imgutils.h>
-}
+#include "codec/frame.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -30,11 +28,11 @@ FFmpegFramePool::FFmpegFramePool(int element_count) :
   MemoryPool(element_count),
   width_(0),
   height_(0),
-  format_(AV_PIX_FMT_NONE)
+  format_(PixelFormat::PIX_FMT_INVALID)
 {
 }
 
-void FFmpegFramePool::SetParameters(int width, int height, AVPixelFormat format)
+void FFmpegFramePool::SetParameters(int width, int height, PixelFormat::Format format)
 {
   Clear();
 
@@ -45,17 +43,7 @@ void FFmpegFramePool::SetParameters(int width, int height, AVPixelFormat format)
 
 size_t FFmpegFramePool::GetElementSize()
 {
-  int buf_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(format_),
-                                        width_,
-                                        height_,
-                                        1);
-
-  if (buf_sz < 0) {
-    qDebug() << "Failed to find buffer size:" << buf_sz;
-    return 0;
-  }
-
-  return buf_sz;
+  return Frame::generate_linesize_bytes(width_, format_) * height_;
 }
 
 OLIVE_NAMESPACE_EXIT

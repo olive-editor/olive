@@ -49,10 +49,6 @@ public:
   const int& sample_rate() const;
   void set_sample_rate(const int& sample_rate);
 
-  bool try_start_conforming(const AudioParams& params);
-  bool has_conformed_version(const AudioParams& params);
-  void append_conformed_version(const AudioParams& params);
-
   virtual QIcon icon() const override;
 
 protected:
@@ -60,17 +56,10 @@ protected:
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
 
-signals:
-  void ConformAppended(OLIVE_NAMESPACE::AudioParams params);
-
 private:
   int channels_;
   uint64_t layout_;
   int sample_rate_;
-
-  QList<AudioParams> conformed_;
-
-  QList<AudioParams> currently_conforming_;
 
 };
 

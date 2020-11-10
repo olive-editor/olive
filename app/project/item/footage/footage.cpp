@@ -308,7 +308,7 @@ bool Footage::CompareFootageToItsFilename(FootagePtr footage)
     } else {
       // Footage may have changed and we'll have to re-probe it. It also may not have, in which
       // case nothing needs to change.
-      ItemPtr item = Decoder::ProbeMedia(footage->project(), footage->filename(), nullptr);
+      ItemPtr item = Decoder::Probe(footage->project(), footage->filename(), nullptr);
 
       if (item && item->type() == footage->type()) {
         // Item is the same type, that's a good sign. Let's look for any differences.

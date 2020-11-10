@@ -47,11 +47,32 @@ public:
   const VideoParams& video_params() const;
   void set_video_params(const VideoParams& params);
 
-  int linesize_pixels() const;
-  int linesize_bytes() const;
-  const int& width() const;
-  const int& height() const;
-  const PixelFormat::Format& format() const;
+  static int generate_linesize_bytes(int width, PixelFormat::Format format);
+
+  int linesize_pixels() const
+  {
+    return linesize_pixels_;
+  }
+
+  int linesize_bytes() const
+  {
+    return linesize_;
+  }
+
+  int width() const
+  {
+    return params_.effective_width();
+  }
+
+  int height() const
+  {
+    return params_.effective_height();
+  }
+
+  PixelFormat::Format format() const
+  {
+    return params_.format();
+  }
 
   Color get_pixel(int x, int y) const;
   bool contains_pixel(int x, int y) const;
@@ -62,18 +83,31 @@ public:
    *
    * This timestamp is always a rational that will equate to the time in seconds.
    */
-  const rational& timestamp() const;
-  void set_timestamp(const rational& timestamp);
+  const rational& timestamp() const
+  {
+    return timestamp_;
+  }
+
+  void set_timestamp(const rational& timestamp)
+  {
+    timestamp_ = timestamp;
+  }
 
   /**
    * @brief Get the data buffer of this frame
    */
-  char* data();
+  char* data()
+  {
+    return data_.data();
+  }
 
   /**
    * @brief Get the const data buffer of this frame
    */
-  const char* const_data() const;
+  const char* const_data() const
+  {
+    return data_.constData();
+  }
 
   /**
    * @brief Allocate memory buffer to store data based on parameters
@@ -87,19 +121,28 @@ public:
   /**
    * @brief Return whether the frame is allocated or not
    */
-  bool is_allocated() const;
+  bool is_allocated() const
+  {
+    return !data_.isEmpty();
+  }
 
   /**
    * @brief Destroy a memory buffer allocated with allocate()
    */
-  void destroy();
+  void destroy()
+  {
+    data_.clear();
+  }
 
   /**
    * @brief Returns the size of the array returned in data() in bytes
    *
    * Returns 0 if nothing is allocated.
    */
-  int allocated_size() const;
+  int allocated_size() const
+  {
+    return data_.size();
+  }
 
 private:
   VideoParams params_;
@@ -109,6 +152,8 @@ private:
   rational timestamp_;
 
   int linesize_;
+
+  int linesize_pixels_;
 
 };
 

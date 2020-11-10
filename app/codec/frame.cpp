@@ -45,33 +45,14 @@ void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 
-  // Align linesize to 32
-  linesize_ = qCeil(static_cast<double>(width()) / 32.0) * 32;
+  linesize_ = generate_linesize_bytes(params_.width(), params_.format());
+  linesize_pixels_ = linesize_ / PixelFormat::BytesPerPixel(params_.format());
 }
 
-int Frame::linesize_pixels() const
+int Frame::generate_linesize_bytes(int width, PixelFormat::Format format)
 {
-  return linesize_;
-}
-
-int Frame::linesize_bytes() const
-{
-  return linesize_pixels() * PixelFormat::BytesPerPixel(params_.format());
-}
-
-const int &Frame::width() const
-{
-  return params_.effective_width();
-}
-
-const int &Frame::height() const
-{
-  return params_.effective_height();
-}
-
-const PixelFormat::Format &Frame::format() const
-{
-  return params_.format();
+  // Align to 32 bytes (not sure if this is necessary?)
+  return ((PixelFormat::BytesPerPixel(format) * width) + 31) & ~31;
 }
 
 Color Frame::get_pixel(int x, int y) const
@@ -80,9 +61,7 @@ Color Frame::get_pixel(int x, int y) const
     return Color();
   }
 
-  int pixel_index = y * linesize_pixels() + x;
-
-  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
+  int byte_offset = y * linesize_bytes() + x * PixelFormat::BytesPerPixel(video_params().format());
 
   return Color(data_.data() + byte_offset, video_params().format());
 }
@@ -98,31 +77,9 @@ void Frame::set_pixel(int x, int y, const Color &c)
     return;
   }
 
-  int pixel_index = y * linesize_pixels() + x;
-
-  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
+  int byte_offset = y * linesize_bytes() + x * PixelFormat::BytesPerPixel(video_params().format());
 
   c.toData(data_.data() + byte_offset, video_params().format());
-}
-
-const rational &Frame::timestamp() const
-{
-  return timestamp_;
-}
-
-void Frame::set_timestamp(const rational &timestamp)
-{
-  timestamp_ = timestamp;
-}
-
-char *Frame::data()
-{
-  return data_.data();
-}
-
-const char *Frame::const_data() const
-{
-  return data_.constData();
 }
 
 void Frame::allocate()
@@ -134,21 +91,6 @@ void Frame::allocate()
   }
 
   data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, params_.height()));
-}
-
-bool Frame::is_allocated() const
-{
-  return !data_.isEmpty();
-}
-
-void Frame::destroy()
-{
-  data_.clear();
-}
-
-int Frame::allocated_size() const
-{
-  return data_.size();
 }
 
 OLIVE_NAMESPACE_EXIT
