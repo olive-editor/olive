@@ -32,8 +32,6 @@
 #include "common/define.h"
 #include "common/functiontimer.h"
 #include "gizmotraverser.h"
-#include "render/backend/opengl/openglrenderfunctions.h"
-#include "render/backend/opengl/openglshader.h"
 #include "render/pixelformat.h"
 #include "core.h"
 
@@ -56,7 +54,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 
 ViewerDisplayWidget::~ViewerDisplayWidget()
 {
-  ContextCleanup();
+  OnDestroy();
 }
 
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
@@ -104,13 +102,13 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
   if (last_loaded_buffer_) {
     makeCurrent();
 
-    if (!texture_.IsCreated()
-        || texture_.width() != in_buffer->width()
-        || texture_.height() != in_buffer->height()
-        || texture_.format() != in_buffer->format()) {
-      texture_.Create(context(), in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
+    if (!texture_
+        || texture_->width() != in_buffer->width()
+        || texture_->height() != in_buffer->height()
+        || texture_->format() != in_buffer->format()) {
+      texture_ = renderer()->CreateTexture(in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
     } else {
-      texture_.Upload(in_buffer);
+      texture_->Upload(in_buffer->data(), in_buffer->linesize_bytes());
     }
 
     doneCurrent();
@@ -205,7 +203,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
       emit DragStarted();
     }
 
-    QOpenGLWidget::mousePressEvent(event);
+    ManagedDisplayWidget::mousePressEvent(event);
 
   }
 }
@@ -252,7 +250,7 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    QOpenGLWidget::mouseMoveEvent(event);
+    ManagedDisplayWidget::mouseMoveEvent(event);
 
   }
 }
@@ -275,49 +273,33 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else {
 
     // Default behavior
-    QOpenGLWidget::mouseReleaseEvent(event);
+    ManagedDisplayWidget::mouseReleaseEvent(event);
 
   }
 }
 
-QMatrix4x4 ViewerDisplayWidget::GetMatrixTranslate()
+void ViewerDisplayWidget::OnInit()
 {
-  return translate_matrix_;
+  ManagedDisplayWidget::OnInit();
 }
 
-void ViewerDisplayWidget::initializeGL()
+void ViewerDisplayWidget::OnPaint()
 {
-  ManagedDisplayWidget::initializeGL();
-
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerDisplayWidget::ContextCleanup, Qt::DirectConnection);
-}
-
-void ViewerDisplayWidget::paintGL()
-{
-  // Get functions attached to this context (they will already be initialized)
-  QOpenGLFunctions* f = context()->functions();
-
   // Clear background to empty
-  f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  f->glClear(GL_COLOR_BUFFER_BIT);
+  renderer()->ClearDestination();
 
   // We only draw if we have a pipeline
   if (last_loaded_buffer_ && color_service()) {
 
+    if (deinterlace_) {
+      qDebug() << "FIXME: Deinterlacing is currently broken, we're working on this...";
+      //color_service()->pipeline()->setUniformValue("ove_resolution", texture_.width(), texture_.height());
+      //color_service()->pipeline()->setUniformValue("ove_deinterlace", deinterlace_);
+    }
+
     // Bind retrieved texture
-    f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
-
-    // Set some parameters
-    color_service()->pipeline()->bind();
-    color_service()->pipeline()->setUniformValue("ove_resolution", texture_.width(), texture_.height());
-    color_service()->pipeline()->setUniformValue("ove_deinterlace", deinterlace_);
-    color_service()->pipeline()->release();
-
-    // Blit using the color service
-    color_service()->ProcessOpenGL(true, GetCompleteMatrixFlippedYTranslation());
-
-    // Release retrieved texture
-    f->glBindTexture(GL_TEXTURE_2D, 0);
+    renderer()->SetViewport(width(), height());
+    renderer()->BlitColorManaged(color_service(), texture_.get());
 
   }
 
@@ -369,6 +351,18 @@ void ViewerDisplayWidget::paintGL()
 
     p.drawLines(lines, 2);
   }
+}
+
+void ViewerDisplayWidget::OnDestroy()
+{
+  ManagedDisplayWidget::OnDestroy();
+
+  texture_ = nullptr;
+}
+
+QMatrix4x4 ViewerDisplayWidget::GetMatrixTranslate()
+{
+  return translate_matrix_;
 }
 
 QPointF ViewerDisplayWidget::GetTexturePosition(const QPoint &screen_pos)
@@ -424,15 +418,6 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
   world.translate(*(d + 12) * width() * 0.5 / *(d), *(d + 13) * height() * 0.5 / *(d + 5));
 
   return world;
-}
-
-void ViewerDisplayWidget::ContextCleanup()
-{
-  makeCurrent();
-
-  texture_.Destroy();
-
-  doneCurrent();
 }
 
 OLIVE_NAMESPACE_EXIT

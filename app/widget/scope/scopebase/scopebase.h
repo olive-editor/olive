@@ -37,40 +37,35 @@ public:
 public slots:
   void SetBuffer(Frame* frame);
 
+protected slots:
+  virtual void OnInit() override;
+
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
+
 protected:
-  virtual void initializeGL() override;
-
-  virtual void paintGL() override;
-
   virtual void showEvent(QShowEvent* e) override;
 
-  virtual QVariant CreateShader();
+  virtual ShaderCode GenerateShaderCode() = 0;
 
-  virtual void DrawScope();
-
-  QVariant pipeline()
-  {
-    return pipeline_;
-  }
-
-  QVariant managed_tex()
-  {
-    return managed_tex_;
-  }
+  /**
+   * @brief Draw function
+   *
+   * Override this if your sub-class scope needs extra drawing.
+   */
+  virtual void DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline);
 
 private:
   void UploadTextureFromBuffer();
 
   QVariant pipeline_;
 
-  QVariant texture_;
+  Renderer::TexturePtr texture_;
 
-  QVariant managed_tex_;
+  Renderer::TexturePtr managed_tex_;
 
   Frame* buffer_;
-
-private slots:
-  void CleanUp();
 
 };
 

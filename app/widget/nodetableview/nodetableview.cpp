@@ -145,10 +145,7 @@ void NodeTableView::SetTime(const rational &time)
         case NodeParam::kTexture:
         {
           // NodeTableTraverser puts video params in here
-          VideoParams p = value.data().value<VideoParams>();
-          int channel_count = PixelFormat::ChannelCount(p.format());
-
-          for (int k=0;k<channel_count;k++) {
+          for (int k=0;k<kRGBAChannels;k++) {
             this->setItemWidget(sub_item, 2 + k, new QCheckBox());
           }
           break;

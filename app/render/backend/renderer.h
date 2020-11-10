@@ -38,8 +38,6 @@ class Renderer : public QObject
 public:
   Renderer(QObject* parent = nullptr);
 
-  virtual ~Renderer() override;
-
   virtual bool Init() = 0;
 
   class Texture
@@ -48,7 +46,8 @@ public:
     Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
       renderer_(renderer),
       params_(param),
-      id_(native)
+      id_(native),
+      meaningful_alpha_(true)
     {
     }
 
@@ -67,7 +66,7 @@ public:
       return params_;
     }
 
-    void Upload(void* data, int linesize = 0)
+    void Upload(void* data, int linesize)
     {
       renderer_->UploadToTexture(this, data, linesize);
     }
@@ -97,6 +96,16 @@ public:
       return params_.pixel_aspect_ratio();
     }
 
+    bool has_meaningful_alpha() const
+    {
+      return meaningful_alpha_;
+    }
+
+    void set_has_meaningful_alpha(bool e)
+    {
+      meaningful_alpha_ = e;
+    }
+
   private:
     Renderer* renderer_;
 
@@ -104,39 +113,53 @@ public:
 
     QVariant id_;
 
+    bool meaningful_alpha_;
+
   };
 
   using TexturePtr = std::shared_ptr<Texture>;
 
   TexturePtr CreateTexture(const VideoParams& param, void* data = nullptr, int linesize = 0);
 
+  struct ShaderValue {
+    QVariant data;
+    NodeParam::DataType type;
+  };
+
+  using ShaderUniformMap = QHash<QString, ShaderValue>;
+
 public slots:
   virtual void PostInit() = 0;
 
   virtual void Destroy() = 0;
 
-  virtual QVariant CreateNativeTexture(const VideoParams& param, void* data = nullptr, int linesize = 0) = 0;
+  virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
+
+  virtual void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture) = 0;
+
+  virtual void DetachTextureAsDestination() = 0;
+
+  virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) = 0;
 
   virtual void DestroyNativeTexture(QVariant texture) = 0;
 
-  virtual QVariant CreateNativeShader(const ShaderCode& code) = 0;
+  virtual QVariant CreateNativeShader(OLIVE_NAMESPACE::ShaderCode code) = 0;
 
   virtual void DestroyNativeShader(QVariant shader) = 0;
 
-  virtual void UploadToTexture(Texture* texture, void* data, int linesize) = 0;
+  virtual void UploadToTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) = 0;
 
-  virtual void DownloadFromTexture(Texture* texture, void* data, int linesize) = 0;
+  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) = 0;
 
   virtual TexturePtr ProcessShader(const OLIVE_NAMESPACE::Node* node,
-                                   const OLIVE_NAMESPACE::TimeRange &range,
-                                   const OLIVE_NAMESPACE::ShaderJob &job,
-                                   const OLIVE_NAMESPACE::VideoParams &params) = 0;
+                                   OLIVE_NAMESPACE::ShaderJob job,
+                                   OLIVE_NAMESPACE::VideoParams params) = 0;
 
-  virtual TexturePtr TransformColor(Texture* texture, OLIVE_NAMESPACE::ColorProcessorPtr processor) = 0;
+  virtual void SetViewport(int width, int height) = 0;
 
-  virtual void Render() = 0;
+  virtual void BlitColorManaged(OLIVE_NAMESPACE::ColorProcessorPtr color_processor, OLIVE_NAMESPACE::Renderer::Texture* source, OLIVE_NAMESPACE::Renderer::Texture *destination = nullptr) = 0;
 
-  virtual void RenderToTexture(Texture* destination) = 0;
+  virtual void Blit(OLIVE_NAMESPACE::Renderer::Texture* source, QVariant shader, OLIVE_NAMESPACE::Renderer::ShaderUniformMap parameters, OLIVE_NAMESPACE::Renderer::Texture* destination = nullptr) = 0;
 
 private:
 
@@ -144,5 +167,7 @@ private:
 };
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Renderer::TexturePtr);
 
 #endif // RENDERCONTEXT_H

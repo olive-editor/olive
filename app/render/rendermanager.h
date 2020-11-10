@@ -31,6 +31,7 @@
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
 #include "render/backend/renderer.h"
+#include "stillimagecache.h"
 #include "threading/threadpool.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -79,8 +80,8 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, const rational& time, RenderMode::Mode mode, bool prioritize = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, bool prioritize = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -104,14 +105,27 @@ public:
     kTypeVideoDownload
   };
 
+  Backend backend() const
+  {
+    return backend_;
+  }
+
 signals:
 
 private:
   RenderManager(QObject* parent = nullptr);
 
+  virtual ~RenderManager() override;
+
   static RenderManager* instance_;
 
   Renderer* context_;
+
+  Backend backend_;
+
+  StillImageCache* still_cache_;
+
+  DecoderCache* decoder_cache_;
 
 };
 

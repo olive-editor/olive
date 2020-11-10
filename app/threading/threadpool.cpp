@@ -52,8 +52,6 @@ ThreadPool::~ThreadPool()
     thread->wait();
     delete thread;
   }
-
-  RunNext();
 }
 
 void ThreadPool::AddTicket(RenderTicketPtr ticket, bool prioritize)

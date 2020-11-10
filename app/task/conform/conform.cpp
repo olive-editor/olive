@@ -33,7 +33,10 @@ ConformTask::ConformTask(AudioStreamPtr stream, const AudioParams& params) :
 
 bool ConformTask::Run()
 {
-  if (stream_->footage()->decoder().isEmpty()) {
+  // Conforming is done by the renderer now, but I would like to use something like this just to
+  // show progress
+
+  /*if (stream_->footage()->decoder().isEmpty()) {
     SetError(tr("Failed to find decoder to conform audio stream"));
     return false;
   } else {
@@ -49,7 +52,9 @@ bool ConformTask::Run()
     } else {
       return true;
     }
-  }
+  }*/
+
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

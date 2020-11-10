@@ -26,7 +26,18 @@
 
 OLIVE_NAMESPACE_ENTER
 
-using DecoderCache = QHash<Stream*, DecoderPtr>;
+class DecoderCache : public QHash<Stream*, DecoderPtr>
+{
+public:
+  QMutex *mutex()
+  {
+    return &mutex_;
+  }
+
+private:
+  QMutex mutex_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
 

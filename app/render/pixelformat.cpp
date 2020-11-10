@@ -25,44 +25,20 @@
 #include <QDebug>
 #include <QFloat16>
 
-#include "codec/oiio/oiiodecoder.h"
+#include "codec/oiio/oiiocommon.h"
 #include "common/define.h"
 #include "core.h"
 
 OLIVE_NAMESPACE_ENTER
 
-bool PixelFormat::FormatHasAlphaChannel(const PixelFormat::Format &format)
-{
-  switch (format) {
-  case PixelFormat::PIX_FMT_RGBA8:
-  case PixelFormat::PIX_FMT_RGBA16U:
-  case PixelFormat::PIX_FMT_RGBA16F:
-  case PixelFormat::PIX_FMT_RGBA32F:
-    return true;
-  case PixelFormat::PIX_FMT_RGB8:
-  case PixelFormat::PIX_FMT_RGB16U:
-  case PixelFormat::PIX_FMT_RGB16F:
-  case PixelFormat::PIX_FMT_RGB32F:
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
-    break;
-  }
-
-  return false;
-}
-
 bool PixelFormat::FormatIsFloat(const PixelFormat::Format &format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB16F:
   case PixelFormat::PIX_FMT_RGBA16F:
-  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_RGBA32F:
     return true;
 
-  case PixelFormat::PIX_FMT_RGB8:
   case PixelFormat::PIX_FMT_RGBA8:
-  case PixelFormat::PIX_FMT_RGB16U:
   case PixelFormat::PIX_FMT_RGBA16U:
   case PixelFormat::PIX_FMT_INVALID:
   case PixelFormat::PIX_FMT_COUNT:
@@ -75,16 +51,12 @@ bool PixelFormat::FormatIsFloat(const PixelFormat::Format &format)
 OIIO::TypeDesc::BASETYPE PixelFormat::GetOIIOTypeDesc(const PixelFormat::Format &format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
   case PixelFormat::PIX_FMT_RGBA8:
     return OIIO::TypeDesc::UINT8;
-  case PixelFormat::PIX_FMT_RGB16U:
   case PixelFormat::PIX_FMT_RGBA16U:
     return OIIO::TypeDesc::UINT16;
-  case PixelFormat::PIX_FMT_RGB16F:
   case PixelFormat::PIX_FMT_RGBA16F:
     return OIIO::TypeDesc::HALF;
-  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_RGBA32F:
     return OIIO::TypeDesc::FLOAT;
   case PixelFormat::PIX_FMT_INVALID:
@@ -98,16 +70,12 @@ OIIO::TypeDesc::BASETYPE PixelFormat::GetOIIOTypeDesc(const PixelFormat::Format 
 QString PixelFormat::GetName(const PixelFormat::Format &format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
   case PixelFormat::PIX_FMT_RGBA8:
     return tr("8-bit");
-  case PixelFormat::PIX_FMT_RGB16U:
   case PixelFormat::PIX_FMT_RGBA16U:
     return tr("16-bit Integer");
-  case PixelFormat::PIX_FMT_RGB16F:
   case PixelFormat::PIX_FMT_RGBA16F:
     return tr("Half-Float (16-bit)");
-  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_RGBA32F:
     return tr("Full-Float (32-bit)");
   case PixelFormat::PIX_FMT_INVALID:
@@ -149,65 +117,19 @@ void PixelFormat::SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat:
   }
 }
 
-PixelFormat::Format PixelFormat::OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bool has_alpha)
+PixelFormat::Format PixelFormat::OIIOFormatToOliveFormat(OIIO::TypeDesc desc)
 {
   if (desc == OIIO::TypeDesc::UINT8) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA8 : PixelFormat::PIX_FMT_RGB8;
+    return PixelFormat::PIX_FMT_RGBA8;
   } else if (desc == OIIO::TypeDesc::UINT16) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA16U : PixelFormat::PIX_FMT_RGB16U;
+    return PixelFormat::PIX_FMT_RGBA16U;
   } else if (desc == OIIO::TypeDesc::HALF) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA16F : PixelFormat::PIX_FMT_RGB16F;
+    return PixelFormat::PIX_FMT_RGBA16F;
   } else if (desc == OIIO::TypeDesc::FLOAT) {
-    return has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F;
+    return PixelFormat::PIX_FMT_RGBA32F;
   }
 
   return PixelFormat::PIX_FMT_INVALID;
-}
-
-PixelFormat::Format PixelFormat::GetFormatWithAlphaChannel(PixelFormat::Format f)
-{
-  switch (f) {
-  case PIX_FMT_INVALID:
-  case PIX_FMT_COUNT:
-    break;
-  case PIX_FMT_RGB8:
-  case PIX_FMT_RGBA8:
-    return PIX_FMT_RGBA8;
-  case PIX_FMT_RGB16U:
-  case PIX_FMT_RGBA16U:
-    return PIX_FMT_RGBA16U;
-  case PIX_FMT_RGB16F:
-  case PIX_FMT_RGBA16F:
-    return PIX_FMT_RGBA16F;
-  case PIX_FMT_RGB32F:
-  case PIX_FMT_RGBA32F:
-    return PIX_FMT_RGBA32F;
-  }
-
-  return PIX_FMT_INVALID;
-}
-
-PixelFormat::Format PixelFormat::GetFormatWithoutAlphaChannel(PixelFormat::Format f)
-{
-  switch (f) {
-  case PIX_FMT_INVALID:
-  case PIX_FMT_COUNT:
-    break;
-  case PIX_FMT_RGB8:
-  case PIX_FMT_RGBA8:
-    return PIX_FMT_RGB8;
-  case PIX_FMT_RGB16U:
-  case PIX_FMT_RGBA16U:
-    return PIX_FMT_RGB16U;
-  case PIX_FMT_RGB16F:
-  case PIX_FMT_RGBA16F:
-    return PIX_FMT_RGB16F;
-  case PIX_FMT_RGB32F:
-  case PIX_FMT_RGBA32F:
-    return PIX_FMT_RGB32F;
-  }
-
-  return PIX_FMT_INVALID;
 }
 
 int PixelFormat::GetBufferSize(const PixelFormat::Format &format, const int &width, const int &height)
@@ -217,21 +139,17 @@ int PixelFormat::GetBufferSize(const PixelFormat::Format &format, const int &wid
 
 int PixelFormat::BytesPerPixel(const PixelFormat::Format &format)
 {
-  return BytesPerChannel(format) * ChannelCount(format);
+  return BytesPerChannel(format) * kRGBAChannels;
 }
 
 int PixelFormat::BytesPerChannel(const PixelFormat::Format &format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
   case PixelFormat::PIX_FMT_RGBA8:
     return 1;
-  case PixelFormat::PIX_FMT_RGB16U:
-  case PixelFormat::PIX_FMT_RGB16F:
   case PixelFormat::PIX_FMT_RGBA16U:
   case PixelFormat::PIX_FMT_RGBA16F:
     return 2;
-  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_RGBA32F:
     return 4;
   case PixelFormat::PIX_FMT_INVALID:
@@ -243,15 +161,6 @@ int PixelFormat::BytesPerChannel(const PixelFormat::Format &format)
 
   // qFatal will abort so we won't get here, but this suppresses compiler warnings
   return 0;
-}
-
-int PixelFormat::ChannelCount(const PixelFormat::Format &format)
-{
-  if (PixelFormat::FormatHasAlphaChannel(format)) {
-    return kRGBAChannels;
-  } else {
-    return kRGBChannels;
-  }
 }
 
 FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Format &dest_format)
@@ -271,23 +180,23 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
   // Do the conversion through OIIO - create a buffer for the source image
   OIIO::ImageBuf src(OIIO::ImageSpec(frame->width(),
                                      frame->height(),
-                                     ChannelCount(frame->format()),
+                                     kRGBAChannels,
                                      GetOIIOTypeDesc(frame->format())));
 
   // Set the pixels (this is necessary as opposed to an OIIO buffer wrapper since Frame has
   // linesizes)
-  OIIODecoder::FrameToBuffer(frame, &src);
+  OIIOCommon::FrameToBuffer(frame, &src);
 
   // Create a destination OIIO buffer with our destination format
   OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(),
                                      converted->height(),
-                                     ChannelCount(converted->format()),
+                                     kRGBAChannels,
                                      GetOIIOTypeDesc(converted->format())));
 
   if (dst.copy_pixels(src)) {
 
     // Convert our buffer back to a frame
-    OIIODecoder::BufferToFrame(&dst, converted);
+    OIIOCommon::BufferToFrame(&dst, converted);
 
     return converted;
   } else {

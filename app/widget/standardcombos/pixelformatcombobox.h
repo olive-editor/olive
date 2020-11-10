@@ -31,15 +31,14 @@ class PixelFormatComboBox : public QComboBox
 {
   Q_OBJECT
 public:
-  PixelFormatComboBox(bool alpha_only, bool float_only, QWidget* parent = nullptr) :
+  PixelFormatComboBox(bool float_only, QWidget* parent = nullptr) :
     QComboBox(parent)
   {
     // Set up preview formats
     for (int i=0;i<PixelFormat::PIX_FMT_COUNT;i++) {
       PixelFormat::Format pix_fmt = static_cast<PixelFormat::Format>(i);
 
-      if ((!alpha_only || PixelFormat::FormatHasAlphaChannel(pix_fmt))
-          && (!float_only || PixelFormat::FormatIsFloat(pix_fmt))) {
+      if (!float_only || PixelFormat::FormatIsFloat(pix_fmt)) {
         this->addItem(PixelFormat::GetName(pix_fmt), pix_fmt);
       }
     }

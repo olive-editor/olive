@@ -83,7 +83,12 @@ void RenderTicket::Finish(QVariant result, bool cancelled)
 {
   QMutexLocker locker(&lock_);
 
-  if (started_ && !finished_) {
+  if (!started_) {
+    qWarning() << "Tried to finish a ticket that hadn't started";
+  } else if (finished_) {
+    // Do nothing
+    return;
+  } else {
     finished_ = true;
     cancelled_ = cancelled;
 

@@ -21,6 +21,7 @@
 #ifndef RENDERPROCESSOR_H
 #define RENDERPROCESSOR_H
 
+#include "decodercache.h"
 #include "node/traverser.h"
 #include "render/backend/renderer.h"
 #include "stillimagecache.h"
@@ -28,22 +29,16 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class RenderProcessor : public QObject, public NodeTraverser
+class RenderProcessor : public NodeTraverser
 {
-  Q_OBJECT
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache);
 
   struct RenderedWaveform {
     const TrackOutput* track;
     AudioVisualWaveform waveform;
     TimeRange range;
   };
-
-signals:
-  void GeneratedFrame(FramePtr frame);
-
-  void GeneratedAudio(SampleBufferPtr audio);
 
 protected:
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
@@ -61,15 +56,19 @@ protected:
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache);
 
   void Run();
+
+  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
   RenderTicketPtr ticket_;
 
   Renderer* render_ctx_;
 
   StillImageCache* still_image_cache_;
+
+  DecoderCache* decoder_cache_;
 
 };
 

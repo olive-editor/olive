@@ -48,11 +48,6 @@ public:
     PIX_FMT_RGBA16F,
     PIX_FMT_RGBA32F,
 
-    PIX_FMT_RGB8,
-    PIX_FMT_RGB16U,
-    PIX_FMT_RGB16F,
-    PIX_FMT_RGB32F,
-
     PIX_FMT_COUNT
   };
 
@@ -66,10 +61,7 @@ public:
   Format GetConfiguredFormatForMode(RenderMode::Mode mode);
   void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
 
-  static Format OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bool has_alpha);
-
-  static Format GetFormatWithAlphaChannel(Format f);
-  static Format GetFormatWithoutAlphaChannel(Format f);
+  static Format OIIOFormatToOliveFormat(OIIO::TypeDesc desc);
 
   /**
    * @brief Returns the minimum buffer size (in bytes) necessary for a given format, width, and height.
@@ -103,21 +95,11 @@ public:
   static int BytesPerChannel(const Format& format);
 
   /**
-   * @brief Return the number of channels in this format
-   */
-  static int ChannelCount(const Format& format);
-
-  /**
    * @brief Convert a frame to a pixel format
    *
    * If the frame's pixel format == the destination format, this just returns `frame`.
    */
   static FramePtr ConvertPixelFormat(FramePtr frame, const Format &dest_format);
-
-  /**
-   * @brief Simple convenience function returning whether a pixel format has an alpha channel or not
-   */
-  static bool FormatHasAlphaChannel(const Format& format);
 
   /**
    * @brief Simple convenience function returning whether a pixel format is float-based or integer-based

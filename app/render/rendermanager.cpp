@@ -39,10 +39,36 @@ OLIVE_NAMESPACE_ENTER
 RenderManager* RenderManager::instance_ = nullptr;
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(QThread::IdlePriority, 0, parent)
+  ThreadPool(QThread::IdlePriority, 0, parent),
+  backend_(kOpenGL)
 {
-  context_ = new RendererThreadWrapper(new OpenGLRenderer(), this);
-  context_->Init();
+  Renderer* graphics_renderer = nullptr;
+
+  if (backend_ == kOpenGL) {
+    graphics_renderer = new OpenGLRenderer();
+  }
+
+  if (graphics_renderer) {
+    context_ = new RendererThreadWrapper(graphics_renderer, this);
+    context_->Init();
+    context_->PostInit();
+
+    still_cache_ = new StillImageCache();
+    decoder_cache_ = new DecoderCache();
+  } else {
+    qCritical() << "Tried to initialize unknown graphics backend";
+    still_cache_ = nullptr;
+    decoder_cache_ = nullptr;
+  }
+}
+
+RenderManager::~RenderManager()
+{
+  delete decoder_cache_;
+  delete still_cache_;
+
+  context_->Destroy();
+  delete context_;
 }
 
 QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
@@ -50,9 +76,13 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   QCryptographicHash hasher(QCryptographicHash::Sha1);
 
   // Embed video parameters into this hash
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_width()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.effective_height()), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&params.format()), sizeof(PixelFormat::Format));
+  int width = params.effective_width();
+  int height = params.effective_height();
+  PixelFormat::Format format = params.format();
+
+  hasher.addData(reinterpret_cast<const char*>(&width), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&height), sizeof(int));
+  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(PixelFormat::Format));
 
   if (n) {
     n->Hash(hasher, time);
@@ -61,15 +91,18 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, const rational &time, RenderMode::Mode mode, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager *color_manager, const rational &time, RenderMode::Mode mode, bool prioritize)
 {
-  return RenderFrame(viewer, time, mode,
-                     QSize(),
+  return RenderFrame(viewer,
+                     color_manager,
+                     time,
+                     mode,
+                     QSize(0, 0),
                      QMatrix4x4(),
                      prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -81,6 +114,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, const rational 
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
   ticket->setProperty("cache", viewer->video_frame_cache()->GetCacheDirectory());
+  ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
@@ -128,7 +162,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
 
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
-  RenderProcessor::Process(ticket, context_);
+  RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_);
 }
 
 OLIVE_NAMESPACE_EXIT

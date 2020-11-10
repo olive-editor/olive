@@ -131,7 +131,7 @@ private:
   TimeRangeList invalidated_video_;
   TimeRangeList invalidated_audio_;
 
-  QVector<RenderTicketPtr> single_frame_renders_;
+  RenderTicketPtr single_frame_render_;
 
   QList<QFutureWatcher<void>*> hash_tasks_;
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
@@ -191,6 +191,8 @@ private slots:
   void VideoParamsChanged();
 
   void AudioParamsChanged();
+
+  void SingleFrameFinished();
 
 };
 

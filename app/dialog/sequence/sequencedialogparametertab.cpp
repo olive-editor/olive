@@ -75,7 +75,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   preview_layout->addWidget(preview_resolution_label_, row, 2);
   row++;
   preview_layout->addWidget(new QLabel(tr("Format:")), row, 0);
-  preview_format_field_ = new PixelFormatComboBox(true, true);
+  preview_format_field_ = new PixelFormatComboBox(true);
   preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
   layout->addWidget(preview_group);
 

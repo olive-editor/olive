@@ -20,25 +20,59 @@
 
 #include "manageddisplay.h"
 
+#include <QHBoxLayout>
 #include <QMessageBox>
 
 #include "render/backend/opengl/openglrenderer.h"
+#include "render/rendermanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
 ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
-  QOpenGLWidget(parent),
+  QWidget(parent),
   color_manager_(nullptr),
   color_service_(nullptr)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 
-  attached_renderer_ = new OpenGLRenderer();
+  QHBoxLayout* layout = new QHBoxLayout(this);
+  layout->setSpacing(0);
+  layout->setMargin(0);
+
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    // Create OpenGL widget
+    inner_widget_ = new ManagedDisplayWidgetOpenGL();
+    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+            &ManagedDisplayWidgetOpenGL::OnInit,
+            this, &ManagedDisplayWidget::OnInit, Qt::DirectConnection);
+    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+            &ManagedDisplayWidgetOpenGL::OnDestroy,
+            this, &ManagedDisplayWidget::OnDestroy, Qt::DirectConnection);
+    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+            &ManagedDisplayWidgetOpenGL::OnPaint,
+            this, &ManagedDisplayWidget::OnPaint, Qt::DirectConnection);
+    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+            &ManagedDisplayWidgetOpenGL::frameSwapped,
+            this, &ManagedDisplayWidget::frameSwapped, Qt::DirectConnection);
+
+    // Create OpenGL renderer
+    attached_renderer_ = new OpenGLRenderer(this);
+  } else {
+    inner_widget_ = nullptr;
+  }
+
+  layout->addWidget(inner_widget_);
 }
 
 ManagedDisplayWidget::~ManagedDisplayWidget()
 {
-  ContextCleanup();
+  OnDestroy();
+
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    disconnect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+               &ManagedDisplayWidgetOpenGL::OnDestroy,
+               this, &ManagedDisplayWidget::OnDestroy);
+  }
 }
 
 void ManagedDisplayWidget::ConnectColorManager(ColorManager *color_manager)
@@ -111,17 +145,6 @@ ColorProcessorPtr ManagedDisplayWidget::color_service()
   return color_service_;
 }
 
-void ManagedDisplayWidget::ContextCleanup()
-{
-  makeCurrent();
-
-  color_service_ = nullptr;
-
-  attached_renderer_->Destroy();
-
-  doneCurrent();
-}
-
 void ManagedDisplayWidget::ShowDefaultContextMenu()
 {
   Menu m(this);
@@ -178,24 +201,27 @@ void ManagedDisplayWidget::MenuColorspaceSelect(QAction *action)
   SetColorTransform(color_manager()->GetCompliantColorSpace(ColorTransform(action->data().toString())));
 }
 
-void ManagedDisplayWidget::SetColorTransform(const ColorTransform &transform)
+void ManagedDisplayWidget::OnDestroy()
 {
-  makeCurrent();
-
-  color_transform_ = transform;
-  SetupColorProcessor();
-  ColorProcessorChangedEvent();
-
-  doneCurrent();
+  attached_renderer_->Destroy();
 }
 
-void ManagedDisplayWidget::initializeGL()
+void ManagedDisplayWidget::SetColorTransform(const ColorTransform &transform)
 {
+  color_transform_ = transform;
+
   SetupColorProcessor();
 
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ManagedDisplayWidget::ContextCleanup, Qt::DirectConnection);
+  ColorProcessorChangedEvent();
+}
 
-  static_cast<OpenGLRenderer*>(attached_renderer_)->Init(context());
+void ManagedDisplayWidget::OnInit()
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    QOpenGLContext* context = static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->context();
+    static_cast<OpenGLRenderer*>(attached_renderer_)->Init(context);
+    static_cast<OpenGLRenderer*>(attached_renderer_)->PostInit();
+  }
 }
 
 void ManagedDisplayWidget::EnableDefaultContextMenu()
@@ -206,6 +232,20 @@ void ManagedDisplayWidget::EnableDefaultContextMenu()
 void ManagedDisplayWidget::ColorProcessorChangedEvent()
 {
   update();
+}
+
+void ManagedDisplayWidget::makeCurrent()
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->makeCurrent();
+  }
+}
+
+void ManagedDisplayWidget::doneCurrent()
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->doneCurrent();
+  }
 }
 
 Menu* ManagedDisplayWidget::GetDisplayMenu(QMenu* parent, bool auto_connect)
@@ -277,35 +317,25 @@ Menu* ManagedDisplayWidget::GetLookMenu(QMenu* parent, bool auto_connect)
 
 void ManagedDisplayWidget::SetupColorProcessor()
 {
-  if (!context()) {
-    return;
-  }
-
   color_service_ = nullptr;
 
   if (color_manager_) {
     // (Re)create color processor
-
     try {
-
       color_service_ = ColorProcessor::Create(color_manager_,
                                               color_manager_->GetReferenceColorSpace(),
                                               color_transform_);
-
     } catch (OCIO::Exception& e) {
-
       QMessageBox::critical(this,
                             tr("OpenColorIO Error"),
                             tr("Failed to set color configuration: %1").arg(e.what()),
                             QMessageBox::Ok);
-
     }
-
   } else {
     color_service_ = nullptr;
   }
 
-  emit ColorProcessorChanged(std::static_pointer_cast<ColorProcessor>(color_service_));
+  emit ColorProcessorChanged(color_service_);
 }
 
 OLIVE_NAMESPACE_EXIT

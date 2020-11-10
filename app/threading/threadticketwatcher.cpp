@@ -30,8 +30,15 @@ RenderTicketWatcher::RenderTicketWatcher(QObject *parent) :
 
 void RenderTicketWatcher::SetTicket(RenderTicketPtr ticket)
 {
-  // Ensure that a ticket has NOT already been set and that this ticket is NOT NULL
-  Q_ASSERT(!ticket_ && ticket);
+  if (ticket_) {
+    qCritical() << "Tried to set a ticket on a RenderTicketWatcher twice";
+    return;
+  }
+
+  if (!ticket) {
+    qCritical() << "Tried to set a null ticket on a RenderTicketWatcher";
+    return;
+  }
 
   ticket_ = ticket;
 

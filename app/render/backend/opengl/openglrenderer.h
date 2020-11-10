@@ -49,25 +49,36 @@ public slots:
 
   virtual void Destroy() override;
 
-  virtual QVariant CreateNativeTexture(const VideoParams& p, void* data = nullptr, int linesize = 0) override;
+  virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
+
+  virtual void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture) override;
+
+  virtual void DetachTextureAsDestination() override;
+
+  virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
 
-  virtual void UploadToTexture(Texture* texture, void* data, int linesize) override;
+  virtual QVariant CreateNativeShader(OLIVE_NAMESPACE::ShaderCode code) override;
 
-  virtual void DownloadFromTexture(Texture* texture, void* data, int linesize) override;
+  virtual void DestroyNativeShader(QVariant shader) override;
+
+  virtual void UploadToTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) override;
+
+  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) override;
 
   virtual TexturePtr ProcessShader(const OLIVE_NAMESPACE::Node* node,
-                                   const OLIVE_NAMESPACE::TimeRange &range,
-                                   const OLIVE_NAMESPACE::ShaderJob &job,
-                                   const OLIVE_NAMESPACE::VideoParams &params) override;
+                                   OLIVE_NAMESPACE::ShaderJob job,
+                                   OLIVE_NAMESPACE::VideoParams params) override;
 
-  virtual TexturePtr TransformColor(Texture* texture, OLIVE_NAMESPACE::ColorProcessorPtr processor) override;
+  virtual void SetViewport(int width, int height) override;
+
+  virtual void BlitColorManaged(OLIVE_NAMESPACE::ColorProcessorPtr color_processor, OLIVE_NAMESPACE::Renderer::Texture* source, OLIVE_NAMESPACE::Renderer::Texture *destination = nullptr) override;
+
+  virtual void Blit(OLIVE_NAMESPACE::Renderer::Texture* source, QVariant shader, OLIVE_NAMESPACE::Renderer::ShaderUniformMap parameters, OLIVE_NAMESPACE::Renderer::Texture* destination = nullptr) override;
 
 private:
   static GLint GetInternalFormat(PixelFormat::Format format);
-
-  static GLenum GetPixelFormat(PixelFormat::Format format);
 
   static GLenum GetPixelType(PixelFormat::Format format);
 
@@ -92,7 +103,5 @@ private:
 };
 
 OLIVE_NAMESPACE_EXIT
-
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::OpenGLRenderer::TexturePtr);
 
 #endif // OPENGLCONTEXT_H

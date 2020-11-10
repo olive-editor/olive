@@ -24,13 +24,16 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "project/project.h"
 #include "rendermanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx) :
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache) :
   ticket_(ticket),
-  render_ctx_(render_ctx)
+  render_ctx_(render_ctx),
+  still_image_cache_(still_image_cache),
+  decoder_cache_(decoder_cache)
 {
 }
 
@@ -52,21 +55,17 @@ void RenderProcessor::Run()
 
     Renderer::TexturePtr texture = table.Get(NodeParam::kTexture).value<Renderer::TexturePtr>();
 
+    VideoParams frame_params = viewer->video_params();
+
     QSize frame_size = ticket_->property("size").value<QSize>();
-    if (frame_size.isNull()) {
-      frame_size = QSize(viewer->video_params().effective_width(),
-                         viewer->video_params().effective_height());
+    if (!frame_size.isNull()) {
+      frame_params.set_width(frame_size.width());
+      frame_params.set_height(frame_size.height());
     }
 
     FramePtr frame = Frame::Create();
     frame->set_timestamp(time);
-    frame->set_video_params(VideoParams(frame_size.width(),
-                                        frame_size.height(),
-                                        viewer->video_params().time_base(),
-                                        viewer->video_params().format(),
-                                        viewer->video_params().pixel_aspect_ratio(),
-                                        viewer->video_params().interlacing(),
-                                        viewer->video_params().divider()));
+    frame->set_video_params(frame_params);
     frame->allocate();
 
     if (!texture) {
@@ -109,13 +108,38 @@ void RenderProcessor::Run()
     // Fail
     ticket_->Cancel();
   }
-
-  this->deleteLater();
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx)
+DecoderPtr RenderProcessor::ResolveDecoderFromInput(StreamPtr stream)
 {
-  RenderProcessor p(ticket, render_ctx);
+  if (!stream) {
+    qWarning() << "Attempted to resolve the decoder of a null stream";
+    return nullptr;
+  }
+
+  QMutexLocker locker(decoder_cache_->mutex());
+
+  DecoderPtr decoder = decoder_cache_->value(stream.get());
+
+  if (!decoder) {
+    // No decoder
+    decoder = Decoder::CreateFromID(stream->footage()->decoder());
+
+    if (decoder->Open(stream)) {
+      decoder_cache_->insert(stream.get(), decoder);
+    } else {
+      qWarning() << "Failed to open decoder for" << stream->footage()->filename()
+                 << "::" << stream->index();
+      return nullptr;
+    }
+  }
+
+  return decoder;
+}
+
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache)
+{
+  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache);
   p.Run();
 }
 
@@ -259,11 +283,24 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
       if (frame) {
         // Return a texture from the derived class
-        Renderer::TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(), frame->data(), frame->linesize_pixels());
+        Renderer::TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                                            frame->data(),
+                                                                            frame->linesize_pixels());
 
-        Renderer::TexturePtr managed_texture = render_ctx_->TransformColor(unmanaged_texture, )
+        // We convert to our rendering pixel format, since that will always be float-based which
+        // is necessary for correct color conversion
+        VideoParams managed_params = frame->video_params();
+        managed_params.set_format(video_params.format());
+        value = render_ctx_->CreateTexture(managed_params);
 
-        value = FootageFrameToTexture(stream, frame);
+        // FIXME: Accessing video_stream->colorspace()
+
+        ColorManager* color_manager = video_stream->footage()->project()->color_manager();
+        ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
+                                                             video_stream->colorspace(),
+                                                             ColorTransform(OCIO::ROLE_SCENE_LINEAR));
+
+        render_ctx_->BlitColorManaged(processor, unmanaged_texture.get(), value.get());
 
         still_image_cache_->mutex()->lock();
 
@@ -290,38 +327,10 @@ QVariant RenderProcessor::ProcessAudioFootage(StreamPtr stream, const TimeRange 
   if (decoder) {
     const AudioParams& audio_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->audio_params();
 
-    // See if we have a conformed version of this audio
-    if (!decoder->HasConformedVersion(audio_params)) {
+    SampleBufferPtr frame = decoder->RetrieveAudio(input_time, audio_params, &IsCancelled());
 
-      // If not, the audio needs to be conformed
-      // For online rendering/export, it's a waste of time to render the audio until we have
-      // all we need, so we try to handle the conform ourselves
-      AudioStreamPtr as = std::static_pointer_cast<AudioStream>(stream);
-
-      // Check if any other threads are conforming this audio
-      if (as->try_start_conforming(audio_params)) {
-
-        // If not, conform it ourselves
-        decoder->ConformAudio(&IsCancelled(), audio_params);
-
-      } else {
-
-        // If another thread is conforming already, hackily try to wait until it's done.
-        do {
-          QThread::msleep(1000);
-        } while (!as->has_conformed_version(audio_params) && !IsCancelled());
-
-      }
-
-    }
-
-    if (decoder->HasConformedVersion(audio_params)) {
-      SampleBufferPtr frame = decoder->RetrieveAudio(input_time.in(), input_time.length(),
-                                                     audio_params);
-
-      if (frame) {
-        value = QVariant::fromValue(frame);
-      }
+    if (frame) {
+      value = QVariant::fromValue(frame);
     }
   }
 
@@ -330,9 +339,11 @@ QVariant RenderProcessor::ProcessAudioFootage(StreamPtr stream, const TimeRange 
 
 QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
+  Q_UNUSED(range)
+
   const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
-  render_ctx_->ProcessShader(node, range, job, video_params);
+  return QVariant::fromValue(render_ctx_->ProcessShader(node, job, video_params));
 }
 
 QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -384,49 +395,39 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 
   const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
-  PixelFormat::Format output_fmt;
-  if (job.GetAlphaChannelRequired()) {
-    output_fmt = PixelFormat::GetFormatWithAlphaChannel(video_params.format());
-  } else {
-    output_fmt = PixelFormat::GetFormatWithoutAlphaChannel(video_params.format());
-  }
-
-  frame->set_video_params(VideoParams(video_params.width(),
-                                      video_params.height(),
-                                      video_params.time_base(),
-                                      output_fmt,
-                                      video_params.pixel_aspect_ratio(),
-                                      video_params.interlacing(),
-                                      video_params.divider()));
+  frame->set_video_params(video_params);
   frame->allocate();
 
   node->GenerateFrame(frame, job);
 
-  Renderer::TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(), frame->data(), frame->linesize_pixels());
+  Renderer::TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                            frame->data(),
+                                                            frame->linesize_pixels());
+
+  texture->set_has_meaningful_alpha(job.GetAlphaChannelRequired());
 
   return QVariant::fromValue(texture);
 }
 
 QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
 {
-  if (ticket_->property("mode").value<RenderMode::Mode>() == RenderMode::kOffline
-      && !cache_path_.isEmpty()
+  if (ticket_->property("mode").toInt() == RenderMode::kOffline
       && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
     QByteArray hash = RenderManager::Hash(node, video_params, time);
 
-    FramePtr f = FrameHashCache::LoadCacheFrame(cache_path_, hash);
+    FramePtr f = FrameHashCache::LoadCacheFrame(ticket_->property("cache").toString(), hash);
 
     if (f) {
       // The cached frame won't load with the correct divider by default, so we enforce it here
-      f->set_video_params(VideoParams(f->width() * video_params.divider(),
-                                      f->height() * video_params.divider(),
-                                      f->video_params().time_base(),
-                                      f->video_params().format(),
-                                      f->video_params().pixel_aspect_ratio(),
-                                      f->video_params().interlacing(),
-                                      video_params.divider()));
+      VideoParams p = f->video_params();
+
+      p.set_width(f->width() * video_params.divider());
+      p.set_height(f->height() * video_params.divider());
+      p.set_divider(video_params.divider());
+
+      f->set_video_params(p);
 
       Renderer::TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
       return QVariant::fromValue(texture);

@@ -22,12 +22,11 @@
 
 OLIVE_NAMESPACE_ENTER
 
-/*RendererThreadWrapper::RendererThreadWrapper(Renderer *inner, QObject *parent) :
+RendererThreadWrapper::RendererThreadWrapper(Renderer *inner, QObject *parent) :
   Renderer(parent),
   inner_(inner),
   thread_(nullptr)
 {
-  inner_->setParent(this);
 }
 
 bool RendererThreadWrapper::Init()
@@ -38,11 +37,11 @@ bool RendererThreadWrapper::Init()
   }
 
   // Create thread
-  QThread* thread = new QThread(this);
-  thread->start(QThread::IdlePriority);
+  thread_ = new QThread(this);
+  thread_->start(QThread::IdlePriority);
 
   // Move context to thread
-  inner_->moveToThread(thread);
+  inner_->moveToThread(thread_);
 
   // Queue post-init in new thread
   QMetaObject::invokeMethod(inner_, "PostInit", Qt::BlockingQueuedConnection);
@@ -50,10 +49,16 @@ bool RendererThreadWrapper::Init()
   return true;
 }
 
+void RendererThreadWrapper::PostInit()
+{
+  // Do nothing
+}
+
 void RendererThreadWrapper::Destroy()
 {
   if (thread_) {
     QMetaObject::invokeMethod(inner_, "Destroy", Qt::BlockingQueuedConnection);
+    inner_ = nullptr;
 
     thread_->quit();
     thread_->wait();
@@ -62,76 +67,113 @@ void RendererThreadWrapper::Destroy()
   }
 }
 
-QVariant RendererThreadWrapper::CreateTexture(const VideoParams &param, void *data, int linesize)
+void RendererThreadWrapper::ClearDestination(double r, double g, double b, double a)
+{
+  QMetaObject::invokeMethod(inner_, "ClearDestination", Qt::BlockingQueuedConnection,
+                            Q_ARG(double, r),
+                            Q_ARG(double, g),
+                            Q_ARG(double, b),
+                            Q_ARG(double, a));
+}
+
+void RendererThreadWrapper::AttachTextureAsDestination(Renderer::Texture *texture)
+{
+  QMetaObject::invokeMethod(inner_, "AttachTextureAsDestination", Qt::BlockingQueuedConnection,
+                            OLIVE_NS_ARG(Renderer::Texture*, texture));
+}
+
+void RendererThreadWrapper::DetachTextureAsDestination()
+{
+  QMetaObject::invokeMethod(inner_, "DetachTextureAsDestination", Qt::BlockingQueuedConnection);
+}
+
+QVariant RendererThreadWrapper::CreateNativeTexture(VideoParams param, void *data, int linesize)
 {
   QVariant v;
 
-  QMetaObject::invokeMethod(inner_, "CreateTexture", Qt::BlockingQueuedConnection,
+  QMetaObject::invokeMethod(inner_, "CreateNativeTexture", Qt::BlockingQueuedConnection,
                             Q_RETURN_ARG(QVariant, v),
-                            OLIVE_NS_CONST_ARG(VideoParams&, param),
+                            OLIVE_NS_ARG(VideoParams, param),
                             Q_ARG(void*, data),
                             Q_ARG(int, linesize));
 
   return v;
 }
 
-void RendererThreadWrapper::DestroyTexture(QVariant texture)
+void RendererThreadWrapper::DestroyNativeTexture(QVariant texture)
 {
-  QMetaObject::invokeMethod(inner_, "DestroyTexture", Qt::BlockingQueuedConnection,
+  QMetaObject::invokeMethod(inner_, "DestroyNativeTexture", Qt::BlockingQueuedConnection,
                             Q_ARG(QVariant, texture));
 }
 
-void RendererThreadWrapper::UploadToTexture(QVariant texture, void *data, int linesize)
+QVariant RendererThreadWrapper::CreateNativeShader(ShaderCode code)
+{
+  QVariant v;
+
+  QMetaObject::invokeMethod(inner_, "CreateNativeShader", Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, v),
+                            OLIVE_NS_ARG(ShaderCode, code));
+
+  return v;
+}
+
+void RendererThreadWrapper::DestroyNativeShader(QVariant shader)
+{
+  QMetaObject::invokeMethod(inner_, "DestroyNativeShader", Qt::BlockingQueuedConnection,
+                            Q_ARG(QVariant, shader));
+}
+
+void RendererThreadWrapper::UploadToTexture(Renderer::Texture *texture, void *data, int linesize)
 {
   QMetaObject::invokeMethod(inner_, "UploadToTexture", Qt::BlockingQueuedConnection,
-                            Q_ARG(QVariant, texture),
+                            OLIVE_NS_ARG(Renderer::Texture*, texture),
                             Q_ARG(void*, data),
                             Q_ARG(int, linesize));
 }
 
-void RendererThreadWrapper::DownloadFromTexture(QVariant texture, void *data, int linesize)
+void RendererThreadWrapper::DownloadFromTexture(Renderer::Texture *texture, void *data, int linesize)
 {
   QMetaObject::invokeMethod(inner_, "DownloadFromTexture", Qt::BlockingQueuedConnection,
-                            Q_ARG(QVariant, texture),
+                            OLIVE_NS_ARG(Renderer::Texture*, texture),
                             Q_ARG(void*, data),
                             Q_ARG(int, linesize));
 }
 
-QVariant RendererThreadWrapper::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job, const VideoParams &params)
+Renderer::TexturePtr RendererThreadWrapper::ProcessShader(const Node *node, ShaderJob job, VideoParams params)
 {
-  QVariant v;
+  Renderer::TexturePtr tex;
 
-  QMetaObject::invokeMethod(inner_, "ProcessShader", Qt::BlockingQueuedConnection,
-                            Q_RETURN_ARG(QVariant, v),
+  QMetaObject::invokeMethod(inner_, "Blit", Qt::BlockingQueuedConnection,
+                            OLIVE_NS_RETURN_ARG(Renderer::TexturePtr, tex),
                             OLIVE_NS_CONST_ARG(Node*, node),
-                            OLIVE_NS_CONST_ARG(TimeRange&, range),
-                            OLIVE_NS_CONST_ARG(ShaderJob&, job),
-                            OLIVE_NS_CONST_ARG(VideoParams&, params));
+                            OLIVE_NS_ARG(ShaderJob, job),
+                            OLIVE_NS_ARG(VideoParams, params));
 
-  return v;
+  return tex;
 }
 
-QVariant RendererThreadWrapper::TransformColor(QVariant texture, ColorProcessorPtr processor)
+void RendererThreadWrapper::SetViewport(int width, int height)
 {
-  QVariant v;
-
-  QMetaObject::invokeMethod(inner_, "ProcessShader", Qt::BlockingQueuedConnection,
-                            Q_RETURN_ARG(QVariant, v),
-                            Q_ARG(QVariant, texture),
-                            OLIVE_NS_ARG(ColorProcessorPtr, processor));
-
-  return v;
+  QMetaObject::invokeMethod(inner_, "SetViewport", Qt::BlockingQueuedConnection,
+                            Q_ARG(int, width),
+                            Q_ARG(int, height));
 }
 
-VideoParams RendererThreadWrapper::GetParamsFromTexture(QVariant texture)
+void RendererThreadWrapper::BlitColorManaged(ColorProcessorPtr color_processor, Renderer::Texture *source, Renderer::Texture *destination)
 {
-  VideoParams p;
+  QMetaObject::invokeMethod(inner_, "BlitColorManaged", Qt::BlockingQueuedConnection,
+                            OLIVE_NS_ARG(ColorProcessorPtr, color_processor),
+                            OLIVE_NS_ARG(Renderer::Texture*, source),
+                            OLIVE_NS_ARG(Renderer::Texture*, destination));
+}
 
-  QMetaObject::invokeMethod(inner_, "GetParamsFromTexture", Qt::BlockingQueuedConnection,
-                            Q_RETURN_ARG(VideoParams, p),
-                            Q_ARG(QVariant, texture));
-
-  return p;
-}*/
+void RendererThreadWrapper::Blit(Renderer::Texture *source, QVariant shader, Renderer::ShaderUniformMap parameters, Renderer::Texture *destination)
+{
+  QMetaObject::invokeMethod(inner_, "Blit", Qt::BlockingQueuedConnection,
+                            OLIVE_NS_ARG(Renderer::Texture*, source),
+                            Q_ARG(QVariant, shader),
+                            Q_ARG(Renderer::ShaderUniformMap, parameters),
+                            OLIVE_NS_ARG(Renderer::Texture*, destination));
+}
 
 OLIVE_NAMESPACE_EXIT

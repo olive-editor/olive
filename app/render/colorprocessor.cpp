@@ -61,7 +61,7 @@ void ColorProcessor::ConvertFrame(Frame *f)
   OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()),
                             f->width(),
                             f->height(),
-                            PixelFormat::ChannelCount(f->format()),
+                            kRGBAChannels,
                             OCIO::AutoStride,
                             OCIO::AutoStride,
                             f->linesize_bytes());

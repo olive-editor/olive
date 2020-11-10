@@ -62,6 +62,7 @@ OpenGLRenderer::OpenGLRenderer(QObject* parent) :
 
 OpenGLRenderer::~OpenGLRenderer()
 {
+  Destroy();
 }
 
 void OpenGLRenderer::Init(QOpenGLContext *existing_ctx)
@@ -97,13 +98,14 @@ bool OpenGLRenderer::Init()
 void OpenGLRenderer::PostInit()
 {
   // Make context current on that surface
-  if (!context_->makeCurrent(&surface_)) {
+  if (context_->parent() == this && !context_->makeCurrent(&surface_)) {
     qCritical() << "Failed to makeCurrent() on offscreen surface in thread" << thread();
     return;
   }
 
-  // Store OpenGL functions instance
   functions_ = context_->functions();
+
+  // Store OpenGL functions instance
   functions_->glBlendFunc(GL_ONE, GL_ZERO);
 
   // Set up framebuffer used for various things
@@ -127,29 +129,58 @@ void OpenGLRenderer::PostInit()
 
 void OpenGLRenderer::Destroy()
 {
-  // Delete vertex array object
-  vao_.destroy();
+  if (context_) {
+    // Delete buffers
+    vert_vbo_.destroy();
+    frag_vbo_.destroy();
 
-  // Delete framebuffer
-  functions_->glDeleteFramebuffers(1, &framebuffer_);
+    // Delete vertex array object
+    vao_.destroy();
 
-  // Delete all shaders
-  qDeleteAll(shader_cache_);
-  shader_cache_.clear();
+    // Delete framebuffer
+    functions_->glDeleteFramebuffers(1, &framebuffer_);
 
-  // Delete context if it belongs to us
-  if (context_->parent() == this) {
-    delete context_;
-  }
-  context_ = nullptr;
+    // Delete all shaders
+    qDeleteAll(shader_cache_);
+    shader_cache_.clear();
 
-  // Destroy surface if we created it
-  if (surface_.isValid()) {
-    surface_.destroy();
+    // Delete context if it belongs to us
+    if (context_->parent() == this) {
+      delete context_;
+    }
+    context_ = nullptr;
+
+    // Destroy surface if we created it
+    if (surface_.isValid()) {
+      surface_.destroy();
+    }
   }
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture(const VideoParams &p, void *data, int linesize)
+void OpenGLRenderer::ClearDestination(double r, double g, double b, double a)
+{
+  functions_->glClearColor(r, g, b, a);
+  functions_->glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void OpenGLRenderer::AttachTextureAsDestination(Renderer::Texture* texture)
+{
+  functions_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                     GL_COLOR_ATTACHMENT0,
+                                     GL_TEXTURE_2D,
+                                     texture->id().value<GLuint>(),
+                                     0);
+
+  SetViewport(texture->width(), texture->height());
+}
+
+void OpenGLRenderer::DetachTextureAsDestination()
+{
+  functions_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+QVariant OpenGLRenderer::CreateNativeTexture(VideoParams p, void *data, int linesize)
 {
   GLuint texture;
   functions_->glGenTextures(1, &texture);
@@ -157,7 +188,7 @@ QVariant OpenGLRenderer::CreateNativeTexture(const VideoParams &p, void *data, i
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
   functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(p.format()),
-                           p.width(), p.height(), 0, GetPixelFormat(p.format()),
+                           p.width(), p.height(), 0, GL_RGBA,
                            GetPixelType(p.format()), data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -169,6 +200,37 @@ void OpenGLRenderer::DestroyNativeTexture(QVariant texture)
 {
   GLuint t = texture.value<GLuint>();
   functions_->glDeleteTextures(1, &t);
+}
+
+QVariant OpenGLRenderer::CreateNativeShader(ShaderCode code)
+{
+  QOpenGLShaderProgram* program = new QOpenGLShaderProgram(context_);
+
+  if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, code.vert_code())) {
+    qCritical() << "Failed to add vertex code to shader";
+    goto error;
+  }
+
+  if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, code.frag_code())) {
+    qCritical() << "Failed to add fragment code to shader";
+    goto error;
+  }
+
+  if (!program->link()) {
+    qCritical() << "Failed to link shader";
+    goto error;
+  }
+
+  return Node::PtrToValue(program);
+
+error:
+  delete program;
+  return QVariant();
+}
+
+void OpenGLRenderer::DestroyNativeShader(QVariant shader)
+{
+  delete Node::ValueToPtr<QOpenGLShaderProgram>(shader);
 }
 
 void OpenGLRenderer::UploadToTexture(Texture *texture, void *data, int linesize)
@@ -186,7 +248,7 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, void *data, int linesize)
 
   functions_->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                               p.effective_width(), p.effective_height(),
-                              GetPixelFormat(p.format()), GetPixelType(p.format()),
+                              GL_RGBA, GetPixelType(p.format()),
                               data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -210,7 +272,7 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
                            0,
                            p.width(),
                            p.height(),
-                           GetPixelFormat(p.format()),
+                           GL_RGBA,
                            GetPixelType(p.format()),
                            data);
 
@@ -219,7 +281,7 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
   functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
 }
 
-Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job, const VideoParams &params)
+Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, ShaderJob job, VideoParams params)
 {
   // If this node is iterative, we'll pick up which input here
   GLuint iterative_input = 0;
@@ -342,12 +404,6 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
     {
       TexturePtr texture = value.value<TexturePtr>();
 
-      if (texture) {
-        if (PixelFormat::FormatHasAlphaChannel(texture->format())) {
-          input_textures_have_alpha = true;
-        }
-      }
-
       // Set value to bound texture
       shader->setUniformValue(variable_location, textures_to_bind.size());
 
@@ -358,6 +414,10 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
 
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
       textures_to_bind.append(tex_id);
+
+      if (texture && texture->has_meaningful_alpha()) {
+        input_textures_have_alpha = true;
+      }
 
       // Set enable flag if shader wants it
       int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
@@ -412,17 +472,6 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
                           static_cast<GLfloat>(params.height()));
 
   // Create the output textures
-  PixelFormat::Format output_format = (input_textures_have_alpha || job.GetAlphaChannelRequired())
-      ? PixelFormat::GetFormatWithAlphaChannel(params.format())
-      : PixelFormat::GetFormatWithoutAlphaChannel(params.format());
-  VideoParams output_params(params.width(),
-                            params.height(),
-                            params.time_base(),
-                            output_format,
-                            params.pixel_aspect_ratio(),
-                            params.interlacing(),
-                            params.divider());
-
   int real_iteration_count;
   if (job.GetIterationCount() > 1 && job.GetIterativeInput()) {
     real_iteration_count = job.GetIterationCount();
@@ -431,11 +480,11 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
   }
 
   TexturePtr dst_refs[2];
-  dst_refs[0] = CreateTexture(output_params);
+  dst_refs[0] = CreateTexture(params);
 
   // If this node requires multiple iterations, get a texture for it too
   if (real_iteration_count > 1) {
-    dst_refs[1] = CreateTexture(output_params);
+    dst_refs[1] = CreateTexture(params);
   }
 
   // Some nodes use multiple iterations for optimization
@@ -483,19 +532,14 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
       PrepareInputTexture(job.GetBilinearFiltering());
     }
 
-    functions_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
-                                       GL_COLOR_ATTACHMENT0,
-                                       GL_TEXTURE_2D,
-                                       output_tex->id().value<GLuint>(),
-                                       0);
+    AttachTextureAsDestination(output_tex.get());
 
     // Blit this texture through this shader
     functions_->glDrawArrays(GL_TRIANGLES, 0, blit_vertices.size() / 3);
-
-    // Reset framebuffer to default
-    functions_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
+
+  // Reset framebuffer to default
+  DetachTextureAsDestination();
 
   // Release any textures we bound before
   for (int i=textures_to_bind.size()-1; i>=0; i--) {
@@ -509,26 +553,58 @@ Renderer::TexturePtr OpenGLRenderer::ProcessShader(const Node *node, const TimeR
   // Release shader
   shader->release();
 
+  output_tex->set_has_meaningful_alpha((input_textures_have_alpha || job.GetAlphaChannelRequired()));
+
   return output_tex;
+}
+
+void OpenGLRenderer::SetViewport(int width, int height)
+{
+  functions_->glViewport(0, 0, width, height);
+}
+
+void OpenGLRenderer::BlitColorManaged(ColorProcessorPtr color_processor, Texture *source, Renderer::Texture* destination)
+{
+  qCritical() << "OpenGLRenderer::BlitColorMangaed is a stub!";
+}
+
+void OpenGLRenderer::Blit(Renderer::Texture *source, QVariant shader, Renderer::ShaderUniformMap parameters, Renderer::Texture *destination)
+{
+  QOpenGLShaderProgram* program = Node::ValueToPtr<QOpenGLShaderProgram>(shader);
+
+  if (!program) {
+    qCritical() << "Attempted to blit with a null shader";
+    return;
+  }
+
+  if (destination) {
+    AttachTextureAsDestination(destination);
+  }
+
+  functions_->glBindTexture(GL_TEXTURE_2D, source->id().value<GLuint>());
+
+  program->bind();
+
+  qCritical() << "OpenGLRenderer::Blit is a stub!";
+
+  program->release();
+
+  functions_->glBindTexture(GL_TEXTURE_2D, 0);
+
+  if (destination) {
+    DetachTextureAsDestination();
+  }
 }
 
 GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
-    return GL_RGB8;
   case PixelFormat::PIX_FMT_RGBA8:
     return GL_RGBA8;
-  case PixelFormat::PIX_FMT_RGB16U:
-    return GL_RGB16;
   case PixelFormat::PIX_FMT_RGBA16U:
     return GL_RGBA16;
-  case PixelFormat::PIX_FMT_RGB16F:
-    return GL_RGB16F;
   case PixelFormat::PIX_FMT_RGBA16F:
     return GL_RGBA16F;
-  case PixelFormat::PIX_FMT_RGB32F:
-    return GL_RGB32F;
   case PixelFormat::PIX_FMT_RGBA32F:
     return GL_RGBA32F;
 
@@ -540,28 +616,15 @@ GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format)
   return GL_INVALID_VALUE;
 }
 
-GLenum OpenGLRenderer::GetPixelFormat(PixelFormat::Format format)
-{
-  if (PixelFormat::FormatHasAlphaChannel(format)) {
-    return GL_RGBA;
-  } else {
-    return GL_RGB;
-  }
-}
-
 GLenum OpenGLRenderer::GetPixelType(PixelFormat::Format format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
   case PixelFormat::PIX_FMT_RGBA8:
     return GL_UNSIGNED_BYTE;
-  case PixelFormat::PIX_FMT_RGB16U:
   case PixelFormat::PIX_FMT_RGBA16U:
     return GL_UNSIGNED_SHORT;
-  case PixelFormat::PIX_FMT_RGB16F:
   case PixelFormat::PIX_FMT_RGBA16F:
     return GL_HALF_FLOAT;
-  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_RGBA32F:
     return GL_FLOAT;
 

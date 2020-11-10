@@ -196,11 +196,11 @@ float Color::lightness() const
 
 void Color::toData(char *data, const PixelFormat::Format &format) const
 {
-  OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(PixelFormat::PIX_FMT_RGB32F),
+  OIIO::convert_types(OIIO::TypeDesc::FLOAT,
                       data_,
                       PixelFormat::GetOIIOTypeDesc(format),
                       data,
-                      PixelFormat::FormatHasAlphaChannel(format) ? kRGBAChannels : kRGBChannels);
+                      kRGBAChannels);
 }
 
 Color Color::fromData(const char *data, const PixelFormat::Format &format)
@@ -209,13 +209,9 @@ Color Color::fromData(const char *data, const PixelFormat::Format &format)
 
   OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(format),
                       data,
-                      PixelFormat::GetOIIOTypeDesc(PixelFormat::PIX_FMT_RGB32F),
+                      OIIO::TypeDesc::FLOAT,
                       c.data_,
-                      PixelFormat::FormatHasAlphaChannel(format) ? kRGBAChannels : kRGBChannels);
-
-  if (!PixelFormat::FormatHasAlphaChannel(format)) {
-    c.set_alpha(1.0f);
-  }
+                      kRGBAChannels);
 
   return c;
 }

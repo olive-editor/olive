@@ -43,14 +43,26 @@ public:
               const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
               const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
 
-  const int& width() const
+  int width() const
   {
     return width_;
   }
 
-  const int& height() const
+  void set_width(int width)
+  {
+    width_ = width;
+    calculate_effective_size();
+  }
+
+  int height() const
   {
     return height_;
+  }
+
+  void set_height(int height)
+  {
+    height_ = height;
+    calculate_effective_size();
   }
 
   const rational& time_base() const
@@ -58,24 +70,40 @@ public:
     return time_base_;
   }
 
-  const int& divider() const
+  void set_time_base(const rational& r)
+  {
+    time_base_ = r;
+  }
+
+  int divider() const
   {
     return divider_;
   }
 
-  const int& effective_width() const
+  void set_divider(int d)
+  {
+    divider_ = d;
+    calculate_effective_size();
+  }
+
+  int effective_width() const
   {
     return effective_width_;
   }
 
-  const int& effective_height() const
+  int effective_height() const
   {
     return effective_height_;
   }
 
-  const PixelFormat::Format& format() const
+  PixelFormat::Format format() const
   {
     return format_;
+  }
+
+  void set_format(PixelFormat::Format f)
+  {
+    format_ = f;
   }
 
   const rational& pixel_aspect_ratio() const
@@ -83,9 +111,20 @@ public:
     return pixel_aspect_ratio_;
   }
 
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    pixel_aspect_ratio_ = r;
+    validate_pixel_aspect_ratio();
+  }
+
   Interlacing interlacing() const
   {
     return interlacing_;
+  }
+
+  void set_interlacing(Interlacing i)
+  {
+    interlacing_ = i;
   }
 
   static int generate_auto_divider(qint64 width, qint64 height);

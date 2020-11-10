@@ -3,6 +3,8 @@
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
 
+#include "project/item/sequence/sequence.h"
+#include "project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
 
@@ -13,6 +15,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   paused_(false),
   has_changed_(false),
   use_custom_range_(false),
+  single_frame_render_(nullptr),
   last_update_time_(0),
   ignore_next_mouse_button_(false),
   video_params_changed_(false),
@@ -24,13 +27,20 @@ PreviewAutoCacher::PreviewAutoCacher() :
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
 {
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+  if (single_frame_render_) {
+    single_frame_render_->Cancel();
+  }
 
-  ticket->setProperty("time", QVariant::fromValue(t));
+  single_frame_render_ = std::make_shared<RenderTicket>();
+
+  single_frame_render_->setProperty("time", QVariant::fromValue(t));
+
+  // Copy because TryRender() might set this to null and we still want to return a handle to this
+  RenderTicketPtr copy = single_frame_render_;
 
   TryRender();
 
-  return ticket;
+  return copy;
 }
 
 void PreviewAutoCacher::SetPaused(bool paused)
@@ -299,6 +309,14 @@ void PreviewAutoCacher::AudioParamsChanged()
   TryRender();
 }
 
+void PreviewAutoCacher::SingleFrameFinished()
+{
+  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
+  RenderTicketPtr passthrough = watcher->property("passthrough").value<RenderTicketPtr>();
+  passthrough->Finish(watcher->GetTicket()->Get(), watcher->GetTicket()->WasCancelled());
+  delete watcher;
+}
+
 //#define PRINT_UPDATE_QUEUE_INFO
 void PreviewAutoCacher::ProcessUpdateQueue()
 {
@@ -554,23 +572,21 @@ void PreviewAutoCacher::TryRender()
     invalidated_audio_.clear();
   }
 
-  if (!single_frame_renders_.isEmpty()) {
-    foreach (RenderTicketPtr ticket, single_frame_renders_) {
-      RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  if (single_frame_render_) {
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
 
-      watcher->setProperty("passthrough", QVariant::fromValue(ticket));
+    watcher->setProperty("passthrough", QVariant::fromValue(single_frame_render_));
 
-      connect(watcher, &RenderTicketWatcher::Finished, watcher, [watcher]{
-        RenderTicketPtr passthrough = watcher->property("passthrough").value<RenderTicketPtr>();
-        passthrough->Finish(watcher->GetTicket()->Get(), watcher->GetTicket()->WasCancelled());
-        watcher->deleteLater();
-      });
+    connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::SingleFrameFinished);
 
-      watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                                ticket->property("time").value<rational>(),
-                                                                RenderMode::kOffline, true));
-    }
-    single_frame_renders_.clear();
+    single_frame_render_->Start();
+
+    watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
+                                                              static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager(),
+                                                              single_frame_render_->property("time").value<rational>(),
+                                                              RenderMode::kOffline, true));
+
+    single_frame_render_ = nullptr;
   }
 }
 
@@ -607,7 +623,9 @@ void PreviewAutoCacher::RequeueFrames()
         watcher->setProperty("hash", hash);
         connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
         video_tasks_.insert(watcher, hash);
-        watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_, t, RenderMode::kOffline, false));
+        watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
+                                                                  static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager(),
+                                                                  t, RenderMode::kOffline, false));
       }
     }
 
