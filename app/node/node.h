@@ -404,8 +404,6 @@ public:
 
   void SetPosition(const QPointF& pos);
 
-  static QString ReadFileAsString(const QString& filename);
-
   QList<NodeInput*> GetInputsIncludingArrays() const;
 
   QList<NodeOutput*> GetOutputs() const;

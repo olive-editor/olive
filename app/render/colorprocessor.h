@@ -53,8 +53,17 @@ public:
 
   Color ConvertColor(Color in);
 
+  const QString& id() const
+  {
+    return id_;
+  }
+
+  static QString GenerateID(ColorManager* config, const QString& input, const ColorTransform& dest_space);
+
 private:
   OCIO::ConstProcessorRcPtr processor_;
+
+  QString id_;
 
 };
 

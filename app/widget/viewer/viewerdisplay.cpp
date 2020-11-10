@@ -297,9 +297,8 @@ void ViewerDisplayWidget::OnPaint()
       //color_service()->pipeline()->setUniformValue("ove_deinterlace", deinterlace_);
     }
 
-    // Bind retrieved texture
-    renderer()->SetViewport(width(), height());
-    renderer()->BlitColorManaged(color_service(), texture_.get());
+    // Draw texture through color transform
+    renderer()->BlitColorManaged(color_service(), texture_, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
 
   }
 

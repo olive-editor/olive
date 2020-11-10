@@ -51,10 +51,6 @@ public slots:
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
 
-  virtual void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture) override;
-
-  virtual void DetachTextureAsDestination() override;
-
   virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
@@ -67,20 +63,20 @@ public slots:
 
   virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) override;
 
-  virtual TexturePtr ProcessShader(const OLIVE_NAMESPACE::Node* node,
-                                   OLIVE_NAMESPACE::ShaderJob job,
-                                   OLIVE_NAMESPACE::VideoParams params) override;
-
-  virtual void SetViewport(int width, int height) override;
-
-  virtual void BlitColorManaged(OLIVE_NAMESPACE::ColorProcessorPtr color_processor, OLIVE_NAMESPACE::Renderer::Texture* source, OLIVE_NAMESPACE::Renderer::Texture *destination = nullptr) override;
-
-  virtual void Blit(OLIVE_NAMESPACE::Renderer::Texture* source, QVariant shader, OLIVE_NAMESPACE::Renderer::ShaderUniformMap parameters, OLIVE_NAMESPACE::Renderer::Texture* destination = nullptr) override;
+protected slots:
+  virtual void Blit(QVariant shader,
+                    OLIVE_NAMESPACE::ShaderJob job,
+                    OLIVE_NAMESPACE::Renderer::Texture* destination,
+                    OLIVE_NAMESPACE::VideoParams destination_params) override;
 
 private:
   static GLint GetInternalFormat(PixelFormat::Format format);
 
   static GLenum GetPixelType(PixelFormat::Format format);
+
+  void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture);
+
+  void DetachTextureAsDestination();
 
   void PrepareInputTexture(bool bilinear);
 
@@ -97,8 +93,6 @@ private:
   QOpenGLBuffer frag_vbo_;
 
   GLuint framebuffer_;
-
-  QHash<QString, QOpenGLShaderProgram*> shader_cache_;
 
 };
 

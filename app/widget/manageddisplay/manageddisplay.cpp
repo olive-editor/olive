@@ -248,6 +248,13 @@ void ManagedDisplayWidget::doneCurrent()
   }
 }
 
+void ManagedDisplayWidget::update()
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->update();
+  }
+}
+
 Menu* ManagedDisplayWidget::GetDisplayMenu(QMenu* parent, bool auto_connect)
 {
   QStringList displays = color_manager()->ListAvailableDisplays();

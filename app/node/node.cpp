@@ -270,18 +270,6 @@ QList<NodeInput *> Node::GetInputsToHash() const
   return GetInputsIncludingArrays();
 }
 
-QString Node::ReadFileAsString(const QString &filename)
-{
-  QFile f(filename);
-  QString file_data;
-  if (f.open(QFile::ReadOnly | QFile::Text)) {
-    QTextStream text_stream(&f);
-    file_data = text_stream.readAll();
-    f.close();
-  }
-  return file_data;
-}
-
 void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>& list)
 {
   foreach (NodeInput* input, array->sub_params()) {

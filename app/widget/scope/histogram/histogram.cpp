@@ -43,8 +43,8 @@ void HistogramScope::OnInit()
 {
   ScopeBase::OnInit();
 
-  ShaderCode secondary_code(Node::ReadFileAsString(":/shaders/rgbhistogram_secondary.frag"),
-                            Node::ReadFileAsString(":/shaders/rgbhistogram.vert"));
+  ShaderCode secondary_code(FileFunctions::ReadFileAsString(":/shaders/rgbhistogram_secondary.frag"),
+                            FileFunctions::ReadFileAsString(":/shaders/rgbhistogram.vert"));
   pipeline_secondary_ = renderer()->CreateNativeShader(secondary_code);
 }
 
@@ -58,8 +58,8 @@ void HistogramScope::OnDestroy()
 
 ShaderCode HistogramScope::GenerateShaderCode()
 {
-  return ShaderCode(Node::ReadFileAsString(":/shaders/rgbhistogram.frag"),
-                    Node::ReadFileAsString(":/shaders/default.vert"));
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgbhistogram.frag"),
+                    FileFunctions::ReadFileAsString(":/shaders/default.vert"));
 }
 
 void HistogramScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
@@ -71,11 +71,11 @@ void HistogramScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeli
   float histogram_base = 2.5f;
   float histogram_power = 1.0f / histogram_base;
 
-  Renderer::ShaderUniformMap value_map;
+  ShaderJob shader_job;
 
-  value_map.insert(QStringLiteral("viewport"), {QVector2D(width(), height()), NodeParam::kVec2});
-  value_map.insert(QStringLiteral("histogram_scale"), {histogram_scale, NodeParam::kFloat});
-  value_map.insert(QStringLiteral("histogram_power"), {histogram_power, NodeParam::kFloat});
+  shader_job.InsertValue(QStringLiteral("viewport"), ShaderValue(QVector2D(width(), height()), NodeParam::kVec2));
+  shader_job.InsertValue(QStringLiteral("histogram_scale"), ShaderValue(histogram_scale, NodeParam::kFloat));
+  shader_job.InsertValue(QStringLiteral("histogram_power"), ShaderValue(histogram_power, NodeParam::kFloat));
 
   if (!texture_row_sums_
       || texture_row_sums_->width() != this->width()
@@ -83,9 +83,13 @@ void HistogramScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeli
     texture_row_sums_ = renderer()->CreateTexture(VideoParams(width(), height(), managed_tex->format()));
   }
 
-  renderer()->Blit(managed_tex.get(), pipeline, value_map, texture_row_sums_.get());
+  // Draw managed texture to a sums texture
+  shader_job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
+  renderer()->BlitToTexture(pipeline, shader_job, texture_row_sums_.get());
 
-  renderer()->Blit(texture_row_sums_.get(), pipeline_secondary_, value_map);
+  // Draw sums into a histogram
+  shader_job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(texture_row_sums_), NodeParam::kTexture));
+  renderer()->Blit(pipeline_secondary_, shader_job, texture_row_sums_->params());
 
   // Draw line overlays
   QPainter p(this);

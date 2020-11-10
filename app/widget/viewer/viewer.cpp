@@ -202,6 +202,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     using_manager = nullptr;
   }
 
+  auto_cacher_.SetColorManager(using_manager);
+
   display_widget_->ConnectColorManager(using_manager);
   foreach (ViewerWindow* window, windows_) {
     window->display_widget()->ConnectColorManager(using_manager);
@@ -244,6 +246,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   foreach (ViewerWindow* window, windows_) {
     window->display_widget()->DisconnectColorManager();
   }
+  auto_cacher_.SetColorManager(nullptr);
 
   waveform_view_->SetViewer(nullptr);
   waveform_view_->ConnectTimelinePoints(nullptr);

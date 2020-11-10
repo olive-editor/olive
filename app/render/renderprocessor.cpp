@@ -29,11 +29,12 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache) :
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
   ticket_(ticket),
   render_ctx_(render_ctx),
   still_image_cache_(still_image_cache),
-  decoder_cache_(decoder_cache)
+  decoder_cache_(decoder_cache),
+  shader_cache_(shader_cache)
 {
 }
 
@@ -137,9 +138,9 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(StreamPtr stream)
   return decoder;
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache)
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
-  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache);
+  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache, shader_cache);
   p.Run();
 }
 
@@ -228,9 +229,10 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
   // to optimize such a situation
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
   const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
+
   StillImageCache::Entry want_entry = {nullptr,
                                        stream,
-                                       video_stream->get_colorspace_match_string(),
+                                       ColorProcessor::GenerateID(Node::ValueToPtr<ColorManager>(ticket_->property("colormanager")), video_stream->colorspace(), ColorTransform(OCIO::ROLE_SCENE_LINEAR)),
                                        video_stream->premultiplied_alpha(),
                                        video_params.divider(),
                                        (video_stream->video_type() == VideoStream::kVideoTypeStill) ? 0 : input_time};
@@ -293,14 +295,14 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
         managed_params.set_format(video_params.format());
         value = render_ctx_->CreateTexture(managed_params);
 
-        // FIXME: Accessing video_stream->colorspace()
+        qDebug() << "FIXME: Accessing video_stream->colorspace() may cause race conditions";
 
         ColorManager* color_manager = video_stream->footage()->project()->color_manager();
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              video_stream->colorspace(),
                                                              ColorTransform(OCIO::ROLE_SCENE_LINEAR));
 
-        render_ctx_->BlitColorManaged(processor, unmanaged_texture.get(), value.get());
+        render_ctx_->BlitColorManaged(processor, unmanaged_texture, value.get());
 
         still_image_cache_->mutex()->lock();
 
@@ -341,9 +343,30 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
 {
   Q_UNUSED(range)
 
+  QString full_shader_id = QStringLiteral("%1:%2").arg(node->id(), job.GetShaderID());
+
+  QMutexLocker locker(shader_cache_->mutex());
+
+  QVariant shader = shader_cache_->value(full_shader_id);
+
+  if (shader.isNull()) {
+    // Since we have shader code, compile it now
+    shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job.GetShaderID()));
+
+    if (shader.isNull()) {
+      // Couldn't find or build the shader required
+      return QVariant();
+    }
+  }
+
   const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
-  return QVariant::fromValue(render_ctx_->ProcessShader(node, job, video_params));
+  Renderer::TexturePtr destination = render_ctx_->CreateTexture(video_params);
+
+  // Run shader
+  render_ctx_->BlitToTexture(shader, job, destination.get());
+
+  return QVariant::fromValue(destination);
 }
 
 QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -372,7 +395,7 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
       if (corresponding_input) {
         value = ProcessInput(corresponding_input, TimeRange(this_sample_time, this_sample_time));
       } else {
-        value.Push(j.value());
+        value.Push(j.value(), node);
       }
 
       value_db.Insert(j.key(), value);

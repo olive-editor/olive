@@ -121,12 +121,22 @@ public:
 
   TexturePtr CreateTexture(const VideoParams& param, void* data = nullptr, int linesize = 0);
 
-  struct ShaderValue {
-    QVariant data;
-    NodeParam::DataType type;
-  };
+  void BlitToTexture(QVariant shader,
+                     OLIVE_NAMESPACE::ShaderJob job,
+                     OLIVE_NAMESPACE::Renderer::Texture* destination)
+  {
+    Blit(shader, job, destination, destination->params());
+  }
 
-  using ShaderUniformMap = QHash<QString, ShaderValue>;
+  void Blit(QVariant shader,
+            OLIVE_NAMESPACE::ShaderJob job,
+            OLIVE_NAMESPACE::VideoParams params)
+  {
+    Blit(shader, job, nullptr, params);
+  }
+
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture* destination);
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params);
 
 public slots:
   virtual void PostInit() = 0;
@@ -134,10 +144,6 @@ public slots:
   virtual void Destroy() = 0;
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
-
-  virtual void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture) = 0;
-
-  virtual void DetachTextureAsDestination() = 0;
 
   virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) = 0;
 
@@ -151,18 +157,19 @@ public slots:
 
   virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) = 0;
 
-  virtual TexturePtr ProcessShader(const OLIVE_NAMESPACE::Node* node,
-                                   OLIVE_NAMESPACE::ShaderJob job,
-                                   OLIVE_NAMESPACE::VideoParams params) = 0;
-
-  virtual void SetViewport(int width, int height) = 0;
-
-  virtual void BlitColorManaged(OLIVE_NAMESPACE::ColorProcessorPtr color_processor, OLIVE_NAMESPACE::Renderer::Texture* source, OLIVE_NAMESPACE::Renderer::Texture *destination = nullptr) = 0;
-
-  virtual void Blit(OLIVE_NAMESPACE::Renderer::Texture* source, QVariant shader, OLIVE_NAMESPACE::Renderer::ShaderUniformMap parameters, OLIVE_NAMESPACE::Renderer::Texture* destination = nullptr) = 0;
+protected slots:
+  virtual void Blit(QVariant shader,
+                    OLIVE_NAMESPACE::ShaderJob job,
+                    OLIVE_NAMESPACE::Renderer::Texture* destination,
+                    OLIVE_NAMESPACE::VideoParams destination_params) = 0;
 
 private:
+  struct ColorContext {
+    QVariant shader;
+    TexturePtr lut;
+  };
 
+  QHash<QString, ColorContext> color_cache_;
 
 };
 

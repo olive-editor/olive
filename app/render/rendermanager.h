@@ -26,11 +26,11 @@
 #include "config/config.h"
 #include "colorprocessorcache.h"
 #include "dialog/rendercancel/rendercancel.h"
-#include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
 #include "render/backend/renderer.h"
+#include "rendercache.h"
 #include "stillimagecache.h"
 #include "threading/threadpool.h"
 
@@ -126,6 +126,8 @@ private:
   StillImageCache* still_cache_;
 
   DecoderCache* decoder_cache_;
+
+  ShaderCache* shader_cache_;
 
 };
 

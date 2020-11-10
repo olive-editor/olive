@@ -90,8 +90,6 @@ public:
   const QString& colorspace(bool default_if_empty = true) const;
   void set_colorspace(const QString& color);
 
-  QString get_colorspace_match_string() const;
-
   VideoParams::Interlacing interlacing() const
   {
     return interlacing_;

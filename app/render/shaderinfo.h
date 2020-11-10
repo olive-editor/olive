@@ -2,54 +2,71 @@
 #define SHADERINFO_H
 
 #include "codec/samplebuffer.h"
+#include "common/filefunctions.h"
 #include "node/input.h"
 #include "node/inputarray.h"
 #include "node/value.h"
 
 OLIVE_NAMESPACE_ENTER
 
-using NodeValueMap = QHash<QString, NodeValue>;
+using NodeValueMap = QHash<QString, ShaderValue>;
 
 class AcceleratedJob {
 public:
   AcceleratedJob() = default;
 
-  NodeValue GetValue(NodeInput* input) const
+  ShaderValue GetValue(NodeInput* input) const
   {
     return value_map_.value(input->id());
   }
 
-  NodeValue GetValue(const QString& input) const
+  ShaderValue GetValue(const QString& input) const
   {
     return value_map_.value(input);
   }
 
   void InsertValue(NodeInput* input, NodeValueDatabase& value)
   {
+    ShaderValue shader_val;
+
+    shader_val.type = input->data_type();
+    shader_val.array = input->IsArray();
+
     if (input->IsArray()) {
       NodeInputArray* array = static_cast<NodeInputArray*>(input);
-      QVector<NodeValue> values(array->GetSize());
+      QVector<QVariant> values(array->GetSize());
 
       for (int j=0;j<array->GetSize();j++) {
         NodeInput* subparam = array->At(j);
 
-        values[j] = value[subparam].TakeWithMeta(subparam->data_type());
+        values[j] = value[subparam].Take(subparam->data_type());
       }
 
-      InsertValue(input->id(), NodeValue(NodeParam::kVec2, QVariant::fromValue(values), input->parentNode()));
+      shader_val.data = QVariant::fromValue(values);
     } else {
-      InsertValue(input->id(), value[input].TakeWithMeta(input->data_type()));
+      NodeValue node_val = value[input].TakeWithMeta(input->data_type());
+      shader_val.data = node_val.data();
+      shader_val.tag = node_val.tag();
     }
+
+    InsertValue(input->id(), shader_val);
   }
 
-  void InsertValue(const QString& input, const NodeValue& value)
+  void InsertValue(const QString& input, const ShaderValue& value)
   {
     value_map_.insert(input, value);
   }
 
-  void InsertValue(NodeInput* input, const NodeValue& value)
+  void InsertValue(NodeInput* input, const ShaderValue& value)
   {
     value_map_.insert(input->id(), value);
+  }
+
+  void InsertValue(NodeInput* input, const NodeValue& value)
+  {
+    ShaderValue s(value.data(), value.type());
+    s.tag = value.tag();
+    value_map_.insert(input->id(), s);
   }
 
   const NodeValueMap &GetValues() const
@@ -127,15 +144,20 @@ public:
 
   const QString& GetShaderID() const
   {
-    return id_;
+    return shader_id_;
   }
 
   void SetShaderID(const QString& id)
   {
-    id_ = id;
+    shader_id_ = id;
   }
 
   void SetIterations(int iterations, NodeInput* iterative_input)
+  {
+    SetIterations(iterations, iterative_input->id());
+  }
+
+  void SetIterations(int iterations, const QString& iterative_input)
   {
     iterations_ = iterations;
     iterative_input_ = iterative_input;
@@ -146,7 +168,7 @@ public:
     return iterations_;
   }
 
-  NodeInput* GetIterativeInput() const
+  const QString& GetIterativeInput() const
   {
     return iterative_input_;
   }
@@ -162,11 +184,11 @@ public:
   }
 
 private:
-  QString id_;
+  QString shader_id_;
 
   int iterations_;
 
-  NodeInput* iterative_input_;
+  QString iterative_input_;
 
   bool bilinear_;
 
@@ -178,6 +200,13 @@ public:
     frag_code_(frag_code),
     vert_code_(vert_code)
   {
+    if (frag_code_.isEmpty()) {
+      frag_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.frag"));
+    }
+
+    if (vert_code_.isEmpty()) {
+      vert_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.vert"));
+    }
   }
 
   const QString& frag_code() const

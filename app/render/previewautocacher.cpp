@@ -19,7 +19,8 @@ PreviewAutoCacher::PreviewAutoCacher() :
   last_update_time_(0),
   ignore_next_mouse_button_(false),
   video_params_changed_(false),
-  audio_params_changed_(false)
+  audio_params_changed_(false),
+  color_manager_(nullptr)
 {
   // Set default autocache range
   SetPlayhead(rational());
@@ -582,7 +583,7 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_->Start();
 
     watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                              static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager(),
+                                                              color_manager_,
                                                               single_frame_render_->property("time").value<rational>(),
                                                               RenderMode::kOffline, true));
 
@@ -624,7 +625,7 @@ void PreviewAutoCacher::RequeueFrames()
         connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
         video_tasks_.insert(watcher, hash);
         watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
-                                                                  static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager(),
+                                                                  color_manager_,
                                                                   t, RenderMode::kOffline, false));
       }
     }

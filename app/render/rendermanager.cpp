@@ -55,6 +55,7 @@ RenderManager::RenderManager(QObject *parent) :
 
     still_cache_ = new StillImageCache();
     decoder_cache_ = new DecoderCache();
+    shader_cache_ = new ShaderCache();
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     still_cache_ = nullptr;
@@ -64,6 +65,7 @@ RenderManager::RenderManager(QObject *parent) :
 
 RenderManager::~RenderManager()
 {
+  delete shader_cache_;
   delete decoder_cache_;
   delete still_cache_;
 
@@ -162,7 +164,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
 
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
-  RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_);
+  RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_, shader_cache_);
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "input.h"
+#include "render/shadervalue.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -72,17 +73,58 @@ public:
   NodeValue GetWithMeta(const NodeParam::DataType& type, const QString& tag = QString()) const;
   QVariant Take(const NodeParam::DataType& type, const QString& tag = QString());
   NodeValue TakeWithMeta(const NodeParam::DataType& type, const QString& tag = QString());
-  void Push(const NodeValue& value);
-  void Push(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
-  void Prepend(const NodeValue& value);
-  void Prepend(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString());
-  const NodeValue& at(int index) const;
-  NodeValue TakeAt(int index);
-  int Count() const;
+
+  void Push(const NodeValue& value)
+  {
+    values_.append(value);
+  }
+
+  void Push(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString())
+  {
+    Push(NodeValue(type, data, from, tag));
+  }
+
+  void Push(const ShaderValue &value, const Node *from)
+  {
+    Push(value.type, value.data, from, value.tag);
+  }
+
+  void Prepend(const NodeValue& value)
+  {
+    values_.prepend(value);
+  }
+
+  void Prepend(const NodeParam::DataType& type, const QVariant& data, const Node *from, const QString& tag = QString())
+  {
+    Prepend(NodeValue(type, data, from, tag));
+  }
+
+  void Prepend(const ShaderValue &value, const Node *from)
+  {
+    Prepend(value.type, value.data, from, value.tag);
+  }
+
+  const NodeValue& at(int index) const
+  {
+    return values_.at(index);
+  }
+  NodeValue TakeAt(int index)
+  {
+    return values_.takeAt(index);
+  }
+
+  int Count() const
+  {
+    return values_.size();
+  }
+
   bool Has(const NodeParam::DataType& type) const;
   void Remove(const NodeValue& v);
 
-  bool isEmpty() const;
+  bool isEmpty() const
+  {
+    return values_.isEmpty();
+  }
 
   static NodeValueTable Merge(QList<NodeValueTable> tables);
 
@@ -98,11 +140,25 @@ class NodeValueDatabase
 public:
   NodeValueDatabase() = default;
 
-  NodeValueTable& operator[](const QString& input_id);
-  NodeValueTable& operator[](const NodeInput* input);
+  NodeValueTable& operator[](const QString& input_id)
+  {
+    return tables_[input_id];
+  }
 
-  void Insert(const QString& key, const NodeValueTable &value);
-  void Insert(const NodeInput* key, const NodeValueTable& value);
+  NodeValueTable& operator[](const NodeInput* input)
+  {
+    return tables_[input->id()];
+  }
+
+  void Insert(const QString& key, const NodeValueTable &value)
+  {
+    tables_.insert(key, value);
+  }
+
+  void Insert(const NodeInput* key, const NodeValueTable& value)
+  {
+    tables_.insert(key->id(), value);
+  }
 
   NodeValueTable Merge() const;
 

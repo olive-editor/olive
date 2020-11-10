@@ -54,6 +54,8 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
                                                    output.toUtf8());
 
   }
+
+  id_ = GenerateID(config, input, transform);
 }
 
 void ColorProcessor::ConvertFrame(Frame *f)
@@ -73,6 +75,15 @@ Color ColorProcessor::ConvertColor(Color in)
 {
   processor_->applyRGBA(in.data());
   return in;
+}
+
+QString ColorProcessor::GenerateID(ColorManager *config, const QString &input, const ColorTransform &transform)
+{
+  return QStringLiteral("%1:%2:%3:%4:%5").arg(config->GetConfigFilename(),
+                                              input,
+                                              transform.display(),
+                                              transform.view(),
+                                              transform.look());
 }
 
 ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& input, const ColorTransform &transform)

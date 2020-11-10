@@ -44,8 +44,8 @@ WaveformScope::~WaveformScope()
 
 ShaderCode WaveformScope::GenerateShaderCode()
 {
-  return ShaderCode(Node::ReadFileAsString(":/shaders/rgbwaveform.frag"),
-                    Node::ReadFileAsString(":/shaders/rgbwaveform.vert"));
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgbwaveform.frag"),
+                    FileFunctions::ReadFileAsString(":/shaders/rgbwaveform.vert"));
 }
 
 void WaveformScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
@@ -53,23 +53,28 @@ void WaveformScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipelin
   float waveform_scale = 0.80f;
 
   // Draw waveform through shader
-  Renderer::ShaderUniformMap value_map;
+  ShaderJob job;
 
   // Set viewport size
-  value_map.insert(QStringLiteral("viewport"),
-                   {QVector2D(width(), height()), NodeParam::kVec2});
+  job.InsertValue(QStringLiteral("viewport"),
+                  ShaderValue(QVector2D(width(), height()), NodeParam::kVec2));
 
   // Set luma coefficients
   float luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  value_map.insert(QStringLiteral("luma_coeffs"),
-                   {QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]), NodeParam::kVec3});
+  job.InsertValue(QStringLiteral("luma_coeffs"),
+                  ShaderValue(QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]), NodeParam::kVec3));
 
 
   // Scale of the waveform relative to the viewport surface.
-  value_map.insert(QStringLiteral("waveform_scale"), {waveform_scale, NodeParam::kFloat});
+  job.InsertValue(QStringLiteral("waveform_scale"),
+                  ShaderValue(waveform_scale, NodeParam::kFloat));
 
-  renderer()->Blit(managed_tex.get(), pipeline, value_map);
+  // Insert source texture
+  job.InsertValue(QStringLiteral("ove_maintex"),
+                  ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
+
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);

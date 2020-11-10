@@ -66,7 +66,7 @@ ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(ReadFileAsString(":/shaders/alphaover.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"), QString());
 }
 
 NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
@@ -79,13 +79,13 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(base_in_).data().isNull() || !job.GetValue(blend_in_).data().isNull()) {
-    if (job.GetValue(base_in_).data().isNull()) {
+  if (!job.GetValue(base_in_).data.isNull() || !job.GetValue(blend_in_).data.isNull()) {
+    if (job.GetValue(base_in_).data.isNull()) {
       // We only have a blend texture, no need to alpha over
-      table.Push(job.GetValue(blend_in_));
-    } else if (job.GetValue(blend_in_).data().isNull()) {
+      table.Push(job.GetValue(blend_in_), this);
+    } else if (job.GetValue(blend_in_).data.isNull()) {
       // We only have a base texture, no need to alpha over
-      table.Push(job.GetValue(base_in_));
+      table.Push(job.GetValue(base_in_), this);
     } else {
       // We have both textures, push the job
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);

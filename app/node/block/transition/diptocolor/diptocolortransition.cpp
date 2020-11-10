@@ -57,7 +57,7 @@ ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(Node::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
 }
 
 void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const

@@ -187,4 +187,16 @@ QString FileFunctions::EnsureFilenameExtension(QString fn, const QString &extens
   return fn;
 }
 
+QString FileFunctions::ReadFileAsString(const QString &filename)
+{
+  QFile f(filename);
+  QString file_data;
+  if (f.open(QFile::ReadOnly | QFile::Text)) {
+    QTextStream text_stream(&f);
+    file_data = text_stream.readAll();
+    f.close();
+  }
+  return file_data;
+}
+
 OLIVE_NAMESPACE_EXIT

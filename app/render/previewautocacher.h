@@ -6,6 +6,7 @@
 #include "config/config.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
+#include "render/colormanager.h"
 #include "threading/threadticketwatcher.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -83,6 +84,11 @@ public:
   void ClearAudioQueue(bool wait = false);
   void ClearVideoDownloadQueue(bool wait = false);
 
+  void SetColorManager(ColorManager* manager)
+  {
+    color_manager_ = manager;
+  }
+
 public slots:
   /**
    * @brief Main handler for when the NodeGraph changes
@@ -147,6 +153,8 @@ private:
   bool video_params_changed_;
 
   bool audio_params_changed_;
+
+  ColorManager* color_manager_;
 
 private slots:
   /**

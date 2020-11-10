@@ -76,17 +76,6 @@ void RendererThreadWrapper::ClearDestination(double r, double g, double b, doubl
                             Q_ARG(double, a));
 }
 
-void RendererThreadWrapper::AttachTextureAsDestination(Renderer::Texture *texture)
-{
-  QMetaObject::invokeMethod(inner_, "AttachTextureAsDestination", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_ARG(Renderer::Texture*, texture));
-}
-
-void RendererThreadWrapper::DetachTextureAsDestination()
-{
-  QMetaObject::invokeMethod(inner_, "DetachTextureAsDestination", Qt::BlockingQueuedConnection);
-}
-
 QVariant RendererThreadWrapper::CreateNativeTexture(VideoParams param, void *data, int linesize)
 {
   QVariant v;
@@ -139,41 +128,15 @@ void RendererThreadWrapper::DownloadFromTexture(Renderer::Texture *texture, void
                             Q_ARG(int, linesize));
 }
 
-Renderer::TexturePtr RendererThreadWrapper::ProcessShader(const Node *node, ShaderJob job, VideoParams params)
+void RendererThreadWrapper::Blit(QVariant shader, ShaderJob job, Renderer::Texture *destination, VideoParams destination_params)
 {
   Renderer::TexturePtr tex;
 
   QMetaObject::invokeMethod(inner_, "Blit", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_RETURN_ARG(Renderer::TexturePtr, tex),
-                            OLIVE_NS_CONST_ARG(Node*, node),
-                            OLIVE_NS_ARG(ShaderJob, job),
-                            OLIVE_NS_ARG(VideoParams, params));
-
-  return tex;
-}
-
-void RendererThreadWrapper::SetViewport(int width, int height)
-{
-  QMetaObject::invokeMethod(inner_, "SetViewport", Qt::BlockingQueuedConnection,
-                            Q_ARG(int, width),
-                            Q_ARG(int, height));
-}
-
-void RendererThreadWrapper::BlitColorManaged(ColorProcessorPtr color_processor, Renderer::Texture *source, Renderer::Texture *destination)
-{
-  QMetaObject::invokeMethod(inner_, "BlitColorManaged", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_ARG(ColorProcessorPtr, color_processor),
-                            OLIVE_NS_ARG(Renderer::Texture*, source),
-                            OLIVE_NS_ARG(Renderer::Texture*, destination));
-}
-
-void RendererThreadWrapper::Blit(Renderer::Texture *source, QVariant shader, Renderer::ShaderUniformMap parameters, Renderer::Texture *destination)
-{
-  QMetaObject::invokeMethod(inner_, "Blit", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_ARG(Renderer::Texture*, source),
                             Q_ARG(QVariant, shader),
-                            Q_ARG(Renderer::ShaderUniformMap, parameters),
-                            OLIVE_NS_ARG(Renderer::Texture*, destination));
+                            OLIVE_NS_ARG(ShaderJob, job),
+                            OLIVE_NS_ARG(Renderer::Texture*, destination),
+                            OLIVE_NS_ARG(VideoParams, destination_params));
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -22,7 +22,6 @@
 #define COLORTRANSFORM_H
 
 #include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include <QString>
 

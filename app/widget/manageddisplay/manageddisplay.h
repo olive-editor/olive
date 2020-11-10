@@ -114,6 +114,11 @@ public:
    */
   Menu* GetLookMenu(QMenu* parent, bool auto_connect = true);
 
+  /**
+   * @brief Passes update signal through to inner widget
+   */
+  void update();
+
 public slots:
   /**
    * @brief Replaces the color transform with a new one

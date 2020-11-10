@@ -159,12 +159,6 @@ void VideoStream::set_colorspace(const QString &color)
   emit ParametersChanged();
 }
 
-QString VideoStream::get_colorspace_match_string() const
-{
-  return QStringLiteral("%1:%2").arg(footage()->project()->color_manager()->GetConfigFilename(),
-                                     colorspace());
-}
-
 void VideoStream::ColorConfigChanged()
 {
   ColorManager* color_manager = footage()->project()->color_manager();

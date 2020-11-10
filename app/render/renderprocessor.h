@@ -21,9 +21,9 @@
 #ifndef RENDERPROCESSOR_H
 #define RENDERPROCESSOR_H
 
-#include "decodercache.h"
 #include "node/traverser.h"
 #include "render/backend/renderer.h"
+#include "rendercache.h"
 #include "stillimagecache.h"
 #include "threading/threadticket.h"
 
@@ -32,7 +32,7 @@ OLIVE_NAMESPACE_ENTER
 class RenderProcessor : public NodeTraverser
 {
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {
     const TrackOutput* track;
@@ -56,7 +56,7 @@ protected:
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   void Run();
 
@@ -69,6 +69,8 @@ private:
   StillImageCache* still_image_cache_;
 
   DecoderCache* decoder_cache_;
+
+  ShaderCache* shader_cache_;
 
 };
 

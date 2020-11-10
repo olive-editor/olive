@@ -18,15 +18,16 @@
 
 ***/
 
-#ifndef DECODERCACHE_H
-#define DECODERCACHE_H
+#ifndef RENDERCACHE_H
+#define RENDERCACHE_H
 
 #include "codec/decoder.h"
 #include "project/item/footage/stream.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class DecoderCache : public QHash<Stream*, DecoderPtr>
+template <typename K, typename V>
+class RenderCache : public QHash<K, V>
 {
 public:
   QMutex *mutex()
@@ -39,6 +40,9 @@ private:
 
 };
 
+using DecoderCache = RenderCache<Stream*, DecoderPtr>;
+using ShaderCache = RenderCache<QString, QVariant>;
+
 OLIVE_NAMESPACE_EXIT
 
-#endif // DECODERCACHE_H
+#endif // RENDERCACHE_H

@@ -50,7 +50,11 @@ void ScopeBase::showEvent(QShowEvent* e)
 
 void ScopeBase::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
 {
-  renderer()->Blit(managed_tex.get(), pipeline, Renderer::ShaderUniformMap());
+  ShaderJob job;
+
+  job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
+
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
 }
 
 void ScopeBase::UploadTextureFromBuffer()
@@ -98,9 +102,8 @@ void ScopeBase::OnPaint()
 
   if (buffer_) {
     // Convert reference frame to display space
-    renderer()->BlitColorManaged(color_service(), texture_.get(), managed_tex_.get());
+    renderer()->BlitColorManaged(color_service(), texture_, managed_tex_.get());
 
-    renderer()->SetViewport(width(), height());
     DrawScope(managed_tex_, pipeline_);
   }
 }

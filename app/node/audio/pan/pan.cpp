@@ -69,7 +69,7 @@ NodeValueTable PanNode::Value(NodeValueDatabase &value) const
   NodeValueTable table = value.Merge();
 
   if (job.HasSamples()) {
-    float pan_volume = job.GetValue(panning_input_).data().toFloat();
+    float pan_volume = job.GetValue(panning_input_).data.toFloat();
     if (panning_input_->is_static()) {
       if (!qIsNull(pan_volume) && job.samples()->audio_params().channel_count() == 2) {
         if (pan_volume > 0) {

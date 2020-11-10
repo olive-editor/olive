@@ -65,6 +65,8 @@ public:
    */
   static QString EnsureFilenameExtension(QString fn, const QString& extension);
 
+  static QString ReadFileAsString(const QString& filename);
+
 };
 
 
