@@ -27,6 +27,8 @@
 #include "project/project.h"
 #include "task/task.h"
 
+#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
+
 OLIVE_NAMESPACE_ENTER
 
 class SaveOTIOTask : public Task
@@ -39,11 +41,11 @@ protected:
   virtual bool Run() override;
 
 private:
-  opentimelineio::v1_0::Timeline* SerializeTimeline(SequencePtr sequence);
+  OTIO::Timeline* SerializeTimeline(SequencePtr sequence);
 
-  opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
+  OTIO::Track* SerializeTrack(TrackOutput* track);
 
-  bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
+  bool SerializeTrackList(TrackList* list, OTIO::Timeline *otio_timeline);
 
   ProjectPtr project_;
 

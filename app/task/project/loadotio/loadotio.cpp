@@ -34,7 +34,7 @@
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
 
-#define OTIO opentimelineio::v1_0
+#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
 
 OLIVE_NAMESPACE_ENTER
 
