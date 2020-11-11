@@ -144,8 +144,8 @@ opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
     }
     case Block::kGap:
     {
-      otio_block = new opentimelineio::v1_0::Gap(
-            opentimelineio::v1_0::TimeRange(block->in().toRationalTime(), block->length().toRationalTime()),
+      otio_block = new opentimelineio::v1_0::Gap(opentimelineio::v1_0::TimeRange(block->in().toRationalTime(),
+                                          block->length().toRationalTime()),
             block->GetLabel().toStdString()
       );
       break;
