@@ -24,10 +24,13 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
 #include <opentimelineio/serializableCollection.h>
+#include <opentimelineio/serializableObject.h>
 #include <opentimelineio/transition.h>
 
 #include "node/block/transition/transition.h"
 #include "node/input/media/media.h"
+
+#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
 
 OLIVE_NAMESPACE_ENTER
 
@@ -94,6 +97,7 @@ bool SaveOTIOTask::Run()
 opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
 {
   auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->name().toStdString());
+  OTIO::Timeline::Retainer<OTIO::Timeline>* time_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
 
   if (!SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeVideo), otio_timeline)
       || !SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeAudio), otio_timeline)) {
