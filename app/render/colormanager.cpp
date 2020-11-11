@@ -69,11 +69,10 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
-  OCIO_SET_C_LOCALE_FOR_SCOPE;
-
   if (!qgetenv("OCIO").isEmpty()) {
     // Attempt to set config from "OCIO" environment variable
     try {
+      OCIO_SET_C_LOCALE_FOR_SCOPE;
       default_config_ = OCIO::Config::CreateFromEnv();
 
       return;
@@ -91,7 +90,10 @@ void ColorManager::SetUpDefaultConfig()
 
   qDebug() << "Extracting default OCIO config to" << dir;
 
-  default_config_ = CreateConfigFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")));
+  {
+    OCIO_SET_C_LOCALE_FOR_SCOPE;
+    default_config_ = CreateConfigFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")));
+  }
 }
 
 void ColorManager::SetConfig(const QString &filename)

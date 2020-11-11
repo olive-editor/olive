@@ -26,6 +26,7 @@ yum install --setopt=tsflags=nodocs -y \
     libxkbcommon-x11-devel \
     libXScrnSaver libXScrnSaver-devel \
     mesa-libGL-devel \
+    numactl-devel \
     openjpeg2-devel \
     pciutils-devel \
     pulseaudio-libs pulseaudio-libs-devel \
