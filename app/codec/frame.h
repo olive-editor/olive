@@ -116,7 +116,7 @@ public:
    *
    * If a memory buffer has been previously allocated without destroying, this function will destroy it.
    */
-  void allocate();
+  bool allocate();
 
   /**
    * @brief Return whether the frame is allocated or not

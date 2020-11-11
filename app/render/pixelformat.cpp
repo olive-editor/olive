@@ -86,6 +86,28 @@ QString PixelFormat::GetName(const PixelFormat::Format &format)
   return tr("Unknown (%1)").arg(format);
 }
 
+OCIO::BitDepth PixelFormat::GetOCIOBitDepthFromPixelFormat(PixelFormat::Format format)
+{
+  switch (format) {
+  case PixelFormat::PIX_FMT_RGBA8:
+    return OCIO::BIT_DEPTH_UINT8;
+  case PixelFormat::PIX_FMT_RGBA16U:
+    return OCIO::BIT_DEPTH_UINT16;
+    break;
+  case PixelFormat::PIX_FMT_RGBA16F:
+    return OCIO::BIT_DEPTH_F16;
+    break;
+  case PixelFormat::PIX_FMT_RGBA32F:
+    return OCIO::BIT_DEPTH_F32;
+    break;
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
+    break;
+  }
+
+  return OCIO::BIT_DEPTH_UNKNOWN;
+}
+
 PixelFormat* PixelFormat::instance_ = nullptr;
 
 void PixelFormat::CreateInstance()

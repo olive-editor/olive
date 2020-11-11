@@ -93,7 +93,7 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager *color_manager, const rational &time, RenderMode::Mode mode, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager *color_manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, bool prioritize)
 {
   return RenderFrame(viewer,
                      color_manager,
@@ -101,10 +101,11 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager *c
                      mode,
                      QSize(0, 0),
                      QMatrix4x4(),
+                     cache,
                      prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, FrameHashCache *cache, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -115,7 +116,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
   ticket->setProperty("matrix", matrix);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("cache", viewer->video_frame_cache()->GetCacheDirectory());
+  ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe

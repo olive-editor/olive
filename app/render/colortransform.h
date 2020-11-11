@@ -21,11 +21,10 @@
 #ifndef COLORTRANSFORM_H
 #define COLORTRANSFORM_H
 
-#include <OpenColorIO/OpenColorIO.h>
-
 #include <QString>
 
 #include "common/define.h"
+#include "common/ocioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 

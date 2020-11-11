@@ -114,7 +114,7 @@ void ThreadPoolThread::RunTicket(RenderTicketPtr ticket)
 
 void ThreadPoolThread::run()
 {
-  while (!IsCancelled()) {
+  while (true) {
     wait_cond_.wait(&mutex_);
 
     if (ticket_) {
@@ -122,7 +122,11 @@ void ThreadPoolThread::run()
       ticket_ = nullptr;
     }
 
-    emit Done();
+    if (IsCancelled()) {
+      break;
+    } else {
+      emit Done();
+    }
   }
 }
 

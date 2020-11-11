@@ -170,6 +170,11 @@ protected:
 
   void doneCurrent();
 
+  QWidget* inner_widget() const
+  {
+    return inner_widget_;
+  }
+
 protected slots:
   /**
    * @brief Called whenever the internal rendering context has been created

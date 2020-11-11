@@ -45,14 +45,14 @@ void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 
-  linesize_ = generate_linesize_bytes(params_.width(), params_.format());
+  linesize_ = generate_linesize_bytes(width(), params_.format());
   linesize_pixels_ = linesize_ / PixelFormat::BytesPerPixel(params_.format());
 }
 
 int Frame::generate_linesize_bytes(int width, PixelFormat::Format format)
 {
   // Align to 32 bytes (not sure if this is necessary?)
-  return ((PixelFormat::BytesPerPixel(format) * width) + 31) & ~31;
+  return PixelFormat::BytesPerPixel(format) * ((width + 31) & ~31);
 }
 
 Color Frame::get_pixel(int x, int y) const
@@ -82,15 +82,17 @@ void Frame::set_pixel(int x, int y, const Color &c)
   c.toData(data_.data() + byte_offset, video_params().format());
 }
 
-void Frame::allocate()
+bool Frame::allocate()
 {
   // Assume this frame is intended to be a video frame
   if (!params_.is_valid()) {
     qWarning() << "Tried to allocate a frame with invalid parameters";
-    return;
+    return false;
   }
 
-  data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, params_.height()));
+  data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, height()));
+
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

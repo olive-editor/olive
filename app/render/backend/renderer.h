@@ -135,8 +135,8 @@ public:
     Blit(shader, job, nullptr, params);
   }
 
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture* destination);
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params);
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture* destination, bool flipped = false);
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, bool flipped = false);
 
 public slots:
   virtual void PostInit() = 0;

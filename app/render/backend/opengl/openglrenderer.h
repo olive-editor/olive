@@ -86,12 +86,6 @@ private:
 
   QOffscreenSurface surface_;
 
-  QOpenGLVertexArrayObject vao_;
-
-  QOpenGLBuffer vert_vbo_;
-
-  QOpenGLBuffer frag_vbo_;
-
   GLuint framebuffer_;
 
 };

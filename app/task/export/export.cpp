@@ -114,11 +114,6 @@ bool ExportTask::Run()
 
 void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
 {
-  // OCIO conversion requires a frame in 32F format
-  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-    frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
-  }
-
   // Color conversion must be done with unassociated alpha, and the pipeline is always associated
   ColorManager::DisassociateAlpha(frame);
 

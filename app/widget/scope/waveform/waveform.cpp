@@ -60,7 +60,7 @@ void WaveformScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipelin
                   ShaderValue(QVector2D(width(), height()), NodeParam::kVec2));
 
   // Set luma coefficients
-  float luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
+  double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   color_manager()->GetDefaultLumaCoefs(luma_coeffs);
   job.InsertValue(QStringLiteral("luma_coeffs"),
                   ShaderValue(QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]), NodeParam::kVec3));
@@ -85,7 +85,7 @@ void WaveformScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipelin
   float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
 
   // Draw line overlays
-  QPainter p(this);
+  QPainter p(inner_widget());
   QFont font;
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

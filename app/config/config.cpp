@@ -121,8 +121,6 @@ void Config::SetDefaults()
   // Online/offline settings
   SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA32F);
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
-  SetEntryInternal(QStringLiteral("OnlineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOAccurate);
-  SetEntryInternal(QStringLiteral("OfflineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOFast);
 }
 
 void Config::Load()

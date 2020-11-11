@@ -82,17 +82,8 @@ public:
 
   static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
 
-  void GetDefaultLumaCoefs(float* rgb) const;
+  void GetDefaultLumaCoefs(double *rgb) const;
   Color GetDefaultLumaCoefs() const;
-
-  enum OCIOMethod {
-    kOCIOFast,
-    kOCIOAccurate
-  };
-
-  static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
-
-  static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
 
   class SetLocale
   {

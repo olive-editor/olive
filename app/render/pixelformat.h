@@ -26,6 +26,7 @@
 #include <QOpenGLExtraFunctions>
 #include <QString>
 
+#include "common/ocioutils.h"
 #include "render/rendermodes.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -115,6 +116,8 @@ public:
    * @brief Get format name
    */
   static QString GetName(const Format& format);
+
+  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(PixelFormat::Format format);
 
 signals:
   void FormatChanged();

@@ -21,6 +21,7 @@
 #include "openglrenderer.h"
 
 #include <QDebug>
+#include <QFloat16>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -42,16 +43,6 @@ const QVector<GLfloat> blit_texcoords = {
   0.0f, 0.0f,
   0.0f, 1.0f,
   1.0f, 1.0f
-};
-
-const QVector<GLfloat> flipped_blit_texcoords = {
-  0.0f, 1.0f,
-  1.0f, 1.0f,
-  1.0f, 0.0f,
-
-  0.0f, 1.0f,
-  0.0f, 0.0f,
-  1.0f, 0.0f
 };
 
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
@@ -110,33 +101,11 @@ void OpenGLRenderer::PostInit()
 
   // Set up framebuffer used for various things
   functions_->glGenFramebuffers(1, &framebuffer_);
-
-  // Set up vertex array object
-  vao_.create();
-
-  // Set up vertex buffer
-  vert_vbo_.create();
-  vert_vbo_.bind();
-  vert_vbo_.allocate(blit_vertices.constData(), blit_vertices.size() * sizeof(GLfloat));
-  vert_vbo_.release();
-
-  // Set up fragment buffer
-  frag_vbo_.create();
-  frag_vbo_.bind();
-  frag_vbo_.allocate(blit_texcoords.constData(), blit_texcoords.size() * sizeof(GLfloat));
-  frag_vbo_.release();
 }
 
 void OpenGLRenderer::Destroy()
 {
   if (context_) {
-    // Delete buffers
-    vert_vbo_.destroy();
-    frag_vbo_.destroy();
-
-    // Delete vertex array object
-    vao_.destroy();
-
     // Delete framebuffer
     functions_->glDeleteFramebuffers(1, &framebuffer_);
 
@@ -181,11 +150,18 @@ QVariant OpenGLRenderer::CreateNativeTexture(VideoParams p, void *data, int line
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
+  GLint current_tex;
+  functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
+
+  functions_->glBindTexture(GL_TEXTURE_2D, texture);
+
   functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(p.format()),
-                           p.width(), p.height(), 0, GL_RGBA,
+                           p.effective_width(), p.effective_height(), 0, GL_RGBA,
                            GetPixelType(p.format()), data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+  functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
 
   return texture;
 }
@@ -214,8 +190,6 @@ QVariant OpenGLRenderer::CreateNativeShader(ShaderCode code)
     qCritical() << "Failed to link shader";
     goto error;
   }
-
-  qDebug() << "Shader created successfully";
 
   return Node::PtrToValue(program);
 
@@ -254,13 +228,12 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, void *data, int linesize)
 
 void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int linesize)
 {
-  GLuint t = texture->id().value<GLuint>();
   const VideoParams& p = texture->params();
 
   GLint current_tex;
   functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
 
-  functions_->glBindTexture(GL_TEXTURE_2D, t);
+  AttachTextureAsDestination(texture);
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
 
@@ -273,6 +246,8 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
                            data);
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+
+  DetachTextureAsDestination();
 
   functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
 }
@@ -315,23 +290,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
       shader->setUniformValue(variable_location, value.data.toFloat());
       break;
     case NodeInput::kVec2:
-      /*if (corresponding_input && corresponding_input->IsArray()) {
-        QVector<NodeValue> nv = value.value< QVector<NodeValue> >();
-        QVector<QVector2D> a(nv.size());
-
-        for (int j=0;j<a.size();j++) {
-          a[j] = nv.at(j).data().value<QVector2D>();
-        }
-
-        shader->setUniformValueArray(variable_location, a.constData(), a.size());
-
-        int count_location = shader->uniformLocation(QStringLiteral("%1_count").arg(it.key()));
-        if (count_location > -1) {
-          shader->setUniformValue(count_location, a.size());
-        }
-      } else {
-
-      }*/
       shader->setUniformValue(variable_location, value.data.value<QVector2D>());
       break;
     case NodeInput::kVec3:
@@ -349,8 +307,8 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
     case NodeInput::kColor:
     {
       Color color = value.data.value<Color>();
-
-      shader->setUniformValue(variable_location, color.red(), color.green(), color.blue(), color.alpha());
+      shader->setUniformValue(variable_location,
+                              color.red(), color.green(), color.blue(), color.alpha());
       break;
     }
     case NodeInput::kBoolean:
@@ -423,14 +381,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
     }
   }
 
-  // Set ove_resolution to the destination to the "logical" resolution of the destination
-  shader->setUniformValue("ove_resolution",
-                          static_cast<GLfloat>(destination_params.width()),
-                          static_cast<GLfloat>(destination_params.height()));
-
-  // Set the viewport to the "physical" resolution of the destination
-  functions_->glViewport(0, 0, destination_params.effective_width(), destination_params.effective_height());
-
   // Bind all textures
   for (int i=0; i<textures_to_bind.size(); i++) {
     functions_->glActiveTexture(GL_TEXTURE0 + i);
@@ -438,10 +388,37 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
     PrepareInputTexture(job.GetBilinearFiltering());
   }
 
+  // Set ove_resolution to the destination to the "logical" resolution of the destination
+  shader->setUniformValue("ove_resolution",
+                          static_cast<GLfloat>(destination_params.width()),
+                          static_cast<GLfloat>(destination_params.height()));
+
+  // Set matrix to identity
+  shader->setUniformValue("ove_mvpmat", job.GetMatrix());
+
+  // Set the viewport to the "physical" resolution of the destination
+  functions_->glViewport(0, 0,
+                         destination_params.effective_width(),
+                         destination_params.effective_height());
+
   // Bind vertex array object
+  QOpenGLVertexArrayObject vao_;
+  vao_.create();
   vao_.bind();
 
   // Set buffers
+  QOpenGLBuffer vert_vbo_;
+  vert_vbo_.create();
+  vert_vbo_.bind();
+  vert_vbo_.allocate(blit_vertices.constData(), blit_vertices.size() * sizeof(GLfloat));
+  vert_vbo_.release();
+
+  QOpenGLBuffer frag_vbo_;
+  frag_vbo_.create();
+  frag_vbo_.bind();
+  frag_vbo_.allocate(blit_texcoords.constData(), blit_texcoords.size() * sizeof(GLfloat));
+  frag_vbo_.release();
+
   int vertex_location = shader->attributeLocation("a_position");
   vert_vbo_.bind();
   functions_->glEnableVertexAttribArray(vertex_location);
@@ -493,20 +470,20 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
         DetachTextureAsDestination();
       }
     } else {
-      // Always draw to output_tex
+      // Always draw to output_tex, which gets swapped with input_tex every iteration
       AttachTextureAsDestination(output_tex.get());
-
-      if (iteration > 0) {
-        // If this is not the first iteration, replace the iterative texture with the one we
-        // last drew
-        functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
-        functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
-        PrepareInputTexture(job.GetBilinearFiltering());
-      }
-
-      // Swap so that the next iteration, the texture we draw now will be the input texture next
-      std::swap(output_tex, input_tex);
     }
+
+    if (iteration > 0) {
+      // If this is not the first iteration, replace the iterative texture with the one we
+      // last drew
+      functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
+      functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
+      PrepareInputTexture(job.GetBilinearFiltering());
+    }
+
+    // Swap so that the next iteration, the texture we draw now will be the input texture next
+    std::swap(output_tex, input_tex);
 
     // Blit this texture through this shader
     functions_->glDrawArrays(GL_TRIANGLES, 0, blit_vertices.size() / 3);
@@ -526,40 +503,15 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
     functions_->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
-  // Release vertex array object
-  vao_.release();
-
   // Release shader
   shader->release();
+
+  // Release vertex array object
+  frag_vbo_.destroy();
+  vert_vbo_.destroy();
+  vao_.release();
+  vao_.destroy();
 }
-
-/*void OpenGLRenderer::Blit(Renderer::Texture *source, QVariant shader, Renderer::ShaderUniformMap parameters, Renderer::Texture *destination)
-{
-  QOpenGLShaderProgram* program = Node::ValueToPtr<QOpenGLShaderProgram>(shader);
-
-  if (!program) {
-    qCritical() << "Attempted to blit with a null shader";
-    return;
-  }
-
-  if (destination) {
-    AttachTextureAsDestination(destination);
-  }
-
-  functions_->glBindTexture(GL_TEXTURE_2D, source->id().value<GLuint>());
-
-  program->bind();
-
-  qCritical() << "OpenGLRenderer::Blit is a stub!";
-
-  program->release();
-
-  functions_->glBindTexture(GL_TEXTURE_2D, 0);
-
-  if (destination) {
-    DetachTextureAsDestination();
-  }
-}*/
 
 GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format)
 {

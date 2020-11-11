@@ -130,7 +130,7 @@ private:
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
-  void FFmpegFrameToNativeBuffer(uint8_t** input_data, int* input_linesize, uint8_t **output_buffer, int *output_linesize);
+  void FFmpegBufferToNativeBuffer(uint8_t** input_data, int* input_linesize, uint8_t **output_buffer, int *output_linesize);
 
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 

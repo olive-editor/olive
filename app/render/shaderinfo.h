@@ -1,6 +1,8 @@
 #ifndef SHADERINFO_H
 #define SHADERINFO_H
 
+#include <QMatrix4x4>
+
 #include "codec/samplebuffer.h"
 #include "common/filefunctions.h"
 #include "node/input.h"
@@ -142,6 +144,16 @@ public:
     bilinear_ = true;
   }
 
+  const QMatrix4x4& GetMatrix() const
+  {
+    return matrix_;
+  }
+
+  void SetMatrix(const QMatrix4x4& matrix)
+  {
+    matrix_ = matrix;
+  }
+
   const QString& GetShaderID() const
   {
     return shader_id_;
@@ -191,6 +203,8 @@ private:
   QString iterative_input_;
 
   bool bilinear_;
+
+  QMatrix4x4 matrix_;
 
 };
 

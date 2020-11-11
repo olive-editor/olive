@@ -302,7 +302,7 @@ QStringList ColorManager::ListAvailableColorspaces(OCIO::ConstConfigRcPtr config
   return spaces;
 }
 
-void ColorManager::GetDefaultLumaCoefs(float *rgb) const
+void ColorManager::GetDefaultLumaCoefs(double *rgb) const
 {
   config_->getDefaultLumaCoefs(rgb);
 }
@@ -318,16 +318,6 @@ Color ColorManager::GetDefaultLumaCoefs() const
   GetDefaultLumaCoefs(c.data());
 
   return c;
-}
-
-ColorManager::OCIOMethod ColorManager::GetOCIOMethodForMode(RenderMode::Mode mode)
-{
-  return static_cast<OCIOMethod>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod")).toInt());
-}
-
-void ColorManager::SetOCIOMethodForMode(RenderMode::Mode mode, ColorManager::OCIOMethod method)
-{
-  Core::SetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod"), method);
 }
 
 void ColorManager::AssociateAlphaPixFmtFilter(ColorManager::AlphaAction action, FramePtr f)

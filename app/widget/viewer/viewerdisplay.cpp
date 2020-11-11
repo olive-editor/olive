@@ -108,7 +108,7 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
         || texture_->format() != in_buffer->format()) {
       texture_ = renderer()->CreateTexture(in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
     } else {
-      texture_->Upload(in_buffer->data(), in_buffer->linesize_bytes());
+      texture_->Upload(in_buffer->data(), in_buffer->linesize_pixels());
     }
 
     doneCurrent();
@@ -298,8 +298,7 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     // Draw texture through color transform
-    renderer()->BlitColorManaged(color_service(), texture_, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
-
+    renderer()->BlitColorManaged(color_service(), texture_, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F), true);
   }
 
   QTransform world_transform = GenerateWorldTransform();
@@ -312,14 +311,14 @@ void ViewerDisplayWidget::OnPaint()
 
     gizmo_db_ = gt.GenerateDatabase(gizmos_, TimeRange(node_time, node_time));
 
-    QPainter p(this);
+    QPainter p(inner_widget());
     p.setWorldTransform(world_transform);
     gizmos_->DrawGizmos(gizmo_db_, &p, QVector2D(GetTexturePosition(size())), size());
   }
 
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
-    QPainter p(this);
+    QPainter p(inner_widget());
     p.setWorldTransform(world_transform);
 
     p.setPen(Qt::lightGray);

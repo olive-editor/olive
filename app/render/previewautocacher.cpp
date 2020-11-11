@@ -585,7 +585,9 @@ void PreviewAutoCacher::TryRender()
     watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
                                                               color_manager_,
                                                               single_frame_render_->property("time").value<rational>(),
-                                                              RenderMode::kOffline, true));
+                                                              RenderMode::kOffline,
+                                                              viewer_node_->video_frame_cache(),
+                                                              true));
 
     single_frame_render_ = nullptr;
   }
@@ -626,7 +628,9 @@ void PreviewAutoCacher::RequeueFrames()
         video_tasks_.insert(watcher, hash);
         watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
                                                                   color_manager_,
-                                                                  t, RenderMode::kOffline, false));
+                                                                  t, RenderMode::kOffline,
+                                                                  viewer_node_->video_frame_cache(),
+                                                                  false));
       }
     }
 

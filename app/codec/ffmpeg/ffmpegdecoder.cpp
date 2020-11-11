@@ -51,7 +51,7 @@ OLIVE_NAMESPACE_ENTER
 FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
   scale_divider_(0),
-  pool_(QThread::idealThreadCount()),
+  pool_(QThread::idealThreadCount()*2),
   is_working_(false),
   cache_at_zero_(false),
   cache_at_eof_(false)
@@ -120,21 +120,20 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
 
   if (ret >= 0) {
     // Create frame to return
-    FramePtr copy = Frame::Create();
-    copy->set_video_params(VideoParams(frame->width,
-                                       frame->height,
-                                       native_pix_fmt_,
-                                       std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
-                                       std::static_pointer_cast<VideoStream>(stream())->interlacing(),
-                                       divider));
-    copy->set_timestamp(timecode);
-    copy->allocate();
+    output_frame = Frame::Create();
+    output_frame->set_video_params(VideoParams(frame->width,
+                                               frame->height,
+                                               native_pix_fmt_,
+                                               std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
+                                               std::static_pointer_cast<VideoStream>(stream())->interlacing(),
+                                               divider));
+    output_frame->set_timestamp(timecode);
+    output_frame->allocate();
 
-    uint8_t* copy_data = reinterpret_cast<uint8_t*>(copy->data());
-    int copy_linesize = copy->linesize_bytes();
-    FFmpegFrameToNativeBuffer(frame->data, frame->linesize, &copy_data, &copy_linesize);
+    uint8_t* copy_data = reinterpret_cast<uint8_t*>(output_frame->data());
+    int copy_linesize = output_frame->linesize_bytes();
 
-    return copy;
+    FFmpegBufferToNativeBuffer(frame->data, frame->linesize, &copy_data, &copy_linesize);
   } else {
     qWarning() << "Failed to retrieve still image from decoder";
   }
@@ -151,14 +150,17 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const in
 {
   VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
 
+  if (scale_divider_ != divider) {
+    FreeScaler();
+    InitScaler(divider);
+  }
+
   if (vs->video_type() == VideoStream::kVideoTypeStill
       || vs->video_type() == VideoStream::kVideoTypeImageSequence) {
 
     return RetrieveStillImage(timecode, divider);
 
   } else {
-
-    FFmpegFramePool::ElementPtr return_frame = nullptr;
 
     int64_t target_ts = vs->get_time_in_timebase_units(timecode);
 
@@ -171,12 +173,10 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const in
 
       // Set new frame pool parameters
       pool_.SetParameters(divided_width, divided_height, native_pix_fmt_);
-    } else {
-      return_frame = GetFrameFromCache(target_ts);
     }
 
     // Retrieve frame
-    return_frame = RetrieveFrame(target_ts, divider);
+    FFmpegFramePool::ElementPtr return_frame = RetrieveFrame(target_ts, divider);
 
     // We found the frame, we'll return a copy
     if (return_frame) {
@@ -563,7 +563,7 @@ uint64_t FFmpegDecoder::ValidateChannelLayout(AVStream* stream)
   return av_get_default_channel_layout(stream->codecpar->channels);
 }
 
-void FFmpegDecoder::FFmpegFrameToNativeBuffer(uint8_t **input_data, int *input_linesize, uint8_t** output_buffer, int* output_linesize)
+void FFmpegDecoder::FFmpegBufferToNativeBuffer(uint8_t **input_data, int *input_linesize, uint8_t** output_buffer, int* output_linesize)
 {
   sws_scale(scale_ctx_,
             input_data,
@@ -640,17 +640,12 @@ void FFmpegDecoder::ClearFrameCache()
 
 FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_ts, int divider)
 {
-  if (scale_divider_ != divider) {
-    FreeScaler();
-    InitScaler(divider);
-  }
-
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
   // If the frame wasn't in the frame cache, see if this frame cache is too old to use
   if (cached_frames_.isEmpty()
-      || (target_ts < cached_frames_.first()->timestamp() && target_ts > cached_frames_.last()->timestamp() + 2*second_ts_)) {
+      || (target_ts < cached_frames_.first()->timestamp() || target_ts > cached_frames_.last()->timestamp() + 2*second_ts_)) {
     ClearFrameCache();
 
     instance_.Seek(seek_ts);
@@ -659,6 +654,12 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
     }
 
     still_seeking = true;
+  } else {
+    // Search cache for frame
+    FFmpegFramePool::ElementPtr cached_frame = GetFrameFromCache(target_ts);
+    if (cached_frame) {
+      return cached_frame;
+    }
   }
 
   int ret;
@@ -727,9 +728,9 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
       }
 
       // Store in queue, converting to native format
-      int destination_linesize = Frame::generate_linesize_bytes(VideoParams::GetScaledDimension(instance_.avstream()->codecpar->width, divider), native_pix_fmt_);
       uint8_t* destination_data = cached->data();
-      FFmpegFrameToNativeBuffer(working_frame->data, working_frame->linesize, &destination_data, &destination_linesize);
+      int destination_linesize = Frame::generate_linesize_bytes(VideoParams::GetScaledDimension(instance_.avstream()->codecpar->width, divider), native_pix_fmt_);
+      FFmpegBufferToNativeBuffer(working_frame->data, working_frame->linesize, &destination_data, &destination_linesize);
 
       // Set timestamp so this frame can be identified later
       cached->set_timestamp(working_frame->pts);

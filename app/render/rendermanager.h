@@ -80,8 +80,8 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, bool prioritize = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, FrameHashCache* cache = nullptr, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, FrameHashCache* cache = nullptr, bool prioritize = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio

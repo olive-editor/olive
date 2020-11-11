@@ -92,7 +92,7 @@ void HistogramScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeli
   renderer()->Blit(pipeline_secondary_, shader_job, texture_row_sums_->params());
 
   // Draw line overlays
-  QPainter p(this);
+  QPainter p(inner_widget());
   QFont font = p.font();
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

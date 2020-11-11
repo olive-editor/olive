@@ -22,6 +22,7 @@
 #define COLORPROCESSOR_H
 
 #include "codec/frame.h"
+#include "common/ocioutils.h"
 #include "render/color.h"
 #include "render/colortransform.h"
 
@@ -51,7 +52,7 @@ public:
   void ConvertFrame(FramePtr f);
   void ConvertFrame(Frame* f);
 
-  Color ConvertColor(Color in);
+  Color ConvertColor(const Color &in);
 
   const QString& id() const
   {
@@ -62,6 +63,8 @@ public:
 
 private:
   OCIO::ConstProcessorRcPtr processor_;
+
+  OCIO::ConstCPUProcessorRcPtr cpu_processor_;
 
   QString id_;
 

@@ -25,9 +25,8 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "common/ocioutils.h"
 #include "core.h"
 #include "project/item/footage/footage.h"
 #include "project/project.h"

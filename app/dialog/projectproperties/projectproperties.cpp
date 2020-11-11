@@ -27,10 +27,9 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "common/filefunctions.h"
+#include "common/ocioutils.h"
 #include "config/config.h"
 #include "core.h"
 #include "render/colormanager.h"

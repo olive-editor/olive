@@ -297,7 +297,7 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
         qDebug() << "FIXME: Accessing video_stream->colorspace() may cause race conditions";
 
-        ColorManager* color_manager = video_stream->footage()->project()->color_manager();
+        ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              video_stream->colorspace(),
                                                              ColorTransform(OCIO::ROLE_SCENE_LINEAR));
@@ -434,13 +434,15 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 
 QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
 {
-  if (ticket_->property("mode").toInt() == RenderMode::kOffline
+  if (!ticket_->property("cache").toString().isEmpty()
       && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
     const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
     QByteArray hash = RenderManager::Hash(node, video_params, time);
 
     FramePtr f = FrameHashCache::LoadCacheFrame(ticket_->property("cache").toString(), hash);
+
+    qDebug() << ticket_->property("cache").toString() << hash.toHex();
 
     if (f) {
       // The cached frame won't load with the correct divider by default, so we enforce it here
@@ -452,8 +454,12 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
 
       f->set_video_params(p);
 
+      qDebug() << "Using cached frame!";
+
       Renderer::TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
       return QVariant::fromValue(texture);
+    } else {
+      qDebug() << "Not using cached frame because frame is null";
     }
   }
 

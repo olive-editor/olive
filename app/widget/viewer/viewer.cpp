@@ -392,6 +392,7 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &fn, const rational& time
 
 void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const
 {
+  ticket->Start();
   ticket->Finish(QVariant::fromValue(DecodeCachedImage(fn, time)), false);
 }
 
