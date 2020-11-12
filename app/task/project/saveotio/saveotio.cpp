@@ -95,6 +95,7 @@ bool SaveOTIOTask::Run()
 OTIO::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
 {
   auto otio_timeline = new OTIO::Timeline(sequence->name().toStdString());
+  // Retainers clean themselves up when the final user is removed
   OTIO::Timeline::Retainer<OTIO::Timeline>* timeline_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
 
   if (!SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeVideo), otio_timeline)
@@ -149,7 +150,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
       otio_block = new OTIO::Gap(OTIO::TimeRange(block->in().toRationalTime(),
                                  block->length().toRationalTime()),
                                  block->GetLabel().toStdString()
-      );
+                                 );
       break;
     }
     case Block::kTransition:
