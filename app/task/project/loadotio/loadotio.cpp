@@ -34,8 +34,6 @@
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
 
-#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
-
 OLIVE_NAMESPACE_ENTER
 
 LoadOTIOTask::LoadOTIOTask(const QString& s) :

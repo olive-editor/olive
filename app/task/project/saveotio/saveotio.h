@@ -27,8 +27,6 @@
 #include "project/project.h"
 #include "task/task.h"
 
-#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
-
 OLIVE_NAMESPACE_ENTER
 
 class SaveOTIOTask : public Task

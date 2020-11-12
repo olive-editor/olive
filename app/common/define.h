@@ -27,6 +27,8 @@
 
 #define OLIVE_NAMESPACE_EXIT }
 
+#define OTIO opentimelineio::OPENTIMELINEIO_VERSION
+
 OLIVE_NAMESPACE_ENTER
 
 const int kHSVChannels = 3;

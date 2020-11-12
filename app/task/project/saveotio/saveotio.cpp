@@ -95,7 +95,7 @@ bool SaveOTIOTask::Run()
 OTIO::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
 {
   auto otio_timeline = new OTIO::Timeline(sequence->name().toStdString());
-  OTIO::Timeline::Retainer<OTIO::Timeline>* time_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
+  OTIO::Timeline::Retainer<OTIO::Timeline>* timeline_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
 
   if (!SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeVideo), otio_timeline)
       || !SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeAudio), otio_timeline)) {
@@ -147,8 +147,8 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
     case Block::kGap:
     {
       otio_block = new OTIO::Gap(OTIO::TimeRange(block->in().toRationalTime(),
-                                          block->length().toRationalTime()),
-            block->GetLabel().toStdString()
+                                 block->length().toRationalTime()),
+                                 block->GetLabel().toStdString()
       );
       break;
     }
