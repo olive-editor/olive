@@ -196,9 +196,12 @@ QString VideoParams::FormatPixelAspectRatioString(const QString &format, const r
 
 int VideoParams::GetScaledDimension(int dim, int divider)
 {
+  Q_ASSERT(divider > 0);
+
   if (divider == 1) {
     return dim;
   }
+
   return qCeil(dim / divider * 0.5) * 2;
 }
 
