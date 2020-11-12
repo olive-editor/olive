@@ -215,8 +215,9 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
   // Check if we can work with this pixel format
   const OIIO::ImageSpec& spec = image_->spec();
 
-  is_rgba_ = (spec.nchannels == kRGBAChannels);
+  //is_rgba_ = (spec.nchannels == kRGBAChannels);
 
+  // We use RGBA frames because that tends to be the native format of GPUs
   pix_fmt_ = OIIOCommon::GetFormatFromOIIOBasetype(spec);
 
   if (pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {

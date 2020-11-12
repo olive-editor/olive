@@ -65,7 +65,7 @@ private:
 
   PixelFormat::Format pix_fmt_;
 
-  bool is_rgba_;
+  //bool is_rgba_;
 
   OIIO::ImageBuf* buffer_;
 

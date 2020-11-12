@@ -18,38 +18,45 @@
 
 ***/
 
-#ifndef HISTOGRAMSCOPE_H
-#define HISTOGRAMSCOPE_H
+#ifndef SHADERCODE_H
+#define SHADERCODE_H
 
-#include "widget/scope/scopebase/scopebase.h"
+#include "common/filefunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class HistogramScope : public ScopeBase
-{
-  Q_OBJECT
+class ShaderCode {
 public:
-  HistogramScope(QWidget* parent = nullptr);
+  ShaderCode(const QString& frag_code, const QString& vert_code) :
+    frag_code_(frag_code),
+    vert_code_(vert_code)
+  {
+    if (frag_code_.isEmpty()) {
+      frag_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.frag"));
+    }
 
-  virtual ~HistogramScope() override;
+    if (vert_code_.isEmpty()) {
+      vert_code_ = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/default.vert"));
+    }
+  }
 
-protected slots:
-  virtual void OnInit() override;
+  const QString& frag_code() const
+  {
+    return frag_code_;
+  }
 
-  virtual void OnDestroy() override;
-
-protected:
-  virtual ShaderCode GenerateShaderCode() override;
-  QVariant CreateSecondaryShader();
-
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
+  const QString& vert_code() const
+  {
+    return vert_code_;
+  }
 
 private:
-  QVariant pipeline_secondary_;
-  TexturePtr texture_row_sums_;
+  QString frag_code_;
+
+  QString vert_code_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // HISTOGRAMSCOPE_H
+#endif // SHADERCODE_H

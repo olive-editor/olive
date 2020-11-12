@@ -18,40 +18,37 @@
 
 ***/
 
-#ifndef OPENGLCONTEXT_H
-#define OPENGLCONTEXT_H
+#ifndef RENDERCONTEXTTHREADWRAPPER_H
+#define RENDERCONTEXTTHREADWRAPPER_H
 
-#include <QOffscreenSurface>
-#include <QOpenGLBuffer>
-#include <QOpenGLFunctions>
-#include <QOpenGLShader>
-#include <QOpenGLVertexArrayObject>
 #include <QThread>
 
-#include "render/backend/renderer.h"
+#include "renderer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class OpenGLRenderer : public Renderer
+class RendererThreadWrapper : public Renderer
 {
-  Q_OBJECT
 public:
-  OpenGLRenderer(QObject* parent = nullptr);
+  RendererThreadWrapper(Renderer* inner, QObject* parent = nullptr);
 
-  virtual ~OpenGLRenderer() override;
-
-  void Init(QOpenGLContext* existing_ctx);
+  virtual ~RendererThreadWrapper() override
+  {
+    Destroy();
+    delete inner_;
+  }
 
   virtual bool Init() override;
 
 public slots:
   virtual void PostInit() override;
 
-  virtual void Destroy() override;
+  virtual void DestroyInternal() override;
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
 
-  virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
 
@@ -59,37 +56,23 @@ public slots:
 
   virtual void DestroyNativeShader(QVariant shader) override;
 
-  virtual void UploadToTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) override;
+  virtual void UploadToTexture(OLIVE_NAMESPACE::Texture* texture, const void* data, int linesize) override;
 
-  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) override;
+  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Texture* texture, void* data, int linesize) override;
 
 protected slots:
   virtual void Blit(QVariant shader,
                     OLIVE_NAMESPACE::ShaderJob job,
-                    OLIVE_NAMESPACE::Renderer::Texture* destination,
+                    OLIVE_NAMESPACE::Texture* destination,
                     OLIVE_NAMESPACE::VideoParams destination_params) override;
 
 private:
-  static GLint GetInternalFormat(PixelFormat::Format format);
+  Renderer* inner_;
 
-  static GLenum GetPixelType(PixelFormat::Format format);
-
-  void AttachTextureAsDestination(OLIVE_NAMESPACE::Renderer::Texture* texture);
-
-  void DetachTextureAsDestination();
-
-  void PrepareInputTexture(bool bilinear);
-
-  QOpenGLContext* context_;
-
-  QOpenGLFunctions* functions_;
-
-  QOffscreenSurface surface_;
-
-  GLuint framebuffer_;
+  QThread* thread_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // OPENGLCONTEXT_H
+#endif // RENDERCONTEXTTHREADWRAPPER_H

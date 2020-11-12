@@ -14,13 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(opengl)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/renderer.cpp
-  render/backend/renderer.h
-  render/backend/rendererthreadwrapper.cpp
-  render/backend/rendererthreadwrapper.h
+  render/opengl/openglrenderer.cpp
+  render/opengl/openglrenderer.h
   PARENT_SCOPE
 )

@@ -54,10 +54,10 @@ void RendererThreadWrapper::PostInit()
   // Do nothing
 }
 
-void RendererThreadWrapper::Destroy()
+void RendererThreadWrapper::DestroyInternal()
 {
   if (thread_) {
-    QMetaObject::invokeMethod(inner_, "Destroy", Qt::BlockingQueuedConnection);
+    QMetaObject::invokeMethod(inner_, "DestroyInternal", Qt::BlockingQueuedConnection);
     inner_ = nullptr;
 
     thread_->quit();
@@ -76,14 +76,34 @@ void RendererThreadWrapper::ClearDestination(double r, double g, double b, doubl
                             Q_ARG(double, a));
 }
 
-QVariant RendererThreadWrapper::CreateNativeTexture(VideoParams param, void *data, int linesize)
+QVariant RendererThreadWrapper::CreateNativeTexture2D(int width, int height, PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void *data, int linesize)
 {
   QVariant v;
 
-  QMetaObject::invokeMethod(inner_, "CreateNativeTexture", Qt::BlockingQueuedConnection,
+  QMetaObject::invokeMethod(inner_, "CreateNativeTexture2D", Qt::BlockingQueuedConnection,
                             Q_RETURN_ARG(QVariant, v),
-                            OLIVE_NS_ARG(VideoParams, param),
-                            Q_ARG(void*, data),
+                            Q_ARG(int, width),
+                            Q_ARG(int, height),
+                            OLIVE_NS_ARG(PixelFormat::Format, format),
+                            OLIVE_NS_ARG(Texture::ChannelFormat, channel_format),
+                            Q_ARG(const void*, data),
+                            Q_ARG(int, linesize));
+
+  return v;
+}
+
+QVariant RendererThreadWrapper::CreateNativeTexture3D(int width, int height, int depth, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+{
+  QVariant v;
+
+  QMetaObject::invokeMethod(inner_, "CreateNativeTexture3D", Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(QVariant, v),
+                            Q_ARG(int, width),
+                            Q_ARG(int, height),
+                            Q_ARG(int, depth),
+                            OLIVE_NS_ARG(PixelFormat::Format, format),
+                            OLIVE_NS_ARG(Texture::ChannelFormat, channel_format),
+                            Q_ARG(const void*, data),
                             Q_ARG(int, linesize));
 
   return v;
@@ -112,30 +132,28 @@ void RendererThreadWrapper::DestroyNativeShader(QVariant shader)
                             Q_ARG(QVariant, shader));
 }
 
-void RendererThreadWrapper::UploadToTexture(Renderer::Texture *texture, void *data, int linesize)
+void RendererThreadWrapper::UploadToTexture(Texture *texture, const void *data, int linesize)
 {
   QMetaObject::invokeMethod(inner_, "UploadToTexture", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_ARG(Renderer::Texture*, texture),
-                            Q_ARG(void*, data),
+                            OLIVE_NS_ARG(Texture*, texture),
+                            Q_ARG(const void*, data),
                             Q_ARG(int, linesize));
 }
 
-void RendererThreadWrapper::DownloadFromTexture(Renderer::Texture *texture, void *data, int linesize)
+void RendererThreadWrapper::DownloadFromTexture(Texture *texture, void *data, int linesize)
 {
   QMetaObject::invokeMethod(inner_, "DownloadFromTexture", Qt::BlockingQueuedConnection,
-                            OLIVE_NS_ARG(Renderer::Texture*, texture),
+                            OLIVE_NS_ARG(Texture*, texture),
                             Q_ARG(void*, data),
                             Q_ARG(int, linesize));
 }
 
-void RendererThreadWrapper::Blit(QVariant shader, ShaderJob job, Renderer::Texture *destination, VideoParams destination_params)
+void RendererThreadWrapper::Blit(QVariant shader, ShaderJob job, Texture *destination, VideoParams destination_params)
 {
-  Renderer::TexturePtr tex;
-
   QMetaObject::invokeMethod(inner_, "Blit", Qt::BlockingQueuedConnection,
                             Q_ARG(QVariant, shader),
                             OLIVE_NS_ARG(ShaderJob, job),
-                            OLIVE_NS_ARG(Renderer::Texture*, destination),
+                            OLIVE_NS_ARG(Texture*, destination),
                             OLIVE_NS_ARG(VideoParams, destination_params));
 }
 

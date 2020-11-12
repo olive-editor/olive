@@ -62,6 +62,7 @@ const QVector<rational> VideoParams::kStandardPixelAspects = {
 VideoParams::VideoParams() :
   width_(0),
   height_(0),
+  depth_(0),
   format_(PixelFormat::PIX_FMT_INVALID),
   interlacing_(Interlacing::kInterlaceNone)
 {
@@ -70,6 +71,20 @@ VideoParams::VideoParams() :
 VideoParams::VideoParams(const int &width, const int &height, const PixelFormat::Format &format, const rational& pixel_aspect_ratio, const Interlacing &interlacing, const int& divider) :
   width_(width),
   height_(height),
+  depth_(0),
+  format_(format),
+  pixel_aspect_ratio_(pixel_aspect_ratio),
+  interlacing_(interlacing),
+  divider_(divider)
+{
+  calculate_effective_size();
+  validate_pixel_aspect_ratio();
+}
+
+VideoParams::VideoParams(const int &width, const int &height, const int &depth, const PixelFormat::Format &format, const rational &pixel_aspect_ratio, const VideoParams::Interlacing &interlacing, const int &divider) :
+  width_(width),
+  height_(height),
+  depth_(depth),
   format_(format),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
@@ -82,6 +97,7 @@ VideoParams::VideoParams(const int &width, const int &height, const PixelFormat:
 VideoParams::VideoParams(const int &width, const int &height, const rational &time_base, const PixelFormat::Format &format, const rational& pixel_aspect_ratio, const Interlacing &interlacing, const int &divider) :
   width_(width),
   height_(height),
+  depth_(0),
   time_base_(time_base),
   format_(format),
   pixel_aspect_ratio_(pixel_aspect_ratio),
@@ -147,6 +163,7 @@ void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
+  effective_depth_ = GetScaledDimension(depth(), divider_);
 }
 
 void VideoParams::validate_pixel_aspect_ratio()
@@ -196,7 +213,7 @@ QString VideoParams::FormatPixelAspectRatioString(const QString &format, const r
 
 int VideoParams::GetScaledDimension(int dim, int divider)
 {
-  return qCeil(dim / divider * 0.5) * 2;
+  return dim / divider;
 }
 
 OLIVE_NAMESPACE_EXIT

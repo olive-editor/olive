@@ -23,8 +23,8 @@
 
 #include <QOpenGLWidget>
 
-#include "render/backend/renderer.h"
 #include "render/colormanager.h"
+#include "render/renderer.h"
 #include "widget/menu/menu.h"
 
 OLIVE_NAMESPACE_ENTER

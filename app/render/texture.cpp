@@ -18,38 +18,22 @@
 
 ***/
 
-#ifndef HISTOGRAMSCOPE_H
-#define HISTOGRAMSCOPE_H
+#include "texture.h"
 
-#include "widget/scope/scopebase/scopebase.h"
+#include "renderer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class HistogramScope : public ScopeBase
+const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappedLinear;
+
+Texture::~Texture()
 {
-  Q_OBJECT
-public:
-  HistogramScope(QWidget* parent = nullptr);
+  renderer_->DestroyNativeTexture(id_);
+}
 
-  virtual ~HistogramScope() override;
-
-protected slots:
-  virtual void OnInit() override;
-
-  virtual void OnDestroy() override;
-
-protected:
-  virtual ShaderCode GenerateShaderCode() override;
-  QVariant CreateSecondaryShader();
-
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
-
-private:
-  QVariant pipeline_secondary_;
-  TexturePtr texture_row_sums_;
-
-};
+void Texture::Upload(void *data, int linesize)
+{
+  renderer_->UploadToTexture(this, data, linesize);
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // HISTOGRAMSCOPE_H

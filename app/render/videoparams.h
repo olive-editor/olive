@@ -39,6 +39,10 @@ public:
   VideoParams(const int& width, const int& height, const PixelFormat::Format& format,
               const rational& pixel_aspect_ratio = 1,
               const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
+  VideoParams(const int& width, const int& height, const int& depth,
+              const PixelFormat::Format& format,
+              const rational& pixel_aspect_ratio = 1,
+              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
   VideoParams(const int& width, const int& height, const rational& time_base,
               const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
               const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
@@ -62,6 +66,17 @@ public:
   void set_height(int height)
   {
     height_ = height;
+    calculate_effective_size();
+  }
+
+  int depth() const
+  {
+    return depth_;
+  }
+
+  void set_depth(int depth)
+  {
+    depth_ = depth;
     calculate_effective_size();
   }
 
@@ -94,6 +109,11 @@ public:
   int effective_height() const
   {
     return effective_height_;
+  }
+
+  int effective_depth() const
+  {
+    return effective_depth_;
   }
 
   PixelFormat::Format format() const
@@ -162,6 +182,7 @@ private:
 
   int width_;
   int height_;
+  int depth_;
   rational time_base_;
 
   PixelFormat::Format format_;
@@ -173,6 +194,7 @@ private:
   int divider_;
   int effective_width_;
   int effective_height_;
+  int effective_depth_;
 };
 
 OLIVE_NAMESPACE_EXIT

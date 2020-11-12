@@ -27,8 +27,8 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "render/backend/opengl/openglrenderer.h"
-#include "render/backend/rendererthreadwrapper.h"
+#include "render/opengl/openglrenderer.h"
+#include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"

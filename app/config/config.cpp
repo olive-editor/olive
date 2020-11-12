@@ -231,10 +231,10 @@ void Config::Save()
 
     QString value = NodeInput::ValueToString(iterator.value().type, iterator.value().data, false);
 
-    writer.writeTextElement(iterator.key(), value);
-
     if (iterator.value().type == NodeParam::kNone) {
-      qWarning() << "Config key" << iterator.key() << "had null type";
+      qWarning() << "Config key" << iterator.key() << "had null type and was discarded";
+    } else {
+      writer.writeTextElement(iterator.key(), value);
     }
   }
 

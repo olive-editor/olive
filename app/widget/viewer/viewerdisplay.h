@@ -211,7 +211,7 @@ private:
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  Renderer::TexturePtr texture_;
+  TexturePtr texture_;
 
   /**
    * @brief Translation only matrix (defaults to identity).

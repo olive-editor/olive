@@ -29,7 +29,7 @@
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
-#include "render/backend/renderer.h"
+#include "render/renderer.h"
 #include "rendercache.h"
 #include "stillimagecache.h"
 #include "threading/threadpool.h"

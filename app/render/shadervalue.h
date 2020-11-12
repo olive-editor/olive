@@ -48,6 +48,8 @@ struct ShaderValue
 
 };
 
+using NodeValueMap = QHash<QString, ShaderValue>;
+
 OLIVE_NAMESPACE_EXIT
 
 #endif // SHADERVALUE_H

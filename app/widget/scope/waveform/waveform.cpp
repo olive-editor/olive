@@ -48,7 +48,7 @@ ShaderCode WaveformScope::GenerateShaderCode()
                     FileFunctions::ReadFileAsString(":/shaders/rgbwaveform.vert"));
 }
 
-void WaveformScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
+void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   float waveform_scale = 0.80f;
 

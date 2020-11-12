@@ -48,7 +48,7 @@ void ScopeBase::showEvent(QShowEvent* e)
   UploadTextureFromBuffer();
 }
 
-void ScopeBase::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
+void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   ShaderJob job;
 

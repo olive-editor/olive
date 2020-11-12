@@ -36,7 +36,7 @@ public:
 protected:
   virtual ShaderCode GenerateShaderCode() override;
 
-  virtual void DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline) override;
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
 
 };
 

@@ -53,7 +53,6 @@
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 #include "render/rendermanager.h"
-#include "render/shaderinfo.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
 #include "task/project/saveotio/saveotio.h"

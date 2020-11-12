@@ -18,38 +18,48 @@
 
 ***/
 
-#ifndef HISTOGRAMSCOPE_H
-#define HISTOGRAMSCOPE_H
+#ifndef SAMPLEJOB_H
+#define SAMPLEJOB_H
 
-#include "widget/scope/scopebase/scopebase.h"
+#include "acceleratedjob.h"
+#include "codec/samplebuffer.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class HistogramScope : public ScopeBase
-{
-  Q_OBJECT
+class SampleJob : public AcceleratedJob {
 public:
-  HistogramScope(QWidget* parent = nullptr);
+  SampleJob()
+  {
+    samples_ = nullptr;
+  }
 
-  virtual ~HistogramScope() override;
+  SampleJob(const NodeValue& value)
+  {
+    samples_ = value.data().value<SampleBufferPtr>();
+  }
 
-protected slots:
-  virtual void OnInit() override;
+  SampleJob(NodeInput* from, NodeValueDatabase& db)
+  {
+    samples_ = db[from].Take(NodeParam::kSamples).value<SampleBufferPtr>();
+  }
 
-  virtual void OnDestroy() override;
+  SampleBufferPtr samples() const
+  {
+    return samples_;
+  }
 
-protected:
-  virtual ShaderCode GenerateShaderCode() override;
-  QVariant CreateSecondaryShader();
-
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
+  bool HasSamples() const
+  {
+    return samples_ && samples_->is_allocated();
+  }
 
 private:
-  QVariant pipeline_secondary_;
-  TexturePtr texture_row_sums_;
+  SampleBufferPtr samples_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // HISTOGRAMSCOPE_H
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::SampleJob)
+
+#endif // SAMPLEJOB_H

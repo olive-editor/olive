@@ -29,8 +29,11 @@
 #include "node/node.h"
 #include "render/colorprocessor.h"
 #include "render/videoparams.h"
+#include "texture.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class ShaderJob;
 
 class Renderer : public QObject
 {
@@ -40,90 +43,12 @@ public:
 
   virtual bool Init() = 0;
 
-  class Texture
-  {
-  public:
-    Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
-      renderer_(renderer),
-      params_(param),
-      id_(native),
-      meaningful_alpha_(true)
-    {
-    }
-
-    ~Texture()
-    {
-      renderer_->DestroyNativeTexture(id_);
-    }
-
-    QVariant id() const
-    {
-      return id_;
-    }
-
-    const VideoParams& params() const
-    {
-      return params_;
-    }
-
-    void Upload(void* data, int linesize)
-    {
-      renderer_->UploadToTexture(this, data, linesize);
-    }
-
-    int width() const
-    {
-      return params_.width();
-    }
-
-    int height() const
-    {
-      return params_.height();
-    }
-
-    PixelFormat::Format format() const
-    {
-      return params_.format();
-    }
-
-    int divider() const
-    {
-      return params_.divider();
-    }
-
-    const rational& pixel_aspect_ratio() const
-    {
-      return params_.pixel_aspect_ratio();
-    }
-
-    bool has_meaningful_alpha() const
-    {
-      return meaningful_alpha_;
-    }
-
-    void set_has_meaningful_alpha(bool e)
-    {
-      meaningful_alpha_ = e;
-    }
-
-  private:
-    Renderer* renderer_;
-
-    VideoParams params_;
-
-    QVariant id_;
-
-    bool meaningful_alpha_;
-
-  };
-
-  using TexturePtr = std::shared_ptr<Texture>;
-
-  TexturePtr CreateTexture(const VideoParams& param, void* data = nullptr, int linesize = 0);
+  TexturePtr CreateTexture(const VideoParams& params, Texture::Type type, Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0);
+  TexturePtr CreateTexture(const VideoParams& params, const void *data = nullptr, int linesize = 0);
 
   void BlitToTexture(QVariant shader,
                      OLIVE_NAMESPACE::ShaderJob job,
-                     OLIVE_NAMESPACE::Renderer::Texture* destination)
+                     OLIVE_NAMESPACE::Texture* destination)
   {
     Blit(shader, job, destination, destination->params());
   }
@@ -138,14 +63,17 @@ public:
   void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture* destination, bool flipped = false);
   void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, bool flipped = false);
 
+  void Destroy();
+
 public slots:
   virtual void PostInit() = 0;
 
-  virtual void Destroy() = 0;
+  virtual void DestroyInternal() = 0;
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
 
-  virtual QVariant CreateNativeTexture(OLIVE_NAMESPACE::VideoParams param, void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) = 0;
 
   virtual void DestroyNativeTexture(QVariant texture) = 0;
 
@@ -153,28 +81,39 @@ public slots:
 
   virtual void DestroyNativeShader(QVariant shader) = 0;
 
-  virtual void UploadToTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) = 0;
+  virtual void UploadToTexture(OLIVE_NAMESPACE::Texture* texture, const void* data, int linesize) = 0;
 
-  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Renderer::Texture* texture, void* data, int linesize) = 0;
+  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Texture* texture, void* data, int linesize) = 0;
 
 protected slots:
   virtual void Blit(QVariant shader,
                     OLIVE_NAMESPACE::ShaderJob job,
-                    OLIVE_NAMESPACE::Renderer::Texture* destination,
+                    OLIVE_NAMESPACE::Texture* destination,
                     OLIVE_NAMESPACE::VideoParams destination_params) = 0;
 
 private:
   struct ColorContext {
-    QVariant shader;
-    TexturePtr lut;
+    struct LUT {
+      TexturePtr texture;
+      Texture::Interpolation interpolation;
+      QString name;
+    };
+
+    QVariant compiled_shader;
+    QVector<LUT> lut3d_textures;
+    QVector<LUT> lut1d_textures;
+
   };
+
+  bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
+
+  void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
+                                Texture* destination, VideoParams params, bool flipped);
 
   QHash<QString, ColorContext> color_cache_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
-
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Renderer::TexturePtr);
 
 #endif // RENDERCONTEXT_H

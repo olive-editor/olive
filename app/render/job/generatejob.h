@@ -18,38 +18,37 @@
 
 ***/
 
-#ifndef HISTOGRAMSCOPE_H
-#define HISTOGRAMSCOPE_H
+#ifndef GENERATEJOB_H
+#define GENERATEJOB_H
 
-#include "widget/scope/scopebase/scopebase.h"
+#include "acceleratedjob.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class HistogramScope : public ScopeBase
-{
-  Q_OBJECT
+class GenerateJob : public AcceleratedJob {
 public:
-  HistogramScope(QWidget* parent = nullptr);
+  GenerateJob()
+  {
+    alpha_channel_required_ = false;
+  }
 
-  virtual ~HistogramScope() override;
+  bool GetAlphaChannelRequired() const
+  {
+    return alpha_channel_required_;
+  }
 
-protected slots:
-  virtual void OnInit() override;
-
-  virtual void OnDestroy() override;
-
-protected:
-  virtual ShaderCode GenerateShaderCode() override;
-  QVariant CreateSecondaryShader();
-
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
+  void SetAlphaChannelRequired(bool e)
+  {
+    alpha_channel_required_ = e;
+  }
 
 private:
-  QVariant pipeline_secondary_;
-  TexturePtr texture_row_sums_;
+  bool alpha_channel_required_;
 
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // HISTOGRAMSCOPE_H
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::GenerateJob)
+
+#endif // GENERATEJOB_H

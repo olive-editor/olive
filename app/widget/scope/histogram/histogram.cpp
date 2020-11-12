@@ -62,7 +62,7 @@ ShaderCode HistogramScope::GenerateShaderCode()
                     FileFunctions::ReadFileAsString(":/shaders/default.vert"));
 }
 
-void HistogramScope::DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline)
+void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   float histogram_scale = 0.80f;
   // This value is eyeballed for usefulness. Until we have a geometry

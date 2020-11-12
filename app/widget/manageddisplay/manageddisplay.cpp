@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 
-#include "render/backend/opengl/openglrenderer.h"
+#include "render/opengl/openglrenderer.h"
 #include "render/rendermanager.h"
 
 OLIVE_NAMESPACE_ENTER

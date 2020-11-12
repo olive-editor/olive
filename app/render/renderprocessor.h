@@ -22,7 +22,7 @@
 #define RENDERPROCESSOR_H
 
 #include "node/traverser.h"
-#include "render/backend/renderer.h"
+#include "render/renderer.h"
 #include "rendercache.h"
 #include "stillimagecache.h"
 #include "threading/threadticket.h"

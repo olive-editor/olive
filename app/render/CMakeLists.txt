@@ -14,45 +14,52 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(backend)
+add_subdirectory(job)
 add_subdirectory(ocioconf)
+add_subdirectory(opengl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/audioparams.h
   render/audioparams.cpp
-  render/audioplaybackcache.h
+  render/audioparams.h
   render/audioplaybackcache.cpp
-  render/color.h
+  render/audioplaybackcache.h
   render/color.cpp
-  render/colormanager.h
+  render/color.h
   render/colormanager.cpp
+  render/colormanager.h
+  render/colorprocessor.cpp
   render/colorprocessor.h
   render/colorprocessorcache.h
-  render/colorprocessor.cpp
-  render/diskmanager.h
   render/diskmanager.cpp
-  render/framehashcache.h
+  render/diskmanager.h
   render/framehashcache.cpp
-  render/managedcolor.h
+  render/framehashcache.h
   render/managedcolor.cpp
-  render/pixelformat.h
+  render/managedcolor.h
   render/pixelformat.cpp
-  render/playbackcache.h
+  render/pixelformat.h
   render/playbackcache.cpp
-  render/previewautocacher.h
+  render/playbackcache.h
   render/previewautocacher.cpp
+  render/previewautocacher.h
+  render/renderer.cpp
+  render/renderer.h
   render/rendercache.h
-  render/rendermanager.h
+  render/rendererthreadwrapper.cpp
+  render/rendererthreadwrapper.h
   render/rendermanager.cpp
+  render/rendermanager.h
   render/rendermodes.h
-  render/renderprocessor.h
   render/renderprocessor.cpp
-  render/shaderinfo.h
+  render/renderprocessor.h
+  render/shadercode.h
   render/shadervalue.h
   render/stillimagecache.h
-  render/videoparams.h
+  render/texture.cpp
+  render/texture.h
   render/videoparams.cpp
+  render/videoparams.h
   PARENT_SCOPE
 )
 

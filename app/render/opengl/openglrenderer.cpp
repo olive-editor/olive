@@ -103,7 +103,7 @@ void OpenGLRenderer::PostInit()
   functions_->glGenFramebuffers(1, &framebuffer_);
 }
 
-void OpenGLRenderer::Destroy()
+void OpenGLRenderer::DestroyInternal()
 {
   if (context_) {
     // Delete framebuffer
@@ -128,7 +128,53 @@ void OpenGLRenderer::ClearDestination(double r, double g, double b, double a)
   functions_->glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void OpenGLRenderer::AttachTextureAsDestination(Renderer::Texture* texture)
+QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+{
+  GLuint texture;
+  functions_->glGenTextures(1, &texture);
+
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
+
+  GLint current_tex;
+  functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
+
+  functions_->glBindTexture(GL_TEXTURE_2D, texture);
+
+  functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_format),
+                           width, height, 0, GetPixelFormat(channel_format),
+                           GetPixelType(format), data);
+
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+  functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
+
+  return texture;
+}
+
+QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+{
+  GLuint texture;
+  functions_->glGenTextures(1, &texture);
+
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
+
+  GLint current_tex;
+  functions_->glGetIntegerv(GL_TEXTURE_BINDING_3D, &current_tex);
+
+  functions_->glBindTexture(GL_TEXTURE_3D, texture);
+
+  context_->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GetInternalFormat(format, channel_format),
+                                           width, height, depth, 0, GetPixelFormat(channel_format),
+                                           GetPixelType(format), data);
+
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+  functions_->glBindTexture(GL_TEXTURE_3D, current_tex);
+
+  return texture;
+}
+
+void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
 {
   functions_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
@@ -141,29 +187,6 @@ void OpenGLRenderer::AttachTextureAsDestination(Renderer::Texture* texture)
 void OpenGLRenderer::DetachTextureAsDestination()
 {
   functions_->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-QVariant OpenGLRenderer::CreateNativeTexture(VideoParams p, void *data, int linesize)
-{
-  GLuint texture;
-  functions_->glGenTextures(1, &texture);
-
-  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
-
-  GLint current_tex;
-  functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
-
-  functions_->glBindTexture(GL_TEXTURE_2D, texture);
-
-  functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(p.format()),
-                           p.effective_width(), p.effective_height(), 0, GL_RGBA,
-                           GetPixelType(p.format()), data);
-
-  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-  functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
-
-  return texture;
 }
 
 void OpenGLRenderer::DestroyNativeTexture(QVariant texture)
@@ -203,7 +226,7 @@ void OpenGLRenderer::DestroyNativeShader(QVariant shader)
   delete Node::ValueToPtr<QOpenGLShaderProgram>(shader);
 }
 
-void OpenGLRenderer::UploadToTexture(Texture *texture, void *data, int linesize)
+void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int linesize)
 {
   GLuint t = texture->id().value<GLuint>();
   const VideoParams& p = texture->params();
@@ -252,11 +275,17 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
   functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
 }
 
-void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destination, VideoParams destination_params)
+struct TextureToBind {
+  TexturePtr texture;
+  Texture::Interpolation interpolation;
+};
+
+void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, VideoParams destination_params)
 {
   // If this node is iterative, we'll pick up which input here
+  QString iterative_name;
   GLuint iterative_input = 0;
-  QList<GLuint> textures_to_bind;
+  QVector<TextureToBind> textures_to_bind;
   bool input_textures_have_alpha = false;
 
   QOpenGLShaderProgram* shader = Node::ValueToPtr<QOpenGLShaderProgram>(s);
@@ -325,10 +354,11 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
       // If this texture binding is the iterative input, set it here
       if (it.key() == job.GetIterativeInput()) {
         iterative_input = textures_to_bind.size();
+        iterative_name = it.key();
       }
 
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
-      textures_to_bind.append(tex_id);
+      textures_to_bind.append({texture, job.GetInterpolation(it.key())});
 
       if (texture && texture->has_meaningful_alpha()) {
         input_textures_have_alpha = true;
@@ -383,9 +413,17 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
 
   // Bind all textures
   for (int i=0; i<textures_to_bind.size(); i++) {
+    const TextureToBind& t = textures_to_bind.at(i);
+    TexturePtr texture = t.texture;
+
+    GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
+
     functions_->glActiveTexture(GL_TEXTURE0 + i);
-    functions_->glBindTexture(GL_TEXTURE_2D, textures_to_bind.at(i));
-    PrepareInputTexture(job.GetBilinearFiltering());
+
+    GLenum target = (texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    functions_->glBindTexture(target, tex_id);
+
+    PrepareInputTexture(target, t.interpolation);
   }
 
   // Set ove_resolution to the destination to the "logical" resolution of the destination
@@ -479,7 +517,9 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
       // last drew
       functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
       functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
-      PrepareInputTexture(job.GetBilinearFiltering());
+
+      // At this time, we only support iterating 2D textures
+      PrepareInputTexture(GL_TEXTURE_2D, job.GetInterpolation(iterative_name));
     }
 
     // Swap so that the next iteration, the texture we draw now will be the input texture next
@@ -499,8 +539,9 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
 
   // Release any textures we bound before
   for (int i=textures_to_bind.size()-1; i>=0; i--) {
+    GLenum target = (textures_to_bind.at(i).texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glActiveTexture(GL_TEXTURE0 + i);
-    functions_->glBindTexture(GL_TEXTURE_2D, 0);
+    functions_->glBindTexture(target, 0);
   }
 
   // Release shader
@@ -513,17 +554,17 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Renderer::Texture *destinat
   vao_.destroy();
 }
 
-GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format)
+GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format, bool with_alpha)
 {
   switch (format) {
   case PixelFormat::PIX_FMT_RGBA8:
-    return GL_RGBA8;
+    return with_alpha ? GL_RGBA8 : GL_RGB8;
   case PixelFormat::PIX_FMT_RGBA16U:
-    return GL_RGBA16;
+    return with_alpha ? GL_RGBA16 : GL_RGB16;
   case PixelFormat::PIX_FMT_RGBA16F:
-    return GL_RGBA16F;
+    return with_alpha ? GL_RGBA16F : GL_RGB16F;
   case PixelFormat::PIX_FMT_RGBA32F:
-    return GL_RGBA32F;
+    return with_alpha ? GL_RGBA32F : GL_RGB32F;
 
   case PixelFormat::PIX_FMT_INVALID:
   case PixelFormat::PIX_FMT_COUNT:
@@ -553,21 +594,40 @@ GLenum OpenGLRenderer::GetPixelType(PixelFormat::Format format)
   return GL_INVALID_VALUE;
 }
 
-void OpenGLRenderer::PrepareInputTexture(bool bilinear)
+GLenum OpenGLRenderer::GetPixelFormat(Texture::ChannelFormat format)
 {
-  if (bilinear) {
-    // Use mipmapped bilinear
-    functions_->glGenerateMipmap(GL_TEXTURE_2D);
-    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  } else {
-    // Use nearest
-    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  switch (format) {
+  case Texture::kRGBA:
+    return GL_RGBA;
+  case Texture::kRGB:
+    return GL_RGB;
+  case Texture::kRedOnly:
+    return GL_RED;
   }
 
-  functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  return GL_INVALID_ENUM;
+}
+
+void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation interp)
+{
+  switch (interp) {
+  case Texture::kNearest:
+    functions_->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    functions_->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    break;
+  case Texture::kLinear:
+    functions_->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    functions_->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    break;
+  case Texture::kMipmappedLinear:
+    functions_->glGenerateMipmap(target);
+    functions_->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    functions_->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    break;
+  }
+
+  functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 OLIVE_NAMESPACE_EXIT

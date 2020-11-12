@@ -5,7 +5,7 @@
 
 #include "common/rational.h"
 #include "project/item/footage/stream.h"
-#include "render/backend/renderer.h"
+#include "render/texture.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -13,7 +13,7 @@ class StillImageCache
 {
 public:
   struct Entry {
-    Renderer::TexturePtr texture;
+    TexturePtr texture;
     StreamPtr stream;
     QString colorspace;
     bool alpha_is_associated;

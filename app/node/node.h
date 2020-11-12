@@ -36,7 +36,10 @@
 #include "node/output.h"
 #include "node/value.h"
 #include "render/audioparams.h"
-#include "render/shaderinfo.h"
+#include "render/job/generatejob.h"
+#include "render/job/samplejob.h"
+#include "render/job/shaderjob.h"
+#include "render/shadercode.h"
 
 OLIVE_NAMESPACE_ENTER
 

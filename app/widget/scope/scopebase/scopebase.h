@@ -54,16 +54,16 @@ protected:
    *
    * Override this if your sub-class scope needs extra drawing.
    */
-  virtual void DrawScope(Renderer::TexturePtr managed_tex, QVariant pipeline);
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline);
 
 private:
   void UploadTextureFromBuffer();
 
   QVariant pipeline_;
 
-  Renderer::TexturePtr texture_;
+  TexturePtr texture_;
 
-  Renderer::TexturePtr managed_tex_;
+  TexturePtr managed_tex_;
 
   Frame* buffer_;
 

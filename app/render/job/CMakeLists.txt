@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/opengl/openglrenderer.cpp
-  render/backend/opengl/openglrenderer.h
+  render/job/acceleratedjob.h
+  render/job/generatejob.h
+  render/job/samplejob.h
+  render/job/shaderjob.h
   PARENT_SCOPE
 )

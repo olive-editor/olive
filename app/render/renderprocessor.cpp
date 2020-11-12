@@ -54,7 +54,7 @@ void RenderProcessor::Run()
     NodeValueTable table = ProcessInput(viewer->texture_input(),
                                         TimeRange(time, time + viewer->video_params().time_base()));
 
-    Renderer::TexturePtr texture = table.Get(NodeParam::kTexture).value<Renderer::TexturePtr>();
+    TexturePtr texture = table.Get(NodeParam::kTexture).value<TexturePtr>();
 
     VideoParams frame_params = viewer->video_params();
 
@@ -222,7 +222,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
 
 QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  Renderer::TexturePtr value = nullptr;
+  TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
   // and color managing them for every frame is a waste of time, so we implement a small cache here
@@ -285,9 +285,9 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
       if (frame) {
         // Return a texture from the derived class
-        Renderer::TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                                            frame->data(),
-                                                                            frame->linesize_pixels());
+        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                                  frame->data(),
+                                                                  frame->linesize_pixels());
 
         // We convert to our rendering pixel format, since that will always be float-based which
         // is necessary for correct color conversion
@@ -361,7 +361,7 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
 
   const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
 
-  Renderer::TexturePtr destination = render_ctx_->CreateTexture(video_params);
+  TexturePtr destination = render_ctx_->CreateTexture(video_params);
 
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
@@ -423,9 +423,9 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 
   node->GenerateFrame(frame, job);
 
-  Renderer::TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                            frame->data(),
-                                                            frame->linesize_pixels());
+  TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
+                                                  frame->data(),
+                                                  frame->linesize_pixels());
 
   texture->set_has_meaningful_alpha(job.GetAlphaChannelRequired());
 
@@ -456,7 +456,7 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
 
       qDebug() << "Using cached frame!";
 
-      Renderer::TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
+      TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
       return QVariant::fromValue(texture);
     } else {
       qDebug() << "Not using cached frame because frame is null";
