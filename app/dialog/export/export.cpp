@@ -179,6 +179,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
   video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
   video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
+  video_tab_->pixel_format_field()->SetPixelFormat(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
   video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
   audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
   audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
@@ -285,23 +286,34 @@ void ExportDialog::StartExport()
   }
 
   // Validate video resolution
-  if (video_enabled_->isChecked()) {
-    if (video_tab_->width_slider()->GetValue() % 2 != 0
-        || video_tab_->height_slider()->GetValue() % 2 != 0) {
-      QMessageBox b(this);
-      b.setIcon(QMessageBox::Critical);
-      b.setWindowModality(Qt::WindowModal);
-      b.setWindowTitle(tr("Invalid parameters"));
-      b.setText(tr("Width and height must be multiples of 2."));
-      b.exec();
-      return;
-    }
+  if (video_enabled_->isChecked()
+      && video_tab_->GetSelectedCodec() == ExportCodec::kCodecH264
+      && (video_tab_->width_slider()->GetValue()%2 != 0 || video_tab_->height_slider()->GetValue()%2 != 0)) {
+    QMessageBox b(this);
+    b.setIcon(QMessageBox::Critical);
+    b.setWindowModality(Qt::WindowModal);
+    b.setWindowTitle(tr("Invalid Parameters"));
+    b.setText(tr("Width and height must be multiples of 2."));
+    b.exec();
+    return;
   }
 
   ExportTask* task = new ExportTask(viewer_node_, color_manager_, GenerateParams());
   TaskDialog* td = new TaskDialog(task, tr("Export"), this);
-  connect(td, &TaskDialog::TaskSucceeded, this, &QDialog::accept);
+  connect(td, &TaskDialog::TaskSucceeded, this, &ExportDialog::ExportFinished);
   td->open();
+}
+
+void ExportDialog::ExportFinished()
+{
+  TaskDialog* td = static_cast<TaskDialog*>(sender());
+
+  if (td->GetTask()->IsCancelled()) {
+    // If this task was cancelled, we stay open so the user can potentially queue another export
+  } else {
+    // Accept this dialog and close
+    this->accept();
+  }
 }
 
 void ExportDialog::closeEvent(QCloseEvent *e)
@@ -373,7 +385,7 @@ void ExportDialog::ResolutionChanged()
       new_width *= video_aspect_ratio_;
 
       // Align to even number and set
-      video_tab_->width_slider()->SetValue(AlignEvenNumber(new_width));
+      video_tab_->width_slider()->SetValue(new_width);
 
     } else {
 
@@ -384,7 +396,7 @@ void ExportDialog::ResolutionChanged()
       new_height /= video_aspect_ratio_;
 
       // Align to even number and set
-      video_tab_->height_slider()->SetValue(AlignEvenNumber(new_height));
+      video_tab_->height_slider()->SetValue(new_height);
 
     }
   }
@@ -414,17 +426,12 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
-int ExportDialog::AlignEvenNumber(double d)
-{
-  return qCeil(d * 0.5) * 2;
-}
-
 ExportParams ExportDialog::GenerateParams() const
 {
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                   static_cast<int>(video_tab_->height_slider()->GetValue()),
                                   video_tab_->frame_rate_combobox()->GetFrameRate().flipped(),
-                                  PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline),
+                                  video_tab_->pixel_format_field()->GetPixelFormat(),
                                   video_tab_->pixel_aspect_combobox()->GetPixelAspectRatio(),
                                   video_tab_->interlaced_combobox()->GetInterlaceMode(),
                                   1);

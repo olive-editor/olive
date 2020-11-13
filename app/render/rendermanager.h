@@ -80,8 +80,16 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, FrameHashCache* cache = nullptr, bool prioritize = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational& time, RenderMode::Mode mode, const QSize& force_size, const QMatrix4x4& matrix, FrameHashCache* cache = nullptr, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+                              const rational& time, RenderMode::Mode mode,
+                              FrameHashCache* cache = nullptr, bool prioritize = false);
+  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+                              const rational& time, RenderMode::Mode mode,
+                              const VideoParams& video_params, const AudioParams& audio_params,
+                              const QSize& force_size,
+                              const QMatrix4x4& force_matrix, PixelFormat::Format force_format,
+                              ColorProcessorPtr force_color_output,
+                              FrameHashCache* cache = nullptr, bool prioritize = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -93,6 +101,7 @@ public:
    *
    * This function is thread-safe.
    */
+  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, bool generate_waveforms, bool prioritize = false);
   RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
 
   RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
@@ -128,6 +137,8 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
+
+  QVariant default_shader_;
 
 };
 

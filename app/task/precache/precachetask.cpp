@@ -20,6 +20,8 @@
 
 #include "precachetask.h"
 
+#include "project/project.h"
+
 OLIVE_NAMESPACE_ENTER
 
 PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
@@ -61,23 +63,21 @@ bool PreCacheTask::Run()
   }
   */
 
-  Render(video_range, TimeRangeList(), RenderMode::kOnline, true);
-
-  download_threads_.waitForDone();
+  Render(footage_->footage()->project()->color_manager(),
+         video_range,
+         TimeRangeList(),
+         RenderMode::kOnline,
+         viewer()->video_frame_cache());
 
   return true;
 }
 
-QFuture<void> PreCacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
-{
-  return QtConcurrent::run(&download_threads_, viewer()->video_frame_cache(), &FrameHashCache::SaveCacheFrame, hash, frame);
-}
-
-void PreCacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
+void PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times, qint64 job_time)
 {
   // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
   // anything else.
 
+  Q_UNUSED(frame)
   Q_UNUSED(hash)
   Q_UNUSED(times)
   Q_UNUSED(job_time)

@@ -84,7 +84,7 @@ QMatrix4x4 ViewerDisplayWidget::GetCompleteMatrixFlippedYTranslation()
 {
   QMatrix4x4 mat = combined_matrix_;
 
-  mat.data()[13] *= -1.0f;
+  mat.scale(1, -1, 1);
 
   return mat;
 }
@@ -298,7 +298,9 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     // Draw texture through color transform
-    renderer()->BlitColorManaged(color_service(), texture_, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F), true);
+    renderer()->BlitColorManaged(color_service(), texture_,
+                                 VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F),
+                                 GetCompleteMatrixFlippedYTranslation());
   }
 
   QTransform world_transform = GenerateWorldTransform();

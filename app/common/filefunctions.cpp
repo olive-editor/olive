@@ -75,7 +75,7 @@ QString FileFunctions::GetTempFilePath()
 {
   QString temp_path = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
                            .filePath(QCoreApplication::organizationName()))
-                   .filePath(QCoreApplication::applicationName());
+      .filePath(QCoreApplication::applicationName());
 
   // Ensure it exists
   QDir(temp_path).mkpath(".");
@@ -197,6 +197,47 @@ QString FileFunctions::ReadFileAsString(const QString &filename)
     f.close();
   }
   return file_data;
+}
+
+QString FileFunctions::GetSafeTemporaryFilename(const QString &original)
+{
+  int counter = 0;
+
+  QFileInfo original_info(original);
+  QString basename = original_info.baseName();
+  QString complete_suffix = original_info.completeSuffix();
+
+  // If we have a complete suffix, make sure there's a period in it
+  if (!complete_suffix.isEmpty()) {
+    complete_suffix.prepend('.');
+  }
+
+  QString temp_abs_path;
+  do {
+    temp_abs_path = original_info.dir().filePath(
+          QStringLiteral("%1.tmp%2%3").arg(basename,
+                                           QString::number(counter),
+                                           complete_suffix));
+    counter++;
+  } while (QFileInfo::exists(temp_abs_path));
+
+  return temp_abs_path;
+}
+
+bool FileFunctions::RenameFileAllowOverwrite(const QString &from, const QString &to)
+{
+  if (QFileInfo::exists(to) && !QFile::remove(to)) {
+    qCritical() << "Couldn't remove existing file" << to << "for overwrite";
+    return false;
+  }
+
+  // By this point, we can assume `to` either never existed or has now been deleted
+  if (!QFile::rename(from, to)) {
+    qCritical() << "Failed to rename file" << from << "to" << to;
+    return false;
+  }
+
+  return true;
 }
 
 OLIVE_NAMESPACE_EXIT

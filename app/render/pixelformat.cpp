@@ -127,7 +127,8 @@ PixelFormat *PixelFormat::instance()
 
 PixelFormat::Format PixelFormat::GetConfiguredFormatForMode(RenderMode::Mode mode)
 {
-  return static_cast<PixelFormat::Format>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat")).toInt());
+  return static_cast<PixelFormat::Format>(
+        Core::GetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat")).toInt());
 }
 
 void PixelFormat::SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format)

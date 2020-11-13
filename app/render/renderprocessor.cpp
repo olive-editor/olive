@@ -29,12 +29,13 @@
 
 OLIVE_NAMESPACE_ENTER
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
   ticket_(ticket),
   render_ctx_(render_ctx),
   still_image_cache_(still_image_cache),
   decoder_cache_(decoder_cache),
-  shader_cache_(shader_cache)
+  shader_cache_(shader_cache),
+  default_shader_(default_shader)
 {
 }
 
@@ -49,19 +50,26 @@ void RenderProcessor::Run()
   case RenderManager::kTypeVideo:
   {
     ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
+    const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
     rational time = ticket_->property("time").value<rational>();
 
     NodeValueTable table = ProcessInput(viewer->texture_input(),
-                                        TimeRange(time, time + viewer->video_params().time_base()));
+                                        TimeRange(time, time + video_params.time_base()));
 
     TexturePtr texture = table.Get(NodeParam::kTexture).value<TexturePtr>();
 
-    VideoParams frame_params = viewer->video_params();
+    // Set up output frame parameters
+    VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
 
     QSize frame_size = ticket_->property("size").value<QSize>();
     if (!frame_size.isNull()) {
       frame_params.set_width(frame_size.width());
       frame_params.set_height(frame_size.height());
+    }
+
+    PixelFormat::Format frame_format = static_cast<PixelFormat::Format>(ticket_->property("format").toInt());
+    if (frame_format != PixelFormat::PIX_FMT_INVALID) {
+      frame_params.set_format(frame_format);
     }
 
     FramePtr frame = Frame::Create();
@@ -74,10 +82,31 @@ void RenderProcessor::Run()
       memset(frame->data(), 0, frame->allocated_size());
     } else {
       // Dump texture contents to frame
+      ColorProcessorPtr output_color_transform = ticket_->property("coloroutput").value<ColorProcessorPtr>();
       const VideoParams& tex_params = texture->params();
 
-      if (tex_params.width() != frame->width() || tex_params.height() != frame->height()) {
-        // FIXME: Blit this shit
+      if (tex_params.effective_width() != frame_params.effective_width()
+          || tex_params.effective_height() != frame_params.effective_height()
+          || tex_params.format() != frame_params.format()
+          || output_color_transform) {
+        TexturePtr blit_tex = render_ctx_->CreateTexture(frame_params);
+
+        QMatrix4x4 matrix = ticket_->property("matrix").value<QMatrix4x4>();
+
+        if (output_color_transform) {
+          // Yes color transform, blit color managed
+          render_ctx_->BlitColorManaged(output_color_transform, texture, blit_tex.get(), matrix);
+        } else {
+          // No color transform, just blit
+          ShaderJob job;
+          job.InsertValue(QStringLiteral("ove_maintex"), {QVariant::fromValue(texture), NodeParam::kTexture});
+          job.InsertValue(QStringLiteral("ove_mvpmat"), {matrix, NodeParam::kMatrix});
+
+          render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
+        }
+
+        // Replace texture that we're going to download in the next step
+        texture = blit_tex;
       }
 
       render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
@@ -138,9 +167,9 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(StreamPtr stream)
   return decoder;
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache, ShaderCache *shader_cache)
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache *still_image_cache, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)
 {
-  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache, shader_cache);
+  RenderProcessor p(ticket, render_ctx, still_image_cache, decoder_cache, shader_cache, default_shader);
   p.Run();
 }
 
@@ -148,7 +177,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
 {
   if (track->track_type() == Timeline::kTrackTypeAudio) {
 
-    const AudioParams& audio_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->audio_params();
+    const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
     QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
@@ -228,11 +257,13 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
   // and color managing them for every frame is a waste of time, so we implement a small cache here
   // to optimize such a situation
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
-  const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
+  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+
+  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
   StillImageCache::Entry want_entry = {nullptr,
                                        stream,
-                                       ColorProcessor::GenerateID(Node::ValueToPtr<ColorManager>(ticket_->property("colormanager")), video_stream->colorspace(), ColorTransform(OCIO::ROLE_SCENE_LINEAR)),
+                                       ColorProcessor::GenerateID(color_manager, video_stream->colorspace(), color_manager->GetReferenceColorSpace()),
                                        video_stream->premultiplied_alpha(),
                                        video_params.divider(),
                                        (video_stream->video_type() == VideoStream::kVideoTypeStill) ? 0 : input_time};
@@ -297,10 +328,9 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
         qDebug() << "FIXME: Accessing video_stream->colorspace() may cause race conditions";
 
-        ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              video_stream->colorspace(),
-                                                             ColorTransform(OCIO::ROLE_SCENE_LINEAR));
+                                                             color_manager->GetReferenceColorSpace());
 
         render_ctx_->BlitColorManaged(processor, unmanaged_texture, value.get());
 
@@ -327,7 +357,7 @@ QVariant RenderProcessor::ProcessAudioFootage(StreamPtr stream, const TimeRange 
   DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
   if (decoder) {
-    const AudioParams& audio_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->audio_params();
+    const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
     SampleBufferPtr frame = decoder->RetrieveAudio(input_time, audio_params, &IsCancelled());
 
@@ -359,7 +389,7 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
     }
   }
 
-  const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
+  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
 
   TexturePtr destination = render_ctx_->CreateTexture(video_params);
 
@@ -378,7 +408,7 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
   NodeValueDatabase value_db;
 
-  const AudioParams& audio_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->audio_params();
+  const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
   for (int i=0;i<job.samples()->sample_count();i++) {
     // Calculate the exact rational time at this sample
@@ -416,7 +446,7 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 {
   FramePtr frame = Frame::Create();
 
-  const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
+  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
 
   frame->set_video_params(video_params);
   frame->allocate();
@@ -436,7 +466,7 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
 {
   if (!ticket_->property("cache").toString().isEmpty()
       && node->id() == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-    const VideoParams& video_params = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"))->video_params();
+    const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
 
     QByteArray hash = RenderManager::Hash(node, video_params, time);
 

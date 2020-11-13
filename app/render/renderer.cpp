@@ -23,7 +23,6 @@
 #include <QFloat16>
 
 #include "common/ocioutils.h"
-#include "render/colormanager.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -57,14 +56,14 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
   return CreateTexture(params, Texture::k2D, Texture::kRGBA, data, linesize);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, bool flipped)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, const QMatrix4x4 &matrix)
 {
-  BlitColorManagedInternal(color_processor, source, destination, destination->params(), flipped);
+  BlitColorManagedInternal(color_processor, source, destination, destination->params(), matrix);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, bool flipped)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, const QMatrix4x4& matrix)
 {
-  BlitColorManagedInternal(color_processor, source, nullptr, params, flipped);
+  BlitColorManagedInternal(color_processor, source, nullptr, params, matrix);
 }
 
 void Renderer::Destroy()
@@ -195,7 +194,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
   }
 }
 
-void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, VideoParams params, bool flipped)
+void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, VideoParams params, const QMatrix4x4& matrix)
 {
   ColorContext color_ctx;
   if (!GetColorContext(color_processor, &color_ctx)) {
@@ -203,7 +202,10 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
   }
 
   ShaderJob job;
+
   job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(source), NodeParam::kTexture));
+  job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(matrix, NodeParam::kMatrix));
+
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
     job.InsertValue(l.name, ShaderValue(QVariant::fromValue(l.texture), NodeParam::kTexture));
     job.SetInterpolation(l.name, l.interpolation);
@@ -211,12 +213,6 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
   foreach (const ColorContext::LUT& l, color_ctx.lut1d_textures) {
     job.InsertValue(l.name, ShaderValue(QVariant::fromValue(l.texture), NodeParam::kTexture));
     job.SetInterpolation(l.name, l.interpolation);
-  }
-
-  if (flipped) {
-    QMatrix4x4 mat;
-    mat.scale(1, -1, 1);
-    job.SetMatrix(mat);
   }
 
   if (destination) {

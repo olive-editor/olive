@@ -122,6 +122,11 @@ public:
 
   virtual void Close() = 0;
 
+  virtual PixelFormat::Format GetDesiredPixelFormat() const
+  {
+    return PixelFormat::PIX_FMT_INVALID;
+  }
+
 private:
   EncodingParams params_;
 

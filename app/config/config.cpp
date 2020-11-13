@@ -204,7 +204,10 @@ void Config::Load()
 
 void Config::Save()
 {
-  QFile config_file(GetConfigFilePath());
+  QString real_filename = GetConfigFilePath();
+  QString temp_filename = FileFunctions::GetSafeTemporaryFilename(real_filename);
+
+  QFile config_file(temp_filename);
 
   if (!config_file.open(QFile::WriteOnly)) {
     QMessageBox::critical(Core::instance()->main_window(),
@@ -243,6 +246,11 @@ void Config::Save()
   writer.writeEndDocument();
 
   config_file.close();
+
+  if (!FileFunctions::RenameFileAllowOverwrite(temp_filename, real_filename)) {
+    qWarning() << QStringLiteral("Failed to overwrite \"%1\". Config has been saved as \"%2\" instead.")
+                  .arg(real_filename, temp_filename);
+  }
 }
 
 QVariant Config::operator[](const QString &key) const

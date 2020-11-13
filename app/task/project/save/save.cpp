@@ -38,7 +38,7 @@ ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
 bool ProjectSaveTask::Run()
 {
   // File to temporarily save to (ensures we can't half-write the user's main file and crash)
-  QString temp_save = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("tempsv"));
+  QString temp_save = FileFunctions::GetSafeTemporaryFilename(project_->filename());
 
   QFile project_file(temp_save);
 
@@ -74,16 +74,15 @@ bool ProjectSaveTask::Run()
     }
 
     // Save was successful, we can now rewrite the original file
-    QFile original(project_->filename());
-    if ((!original.exists() || original.remove())
-        && QFile::copy(temp_save, project_->filename())) {
+    if (FileFunctions::RenameFileAllowOverwrite(temp_save, project_->filename())) {
       return true;
     } else {
-      SetError(tr("Failed to write to \"%1\".").arg(project_->filename()));
+      SetError(tr("Failed to overwrite \"%1\". Project has been saved as \"%2\" instead.")
+               .arg(project_->filename(), temp_save));
       return false;
     }
   } else {
-    SetError(tr("Failed to open file \"%1\" for writing.").arg(project_->filename()));
+    SetError(tr("Failed to open temporary file \"%1\" for writing.").arg(temp_save));
     return false;
   }
 }

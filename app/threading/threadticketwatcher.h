@@ -49,9 +49,11 @@ public:
   QVariant Get();
 
 signals:
-  void Finished();
+  void Finished(RenderTicketWatcher* watcher);
 
 private:
+  void TicketFinished();
+
   RenderTicketPtr ticket_;
 
 };

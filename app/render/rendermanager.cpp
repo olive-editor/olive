@@ -56,8 +56,10 @@ RenderManager::RenderManager(QObject *parent) :
     still_cache_ = new StillImageCache();
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
+    default_shader_ = context_->CreateNativeShader(ShaderCode(QString(), QString()));
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
+    context_ = nullptr;
     still_cache_ = nullptr;
     decoder_cache_ = nullptr;
   }
@@ -65,12 +67,16 @@ RenderManager::RenderManager(QObject *parent) :
 
 RenderManager::~RenderManager()
 {
-  delete shader_cache_;
-  delete decoder_cache_;
-  delete still_cache_;
+  if (context_) {
+    context_->DestroyNativeShader(default_shader_);
 
-  context_->Destroy();
-  delete context_;
+    delete shader_cache_;
+    delete decoder_cache_;
+    delete still_cache_;
+
+    context_->Destroy();
+    delete context_;
+  }
 }
 
 QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const rational &time)
@@ -93,19 +99,31 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   return hasher.result();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager *color_manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+                                           const rational& time, RenderMode::Mode mode,
+                                           FrameHashCache* cache, bool prioritize)
 {
   return RenderFrame(viewer,
                      color_manager,
                      time,
                      mode,
+                     viewer->video_params(),
+                     viewer->audio_params(),
                      QSize(0, 0),
                      QMatrix4x4(),
+                     PixelFormat::PIX_FMT_INVALID,
+                     nullptr,
                      cache,
                      prioritize);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager, const rational &time, RenderMode::Mode mode, const QSize &force_size, const QMatrix4x4 &matrix, FrameHashCache *cache, bool prioritize)
+RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+                                           const rational& time, RenderMode::Mode mode,
+                                           const VideoParams &video_params, const AudioParams &audio_params,
+                                           const QSize& force_size,
+                                           const QMatrix4x4& force_matrix, PixelFormat::Format force_format,
+                                           ColorProcessorPtr force_color_output,
+                                           FrameHashCache* cache, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -113,11 +131,18 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(time));
   ticket->setProperty("size", force_size);
-  ticket->setProperty("matrix", matrix);
+  ticket->setProperty("matrix", force_matrix);
+  ticket->setProperty("format", force_format);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
+  ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
+  ticket->setProperty("vparam", QVariant::fromValue(video_params));
+  ticket->setProperty("aparam", QVariant::fromValue(audio_params));
+
+  if (cache) {
+    ticket->setProperty("cache", cache->GetCacheDirectory());
+  }
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
@@ -127,7 +152,12 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize)
+{
+  return RenderAudio(viewer, r, viewer->audio_params(), generate_waveforms, prioritize);
+}
+
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, bool generate_waveforms, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -136,6 +166,7 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
   ticket->setProperty("waveforms", generate_waveforms);
+  ticket->setProperty("aparam", QVariant::fromValue(params));
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
@@ -165,7 +196,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
 
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
-  RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_, shader_cache_);
+  RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_, shader_cache_, default_shader_);
 }
 
 OLIVE_NAMESPACE_EXIT

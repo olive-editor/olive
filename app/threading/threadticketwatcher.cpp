@@ -46,9 +46,9 @@ void RenderTicketWatcher::SetTicket(RenderTicketPtr ticket)
 
   if (ticket_->IsFinished(false)) {
     locker.unlock();
-    emit Finished();
+    emit Finished(this);
   } else {
-    connect(ticket_.get(), &RenderTicket::Finished, this, &RenderTicketWatcher::Finished);
+    connect(ticket_.get(), &RenderTicket::Finished, this, &RenderTicketWatcher::TicketFinished);
   }
 }
 
@@ -91,6 +91,11 @@ void RenderTicketWatcher::Cancel()
   if (ticket_) {
     ticket_->Cancel();
   }
+}
+
+void RenderTicketWatcher::TicketFinished()
+{
+  emit Finished(this);
 }
 
 OLIVE_NAMESPACE_EXIT

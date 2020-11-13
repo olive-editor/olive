@@ -232,7 +232,7 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
 {
   Q_UNUSED(id)
-  
+
   return new FFmpegEncoder(params);
 }
 

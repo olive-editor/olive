@@ -32,7 +32,7 @@ OLIVE_NAMESPACE_ENTER
 class RenderProcessor : public NodeTraverser
 {
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   struct RenderedWaveform {
     const TrackOutput* track;
@@ -56,7 +56,7 @@ protected:
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   void Run();
 
@@ -71,6 +71,8 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
+
+  QVariant default_shader_;
 
 };
 

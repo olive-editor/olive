@@ -49,8 +49,6 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
-  static int AlignEvenNumber(double d);
-
   ExportParams GenerateParams() const;
 
   ViewerOutput* viewer_node_;
@@ -84,6 +82,8 @@ private slots:
   void UpdateViewerDimensions();
 
   void StartExport();
+
+  void ExportFinished();
 
 };
 

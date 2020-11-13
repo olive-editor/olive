@@ -111,6 +111,11 @@ public:
     return pixel_aspect_combobox_;
   }
 
+  PixelFormatComboBox* pixel_format_field() const
+  {
+    return pixel_format_field_;
+  }
+
   const int& threads() const
   {
     return threads_;
@@ -149,6 +154,7 @@ private:
 
   InterlacedComboBox* interlaced_combobox_;
   PixelAspectRatioComboBox* pixel_aspect_combobox_;
+  PixelFormatComboBox* pixel_format_field_;
 
   int threads_;
 

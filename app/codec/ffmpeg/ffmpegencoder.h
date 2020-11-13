@@ -47,6 +47,11 @@ public:
 
   virtual void Close() override;
 
+  virtual PixelFormat::Format GetDesiredPixelFormat() const override
+  {
+    return video_conversion_fmt_;
+  }
+
 private:
   /**
    * @brief Handle an error

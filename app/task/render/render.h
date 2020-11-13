@@ -24,25 +24,32 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "node/output/viewer/viewer.h"
+#include "render/colormanager.h"
 #include "task/task.h"
+#include "threading/threadticket.h"
+#include "threading/threadticketwatcher.h"
 
 OLIVE_NAMESPACE_ENTER
 
 class RenderTask : public Task
 {
+  Q_OBJECT
 public:
   RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
   virtual ~RenderTask() override;
 
 protected:
-  void Render(const TimeRangeList &video_range,
+  bool Render(ColorManager *manager, const TimeRangeList &video_range,
               const TimeRangeList &audio_range, RenderMode::Mode mode,
-              bool use_disk_cache);
+              FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
+              const QMatrix4x4& force_matrix = QMatrix4x4(),
+              PixelFormat::Format force_format = PixelFormat::PIX_FMT_INVALID,
+              ColorProcessorPtr force_color_output = nullptr);
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
+  virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) = 0;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) = 0;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
@@ -61,12 +68,37 @@ protected:
     return audio_params_;
   }
 
+  virtual void CancelEvent() override
+  {
+    finished_watcher_mutex_.lock();
+    finished_watcher_wait_cond_.wakeAll();
+    finished_watcher_mutex_.unlock();
+  }
+
+  virtual bool TwoStepFrameRendering() const
+  {
+    return true;
+  }
+
 private:
+  RenderTicketWatcher* CreateWatcher(QThread *thread);
+
+  void IncrementRunningTickets();
+
   ViewerOutput* viewer_;
 
   VideoParams video_params_;
 
   AudioParams audio_params_;
+
+  QVector<RenderTicketWatcher*> running_watchers_;
+  std::list<RenderTicketWatcher*> finished_watchers_;
+  int running_tickets_;
+  QMutex finished_watcher_mutex_;
+  QWaitCondition finished_watcher_wait_cond_;
+
+private slots:
+  void TicketDone(RenderTicketWatcher *watcher);
 
 };
 
