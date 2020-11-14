@@ -31,9 +31,6 @@
 #include "codec/waveoutput.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#ifdef USE_OTIO
-#include "task/project/loadotio/loadotio.h"
-#endif
 #include "task/taskmanager.h"
 #include "project/project.h"
 
@@ -109,8 +106,9 @@ FootagePtr Decoder::ProbeMedia(Project* project, const QString &filename, const 
   // Check file exists
   if (!QFileInfo::exists(filename)) {
     qWarning() << "Tried to probe file that doesn't exist:" << filename;
-    return nullptr;
   }
+
+  FootagePtr footage;
 
   // Create list to iterate through
   QVector<DecoderPtr> decoder_list = ReceiveListOfAllDecoders();
@@ -124,27 +122,27 @@ FootagePtr Decoder::ProbeMedia(Project* project, const QString &filename, const 
 
     DecoderPtr decoder = decoder_list.at(i);
 
-    FootagePtr footage = decoder->Probe(filename, cancelled);
+    footage = decoder->Probe(filename, cancelled);
 
     if (footage) {
-      QFileInfo file_info(filename);
-      footage->set_name(file_info.fileName());
-      footage->set_filename(filename);
-
-      footage->set_decoder(decoder->id());
-      footage->set_project(project);
-      footage->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
-
       footage->SetValid();
-
-      // FIXME: Cache the results so we don't have to probe if this media is added a second time
-
-      return footage;
+      break;
     }
   }
+  if (!footage) {
+    footage = std::make_shared<Footage>();
+    qWarning() << "Could not decode, creating blank footage object";
+  }
 
-  // We aren't able to use this Footage
-  return nullptr;
+  // FIXME: Cache the results so we don't have to probe if this media is added a second time
+  QFileInfo file_info(filename);
+  footage->set_name(file_info.fileName());
+  footage->set_filename(filename);
+
+  footage->set_project(project);
+  footage->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
+
+  return footage;
 }
 
 DecoderPtr Decoder::CreateFromID(const QString &id)
