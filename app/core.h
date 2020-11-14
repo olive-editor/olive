@@ -27,6 +27,7 @@
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
+#include "opentimelineio/timeline.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
@@ -354,6 +355,11 @@ public slots:
    * @brief Show Export dialog
    */
   void DialogExportShow();
+
+  /**
+   * @brief Show OTIO import dialog
+   */
+  void DialogImportOTIOShow(QList<SequencePtr> sequences);
 
   /**
    * @brief Create a new folder in the currently active project

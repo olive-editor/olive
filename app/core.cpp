@@ -1,4 +1,5 @@
 /***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -41,6 +42,7 @@
 #include "dialog/about/about.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
+#include "dialog/otioproperties/otiopropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
@@ -370,6 +372,13 @@ void Core::DialogExportShow()
     ExportDialog ed(sequence, main_window_);
     ed.exec();
   }
+}
+
+void Core::DialogImportOTIOShow(QList<SequencePtr> sequences)
+{
+  ProjectPtr active_project = GetActiveProject();
+  OTIOPropertiesDialog opd(sequences, active_project);
+  opd.exec();
 }
 
 void Core::CreateNewFolder()

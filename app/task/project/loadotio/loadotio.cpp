@@ -26,7 +26,9 @@
 #include <opentimelineio/serializableCollection.h>
 #include <opentimelineio/timeline.h>
 #include <QFileInfo>
+#include <QThread>
 
+#include "core.h"
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/input/media/audio/audio.h"
@@ -76,18 +78,42 @@ bool LoadOTIOTask::Run()
     return false;
   }
 
+  QList<SequencePtr> sequences;
+
+  // Generate a list of sequences with the same names as the timelines.
+  // Assumes each timeline has a unique name.
+  foreach (auto timeline, timelines) {
+    SequencePtr sequence = std::make_shared<Sequence>();
+    sequence->set_name(QString::fromStdString(timeline->name()));
+    // Set default params incase they aren't edited.
+    sequence->set_default_parameters();
+    sequences.append(sequence);
+  }
+
+  // Dialog has to be called from the main thread so we pass the list of sequences here.
+  QMetaObject::invokeMethod(Core::instance(),
+                            "DialogImportOTIOShow",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(QList<SequencePtr>, sequences)
+                            );
+
   // Keep track of imported footage
   QMap<QString, FootagePtr> imported_footage;
 
   foreach (auto timeline, timelines) {
-    SequencePtr sequence = std::make_shared<Sequence>();
-    sequence->set_name(QString::fromStdString(timeline->name()));
+    SequencePtr sequence;
+
+    // Find correct sequence based on itmeline name.
+    foreach(SequencePtr seq, sequences) {
+      if (seq->name() == QString::fromStdString(timeline->name())) {
+        sequence = seq;
+        break;
+      }
+    }
+
     project_->root()->add_child(sequence);
 
     ViewerOutput* seq_viewer = sequence->viewer_output();
-
-    // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
-    sequence->set_default_parameters();
 
     for (auto c : timeline->tracks()->children()) {
       auto otio_track = static_cast<OTIO::Track*>(c.value);
