@@ -95,7 +95,7 @@ void RenderProcessor::Run()
 
         if (output_color_transform) {
           // Yes color transform, blit color managed
-          render_ctx_->BlitColorManaged(output_color_transform, texture, blit_tex.get(), matrix);
+          render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), matrix);
         } else {
           // No color transform, just blit
           ShaderJob job;
@@ -326,13 +326,15 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
         managed_params.set_format(video_params.format());
         value = render_ctx_->CreateTexture(managed_params);
 
-        qDebug() << "FIXME: Accessing video_stream->colorspace() may cause race conditions";
+        qDebug() << "FIXME: Accessing video_stream->colorspace() and video_stream->premultiplied_alpha() may cause race conditions";
 
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              video_stream->colorspace(),
                                                              color_manager->GetReferenceColorSpace());
 
-        render_ctx_->BlitColorManaged(processor, unmanaged_texture, value.get());
+        render_ctx_->BlitColorManaged(processor, unmanaged_texture,
+                                      video_stream->premultiplied_alpha(),
+                                      value.get());
 
         still_image_cache_->mutex()->lock();
 

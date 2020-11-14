@@ -56,14 +56,14 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
   return CreateTexture(params, Texture::k2D, Texture::kRGBA, data, linesize);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, const QMatrix4x4 &matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture *destination, const QMatrix4x4 &matrix)
 {
-  BlitColorManagedInternal(color_processor, source, destination, destination->params(), matrix);
+  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, destination, destination->params(), matrix);
 }
 
-void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, const QMatrix4x4& matrix)
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, const QMatrix4x4& matrix)
 {
-  BlitColorManagedInternal(color_processor, source, nullptr, params, matrix);
+  BlitColorManagedInternal(color_processor, source, source_is_premultiplied, nullptr, params, matrix);
 }
 
 void Renderer::Destroy()
@@ -101,6 +101,12 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "\n"
                                       "// Main texture input\n"
                                       "uniform sampler2D ove_maintex;\n"
+                                      "uniform int ove_maintex_alpha;\n"
+                                      "\n"
+                                      "// Macros defining `ove_maintex_alpha` state\n"
+                                      "#define ALPHA_NONE     0\n"
+                                      "#define ALPHA_UNASSOC  1\n"
+                                      "#define ALPHA_ASSOC    2\n"
                                       "\n"
                                       "// Macros so OCIO's shaders work on this GLSL version\n"
                                       "#define texture2D texture\n"
@@ -113,8 +119,38 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "out vec4 fragColor;\n"));
     shader_frag.append(shader_desc->getShaderText());
     shader_frag.append(QStringLiteral("\n"
+                                      "// Alpha association functions\n"
+                                      "vec4 assoc(vec4 c) {\n"
+                                      "  return vec4(c.rgb * c.a, c.a);\n"
+                                      "}\n"
+                                      "\n"
+                                      "vec4 reassoc(vec4 c) {\n"
+                                      "  return (c.a == 0.0) ? c : assoc(c);\n"
+                                      "}\n"
+                                      "\n"
+                                      "vec4 deassoc(vec4 c) {\n"
+                                      "  return (c.a == 0.0) ? c : vec4(c.rgb / c.a, c.a);\n"
+                                      "}\n"
+                                      "\n"
                                       "void main() {\n"
-                                      "  fragColor = %1(texture(ove_maintex, ove_texcoord));\n"
+                                      "  vec4 col = texture(ove_maintex, ove_texcoord);\n"
+                                      "\n"
+                                      "  // If alpha is associated, de-associate now\n"
+                                      "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
+                                      "    col = deassoc(col);\n"
+                                      "  }\n"
+                                      "\n"
+                                      "  // Perform color conversion\n"
+                                      "  col = %1(col);\n"
+                                      "\n"
+                                      "  // Associate or re-associate here\n"
+                                      "  if (ove_maintex_alpha == ALPHA_ASSOC) {\n"
+                                      "    col = reassoc(col);\n"
+                                      "  } else if (ove_maintex_alpha == ALPHA_UNASSOC) {\n"
+                                      "    col = assoc(col);\n"
+                                      "  }\n"
+                                      "\n"
+                                      "  fragColor = col;\n"
                                       "}\n").arg(ocio_func_name));
 
     // Try to compile shader
@@ -194,7 +230,9 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
   }
 }
 
-void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source, Texture *destination, VideoParams params, const QMatrix4x4& matrix)
+void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
+                                        bool source_is_premultiplied, Texture *destination,
+                                        VideoParams params, const QMatrix4x4& matrix)
 {
   ColorContext color_ctx;
   if (!GetColorContext(color_processor, &color_ctx)) {

@@ -102,7 +102,7 @@ void ScopeBase::OnPaint()
 
   if (buffer_) {
     // Convert reference frame to display space
-    renderer()->BlitColorManaged(color_service(), texture_, managed_tex_.get());
+    renderer()->BlitColorManaged(color_service(), texture_, true, managed_tex_.get());
 
     DrawScope(managed_tex_, pipeline_);
   }

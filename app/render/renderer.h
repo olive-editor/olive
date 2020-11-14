@@ -60,8 +60,8 @@ public:
     Blit(shader, job, nullptr, params);
   }
 
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, Texture* destination, const QMatrix4x4& matrix = QMatrix4x4());
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, VideoParams params, const QMatrix4x4& matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture* destination, const QMatrix4x4& matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, const QMatrix4x4& matrix = QMatrix4x4());
 
   void Destroy();
 
@@ -108,6 +108,7 @@ private:
   bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
 
   void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
+                                bool source_is_premultiplied,
                                 Texture* destination, VideoParams params, const QMatrix4x4 &matrix);
 
   QHash<QString, ColorContext> color_cache_;

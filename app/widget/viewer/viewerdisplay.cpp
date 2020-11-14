@@ -298,7 +298,7 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     // Draw texture through color transform
-    renderer()->BlitColorManaged(color_service(), texture_,
+    renderer()->BlitColorManaged(color_service(), texture_, true,
                                  VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F),
                                  GetCompleteMatrixFlippedYTranslation());
   }
