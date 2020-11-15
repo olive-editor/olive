@@ -75,15 +75,19 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
   job.InsertValue(base_in_, value);
   job.InsertValue(blend_in_, value);
 
-  // FIXME: Check if "blend" is RGB-only, in which case it's a no-op
-
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(base_in_).data.isNull() || !job.GetValue(blend_in_).data.isNull()) {
-    if (job.GetValue(base_in_).data.isNull()) {
-      // We only have a blend texture, no need to alpha over
+  TexturePtr base_tex = job.GetValue(base_in_).data.value<TexturePtr>();
+  TexturePtr blend_tex = job.GetValue(blend_in_).data.value<TexturePtr>();
+
+  if (base_tex || blend_tex) {
+    if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
+      // We only have a blend texture or the blend texture is RGB only, no need to alpha over
+      if (base_tex) {
+        qDebug() << "Ignored merge because blend texture was RGB only";
+      }
       table.Push(job.GetValue(blend_in_), this);
-    } else if (job.GetValue(blend_in_).data.isNull()) {
+    } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
       table.Push(job.GetValue(base_in_), this);
     } else {
