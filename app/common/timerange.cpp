@@ -78,11 +78,11 @@ bool TimeRange::operator!=(const TimeRange &r) const
 
 bool TimeRange::OverlapsWith(const TimeRange &a, bool in_inclusive, bool out_inclusive) const
 {
-  bool overlaps_in = (in_inclusive) ? (a.out() < in()) : (a.out() <= in());
+  bool doesnt_overlap_in = (in_inclusive) ? (a.out() < in()) : (a.out() <= in());
 
-  bool overlaps_out = (out_inclusive) ? (a.in() > out()) : (a.in() >= out());
+  bool doesnt_overlap_out = (out_inclusive) ? (a.in() > out()) : (a.in() >= out());
 
-  return !(overlaps_in || overlaps_out);
+  return !doesnt_overlap_in && !doesnt_overlap_out;
 }
 
 TimeRange TimeRange::Combined(const TimeRange &a) const
@@ -211,8 +211,10 @@ void TimeRangeList::remove(const TimeRange &remove)
       sz--;
     } else if (compare.Contains(remove, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
-      array_.append(TimeRange(remove.out(), compare.out()));
+      TimeRange new_range(remove.out(), compare.out());
       compare.set_out(remove.in());
+      insert(new_range);
+      break;
     } else if (compare.in() < remove.in() && compare.out() > remove.in()) {
       // This element's out point overlaps the range's in, we'll trim it
       compare.set_out(remove.in());
@@ -289,15 +291,6 @@ TimeRangeList TimeRangeList::Intersects(const TimeRange &range) const
   return intersect_list;
 }
 
-void TimeRangeList::PrintTimeList()
-{
-  qDebug() << "TimeRangeList now contains:";
-
-  for (int i=0;i<size();i++) {
-    qDebug() << "  " << array_.at(i);
-  }
-}
-
 uint qHash(const TimeRange &r, uint seed)
 {
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
@@ -308,5 +301,11 @@ OLIVE_NAMESPACE_EXIT
 QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange &r)
 {
   debug.nospace() << r.in().toDouble() << " - " << r.out().toDouble();
+  return debug.space();
+}
+
+QDebug operator<<(QDebug debug, const olive::TimeRangeList &r)
+{
+  debug << r.internal_array();
   return debug.space();
 }

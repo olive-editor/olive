@@ -127,9 +127,12 @@ public:
     return array_.last();
   }
 
-private:
-  void PrintTimeList();
+  const QVector<TimeRange>& internal_array() const
+  {
+    return array_;
+  }
 
+private:
   QVector<TimeRange> array_;
 
 };
@@ -139,6 +142,7 @@ uint qHash(const TimeRange& r, uint seed);
 OLIVE_NAMESPACE_EXIT
 
 QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange& r);
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRangeList& r);
 
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TimeRange)
 
