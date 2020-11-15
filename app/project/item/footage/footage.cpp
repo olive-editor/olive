@@ -180,7 +180,6 @@ QIcon Footage::icon()
 QString Footage::duration()
 {
   // Find longest stream duration
-
   StreamPtr longest_stream = nullptr;
   rational longest;
 
@@ -200,18 +199,20 @@ QString Footage::duration()
     if (longest_stream->type() == Stream::kVideo) {
       VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(longest_stream);
 
-      int64_t duration = video_stream->duration();
-      rational frame_rate_timebase = video_stream->frame_rate().flipped();
+      if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+        int64_t duration = video_stream->duration();
+        rational frame_rate_timebase = video_stream->frame_rate().flipped();
 
-      if (video_stream->timebase() != frame_rate_timebase) {
-        // Convert from timebase to frame rate
-        rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
-        duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+        if (video_stream->timebase() != frame_rate_timebase) {
+          // Convert from timebase to frame rate
+          rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
+          duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+        }
+
+        return Timecode::timestamp_to_timecode(duration,
+                                               frame_rate_timebase,
+                                               Core::instance()->GetTimecodeDisplay());
       }
-
-      return Timecode::timestamp_to_timecode(duration,
-                                             frame_rate_timebase,
-                                             Core::instance()->GetTimecodeDisplay());
     } else if (longest_stream->type() == Stream::kAudio) {
       AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(longest_stream);
 
@@ -237,11 +238,13 @@ QString Footage::rate()
     return QString();
   }
 
-  if (HasStreamsOfType(Stream::kVideo)
-      && std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo))->video_type() != VideoStream::kVideoTypeStill) {
+  if (HasStreamsOfType(Stream::kVideo)) {
     // This is a video editor, prioritize video streams
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo));
-    return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+
+    if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+      return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+    }
   } else if (HasStreamsOfType(Stream::kAudio)) {
     // No video streams, return audio
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
