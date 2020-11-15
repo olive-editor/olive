@@ -139,6 +139,27 @@ signals:
   void TimebaseChanged(const rational&);
 
 private:
+  class MarkerAddCommand : public UndoCommand
+  {
+  public:
+    MarkerAddCommand(Project* project, TimelineMarkerList* marker_list, const TimeRange& range, const QString& name);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
+
+  private:
+    Project* project_;
+    TimelineMarkerList* marker_list_;
+    TimeRange range_;
+    QString name_;
+
+    TimelineMarker* added_marker_;
+
+  };
+
   /**
    * @brief Set either in or out point to the current playhead
    *
