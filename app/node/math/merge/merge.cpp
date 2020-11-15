@@ -83,9 +83,6 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      if (base_tex) {
-        qDebug() << "Ignored merge because blend texture was RGB only";
-      }
       table.Push(job.GetValue(blend_in_), this);
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
