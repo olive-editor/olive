@@ -96,6 +96,8 @@ private slots:
    */
   void PopulateOpenRecent();
 
+  void RepopulateOpenRecent();
+
   /**
    * @brief Clears open recent items when menu closes
    */

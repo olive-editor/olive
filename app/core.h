@@ -415,6 +415,11 @@ signals:
    */
   void TimecodeDisplayChanged(Timecode::Display d);
 
+  /**
+   * @brief Signal emitted when a change is made to the open recent list
+   */
+  void OpenRecentListChanged();
+
 private:
   /**
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects

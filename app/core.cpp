@@ -168,9 +168,7 @@ void Core::Stop()
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      foreach (const QString& s, recent_projects_) {
-        ts << s << "\n";
-      }
+      ts << recent_projects_.join('\n');
 
       recent_projects_file.close();
     }
@@ -254,6 +252,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  emit OpenRecentListChanged();
 }
 
 void Core::CreateNewProject()
@@ -678,12 +677,15 @@ void Core::StartGUI(bool full_screen)
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      while (!ts.atEnd()) {
-        recent_projects_.append(ts.readLine());
+      QString s;
+      while (!(s = ts.readLine()).isEmpty()) {
+        recent_projects_.append(s);
       }
 
       recent_projects_file.close();
     }
+
+    emit OpenRecentListChanged();
   }
 }
 
@@ -953,6 +955,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   } else {
     recent_projects_.prepend(s);
   }
+
+  emit OpenRecentListChanged();
 }
 
 void Core::OpenProjectInternal(const QString &filename)
@@ -1089,6 +1093,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    emit OpenRecentListChanged();
   }
 }
 
