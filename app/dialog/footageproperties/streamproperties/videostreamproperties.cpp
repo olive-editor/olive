@@ -77,11 +77,13 @@ VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
 
   video_layout->addWidget(video_color_space_, row, 1);
 
-  row++;
+  if (stream->channel_count() == VideoParams::kRGBAChannelCount) {
+    row++;
 
-  video_premultiply_alpha_ = new QCheckBox(tr("Premultiplied Alpha"));
-  video_premultiply_alpha_->setChecked(stream_->premultiplied_alpha());
-  video_layout->addWidget(video_premultiply_alpha_, row, 0, 1, 2);
+    video_premultiply_alpha_ = new QCheckBox(tr("Premultiplied Alpha"));
+    video_premultiply_alpha_->setChecked(stream_->premultiplied_alpha());
+    video_layout->addWidget(video_premultiply_alpha_, row, 0, 1, 2);
+  }
 
   row++;
 
