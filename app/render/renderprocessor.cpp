@@ -391,9 +391,26 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
     }
   }
 
-  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+  VideoParams tex_params = ticket_->property("vparam").value<VideoParams>();
 
-  TexturePtr destination = render_ctx_->CreateTexture(video_params);
+  bool input_textures_have_alpha = false;
+  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
+    if (it.value().type == NodeParam::kTexture) {
+      TexturePtr tex = it.value().data.value<TexturePtr>();
+      if (tex && tex->channel_count() == VideoParams::kRGBAChannelCount) {
+        input_textures_have_alpha = true;
+        break;
+      }
+    }
+  }
+
+  if (input_textures_have_alpha || job.GetAlphaChannelRequired()) {
+    tex_params.set_channel_count(VideoParams::kRGBAChannelCount);
+  } else {
+    tex_params.set_channel_count(VideoParams::kRGBChannelCount);
+  }
+
+  TexturePtr destination = render_ctx_->CreateTexture(tex_params);
 
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
@@ -486,8 +503,6 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
       p.set_divider(video_params.divider());
 
       f->set_video_params(p);
-
-      qDebug() << "Using cached frame!";
 
       TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
       return QVariant::fromValue(texture);

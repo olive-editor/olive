@@ -286,7 +286,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   QString iterative_name;
   GLuint iterative_input = 0;
   QVector<TextureToBind> textures_to_bind;
-  bool input_textures_have_alpha = false;
 
   QOpenGLShaderProgram* shader = Node::ValueToPtr<QOpenGLShaderProgram>(s);
 
@@ -359,10 +358,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
       textures_to_bind.append({texture, job.GetInterpolation(it.key())});
-
-      if (texture && texture->channel_count() == VideoParams::kRGBAChannelCount) {
-        input_textures_have_alpha = true;
-      }
 
       // Set enable flag if shader wants it
       int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
@@ -439,13 +434,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   functions_->glViewport(0, 0,
                          destination_params.effective_width(),
                          destination_params.effective_height());
-
-  // Set whether our destination texture needs an alpha channel
-  if (input_textures_have_alpha || job.GetAlphaChannelRequired()) {
-    destination_params.set_channel_count(VideoParams::kRGBAChannelCount);
-  } else {
-    destination_params.set_channel_count(VideoParams::kRGBChannelCount);
-  }
 
   // Bind vertex array object
   QOpenGLVertexArrayObject vao_;
