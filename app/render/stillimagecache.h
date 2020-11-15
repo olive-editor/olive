@@ -2,6 +2,7 @@
 #define STILLIMAGECACHE_H
 
 #include <QHash>
+#include <QWaitCondition>
 
 #include "common/rational.h"
 #include "project/item/footage/stream.h"
@@ -13,44 +14,53 @@ class StillImageCache
 {
 public:
   struct Entry {
+    Entry(TexturePtr t, StreamPtr s, const QString& cs, bool a, int d, const rational& i, bool w)
+    {
+      texture = t;
+      stream = s;
+      colorspace = cs;
+      alpha_is_associated = a;
+      divider = d;
+      time = i;
+      working = w;
+    }
+
     TexturePtr texture;
     StreamPtr stream;
     QString colorspace;
     bool alpha_is_associated;
     int divider;
     rational time;
+    bool working;
   };
+
+  using EntryPtr = std::shared_ptr<Entry>;
 
   QMutex* mutex()
   {
     return &mutex_;
   }
 
-  const QVector<Entry>& entries() const
+  QWaitCondition* wait_cond()
+  {
+    return &wait_cond_;
+  }
+
+  const QVector<EntryPtr>& entries() const
   {
     return entries_;
   }
 
-  const QVector<Entry>& pending() const
+  static bool CompareEntryMetadata(EntryPtr a, EntryPtr b)
   {
-    return pending_;
+    return (a->stream == b->stream
+            && a->colorspace == b->colorspace
+            && a->alpha_is_associated == b->alpha_is_associated
+            && a->divider == b->divider
+            && a->time == b->time);
   }
 
-  static bool CompareEntryMetadata(const Entry& a, const Entry& b)
-  {
-    return (a.stream == b.stream
-            && a.colorspace == b.colorspace
-            && a.alpha_is_associated == b.alpha_is_associated
-            && a.divider == b.divider
-            && a.time == b.time);
-  }
-
-  void PushPending(const Entry& e)
-  {
-    pending_.prepend(e);
-  }
-
-  void PushEntry(const Entry& e)
+  void PushEntry(EntryPtr e)
   {
     entries_.prepend(e);
 
@@ -59,22 +69,12 @@ public:
     }
   }
 
-  void RemovePending(const Entry& e)
-  {
-    for (int i=0; i<pending_.size(); i++) {
-      if (CompareEntryMetadata(pending_.at(i), e)) {
-        pending_.removeAt(i);
-        break;
-      }
-    }
-  }
-
 private:
   QMutex mutex_;
 
-  QVector<Entry> entries_;
+  QWaitCondition wait_cond_;
 
-  QVector<Entry> pending_;
+  QVector<EntryPtr> entries_;
 
 };
 
