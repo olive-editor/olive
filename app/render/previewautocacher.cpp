@@ -116,7 +116,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer, viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->texture_input()->get_connected_node(), viewer->video_params(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
