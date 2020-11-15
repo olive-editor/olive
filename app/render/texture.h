@@ -67,12 +67,12 @@ public:
 
   int width() const
   {
-    return params_.width();
+    return params_.effective_width();
   }
 
   int height() const
   {
-    return params_.height();
+    return params_.effective_height();
   }
 
   VideoParams::Format format() const

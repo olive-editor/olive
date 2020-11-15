@@ -375,18 +375,18 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
         // Set texture resolution if shader wants it
         int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()));
         if (res_param_location > -1) {
-          int adjusted_width = texture->width() * texture->divider();
+          int virtual_width = texture->params().width();
 
           // Adjust virtual width by pixel aspect if necessary
           if (texture->params().pixel_aspect_ratio() != 1
               || destination_params.pixel_aspect_ratio() != 1) {
             double relative_pixel_aspect = texture->params().pixel_aspect_ratio().toDouble() / destination_params.pixel_aspect_ratio().toDouble();
 
-            adjusted_width = qRound(static_cast<double>(adjusted_width) * relative_pixel_aspect);
+            virtual_width = qRound(static_cast<double>(virtual_width) * relative_pixel_aspect);
           }
 
           shader->setUniformValue(res_param_location,
-                                  adjusted_width,
+                                  virtual_width,
                                   static_cast<GLfloat>(texture->height() * texture->divider()));
         }
       }
@@ -515,6 +515,9 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
         // Otherwise, if we were iterating before, detach texture now
         DetachTextureAsDestination();
       }
+
+      // Clear the destination, whatever it is
+      ClearDestination();
     } else {
       // Always draw to output_tex, which gets swapped with input_tex every iteration
       AttachTextureAsDestination(output_tex.get());
