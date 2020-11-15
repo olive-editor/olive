@@ -47,8 +47,8 @@ public slots:
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
 
-  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) override;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
 

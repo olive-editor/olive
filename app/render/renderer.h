@@ -43,7 +43,7 @@ public:
 
   virtual bool Init() = 0;
 
-  TexturePtr CreateTexture(const VideoParams& params, Texture::Type type, Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0);
+  TexturePtr CreateTexture(const VideoParams& params, Texture::Type type, const void* data = nullptr, int linesize = 0);
   TexturePtr CreateTexture(const VideoParams& params, const void *data = nullptr, int linesize = 0);
 
   void BlitToTexture(QVariant shader,
@@ -72,8 +72,8 @@ public slots:
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
 
-  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) = 0;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
 
   virtual void DestroyNativeTexture(QVariant texture) = 0;
 
@@ -103,6 +103,12 @@ private:
     QVector<LUT> lut3d_textures;
     QVector<LUT> lut1d_textures;
 
+  };
+
+  enum AlphaAssociated {
+    kAlphaNone,
+    kAlphaUnassociated,
+    kAlphaAssociated
   };
 
   bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);

@@ -21,6 +21,7 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
+#include <QOpenGLContext>
 #include <QOpenGLWidget>
 
 #include "render/colormanager.h"

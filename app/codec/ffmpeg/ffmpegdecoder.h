@@ -32,7 +32,6 @@ extern "C" {
 #include <QVector>
 #include <QWaitCondition>
 
-#include "audio/sampleformat.h"
 #include "avframeptr.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
@@ -126,7 +125,8 @@ private:
 
   FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
 
-  static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
@@ -143,7 +143,8 @@ private:
   SwsContext* scale_ctx_;
   int scale_divider_;
   AVPixelFormat ideal_pix_fmt_;
-  PixelFormat::Format native_pix_fmt_;
+  VideoParams::Format native_pix_fmt_;
+  int native_channel_count_;
 
   FFmpegFramePool pool_;
 

@@ -38,13 +38,12 @@ extern "C" {
 
 #include "codec/waveinput.h"
 #include "common/define.h"
+#include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
-#include "ffmpegcommon.h"
 #include "render/framehashcache.h"
 #include "render/diskmanager.h"
-#include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -73,13 +72,17 @@ bool FFmpegDecoder::OpenInternal()
 
     if (stream()->type() == Stream::kVideo) {
       // Get an Olive compatible AVPixelFormat
-      ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(s->codecpar->format));
+      ideal_pix_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(s->codecpar->format));
 
       // Determine which Olive native pixel format we retrieved
       // Note that FFmpeg doesn't support float formats
       native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
+      native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt_);
 
-      if (native_pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {
+      qDebug() << "Set channel count to:" << native_channel_count_;
+
+      if (native_pix_fmt_ == VideoParams::kFormatInvalid
+          || native_channel_count_ == 0) {
         qDebug() << "Failed to find valid native pixel format for" << ideal_pix_fmt_;
         return false;
       }
@@ -124,6 +127,7 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
     output_frame->set_video_params(VideoParams(frame->width,
                                                frame->height,
                                                native_pix_fmt_,
+                                               native_channel_count_,
                                                std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
                                                std::static_pointer_cast<VideoStream>(stream())->interlacing(),
                                                divider));
@@ -172,7 +176,7 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const in
       ClearFrameCache();
 
       // Set new frame pool parameters
-      pool_.SetParameters(divided_width, divided_height, native_pix_fmt_);
+      pool_.SetParameters(divided_width, divided_height, native_pix_fmt_, native_channel_count_);
     }
 
     // Retrieve frame
@@ -184,6 +188,7 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const in
       copy->set_video_params(VideoParams(vs->width(),
                                          vs->height(),
                                          native_pix_fmt_,
+                                         native_channel_count_,
                                          std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
                                          std::static_pointer_cast<VideoStream>(stream())->interlacing(),
                                          divider));
@@ -328,9 +333,12 @@ FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cance
 
           video_stream->set_width(avstream->codecpar->width);
           video_stream->set_height(avstream->codecpar->height);
-          video_stream->set_format(GetNativePixelFormat(FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format))));
           video_stream->set_interlacing(interlacing);
           video_stream->set_pixel_aspect_ratio(pixel_aspect_ratio);
+
+          AVPixelFormat compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
+          video_stream->set_format(GetNativePixelFormat(compatible_pix_fmt));
+          video_stream->set_channel_count(GetNativeChannelCount(compatible_pix_fmt));
 
           str = video_stream;
 
@@ -460,7 +468,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
   // Create resampling context
   SwrContext* resampler = swr_alloc_set_opts(nullptr,
                                              params.channel_layout(),
-                                             FFmpegCommon::GetFFmpegSampleFormat(params.format()),
+                                             FFmpegUtils::GetFFmpegSampleFormat(params.format()),
                                              params.sample_rate(),
                                              channel_layout,
                                              static_cast<AVSampleFormat>(instance_.avstream()->codecpar->format),
@@ -542,15 +550,31 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
   return success;
 }
 
-PixelFormat::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
+VideoParams::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
 {
   switch (pix_fmt) {
+  case AV_PIX_FMT_RGB24:
   case AV_PIX_FMT_RGBA:
-    return PixelFormat::PIX_FMT_RGBA8;
+    return VideoParams::kFormatUnsigned8;
+  case AV_PIX_FMT_RGB48:
   case AV_PIX_FMT_RGBA64:
-    return PixelFormat::PIX_FMT_RGBA16U;
+    return VideoParams::kFormatUnsigned16;
   default:
-    return PixelFormat::PIX_FMT_INVALID;
+    return VideoParams::kFormatInvalid;
+  }
+}
+
+int FFmpegDecoder::GetNativeChannelCount(AVPixelFormat pix_fmt)
+{
+  switch (pix_fmt) {
+  case AV_PIX_FMT_RGB24:
+  case AV_PIX_FMT_RGB48:
+    return VideoParams::kRGBChannelCount;
+  case AV_PIX_FMT_RGBA:
+  case AV_PIX_FMT_RGBA64:
+    return VideoParams::kRGBAChannelCount;
+  default:
+    return 0;
   }
 }
 
@@ -729,7 +753,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
 
       // Store in queue, converting to native format
       uint8_t* destination_data = cached->data();
-      int destination_linesize = Frame::generate_linesize_bytes(VideoParams::GetScaledDimension(instance_.avstream()->codecpar->width, divider), native_pix_fmt_);
+      int destination_linesize = Frame::generate_linesize_bytes(VideoParams::GetScaledDimension(instance_.avstream()->codecpar->width, divider), native_pix_fmt_, native_channel_count_);
       FFmpegBufferToNativeBuffer(working_frame->data, working_frame->linesize, &destination_data, &destination_linesize);
 
       // Set timestamp so this frame can be identified later

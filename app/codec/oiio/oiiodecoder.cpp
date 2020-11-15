@@ -27,9 +27,9 @@
 #include <QMessageBox>
 
 #include "common/define.h"
+#include "common/oiioutils.h"
 #include "config/config.h"
 #include "core.h"
-#include "oiiocommon.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -81,8 +81,9 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
 
   image_stream->set_width(in->spec().width);
   image_stream->set_height(in->spec().height);
-  image_stream->set_format(OIIOCommon::GetFormatFromOIIOBasetype(in->spec()));
-  image_stream->set_pixel_aspect_ratio(OIIOCommon::GetPixelAspectRatioFromOIIO(in->spec()));
+  image_stream->set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
+  image_stream->set_channel_count(in->spec().nchannels);
+  image_stream->set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
   image_stream->set_video_type(VideoStream::kVideoTypeStill);
 
   // Images will always have just one stream
@@ -149,14 +150,15 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int&
   frame->set_video_params(VideoParams(buffer_->spec().width,
                                       buffer_->spec().height,
                                       pix_fmt_,
-                                      OIIOCommon::GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                                      channel_count_,
+                                      OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
                                       VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
                                       divider));
   frame->allocate();
 
   if (divider == 1) {
 
-    OIIOCommon::BufferToFrame(buffer_, frame);
+    OIIOUtils::BufferToFrame(buffer_, frame.get());
 
   } else {
 
@@ -167,7 +169,7 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int&
       qWarning() << "OIIO resize failed";
     }
 
-    OIIOCommon::BufferToFrame(&dst, frame);
+    OIIOUtils::BufferToFrame(&dst, frame.get());
 
   }
 
@@ -215,18 +217,23 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
   // Check if we can work with this pixel format
   const OIIO::ImageSpec& spec = image_->spec();
 
-  //is_rgba_ = (spec.nchannels == kRGBAChannels);
+  // Store channel count
+  channel_count_ = spec.nchannels;
 
   // We use RGBA frames because that tends to be the native format of GPUs
-  pix_fmt_ = OIIOCommon::GetFormatFromOIIOBasetype(spec);
+  pix_fmt_ = OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(spec.format.basetype));
 
-  if (pix_fmt_ == PixelFormat::PIX_FMT_INVALID) {
+  if (pix_fmt_ == VideoParams::kFormatInvalid) {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
   }
 
-  // FIXME: Many OIIO pixel formats are not handled here
-  OIIO::TypeDesc type = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
+  OIIO::TypeDesc::BASETYPE type = OIIOUtils::GetOIIOBaseTypeFromFormat(pix_fmt_);
+
+  if (type == OIIO::TypeDesc::UNKNOWN) {
+    qCritical() << "Failed to determine appropriate OIIO basetype from native format";
+    return false;
+  }
 
 #if OIIO_VERSION < 20100
   buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type));

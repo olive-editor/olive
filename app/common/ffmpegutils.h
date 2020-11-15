@@ -25,12 +25,12 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-#include "audio/sampleformat.h"
-#include "render/pixelformat.h"
+#include "render/audioparams.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class FFmpegCommon {
+class FFmpegUtils {
 public:
   /**
    * @brief Returns an AVPixelFormat that can be used to convert a frame to a data type Olive supports with minimal data loss
@@ -40,22 +40,22 @@ public:
   /**
    * @brief Returns a native pixel format that can be used to convert from a native frame to an AVFrame with minimal data loss
    */
-  static PixelFormat::Format GetCompatiblePixelFormat(const PixelFormat::Format& pix_fmt);
+  static VideoParams::Format GetCompatiblePixelFormat(const VideoParams::Format& pix_fmt);
 
   /**
    * @brief Returns an FFmpeg pixel format for a given native pixel format
    */
-  static AVPixelFormat GetFFmpegPixelFormat(const PixelFormat::Format& pix_fmt);
+  static AVPixelFormat GetFFmpegPixelFormat(const VideoParams::Format& pix_fmt, int channel_layout);
 
   /**
    * @brief Returns a native sample format type for a given AVSampleFormat
    */
-  static SampleFormat::Format GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
+  static AudioParams::Format GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
 
   /**
    * @brief Returns an FFmpeg sample format type for a given native type
    */
-  static AVSampleFormat GetFFmpegSampleFormat(const SampleFormat::Format &smp_fmt);
+  static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
 };
 
 OLIVE_NAMESPACE_EXIT

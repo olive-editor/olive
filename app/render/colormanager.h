@@ -50,12 +50,6 @@ public:
 
   void SetConfigAndDefaultInput(const QString& filename, const QString& s);
 
-  static void DisassociateAlpha(FramePtr f);
-
-  static void AssociateAlpha(FramePtr f);
-
-  static void ReassociateAlpha(FramePtr f);
-
   QStringList ListAvailableDisplays();
 
   QString GetDefaultDisplay();
@@ -108,17 +102,6 @@ private:
   void SetDefaultInputColorSpaceInternal(const QString& s);
 
   OCIO::ConstConfigRcPtr config_;
-
-  enum AlphaAction {
-    kAssociate,
-    kDisassociate,
-    kReassociate
-  };
-
-  static void AssociateAlphaPixFmtFilter(AlphaAction action, FramePtr f);
-
-  template<typename T>
-  static void AssociateAlphaInternal(AlphaAction action, T* data, int pix_count);
 
   QString config_filename_;
 

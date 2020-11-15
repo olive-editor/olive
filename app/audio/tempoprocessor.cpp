@@ -28,7 +28,7 @@ extern "C" {
 
 #include <QDebug>
 
-#include "codec/ffmpeg/ffmpegcommon.h"
+#include "common/ffmpegutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -75,7 +75,7 @@ bool TempoProcessor::Open(const AudioParams &params, const double& speed)
            1,
            params_.sample_rate(),
            params_.sample_rate(),
-           FFmpegCommon::GetFFmpegSampleFormat(params_.format()),
+           FFmpegUtils::GetFFmpegSampleFormat(params_.format()),
            params.channel_layout());
 
   // Create buffer and buffersink
@@ -171,7 +171,7 @@ void TempoProcessor::Push(const char *data, int length)
 
     // Allocate a buffer for the number of samples we got
     src_frame->sample_rate = params_.sample_rate();
-    src_frame->format = FFmpegCommon::GetFFmpegSampleFormat(params_.format());
+    src_frame->format = FFmpegUtils::GetFFmpegSampleFormat(params_.format());
     src_frame->channel_layout = params_.channel_layout();
     src_frame->nb_samples = params_.bytes_to_samples(length);
     src_frame->pts = timestamp_;

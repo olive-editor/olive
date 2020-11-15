@@ -44,7 +44,7 @@ protected:
               const TimeRangeList &audio_range, RenderMode::Mode mode,
               FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
               const QMatrix4x4& force_matrix = QMatrix4x4(),
-              PixelFormat::Format force_format = PixelFormat::PIX_FMT_INVALID,
+              VideoParams::Format force_format = VideoParams::kFormatInvalid,
               ColorProcessorPtr force_color_output = nullptr);
 
   virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);

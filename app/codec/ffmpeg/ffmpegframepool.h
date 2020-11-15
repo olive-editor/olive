@@ -22,7 +22,6 @@
 #define FFMPEGFRAMEPOOL_H
 
 #include "common/memorypool.h"
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -32,7 +31,7 @@ class FFmpegFramePool : public MemoryPool<uint8_t>
 public:
   FFmpegFramePool(int element_count);
 
-  void SetParameters(int width, int height, PixelFormat::Format format);
+  void SetParameters(int width, int height, VideoParams::Format format, int channel_count);
 
   const int& width() const
   {
@@ -52,7 +51,9 @@ private:
 
   int height_;
 
-  PixelFormat::Format format_;
+  VideoParams::Format format_;
+
+  int channel_count_;
 
 };
 

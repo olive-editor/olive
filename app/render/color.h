@@ -25,7 +25,7 @@
 #include <QDebug>
 
 #include "common/define.h"
-#include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -37,7 +37,7 @@ class Color
 public:
   Color()
   {
-    for (int i=0;i<kRGBAChannels;i++) {
+    for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
       data_[i] = 0.0;
     }
   }
@@ -50,7 +50,7 @@ public:
     data_[3] = a;
   }
 
-  Color(const char *data, const PixelFormat::Format &format);
+  Color(const char *data, const VideoParams::Format &format, int ch_layout);
 
   Color(const QColor& c);
 
@@ -84,9 +84,9 @@ public:
   double* data() {return data_;}
   const double* data() const {return data_;}
 
-  void toData(char* data, const PixelFormat::Format& format) const;
+  void toData(char* data, const VideoParams::Format& format, int ch_layout) const;
 
-  static Color fromData(const char* data, const PixelFormat::Format& format);
+  static Color fromData(const char* data, const VideoParams::Format& format, int ch_layout);
 
   QColor toQColor() const;
 
@@ -107,7 +107,7 @@ public:
   Color operator/(const double& rhs) const;
 
 private:
-  double data_[kRGBAChannels];
+  double data_[VideoParams::kRGBAChannelCount];
 
 };
 

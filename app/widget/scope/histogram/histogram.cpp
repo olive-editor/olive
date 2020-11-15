@@ -80,7 +80,9 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   if (!texture_row_sums_
       || texture_row_sums_->width() != this->width()
       || texture_row_sums_->height() != this->height()) {
-    texture_row_sums_ = renderer()->CreateTexture(VideoParams(width(), height(), managed_tex->format()));
+    texture_row_sums_ = renderer()->CreateTexture(VideoParams(width(), height(),
+                                                              managed_tex->format(),
+                                                              managed_tex->channel_count()));
   }
 
   // Draw managed texture to a sums texture

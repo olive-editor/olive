@@ -20,6 +20,8 @@
 
 #include "scopebase.h"
 
+#include "config/config.h"
+
 OLIVE_NAMESPACE_ENTER
 
 ScopeBase::ScopeBase(QWidget* parent) :
@@ -54,7 +56,9 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 
   job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
+                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              VideoParams::kInternalChannelCount));
 }
 
 void ScopeBase::UploadTextureFromBuffer()

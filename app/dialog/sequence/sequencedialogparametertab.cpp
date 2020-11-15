@@ -133,7 +133,8 @@ void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
 {
   VideoParams test_param(video_width_field_->GetValue(),
                          video_height_field_->GetValue(),
-                         PixelFormat::PIX_FMT_INVALID,
+                         VideoParams::kFormatInvalid,
+                         VideoParams::kInternalChannelCount,
                          rational(1),
                          VideoParams::kInterlaceNone,
                          preview_resolution_field_->currentData().toInt());

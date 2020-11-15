@@ -21,6 +21,7 @@
 #include "colorprocessor.h"
 
 #include "common/define.h"
+#include "common/ocioutils.h"
 #include "colormanager.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -77,7 +78,7 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
 
 void ColorProcessor::ConvertFrame(Frame *f)
 {
-  OCIO::BitDepth ocio_bit_depth = PixelFormat::GetOCIOBitDepthFromPixelFormat(f->format());
+  OCIO::BitDepth ocio_bit_depth = OCIOUtils::GetOCIOBitDepthFromPixelFormat(f->format());
 
   if (ocio_bit_depth == OCIO::BIT_DEPTH_UNKNOWN) {
     qCritical() << "Tried to color convert frame with no format";
@@ -87,7 +88,7 @@ void ColorProcessor::ConvertFrame(Frame *f)
   OCIO::PackedImageDesc img(f->data(),
                             f->width(),
                             f->height(),
-                            kRGBAChannels,
+                            VideoParams::kRGBAChannelCount,
                             ocio_bit_depth,
                             OCIO::AutoStride,
                             OCIO::AutoStride,

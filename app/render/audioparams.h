@@ -21,23 +21,51 @@
 #ifndef AUDIOPARAMS_H
 #define AUDIOPARAMS_H
 
+#include <QAudioFormat>
 #include <QtMath>
 
-#include "audio/sampleformat.h"
 #include "common/rational.h"
 
 OLIVE_NAMESPACE_ENTER
 
 class AudioParams {
 public:
+  enum Format {
+    /// Invalid
+    kFormatInvalid = -1,
+
+    /// 8-bit unsigned integer
+    kFormatUnsigned8,
+
+    /// 16-bit signed integer
+    kFormatSigned16,
+
+    /// 32-bit signed integer
+    kFormatSigned32,
+
+    /// 64-bit signed integer
+    kFormatSigned64,
+
+    /// 32-bit float
+    kFormatFloat32,
+
+    /// 64-bit float
+    kFormatFloat64,
+
+    /// Total format count
+    kFormatCount
+  };
+
+  static const Format kInternalFormat;
+
   AudioParams() :
     sample_rate_(0),
     channel_layout_(0),
-    format_(SampleFormat::SAMPLE_FMT_INVALID)
+    format_(kFormatInvalid)
   {
   }
 
-  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format) :
+  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const Format& format) :
     sample_rate_(sample_rate),
     channel_layout_(channel_layout),
     format_(format)
@@ -59,7 +87,7 @@ public:
     return rational(1, sample_rate());
   }
 
-  const SampleFormat::Format &format() const
+  const Format &format() const
   {
     return format_;
   }
@@ -80,6 +108,8 @@ public:
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
 
+  static QAudioFormat::SampleType GetQtSampleType(Format format);
+
   static const QVector<uint64_t> kSupportedChannelLayouts;
   static const QVector<int> kSupportedSampleRates;
 
@@ -98,7 +128,7 @@ private:
 
   uint64_t channel_layout_;
 
-  SampleFormat::Format format_;
+  Format format_;
 
 };
 

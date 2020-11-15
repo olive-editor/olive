@@ -76,7 +76,7 @@ void RendererThreadWrapper::ClearDestination(double r, double g, double b, doubl
                             Q_ARG(double, a));
 }
 
-QVariant RendererThreadWrapper::CreateNativeTexture2D(int width, int height, PixelFormat::Format format, OLIVE_NAMESPACE::Texture::ChannelFormat channel_format, const void *data, int linesize)
+QVariant RendererThreadWrapper::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   QVariant v;
 
@@ -84,15 +84,15 @@ QVariant RendererThreadWrapper::CreateNativeTexture2D(int width, int height, Pix
                             Q_RETURN_ARG(QVariant, v),
                             Q_ARG(int, width),
                             Q_ARG(int, height),
-                            OLIVE_NS_ARG(PixelFormat::Format, format),
-                            OLIVE_NS_ARG(Texture::ChannelFormat, channel_format),
+                            OLIVE_NS_ARG(VideoParams::Format, format),
+                            Q_ARG(int, channel_count),
                             Q_ARG(const void*, data),
                             Q_ARG(int, linesize));
 
   return v;
 }
 
-QVariant RendererThreadWrapper::CreateNativeTexture3D(int width, int height, int depth, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+QVariant RendererThreadWrapper::CreateNativeTexture3D(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   QVariant v;
 
@@ -101,8 +101,8 @@ QVariant RendererThreadWrapper::CreateNativeTexture3D(int width, int height, int
                             Q_ARG(int, width),
                             Q_ARG(int, height),
                             Q_ARG(int, depth),
-                            OLIVE_NS_ARG(PixelFormat::Format, format),
-                            OLIVE_NS_ARG(Texture::ChannelFormat, channel_format),
+                            OLIVE_NS_ARG(VideoParams::Format, format),
+                            Q_ARG(int, channel_count),
                             Q_ARG(const void*, data),
                             Q_ARG(int, linesize));
 

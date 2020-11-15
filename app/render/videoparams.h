@@ -22,13 +22,35 @@
 #define VIDEOPARAMS_H
 
 #include "common/rational.h"
-#include "pixelformat.h"
 #include "rendermodes.h"
 
 OLIVE_NAMESPACE_ENTER
 
 class VideoParams {
 public:
+  enum Format {
+    /// Invalid or no format
+    kFormatInvalid = -1,
+
+    /// 8-bit unsigned integer
+    kFormatUnsigned8,
+
+    /// 16-bit unsigned integer
+    kFormatUnsigned16,
+
+    /// 16-bit half float
+    kFormatFloat16,
+
+    /// 32-bit full float
+    kFormatFloat32,
+
+    /// 64-bit double float - disabled since very, very few libs support 64-bit buffers
+    //kFormatFloat64,
+
+    /// Total format count
+    kFormatCount
+  };
+
   enum Interlacing {
     kInterlaceNone,
     kInterlacedTopFirst,
@@ -36,16 +58,17 @@ public:
   };
 
   VideoParams();
-  VideoParams(const int& width, const int& height, const PixelFormat::Format& format,
+  VideoParams(int width, int height, Format format, int nb_channels,
               const rational& pixel_aspect_ratio = 1,
-              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
-  VideoParams(const int& width, const int& height, const int& depth,
-              const PixelFormat::Format& format,
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
+  VideoParams(int width, int height, int depth,
+              Format format, int nb_channels,
               const rational& pixel_aspect_ratio = 1,
-              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
-  VideoParams(const int& width, const int& height, const rational& time_base,
-              const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
-              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
+  VideoParams(int width, int height, const rational& time_base,
+              Format format, int nb_channels,
+              const rational& pixel_aspect_ratio = 1,
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
 
   int width() const
   {
@@ -116,14 +139,24 @@ public:
     return effective_depth_;
   }
 
-  PixelFormat::Format format() const
+  Format format() const
   {
     return format_;
   }
 
-  void set_format(PixelFormat::Format f)
+  void set_format(Format f)
   {
     format_ = f;
+  }
+
+  int channel_count() const
+  {
+    return channel_count_;
+  }
+
+  void set_channel_count(int c)
+  {
+    channel_count_ = c;
   }
 
   const rational& pixel_aspect_ratio() const
@@ -154,6 +187,33 @@ public:
   bool operator==(const VideoParams& rhs) const;
   bool operator!=(const VideoParams& rhs) const;
 
+  static int GetBytesPerChannel(Format format);
+  int GetBytesPerChannel() const
+  {
+    return GetBytesPerChannel(format_);
+  }
+
+  static int GetBytesPerPixel(Format format, int channels);
+  int GetBytesPerPixel() const
+  {
+    return GetBytesPerPixel(format_, channel_count_);
+  }
+
+  static int GetBufferSize(int width, int height, Format format, int channels)
+  {
+    return width * height * GetBytesPerPixel(format, channels);
+  }
+  int GetBufferSize() const
+  {
+    return GetBufferSize(width_, height_, format_, channel_count_);
+  }
+
+  static bool FormatIsFloat(Format format);
+
+  static QString GetFormatName(Format format);
+
+  static const int kInternalChannelCount;
+
   static const rational kPixelAspectSquare;
   static const rational kPixelAspectNTSCStandard;
   static const rational kPixelAspectNTSCWidescreen;
@@ -164,6 +224,10 @@ public:
   static const QVector<rational> kSupportedFrameRates;
   static const QVector<rational> kStandardPixelAspects;
   static const QVector<int> kSupportedDividers;
+
+  static const int kHSVChannelCount = 3;
+  static const int kRGBChannelCount = 3;
+  static const int kRGBAChannelCount = 4;
 
   /**
    * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
@@ -185,7 +249,9 @@ private:
   int depth_;
   rational time_base_;
 
-  PixelFormat::Format format_;
+  Format format_;
+
+  int channel_count_;
 
   rational pixel_aspect_ratio_;
 

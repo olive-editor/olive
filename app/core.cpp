@@ -51,7 +51,6 @@
 #include "panel/viewer/viewer.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelformat.h"
 #include "render/rendermanager.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
@@ -188,8 +187,6 @@ void Core::Stop()
   AudioManager::DestroyInstance();
 
   DiskManager::DestroyInstance();
-
-  PixelFormat::DestroyInstance();
 
   NodeFactory::Destroy();
 
@@ -645,9 +642,6 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize disk service
   DiskManager::CreateInstance();
-
-  // Initialize pixel service
-  PixelFormat::CreateInstance();
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,

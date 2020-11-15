@@ -26,8 +26,7 @@ extern "C" {
 
 #include <QFile>
 
-#include "ffmpegcommon.h"
-#include "render/pixelformat.h"
+#include "common/ffmpegutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,7 +35,8 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   fmt_ctx_(nullptr),
   video_stream_(nullptr),
   video_codec_ctx_(nullptr),
-  video_scale_ctx_(nullptr),
+  video_alpha_scale_ctx_(nullptr),
+  video_noalpha_scale_ctx_(nullptr),
   audio_stream_(nullptr),
   audio_codec_ctx_(nullptr),
   audio_resample_ctx_(nullptr),
@@ -72,29 +72,49 @@ bool FFmpegEncoder::Open()
     }
 
     // This is the format we will expect frames received in Write() to be in
-    PixelFormat::Format native_pixel_fmt = params().video_params().format();
+    VideoParams::Format native_pixel_fmt = params().video_params().format();
 
     // This is the format we will need to convert the frame to for swscale to understand it
-    video_conversion_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(native_pixel_fmt);
+    video_conversion_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(native_pixel_fmt);
 
     // This is the equivalent pixel format above as an AVPixelFormat that swscale can understand
-    AVPixelFormat src_pix_fmt = FFmpegCommon::GetFFmpegPixelFormat(video_conversion_fmt_);
+    AVPixelFormat src_alpha_pix_fmt = FFmpegUtils::GetFFmpegPixelFormat(video_conversion_fmt_,
+                                                                         VideoParams::kRGBAChannelCount);
+
+    AVPixelFormat src_noalpha_pix_fmt = FFmpegUtils::GetFFmpegPixelFormat(video_conversion_fmt_,
+                                                                           VideoParams::kRGBChannelCount);
+
+    if (src_alpha_pix_fmt == AV_PIX_FMT_NONE || src_noalpha_pix_fmt == AV_PIX_FMT_NONE) {
+      Error(QStringLiteral("Failed to find suitable pixel format for this buffer"));
+      return false;
+    }
 
     // This is the pixel format the encoder wants to encode to
     AVPixelFormat encoder_pix_fmt = video_codec_ctx_->pix_fmt;
 
     // Set up a scaling context - if the native pixel format is not equal to the encoder's, we'll need to convert it
     // before encoding. Even if we don't, this may be useful for converting between linesizes, etc.
-    video_scale_ctx_ = sws_getContext(params().video_params().width(),
-                                      params().video_params().height(),
-                                      src_pix_fmt,
-                                      params().video_params().width(),
-                                      params().video_params().height(),
-                                      encoder_pix_fmt,
-                                      0,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr);
+    video_alpha_scale_ctx_ = sws_getContext(params().video_params().width(),
+                                            params().video_params().height(),
+                                            src_alpha_pix_fmt,
+                                            params().video_params().width(),
+                                            params().video_params().height(),
+                                            encoder_pix_fmt,
+                                            0,
+                                            nullptr,
+                                            nullptr,
+                                            nullptr);
+
+    video_noalpha_scale_ctx_ = sws_getContext(params().video_params().width(),
+                                              params().video_params().height(),
+                                              src_noalpha_pix_fmt,
+                                              params().video_params().width(),
+                                              params().video_params().height(),
+                                              encoder_pix_fmt,
+                                              0,
+                                              nullptr,
+                                              nullptr,
+                                              nullptr);
   }
 
   // Initialize an audio stream if it's enabled
@@ -157,19 +177,22 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 
   // We may need to convert this frame to a frame that swscale will understand
   if (frame->format() != video_conversion_fmt_) {
-    frame = PixelFormat::ConvertPixelFormat(frame, video_conversion_fmt_);
+    frame = frame->convert(video_conversion_fmt_);
   }
 
   // Use swscale context to convert formats/linesizes
   input_data = frame->const_data();
   input_linesize = frame->linesize_bytes();
-  error_code = sws_scale(video_scale_ctx_,
+
+  error_code = sws_scale((frame->channel_count() == VideoParams::kRGBAChannelCount) ? video_alpha_scale_ctx_ : video_noalpha_scale_ctx_,
                          reinterpret_cast<const uint8_t**>(&input_data),
                          &input_linesize,
                          0,
                          frame->height(),
                          encoded_frame->data,
                          encoded_frame->linesize);
+
+
   if (error_code < 0) {
     FFmpegError("Failed to scale frame", error_code);
     goto fail;
@@ -208,7 +231,7 @@ void FFmpegEncoder::WriteAudio(AudioParams pcm_info, QIODevice* file)
                                              audio_codec_ctx_->sample_fmt,
                                              audio_codec_ctx_->sample_rate,
                                              static_cast<int64_t>(pcm_info.channel_layout()),
-                                             FFmpegCommon::GetFFmpegSampleFormat(pcm_info.format()),
+                                             FFmpegUtils::GetFFmpegSampleFormat(pcm_info.format()),
                                              pcm_info.sample_rate(),
                                              0,
                                              nullptr);
@@ -300,9 +323,14 @@ void FFmpegEncoder::Close()
     open_ = false;
   }
 
-  if (video_scale_ctx_) {
-    sws_freeContext(video_scale_ctx_);
-    video_scale_ctx_ = nullptr;
+  if (video_alpha_scale_ctx_) {
+    sws_freeContext(video_alpha_scale_ctx_);
+    video_alpha_scale_ctx_ = nullptr;
+  }
+
+  if (video_noalpha_scale_ctx_) {
+    sws_freeContext(video_noalpha_scale_ctx_);
+    video_noalpha_scale_ctx_ = nullptr;
   }
 
   if (video_codec_ctx_) {

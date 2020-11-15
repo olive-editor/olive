@@ -243,24 +243,27 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int height = dw.max.y - dw.min.y + 1;
     bool has_alpha = file.header().channels().findChannel("A");
 
-    PixelFormat::Format image_format;
+    VideoParams::Format image_format;
     if (pix_type == Imf::HALF) {
-      image_format = PixelFormat::PIX_FMT_RGBA16F;
+      image_format = VideoParams::kFormatFloat16;
     } else {
-      image_format = PixelFormat::PIX_FMT_RGBA32F;
+      image_format = VideoParams::kFormatFloat32;
     }
+
+    int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
 
     frame = Frame::Create();
     frame->set_video_params(VideoParams(width,
                                         height,
                                         image_format,
+                                        channel_count,
                                         rational::fromDouble(file.header().pixelAspectRatio())));
 
     frame->allocate();
 
-    int bpc = PixelFormat::BytesPerChannel(image_format);
+    int bpc = VideoParams::GetBytesPerChannel(image_format);
 
-    size_t xs = kRGBAChannels * bpc;
+    size_t xs = channel_count * bpc;
     size_t ys = frame->linesize_bytes();
 
     Imf::FrameBuffer framebuffer;
@@ -398,12 +401,15 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
 
 bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
 {
-  Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
+  if (!VideoParams::FormatIsFloat(vparam.format())) {
+    qCritical() << "Tried to cache frame with non-float pixel format";
+    return false;
+  }
 
   // Floating point types are stored in EXR
   Imf::PixelType pix_type;
 
-  if (vparam.format() == PixelFormat::PIX_FMT_RGBA16F) {
+  if (vparam.format() == VideoParams::kFormatFloat16) {
     pix_type = Imf::HALF;
   } else {
     pix_type = Imf::FLOAT;
@@ -414,7 +420,9 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   header.channels().insert("R", Imf::Channel(pix_type));
   header.channels().insert("G", Imf::Channel(pix_type));
   header.channels().insert("B", Imf::Channel(pix_type));
-  header.channels().insert("A", Imf::Channel(pix_type));
+  if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
+    header.channels().insert("A", Imf::Channel(pix_type));
+  }
 
   header.compression() = Imf::DWAA_COMPRESSION;
   header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
@@ -422,16 +430,18 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   Imf::OutputFile out(filename.toUtf8(), header, 0);
 
-  int bpc = PixelFormat::BytesPerChannel(vparam.format());
+  int bpc = VideoParams::GetBytesPerChannel(vparam.format());
 
-  size_t xs = kRGBAChannels * bpc;
+  size_t xs = vparam.channel_count() * bpc;
   size_t ys = linesize_bytes;
 
   Imf::FrameBuffer framebuffer;
   framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
   framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
   framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
-  framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+  if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
+    framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+  }
   out.setFrameBuffer(framebuffer);
 
   out.writePixels(vparam.effective_height());

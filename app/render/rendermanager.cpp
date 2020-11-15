@@ -86,11 +86,11 @@ QByteArray RenderManager::Hash(const Node *n, const VideoParams &params, const r
   // Embed video parameters into this hash
   int width = params.effective_width();
   int height = params.effective_height();
-  PixelFormat::Format format = params.format();
+  VideoParams::Format format = params.format();
 
   hasher.addData(reinterpret_cast<const char*>(&width), sizeof(int));
   hasher.addData(reinterpret_cast<const char*>(&height), sizeof(int));
-  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(PixelFormat::Format));
+  hasher.addData(reinterpret_cast<const char*>(&format), sizeof(VideoParams::Format));
 
   if (n) {
     n->Hash(hasher, time);
@@ -111,7 +111,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
                      viewer->audio_params(),
                      QSize(0, 0),
                      QMatrix4x4(),
-                     PixelFormat::PIX_FMT_INVALID,
+                     VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
                      prioritize);
@@ -121,7 +121,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
                                            const rational& time, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
-                                           const QMatrix4x4& force_matrix, PixelFormat::Format force_format,
+                                           const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
                                            FrameHashCache* cache, bool prioritize)
 {

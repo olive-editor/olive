@@ -24,7 +24,9 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+OLIVE_NAMESPACE_ENTER;
+
+const int VideoParams::kInternalChannelCount = kRGBAChannelCount;
 
 const rational VideoParams::kPixelAspectSquare(1);
 const rational VideoParams::kPixelAspectNTSCStandard(8, 9);
@@ -63,16 +65,18 @@ VideoParams::VideoParams() :
   width_(0),
   height_(0),
   depth_(0),
-  format_(PixelFormat::PIX_FMT_INVALID),
+  format_(kFormatInvalid),
+  channel_count_(0),
   interlacing_(Interlacing::kInterlaceNone)
 {
 }
 
-VideoParams::VideoParams(const int &width, const int &height, const PixelFormat::Format &format, const rational& pixel_aspect_ratio, const Interlacing &interlacing, const int& divider) :
+VideoParams::VideoParams(int width, int height, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(0),
   format_(format),
+  channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider)
@@ -81,11 +85,12 @@ VideoParams::VideoParams(const int &width, const int &height, const PixelFormat:
   validate_pixel_aspect_ratio();
 }
 
-VideoParams::VideoParams(const int &width, const int &height, const int &depth, const PixelFormat::Format &format, const rational &pixel_aspect_ratio, const VideoParams::Interlacing &interlacing, const int &divider) :
+VideoParams::VideoParams(int width, int height, int depth, Format format, int nb_channels, const rational &pixel_aspect_ratio, VideoParams::Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(depth),
   format_(format),
+  channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider)
@@ -94,12 +99,13 @@ VideoParams::VideoParams(const int &width, const int &height, const int &depth, 
   validate_pixel_aspect_ratio();
 }
 
-VideoParams::VideoParams(const int &width, const int &height, const rational &time_base, const PixelFormat::Format &format, const rational& pixel_aspect_ratio, const Interlacing &interlacing, const int &divider) :
+VideoParams::VideoParams(int width, int height, const rational &time_base, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(0),
   time_base_(time_base),
   format_(format),
+  channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider)
@@ -159,6 +165,64 @@ bool VideoParams::operator!=(const VideoParams &rhs) const
   return !(*this == rhs);
 }
 
+int VideoParams::GetBytesPerChannel(VideoParams::Format format)
+{
+  switch (format) {
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  case kFormatUnsigned8:
+    return 1;
+  case kFormatUnsigned16:
+  case kFormatFloat16:
+    return 2;
+  case kFormatFloat32:
+    return 4;
+  }
+
+  return 0;
+}
+
+int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
+{
+  return GetBytesPerChannel(format) * channels;
+}
+
+bool VideoParams::FormatIsFloat(VideoParams::Format format)
+{
+  switch (format) {
+  case kFormatFloat16:
+  case kFormatFloat32:
+    return true;
+  case kFormatUnsigned8:
+  case kFormatUnsigned16:
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return false;
+}
+
+QString VideoParams::GetFormatName(VideoParams::Format format)
+{
+  switch (format) {
+  case kFormatUnsigned8:
+    return QCoreApplication::translate("VideoParams", "8-bit");
+  case kFormatUnsigned16:
+    return QCoreApplication::translate("VideoParams", "16-bit Integer");
+  case kFormatFloat16:
+    return QCoreApplication::translate("VideoParams", "Half-Float (16-bit)");
+  case kFormatFloat32:
+    return QCoreApplication::translate("VideoParams", "Full-Float (32-bit)");
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
+}
+
 void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
@@ -178,8 +242,8 @@ bool VideoParams::is_valid() const
   return (width() > 0
           && height() > 0
           && !pixel_aspect_ratio_.isNull()
-          && format_ != PixelFormat::PIX_FMT_INVALID
-          && format_ != PixelFormat::PIX_FMT_COUNT);
+          && format_ > kFormatInvalid && format_ < kFormatCount
+          && channel_count_ > 0);
 }
 
 QString VideoParams::FrameRateToString(const rational &frame_rate)

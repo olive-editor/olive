@@ -116,11 +116,10 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeParam::kInt, VideoParams::kInterlaceNone);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeParam::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeParam::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
-  SetEntryInternal(QStringLiteral("DefaultSequencePreviewFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA32F);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat32);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat16);
 }
 
 void Config::Load()

@@ -24,11 +24,11 @@
 #include <QDebug>
 #include <QFileInfo>
 
-#include "codec/ffmpeg/ffmpegcommon.h"
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
+#include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
 #ifdef USE_OTIO

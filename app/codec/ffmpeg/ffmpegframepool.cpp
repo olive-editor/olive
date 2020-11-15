@@ -28,22 +28,24 @@ FFmpegFramePool::FFmpegFramePool(int element_count) :
   MemoryPool(element_count),
   width_(0),
   height_(0),
-  format_(PixelFormat::PIX_FMT_INVALID)
+  format_(VideoParams::kFormatInvalid),
+  channel_count_(0)
 {
 }
 
-void FFmpegFramePool::SetParameters(int width, int height, PixelFormat::Format format)
+void FFmpegFramePool::SetParameters(int width, int height, VideoParams::Format format, int channel_count)
 {
   Clear();
 
   width_ = width;
   height_ = height;
   format_ = format;
+  channel_count_ = channel_count;
 }
 
 size_t FFmpegFramePool::GetElementSize()
 {
-  return Frame::generate_linesize_bytes(width_, format_) * height_;
+  return Frame::generate_linesize_bytes(width_, format_, channel_count_) * height_;
 }
 
 OLIVE_NAMESPACE_EXIT

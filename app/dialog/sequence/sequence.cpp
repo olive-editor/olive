@@ -107,13 +107,14 @@ void SequenceDialog::accept()
                                          parameter_tab_->GetSelectedVideoHeight(),
                                          parameter_tab_->GetSelectedVideoFrameRate().flipped(),
                                          parameter_tab_->GetSelectedPreviewFormat(),
+                                         VideoParams::kInternalChannelCount,
                                          parameter_tab_->GetSelectedVideoPixelAspect(),
                                          parameter_tab_->GetSelectedVideoInterlacingMode(),
                                          parameter_tab_->GetSelectedPreviewResolution());
 
   AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
                                          parameter_tab_->GetSelectedAudioChannelLayout(),
-                                         SampleFormat::kInternalFormat);
+                                         AudioParams::kInternalFormat);
 
   if (make_undoable_) {
 

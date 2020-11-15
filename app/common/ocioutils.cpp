@@ -18,39 +18,30 @@
 
 ***/
 
-#ifndef SAMPLEFORMAT_H
-#define SAMPLEFORMAT_H
-
-#include <QString>
-
-#include "common/define.h"
+#include "ocioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class SampleFormat
+OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(VideoParams::Format format)
 {
-public:
-  SampleFormat() = default;
+  switch (format) {
+  case VideoParams::kFormatUnsigned8:
+    return OCIO::BIT_DEPTH_UINT8;
+  case VideoParams::kFormatUnsigned16:
+    return OCIO::BIT_DEPTH_UINT16;
+    break;
+  case VideoParams::kFormatFloat16:
+    return OCIO::BIT_DEPTH_F16;
+    break;
+  case VideoParams::kFormatFloat32:
+    return OCIO::BIT_DEPTH_F32;
+    break;
+  case VideoParams::kFormatInvalid:
+  case VideoParams::kFormatCount:
+    break;
+  }
 
-  enum Format {
-    SAMPLE_FMT_INVALID = -1,
-
-    SAMPLE_FMT_U8,
-    SAMPLE_FMT_S16,
-    SAMPLE_FMT_S32,
-    SAMPLE_FMT_S64,
-    SAMPLE_FMT_FLT,
-    SAMPLE_FMT_DBL,
-
-    SAMPLE_FMT_COUNT
-  };
-
-  static const Format kInternalFormat;
-
-  static QString GetSampleFormatName(const Format& f);
-
-};
+  return OCIO::BIT_DEPTH_UNKNOWN;
+}
 
 OLIVE_NAMESPACE_EXIT
-
-#endif // SAMPLEFORMAT_H

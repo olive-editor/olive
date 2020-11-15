@@ -37,8 +37,6 @@ set(OLIVE_SOURCES
   render/framehashcache.h
   render/managedcolor.cpp
   render/managedcolor.h
-  render/pixelformat.cpp
-  render/pixelformat.h
   render/playbackcache.cpp
   render/playbackcache.h
   render/previewautocacher.cpp

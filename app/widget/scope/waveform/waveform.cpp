@@ -28,6 +28,7 @@
 #include <QVector3D>
 
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -74,7 +75,9 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   job.InsertValue(QStringLiteral("ove_maintex"),
                   ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F));
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
+                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              VideoParams::kInternalChannelCount));
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);

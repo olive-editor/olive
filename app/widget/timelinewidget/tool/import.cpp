@@ -397,8 +397,8 @@ void ImportTool::DropGhosts(bool insert)
 
     QVector<Block*> block_items(parent()->GetGhostItems().size());
 
-    // Check if we're inserting
-    if (insert) {
+    // Check if we're inserting (only valid if we're not creating this sequence ourselves)
+    if (insert && !open_sequence) {
       InsertGapsAtGhostDestination(command);
     }
 

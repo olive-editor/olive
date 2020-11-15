@@ -67,9 +67,13 @@ void RenderProcessor::Run()
       frame_params.set_height(frame_size.height());
     }
 
-    PixelFormat::Format frame_format = static_cast<PixelFormat::Format>(ticket_->property("format").toInt());
-    if (frame_format != PixelFormat::PIX_FMT_INVALID) {
+    VideoParams::Format frame_format = static_cast<VideoParams::Format>(ticket_->property("format").toInt());
+    if (frame_format != VideoParams::kFormatInvalid) {
       frame_params.set_format(frame_format);
+    }
+
+    if (texture) {
+      frame_params.set_channel_count(texture->channel_count());
     }
 
     FramePtr frame = Frame::Create();
@@ -448,9 +452,14 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
 {
   FramePtr frame = Frame::Create();
 
-  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+  VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
+  if (job.GetAlphaChannelRequired()) {
+    frame_params.set_channel_count(VideoParams::kRGBAChannelCount);
+  } else {
+    frame_params.set_channel_count(VideoParams::kRGBChannelCount);
+  }
 
-  frame->set_video_params(video_params);
+  frame->set_video_params(frame_params);
   frame->allocate();
 
   node->GenerateFrame(frame, job);
@@ -458,8 +467,6 @@ QVariant RenderProcessor::ProcessFrameGeneration(const Node *node, const Generat
   TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
                                                   frame->data(),
                                                   frame->linesize_pixels());
-
-  texture->set_has_meaningful_alpha(job.GetAlphaChannelRequired());
 
   return QVariant::fromValue(texture);
 }

@@ -21,7 +21,7 @@
 #include "openglrenderer.h"
 
 #include <QDebug>
-#include <QFloat16>
+#include <QOpenGLExtraFunctions>
 
 OLIVE_NAMESPACE_ENTER
 
@@ -128,7 +128,7 @@ void OpenGLRenderer::ClearDestination(double r, double g, double b, double a)
   functions_->glClear(GL_COLOR_BUFFER_BIT);
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   GLuint texture;
   functions_->glGenTextures(1, &texture);
@@ -140,8 +140,8 @@ QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, PixelForma
 
   functions_->glBindTexture(GL_TEXTURE_2D, texture);
 
-  functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_format),
-                           width, height, 0, GetPixelFormat(channel_format),
+  functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
+                           width, height, 0, GetPixelFormat(channel_count),
                            GetPixelType(format), data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -151,7 +151,7 @@ QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, PixelForma
   return texture;
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, PixelFormat::Format format, Texture::ChannelFormat channel_format, const void *data, int linesize)
+QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   GLuint texture;
   functions_->glGenTextures(1, &texture);
@@ -163,8 +163,8 @@ QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth,
 
   functions_->glBindTexture(GL_TEXTURE_3D, texture);
 
-  context_->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GetInternalFormat(format, channel_format),
-                                           width, height, depth, 0, GetPixelFormat(channel_format),
+  context_->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GetInternalFormat(format, channel_count),
+                                           width, height, depth, 0, GetPixelFormat(channel_count),
                                            GetPixelType(format), data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -241,7 +241,7 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
 
   functions_->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                               p.effective_width(), p.effective_height(),
-                              GL_RGBA, GetPixelType(p.format()),
+                              GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
                               data);
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -264,7 +264,7 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
                            0,
                            p.width(),
                            p.height(),
-                           GL_RGBA,
+                           GetPixelFormat(p.channel_count()),
                            GetPixelType(p.format()),
                            data);
 
@@ -360,7 +360,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
       textures_to_bind.append({texture, job.GetInterpolation(it.key())});
 
-      if (texture && texture->has_meaningful_alpha()) {
+      if (texture && texture->channel_count() == VideoParams::kRGBAChannelCount) {
         input_textures_have_alpha = true;
       }
 
@@ -439,6 +439,13 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   functions_->glViewport(0, 0,
                          destination_params.effective_width(),
                          destination_params.effective_height());
+
+  // Set whether our destination texture needs an alpha channel
+  if (input_textures_have_alpha || job.GetAlphaChannelRequired()) {
+    destination_params.set_channel_count(VideoParams::kRGBAChannelCount);
+  } else {
+    destination_params.set_channel_count(VideoParams::kRGBChannelCount);
+  }
 
   // Bind vertex array object
   QOpenGLVertexArrayObject vao_;
@@ -533,9 +540,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   if (destination) {
     // Reset framebuffer to default if we were drawing to a texture
     DetachTextureAsDestination();
-
-    // Set metadata for whether this texture has a meaningful alpha channel
-    destination->set_has_meaningful_alpha((input_textures_have_alpha || job.GetAlphaChannelRequired()));
   }
 
   // Release any textures we bound before
@@ -555,58 +559,97 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   vao_.destroy();
 }
 
-GLint OpenGLRenderer::GetInternalFormat(PixelFormat::Format format, bool with_alpha)
+GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_layout)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGBA8:
-    return with_alpha ? GL_RGBA8 : GL_RGB8;
-  case PixelFormat::PIX_FMT_RGBA16U:
-    return with_alpha ? GL_RGBA16 : GL_RGB16;
-  case PixelFormat::PIX_FMT_RGBA16F:
-    return with_alpha ? GL_RGBA16F : GL_RGB16F;
-  case PixelFormat::PIX_FMT_RGBA32F:
-    return with_alpha ? GL_RGBA32F : GL_RGB32F;
-
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
+  case VideoParams::kFormatUnsigned8:
+    switch (channel_layout) {
+    case 1:
+      return GL_R8;
+    case 2:
+      return GL_RG8;
+    case 3:
+      return GL_RGB8;
+    case 4:
+      return GL_RGBA8;
+    }
+    break;
+  case VideoParams::kFormatUnsigned16:
+    switch (channel_layout) {
+    case 1:
+      return GL_R16;
+    case 2:
+      return GL_RG16;
+    case 3:
+      return GL_RGB16;
+    case 4:
+      return GL_RGBA16;
+    }
+    break;
+  case VideoParams::kFormatFloat16:
+    switch (channel_layout) {
+    case 1:
+      return GL_R16F;
+    case 2:
+      return GL_RG16F;
+    case 3:
+      return GL_RGB16F;
+    case 4:
+      return GL_RGBA16F;
+    }
+    break;
+  case VideoParams::kFormatFloat32:
+    switch (channel_layout) {
+    case 1:
+      return GL_R32F;
+    case 2:
+      return GL_RG32F;
+    case 3:
+      return GL_RGB32F;
+    case 4:
+      return GL_RGBA32F;
+    }
+    break;
+  case VideoParams::kFormatInvalid:
+  case VideoParams::kFormatCount:
     break;
   }
 
   return GL_INVALID_VALUE;
 }
 
-GLenum OpenGLRenderer::GetPixelType(PixelFormat::Format format)
+GLenum OpenGLRenderer::GetPixelType(VideoParams::Format format)
 {
   switch (format) {
-  case PixelFormat::PIX_FMT_RGBA8:
+  case VideoParams::kFormatUnsigned8:
     return GL_UNSIGNED_BYTE;
-  case PixelFormat::PIX_FMT_RGBA16U:
+  case VideoParams::kFormatUnsigned16:
     return GL_UNSIGNED_SHORT;
-  case PixelFormat::PIX_FMT_RGBA16F:
+  case VideoParams::kFormatFloat16:
     return GL_HALF_FLOAT;
-  case PixelFormat::PIX_FMT_RGBA32F:
+  case VideoParams::kFormatFloat32:
     return GL_FLOAT;
 
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
+  case VideoParams::kFormatInvalid:
+  case VideoParams::kFormatCount:
     break;
   }
 
   return GL_INVALID_VALUE;
 }
 
-GLenum OpenGLRenderer::GetPixelFormat(Texture::ChannelFormat format)
+GLenum OpenGLRenderer::GetPixelFormat(int channel_count)
 {
-  switch (format) {
-  case Texture::kRGBA:
-    return GL_RGBA;
-  case Texture::kRGB:
-    return GL_RGB;
-  case Texture::kRedOnly:
+  switch (channel_count) {
+  case 1:
     return GL_RED;
+  case 3:
+    return GL_RGB;
+  case 4:
+    return GL_RGBA;
+  default:
+    return GL_INVALID_VALUE;
   }
-
-  return GL_INVALID_ENUM;
 }
 
 void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation interp)

@@ -34,7 +34,6 @@
 #include "dialog/task/task.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/pixelformat.h"
 #include "ui/icons/icons.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -179,7 +178,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   video_tab_->height_slider()->SetDefaultValue(viewer_node_->video_params().height());
   video_tab_->frame_rate_combobox()->SetFrameRate(viewer_node_->video_params().time_base().flipped());
   video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(viewer_node_->video_params().pixel_aspect_ratio());
-  video_tab_->pixel_format_field()->SetPixelFormat(PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
+  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()["OnlinePixelFormat"].toInt()));
   video_tab_->interlaced_combobox()->SetInterlaceMode(viewer_node_->video_params().interlacing());
   audio_tab_->sample_rate_combobox()->SetSampleRate(viewer_node_->audio_params().sample_rate());
   audio_tab_->channel_layout_combobox()->SetChannelLayout(viewer_node_->audio_params().channel_layout());
@@ -432,13 +431,14 @@ ExportParams ExportDialog::GenerateParams() const
                                   static_cast<int>(video_tab_->height_slider()->GetValue()),
                                   video_tab_->frame_rate_combobox()->GetFrameRate().flipped(),
                                   video_tab_->pixel_format_field()->GetPixelFormat(),
+                                  VideoParams::kInternalChannelCount,
                                   video_tab_->pixel_aspect_combobox()->GetPixelAspectRatio(),
                                   video_tab_->interlaced_combobox()->GetInterlaceMode(),
                                   1);
 
   AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
                                   audio_tab_->channel_layout_combobox()->GetChannelLayout(),
-                                  SampleFormat::kInternalFormat);
+                                  AudioParams::kInternalFormat);
 
   ExportParams params;
   params.SetFilename(filename_edit_->text());

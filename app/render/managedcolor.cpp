@@ -26,13 +26,13 @@ ManagedColor::ManagedColor()
 {
 }
 
-ManagedColor::ManagedColor(const float &r, const float &g, const float &b, const float &a) :
+ManagedColor::ManagedColor(const double &r, const double &g, const double &b, const double &a) :
   Color(r, g, b, a)
 {
 }
 
-ManagedColor::ManagedColor(const char *data, const PixelFormat::Format &format) :
-  Color(data, format)
+ManagedColor::ManagedColor(const char *data, const VideoParams::Format &format, int channel_layout) :
+  Color(data, format, channel_layout)
 {
 }
 

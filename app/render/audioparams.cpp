@@ -49,6 +49,8 @@ const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
   AV_CH_LAYOUT_7POINT1
 };
 
+const AudioParams::Format AudioParams::kInternalFormat = AudioParams::kFormatFloat32;
+
 qint64 AudioParams::time_to_bytes(const double &time) const
 {
   Q_ASSERT(is_valid());
@@ -66,6 +68,26 @@ bool AudioParams::operator==(const AudioParams &other) const
 bool AudioParams::operator!=(const AudioParams &other) const
 {
   return !(*this == other);
+}
+
+QAudioFormat::SampleType AudioParams::GetQtSampleType(AudioParams::Format format)
+{
+  switch (format) {
+  case kFormatUnsigned8:
+    return QAudioFormat::UnSignedInt;
+  case kFormatSigned16:
+  case kFormatSigned32:
+  case kFormatSigned64:
+    return QAudioFormat::SignedInt;
+  case kFormatFloat32:
+  case kFormatFloat64:
+    return QAudioFormat::Float;
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return QAudioFormat::Unknown;
 }
 
 qint64 AudioParams::time_to_bytes(const rational &time) const
@@ -119,18 +141,18 @@ int AudioParams::channel_count() const
 int AudioParams::bytes_per_sample_per_channel() const
 {
   switch (format_) {
-  case SampleFormat::SAMPLE_FMT_U8:
+  case kFormatUnsigned8:
     return 1;
-  case SampleFormat::SAMPLE_FMT_S16:
+  case kFormatSigned16:
     return 2;
-  case SampleFormat::SAMPLE_FMT_S32:
-  case SampleFormat::SAMPLE_FMT_FLT:
+  case kFormatSigned32:
+  case kFormatFloat32:
     return 4;
-  case SampleFormat::SAMPLE_FMT_DBL:
-  case SampleFormat::SAMPLE_FMT_S64:
+  case kFormatSigned64:
+  case kFormatFloat64:
     return 8;
-  case SampleFormat::SAMPLE_FMT_INVALID:
-  case SampleFormat::SAMPLE_FMT_COUNT:
+  case kFormatInvalid:
+  case kFormatCount:
     break;
   }
 
@@ -146,8 +168,8 @@ bool AudioParams::is_valid() const
 {
   return (sample_rate() > 0
           && channel_layout() > 0
-          && format_ != SampleFormat::SAMPLE_FMT_INVALID
-          && format_ != SampleFormat::SAMPLE_FMT_COUNT);
+          && format_ > kFormatInvalid
+          && format_ < kFormatCount);
 }
 
 QString AudioParams::SampleRateToString(const int &sample_rate)

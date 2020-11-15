@@ -25,7 +25,7 @@
 
 #include "common/rational.h"
 #include "common/timerange.h"
-#include "render/pixelformat.h"
+#include "codec/frame.h"
 #include "render/playbackcache.h"
 #include "render/videoparams.h"
 

@@ -26,7 +26,6 @@
 
 #include "common/rational.h"
 #include "render/color.h"
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -47,7 +46,7 @@ public:
   const VideoParams& video_params() const;
   void set_video_params(const VideoParams& params);
 
-  static int generate_linesize_bytes(int width, PixelFormat::Format format);
+  static int generate_linesize_bytes(int width, VideoParams::Format format, int channel_count);
 
   int linesize_pixels() const
   {
@@ -69,9 +68,14 @@ public:
     return params_.effective_height();
   }
 
-  PixelFormat::Format format() const
+  VideoParams::Format format() const
   {
     return params_.format();
+  }
+
+  int channel_count() const
+  {
+    return params_.channel_count();
   }
 
   Color get_pixel(int x, int y) const;
@@ -143,6 +147,8 @@ public:
   {
     return data_.size();
   }
+
+  FramePtr convert(VideoParams::Format format) const;
 
 private:
   VideoParams params_;

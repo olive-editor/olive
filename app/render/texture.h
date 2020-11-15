@@ -41,19 +41,12 @@ public:
     kMipmappedLinear
   };
 
-  enum ChannelFormat {
-    kRGBA,
-    kRGB,
-    kRedOnly
-  };
-
   static const Interpolation kDefaultInterpolation;
 
   Texture(Renderer* renderer, const QVariant& native, const VideoParams& param, Type type) :
     renderer_(renderer),
     params_(param),
     id_(native),
-    meaningful_alpha_(true),
     type_(type)
   {
   }
@@ -82,9 +75,14 @@ public:
     return params_.height();
   }
 
-  PixelFormat::Format format() const
+  VideoParams::Format format() const
   {
     return params_.format();
+  }
+
+  int channel_count() const
+  {
+    return params_.channel_count();
   }
 
   int divider() const
@@ -95,16 +93,6 @@ public:
   const rational& pixel_aspect_ratio() const
   {
     return params_.pixel_aspect_ratio();
-  }
-
-  bool has_meaningful_alpha() const
-  {
-    return meaningful_alpha_;
-  }
-
-  void set_has_meaningful_alpha(bool e)
-  {
-    meaningful_alpha_ = e;
   }
 
   Type type() const
@@ -118,8 +106,6 @@ private:
   VideoParams params_;
 
   QVariant id_;
-
-  bool meaningful_alpha_;
 
   Type type_;
 

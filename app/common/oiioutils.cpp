@@ -18,11 +18,11 @@
 
 ***/
 
-#include "oiiocommon.h"
+#include "oiioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
-void OIIOCommon::FrameToBuffer(FramePtr frame, OIIO::ImageBuf *buf)
+void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
 {
 #if OIIO_VERSION < 20112
   //
@@ -45,13 +45,13 @@ void OIIOCommon::FrameToBuffer(FramePtr frame, OIIO::ImageBuf *buf)
 #else
   buf->set_pixels(OIIO::ROI(),
                   buf->spec().format,
-                  frame->data(),
+                  frame->const_data(),
                   OIIO::AutoStride,
                   frame->linesize_bytes());
 #endif
 }
 
-void OIIOCommon::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
+void OIIOUtils::BufferToFrame(OIIO::ImageBuf *buf, Frame* frame)
 {
 #if OIIO_VERSION < 20112
   //
@@ -79,24 +79,42 @@ void OIIOCommon::BufferToFrame(OIIO::ImageBuf *buf, FramePtr frame)
 #endif
 }
 
-PixelFormat::Format OIIOCommon::GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec)
-{
-  if (spec.format == OIIO::TypeDesc::UINT8) {
-    return PixelFormat::PIX_FMT_RGBA8;
-  } else if (spec.format == OIIO::TypeDesc::UINT16) {
-    return PixelFormat::PIX_FMT_RGBA16U;
-  } else if (spec.format == OIIO::TypeDesc::HALF) {
-    return PixelFormat::PIX_FMT_RGBA16F;
-  } else if (spec.format == OIIO::TypeDesc::FLOAT) {
-    return PixelFormat::PIX_FMT_RGBA32F;
-  } else {
-    return PixelFormat::PIX_FMT_INVALID;
-  }
-}
-
-rational OIIOCommon::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
+rational OIIOUtils::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
 {
   return rational::fromDouble(spec.get_float_attribute("PixelAspectRatio", 1));
+}
+
+VideoParams::Format OIIOUtils::GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type)
+{
+  switch (type) {
+  case OIIO::TypeDesc::UNKNOWN:
+  case OIIO::TypeDesc::NONE:
+    break;
+
+  case OIIO::TypeDesc::INT8:
+  case OIIO::TypeDesc::INT16:
+  case OIIO::TypeDesc::INT32:
+  case OIIO::TypeDesc::UINT32:
+  case OIIO::TypeDesc::INT64:
+  case OIIO::TypeDesc::UINT64:
+  case OIIO::TypeDesc::STRING:
+  case OIIO::TypeDesc::PTR:
+  case OIIO::TypeDesc::LASTBASE:
+  case OIIO::TypeDesc::DOUBLE:
+    qDebug() << "Tried to use unknown OIIO base type";
+    break;
+
+  case OIIO::TypeDesc::UINT8:
+    return VideoParams::kFormatUnsigned8;
+  case OIIO::TypeDesc::UINT16:
+    return VideoParams::kFormatUnsigned16;
+  case OIIO::TypeDesc::HALF:
+    return VideoParams::kFormatFloat16;
+  case OIIO::TypeDesc::FLOAT:
+    return VideoParams::kFormatFloat32;
+  }
+
+  return VideoParams::kFormatInvalid;
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -37,7 +37,6 @@
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/pixelformat.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
@@ -112,9 +111,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Ensures that seeking on the waveform view updates the time as expected
   connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::TimeChangedFromWaveform);
   connect(waveform_view_, &AudioWaveformView::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
-
-  // Ensures renderer is updated if the global pixel format is changed
-  connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
 
   connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
 
@@ -614,11 +610,6 @@ void ViewerWidget::RequestNextFrameForQueue()
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
   watcher->SetTicket(GetFrame(next_time, false));
-}
-
-PixelFormat::Format ViewerWidget::GetCurrentPixelFormat() const
-{
-  return PixelFormat::instance()->GetConfiguredFormatForMode(RenderMode::kOffline);
 }
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool clear_render_queue)

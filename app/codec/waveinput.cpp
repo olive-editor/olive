@@ -108,27 +108,27 @@ bool WaveInput::open()
   uint16_t bits_per_sample;
   data_stream >> bits_per_sample;
 
-  SampleFormat::Format format;
+  AudioParams::Format format;
 
   switch (bits_per_sample) {
   case 8:
-    format = SampleFormat::SAMPLE_FMT_U8;
+    format = AudioParams::kFormatUnsigned8;
     break;
   case 16:
-    format = SampleFormat::SAMPLE_FMT_S16;
+    format = AudioParams::kFormatSigned16;
     break;
   case 32:
     if (data_is_float) {
-      format = SampleFormat::SAMPLE_FMT_FLT;
+      format = AudioParams::kFormatFloat32;
     } else {
-      format = SampleFormat::SAMPLE_FMT_S32;
+      format = AudioParams::kFormatSigned32;
     }
     break;
   case 64:
     if (data_is_float) {
-      format = SampleFormat::SAMPLE_FMT_DBL;
+      format = AudioParams::kFormatFloat64;
     } else {
-      format = SampleFormat::SAMPLE_FMT_S64;
+      format = AudioParams::kFormatSigned64;
     }
     break;
   default:

@@ -31,9 +31,9 @@
 
 #include "common/define.h"
 #include "common/functiontimer.h"
-#include "gizmotraverser.h"
-#include "render/pixelformat.h"
+#include "config/config.h"
 #include "core.h"
+#include "gizmotraverser.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -105,7 +105,8 @@ void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
     if (!texture_
         || texture_->width() != in_buffer->width()
         || texture_->height() != in_buffer->height()
-        || texture_->format() != in_buffer->format()) {
+        || texture_->format() != in_buffer->format()
+        || texture_->channel_count() != in_buffer->channel_count()) {
       texture_ = renderer()->CreateTexture(in_buffer->video_params(), in_buffer->data(), in_buffer->linesize_pixels());
     } else {
       texture_->Upload(in_buffer->data(), in_buffer->linesize_pixels());
@@ -299,7 +300,7 @@ void ViewerDisplayWidget::OnPaint()
 
     // Draw texture through color transform
     renderer()->BlitColorManaged(color_service(), texture_, true,
-                                 VideoParams(width(), height(), PixelFormat::PIX_FMT_RGBA16F),
+                                 VideoParams(width(), height(), static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()), VideoParams::kInternalChannelCount),
                                  GetCompleteMatrixFlippedYTranslation());
   }
 

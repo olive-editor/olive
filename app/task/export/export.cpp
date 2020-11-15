@@ -170,18 +170,6 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
   }
 }
 
-void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
-{
-  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
-  ColorManager::DisassociateAlpha(frame);
-
-  // Convert color space
-  processor->ConvertFrame(frame);
-
-  // Re-associate alpha
-  ColorManager::ReassociateAlpha(frame);
-}
-
 void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples, qint64 job_time)
 {
   Q_UNUSED(job_time)

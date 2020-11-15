@@ -20,7 +20,10 @@
 
 #include "color.h"
 
+#include <OpenImageIO/imagebuf.h>
+
 #include "common/clamp.h"
+#include "common/oiioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -65,9 +68,9 @@ Color Color::fromHsv(const double &h, const double &s, const double &v)
   return Color(Rs + m, Gs + m, Bs + m);
 }
 
-Color::Color(const char *data, const PixelFormat::Format &format)
+Color::Color(const char *data, const VideoParams::Format &format, int ch_layout)
 {
-  *this = fromData(data, format);
+  *this = fromData(data, format, ch_layout);
 }
 
 Color::Color(const QColor &c)
@@ -194,24 +197,24 @@ double Color::lightness() const
   return l;
 }
 
-void Color::toData(char *data, const PixelFormat::Format &format) const
+void Color::toData(char *data, const VideoParams::Format &format, int ch_layout) const
 {
-  OIIO::convert_types(OIIO::TypeDesc::DOUBLE,
-                      data_,
-                      PixelFormat::GetOIIOTypeDesc(format),
-                      data,
-                      kRGBAChannels);
+  OIIO::convert_pixel_values(OIIO::TypeDesc::DOUBLE,
+                             data_,
+                             OIIOUtils::GetOIIOBaseTypeFromFormat(format),
+                             data,
+                             ch_layout);
 }
 
-Color Color::fromData(const char *data, const PixelFormat::Format &format)
+Color Color::fromData(const char *data, const VideoParams::Format &format, int ch_layout)
 {
   Color c;
 
-  OIIO::convert_types(PixelFormat::GetOIIOTypeDesc(format),
-                      data,
-                      OIIO::TypeDesc::DOUBLE,
-                      c.data_,
-                      kRGBAChannels);
+  OIIO::convert_pixel_values(OIIOUtils::GetOIIOBaseTypeFromFormat(format),
+                             data,
+                             OIIO::TypeDesc::DOUBLE,
+                             c.data_,
+                             ch_layout);
 
   return c;
 }
@@ -236,7 +239,7 @@ double Color::GetRoughLuminance() const
 
 const Color &Color::operator+=(const Color &rhs)
 {
-  for (int i=0;i<kRGBAChannels;i++) {
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] += rhs.data_[i];
   }
 
@@ -245,7 +248,7 @@ const Color &Color::operator+=(const Color &rhs)
 
 const Color &Color::operator-=(const Color &rhs)
 {
-  for (int i=0;i<kRGBAChannels;i++) {
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] -= rhs.data_[i];
   }
 
@@ -254,7 +257,7 @@ const Color &Color::operator-=(const Color &rhs)
 
 const Color &Color::operator*=(const double &rhs)
 {
-  for (int i=0;i<kRGBAChannels;i++) {
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] *= rhs;
   }
 
@@ -263,7 +266,7 @@ const Color &Color::operator*=(const double &rhs)
 
 const Color &Color::operator/=(const double &rhs)
 {
-  for (int i=0;i<kRGBAChannels;i++) {
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] /= rhs;
   }
 

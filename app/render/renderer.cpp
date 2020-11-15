@@ -32,16 +32,16 @@ Renderer::Renderer(QObject *parent) :
 
 }
 
-TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type, Texture::ChannelFormat channel_format, const void *data, int linesize)
+TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type, const void *data, int linesize)
 {
   QVariant v;
 
   if (type == Texture::k3D) {
     v = CreateNativeTexture3D(params.effective_width(), params.effective_height(),
-                              params.effective_depth(), params.format(), channel_format, data, linesize);
+                              params.effective_depth(), params.format(), params.channel_count(), data, linesize);
   } else {
     v = CreateNativeTexture2D(params.effective_width(), params.effective_height(), params.format(),
-                              channel_format, data, linesize);
+                              params.channel_count(), data, linesize);
   }
 
   if (v.isNull()) {
@@ -53,7 +53,7 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type
 
 TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, int linesize)
 {
-  return CreateTexture(params, Texture::k2D, Texture::kRGBA, data, linesize);
+  return CreateTexture(params, Texture::k2D, data, linesize);
 }
 
 void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture *destination, const QMatrix4x4 &matrix)
@@ -104,6 +104,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
                                       "uniform int ove_maintex_alpha;\n"
                                       "\n"
                                       "// Macros defining `ove_maintex_alpha` state\n"
+                                      "// Matches `AlphaAssociated` C++ enum\n"
                                       "#define ALPHA_NONE     0\n"
                                       "#define ALPHA_UNASSOC  1\n"
                                       "#define ALPHA_ASSOC    2\n"
@@ -185,8 +186,8 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
       }
 
       // Allocate 3D LUT
-      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, PixelFormat::PIX_FMT_RGBA32F),
-                                                          Texture::k3D, Texture::kRGB, values);
+      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount),
+                                                          Texture::k3D, values);
       color_ctx.lut3d_textures[i].name = sampler_name;
       color_ctx.lut3d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -216,9 +217,8 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
       }
 
       // Allocate 1D LUT
-      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, PixelFormat::PIX_FMT_RGBA32F),
+      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount),
                                                           Texture::k2D,
-                                                          (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? Texture::kRedOnly : Texture::kRGB,
                                                           values);
       color_ctx.lut1d_textures[i].name = sampler_name;
       color_ctx.lut1d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
@@ -243,6 +243,21 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
 
   job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(source), NodeParam::kTexture));
   job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(matrix, NodeParam::kMatrix));
+
+  AlphaAssociated associated;
+  if (source->channel_count() == VideoParams::kRGBAChannelCount) {
+    if (source_is_premultiplied) {
+      // De-assoc/re-assoc required for color management
+      associated = kAlphaAssociated;
+    } else {
+      // Just assoc at the end
+      associated = kAlphaUnassociated;
+    }
+  } else {
+    // No assoc/deassoc required
+    associated = kAlphaNone;
+  }
+  job.InsertValue(QStringLiteral("ove_maintex_alpha"), ShaderValue(associated, NodeParam::kInt));
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
     job.InsertValue(l.name, ShaderValue(QVariant::fromValue(l.texture), NodeParam::kTexture));

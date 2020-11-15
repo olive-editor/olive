@@ -25,7 +25,6 @@
 #include <OpenImageIO/imagebuf.h>
 
 #include "codec/decoder.h"
-#include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -63,9 +62,9 @@ private:
 
   int64_t last_sequence_index_;
 
-  PixelFormat::Format pix_fmt_;
+  VideoParams::Format pix_fmt_;
 
-  //bool is_rgba_;
+  int channel_count_;
 
   OIIO::ImageBuf* buffer_;
 

@@ -42,7 +42,7 @@ bool RenderTask::Render(ColorManager* manager,
                         const TimeRangeList &audio_range,
                         RenderMode::Mode mode,
                         FrameHashCache* cache, const QSize &force_size,
-                        const QMatrix4x4 &force_matrix, PixelFormat::Format force_format,
+                        const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
                         ColorProcessorPtr force_color_output)
 {
   // Run watchers in another thread so they can accept signals even while this thread is blocked

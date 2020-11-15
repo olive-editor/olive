@@ -122,9 +122,9 @@ public:
 
   virtual void Close() = 0;
 
-  virtual PixelFormat::Format GetDesiredPixelFormat() const
+  virtual VideoParams::Format GetDesiredPixelFormat() const
   {
-    return PixelFormat::PIX_FMT_INVALID;
+    return VideoParams::kFormatInvalid;
   }
 
 private:

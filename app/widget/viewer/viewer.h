@@ -191,8 +191,6 @@ private:
 
   void RequestNextFrameForQueue();
 
-  PixelFormat::Format GetCurrentPixelFormat() const;
-
   RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
 
   void FinishPlayPreprocess();

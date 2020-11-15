@@ -20,9 +20,12 @@
 
 #include "frame.h"
 
+#include <OpenImageIO/imagebuf.h>
 #include <QDebug>
 #include <QtGlobal>
 #include <QtMath>
+
+#include "common/oiioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -45,14 +48,14 @@ void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 
-  linesize_ = generate_linesize_bytes(width(), params_.format());
-  linesize_pixels_ = linesize_ / PixelFormat::BytesPerPixel(params_.format());
+  linesize_ = generate_linesize_bytes(width(), params_.format(), params_.channel_count());
+  linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
 }
 
-int Frame::generate_linesize_bytes(int width, PixelFormat::Format format)
+int Frame::generate_linesize_bytes(int width, VideoParams::Format format, int channel_count)
 {
   // Align to 32 bytes (not sure if this is necessary?)
-  return PixelFormat::BytesPerPixel(format) * ((width + 31) & ~31);
+  return VideoParams::GetBytesPerPixel(format, channel_count) * ((width + 31) & ~31);
 }
 
 Color Frame::get_pixel(int x, int y) const
@@ -61,9 +64,9 @@ Color Frame::get_pixel(int x, int y) const
     return Color();
   }
 
-  int byte_offset = y * linesize_bytes() + x * PixelFormat::BytesPerPixel(video_params().format());
+  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  return Color(data_.data() + byte_offset, video_params().format());
+  return Color(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
 }
 
 bool Frame::contains_pixel(int x, int y) const
@@ -77,9 +80,9 @@ void Frame::set_pixel(int x, int y, const Color &c)
     return;
   }
 
-  int byte_offset = y * linesize_bytes() + x * PixelFormat::BytesPerPixel(video_params().format());
+  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  c.toData(data_.data() + byte_offset, video_params().format());
+  c.toData(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
 }
 
 bool Frame::allocate()
@@ -90,9 +93,40 @@ bool Frame::allocate()
     return false;
   }
 
-  data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, height()));
+  data_.resize(VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count()));
 
   return true;
+}
+
+FramePtr Frame::convert(VideoParams::Format format) const
+{
+  // Create new params with destination format
+  VideoParams params = params_;
+  params.set_format(format);
+
+  // Create new frame
+  FramePtr converted = Frame::Create();
+  converted->set_video_params(params);
+  converted->set_timestamp(timestamp_);
+  converted->allocate();
+
+  // Do the conversion through OIIO for convenience
+  OIIO::ImageBuf src(OIIO::ImageSpec(width(), height(),
+                                     channel_count(),
+                                     OIIOUtils::GetOIIOBaseTypeFromFormat(this->format())));
+
+  OIIOUtils::FrameToBuffer(this, &src);
+
+  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(), converted->height(),
+                                     channel_count(),
+                                     OIIOUtils::GetOIIOBaseTypeFromFormat(format)));
+
+  if (dst.copy_pixels(src)) {
+    OIIOUtils::BufferToFrame(&dst, converted.get());
+    return converted;
+  } else {
+    return nullptr;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT
