@@ -95,38 +95,38 @@ qint64 AudioParams::time_to_bytes(const rational &time) const
   return time_to_bytes(time.toDouble());
 }
 
-int AudioParams::time_to_samples(const double &time) const
+qint64 AudioParams::time_to_samples(const double &time) const
 {
   Q_ASSERT(is_valid());
 
-  return qFloor(time * sample_rate());
+  return qRound64(time * sample_rate());
 }
 
-int AudioParams::time_to_samples(const rational &time) const
+qint64 AudioParams::time_to_samples(const rational &time) const
 {
   return time_to_samples(time.toDouble());
 }
 
-int AudioParams::samples_to_bytes(const int &samples) const
+qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 {
   Q_ASSERT(is_valid());
 
   return samples * channel_count() * bytes_per_sample_per_channel();
 }
 
-rational AudioParams::samples_to_time(const int &samples) const
+rational AudioParams::samples_to_time(const qint64 &samples) const
 {
   return rational(samples, sample_rate());
 }
 
-int AudioParams::bytes_to_samples(const int &bytes) const
+qint64 AudioParams::bytes_to_samples(const qint64 &bytes) const
 {
   Q_ASSERT(is_valid());
 
   return bytes / (channel_count() * bytes_per_sample_per_channel());
 }
 
-rational AudioParams::bytes_to_time(const int &bytes) const
+rational AudioParams::bytes_to_time(const qint64 &bytes) const
 {
   Q_ASSERT(is_valid());
 

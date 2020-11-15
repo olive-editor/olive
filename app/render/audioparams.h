@@ -94,12 +94,12 @@ public:
 
   qint64 time_to_bytes(const double& time) const;
   qint64 time_to_bytes(const rational& time) const;
-  int time_to_samples(const double& time) const;
-  int time_to_samples(const rational& time) const;
-  int samples_to_bytes(const int& samples) const;
-  rational samples_to_time(const int& samples) const;
-  int bytes_to_samples(const int &bytes) const;
-  rational bytes_to_time(const int &bytes) const;
+  qint64 time_to_samples(const double& time) const;
+  qint64 time_to_samples(const rational& time) const;
+  qint64 samples_to_bytes(const qint64& samples) const;
+  rational samples_to_time(const qint64& samples) const;
+  qint64 bytes_to_samples(const qint64 &bytes) const;
+  rational bytes_to_time(const qint64 &bytes) const;
   int channel_count() const;
   int bytes_per_sample_per_channel() const;
   int bits_per_sample() const;
