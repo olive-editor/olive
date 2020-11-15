@@ -50,20 +50,14 @@ QByteArray FrameHashCache::GetHash(const rational &time)
 
 void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
 {
-  bool is_current = false;
-
   for (int i=jobs_.size()-1; i>=0; i--) {
     const JobIdentifier& job = jobs_.at(i);
 
     if (job.range.Contains(time)
-        && job_time >= job.job_time) {
-      is_current = true;
-      break;
+        && job_time < job.job_time) {
+      // Hash here has changed since this frame started rendering, discard it
+      return;
     }
-  }
-
-  if (!is_current) {
-    return;
   }
 
   time_hash_map_.insert(time, hash);
@@ -82,11 +76,9 @@ void FrameHashCache::SetTimebase(const rational &tb)
 
 void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
-  QMap<rational, QByteArray>::const_iterator iterator;
-
   const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
 
-  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
 
@@ -101,9 +93,7 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
-  QMap<rational, QByteArray>::const_iterator iterator;
-
-  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       times.append(iterator.key());
     }
@@ -116,7 +106,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
-  QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
+  auto iterator = time_hash_map_.begin();
 
   while (iterator != time_hash_map_.end()) {
     if (iterator.value() == hash) {
@@ -284,7 +274,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
 {
   if (newlen < old) {
-    QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+    auto i = time_hash_map_.begin();
 
     while (i != time_hash_map_.end()) {
       if (i.key() >= newlen) {
@@ -303,7 +293,7 @@ struct HashTimePair {
 
 void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 {
-  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+  auto i = time_hash_map_.begin();
 
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
@@ -354,8 +344,7 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   TimeRangeList ranges_to_invalidate;
-  QMap<rational, QByteArray>::const_iterator i;
-  for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
+  for (auto i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
     if (i.value() == hash) {
       ranges_to_invalidate.insert(TimeRange(i.key(), i.key() + timebase_));
     }

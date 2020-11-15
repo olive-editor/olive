@@ -31,7 +31,10 @@ OLIVE_NAMESPACE_ENTER
 
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
-  Q_ASSERT(r.in() != r.out());
+  if (r.in() == r.out()) {
+    qWarning() << "Tried to invalidate zero-length range";
+    return;
+  }
 
   invalidated_.insert(r);
 
