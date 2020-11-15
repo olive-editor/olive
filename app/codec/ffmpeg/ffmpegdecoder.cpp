@@ -79,8 +79,6 @@ bool FFmpegDecoder::OpenInternal()
       native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
       native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt_);
 
-      qDebug() << "Set channel count to:" << native_channel_count_;
-
       if (native_pix_fmt_ == VideoParams::kFormatInvalid
           || native_channel_count_ == 0) {
         qDebug() << "Failed to find valid native pixel format for" << ideal_pix_fmt_;
