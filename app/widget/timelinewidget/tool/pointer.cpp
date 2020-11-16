@@ -610,13 +610,23 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
       if (duplicate_clips) {
         // Duplicate rather than move
-        Node* copy = block->copy();
+        Node* copy;
 
-        new NodeAddCommand(static_cast<NodeGraph*>(block->parent()),
-                           copy,
-                           command);
+        if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+          QVector<Node*> nodes_to_clone;
+          nodes_to_clone.append(block);
+          nodes_to_clone.append(block->GetDependencies());
+          QVector<Node*> duplicated = Node::CopyDependencyGraph(nodes_to_clone, command);
+          copy = duplicated.first();
+        } else {
+          copy = block->copy();
 
-        new NodeCopyInputsCommand(block, copy, true, command);
+          new NodeAddCommand(static_cast<NodeGraph*>(block->parent()),
+                             copy,
+                             command);
+
+          new NodeCopyInputsCommand(block, copy, true, command);
+        }
 
         // Place the copy instead of the original block
         block = static_cast<Block*>(copy);

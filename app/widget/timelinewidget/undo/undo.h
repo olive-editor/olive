@@ -192,6 +192,7 @@ protected:
   rational out_;
 
   bool splice_;
+  QUndoCommand* splice_split_command_;
 
   Block* trim_out_;
   Block* trim_in_;
@@ -329,16 +330,17 @@ protected:
 private:
   TrackOutput* track_;
   Block* block_;
+  Block* new_block_;
 
   rational new_length_;
   rational old_length_;
   rational point_;
 
-  Block* new_block_;
-
   QList<NodeInput*> transitions_to_move_;
 
   QObject memory_manager_;
+
+  QUndoCommand* add_command_;
 
 };
 

@@ -29,6 +29,7 @@
 #include "project/project.h"
 #include "project/item/footage/footage.h"
 #include "project/item/footage/videostream.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -237,6 +238,66 @@ TimeRange Node::OutputTimeAdjustment(NodeInput *, const TimeRange &input_time) c
 {
   // Default behavior is no time adjustment at all
   return input_time;
+}
+
+QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCommand* command)
+{
+  int nb_nodes = nodes.size();
+
+  QVector<Node*> copies(nb_nodes);
+
+  for (int i=0; i<nb_nodes; i++) {
+    // Create another of the same node
+    Node* c = nodes.at(i)->copy();;
+
+    // Copy the values, but NOT the connections, since we'll be connecting to our own clones later
+    Node::CopyInputs(nodes.at(i), c, false);
+
+    // Add to graph
+    NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
+    if (command) {
+      new NodeAddCommand(graph, c, command);
+    } else {
+      graph->AddNode(c);
+    }
+
+    // Store in array at the same index as source
+    copies[i] = c;
+  }
+
+  CopyDependencyGraph(nodes, copies, command);
+
+  return copies;
+}
+
+void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, QUndoCommand *command)
+{
+  int nb_nodes = src.size();
+
+  for (int i=0; i<nb_nodes; i++) {
+    // Find any interconnections
+    QVector<NodeInput*> inputs = src.at(i)->GetInputsIncludingArrays();
+
+    for (int j=0; j<nb_nodes; j++) {
+      if (i == j) {
+        continue;
+      }
+
+      foreach (NodeInput* input, inputs) {
+        if (input->get_connected_node() == src.at(j)) {
+          // Found a connection
+          NodeOutput* copy_output = dst.at(j)->GetOutputWithID(input->get_connected_output()->id());
+          NodeInput* copy_input = dst.at(i)->GetInputWithID(input->id());
+
+          if (command) {
+            new NodeEdgeAddCommand(copy_output, copy_input, command);
+          } else {
+            NodeParam::ConnectEdge(copy_output, copy_input);
+          }
+        }
+      }
+    }
+  }
 }
 
 void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)

@@ -89,6 +89,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeParam::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);
 

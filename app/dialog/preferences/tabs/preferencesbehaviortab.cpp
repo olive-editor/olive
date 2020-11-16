@@ -99,6 +99,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Auto-Scale By Default"),
           QStringLiteral("AutoscaleByDefault"),
           node_group);
+  AddItem(tr("Splitting Clips Copies Dependencies"),
+          QStringLiteral("SplitClipsCopyNodes"),
+          tr("Multiple clips can share the same nodes. Disable this to automatically share node "
+             "dependencies among clips when copying or splitting them."),
+          node_group);
 }
 
 void PreferencesBehaviorTab::Accept()

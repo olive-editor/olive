@@ -20,6 +20,7 @@
 
 #include "undo.h"
 
+#include "config/config.h"
 #include "core.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
@@ -209,10 +210,21 @@ void TrackRippleRemoveAreaCommand::redo_internal()
   if (splice_) {
 
     // Split the block here
-    trim_in_ = static_cast<Block*>(trim_out_->copy());
+    splice_split_command_ = new QUndoCommand();
 
-    static_cast<NodeGraph*>(track_->parent())->AddNode(trim_in_);
-    Node::CopyInputs(trim_out_, trim_in_);
+    if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+      QVector<Node*> nodes_to_clone;
+      nodes_to_clone.append(trim_out_);
+      nodes_to_clone.append(trim_out_->GetDependencies());
+      QVector<Node*> duplicated = Node::CopyDependencyGraph(nodes_to_clone, splice_split_command_);
+      trim_in_ = static_cast<Block*>(duplicated.first());
+    } else {
+      trim_in_ = static_cast<Block*>(trim_out_->copy());
+      new NodeAddCommand(static_cast<NodeGraph*>(track_->parent()), trim_in_, splice_split_command_);
+      new NodeCopyInputsCommand(trim_out_, trim_in_, true, splice_split_command_);
+    }
+
+    splice_split_command_->redo();
 
     trim_out_old_length_ = trim_out_->length();
     trim_out_->set_length_and_media_out(in_ - trim_out_->in());
@@ -292,7 +304,8 @@ void TrackRippleRemoveAreaCommand::undo_internal()
     track_->RippleRemoveBlock(trim_in_);
     trim_out_->set_length_and_media_out(trim_out_old_length_);
 
-    TakeNodeFromParentGraph(trim_in_, &memory_manager_);
+    splice_split_command_->undo();
+    delete splice_split_command_;
 
   } else {
 
@@ -428,8 +441,33 @@ void BlockSplitCommand::redo_internal()
 {
   track_->BeginOperation();
 
-  static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
-  Node::CopyInputs(block_, new_block_);
+  NodeGraph* graph = static_cast<NodeGraph*>(block_->parent());
+
+  add_command_ = new QUndoCommand();
+  new NodeAddCommand(graph, new_block_, add_command_);
+  new NodeCopyInputsCommand(block_, new_block_, true, add_command_);
+
+  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+
+    QVector<Node*> src_nodes;
+    QVector<Node*> dst_nodes;
+
+    src_nodes.append(block_);
+    src_nodes.append(block_->GetDependencies());
+
+    dst_nodes.resize(src_nodes.size());
+    dst_nodes[0] = new_block_;
+    for (int i=1; i<dst_nodes.size(); i++) {
+      dst_nodes[i] = src_nodes[i]->copy();
+      new NodeAddCommand(graph, dst_nodes[i], add_command_);
+      Node::CopyInputs(src_nodes[i], dst_nodes[i], false);
+    }
+
+    Node::CopyDependencyGraph(src_nodes, dst_nodes, add_command_);
+
+  }
+
+  add_command_->redo();
 
   rational new_part_length = block_->length() - (point_ - block_->in());
 
@@ -451,15 +489,17 @@ void BlockSplitCommand::undo_internal()
 {
   track_->BeginOperation();
 
-  block_->set_length_and_media_out(old_length_);
-  track_->RippleRemoveBlock(new_block_);
-
-  TakeNodeFromParentGraph(new_block_, &memory_manager_);
-
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(new_block_->output(), transition);
     NodeParam::ConnectEdge(block_->output(), transition);
   }
+
+  block_->set_length_and_media_out(old_length_);
+  track_->RippleRemoveBlock(new_block_);
+
+  add_command_->undo();
+  new_block_->setParent(&memory_manager_);
+  delete add_command_;
 
   track_->EndOperation();
 }

@@ -288,43 +288,11 @@ void NodeView::Duplicate()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Node*> duplicated_nodes;
-
-  foreach (Node* n, selected) {
-    Node* copy = n->copy();
-
-    Node::CopyInputs(n, copy, false);
-
-    duplicated_nodes.append(copy);
-
-    new NodeAddCommand(graph_, copy, command);
-  }
-
-  for (int i=0;i<selected.size();i++) {
-    Node* src = selected.at(i);
-
-    for (int j=0;j<selected.size();j++) {
-      if (i == j) {
-        continue;
-      }
-
-      Node* dst = selected.at(j);
-
-      foreach (NodeEdgePtr edge, src->output()->edges()) {
-        if (edge->input()->parentNode() == dst) {
-          new NodeEdgeAddCommand(duplicated_nodes.at(i)->output(),
-                                 duplicated_nodes.at(j)->GetInputWithID(edge->input()->id()),
-                                 command);
-        }
-      }
-    }
-  }
+  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  if (!duplicated_nodes.isEmpty()) {
-    AttachNodesToCursor(duplicated_nodes);
-  }
+  AttachNodesToCursor(duplicated_nodes);
 }
 
 void NodeView::ItemsChanged()

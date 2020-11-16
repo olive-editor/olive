@@ -347,6 +347,12 @@ public:
   static void CopyInputs(Node* source, Node* destination, bool include_connections = true);
 
   /**
+   * @brief Clones a set of nodes and connects the new ones the way the old ones were
+   */
+  static QVector<Node*> CopyDependencyGraph(const QVector<Node*>& nodes, QUndoCommand *command);
+  static void CopyDependencyGraph(const QVector<Node*>& src, const QVector<Node*>& dst, QUndoCommand *command);
+
+  /**
    * @brief Return whether this Node can be deleted or not
    */
   bool CanBeDeleted() const;
