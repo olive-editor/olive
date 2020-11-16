@@ -12,7 +12,6 @@ ARG VFXPLATFORM_VERSION=2021
 # Upstream only copies nuke-default, therefore we also use the older configs.
 ARG OCIO_CONFIGS_VERSION=1.0_r2
 
-#FROM ${ASWF_PKG_ORG}/ci-ocio:${VFXPLATFORM_VERSION} as ci-ocio
 FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-ocio
 
 ARG OLIVE_ORG
@@ -37,8 +36,6 @@ ENV OLIVE_ORG=${OLIVE_ORG} \
     OLIVE_INSTALL_PREFIX=/usr/local
 
 COPY scripts/build_ocio.sh \
-#    scripts/common/before_build.sh \
-#    scripts/common/copy_new_files.sh \
      /tmp/
 
 RUN /tmp/before_build.sh && \
