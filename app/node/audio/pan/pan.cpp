@@ -49,7 +49,7 @@ QString PanNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.pan");
 }
 
-QList<Node::CategoryID> PanNode::Category() const
+QVector<Node::CategoryID> PanNode::Category() const
 {
   return {kCategoryChannels};
 }

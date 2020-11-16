@@ -46,7 +46,7 @@ QString MergeNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.merge");
 }
 
-QList<Node::CategoryID> MergeNode::Category() const
+QVector<Node::CategoryID> MergeNode::Category() const
 {
   return {kCategoryMath};
 }

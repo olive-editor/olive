@@ -32,9 +32,9 @@ class NodeTableView : public QTreeWidget
 public:
   NodeTableView(QWidget* parent = nullptr);
 
-  void SelectNodes(const QList<Node*>& nodes);
+  void SelectNodes(const QVector<Node *> &nodes);
 
-  void DeselectNodes(const QList<Node*>& nodes);
+  void DeselectNodes(const QVector<Node*>& nodes);
 
   void SetTime(const rational& time);
 

@@ -132,7 +132,7 @@ public:
    * interpreted as an empty string category. This value should be run through a translator as its largely user
    * oriented.
    */
-  virtual QList<CategoryID> Category() const = 0;
+  virtual QVector<CategoryID> Category() const = 0;
 
   /**
    * @brief Return a description of this node's purpose (optional for subclassing, but recommended)
@@ -150,7 +150,7 @@ public:
   /**
    * @brief Return a list of NodeParams
    */
-  const QList<NodeParam*>& parameters() const;
+  const QVector<NodeParam*>& parameters() const;
 
   /**
    * @brief Return the index of a parameter
@@ -161,7 +161,7 @@ public:
   /**
    * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
    */
-  QList<Node*> GetDependencies() const;
+  QVector<Node *> GetDependencies() const;
 
   /**
    * @brief Returns a list of Nodes that this Node is dependent on, provided no other Nodes are dependent on them
@@ -169,12 +169,12 @@ public:
    *
    * Similar to GetDependencies(), but excludes any Nodes that are used outside the dependency graph of this Node.
    */
-  QList<Node*> GetExclusiveDependencies() const;
+  QVector<Node *> GetExclusiveDependencies() const;
 
   /**
    * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
    */
-  QList<Node*> GetImmediateDependencies() const;
+  QVector<Node *> GetImmediateDependencies() const;
 
   /**
    * @brief Generate hardware accelerated code for this Node
@@ -277,19 +277,19 @@ public:
   /**
    * @brief Transforms time from this node through the connections it takes to get to the specified node
    */
-  QList<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
+  QVector<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  QList<T*> FindInputNodes() const;
+  QVector<T*> FindInputNodes() const;
 
   template<class T>
   /**
    * @brief Find a node of a certain type that this Node outputs to
    */
-  QList<T *>  FindOutputNode();
+  QVector<T *>  FindOutputNode();
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -407,9 +407,9 @@ public:
 
   void SetPosition(const QPointF& pos);
 
-  QList<NodeInput*> GetInputsIncludingArrays() const;
+  QVector<NodeInput*> GetInputsIncludingArrays() const;
 
-  QList<NodeOutput*> GetOutputs() const;
+  QVector<NodeOutput*> GetOutputs() const;
 
   virtual bool HasGizmos() const;
 
@@ -435,7 +435,7 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
-  virtual QList<NodeInput*> GetInputsToHash() const;
+  virtual QVector<NodeInput*> GetInputsToHash() const;
 
 protected slots:
   void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
@@ -488,14 +488,14 @@ private:
   void DisconnectInput(NodeInput* input);
 
   template<class T>
-  static void FindInputNodeInternal(const Node* n, QList<T *>& list);
+  static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
 
   template<class T>
-  static void FindOutputNodeInternal(const Node* n, QList<T *>& list);
+  static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
 
-  QList<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
+  QVector<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  QList<NodeParam *> params_;
+  QVector<NodeParam *> params_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not
@@ -520,9 +520,9 @@ private:
 };
 
 template<class T>
-void Node::FindInputNodeInternal(const Node* n, QList<T *>& list)
+void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     if (input->is_connected()) {
@@ -539,9 +539,9 @@ void Node::FindInputNodeInternal(const Node* n, QList<T *>& list)
 }
 
 template<class T>
-QList<T *> Node::FindInputNodes() const
+QVector<T *> Node::FindInputNodes() const
 {
-  QList<T *> list;
+  QVector<T *> list;
 
   FindInputNodeInternal<T>(this, list);
 
@@ -555,7 +555,7 @@ T* Node::ValueToPtr(const QVariant &ptr)
 }
 
 template<class T>
-void Node::FindOutputNodeInternal(const Node* n, QList<T *>& list) {
+void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list) {
   foreach (NodeEdgePtr edge, n->output()->edges()) {
     Node* connected = edge->input()->parentNode();
     T* cast_test = dynamic_cast<T*>(connected);
@@ -569,9 +569,9 @@ void Node::FindOutputNodeInternal(const Node* n, QList<T *>& list) {
 }
 
 template<class T>
-QList<T *> Node::FindOutputNode()
+QVector<T *> Node::FindOutputNode()
 {
-  QList<T *> list;
+  QVector<T *> list;
 
   FindOutputNodeInternal<T>(this, list);
 

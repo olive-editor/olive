@@ -1034,7 +1034,7 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QList<Node *> &nodes) const
+void Core::LabelNodes(const QVector<Node *> &nodes) const
 {
   if (nodes.isEmpty()) {
     return;

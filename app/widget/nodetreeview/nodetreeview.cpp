@@ -21,7 +21,7 @@ bool NodeTreeView::IsInputEnabled(NodeInput *i) const
   return !disabled_inputs_.contains(i);
 }
 
-void NodeTreeView::SetNodes(const QList<Node *> &nodes)
+void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
 {
   nodes_ = nodes;
 
@@ -34,7 +34,7 @@ void NodeTreeView::SetNodes(const QList<Node *> &nodes)
     node_item->setData(0, kItemType, kItemTypeNode);
     node_item->setData(0, kItemPointer, reinterpret_cast<quintptr>(n));
 
-    QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+    QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
     foreach (NodeInput* i, inputs) {
       if (only_show_keyframable_ && !i->is_keyframable()) {
         continue;

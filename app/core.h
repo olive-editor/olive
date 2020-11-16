@@ -233,7 +233,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QList<Node*>& nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes) const;
 
   /**
    * @brief Create a new sequence named appropriately for the active project

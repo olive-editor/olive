@@ -48,7 +48,7 @@ QString SolidGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.solidgenerator");
 }
 
-QList<Node::CategoryID> SolidGenerator::Category() const
+QVector<Node::CategoryID> SolidGenerator::Category() const
 {
   return {kCategoryGenerator};
 }

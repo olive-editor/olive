@@ -89,7 +89,7 @@ void CurveView::ConnectInput(NodeInput *input)
 
 void CurveView::DisconnectNode(Node *node)
 {
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     DisconnectInput(i);

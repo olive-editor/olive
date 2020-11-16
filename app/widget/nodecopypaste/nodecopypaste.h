@@ -35,9 +35,9 @@ public:
   NodeCopyPasteWidget() = default;
 
 protected:
-  void CopyNodesToClipboard(const QList<Node*>& nodes, void* userdata = nullptr);
+  void CopyNodesToClipboard(const QVector<Node *> &nodes, void* userdata = nullptr);
 
-  QList<Node*> PasteNodesFromClipboard(Sequence *graph, QUndoCommand *command, void* userdata = nullptr);
+  QVector<Node*> PasteNodesFromClipboard(Sequence *graph, QUndoCommand *command, void* userdata = nullptr);
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata);
 

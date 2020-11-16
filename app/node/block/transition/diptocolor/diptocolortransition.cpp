@@ -43,7 +43,7 @@ QString DipToColorTransition::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.diptocolor");
 }
 
-QList<Node::CategoryID> DipToColorTransition::Category() const
+QVector<Node::CategoryID> DipToColorTransition::Category() const
 {
   return {kCategoryTransition};
 }

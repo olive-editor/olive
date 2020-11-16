@@ -63,7 +63,7 @@ QString StrokeFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.stroke");
 }
 
-QList<Node::CategoryID> StrokeFilterNode::Category() const
+QVector<Node::CategoryID> StrokeFilterNode::Category() const
 {
   return {kCategoryFilter};
 }

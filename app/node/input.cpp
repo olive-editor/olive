@@ -423,7 +423,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
   }
 }
 
-void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
+void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
   if (is_connected()
       && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
@@ -433,7 +433,7 @@ void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusi
       list.append(connected);
 
       if (traverse) {
-        QList<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
+        QVector<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
 
         foreach (NodeInput* i, connected_inputs) {
           i->GetDependencies(list, traverse, exclusive_only);
@@ -461,21 +461,21 @@ QVariant NodeInput::GetDefaultValueForTrack(int track) const
   return default_value_.at(track);
 }
 
-QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
+QVector<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
 {
-  QList<Node *> list;
+  QVector<Node *> list;
 
   GetDependencies(list, traverse, exclusive_only);
 
   return list;
 }
 
-QList<Node *> NodeInput::GetExclusiveDependencies() const
+QVector<Node *> NodeInput::GetExclusiveDependencies() const
 {
   return GetDependencies(true, true);
 }
 
-QList<Node *> NodeInput::GetImmediateDependencies() const
+QVector<Node *> NodeInput::GetImmediateDependencies() const
 {
   return GetDependencies(false, false);
 }

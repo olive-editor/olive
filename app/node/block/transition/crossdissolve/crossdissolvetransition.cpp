@@ -42,7 +42,7 @@ QString CrossDissolveTransition::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.crossdissolve");
 }
 
-QList<Node::CategoryID> CrossDissolveTransition::Category() const
+QVector<Node::CategoryID> CrossDissolveTransition::Category() const
 {
   return {kCategoryTransition};
 }

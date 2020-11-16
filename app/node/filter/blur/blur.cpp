@@ -59,7 +59,7 @@ QString BlurFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.blur");
 }
 
-QList<Node::CategoryID> BlurFilterNode::Category() const
+QVector<Node::CategoryID> BlurFilterNode::Category() const
 {
   return {kCategoryFilter};
 }

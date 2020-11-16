@@ -79,7 +79,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     if (parent()->IsBlockSelected(clicked_item_->block())) {
 
       // Collect item deselections
-      QList<Block*> deselected_blocks;
+      QVector<Block*> deselected_blocks;
 
       // If shift is held, deselect it
       if (event->GetModifiers() & Qt::ShiftModifier) {
@@ -89,7 +89,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
         // If not holding alt, deselect all links as well
         if (!(event->GetModifiers() & Qt::AltModifier)) {
           parent()->SetBlockLinksSelected(clicked_item_->block(), false);
-          deselected_blocks.append(clicked_item_->block()->linked_clips().toList());
+          deselected_blocks.append(clicked_item_->block()->linked_clips());
         }
       }
 
@@ -107,7 +107,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
   if (selectable_item) {
 
     // Collect item selections
-    QList<Block*> selected_blocks;
+    QVector<Block*> selected_blocks;
 
     // Select this item
     parent()->AddSelection(clicked_item_);
@@ -116,7 +116,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     // If not holding alt, select all links as well
     if (!(event->GetModifiers() & Qt::AltModifier)) {
       parent()->SetBlockLinksSelected(clicked_item_->block(), true);
-      selected_blocks.append(clicked_item_->block()->linked_clips().toList());
+      selected_blocks.append(clicked_item_->block()->linked_clips());
     }
 
     parent()->SignalSelectedBlocks(selected_blocks);
@@ -219,13 +219,13 @@ void SetGhostToSlideMode(TimelineViewGhostItem* g)
 }
 
 void PointerTool::InitiateDragInternal(TimelineViewBlockItem *clicked_item,
-                                                       Timeline::MovementMode trim_mode,
-                                                       bool dont_roll_trims,
-                                                       bool allow_nongap_rolling,
-                                                       bool slide_instead_of_moving)
+                                       Timeline::MovementMode trim_mode,
+                                       bool dont_roll_trims,
+                                       bool allow_nongap_rolling,
+                                       bool slide_instead_of_moving)
 {
   // Get list of selected blocks
-  QList<TimelineViewBlockItem*> clips = parent()->GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> clips = parent()->GetSelectedBlocks();
 
   if (trim_mode == Timeline::kMove) {
 
@@ -590,10 +590,10 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
     // If we're not duplicating, "remove" the clips and replace them with gaps
     if (!duplicate_clips) {
-      QList<Block*> blocks_to_delete;
+      QVector<Block*> blocks_to_delete(blocks_moving.size());
 
-      foreach (const GhostBlockPair& p, blocks_moving) {
-        blocks_to_delete.append(p.block);
+      for (int i=0; i<blocks_moving.size(); i++) {
+        blocks_to_delete[i] = blocks_moving.at(i).block;
       }
 
       parent()->ReplaceBlocksWithGaps(blocks_to_delete, false, command);
@@ -724,7 +724,7 @@ Timeline::MovementMode PointerTool::IsCursorInTrimHandle(TimelineViewBlockItem *
 }
 
 void PointerTool::InitiateDrag(TimelineViewBlockItem* clicked_item,
-                                               Timeline::MovementMode trim_mode)
+                               Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, false, false);
 }
@@ -795,8 +795,8 @@ void PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::Movem
 }
 
 bool PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
-                                                  const QList<TimelineViewBlockItem*>& items,
-                                                  const Timeline::MovementMode& mode)
+                                  const QVector<TimelineViewBlockItem*>& items,
+                                  const Timeline::MovementMode& mode)
 {
   foreach (TimelineViewBlockItem* compare, items) {
     if (clip->Track() == compare->Track()
@@ -811,9 +811,9 @@ bool PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
 }
 
 bool PointerTool::AddMovingTransitionsToClipGhost(Block* block,
-                                                                  const TrackReference& track,
-                                                                  Timeline::MovementMode movement,
-                                                                  const QList<TimelineViewBlockItem*>& selected_items)
+                                                  const TrackReference& track,
+                                                  Timeline::MovementMode movement,
+                                                  const QList<TimelineViewBlockItem*>& selected_items)
 {
   // Assume block is a clip and see if it has any transitions
   TransitionBlock* transitions[2];

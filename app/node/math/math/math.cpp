@@ -55,7 +55,7 @@ QString MathNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.math");
 }
 
-QList<Node::CategoryID> MathNode::Category() const
+QVector<Node::CategoryID> MathNode::Category() const
 {
   return {kCategoryMath};
 }

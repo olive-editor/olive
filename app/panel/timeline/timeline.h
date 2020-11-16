@@ -91,9 +91,9 @@ protected:
   virtual void Retranslate() override;
 
 signals:
-  void BlocksSelected(const QList<Block*>& selected_blocks);
+  void BlocksSelected(const QVector<Block*>& selected_blocks);
 
-  void BlocksDeselected(const QList<Block*>& deselected_blocks);
+  void BlocksDeselected(const QVector<Block*>& deselected_blocks);
 
 };
 

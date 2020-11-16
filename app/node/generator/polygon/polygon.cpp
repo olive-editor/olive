@@ -69,7 +69,7 @@ QString PolygonGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.polygon");
 }
 
-QList<Node::CategoryID> PolygonGenerator::Category() const
+QVector<Node::CategoryID> PolygonGenerator::Category() const
 {
   return {kCategoryGenerator};
 }

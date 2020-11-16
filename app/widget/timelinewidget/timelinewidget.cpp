@@ -362,7 +362,7 @@ rational TimelineWidget::GetToolTipTimebase() const
 
 void TimelineWidget::SelectAll()
 {
-  QList<Block*> newly_selected_blocks;
+  QVector<Block*> newly_selected_blocks;
 
   for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
     if (!selected_blocks_.contains(it.key())) {
@@ -414,7 +414,7 @@ void TimelineWidget::SplitAtPlayhead()
 
   rational playhead_time = Timecode::timestamp_to_time(GetTimestamp(), timebase());
 
-  QList<TimelineViewBlockItem *> selected_blocks = GetSelectedBlocks();
+  QVector<TimelineViewBlockItem *> selected_blocks = GetSelectedBlocks();
 
   // Prioritize blocks that are selected and overlap the playhead
   QVector<Block*> blocks_to_split;
@@ -459,7 +459,7 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::ReplaceBlocksWithGaps(const QList<Block *> &blocks,
+void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                             bool remove_from_graph,
                                             QUndoCommand *command)
 {
@@ -482,8 +482,8 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QList<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  QList<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
-  QList<Block*> blocks_to_delete;
+  QVector<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
+  QVector<Block*> blocks_to_delete;
 
   foreach (TimelineViewBlockItem* item, selected_list) {
     Block* b = item->block();
@@ -498,8 +498,8 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Block*> clips_to_delete;
-  QList<TransitionBlock*> transitions_to_delete;
+  QVector<Block*> clips_to_delete;
+  QVector<TransitionBlock*> transitions_to_delete;
 
   foreach (Block* b, blocks_to_delete) {
     if (b->type() == Block::kClip) {
@@ -580,9 +580,9 @@ void TimelineWidget::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
 
 void TimelineWidget::ToggleLinksOnSelected()
 {
-  QList<TimelineViewBlockItem*> sel = GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> sel = GetSelectedBlocks();
 
-  QList<Block*> blocks;
+  QVector<Block*> blocks;
   bool link = true;
 
   foreach (TimelineViewBlockItem* item, sel) {
@@ -612,20 +612,20 @@ void TimelineWidget::CopySelected(bool cut)
     return;
   }
 
-  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> selected = GetSelectedBlocks();
 
   if (selected.isEmpty()) {
     return;
   }
 
-  QList<Node*> selected_nodes;
+  QVector<Node*> selected_nodes;
 
   foreach (TimelineViewBlockItem* item, selected) {
     Node* block = item->block();
 
     selected_nodes.append(block);
 
-    QList<Node*> deps = block->GetDependencies();
+    QVector<Node*> deps = block->GetDependencies();
 
     foreach (Node* d, deps) {
       if (!selected_nodes.contains(d)) {
@@ -649,8 +649,8 @@ void TimelineWidget::Paste(bool insert)
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<BlockPasteData> paste_data;
-  QList<Node*> pasted = PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()), command, &paste_data);
+  QVector<BlockPasteData> paste_data;
+  QVector<Node*> pasted = PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()), command, &paste_data);
 
   rational paste_start = GetTime();
 
@@ -731,7 +731,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
 void TimelineWidget::ToggleSelectedEnabled()
 {
-  QList<TimelineViewBlockItem*> items = GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> items = GetSelectedBlocks();
 
   if (items.isEmpty()) {
     return;
@@ -748,12 +748,12 @@ void TimelineWidget::ToggleSelectedEnabled()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
+QVector<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
-  QList<TimelineViewBlockItem *> list;
+  QVector<TimelineViewBlockItem *> list(selected_blocks_.size());
 
-  foreach (Block* b, selected_blocks_) {
-    list.append(block_items_.value(b));
+  for (int i=0; i<selected_blocks_.size(); i++) {
+    list[i] = block_items_.value(selected_blocks_.at(i));
   }
 
   return list;
@@ -908,10 +908,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 
 void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
 {
-  QList<TimelineViewBlockItem*> delete_items;
-  delete_items.reserve(blocks.size());
-
-  QList<Block*> deselect_blocks;
+  QVector<Block*> deselect_blocks;
 
   foreach (Block* b, blocks) {
     // Disconnect all signals
@@ -940,8 +937,6 @@ void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
     // through
     emit BlocksDeselected(deselect_blocks);
   }
-
-  qDeleteAll(delete_items);
 }
 
 void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
@@ -1051,7 +1046,7 @@ void TimelineWidget::ShowContextMenu()
 {
   Menu menu(this);
 
-  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> selected = GetSelectedBlocks();
 
   if (!selected.isEmpty()) {
     MenuShared::instance()->AddItemsForEditMenu(&menu, true);
@@ -1060,8 +1055,8 @@ void TimelineWidget::ShowContextMenu()
 
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, [this](){
-      QList<TimelineViewBlockItem*> block_items = GetSelectedBlocks();
-      QList<Node*> nodes;
+      QVector<TimelineViewBlockItem*> block_items = GetSelectedBlocks();
+      QVector<Node*> nodes;
 
       foreach (TimelineViewBlockItem* i, block_items) {
         nodes.append(i->block());
@@ -1210,7 +1205,7 @@ const QRect& TimelineWidget::GetRubberBandGeometry() const
   return rubberband_.geometry();
 }
 
-void TimelineWidget::SignalSelectedBlocks(QList<Block *> input, bool filter)
+void TimelineWidget::SignalSelectedBlocks(QVector<Block *> input, bool filter)
 {
   if (input.isEmpty()) {
     return;
@@ -1233,7 +1228,7 @@ void TimelineWidget::SignalSelectedBlocks(QList<Block *> input, bool filter)
   emit BlocksSelected(input);
 }
 
-void TimelineWidget::SignalDeselectedBlocks(const QList<Block *> &deselected_blocks)
+void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks)
 {
   if (deselected_blocks.isEmpty()) {
     return;

@@ -43,7 +43,7 @@ public:
 
   virtual Type type() const = 0;
 
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
 
   const rational& in() const;
   const rational& out() const;
@@ -110,7 +110,7 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
-  virtual QList<NodeInput*> GetInputsToHash() const override;
+  virtual QVector<NodeInput*> GetInputsToHash() const override;
 
   virtual void LengthChangedEvent(const rational& old_length,
                                   const rational& new_length,

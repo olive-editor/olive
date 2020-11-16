@@ -133,7 +133,7 @@ opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
       otio_clip->set_source_range(opentimelineio::v1_0::TimeRange(block->in().toRationalTime(),
                                                                   block->length().toRationalTime()));
 
-      QList<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
+      QVector<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
       if (!media_nodes.isEmpty()) {
         auto media_ref = new opentimelineio::v1_0::ExternalReference(media_nodes.first()->stream()->footage()->filename().toStdString());
         otio_clip->set_media_reference(media_ref);

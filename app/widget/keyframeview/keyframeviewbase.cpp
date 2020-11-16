@@ -76,7 +76,7 @@ void KeyframeViewBase::DeleteSelected()
 
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     RemoveKeyframesOfInput(i);

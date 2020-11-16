@@ -453,7 +453,7 @@ void PreviewAutoCacher::CopyNodeInputValue(NodeInput *input)
     // disconnecting whatever was connected to it
 
     // We start by removing all old dependencies from the map
-    QList<Node*> old_deps = our_copy->GetExclusiveDependencies();
+    QVector<Node*> old_deps = our_copy->GetExclusiveDependencies();
     foreach (Node* i, old_deps) {
       copy_map_.take(copy_map_.key(i))->deleteLater();
     }
@@ -496,8 +496,8 @@ Node* PreviewAutoCacher::CopyNodeConnections(Node* src_node)
   Node::CopyInputs(src_node, dst_node, false);
 
   // Copy all connections
-  QList<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
-  QList<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
+  QVector<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
+  QVector<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
 
   for (int i=0;i<src_node_inputs.size();i++) {
     NodeInput* src_input = src_node_inputs.at(i);

@@ -40,7 +40,7 @@ NodeTableView::NodeTableView(QWidget* parent) :
                    tr("A/W")});
 }
 
-void NodeTableView::SelectNodes(const QList<Node *> &nodes)
+void NodeTableView::SelectNodes(const QVector<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
     QTreeWidgetItem* top_item = new QTreeWidgetItem();
@@ -53,7 +53,7 @@ void NodeTableView::SelectNodes(const QList<Node *> &nodes)
   SetTime(last_time_);
 }
 
-void NodeTableView::DeselectNodes(const QList<Node *> &nodes)
+void NodeTableView::DeselectNodes(const QVector<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
     delete top_level_item_map_.take(n);

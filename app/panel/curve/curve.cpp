@@ -37,7 +37,7 @@ void CurvePanel::DeleteSelected()
   static_cast<CurveWidget*>(GetTimeBasedWidget())->DeleteSelected();
 }
 
-void CurvePanel::SetNodes(const QList<Node *> &nodes)
+void CurvePanel::SetNodes(const QVector<Node *> &nodes)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetNodes(nodes);
 }

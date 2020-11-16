@@ -58,7 +58,7 @@ Block::Block() :
   set_length_and_media_out(1);
 }
 
-QList<Node::CategoryID> Block::Category() const
+QVector<Node::CategoryID> Block::Category() const
 {
   return {kCategoryTimeline};
 }
@@ -241,9 +241,9 @@ void Block::SaveInternal(QXmlStreamWriter *writer) const
   }
 }
 
-QList<NodeInput *> Block::GetInputsToHash() const
+QVector<NodeInput *> Block::GetInputsToHash() const
 {
-  QList<NodeInput*> inputs = Node::GetInputsToHash();
+  QVector<NodeInput*> inputs = Node::GetInputsToHash();
 
   // Ignore these inputs
   inputs.removeOne(media_in_input_);

@@ -765,7 +765,7 @@ void BlockUnlinkAllCommand::undo_internal()
   unlinked_.clear();
 }
 
-BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool link, QUndoCommand *parent) :
+BlockLinkManyCommand::BlockLinkManyCommand(const QVector<Block *> blocks, bool link, QUndoCommand *parent) :
   UndoCommand(parent),
   blocks_(blocks)
 {

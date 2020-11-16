@@ -38,7 +38,7 @@ public:
 
   virtual Stream::Type type() const = 0;
 
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
 
   StreamPtr stream();
   void SetStream(StreamPtr s);

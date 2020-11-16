@@ -471,12 +471,12 @@ private:
 
 class BlockLinkManyCommand : public UndoCommand {
 public:
-  BlockLinkManyCommand(const QList<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
+  BlockLinkManyCommand(const QVector<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
 private:
-  QList<Block*> blocks_;
+  QVector<Block*> blocks_;
 
 };
 

@@ -60,7 +60,7 @@ TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRang
     return r;
   }
 
-  QList<TimeRange> adjusted = from->TransformTimeTo(r, to, direction);
+  QVector<TimeRange> adjusted = from->TransformTimeTo(r, to, direction);
 
   if (adjusted.isEmpty()) {
     return r;

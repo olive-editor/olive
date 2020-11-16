@@ -265,12 +265,12 @@ void Node::SaveInternal(QXmlStreamWriter *) const
 {
 }
 
-QList<NodeInput *> Node::GetInputsToHash() const
+QVector<NodeInput *> Node::GetInputsToHash() const
 {
   return GetInputsIncludingArrays();
 }
 
-void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>& list)
+void GetInputsIncludingArraysInternal(NodeInputArray* array, QVector<NodeInput *>& list)
 {
   foreach (NodeInput* input, array->sub_params()) {
     list.append(input);
@@ -281,9 +281,9 @@ void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>&
   }
 }
 
-QList<NodeInput *> Node::GetInputsIncludingArrays() const
+QVector<NodeInput *> Node::GetInputsIncludingArrays() const
 {
-  QList<NodeInput *> inputs;
+  QVector<NodeInput *> inputs;
 
   foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kInput) {
@@ -300,7 +300,7 @@ QList<NodeInput *> Node::GetInputsIncludingArrays() const
   return inputs;
 }
 
-QList<NodeOutput *> Node::GetOutputs() const
+QVector<NodeOutput *> Node::GetOutputs() const
 {
   // The current design only uses one output per node. This function returns a list just in case that changes.
   return {output_};
@@ -347,7 +347,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
   // Add this Node's ID
   hash.addData(id().toUtf8());
 
-  QList<NodeInput*> inputs = GetInputsToHash();
+  QVector<NodeInput*> inputs = GetInputsToHash();
 
   foreach (NodeInput* input, inputs) {
     // For each input, try to hash its value
@@ -416,8 +416,8 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
-  const QList<NodeParam*>& src_param = source->params_;
-  const QList<NodeParam*>& dst_param = destination->params_;
+  const QVector<NodeParam*>& src_param = source->params_;
+  const QVector<NodeParam*>& dst_param = destination->params_;
 
   for (int i=0;i<src_param.size();i++) {
     NodeParam* p = src_param.at(i);
@@ -460,7 +460,7 @@ bool Node::IsMedia() const
     return false;
 }
 
-const QList<NodeParam *>& Node::parameters() const
+const QVector<NodeParam *>& Node::parameters() const
 {
   return params_;
 }
@@ -478,9 +478,9 @@ int Node::IndexOfParameter(NodeParam *param) const
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-QList<Node*> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
-  QList<Node*> list;
+QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<Node*> list;
 
   foreach (NodeInput* i, inputs) {
     i->GetDependencies(list, traverse, exclusive_only);
@@ -489,17 +489,17 @@ QList<Node*> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) c
   return list;
 }
 
-QList<Node *> Node::GetDependencies() const
+QVector<Node *> Node::GetDependencies() const
 {
   return GetDependenciesInternal(true, false);
 }
 
-QList<Node *> Node::GetExclusiveDependencies() const
+QVector<Node *> Node::GetExclusiveDependencies() const
 {
   return GetDependenciesInternal(true, true);
 }
 
-QList<Node *> Node::GetImmediateDependencies() const
+QVector<Node *> Node::GetImmediateDependencies() const
 {
   return GetDependenciesInternal(false, false);
 }
@@ -523,7 +523,7 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
 
 NodeInput *Node::GetInputWithID(const QString &id) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     if (i->id() == id) {
@@ -548,7 +548,7 @@ NodeOutput *Node::GetOutputWithID(const QString &id) const
 
 bool Node::OutputsTo(Node *n, bool recursively) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -567,7 +567,7 @@ bool Node::OutputsTo(Node *n, bool recursively) const
 
 bool Node::OutputsTo(const QString &id, bool recursively) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -586,7 +586,7 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
 
 bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -608,7 +608,7 @@ bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) co
 
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     foreach (NodeEdgePtr edge, input->edges()) {
@@ -627,7 +627,7 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     foreach (NodeEdgePtr edge, input->edges()) {
@@ -649,7 +649,7 @@ int Node::GetRoutesTo(Node *n) const
   bool outputs_directly = false;
   int routes = 0;
 
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* o, outputs) {
     foreach (NodeEdgePtr edge, o->edges()) {
@@ -728,13 +728,13 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
+QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
 {
-  QList<TimeRange> paths_found;
+  QVector<TimeRange> paths_found;
 
   if (direction == NodeParam::kInput) {
     // Get list of all inputs
-    QList<NodeInput *> inputs = GetInputsIncludingArrays();
+    QVector<NodeInput *> inputs = GetInputsIncludingArrays();
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs) {
@@ -755,7 +755,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
     }
   } else {
     // Get list of all outputs
-    QList<NodeOutput*> outputs = GetOutputs();
+    QVector<NodeOutput*> outputs = GetOutputs();
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeOutput* output, outputs) {

@@ -72,7 +72,7 @@ QString TextGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.textgenerator");
 }
 
-QList<Node::CategoryID> TextGenerator::Category() const
+QVector<Node::CategoryID> TextGenerator::Category() const
 {
   return {kCategoryGenerator};
 }

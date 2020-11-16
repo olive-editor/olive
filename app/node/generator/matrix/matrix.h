@@ -39,7 +39,7 @@ public:
   virtual QString Name() const override;
   virtual QString ShortName() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   virtual void Retranslate() override;

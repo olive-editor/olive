@@ -35,7 +35,7 @@ public:
   virtual void DeleteSelected() override;
 
 public slots:
-  void SetNodes(const QList<Node*>& nodes);
+  void SetNodes(const QVector<Node *> &nodes);
 
   virtual void IncreaseTrackHeight() override;
 

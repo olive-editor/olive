@@ -98,7 +98,7 @@ private:
 class NodeRemoveCommand : public UndoCommand {
 public:
   NodeRemoveCommand(NodeGraph* graph,
-                    const QList<Node*>& nodes,
+                    const QVector<Node*>& nodes,
                     QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
@@ -111,9 +111,9 @@ private:
   QObject memory_manager_;
 
   NodeGraph* graph_;
-  QList<Node*> nodes_;
-  QList<NodeEdgePtr> edges_;
-  QList<BlockUnlinkAllCommand*> block_unlink_commands_;
+  QVector<Node*> nodes_;
+  QVector<NodeEdgePtr> edges_;
+  QVector<BlockUnlinkAllCommand*> block_unlink_commands_;
 };
 
 class NodeRemoveWithExclusiveDeps : public UndoCommand {
