@@ -21,7 +21,6 @@
 #ifndef OTIODECODER_H
 #define OTIODECODER_H
 
-
 #include "common/otioutils.h"
 #include "project/project.h"
 #include "task/project/load/loadbasetask.h"

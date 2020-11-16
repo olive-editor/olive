@@ -27,7 +27,6 @@
 
 #define OLIVE_NAMESPACE_EXIT }
 
-
 OLIVE_NAMESPACE_ENTER
 
 const int kHSVChannels = 3;

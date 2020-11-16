@@ -134,7 +134,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
       auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
       otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
-                                                                  block->length().toRationalTime()));
+                                                  block->length().toRationalTime()));
 
       QList<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
       if (!media_nodes.isEmpty()) {
