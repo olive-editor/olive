@@ -18,27 +18,12 @@
 
 ***/
 
-#ifndef OTIODECODER_H
-#define OTIODECODER_H
+#ifndef OTIOUTILS_H
+#define OTIOUTILS_H
 
+#ifdef USE_OTIO
+#include <opentimelineio/version.h>
+namespace OTIO = opentimelineio::OPENTIMELINEIO_VERSION;
+#endif
 
-#include "common/otioutils.h"
-#include "project/project.h"
-#include "task/project/load/loadbasetask.h"
-
-OLIVE_NAMESPACE_ENTER
-
-class LoadOTIOTask : public ProjectLoadBaseTask
-{
-  Q_OBJECT
-public:
-  LoadOTIOTask(const QString& filename);
-
-protected:
-  virtual bool Run() override;
-
-};
-
-OLIVE_NAMESPACE_EXIT
-
-#endif // OTIODECODER_H
+#endif // OTIOUTILS

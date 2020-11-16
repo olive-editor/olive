@@ -24,6 +24,7 @@
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
+#include "common/otioutils.h"
 #include "project/project.h"
 #include "task/task.h"
 

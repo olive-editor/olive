@@ -37,6 +37,7 @@ set(OLIVE_SOURCES
   common/lerp.h
   common/memorypool.h
   common/memorypool.cpp
+  common/otioutils.h
   common/qtutils.h
   common/qtutils.cpp
   common/range.h
