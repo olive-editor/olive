@@ -21,6 +21,8 @@
 #ifndef RENDERTEXTURE_H
 #define RENDERTEXTURE_H
 
+#include <memory>
+
 #include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER

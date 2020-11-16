@@ -25,6 +25,10 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 
+#ifdef Q_OS_LINUX
+#include <QOffscreenSurface>
+#endif
+
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 
