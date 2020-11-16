@@ -358,10 +358,12 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* sequence = GetSequenceToExport();
+  ViewerOutput* viewer = GetSequenceToExport();
 
-  if (sequence) {
-    ExportDialog ed(sequence, main_window_);
+  if (viewer) {
+    Sequence* sequence = dynamic_cast<Sequence*>(viewer->parent());
+
+    ExportDialog ed(viewer, sequence, main_window_);
     ed.exec();
   }
 }

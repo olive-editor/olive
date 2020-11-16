@@ -40,7 +40,7 @@ class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, TimelinePoints* points = nullptr, QWidget* parent = nullptr);
 
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
@@ -52,8 +52,16 @@ private:
   ExportParams GenerateParams() const;
 
   ViewerOutput* viewer_node_;
+  TimelinePoints* points_;
 
   ExportFormat::Format previously_selected_format_;
+
+  enum RangeSelection {
+    kRangeEntireSequence,
+    kRangeInToOut
+  };
+
+  QComboBox* range_combobox_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;

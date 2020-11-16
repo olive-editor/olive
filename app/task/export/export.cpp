@@ -68,7 +68,7 @@ bool ExportTask::Run()
     range = TimeRange(0, viewer()->GetLength());
   }
 
-  frame_time_ = Timecode::time_to_timestamp(range.in(), viewer()->video_params().time_base());
+  frame_time_ = 0;
 
   QSize video_force_size;
   QMatrix4x4 video_force_matrix;
@@ -151,7 +151,13 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
   Q_UNUSED(hash)
 
   foreach (const rational& t, times) {
-    time_map_.insert(t, f);
+    rational actual_time = t;
+
+    if (params_.has_custom_range()) {
+      actual_time -= params_.custom_range().in();
+    }
+
+    time_map_.insert(actual_time, f);
   }
 
   forever {

@@ -30,6 +30,7 @@
 #include <QSplitter>
 #include <QStandardPaths>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "dialog/task/task.h"
 #include "project/item/sequence/sequence.h"
@@ -38,9 +39,10 @@
 
 OLIVE_NAMESPACE_ENTER
 
-ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QWidget *parent) :
   QDialog(parent),
-  viewer_node_(viewer_node)
+  viewer_node_(viewer_node),
+  points_(points)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -94,10 +96,23 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
-  QFrame* horizontal_line = new QFrame();
-  horizontal_line->setFrameShape(QFrame::HLine);
-  horizontal_line->setFrameShadow(QFrame::Sunken);
-  preferences_layout->addWidget(horizontal_line, row, 0, 1, 4);
+  preferences_layout->addWidget(QtUtils::CreateHorizontalLine(), row, 0, 1, 4);
+
+  row++;
+
+  preferences_layout->addWidget(new QLabel(tr("Range:")), row, 0);
+
+  range_combobox_ = new QComboBox();
+  range_combobox_->addItem(tr("Entire Sequence"));
+  range_combobox_->addItem(tr("In to Out"));
+  if (!points_) {
+    range_combobox_->setEnabled(false);
+  }
+  preferences_layout->addWidget(range_combobox_, row, 1, 1, 3);
+
+  row++;
+
+  preferences_layout->addWidget(QtUtils::CreateHorizontalLine(), row, 0, 1, 4);
 
   row++;
 
@@ -212,6 +227,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
+  preview_viewer_->ruler()->ConnectTimelinePoints(points_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
@@ -232,27 +248,28 @@ void ExportDialog::StartExport()
   // Validate if the entered filename contains the correct extension (the extension is necessary
   // for both FFmpeg and OIIO to determine the output format)
   QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(static_cast<ExportFormat::Format>(format_combobox_->currentIndex())));
+  QString proposed_filename = filename_edit_->text().trimmed();
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
-  if (!filename_edit_->text().endsWith(necessary_ext, Qt::CaseInsensitive)) {
+  if (!proposed_filename.endsWith(necessary_ext, Qt::CaseInsensitive)) {
     QMessageBox b(this);
     b.setIcon(QMessageBox::Warning);
     b.setWindowModality(Qt::WindowModal);
     b.setWindowTitle(tr("Invalid filename"));
-    b.setText(tr("The filename must contain the extension \".%1\". Would you like to append it "
-                 "automatically?"));
+    b.setText(tr("The filename must contain the extension \"%1\". Would you like to append it "
+                 "automatically?").arg(necessary_ext));
     b.addButton(QMessageBox::Yes);
     b.addButton(QMessageBox::No);
 
     if (b.exec() == QMessageBox::Yes) {
-      filename_edit_->setText(filename_edit_->text().append(necessary_ext));
+      filename_edit_->setText(proposed_filename.append(necessary_ext));
     } else {
       return;
     }
   }
 
   // Validate the intended path
-  QFileInfo file_info(filename_edit_->text());
+  QFileInfo file_info(proposed_filename);
   QFileInfo dir_info(file_info.path());
 
   // If the directory does not exist, try to create it
@@ -275,7 +292,7 @@ void ExportDialog::StartExport()
     b.setWindowModality(Qt::WindowModal);
     b.setWindowTitle(tr("Confirm Overwrite"));
     b.setText(tr("The file \"%1\" already exists. Do you want to overwrite it?")
-              .arg(filename_edit_->text()));
+              .arg(proposed_filename));
     b.addButton(QMessageBox::Yes);
     b.addButton(QMessageBox::No);
 
@@ -328,7 +345,7 @@ void ExportDialog::BrowseFilename()
 
   QString browsed_fn = QFileDialog::getSaveFileName(this,
                                                     "",
-                                                    filename_edit_->text(),
+                                                    filename_edit_->text().trimmed(),
                                                     QStringLiteral("%1 (*.%2)").arg(ExportFormat::GetName(f), ExportFormat::GetExtension(f)),
                                                     nullptr,
 
@@ -342,7 +359,7 @@ void ExportDialog::BrowseFilename()
 
 void ExportDialog::FormatChanged(int index)
 {
-  QString current_filename = filename_edit_->text();
+  QString current_filename = filename_edit_->text().trimmed();
   QString previously_selected_ext = ExportFormat::GetExtension(previously_selected_format_);
   ExportFormat::Format current_format = static_cast<ExportFormat::Format>(index);
   QString currently_selected_ext = ExportFormat::GetExtension(current_format);
@@ -441,8 +458,14 @@ ExportParams ExportDialog::GenerateParams() const
                                   AudioParams::kInternalFormat);
 
   ExportParams params;
-  params.SetFilename(filename_edit_->text());
+  params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
+
+  if (range_combobox_->currentIndex() == kRangeInToOut
+      && points_
+      && points_->workarea()->enabled()) {
+    params.set_custom_range(points_->workarea()->range());
+  }
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
     params.set_video_scaling_method(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));
