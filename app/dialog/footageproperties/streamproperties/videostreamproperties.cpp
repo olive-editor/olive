@@ -35,7 +35,8 @@
 OLIVE_NAMESPACE_ENTER
 
 VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
-  stream_(stream)
+  stream_(stream),
+  video_premultiply_alpha_(nullptr)
 {
   QGridLayout* video_layout = new QGridLayout(this);
   video_layout->setMargin(0);
@@ -131,13 +132,13 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     set_colorspace = video_color_space_->currentText();
   }
 
-  if (video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha()
+  if ((video_premultiply_alpha_ && video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha())
       || set_colorspace != stream_->colorspace(false)
       || static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()) != stream_->interlacing()
       || pixel_aspect_combo_->GetPixelAspectRatio() != stream_->pixel_aspect_ratio()) {
 
     new VideoStreamChangeCommand(stream_,
-                                 video_premultiply_alpha_->isChecked(),
+                                 video_premultiply_alpha_ ? video_premultiply_alpha_->isChecked() : stream_->premultiplied_alpha(),
                                  set_colorspace,
                                  static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
                                  pixel_aspect_combo_->GetPixelAspectRatio(),
