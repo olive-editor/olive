@@ -59,7 +59,7 @@ QString BlurFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.blur");
 }
 
-QList<Node::CategoryID> BlurFilterNode::Category() const
+QVector<Node::CategoryID> BlurFilterNode::Category() const
 {
   return {kCategoryFilter};
 }
@@ -83,7 +83,7 @@ void BlurFilterNode::Retranslate()
 ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(ReadFileAsString(":/shaders/blur.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"), QString());
 }
 
 NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
@@ -100,19 +100,19 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   NodeValueTable table = value.Merge();
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(texture_input_).data().isNull()) {
+  if (!job.GetValue(texture_input_).data.isNull()) {
 
     // Check if radius > 0, and both "horiz" and/or "vert" are enabled
-    if ((job.GetValue(horiz_input_).data().toBool() || job.GetValue(vert_input_).data().toBool())
-        && job.GetValue(radius_input_).data().toDouble() > 0.0) {
+    if ((job.GetValue(horiz_input_).data.toBool() || job.GetValue(vert_input_).data.toBool())
+        && job.GetValue(radius_input_).data.toDouble() > 0.0) {
 
       // Set iteration count to 2 if we're blurring both horizontally and vertically
-      if (job.GetValue(horiz_input_).data().toBool() && job.GetValue(vert_input_).data().toBool()) {
+      if (job.GetValue(horiz_input_).data.toBool() && job.GetValue(vert_input_).data.toBool()) {
         job.SetIterations(2, texture_input_);
       }
 
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(repeat_edge_pixels_input_).data().toBool()) {
+      if (!job.GetValue(repeat_edge_pixels_input_).data.toBool()) {
         job.SetAlphaChannelRequired(true);
       }
 
@@ -120,7 +120,7 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
 
     } else {
       // If we're not performing the blur job, just push the texture
-      table.Push(job.GetValue(texture_input_));
+      table.Push(job.GetValue(texture_input_), this);
     }
 
   }

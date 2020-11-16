@@ -63,9 +63,9 @@ public:
 
   void SetGraph(NodeGraph* graph);
 
-  QList<Node*> GetSelectedNodes() const;
-  QList<NodeViewItem*> GetSelectedItems() const;
-  QList<NodeEdge *> GetSelectedEdges() const;
+  QVector<Node *> GetSelectedNodes() const;
+  QVector<NodeViewItem*> GetSelectedItems() const;
+  QVector<NodeEdge *> GetSelectedEdges() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
   const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;

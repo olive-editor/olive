@@ -33,16 +33,22 @@ ExportTask::ExportTask(ViewerOutput* viewer_node,
   params_(params)
 {
   SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
-
-  // Render highest quality
-  backend()->SetRenderMode(RenderMode::kOnline);
 }
 
 bool ExportTask::Run()
 {
   TimeRange range;
 
+  // For safety, if we're overwriting, we save to a temporary filename and then only overwrite it
+  // at the end
+  QString real_filename = params_.filename();
+  if (QFileInfo::exists(params_.filename())) {
+    // Generate a filename that definitely doesn't exist
+    params_.SetFilename(FileFunctions::GetSafeTemporaryFilename(real_filename));
+  }
+
   encoder_ = Encoder::CreateFromID(params_.encoder(), params_);
+
   if (!encoder_) {
     SetError(tr("Failed to create encoder"));
     return false;
@@ -64,20 +70,26 @@ bool ExportTask::Run()
 
   frame_time_ = Timecode::time_to_timestamp(range.in(), viewer()->video_params().time_base());
 
+  QSize video_force_size;
+  QMatrix4x4 video_force_matrix;
+
   if (params_.video_enabled()) {
 
-    // Ensure renderer always provides the same resolution
-    backend()->SetForceDownloadResolution(true);
-
     // If a transformation matrix is applied to this video, create it here
-    if (params_.video_scaling_method() != ExportParams::kStretch) {
-      QMatrix4x4 mat = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                    viewer()->video_params().width(),
-                                                    viewer()->video_params().height(),
-                                                    params_.video_params().width(),
-                                                    params_.video_params().height());
+    if (viewer()->video_params().width() != params_.video_params().width()
+        || params_.video_params().height() != params_.video_params().height()) {
+      video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
-      backend()->SetVideoDownloadMatrix(mat);
+      if (params_.video_scaling_method() != ExportParams::kStretch) {
+        video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
+                                                          viewer()->video_params().width(),
+                                                          viewer()->video_params().height(),
+                                                          params_.video_params().width(),
+                                                          params_.video_params().height());
+      }
+    } else {
+      // Disables forcing size in the renderer
+      video_force_size = QSize(0, 0);
     }
 
     // Create color processor
@@ -94,15 +106,17 @@ bool ExportTask::Run()
   TimeRangeList video_range, audio_range;
 
   if (params_.video_enabled()) {
-    video_range.append(range);
+    video_range = {range};
   }
 
   if (params_.audio_enabled()) {
-    audio_range.append(range);
+    audio_range = {range};
     audio_data_.SetLength(range.length());
   }
 
-  Render(video_range, audio_range, false);
+  Render(color_manager_, video_range, audio_range, RenderMode::kOnline, nullptr,
+         video_force_size, video_force_matrix, encoder_->GetDesiredPixelFormat(),
+         color_processor_);
 
   bool success = true;
 
@@ -113,49 +127,28 @@ bool ExportTask::Run()
 
   encoder_->Close();
 
-  encoder_->deleteLater();
+  delete encoder_;
+
+  // If cancelled, delete the file we made, which is always a file we created since we write to a
+  // temp file during the actual encoding process
+  if (IsCancelled()) {
+    QFile::remove(params_.filename());
+  } else if (params_.filename() != real_filename) {
+    // If we were writing to a temp file, overwrite now
+    if (!FileFunctions::RenameFileAllowOverwrite(params_.filename(), real_filename)) {
+      SetError(tr("Failed to overwrite \"%1\". Export has been saved as \"%2\" instead.")
+               .arg(real_filename, params_.filename()));
+      success = false;
+    }
+  }
 
   return success;
 }
 
-void FrameColorConvert(ColorProcessorPtr processor, FramePtr frame)
-{
-  // OCIO conversion requires a frame in 32F format
-  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F
-      && frame->format() != PixelFormat::PIX_FMT_RGB32F) {
-    PixelFormat::Format dst;
-
-    if (PixelFormat::FormatHasAlphaChannel(frame->format())) {
-      dst = PixelFormat::PIX_FMT_RGBA32F;
-    } else {
-      dst = PixelFormat::PIX_FMT_RGB32F;
-    }
-
-    frame = PixelFormat::ConvertPixelFormat(frame, dst);
-  }
-
-  // Color conversion must be done with unassociated alpha, and the pipeline is always associated
-  ColorManager::DisassociateAlpha(frame);
-
-  // Convert color space
-  processor->ConvertFrame(frame);
-
-  // Re-associate alpha
-  ColorManager::ReassociateAlpha(frame);
-}
-
-QFuture<void> ExportTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
-{
-  rendered_frame_.insert(hash, frame);
-
-  return QtConcurrent::run(FrameColorConvert, color_processor_, frame);
-}
-
-void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
+void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times, qint64 job_time)
 {
   Q_UNUSED(job_time)
-
-  FramePtr f = rendered_frame_.value(hash);
+  Q_UNUSED(hash)
 
   foreach (const rational& t, times) {
     time_map_.insert(t, f);
@@ -174,7 +167,6 @@ void ExportTask::FrameDownloaded(const QByteArray &hash, const std::list<rationa
     encoder_->WriteFrame(time_map_.take(real_time), real_time);
 
     frame_time_++;
-
   }
 }
 

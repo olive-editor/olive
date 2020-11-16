@@ -100,7 +100,7 @@ private:
   void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
   bool IsClipTrimmable(TimelineViewBlockItem* clip,
-                       const QList<TimelineViewBlockItem*>& items,
+                       const QVector<TimelineViewBlockItem *> &items,
                        const Timeline::MovementMode& mode);
 
   void ProcessGhostsForSliding();

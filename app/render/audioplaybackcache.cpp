@@ -127,7 +127,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
           seg_file.close();
 
-          ranges_we_validated.InsertTimeRange(TimeRange(this_write_in_point, this_write_out_point));
+          ranges_we_validated.insert(TimeRange(this_write_in_point, this_write_out_point));
         } else {
           qWarning() << "Failed to write PCM data to" << seg_file.fileName();
         }
@@ -157,7 +157,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
-  if (from_in_time == to_in_time) {
+  if (from_in_time == to_in_time || GetLength().isNull()) {
     // Nothing to be done
     return;
   }

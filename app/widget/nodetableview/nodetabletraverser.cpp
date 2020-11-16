@@ -30,6 +30,7 @@ QVariant NodeTableTraverser::ProcessVideoFootage(StreamPtr stream, const rationa
                                          video_stream->height(),
                                          video_stream->timebase(),
                                          video_stream->format(),
+                                         video_stream->channel_count(),
                                          video_stream->pixel_aspect_ratio()));
 }
 
@@ -39,7 +40,7 @@ QVariant NodeTableTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRan
 
   return QVariant::fromValue(AudioParams(audio_stream->sample_rate(),
                                          audio_stream->channel_layout(),
-                                         SampleFormat::kInternalFormat));
+                                         AudioParams::kInternalFormat));
 }
 
 OLIVE_NAMESPACE_EXIT

@@ -23,7 +23,7 @@
 
 #include <QComboBox>
 
-#include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -31,26 +31,25 @@ class PixelFormatComboBox : public QComboBox
 {
   Q_OBJECT
 public:
-  PixelFormatComboBox(bool alpha_only, bool float_only, QWidget* parent = nullptr) :
+  PixelFormatComboBox(bool float_only, QWidget* parent = nullptr) :
     QComboBox(parent)
   {
     // Set up preview formats
-    for (int i=0;i<PixelFormat::PIX_FMT_COUNT;i++) {
-      PixelFormat::Format pix_fmt = static_cast<PixelFormat::Format>(i);
+    for (int i=0;i<VideoParams::kFormatCount;i++) {
+      VideoParams::Format pix_fmt = static_cast<VideoParams::Format>(i);
 
-      if ((!alpha_only || PixelFormat::FormatHasAlphaChannel(pix_fmt))
-          && (!float_only || PixelFormat::FormatIsFloat(pix_fmt))) {
-        this->addItem(PixelFormat::GetName(pix_fmt), pix_fmt);
+      if (!float_only || VideoParams::FormatIsFloat(pix_fmt)) {
+        this->addItem(VideoParams::GetFormatName(pix_fmt), pix_fmt);
       }
     }
   }
 
-  PixelFormat::Format GetPixelFormat() const
+  VideoParams::Format GetPixelFormat() const
   {
-    return static_cast<PixelFormat::Format>(this->currentData().toInt());
+    return static_cast<VideoParams::Format>(this->currentData().toInt());
   }
 
-  void SetPixelFormat(PixelFormat::Format fmt)
+  void SetPixelFormat(VideoParams::Format fmt)
   {
     for (int i=0; i<this->count(); i++) {
       if (this->itemData(i).toInt() == fmt) {

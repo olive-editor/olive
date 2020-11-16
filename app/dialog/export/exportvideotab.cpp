@@ -115,6 +115,13 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   interlaced_combobox_ = new InterlacedComboBox();
   layout->addWidget(interlaced_combobox_, row, 1);
 
+  row++;
+
+  layout->addWidget(new QLabel(tr("Quality:")), row, 0);
+
+  pixel_format_field_ = new PixelFormatComboBox(true);
+  layout->addWidget(pixel_format_field_, row, 1);
+
   return resolution_group;
 }
 

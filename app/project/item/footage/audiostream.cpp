@@ -66,38 +66,6 @@ void AudioStream::set_sample_rate(const int &sample_rate)
   sample_rate_ = sample_rate;
 }
 
-bool AudioStream::try_start_conforming(const AudioParams &params)
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  if (!currently_conforming_.contains(params)
-      && !conformed_.contains(params)) {
-    currently_conforming_.append(params);
-    return true;
-  }
-
-  return false;
-}
-
-bool AudioStream::has_conformed_version(const AudioParams &params)
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  return conformed_.contains(params);
-}
-
-void AudioStream::append_conformed_version(const AudioParams &params)
-{
-  {
-    QMutexLocker locker(proxy_access_lock());
-
-    currently_conforming_.removeOne(params);
-    conformed_.append(params);
-  }
-
-  emit ConformAppended(params);
-}
-
 QIcon AudioStream::icon() const
 {
   return icon::Audio;

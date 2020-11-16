@@ -89,6 +89,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeParam::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);
 
@@ -116,13 +117,10 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeParam::kInt, VideoParams::kInterlaceNone);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeParam::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeParam::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
-  SetEntryInternal(QStringLiteral("DefaultSequencePreviewFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA32F);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
-  SetEntryInternal(QStringLiteral("OnlineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOAccurate);
-  SetEntryInternal(QStringLiteral("OfflineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOFast);
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat32);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat16);
 }
 
 void Config::Load()
@@ -206,7 +204,10 @@ void Config::Load()
 
 void Config::Save()
 {
-  QFile config_file(GetConfigFilePath());
+  QString real_filename = GetConfigFilePath();
+  QString temp_filename = FileFunctions::GetSafeTemporaryFilename(real_filename);
+
+  QFile config_file(temp_filename);
 
   if (!config_file.open(QFile::WriteOnly)) {
     QMessageBox::critical(Core::instance()->main_window(),
@@ -233,10 +234,10 @@ void Config::Save()
 
     QString value = NodeInput::ValueToString(iterator.value().type, iterator.value().data, false);
 
-    writer.writeTextElement(iterator.key(), value);
-
     if (iterator.value().type == NodeParam::kNone) {
-      qWarning() << "Config key" << iterator.key() << "had null type";
+      qWarning() << "Config key" << iterator.key() << "had null type and was discarded";
+    } else {
+      writer.writeTextElement(iterator.key(), value);
     }
   }
 
@@ -245,6 +246,11 @@ void Config::Save()
   writer.writeEndDocument();
 
   config_file.close();
+
+  if (!FileFunctions::RenameFileAllowOverwrite(temp_filename, real_filename)) {
+    qWarning() << QStringLiteral("Failed to overwrite \"%1\". Config has been saved as \"%2\" instead.")
+                  .arg(real_filename, temp_filename);
+  }
 }
 
 QVariant Config::operator[](const QString &key) const

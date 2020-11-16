@@ -21,15 +21,58 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
+#include <QOpenGLContext>
 #include <QOpenGLWidget>
 
-#include "render/backend/opengl/openglcolorprocessor.h"
 #include "render/colormanager.h"
+#include "render/renderer.h"
 #include "widget/menu/menu.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ManagedDisplayWidget : public QOpenGLWidget
+class ManagedDisplayWidgetOpenGL : public QOpenGLWidget
+{
+  Q_OBJECT
+public:
+  ManagedDisplayWidgetOpenGL(QWidget* parent = nullptr) :
+    QOpenGLWidget(parent)
+  {
+  }
+
+signals:
+  void OnInit();
+
+  void OnPaint();
+
+  void OnDestroy();
+
+protected:
+  virtual void initializeGL() override
+  {
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed,
+            this, &ManagedDisplayWidgetOpenGL::OnDestroy);
+
+    emit OnInit();
+  }
+
+  virtual void paintGL() override
+  {
+    emit OnPaint();
+  }
+
+private slots:
+  void DestroyListener()
+  {
+    makeCurrent();
+
+    emit OnDestroy();
+
+    doneCurrent();
+  }
+
+};
+
+class ManagedDisplayWidget : public QWidget
 {
   Q_OBJECT
 public:
@@ -72,6 +115,11 @@ public:
    */
   Menu* GetLookMenu(QMenu* parent, bool auto_connect = true);
 
+  /**
+   * @brief Passes update signal through to inner widget
+   */
+  void update();
+
 public slots:
   /**
    * @brief Replaces the color transform with a new one
@@ -94,16 +142,13 @@ signals:
    */
   void ColorManagerChanged(ColorManager* color_manager);
 
+  void frameSwapped();
+
 protected:
   /**
    * @brief Provides access to the color processor (nullptr if none is set)
    */
-  OpenGLColorProcessorPtr color_service();
-
-  /**
-   * @brief Override when setting up OpenGL context
-   */
-  virtual void initializeGL() override;
+  ColorProcessorPtr color_service();
 
   /**
    * @brief Enables a context menu that allows simple access to the DVL pipeline
@@ -117,6 +162,36 @@ protected:
    */
   virtual void ColorProcessorChangedEvent();
 
+  Renderer* renderer() const
+  {
+    return attached_renderer_;
+  }
+
+  void makeCurrent();
+
+  void doneCurrent();
+
+  QWidget* inner_widget() const
+  {
+    return inner_widget_;
+  }
+
+protected slots:
+  /**
+   * @brief Called whenever the internal rendering context has been created
+   */
+  virtual void OnInit();
+
+  /**
+   * @brief Called while the internal rendering context is being rendered
+   */
+  virtual void OnPaint() = 0;
+
+  /**
+   * @brief Called just before the internal rendering context is destroyed
+   */
+  virtual void OnDestroy();
+
 private:
   /**
    * @brief Call this if this user has selected a different display/view/look to recreate the processor
@@ -129,6 +204,16 @@ private:
   void ClearOCIOLutTexture();
 
   /**
+   * @brief Main drawing surface abstraction
+   */
+  QWidget* inner_widget_;
+
+  /**
+   * @brief Renderer abstraction
+   */
+  Renderer* attached_renderer_;
+
+  /**
    * @brief Connected color manager
    */
   ColorManager* color_manager_;
@@ -136,7 +221,7 @@ private:
   /**
    * @brief Color management service
    */
-  OpenGLColorProcessorPtr color_service_;
+  ColorProcessorPtr color_service_;
 
   /**
    * @brief Internal color transform storage
@@ -148,11 +233,6 @@ private slots:
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
   void ColorConfigChanged();
-
-  /**
-   * @brief Cleans up resources if context is about to be destroyed
-   */
-  void ContextCleanup();
 
   /**
    * @brief The default context menu shown

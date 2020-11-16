@@ -31,10 +31,12 @@ class WaveformScope : public ScopeBase
 public:
   WaveformScope(QWidget* parent = nullptr);
 
-protected:
-  virtual OpenGLShaderPtr CreateShader() override;
+  virtual ~WaveformScope() override;
 
-  virtual void DrawScope() override;
+protected:
+  virtual ShaderCode GenerateShaderCode() override;
+
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
 
 };
 

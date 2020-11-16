@@ -149,21 +149,6 @@ void ColorManager::SetConfigAndDefaultInput(const QString &filename, const QStri
   }
 }
 
-void ColorManager::DisassociateAlpha(FramePtr f)
-{
-  AssociateAlphaPixFmtFilter(kDisassociate, f);
-}
-
-void ColorManager::AssociateAlpha(FramePtr f)
-{
-  AssociateAlphaPixFmtFilter(kAssociate, f);
-}
-
-void ColorManager::ReassociateAlpha(FramePtr f)
-{
-  AssociateAlphaPixFmtFilter(kReassociate, f);
-}
-
 QStringList ColorManager::ListAvailableDisplays()
 {
   QStringList displays;
@@ -304,7 +289,7 @@ QStringList ColorManager::ListAvailableColorspaces(OCIO::ConstConfigRcPtr config
   return spaces;
 }
 
-void ColorManager::GetDefaultLumaCoefs(float *rgb) const
+void ColorManager::GetDefaultLumaCoefs(double *rgb) const
 {
   config_->getDefaultLumaCoefs(rgb);
 }
@@ -320,69 +305,6 @@ Color ColorManager::GetDefaultLumaCoefs() const
   GetDefaultLumaCoefs(c.data());
 
   return c;
-}
-
-ColorManager::OCIOMethod ColorManager::GetOCIOMethodForMode(RenderMode::Mode mode)
-{
-  return static_cast<OCIOMethod>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod")).toInt());
-}
-
-void ColorManager::SetOCIOMethodForMode(RenderMode::Mode mode, ColorManager::OCIOMethod method)
-{
-  Core::SetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod"), method);
-}
-
-void ColorManager::AssociateAlphaPixFmtFilter(ColorManager::AlphaAction action, FramePtr f)
-{
-  if (!PixelFormat::FormatHasAlphaChannel(f->format())) {
-    // This frame has no alpha channel, do nothing
-    return;
-  }
-
-  int pixel_count = f->width() * f->height() * kRGBAChannels;
-
-  switch (static_cast<PixelFormat::Format>(f->format())) {
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
-    qWarning() << "Alpha association functions received an invalid pixel format";
-    break;
-  case PixelFormat::PIX_FMT_RGB8:
-  case PixelFormat::PIX_FMT_RGBA8:
-  case PixelFormat::PIX_FMT_RGB16U:
-  case PixelFormat::PIX_FMT_RGBA16U:
-    qWarning() << "Alpha association functions only works on float-based pixel formats at this time";
-    break;
-  case PixelFormat::PIX_FMT_RGB16F:
-  case PixelFormat::PIX_FMT_RGBA16F:
-  {
-    AssociateAlphaInternal<qfloat16>(action, reinterpret_cast<qfloat16*>(f->data()), pixel_count);
-    break;
-  }
-  case PixelFormat::PIX_FMT_RGB32F:
-  case PixelFormat::PIX_FMT_RGBA32F:
-  {
-    AssociateAlphaInternal<float>(action, reinterpret_cast<float*>(f->data()), pixel_count);
-    break;
-  }
-  }
-}
-
-template<typename T>
-void ColorManager::AssociateAlphaInternal(ColorManager::AlphaAction action, T *data, int pix_count)
-{
-  for (int i=0;i<pix_count;i+=kRGBAChannels) {
-    T alpha = data[i+kRGBChannels];
-
-    if (action == kAssociate || alpha > 0) {
-      for (int j=0;j<kRGBChannels;j++) {
-        if (action == kDisassociate) {
-          data[i+j] /= alpha;
-        } else {
-          data[i+j] *= alpha;
-        }
-      }
-    }
-  }
 }
 
 ColorManager::SetLocale::SetLocale(const char* new_locale)

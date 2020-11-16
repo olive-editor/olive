@@ -34,15 +34,15 @@ public:
   ParamPanel(QWidget* parent);
 
 public slots:
-  void SelectNodes(const QList<Node*>& nodes);
-  void DeselectNodes(const QList<Node*>& nodes);
+  void SelectNodes(const QVector<Node*>& nodes);
+  void DeselectNodes(const QVector<Node*>& nodes);
 
   virtual void DeleteSelected() override;
 
 signals:
-  void RequestSelectNode(const QList<Node*>& target);
+  void RequestSelectNode(const QVector<Node*>& target);
 
-  void NodeOrderChanged(const QList<Node*>& nodes);
+  void NodeOrderChanged(const QVector<Node*>& nodes);
 
   void FocusedNodeChanged(Node* n);
 

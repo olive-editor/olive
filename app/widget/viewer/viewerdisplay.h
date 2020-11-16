@@ -22,12 +22,9 @@
 #define VIEWERGLWIDGET_H
 
 #include <QOpenGLWidget>
+#include <QMatrix4x4>
 
 #include "node/node.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
-#include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "tool/tool.h"
@@ -181,19 +178,22 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+protected:
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction
    *
    * Currently primarily used to regenerate the pipeline shader used for drawing.
    */
-  virtual void initializeGL() override;
+  virtual void OnInit() override;
 
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
    * Simple OpenGL drawing function for painting the texture on screen. Standardized around OpenGL ES 3.2 Core.
    */
-  virtual void paintGL() override;
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
 
 private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
@@ -211,7 +211,7 @@ private:
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  OpenGLTexture texture_;
+  TexturePtr texture_;
 
   /**
    * @brief Translation only matrix (defaults to identity).
@@ -249,12 +249,6 @@ private:
   bool hand_dragging_;
 
   bool deinterlace_;
-
-private slots:
-  /**
-   * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
-   */
-  void ContextCleanup();
 
 };
 

@@ -69,7 +69,7 @@ QString PolygonGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.polygon");
 }
 
-QList<Node::CategoryID> PolygonGenerator::Category() const
+QVector<Node::CategoryID> PolygonGenerator::Category() const
 {
   return {kCategoryGenerator};
 }
@@ -89,7 +89,7 @@ ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(Node::ReadFileAsString(":/shaders/polygon.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/polygon.frag"), QString());
 }
 
 NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const

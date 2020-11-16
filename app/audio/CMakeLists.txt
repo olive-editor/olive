@@ -24,8 +24,6 @@ set(OLIVE_SOURCES
   audio/outputdeviceproxy.cpp
   audio/outputmanager.h
   audio/outputmanager.cpp
-  audio/sampleformat.h
-  audio/sampleformat.cpp
   audio/tempoprocessor.h
   audio/tempoprocessor.cpp
   PARENT_SCOPE

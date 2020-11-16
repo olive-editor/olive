@@ -47,6 +47,11 @@ public:
 
   virtual void Close() override;
 
+  virtual VideoParams::Format GetDesiredPixelFormat() const override
+  {
+    return video_conversion_fmt_;
+  }
+
 private:
   /**
    * @brief Handle an error
@@ -80,8 +85,9 @@ private:
 
   AVStream* video_stream_;
   AVCodecContext* video_codec_ctx_;
-  SwsContext* video_scale_ctx_;
-  PixelFormat::Format video_conversion_fmt_;
+  SwsContext* video_alpha_scale_ctx_;
+  SwsContext* video_noalpha_scale_ctx_;
+  VideoParams::Format video_conversion_fmt_;
 
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;

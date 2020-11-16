@@ -25,7 +25,6 @@
 #include <OpenImageIO/imagebuf.h>
 
 #include "codec/decoder.h"
-#include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -35,23 +34,18 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
+  virtual ~OIIODecoder() override;
+
   virtual QString id() override;
+
+  virtual bool SupportsVideo() override{return true;}
 
   virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
-  virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
-  virtual void Close() override;
-
-  virtual bool SupportsVideo() override;
-
-  static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
-
-  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
-
-  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
-
-  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
+protected:
+  virtual bool OpenInternal() override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual void CloseInternal() override;
 
 private:
 #if OIIO_VERSION < 10903
@@ -66,9 +60,11 @@ private:
 
   void CloseImageHandle();
 
-  PixelFormat::Format pix_fmt_;
+  int64_t last_sequence_index_;
 
-  bool is_rgba_;
+  VideoParams::Format pix_fmt_;
+
+  int channel_count_;
 
   OIIO::ImageBuf* buffer_;
 

@@ -20,9 +20,12 @@
 
 #include "frame.h"
 
+#include <OpenImageIO/imagebuf.h>
 #include <QDebug>
 #include <QtGlobal>
 #include <QtMath>
+
+#include "common/oiioutils.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -45,33 +48,14 @@ void Frame::set_video_params(const VideoParams &params)
 {
   params_ = params;
 
-  // Align linesize to 32
-  linesize_ = qCeil(static_cast<double>(width()) / 32.0) * 32;
+  linesize_ = generate_linesize_bytes(width(), params_.format(), params_.channel_count());
+  linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
 }
 
-int Frame::linesize_pixels() const
+int Frame::generate_linesize_bytes(int width, VideoParams::Format format, int channel_count)
 {
-  return linesize_;
-}
-
-int Frame::linesize_bytes() const
-{
-  return linesize_pixels() * PixelFormat::BytesPerPixel(params_.format());
-}
-
-const int &Frame::width() const
-{
-  return params_.effective_width();
-}
-
-const int &Frame::height() const
-{
-  return params_.effective_height();
-}
-
-const PixelFormat::Format &Frame::format() const
-{
-  return params_.format();
+  // Align to 32 bytes (not sure if this is necessary?)
+  return VideoParams::GetBytesPerPixel(format, channel_count) * ((width + 31) & ~31);
 }
 
 Color Frame::get_pixel(int x, int y) const
@@ -80,11 +64,9 @@ Color Frame::get_pixel(int x, int y) const
     return Color();
   }
 
-  int pixel_index = y * linesize_pixels() + x;
+  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
-
-  return Color(data_.data() + byte_offset, video_params().format());
+  return Color(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
 }
 
 bool Frame::contains_pixel(int x, int y) const
@@ -98,57 +80,53 @@ void Frame::set_pixel(int x, int y, const Color &c)
     return;
   }
 
-  int pixel_index = y * linesize_pixels() + x;
+  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
-
-  c.toData(data_.data() + byte_offset, video_params().format());
+  c.toData(data_.data() + byte_offset, video_params().format(), video_params().channel_count());
 }
 
-const rational &Frame::timestamp() const
-{
-  return timestamp_;
-}
-
-void Frame::set_timestamp(const rational &timestamp)
-{
-  timestamp_ = timestamp;
-}
-
-char *Frame::data()
-{
-  return data_.data();
-}
-
-const char *Frame::const_data() const
-{
-  return data_.constData();
-}
-
-void Frame::allocate()
+bool Frame::allocate()
 {
   // Assume this frame is intended to be a video frame
   if (!params_.is_valid()) {
     qWarning() << "Tried to allocate a frame with invalid parameters";
-    return;
+    return false;
   }
 
-  data_.resize(PixelFormat::GetBufferSize(params_.format(), linesize_, params_.height()));
+  data_.resize(VideoParams::GetBufferSize(linesize_, height(), params_.format(), params_.channel_count()));
+
+  return true;
 }
 
-bool Frame::is_allocated() const
+FramePtr Frame::convert(VideoParams::Format format) const
 {
-  return !data_.isEmpty();
-}
+  // Create new params with destination format
+  VideoParams params = params_;
+  params.set_format(format);
 
-void Frame::destroy()
-{
-  data_.clear();
-}
+  // Create new frame
+  FramePtr converted = Frame::Create();
+  converted->set_video_params(params);
+  converted->set_timestamp(timestamp_);
+  converted->allocate();
 
-int Frame::allocated_size() const
-{
-  return data_.size();
+  // Do the conversion through OIIO for convenience
+  OIIO::ImageBuf src(OIIO::ImageSpec(width(), height(),
+                                     channel_count(),
+                                     OIIOUtils::GetOIIOBaseTypeFromFormat(this->format())));
+
+  OIIOUtils::FrameToBuffer(this, &src);
+
+  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(), converted->height(),
+                                     channel_count(),
+                                     OIIOUtils::GetOIIOBaseTypeFromFormat(format)));
+
+  if (dst.copy_pixels(src)) {
+    OIIOUtils::BufferToFrame(&dst, converted.get());
+    return converted;
+  } else {
+    return nullptr;
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

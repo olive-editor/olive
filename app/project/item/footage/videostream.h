@@ -21,7 +21,6 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 #include "stream.h"
 
@@ -74,14 +73,24 @@ public:
     height_ = height;
   }
 
-  const PixelFormat::Format& format() const
+  const VideoParams::Format& format() const
   {
     return format_;
   }
 
-  void set_format(const PixelFormat::Format& format)
+  void set_format(const VideoParams::Format& format)
   {
     format_ = format;
+  }
+
+  int channel_count() const
+  {
+    return channel_count_;
+  }
+
+  void set_channel_count(int c)
+  {
+    channel_count_ = c;
   }
 
   bool premultiplied_alpha() const;
@@ -89,8 +98,6 @@ public:
 
   const QString& colorspace(bool default_if_empty = true) const;
   void set_colorspace(const QString& color);
-
-  QString get_colorspace_match_string() const;
 
   VideoParams::Interlacing interlacing() const
   {
@@ -155,7 +162,9 @@ private:
 
   VideoType video_type_;
 
-  PixelFormat::Format format_;
+  VideoParams::Format format_;
+
+  int channel_count_;
 
   rational pixel_aspect_ratio_;
 

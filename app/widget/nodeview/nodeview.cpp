@@ -115,7 +115,7 @@ void NodeView::DeleteSelected()
   QUndoCommand* command = new QUndoCommand();
 
   {
-    QList<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
+    QVector<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
 
     foreach (NodeEdge* edge, selected_edges) {
       new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
@@ -124,7 +124,7 @@ void NodeView::DeleteSelected()
   }
 
   {
-    QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+    QVector<Node*> selected_nodes = scene_.GetSelectedNodes();
 
     // Ensure no nodes are "undeletable"
     for (int i=0;i<selected_nodes.size();i++) {
@@ -166,7 +166,7 @@ void NodeView::DeselectAll()
   SceneSelectionChangedSlot();
 }
 
-void NodeView::Select(const QList<Node *> &nodes)
+void NodeView::Select(const QVector<Node *> &nodes)
 {
   if (!graph_) {
     return;
@@ -188,7 +188,7 @@ void NodeView::Select(const QList<Node *> &nodes)
   SceneSelectionChangedSlot();
 }
 
-void NodeView::SelectWithDependencies(QList<Node *> nodes)
+void NodeView::SelectWithDependencies(QVector<Node *> nodes)
 {
   if (!graph_) {
     return;
@@ -202,7 +202,7 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
   Select(nodes);
 }
 
-void NodeView::SelectBlocks(const QList<Block *> &blocks)
+void NodeView::SelectBlocks(const QVector<Block *> &blocks)
 {
   if (!graph_) {
     return;
@@ -213,7 +213,7 @@ void NodeView::SelectBlocks(const QList<Block *> &blocks)
   QueueSelectBlocksInternal();
 }
 
-void NodeView::DeselectBlocks(const QList<Block *> &blocks)
+void NodeView::DeselectBlocks(const QVector<Block *> &blocks)
 {
   if (!graph_) {
     return;
@@ -240,7 +240,7 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   if (selected.isEmpty()) {
     return;
@@ -261,7 +261,7 @@ void NodeView::Paste()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
+  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
@@ -280,7 +280,7 @@ void NodeView::Duplicate()
     return;
   }
 
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   if (selected.isEmpty()) {
     return;
@@ -288,43 +288,11 @@ void NodeView::Duplicate()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Node*> duplicated_nodes;
-
-  foreach (Node* n, selected) {
-    Node* copy = n->copy();
-
-    Node::CopyInputs(n, copy, false);
-
-    duplicated_nodes.append(copy);
-
-    new NodeAddCommand(graph_, copy, command);
-  }
-
-  for (int i=0;i<selected.size();i++) {
-    Node* src = selected.at(i);
-
-    for (int j=0;j<selected.size();j++) {
-      if (i == j) {
-        continue;
-      }
-
-      Node* dst = selected.at(j);
-
-      foreach (NodeEdgePtr edge, src->output()->edges()) {
-        if (edge->input()->parentNode() == dst) {
-          new NodeEdgeAddCommand(duplicated_nodes.at(i)->output(),
-                                 duplicated_nodes.at(j)->GetInputWithID(edge->input()->id()),
-                                 command);
-        }
-      }
-    }
-  }
+  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  if (!duplicated_nodes.isEmpty()) {
-    AttachNodesToCursor(duplicated_nodes);
-  }
+  AttachNodesToCursor(duplicated_nodes);
 }
 
 void NodeView::ItemsChanged()
@@ -488,10 +456,10 @@ void NodeView::wheelEvent(QWheelEvent *event)
 
 void NodeView::SceneSelectionChangedSlot()
 {
-  QList<Node*> current_selection = scene_.GetSelectedNodes();
+  QVector<Node*> current_selection = scene_.GetSelectedNodes();
 
-  QList<Node*> selected;
-  QList<Node*> deselected;
+  QVector<Node*> selected;
+  QVector<Node*> deselected;
 
   // Determine which nodes are newly selected
   if (selected_nodes_.isEmpty()) {
@@ -540,7 +508,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   m.addSeparator();
 
-  QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+  QVector<NodeViewItem*> selected = scene_.GetSelectedItems();
 
   if (itemAt(pos) && !selected.isEmpty()) {
 
@@ -636,7 +604,7 @@ void NodeView::ContextMenuSetDirection(QAction *action)
 
 void NodeView::AutoPositionDescendents()
 {
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   foreach (Node* n, selected) {
     scene_.ReorganizeFrom(n);
@@ -665,18 +633,18 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   }
 }
 
-void NodeView::AttachNodesToCursor(const QList<Node *> &nodes)
+void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
 {
-  QList<NodeViewItem*> items;
+  QVector<NodeViewItem*> items(nodes.size());
 
-  foreach (Node* p, nodes) {
-    items.append(scene_.NodeToUIObject(p));
+  for (int i=0; i<nodes.size(); i++) {
+    items[i] = scene_.NodeToUIObject(nodes.at(i));
   }
 
   AttachItemsToCursor(items);
 }
 
-void NodeView::AttachItemsToCursor(const QList<NodeViewItem*>& items)
+void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
 {
   DetachItemsFromCursor();
 
@@ -731,7 +699,7 @@ void NodeView::UpdateBlockFilter()
   bool first = true;
   QPointF last_bottom_right;
 
-  QList<Node*> currently_visible;
+  QVector<Node*> currently_visible;
 
   foreach (Block* b, selected_blocks_) {
     // Auto-position this node's dependencies
@@ -741,7 +709,7 @@ void NodeView::UpdateBlockFilter()
     QPointF node_pos = b->GetPosition();
     QRectF anchor(node_pos, node_pos);
 
-    QList<Node*> deps = b->GetDependencies();
+    QVector<Node*> deps = b->GetDependencies();
 
     foreach (Node* d, deps) {
       QPointF dep_pos = d->GetPosition();
@@ -779,8 +747,7 @@ void NodeView::UpdateBlockFilter()
 
     // ...then add its associations
     deps.append(temporary_association_map_[b]);
-    QHash<Node*, QList<Block*> >::const_iterator i;
-    for (i=association_map_.begin(); i!=association_map_.end(); i++) {
+    for (auto i=association_map_.begin(); i!=association_map_.end(); i++) {
       if (i.value().contains(b)) {
         deps.append(i.key());
       }
@@ -835,7 +802,7 @@ void NodeView::SelectBlocksInternal()
     UpdateBlockFilter();
   }
 
-  QList<Node*> nodes;
+  QVector<Node*> nodes;
   nodes.reserve(selected_blocks_.size());
 
   foreach (Block* b, selected_blocks_) {
@@ -888,7 +855,7 @@ void NodeView::GraphEdgeAdded(NodeEdgePtr edge)
   Node* input_node = edge->input()->parentNode();
 
   if (input_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
-    QHash<Node*, QList<Block*> >::const_iterator i = association_map_.begin();
+    auto i = association_map_.begin();
 
     while (i != association_map_.end()) {
       if (input_node->InputsFrom(i.key(), true)) {
@@ -917,14 +884,14 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
     }
   }
 
-  QList<Node*> disconnected_nodes;
+  QVector<Node*> disconnected_nodes;
   disconnected_nodes.append(output_node);
   disconnected_nodes.append(output_node->GetDependencies());
 
   if (output_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
     // Check if this disconnected node still has a path to the viewer somewhere else
     foreach (Block* b, selected_blocks_) {
-      QList<Node*>& temp_assocs = temporary_association_map_[b];
+      QVector<Node*>& temp_assocs = temporary_association_map_[b];
 
       temp_assocs.append(disconnected_nodes);
     }

@@ -48,7 +48,7 @@ QString SolidGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.solidgenerator");
 }
 
-QList<Node::CategoryID> SolidGenerator::Category() const
+QVector<Node::CategoryID> SolidGenerator::Category() const
 {
   return {kCategoryGenerator};
 }
@@ -77,7 +77,7 @@ ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(ReadFileAsString(":/shaders/solid.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"), QString());
 }
 
 OLIVE_NAMESPACE_EXIT

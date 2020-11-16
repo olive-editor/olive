@@ -49,11 +49,9 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelformat.h"
-#include "render/shaderinfo.h"
+#include "render/rendermanager.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
 #include "task/project/saveotio/saveotio.h"
@@ -95,8 +93,6 @@ Core *Core::instance()
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
@@ -135,8 +131,8 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Initialize OpenGL service
-  OpenGLProxy::CreateInstance();
+  // Initialize RenderManager
+  RenderManager::CreateInstance();
 
   //
   // Start application
@@ -172,15 +168,13 @@ void Core::Stop()
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      foreach (const QString& s, recent_projects_) {
-        ts << s << "\n";
-      }
+      ts << recent_projects_.join('\n');
 
       recent_projects_file.close();
     }
   }
 
-  OpenGLProxy::DestroyInstance();
+  RenderManager::DestroyInstance();
 
   MenuShared::DestroyInstance();
 
@@ -192,11 +186,10 @@ void Core::Stop()
 
   DiskManager::DestroyInstance();
 
-  PixelFormat::DestroyInstance();
-
   NodeFactory::Destroy();
 
   delete main_window_;
+  main_window_ = nullptr;
 }
 
 MainWindow *Core::main_window()
@@ -259,6 +252,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  emit OpenRecentListChanged();
 }
 
 void Core::CreateNewProject()
@@ -648,9 +642,6 @@ void Core::StartGUI(bool full_screen)
   // Initialize disk service
   DiskManager::CreateInstance();
 
-  // Initialize pixel service
-  PixelFormat::CreateInstance();
-
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           &QApplication::focusChanged,
@@ -686,12 +677,15 @@ void Core::StartGUI(bool full_screen)
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      while (!ts.atEnd()) {
-        recent_projects_.append(ts.readLine());
+      QString s;
+      while (!(s = ts.readLine()).isEmpty()) {
+        recent_projects_.append(s);
       }
 
       recent_projects_file.close();
     }
+
+    emit OpenRecentListChanged();
   }
 }
 
@@ -961,6 +955,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   } else {
     recent_projects_.prepend(s);
   }
+
+  emit OpenRecentListChanged();
 }
 
 void Core::OpenProjectInternal(const QString &filename)
@@ -1038,7 +1034,7 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QList<Node *> &nodes) const
+void Core::LabelNodes(const QVector<Node *> &nodes) const
 {
   if (nodes.isEmpty()) {
     return;
@@ -1097,6 +1093,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    emit OpenRecentListChanged();
   }
 }
 

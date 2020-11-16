@@ -25,9 +25,7 @@ OLIVE_NAMESPACE_ENTER
 void TimelineWidgetSelections::ShiftTime(const rational &diff)
 {
   for (auto it=this->begin(); it!=this->end(); it++) {
-    for (auto it2=it.value().begin(); it2!=it.value().end(); it2++) {
-      (*it2) += diff;
-    }
+    it.value().shift(diff);
   }
 }
 
@@ -59,18 +57,14 @@ void TimelineWidgetSelections::ShiftTracks(Timeline::TrackType type, int diff)
 void TimelineWidgetSelections::TrimIn(const rational &diff)
 {
   for (auto it=this->begin(); it!=this->end(); it++) {
-    for (auto it2=it.value().begin(); it2!=it.value().end(); it2++) {
-      (*it2).set_in((*it2).in() + diff);
-    }
+    it.value().trim_in(diff);
   }
 }
 
 void TimelineWidgetSelections::TrimOut(const rational &diff)
 {
   for (auto it=this->begin(); it!=this->end(); it++) {
-    for (auto it2=it.value().begin(); it2!=it.value().end(); it2++) {
-      (*it2).set_out((*it2).out() + diff);
-    }
+    it.value().trim_out(diff);
   }
 }
 

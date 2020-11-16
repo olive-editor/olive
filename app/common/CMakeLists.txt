@@ -16,42 +16,49 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  common/bezier.h
   common/bezier.cpp
+  common/bezier.h
   common/cancelableobject.h
   common/channellayout.h
   common/clamp.h
-  common/commandlineparser.h
   common/commandlineparser.cpp
-  common/crashpadinterface.h
+  common/commandlineparser.h
   common/crashpadinterface.cpp
+  common/crashpadinterface.h
   common/crashpadutils.h
-  common/debug.h
   common/debug.cpp
+  common/debug.h
   common/define.h
-  common/filefunctions.h
+  common/ffmpegutils.cpp
+  common/ffmpegutils.h
   common/filefunctions.cpp
-  common/flipmodifiers.h
+  common/filefunctions.h
   common/flipmodifiers.cpp
+  common/flipmodifiers.h
   common/functiontimer.h
   common/lerp.h
-  common/memorypool.h
   common/memorypool.cpp
-  common/qtutils.h
+  common/memorypool.h
+  common/ocioutils.cpp
+  common/ocioutils.h
+  common/oiioutils.cpp
+  common/oiioutils.h
   common/qtutils.cpp
+  common/qtutils.h
   common/range.h
-  common/ratiodialog.h
   common/ratiodialog.cpp
+  common/ratiodialog.h
   common/rational.h
   common/rational.cpp
-  common/threadedobject.h
+  common/threadsafemap.h
   common/threadedobject.cpp
-  common/timecodefunctions.h
+  common/threadedobject.h
   common/timecodefunctions.cpp
-  common/timerange.h
+  common/timecodefunctions.h
   common/timerange.cpp
+  common/timerange.h
   common/tohex.h
-  common/xmlutils.h
   common/xmlutils.cpp
+  common/xmlutils.h
   PARENT_SCOPE
 )

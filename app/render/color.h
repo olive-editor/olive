@@ -25,24 +25,24 @@
 #include <QDebug>
 
 #include "common/define.h"
-#include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
 /**
- * @brief High precision 32-bit float based RGBA color value
+ * @brief High precision 64-bit float based RGBA color value
  */
 class Color
 {
 public:
   Color()
   {
-    for (int i=0;i<kRGBAChannels;i++) {
-      data_[i] = 0;
+    for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
+      data_[i] = 0.0;
     }
   }
 
-  Color(const float& r, const float& g, const float& b, const float& a = 1.0f)
+  Color(const double& r, const double& g, const double& b, const double& a = 1.0)
   {
     data_[0] = r;
     data_[1] = g;
@@ -50,7 +50,7 @@ public:
     data_[3] = a;
   }
 
-  Color(const char *data, const PixelFormat::Format &format);
+  Color(const char *data, const VideoParams::Format &format, int ch_layout);
 
   Color(const QColor& c);
 
@@ -59,55 +59,55 @@ public:
    *
    * Hue expects a value between 0.0 and 360.0. Saturation and Value expect a value between 0.0 and 1.0.
    */
-  static Color fromHsv(const float& h, const float& s, const float &v);
+  static Color fromHsv(const double& h, const double& s, const double &v);
 
-  const float& red() const {return data_[0];}
-  const float& green() const {return data_[1];}
-  const float& blue() const {return data_[2];}
-  const float& alpha() const {return data_[3];}
+  const double& red() const {return data_[0];}
+  const double& green() const {return data_[1];}
+  const double& blue() const {return data_[2];}
+  const double& alpha() const {return data_[3];}
 
-  void toHsv(float* hue, float* sat, float* val) const;
-  float hsv_hue() const;
-  float hsv_saturation() const;
-  float value() const;
+  void toHsv(double* hue, double* sat, double* val) const;
+  double hsv_hue() const;
+  double hsv_saturation() const;
+  double value() const;
 
-  void toHsl(float* hue, float* sat, float* lightness) const;
-  float hsl_hue() const;
-  float hsl_saturation() const;
-  float lightness() const;
+  void toHsl(double* hue, double* sat, double* lightness) const;
+  double hsl_hue() const;
+  double hsl_saturation() const;
+  double lightness() const;
 
-  void set_red(const float& red) {data_[0] = red;}
-  void set_green(const float& green) {data_[1] = green;}
-  void set_blue(const float& blue) {data_[2] = blue;}
-  void set_alpha(const float& alpha) {data_[3] = alpha;}
+  void set_red(const double& red) {data_[0] = red;}
+  void set_green(const double& green) {data_[1] = green;}
+  void set_blue(const double& blue) {data_[2] = blue;}
+  void set_alpha(const double& alpha) {data_[3] = alpha;}
 
-  float* data() {return data_;}
-  const float* data() const {return data_;}
+  double* data() {return data_;}
+  const double* data() const {return data_;}
 
-  void toData(char* data, const PixelFormat::Format& format) const;
+  void toData(char* data, const VideoParams::Format& format, int ch_layout) const;
 
-  static Color fromData(const char* data, const PixelFormat::Format& format);
+  static Color fromData(const char* data, const VideoParams::Format& format, int ch_layout);
 
   QColor toQColor() const;
 
   // Suuuuper rough luminance value mostly used for UI (determining whether to overlay with black
   // or white text)
-  float GetRoughLuminance() const;
+  double GetRoughLuminance() const;
 
   // Assignment math operators
   const Color& operator+=(const Color& rhs);
   const Color& operator-=(const Color& rhs);
-  const Color& operator*=(const float& rhs);
-  const Color& operator/=(const float& rhs);
+  const Color& operator*=(const double& rhs);
+  const Color& operator/=(const double& rhs);
 
   // Binary math operators
   Color operator+(const Color& rhs) const;
   Color operator-(const Color& rhs) const;
-  Color operator*(const float& rhs) const;
-  Color operator/(const float& rhs) const;
+  Color operator*(const double& rhs) const;
+  Color operator/(const double& rhs) const;
 
 private:
-  float data_[kRGBAChannels];
+  double data_[VideoParams::kRGBAChannelCount];
 
 };
 

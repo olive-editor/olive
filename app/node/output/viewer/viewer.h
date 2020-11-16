@@ -53,7 +53,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   void ShiftVideoCache(const rational& from, const rational& to);

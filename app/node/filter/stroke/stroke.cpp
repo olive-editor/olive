@@ -63,7 +63,7 @@ QString StrokeFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.stroke");
 }
 
-QList<Node::CategoryID> StrokeFilterNode::Category() const
+QVector<Node::CategoryID> StrokeFilterNode::Category() const
 {
   return {kCategoryFilter};
 }
@@ -94,12 +94,12 @@ NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data().isNull()) {
-    if (job.GetValue(radius_input_).data().toDouble() > 0.0
-        && job.GetValue(opacity_input_).data().toDouble() > 0.0) {
+  if (!job.GetValue(tex_input_).data.isNull()) {
+    if (job.GetValue(radius_input_).data.toDouble() > 0.0
+        && job.GetValue(opacity_input_).data.toDouble() > 0.0) {
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_));
+      table.Push(job.GetValue(tex_input_), this);
     }
   }
 
@@ -110,7 +110,7 @@ ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(ReadFileAsString(":/shaders/stroke.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"), QString());
 }
 
 OLIVE_NAMESPACE_EXIT

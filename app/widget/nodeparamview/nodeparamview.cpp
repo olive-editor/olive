@@ -135,7 +135,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
           &NodeParamView::FocusChanged);
 }
 
-void NodeParamView::SelectNodes(const QList<Node *> &nodes)
+void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
   active_nodes_.append(nodes);
 
@@ -185,7 +185,7 @@ void NodeParamView::SelectNodes(const QList<Node *> &nodes)
   }
 }
 
-void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
+void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
   // Remove item from map and delete the widget
   bool changes_made = false;
@@ -283,8 +283,8 @@ void NodeParamView::QueueKeyframePositionUpdate()
 void NodeParamView::SignalNodeOrder()
 {
   // Sort by item Y (apparently there's no way in Qt to get the order of dock widgets)
-  QList<Node*> nodes;
-  QList<int> item_ys;
+  QVector<Node*> nodes;
+  QVector<int> item_ys;
 
   for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
     int item_y = it.value()->pos().y();

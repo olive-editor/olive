@@ -24,10 +24,12 @@
 #include <QPainter>
 #include <QtMath>
 #include <QDebug>
+#include <QVector2D>
+#include <QVector3D>
 
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "node/node.h"
-#include "render/backend/opengl/openglrenderfunctions.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -36,53 +38,57 @@ WaveformScope::WaveformScope(QWidget* parent) :
 {
 }
 
-OpenGLShaderPtr WaveformScope::CreateShader()
+WaveformScope::~WaveformScope()
 {
-  OpenGLShaderPtr pipeline = OpenGLShader::Create();
-
-  pipeline->create();
-  pipeline->addShaderFromSourceCode(QOpenGLShader::Vertex,
-    Node::ReadFileAsString(":/shaders/rgbwaveform.vert"));
-  pipeline->addShaderFromSourceCode(QOpenGLShader::Fragment,
-    Node::ReadFileAsString(":/shaders/rgbwaveform.frag"));
-  pipeline->link();
-
-  return pipeline;
+  OnDestroy();
 }
 
-void WaveformScope::DrawScope()
+ShaderCode WaveformScope::GenerateShaderCode()
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgbwaveform.frag"),
+                    FileFunctions::ReadFileAsString(":/shaders/rgbwaveform.vert"));
+}
+
+void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   float waveform_scale = 0.80f;
 
   // Draw waveform through shader
-  pipeline()->bind();
-  pipeline()->setUniformValue("ove_resolution", managed_tex().width(), managed_tex().height());
-  pipeline()->setUniformValue("ove_viewport", width(), height());
-  GLfloat luma[3] = {0.0, 0.0, 0.0};
-  color_manager()->GetDefaultLumaCoefs(luma);
-  pipeline()->setUniformValue("luma_coeffs", luma[0], luma[1], luma[2]);
+  ShaderJob job;
+
+  // Set viewport size
+  job.InsertValue(QStringLiteral("viewport"),
+                  ShaderValue(QVector2D(width(), height()), NodeParam::kVec2));
+
+  // Set luma coefficients
+  double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
+  color_manager()->GetDefaultLumaCoefs(luma_coeffs);
+  job.InsertValue(QStringLiteral("luma_coeffs"),
+                  ShaderValue(QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]), NodeParam::kVec3));
+
 
   // Scale of the waveform relative to the viewport surface.
-  pipeline()->setUniformValue("waveform_scale", waveform_scale);
+  job.InsertValue(QStringLiteral("waveform_scale"),
+                  ShaderValue(waveform_scale, NodeParam::kFloat));
 
-  pipeline()->release();
+  // Insert source texture
+  job.InsertValue(QStringLiteral("ove_maintex"),
+                  ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
 
-  managed_tex().Bind();
-
-  OpenGLRenderFunctions::Blit(pipeline());
-
-  managed_tex().Release();
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
+                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              VideoParams::kInternalChannelCount));
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);
   float waveform_start_dim_x =
-    ((width() - 1.0) - waveform_dim_x) / 2.0f;
+      ((width() - 1.0) - waveform_dim_x) / 2.0f;
   float waveform_start_dim_y =
-    ((height() - 1.0) - waveform_dim_y) / 2.0f;
+      ((height() - 1.0) - waveform_dim_y) / 2.0f;
   float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
 
   // Draw line overlays
-  QPainter p(this);
+  QPainter p(inner_widget());
   QFont font;
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);
@@ -100,18 +106,19 @@ void WaveformScope::DrawScope()
 
   for (int i=0; i <= ire_steps; i++) {
     ire_lines[i].setLine(
-      waveform_start_dim_x,
-      (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y,
-      waveform_end_dim_x,
-      (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
-      label = QString::number(1.0 - (i * ire_increment), 'f', 1);
-      font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
+          waveform_start_dim_x,
+          (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y,
+          waveform_end_dim_x,
+          (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y);
+    label = QString::number(1.0 - (i * ire_increment), 'f', 1);
+    font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
 
-      p.drawText(
-        waveform_start_dim_x - font_x_offset,
-        (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y + font_y_offset,
-        label);
+    p.drawText(
+          waveform_start_dim_x - font_x_offset,
+          (waveform_dim_y * (i * ire_increment)) + waveform_start_dim_y + font_y_offset,
+          label);
   }
+
   p.drawLines(ire_lines);
 }
 

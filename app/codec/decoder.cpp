@@ -24,11 +24,11 @@
 #include <QDebug>
 #include <QFileInfo>
 
-#include "codec/ffmpeg/ffmpegcommon.h"
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
+#include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
 #ifdef USE_OTIO
@@ -39,55 +39,160 @@
 
 OLIVE_NAMESPACE_ENTER
 
+QMutex Decoder::currently_conforming_mutex_;
+QWaitCondition Decoder::currently_conforming_wait_cond_;
+QVector<Decoder::CurrentlyConforming> Decoder::currently_conforming_;
+
 Decoder::Decoder() :
-  open_(false),
   stream_(nullptr)
 {
 }
 
-Decoder::Decoder(Stream *fs) :
-  open_(false),
-  stream_(fs)
+bool Decoder::Open(StreamPtr fs)
 {
+  QMutexLocker locker(&mutex_);
+
+  if (stream_) {
+    // Decoder is already open. Return TRUE if the stream is the stream we have, or FALSE if not.
+    if (stream_ == fs) {
+      return true;
+    } else {
+      qWarning() << "Tried to open a decoder that was already open with another stream";
+      return false;
+    }
+  } else {
+    // Stream was not open, try opening it now
+    if (fs == nullptr) {
+      // Cannot open null stream
+      qCritical() << "Decoder attempted to open null stream";
+      return false;
+    }
+
+    if (fs->footage()->decoder() != id()) {
+      qCritical() << "Tried to open footage in incorrect decoder";
+      return false;
+    }
+
+    // Set stream
+    stream_ = fs;
+
+    // Try open internal
+    if (OpenInternal()) {
+      return true;
+    } else {
+      // Unset stream
+      CloseInternal();
+      stream_ = nullptr;
+      return false;
+    }
+  }
 }
 
-StreamPtr Decoder::stream() const
+FramePtr Decoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
-  return stream_;
+  QMutexLocker locker(&mutex_);
+
+  if (!stream_) {
+    qCritical() << "Can't retrieve video on a closed decoder";
+    return nullptr;
+  }
+
+  if (!SupportsVideo()) {
+    qCritical() << "Decoder doesn't support video";
+    return nullptr;
+  }
+
+  if (stream_->type() != Stream::kVideo) {
+    qCritical() << "Tried to retrieve video from a non-video stream";
+    return nullptr;
+  }
+
+  return RetrieveVideoInternal(timecode, divider);
 }
 
-void Decoder::set_stream(StreamPtr fs)
+SampleBufferPtr Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QAtomicInt *cancelled)
 {
-  Close();
+  QMutexLocker locker(&mutex_);
 
-  stream_ = fs;
+  if (!stream_) {
+    qCritical() << "Can't retrieve audio on a closed decoder";
+    return nullptr;
+  }
+
+  if (!SupportsAudio()) {
+    qCritical() << "Decoder doesn't support audio";
+    return nullptr;
+  }
+
+  if (stream_->type() != Stream::kAudio) {
+    qCritical() << "Tried to retrieve audio from a non-audio stream";
+    return nullptr;
+  }
+
+  // Determine if we already have a conformed version
+  QString conform_filename = GetConformedFilename(params);
+  CurrentlyConforming want_conform = {stream_, params};
+
+  currently_conforming_mutex_.lock();
+
+  // Wait for conform to complete
+  while (currently_conforming_.contains(want_conform)) {
+    currently_conforming_wait_cond_.wait(&currently_conforming_mutex_);
+  }
+
+  // See if we got the conform
+  SampleBufferPtr buffer = RetrieveAudioFromConform(conform_filename, range);
+
+  if (!buffer) {
+    // We'll need to conform this ourselves
+    currently_conforming_.append(want_conform);
+    currently_conforming_mutex_.unlock();
+
+    // We conform to a different filename until it's done to make it clear even across sessions
+    // whether this conform is ready or not
+    QString working_fn = conform_filename;
+    working_fn.append(QStringLiteral(".working"));
+
+    if (ConformAudioInternal(working_fn, params, cancelled)) {
+      // Move file to standard conform name, making it clear this conform is ready for use
+      QFile::remove(conform_filename);
+      QFile::rename(working_fn, conform_filename);
+
+      // Return audio as planned
+      buffer = RetrieveAudioFromConform(conform_filename, range);
+    } else {
+      // Failed
+      qCritical() << "Failed to conform audio";
+    }
+
+    currently_conforming_mutex_.lock();
+    currently_conforming_.removeOne(want_conform);
+    currently_conforming_wait_cond_.wakeAll();
+  }
+
+  currently_conforming_mutex_.unlock();
+
+  return buffer;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/)
+void Decoder::Close()
 {
-  return nullptr;
-}
+  QMutexLocker locker(&mutex_);
 
-SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioParams &/*params*/)
-{
-  return nullptr;
-}
-
-bool Decoder::SupportsVideo()
-{
-  return false;
-}
-
-bool Decoder::SupportsAudio()
-{
-  return false;
+  if (stream_) {
+    CloseInternal();
+    stream_ = nullptr;
+  } else {
+    qWarning() << "Tried to close a decoder that wasn't open";
+  }
 }
 
 /*
  * DECODER STATIC PUBLIC MEMBERS
  */
 
-QVector<DecoderPtr> ReceiveListOfAllDecoders() {
+QVector<DecoderPtr> ReceiveListOfAllDecoders()
+{
   QVector<DecoderPtr> decoders;
 
   // The order in which these decoders are added is their priority when probing. Hence FFmpeg should usually be last,
@@ -98,7 +203,7 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders() {
   return decoders;
 }
 
-FootagePtr Decoder::ProbeMedia(Project* project, const QString &filename, const QAtomicInt* cancelled)
+FootagePtr Decoder::Probe(Project* project, const QString &filename, const QAtomicInt* cancelled)
 {
   // Check for a valid filename
   if (filename.isEmpty()) {
@@ -184,37 +289,6 @@ QString Decoder::GetIndexFilename()
   return QDir(stream_->footage()->project()->cache_path()).filePath(FileFunctions::GetUniqueFileIdentifier(stream()->footage()->filename()).append(QString::number(stream()->index())));
 }
 
-bool Decoder::ConformAudio(const QAtomicInt *, const AudioParams& )
-{
-  return false;
-}
-
-bool Decoder::HasConformedVersion(const AudioParams &params)
-{
-  if (stream()->type() != Stream::kAudio) {
-    return false;
-  }
-
-  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
-
-  if (audio_stream->has_conformed_version(params)) {
-    return true;
-  }
-
-  // Get indexed WAV file
-  WaveInput input(GetIndexFilename());
-
-  bool index_already_matches = false;
-
-  if (input.open()) {
-    index_already_matches = (input.params() == params);
-
-    input.close();
-  }
-
-  return index_already_matches;
-}
-
 void Decoder::SignalProcessingProgress(const int64_t &ts)
 {
   if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
@@ -265,6 +339,42 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   QString number_only = original_basename.mid(original_basename.size() - digit_count);
 
   return number_only.toLongLong();
+}
+
+FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const int &divider)
+{
+  Q_UNUSED(timecode)
+  Q_UNUSED(divider)
+  return nullptr;
+}
+
+bool Decoder::ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled)
+{
+  Q_UNUSED(filename)
+  Q_UNUSED(cancelled)
+  Q_UNUSED(params)
+  return false;
+}
+
+SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range)
+{
+  WaveInput input(conform_filename);
+
+  if (input.open()) {
+    const AudioParams& input_params = input.params();
+
+    // Read bytes from wav
+    QByteArray packed_data = input.read(input_params.time_to_bytes(range.in()),
+                                        input_params.time_to_bytes(range.length()));
+    input.close();
+
+    // Create sample buffer
+    SampleBufferPtr sample_buffer = SampleBuffer::CreateFromPackedData(input_params, packed_data);
+
+    return sample_buffer;
+  }
+
+  return nullptr;
 }
 
 OLIVE_NAMESPACE_EXIT

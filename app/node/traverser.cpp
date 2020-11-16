@@ -29,7 +29,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     if (IsCancelled()) {

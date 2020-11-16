@@ -21,6 +21,7 @@
 #include "sequence.h"
 
 #include <QCoreApplication>
+#include <QThread>
 
 #include "config/config.h"
 #include "common/channellayout.h"
@@ -69,7 +70,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       int video_width = 0, video_height = 0, preview_div = 1;
       rational video_timebase, video_pixel_aspect;
       VideoParams::Interlacing video_interlacing = VideoParams::kInterlaceNone;
-      PixelFormat::Format preview_format = PixelFormat::PIX_FMT_INVALID;
+      VideoParams::Format preview_format = VideoParams::kFormatInvalid;
 
       while (XMLReadNextStartElement(reader)) {
         if (cancelled && *cancelled) {
@@ -85,7 +86,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
         } else if (reader->name() == QStringLiteral("divider")) {
           preview_div = reader->readElementText().toInt();
         } else if (reader->name() == QStringLiteral("format")) {
-          preview_format = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
+          preview_format = static_cast<VideoParams::Format>(reader->readElementText().toInt());
         } else if (reader->name() == QStringLiteral("pixelaspect")) {
           video_pixel_aspect = rational::fromString(reader->readElementText());
         } else if (reader->name() == QStringLiteral("interlacing")) {
@@ -96,11 +97,12 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       }
 
       set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format,
-                                   video_pixel_aspect, video_interlacing, preview_div));
+                                   VideoParams::kInternalChannelCount, video_pixel_aspect,
+                                   video_interlacing, preview_div));
     } else if (reader->name() == QStringLiteral("audio")) {
       int rate = 0;
       uint64_t layout = 0;
-      SampleFormat::Format format = SampleFormat::SAMPLE_FMT_INVALID;
+      AudioParams::Format format = AudioParams::kFormatInvalid;
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("rate")) {
@@ -108,7 +110,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
         } else if (reader->name() == QStringLiteral("layout")) {
           layout = reader->readElementText().toULongLong();
         } else if (reader->name() == QStringLiteral("format")) {
-          format = static_cast<SampleFormat::Format>(reader->readElementText().toInt());
+          format = static_cast<AudioParams::Format>(reader->readElementText().toInt());
         } else {
           reader->skipCurrentElement();
         }
@@ -267,13 +269,14 @@ void Sequence::set_default_parameters()
   set_video_params(VideoParams(width,
                                height,
                                Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                               static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                               static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                               VideoParams::kInternalChannelCount,
                                Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
                                Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
                                VideoParams::generate_auto_divider(width, height)));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
                    Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
-                   SampleFormat::kInternalFormat));
+                   AudioParams::kInternalFormat));
 }
 
 void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
@@ -309,7 +312,8 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
           set_video_params(VideoParams(vs->width(),
                                        vs->height(),
                                        using_timebase,
-                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                       VideoParams::kInternalChannelCount,
                                        vs->pixel_aspect_ratio(),
                                        vs->interlacing(),
                                        VideoParams::generate_auto_divider(vs->width(), vs->height())));
@@ -319,7 +323,7 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
       case Stream::kAudio:
         if (!found_audio_params) {
           AudioStream* as = static_cast<AudioStream*>(s.get());
-          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), SampleFormat::kInternalFormat));
+          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), AudioParams::kInternalFormat));
           found_audio_params = true;
         }
         break;

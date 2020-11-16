@@ -72,11 +72,12 @@ TimelineMarkerList::~TimelineMarkerList()
   qDeleteAll(markers_);
 }
 
-void TimelineMarkerList::AddMarker(const TimeRange &time, const QString &name)
+TimelineMarker* TimelineMarkerList::AddMarker(const TimeRange &time, const QString &name)
 {
   TimelineMarker* m = new TimelineMarker(time, name);
   markers_.append(m);
   emit MarkerAdded(m);
+  return m;
 }
 
 void TimelineMarkerList::RemoveMarker(TimelineMarker *marker)

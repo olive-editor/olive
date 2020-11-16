@@ -131,7 +131,7 @@ void CurveWidget::DeleteSelected()
   view_->DeleteSelected();
 }
 
-void CurveWidget::SetNodes(const QList<Node *> &nodes)
+void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 {
   tree_view_->SetNodes(nodes);
 
@@ -216,7 +216,7 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 
 void CurveWidget::ConnectNode(Node *n)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     if (tree_view_->IsInputEnabled(i)) {

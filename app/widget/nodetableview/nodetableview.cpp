@@ -40,7 +40,7 @@ NodeTableView::NodeTableView(QWidget* parent) :
                    tr("A/W")});
 }
 
-void NodeTableView::SelectNodes(const QList<Node *> &nodes)
+void NodeTableView::SelectNodes(const QVector<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
     QTreeWidgetItem* top_item = new QTreeWidgetItem();
@@ -53,7 +53,7 @@ void NodeTableView::SelectNodes(const QList<Node *> &nodes)
   SetTime(last_time_);
 }
 
-void NodeTableView::DeselectNodes(const QList<Node *> &nodes)
+void NodeTableView::DeselectNodes(const QVector<Node *> &nodes)
 {
   foreach (Node* n, nodes) {
     delete top_level_item_map_.take(n);
@@ -145,10 +145,7 @@ void NodeTableView::SetTime(const rational &time)
         case NodeParam::kTexture:
         {
           // NodeTableTraverser puts video params in here
-          VideoParams p = value.data().value<VideoParams>();
-          int channel_count = PixelFormat::ChannelCount(p.format());
-
-          for (int k=0;k<channel_count;k++) {
+          for (int k=0;k<VideoParams::kRGBAChannelCount;k++) {
             this->setItemWidget(sub_item, 2 + k, new QCheckBox());
           }
           break;

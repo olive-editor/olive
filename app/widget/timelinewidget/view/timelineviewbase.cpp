@@ -246,7 +246,7 @@ void TimelineViewBase::UpdateSceneRect()
   bounding_rect.setLeft(0);
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  bounding_rect.setRight(TimeToScene(end_time_) + width() / 2);
+  bounding_rect.setRight(TimeToScene(end_time_) + width());
 
   // Any further rect processing from derivatives can be done here
   SceneRectUpdateEvent(bounding_rect);

@@ -33,22 +33,21 @@ public:
 
   virtual ~HistogramScope() override;
 
+protected slots:
+  virtual void OnInit() override;
+
+  virtual void OnDestroy() override;
+
 protected:
-  virtual void initializeGL() override;
+  virtual ShaderCode GenerateShaderCode() override;
+  QVariant CreateSecondaryShader();
 
-  virtual OpenGLShaderPtr CreateShader() override;
-  OpenGLShaderPtr CreateSecondaryShader();
-
-  void AssertAdditionalTextures();
-
-  virtual void DrawScope() override;
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
 
 private:
-  OpenGLShaderPtr pipeline_secondary_;
-  OpenGLTexture texture_row_sums_;
+  QVariant pipeline_secondary_;
+  TexturePtr texture_row_sums_;
 
-private slots:
-  void CleanUp();
 };
 
 OLIVE_NAMESPACE_EXIT

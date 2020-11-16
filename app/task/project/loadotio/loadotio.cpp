@@ -166,7 +166,7 @@ bool LoadOTIOTask::Run()
             if (imported_footage.contains(footage_url)) {
               probed_item = imported_footage.value(footage_url);
             } else {
-              probed_item = Decoder::ProbeMedia(project_.get(), footage_url, &IsCancelled());
+              probed_item = Decoder::Probe(project_.get(), footage_url, &IsCancelled());
               imported_footage.insert(footage_url, probed_item);
               project_->root()->add_child(probed_item);
             }

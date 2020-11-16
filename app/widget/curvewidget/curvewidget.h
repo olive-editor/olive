@@ -49,7 +49,7 @@ public:
   void DeleteSelected();
 
 public slots:
-  void SetNodes(const QList<Node*>& nodes);
+  void SetNodes(const QVector<Node *> &nodes);
 
 protected:
   virtual void TimeChangedEvent(const int64_t &) override;
@@ -85,9 +85,7 @@ private:
 
   NodeParamViewKeyframeControl* key_control_;
 
-  QList<QCheckBox*> checkboxes_;
-
-  QList<Node*> nodes_;
+  QVector<Node*> nodes_;
 
 private slots:
   void SelectionChanged();

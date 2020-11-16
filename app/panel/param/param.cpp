@@ -36,14 +36,14 @@ ParamPanel::ParamPanel(QWidget* parent) :
   Retranslate();
 }
 
-void ParamPanel::SelectNodes(const QList<Node *> &nodes)
+void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
 
   Retranslate();
 }
 
-void ParamPanel::DeselectNodes(const QList<Node *> &nodes)
+void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 

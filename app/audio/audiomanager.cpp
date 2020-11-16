@@ -124,36 +124,8 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
     format.setChannelCount(output_params_.channel_count());
     format.setCodec("audio/pcm");
     format.setByteOrder(QAudioFormat::LittleEndian);
-
-    switch (output_params_.format()) {
-    case SampleFormat::SAMPLE_FMT_U8:
-      format.setSampleSize(8);
-      format.setSampleType(QAudioFormat::UnSignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S16:
-      format.setSampleSize(16);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S32:
-      format.setSampleSize(32);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S64:
-      format.setSampleSize(64);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_FLT:
-      format.setSampleSize(32);
-      format.setSampleType(QAudioFormat::Float);
-      break;
-    case SampleFormat::SAMPLE_FMT_DBL:
-      format.setSampleSize(64);
-      format.setSampleType(QAudioFormat::Float);
-      break;
-    case SampleFormat::SAMPLE_FMT_COUNT:
-    case SampleFormat::SAMPLE_FMT_INVALID:
-      abort();
-    }
+    format.setSampleSize(output_params_.bits_per_sample());
+    format.setSampleType(AudioParams::GetQtSampleType(output_params_.format()));
 
     if (info.isFormatSupported(format)) {
       QMetaObject::invokeMethod(output_manager_,

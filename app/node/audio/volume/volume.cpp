@@ -49,7 +49,7 @@ QString VolumeNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.volume");
 }
 
-QList<Node::CategoryID> VolumeNode::Category() const
+QVector<Node::CategoryID> VolumeNode::Category() const
 {
   return {kCategoryFilter};
 }

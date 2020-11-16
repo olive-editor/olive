@@ -34,25 +34,31 @@ NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
 
-  line_edit_ = new QLineEdit();
-  connect(line_edit_, &QLineEdit::textEdited, this, &NodeParamViewRichText::textEdited);
+  line_edit_ = new QTextEdit();
+  connect(line_edit_, &QTextEdit::textChanged, this, &NodeParamViewRichText::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
   QPushButton* edit_btn = new QPushButton();
   edit_btn->setIcon(icon::ToolEdit);
+  edit_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   layout->addWidget(edit_btn);
   connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewRichText::ShowRichTextDialog);
 }
 
 void NodeParamViewRichText::ShowRichTextDialog()
 {
-  RichTextDialog d(line_edit_->text(), this);
+  RichTextDialog d(this->text(), this);
   if (d.exec() == QDialog::Accepted) {
     QString s = d.text();
 
     line_edit_->setText(s);
     emit textEdited(s);
   }
+}
+
+void NodeParamViewRichText::InnerWidgetTextChanged()
+{
+  emit textEdited(this->text());
 }
 
 OLIVE_NAMESPACE_EXIT

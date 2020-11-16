@@ -58,7 +58,7 @@ public:
     return preview_resolution_field_->GetDivider();
   }
 
-  PixelFormat::Format GetSelectedPreviewFormat() const
+  VideoParams::Format GetSelectedPreviewFormat() const
   {
     return preview_format_field_->GetPixelFormat();
   }

@@ -72,7 +72,7 @@ QString MatrixGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.transform");
 }
 
-QList<Node::CategoryID> MatrixGenerator::Category() const
+QVector<Node::CategoryID> MatrixGenerator::Category() const
 {
   return {kCategoryGenerator, kCategoryMath};
 }

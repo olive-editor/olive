@@ -282,17 +282,17 @@ public:
 
   static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
 
-  void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
+  void GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const;
 
   QVariant GetDefaultValue() const;
 
   QVariant GetDefaultValueForTrack(int track) const;
 
-  QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
+  QVector<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
 
-  QList<Node*> GetExclusiveDependencies() const;
+  QVector<Node*> GetExclusiveDependencies() const;
 
-  QList<Node*> GetImmediateDependencies() const;
+  QVector<Node*> GetImmediateDependencies() const;
 
 signals:
   void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);

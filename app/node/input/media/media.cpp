@@ -35,7 +35,7 @@ MediaInput::MediaInput() :
   AddInput(footage_input_);
 }
 
-QList<Node::CategoryID> MediaInput::Category() const
+QVector<Node::CategoryID> MediaInput::Category() const
 {
   return {kCategoryInput};
 }

@@ -22,26 +22,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-NodeValueTable& NodeValueDatabase::operator[](const QString &input_id)
-{
-  return tables_[input_id];
-}
-
-NodeValueTable& NodeValueDatabase::operator[](const NodeInput *input)
-{
-  return tables_[input->id()];
-}
-
-void NodeValueDatabase::Insert(const QString &key, const NodeValueTable &value)
-{
-  tables_.insert(key, value);
-}
-
-void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value)
-{
-  tables_.insert(key->id(), value);
-}
-
 NodeValueTable NodeValueDatabase::Merge() const
 {
   QHash<QString, NodeValueTable> copy = tables_;
@@ -103,41 +83,6 @@ NodeValue NodeValueTable::TakeWithMeta(const NodeParam::DataType &type, const QS
   return NodeValue();
 }
 
-void NodeValueTable::Push(const NodeValue &value)
-{
-  values_.append(value);
-}
-
-void NodeValueTable::Push(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
-{
-  Push(NodeValue(type, data, from, tag));
-}
-
-void NodeValueTable::Prepend(const NodeValue &value)
-{
-  values_.prepend(value);
-}
-
-void NodeValueTable::Prepend(const NodeParam::DataType &type, const QVariant &data, const Node* from, const QString &tag)
-{
-  Prepend(NodeValue(type, data, from, tag));
-}
-
-const NodeValue &NodeValueTable::at(int index) const
-{
-  return values_.at(index);
-}
-
-NodeValue NodeValueTable::TakeAt(int index)
-{
-  return values_.takeAt(index);
-}
-
-int NodeValueTable::Count() const
-{
-  return values_.size();
-}
-
 bool NodeValueTable::Has(const NodeParam::DataType &type) const
 {
   for (int i=values_.size() - 1;i>=0;i--) {
@@ -161,11 +106,6 @@ void NodeValueTable::Remove(const NodeValue &v)
       return;
     }
   }
-}
-
-bool NodeValueTable::isEmpty() const
-{
-  return values_.isEmpty();
 }
 
 NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)

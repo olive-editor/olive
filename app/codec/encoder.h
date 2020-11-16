@@ -122,6 +122,11 @@ public:
 
   virtual void Close() = 0;
 
+  virtual VideoParams::Format GetDesiredPixelFormat() const
+  {
+    return VideoParams::kFormatInvalid;
+  }
+
 private:
   EncodingParams params_;
 

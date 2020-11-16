@@ -27,6 +27,7 @@ extern "C" {
 
 #include <QMutex>
 #include <QObject>
+#include <QWaitCondition>
 #include <stdint.h>
 
 #include "codec/frame.h"
@@ -68,117 +69,46 @@ public:
 
   Decoder();
 
-  Decoder(Stream* fs);
-
-  DISABLE_COPY_MOVE(Decoder)
-
+  /**
+   * @brief Unique decoder ID
+   */
   virtual QString id() = 0;
 
-  StreamPtr stream() const;
-  void set_stream(StreamPtr fs);
+  virtual bool SupportsVideo(){return false;}
+  virtual bool SupportsAudio(){return false;}
 
   /**
-   * @brief Probe a footage file and dump metadata about it
+   * @brief Open stream for decoding
    *
-   * When a Footage file is imported, we'll need to know whether Olive is equipped with a decoder for utilizing it
-   * and metadata should be retrieved about it if so. For this purpose, the Footage object is passed through all
-   * Probe() functions of available deocders until one returns TRUE. A FALSE return means the Decoder was unable to
-   * parse this file and the next should be tried.
+   * This function is thread safe.
    *
-   * Probe() differs from Open() since it focuses on a file as a whole rather than one particular stream. Probe()
-   * should be able to be run directly without calling Open() or Close() and should free its memory before returning.
-   *
-   * Probe() will never be called on an object that is also used for decoding. In other words, it will never be called
-   * alongside Open() or Close() externally, so Probe() can use variables that would otherwise be used for decoding
-   * without conflict.
-   *
-   * @param f
-   *
-   * A Footage object to probe. The Footage object will have a valid filename and will be empty prior to being sent
-   * to this function (i.e. Footage::Clear() will not have to be called).
-   *
-   * @return
-   *
-   * TRUE if the Decoder was able to decode this file. FALSE if not. This function should have filled the Footage
-   * object with metadata if it returns TRUE. Otherwise, the Footage object should be untouched.
+   * Returns TRUE if stream could be opened successfully. Also returns TRUE if the decoder is
+   * already open and the stream == the stream provided. Returns FALSE if the stream couldn't
+   * be opened OR if already open and the stream is NOT the same.
    */
-  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  bool Open(StreamPtr fs);
 
   /**
-   * @brief Open media/allocate memory
+   * @brief Retrieves a video frame from footage
    *
-   * Any file handles or memory allocation that needs to be done before this instance of a Decoder can return data
-   * should be done here.
+   * This function will always return a valid frame unless a fatal error occurs (in such case,
+   * nullptr will return). If the timecode is before the start of the footage, this function should
+   * return the first frame. Likewise, if it is after the timecode, this function should return the
+   * last frame.
    *
-   * @return
-   *
-   * TRUE if successful and ready to return data, FALSE if failed to open and unable to retrieve data. If the function
-   * fails, any memory allocated should be free'd before returning FALSE, possibly by calling Close().
+   * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  virtual bool Open() = 0;
+  FramePtr RetrieveVideo(const rational& timecode, const int& divider);
 
   /**
-   * @brief Retrieve video frame
+   * @brief Retrieve audio data from footage
    *
-   * The main function for retrieving video data from the Decoder. This function should always provide complete frame
-   * data (i.e. no partial frames) at the timecode provided. The Decoder should perform any steps required to retrieve
-   * a complete frame separate from the rest of the program, using any form of caching/indexing to keep this as
-   * performant as possible.
+   * This function will always return a sample buffer unless a fatal error occurs (in such case,
+   * nullptr will return). The SampleBuffer should always have enough audio for the range provided.
    *
-   * It's acceptable for this function to check whether the Decoder is open, and call Open() if not. If Open() returns
-   * false, this function should return nullptr.
-   *
-   * @param timecode
-   *
-   * The timecode (a rational in seconds) to retrieve the frame at. If there is not a frame at this precise location
-   * this should be corrected internally to the closest fit for the timecode.
-   *
-   * @return
-   *
-   * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
-   * the media could not be opened.
+   * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider);
-
-  /**
-   * @brief Retrieve video frame
-   *
-   * The main function for retrieving audio data from the Decoder. This function should always provide complete frame
-   * data (i.e. no missing samples) at the timecode and length requested. The Decoder should perform any steps
-   * required to retrieve a complete frame separate from the rest of the program, using any form of caching/indexing
-   * to keep this as performant as possible.
-   *
-   * It's acceptable for this function to check whether the Decoder is open, and call Open() if not. If Open() returns
-   * false, this function should return nullptr.
-   *
-   * @param timecode
-   *
-   * The starting timecode (a rational in seconds) to retrieve the data at.
-   *
-   * @param length
-   *
-   * The total length of audio data to retrieve (a rational in seconds).
-   *
-   * @return
-   *
-   * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
-   * the provided timecode or the media could not be opened.
-   */
-  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioParams& params);
-
-  virtual bool SupportsVideo();
-  virtual bool SupportsAudio();
-
-  /**
-   * @brief Close media/deallocate memory
-   *
-   * Any file handles or memory allocations opened in Open() should be cleaned up here.
-   *
-   * As the main memory freeing function, it's good practice to call this in Open() if there's an error that prevents
-   * correct function before Open() returns. As such, Close() should be prepared for not all memory/file handles to
-   * have been opened successfully.
-   */
-  virtual void Close() = 0;
+  SampleBufferPtr RetrieveAudio(const TimeRange& range, const AudioParams& params, const QAtomicInt *cancelled);
 
   /**
    * @brief Try to probe a Footage file by passing it through all available Decoders
@@ -199,7 +129,27 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static FootagePtr ProbeMedia(Project *project, const QString& filename, const QAtomicInt *cancelled);
+  static FootagePtr Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
+
+  /**
+   * @brief Generate a Footage object from a file
+   *
+   * If this decoder is able to parse this file, it will return a valid FootagePtr. Otherwise, it
+   * will return nullptr.
+   *
+   * For sub-classes, this function should be effectively static. We can't do virtual static
+   * functions in C++, but it should hold and access no state during its run.
+   *
+   * This function is re-entrant.
+   */
+  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+
+  /**
+   * @brief Closes media/deallocates memory
+   *
+   * This function is thread safe and can only run while the decoder is open. \see Open()
+   */
+  void Close();
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -210,42 +160,45 @@ public:
    */
   static DecoderPtr CreateFromID(const QString& id);
 
-  /**
-   * @brief AUDIO ONLY: Produces a complete PCM extraction of the audio stream
-   *
-   * Internally, our render engine only deals with PCM since it provides the least headaches and
-   * modern computers have the processing power to do it.
-   *
-   * Resamples and converts the currently open audio to match the params. If the audio doesn't need
-   * conforming (e.g. audio params already match or a conformed match already exists), this function
-   * will return immediately. Otherwise it will block the calling thread until the conform is
-   * complete. This function should therefore only be called from a background render thread.
-   *
-   * All audio decoders must override this. It's not pure since video decoders don't need to use
-   * this, but default behavior will abort since it should never be called.
-   */
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams &params);
-
-  /**
-   * @brief AUDIO ONLY: Returns whether a transcode of this audio matching the specified params
-   * already exists
-   */
-  bool HasConformedVersion(const AudioParams& params);
-
   static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
 
   static int GetImageSequenceDigitCount(const QString& filename);
 
   static int64_t GetImageSequenceIndex(const QString& filename);
 
-signals:
-  /**
-   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
-   * available
-   */
-  void IndexProgress(double);
-
 protected:
+  /**
+   * @brief Internal open function
+   *
+   * Sub-classes must override this function. Function will already be mutexed, so there is no need
+   * to worry about thread safety. Also many other sanity checks will be done before this, so
+   * sub-classes only need to worry about their own opening functions. It is guaranteed that the
+   * decoder is not open yet and that the footage stream was from that sub-classes probe function.
+   *
+   * Return TRUE if everything opened successfully and the decoder is ready to work. Otherwise,
+   * return FALSE. If this function returns false, Decoder will call CloseInternal to clean any
+   * memory allocated during OpenInternal.
+   */
+  virtual bool OpenInternal() = 0;
+
+  /**
+   * @brief Internal close function
+   *
+   * Sub-classes must override this function. Function should be able to safely clear all allocated
+   * memory. It may be called even if Open() didn't complete or RetrieveVideo() was never called.
+   */
+  virtual void CloseInternal() = 0;
+
+  /**
+   * @brief Internal frame retrieval function
+   *
+   * Sub-classes must override this function IF they support video. Function is already mutexed
+   * so sub-classes don't need to worry about thread safety.
+   */
+  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const int& divider);
+
+  virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled);
+
   void SignalProcessingProgress(const int64_t& ts);
 
   /**
@@ -255,10 +208,43 @@ protected:
 
   QString GetIndexFilename();
 
-  bool open_;
+  struct CurrentlyConforming {
+    StreamPtr stream;
+    AudioParams params;
+
+    bool operator==(const CurrentlyConforming& rhs) const
+    {
+      return this->stream == rhs.stream && this->params == rhs.params;
+    }
+  };
+
+  /**
+   * @brief Return currently open stream
+   *
+   * This function is NOT thread safe and should therefore only be called by thread safe functions.
+   */
+  StreamPtr stream() const
+  {
+    return stream_;
+  }
+
+  static QMutex currently_conforming_mutex_;
+  static QWaitCondition currently_conforming_wait_cond_;
+  static QVector<CurrentlyConforming> currently_conforming_;
+
+signals:
+  /**
+   * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
+   * available
+   */
+  void IndexProgress(double);
 
 private:
+  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range);
+
   StreamPtr stream_;
+
+  QMutex mutex_;
 
 };
 

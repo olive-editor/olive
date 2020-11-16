@@ -24,7 +24,6 @@
 #include <QByteArray>
 #include <QFile>
 
-#include "audio/sampleformat.h"
 #include "render/audioparams.h"
 
 OLIVE_NAMESPACE_ENTER

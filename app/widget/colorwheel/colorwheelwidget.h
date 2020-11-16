@@ -24,7 +24,6 @@
 #include <QOpenGLWidget>
 
 #include "colorswatchwidget.h"
-#include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
 
 OLIVE_NAMESPACE_ENTER

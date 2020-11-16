@@ -131,7 +131,7 @@ Project *NodeAddCommand::GetRelevantProject() const
   return static_cast<Sequence*>(graph_)->project();
 }
 
-NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QList<Node *> &nodes, QUndoCommand *parent) :
+NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QVector<Node *> &nodes, QUndoCommand *parent) :
   UndoCommand(parent),
   graph_(graph),
   nodes_(nodes)
@@ -197,7 +197,7 @@ Project *NodeRemoveCommand::GetRelevantProject() const
 NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent) :
   UndoCommand(parent)
 {
-  QList<Node*> node_and_its_deps;
+  QVector<Node*> node_and_its_deps;
   node_and_its_deps.append(node);
   node_and_its_deps.append(node->GetExclusiveDependencies());
 

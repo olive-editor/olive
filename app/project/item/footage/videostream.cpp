@@ -104,7 +104,9 @@ void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("type")) {
       set_video_type(static_cast<VideoType>(reader->readElementText().toInt()));
     } else if (reader->name() == QStringLiteral("format")) {
-      set_format(static_cast<PixelFormat::Format>(reader->readElementText().toInt()));
+      set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("channels")) {
+      set_channel_count(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("pixelaspect")) {
       set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("framerate")) {
@@ -126,6 +128,7 @@ void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
   writer->writeTextElement(QStringLiteral("type"), QString::number(video_type_));
   writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+  writer->writeTextElement(QStringLiteral("channels"), QString::number(channel_count_));
   writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_ratio_.toString());
   writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
   writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
@@ -157,12 +160,6 @@ void VideoStream::set_colorspace(const QString &color)
   colorspace_ = color;
 
   emit ParametersChanged();
-}
-
-QString VideoStream::get_colorspace_match_string() const
-{
-  return QStringLiteral("%1:%2").arg(footage()->project()->color_manager()->GetConfigFilename(),
-                                     colorspace());
 }
 
 void VideoStream::ColorConfigChanged()

@@ -32,8 +32,8 @@
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
-#include "render/backend/opengl/openglbackend.h"
-#include "render/backend/renderticketwatcher.h"
+#include "render/previewautocacher.h"
+#include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -81,11 +81,6 @@ public:
    * If `screen` is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor.
    */
   void SetFullScreen(QScreen* screen = nullptr);
-
-  RenderBackend* renderer() const
-  {
-    return renderer_;
-  }
 
   ColorManager* color_manager() const
   {
@@ -196,8 +191,6 @@ private:
 
   void RequestNextFrameForQueue();
 
-  PixelFormat::Format GetCurrentPixelFormat() const;
-
   RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
 
   void FinishPlayPreprocess();
@@ -246,8 +239,6 @@ private:
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
 
-  RenderBackend* renderer_;
-
   bool prequeuing_;
 
   QList<RenderTicketWatcher*> nonqueue_watchers_;
@@ -255,6 +246,8 @@ private:
   rational last_length_;
 
   int prequeue_length_;
+
+  PreviewAutoCacher auto_cacher_;
 
   static QVector<ViewerWidget*> instances_;
 

@@ -21,7 +21,7 @@
 #ifndef NODEPARAMVIEWRICHTEXT_H
 #define NODEPARAMVIEWRICHTEXT_H
 
-#include <QLineEdit>
+#include <QTextEdit>
 #include <QWidget>
 
 #include "common/define.h"
@@ -36,30 +36,41 @@ public:
 
   QString text() const
   {
-    return line_edit_->text();
+    return line_edit_->toPlainText().replace('\n', QStringLiteral("<br>"));
   }
 
 public slots:
-  void setText(const QString &s)
+  void setText(QString s)
   {
-    line_edit_->setText(s);
+    line_edit_->blockSignals(true);
+    line_edit_->setPlainText(s.replace(QStringLiteral("<br>"), QStringLiteral("\n")));
+    line_edit_->blockSignals(false);
   }
 
   void setTextPreservingCursor(const QString &s)
   {
-    int cursor_pos = line_edit_->cursorPosition();
-    line_edit_->setText(s);
-    line_edit_->setCursorPosition(cursor_pos);
+    // Save cursor position
+    int cursor_pos = line_edit_->textCursor().position();
+
+    // Set text
+    this->setText(s);
+
+    // Get new text cursor
+    QTextCursor c = line_edit_->textCursor();
+    c.setPosition(cursor_pos);
+    line_edit_->setTextCursor(c);
   }
 
 signals:
   void textEdited(const QString &);
 
 private:
-  QLineEdit* line_edit_;
+  QTextEdit* line_edit_;
 
 private slots:
   void ShowRichTextDialog();
+
+  void InnerWidgetTextChanged();
 
 };
 

@@ -38,9 +38,7 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
-
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) override;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
@@ -48,8 +46,6 @@ private:
   VideoStreamPtr footage_;
 
   VideoInput* video_node_;
-
-  QThreadPool download_threads_;
 
 };
 

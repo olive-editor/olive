@@ -458,7 +458,8 @@ void TimeBasedWidget::SetMarker()
   }
 
   if (ok) {
-    points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(static_cast<Sequence*>(GetConnectedNode()->parent())->project(),
+                                                              points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }
 
@@ -515,6 +516,29 @@ void TimeBasedWidget::GoToOut()
       GoToEnd();
     }
   }
+}
+
+TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
+  project_(project),
+  marker_list_(marker_list),
+  range_(range),
+  name_(name)
+{
+}
+
+Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void TimeBasedWidget::MarkerAddCommand::redo_internal()
+{
+  added_marker_ = marker_list_->AddMarker(range_, name_);
+}
+
+void TimeBasedWidget::MarkerAddCommand::undo_internal()
+{
+  marker_list_->RemoveMarker(added_marker_);
 }
 
 OLIVE_NAMESPACE_EXIT

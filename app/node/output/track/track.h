@@ -45,7 +45,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   const double& GetTrackHeight() const;
@@ -217,11 +217,6 @@ public:
     return waveform_;
   }
 
-  QMutex* waveform_lock()
-  {
-    return &waveform_lock_;
-  }
-
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
@@ -297,7 +292,6 @@ private:
   bool locked_;
 
   AudioVisualWaveform waveform_;
-  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

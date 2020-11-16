@@ -110,8 +110,8 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
     } else {
 
-      FootagePtr item = Decoder::ProbeMedia(model_->project(), file_info.absoluteFilePath(),
-                                            &IsCancelled());
+      FootagePtr item = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
+                                       &IsCancelled());
 
       if (item) {
         // See if this footage is an image sequence

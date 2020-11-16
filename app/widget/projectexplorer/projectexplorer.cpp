@@ -637,12 +637,12 @@ void ProjectExplorer::DeleteSelected()
         if (msgbox.clickedButton() == delete_clip_btn) {
 
           // Delete any blocks that use this footage
-          QList<Block*> blocks_to_remove;
+          QVector<Block*> blocks_to_remove;
 
           foreach (Sequence* s, used_in_sequences) {
             foreach (TrackOutput* track, s->viewer_output()->GetTracks()) {
               foreach (Block* b, track->Blocks()) {
-                QList<Node*> deps = b->GetDependencies();
+                QVector<Node*> deps = b->GetDependencies();
 
                 foreach (MediaInput* i, footage_nodes) {
                   if (deps.contains(i)) {

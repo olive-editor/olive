@@ -22,6 +22,7 @@
 #define COLORPROCESSOR_H
 
 #include "codec/frame.h"
+#include "common/ocioutils.h"
 #include "render/color.h"
 #include "render/colortransform.h"
 
@@ -51,15 +52,28 @@ public:
   void ConvertFrame(FramePtr f);
   void ConvertFrame(Frame* f);
 
-  Color ConvertColor(Color in);
+  Color ConvertColor(const Color &in);
+
+  const QString& id() const
+  {
+    return id_;
+  }
+
+  static QString GenerateID(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
 private:
   OCIO::ConstProcessorRcPtr processor_;
 
+  OCIO::ConstCPUProcessorRcPtr cpu_processor_;
+
+  QString id_;
+
 };
 
-using ColorProcessorChain = QList<ColorProcessorPtr>;
+using ColorProcessorChain = QVector<ColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ColorProcessorPtr)
 
 #endif // COLORPROCESSOR_H

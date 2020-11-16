@@ -21,23 +21,51 @@
 #ifndef AUDIOPARAMS_H
 #define AUDIOPARAMS_H
 
+#include <QAudioFormat>
 #include <QtMath>
 
-#include "audio/sampleformat.h"
 #include "common/rational.h"
 
 OLIVE_NAMESPACE_ENTER
 
 class AudioParams {
 public:
+  enum Format {
+    /// Invalid
+    kFormatInvalid = -1,
+
+    /// 8-bit unsigned integer
+    kFormatUnsigned8,
+
+    /// 16-bit signed integer
+    kFormatSigned16,
+
+    /// 32-bit signed integer
+    kFormatSigned32,
+
+    /// 64-bit signed integer
+    kFormatSigned64,
+
+    /// 32-bit float
+    kFormatFloat32,
+
+    /// 64-bit float
+    kFormatFloat64,
+
+    /// Total format count
+    kFormatCount
+  };
+
+  static const Format kInternalFormat;
+
   AudioParams() :
     sample_rate_(0),
     channel_layout_(0),
-    format_(SampleFormat::SAMPLE_FMT_INVALID)
+    format_(kFormatInvalid)
   {
   }
 
-  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format) :
+  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const Format& format) :
     sample_rate_(sample_rate),
     channel_layout_(channel_layout),
     format_(format)
@@ -59,19 +87,19 @@ public:
     return rational(1, sample_rate());
   }
 
-  const SampleFormat::Format &format() const
+  const Format &format() const
   {
     return format_;
   }
 
   qint64 time_to_bytes(const double& time) const;
   qint64 time_to_bytes(const rational& time) const;
-  int time_to_samples(const double& time) const;
-  int time_to_samples(const rational& time) const;
-  int samples_to_bytes(const int& samples) const;
-  rational samples_to_time(const int& samples) const;
-  int bytes_to_samples(const int &bytes) const;
-  rational bytes_to_time(const int &bytes) const;
+  qint64 time_to_samples(const double& time) const;
+  qint64 time_to_samples(const rational& time) const;
+  qint64 samples_to_bytes(const qint64& samples) const;
+  rational samples_to_time(const qint64& samples) const;
+  qint64 bytes_to_samples(const qint64 &bytes) const;
+  rational bytes_to_time(const qint64 &bytes) const;
   int channel_count() const;
   int bytes_per_sample_per_channel() const;
   int bits_per_sample() const;
@@ -79,6 +107,8 @@ public:
 
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
+
+  static QAudioFormat::SampleType GetQtSampleType(Format format);
 
   static const QVector<uint64_t> kSupportedChannelLayouts;
   static const QVector<int> kSupportedSampleRates;
@@ -98,7 +128,7 @@ private:
 
   uint64_t channel_layout_;
 
-  SampleFormat::Format format_;
+  Format format_;
 
 };
 

@@ -27,7 +27,6 @@
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "core.h"
 #include "project/item/footage/footage.h"
-#include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -38,7 +37,7 @@ Node *VideoInput::copy() const
 
 Stream::Type VideoInput::type() const
 {
-	return Stream::kVideo;
+  return Stream::kVideo;
 }
 
 QString VideoInput::Name() const

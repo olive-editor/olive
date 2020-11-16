@@ -32,7 +32,6 @@ extern "C" {
 #include <QVector>
 #include <QWaitCondition>
 
-#include "audio/sampleformat.h"
 #include "avframeptr.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
@@ -40,99 +39,6 @@ extern "C" {
 #include "project/item/footage/videostream.h"
 
 OLIVE_NAMESPACE_ENTER
-
-class FFmpegDecoderInstance : public QObject {
-  Q_OBJECT
-public:
-  FFmpegDecoderInstance(const char* filename, int stream_index);
-  virtual ~FFmpegDecoderInstance();
-
-  DISABLE_COPY_MOVE(FFmpegDecoderInstance)
-
-  bool IsValid() const;
-
-  void SetFramePool(FFmpegFramePool* frame_pool);
-
-  int64_t RangeStart() const;
-  int64_t RangeEnd() const;
-  bool CacheContainsTime(const int64_t& t) const;
-  bool CacheWillContainTime(const int64_t& t) const;
-  bool CacheCouldContainTime(const int64_t& t) const;
-  bool CacheIsEmpty() const;
-  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
-
-  void RemoveFramesBefore(const qint64& t);
-  int TruncateCacheRangeToTime(const qint64& t);
-  int TruncateCacheRangeToFrames(int nb_frames);
-  void RemoveFirstFrame();
-
-  AVFormatContext* fmt_ctx() const
-  {
-    return fmt_ctx_;
-  }
-
-  AVStream* stream() const
-  {
-    return avstream_;
-  }
-
-  void ClearFrameCache();
-
-  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, int divider, bool cache_is_locked);
-
-  /**
-   * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
-   *
-   * @return
-   *
-   * An FFmpeg error code, or >= 0 on success
-   */
-  int GetFrame(AVPacket* pkt, AVFrame* frame);
-
-  QMutex* cache_lock();
-  QWaitCondition* cache_wait_cond();
-
-  bool IsWorking();
-  void SetWorking(bool working);
-
-private:
-  void ClearResources();
-
-  void Seek(int64_t timestamp);
-
-  void InitScaler(int divider);
-  void FreeScaler();
-
-  AVFormatContext* fmt_ctx_;
-  AVCodecContext* codec_ctx_;
-  AVStream* avstream_;
-  AVDictionary* opts_;
-
-  SwsContext* scale_ctx_;
-  int scale_divider_;
-
-  int64_t second_ts_;
-
-  QWaitCondition cache_wait_cond_;
-  QMutex cache_lock_;
-  QList<FFmpegFramePool::ElementPtr> cached_frames_;
-  FFmpegFramePool* frame_pool_;
-
-  int64_t cache_target_time_;
-
-  bool is_working_;
-  QMutex is_working_mutex_;
-
-  bool cache_at_zero_;
-  bool cache_at_eof_;
-
-  QTimer* clear_timer_;
-  static const int kMaxFrameLife;
-
-private slots:
-  void ClearTimerEvent();
-
-};
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -147,40 +53,62 @@ public:
   // Destructor
   virtual ~FFmpegDecoder() override;
 
-  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
-
-  virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
-  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioParams& params) override;
-  virtual void Close() override;
-
   virtual QString id() override;
 
-  virtual bool SupportsVideo() override;
-  virtual bool SupportsAudio() override;
+  virtual bool SupportsVideo() override{return true;}
+  virtual bool SupportsAudio() override{return true;}
 
-  virtual bool ConformAudio(const QAtomicInt* cancelled, const AudioParams& p) override;
+  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
-  struct FFmpegFramePoolKey {
-    int width;
-    int height;
-    AVPixelFormat format;
-
-    bool operator==(const FFmpegFramePoolKey& k) const
-    {
-      return width == k.width && height == k.height && format == k.format;
-    }
-  };
+protected:
+  virtual bool OpenInternal() override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual void CloseInternal() override;
 
 private:
-  /**
-   * @brief Handle an error
-   *
-   * Immediately closes the Decoder (freeing memory resources) and sends the string provided to the warning stream.
-   * As this function closes the Decoder, no further Decoder functions should be performed after this is called
-   * (unless the Decoder is opened again first).
-   */
-  void Error(const QString& s);
+  class Instance
+  {
+  public:
+    Instance();
+
+    ~Instance()
+    {
+      Close();
+    }
+
+    bool Open(const char* filename, int stream_index);
+
+    void Close();
+
+    /**
+     * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
+     *
+     * @return
+     *
+     * An FFmpeg error code, or >= 0 on success
+     */
+    int GetFrame(AVPacket* pkt, AVFrame* frame);
+
+    void Seek(int64_t timestamp);
+
+    AVFormatContext* fmt_ctx() const
+    {
+      return fmt_ctx_;
+    }
+
+    AVStream* avstream() const
+    {
+      return avstream_;
+    }
+
+  private:
+    AVFormatContext* fmt_ctx_;
+    AVCodecContext* codec_ctx_;
+    AVStream* avstream_;
+    AVDictionary* opts_;
+
+  };
 
   /**
    * @brief Handle an FFmpeg error code
@@ -190,41 +118,49 @@ private:
    *
    * @param error_code
    */
-  void FFmpegError(int error_code);
-
-  void ClearResources();
+  static QString FFmpegError(int error_code);
 
   void InitScaler(int divider);
   void FreeScaler();
 
   FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
 
-  static PixelFormat::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
 
-  static bool StreamUsesMultipleInstances(StreamPtr stream);
+  void FFmpegBufferToNativeBuffer(uint8_t** input_data, int* input_linesize, uint8_t **output_buffer, int *output_linesize);
 
-  FramePtr BuffersToNativeFrame(int divider, int width, int height, const rational &ts, uint8_t **input_data, int* input_linesize);
+  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
+
+  void ClearFrameCache();
+
+  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, int divider);
+
+  void RemoveFirstFrame();
 
   SwsContext* scale_ctx_;
   int scale_divider_;
-  AVPixelFormat src_pix_fmt_;
   AVPixelFormat ideal_pix_fmt_;
-  PixelFormat::Format native_pix_fmt_;
+  VideoParams::Format native_pix_fmt_;
+  int native_channel_count_;
 
-  struct FFmpegFramePoolValue {
-    FFmpegFramePool* pool = nullptr;
-    int handles = 0;
-  };
+  FFmpegFramePool pool_;
 
-  static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;
-  static QHash< FFmpegFramePoolKey, FFmpegFramePoolValue > frame_pool_map_;
-  static QMutex instance_map_lock_;
+  int64_t second_ts_;
+
+  QList<FFmpegFramePool::ElementPtr> cached_frames_;
+
+  bool is_working_;
+  QMutex is_working_mutex_;
+
+  bool cache_at_zero_;
+  bool cache_at_eof_;
+
+  Instance instance_;
 
 };
-
-uint qHash(const FFmpegDecoder::FFmpegFramePoolKey& r);
 
 OLIVE_NAMESPACE_EXIT
 

@@ -20,6 +20,8 @@
 
 #include "waveoutput.h"
 
+#include "render/audioparams.h"
+
 OLIVE_NAMESPACE_ENTER
 
 const int16_t kWAVIntegerFormat = 1;
@@ -60,18 +62,18 @@ bool WaveOutput::open()
 
     // Type of format
     switch (params_.format()) {
-    case SampleFormat::SAMPLE_FMT_U8:
-    case SampleFormat::SAMPLE_FMT_S16:
-    case SampleFormat::SAMPLE_FMT_S32:
-    case SampleFormat::SAMPLE_FMT_S64:
+    case AudioParams::kFormatUnsigned8:
+    case AudioParams::kFormatSigned16:
+    case AudioParams::kFormatSigned32:
+    case AudioParams::kFormatSigned64:
       write_int<int16_t>(&file_, kWAVIntegerFormat);
       break;
-    case SampleFormat::SAMPLE_FMT_FLT:
-    case SampleFormat::SAMPLE_FMT_DBL:
+    case AudioParams::kFormatFloat32:
+    case AudioParams::kFormatFloat64:
       write_int<int16_t>(&file_, kWAVFloatFormat);
       break;
-    case SampleFormat::SAMPLE_FMT_INVALID:
-    case SampleFormat::SAMPLE_FMT_COUNT:
+    case AudioParams::kFormatInvalid:
+    case AudioParams::kFormatCount:
       qWarning() << "Invalid sample format for WAVE audio";
       file_.close();
       return false;

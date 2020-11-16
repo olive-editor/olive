@@ -233,7 +233,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QList<Node*>& nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes) const;
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -414,6 +414,11 @@ signals:
    * @brief Signal emitted when the default timecode display mode changed
    */
   void TimecodeDisplayChanged(Timecode::Display d);
+
+  /**
+   * @brief Signal emitted when a change is made to the open recent list
+   */
+  void OpenRecentListChanged();
 
 private:
   /**

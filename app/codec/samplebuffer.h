@@ -46,6 +46,7 @@ public:
   virtual ~SampleBuffer();
 
   static SampleBufferPtr Create();
+  static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, const rational& length);
   static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
   static SampleBufferPtr CreateFromPackedData(const AudioParams& audio_params, const QByteArray& bytes);
 

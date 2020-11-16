@@ -91,7 +91,7 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
 
 private:
   void UpdateUIForEdgeConnection(NodeInput* input);
@@ -161,7 +161,7 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
 
   void PinToggled(bool e);
 

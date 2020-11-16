@@ -74,8 +74,8 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   preview_resolution_label_ = new QLabel();
   preview_layout->addWidget(preview_resolution_label_, row, 2);
   row++;
-  preview_layout->addWidget(new QLabel(tr("Format:")), row, 0);
-  preview_format_field_ = new PixelFormatComboBox(true, true);
+  preview_layout->addWidget(new QLabel(tr("Quality:")), row, 0);
+  preview_format_field_ = new PixelFormatComboBox(true);
   preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
   layout->addWidget(preview_group);
 
@@ -133,7 +133,8 @@ void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
 {
   VideoParams test_param(video_width_field_->GetValue(),
                          video_height_field_->GetValue(),
-                         PixelFormat::PIX_FMT_INVALID,
+                         VideoParams::kFormatInvalid,
+                         VideoParams::kInternalChannelCount,
                          rational(1),
                          VideoParams::kInterlaceNone,
                          preview_resolution_field_->currentData().toInt());

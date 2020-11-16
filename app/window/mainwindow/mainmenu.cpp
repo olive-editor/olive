@@ -50,8 +50,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_new_menu_ = new Menu(file_menu_);
   MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), &Core::OpenProject, "Ctrl+O");
-  file_open_recent_menu_ = new Menu(file_menu_, this, &MainMenu::PopulateOpenRecent);
-  connect(file_open_recent_menu_, &Menu::aboutToHide, this, &MainMenu::CloseOpenRecentMenu);
+  file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_separator_ = file_open_recent_menu_->addSeparator();
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
   file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
@@ -255,6 +254,9 @@ MainMenu::MainMenu(MainWindow *parent) :
   help_menu_->addSeparator();
   help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
 
+  connect(Core::instance(), &Core::OpenRecentListChanged, this, &MainMenu::RepopulateOpenRecent);
+  PopulateOpenRecent();
+
   Retranslate();
 }
 
@@ -396,6 +398,12 @@ void MainMenu::PopulateOpenRecent()
     }
 
   }
+}
+
+void MainMenu::RepopulateOpenRecent()
+{
+  CloseOpenRecentMenu();
+  PopulateOpenRecent();
 }
 
 void MainMenu::CloseOpenRecentMenu()

@@ -29,10 +29,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-const int kHSVChannels = 3;
-const int kRGBChannels = 3;
-const int kRGBAChannels = 4;
-
 /// The minimum size an icon in ProjectExplorer can be
 const int kProjectIconSizeMinimum = 16;
 
