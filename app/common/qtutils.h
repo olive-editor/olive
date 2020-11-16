@@ -28,19 +28,26 @@
  */
 
 #include <QFontMetrics>
+#include <QFrame>
 
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-/**
- * @brief Retrieves the width of a string according to certain QFontMetrics
- *
- * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
- * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
- * earlier.
- */
-int QFontMetricsWidth(QFontMetrics fm, const QString& s);
+class QtUtils {
+public:
+  /**
+   * @brief Retrieves the width of a string according to certain QFontMetrics
+   *
+   * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
+   * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
+   * earlier.
+   */
+  static int QFontMetricsWidth(QFontMetrics fm, const QString& s);
+
+  static QFrame* CreateHorizontalLine();
+
+};
 
 OLIVE_NAMESPACE_EXIT
 

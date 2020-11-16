@@ -22,12 +22,20 @@
 
 OLIVE_NAMESPACE_ENTER
 
-int QFontMetricsWidth(QFontMetrics fm, const QString& s) {
+int QtUtils::QFontMetricsWidth(QFontMetrics fm, const QString& s) {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
   return fm.width(s);
 #else
   return fm.horizontalAdvance(s);
 #endif
+}
+
+QFrame *QtUtils::CreateHorizontalLine()
+{
+  QFrame* horizontal_line = new QFrame();
+  horizontal_line->setFrameShape(QFrame::HLine);
+  horizontal_line->setFrameShadow(QFrame::Sunken);
+  return horizontal_line;
 }
 
 OLIVE_NAMESPACE_EXIT

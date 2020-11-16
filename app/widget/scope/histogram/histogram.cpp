@@ -136,7 +136,7 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
           histogram_start_dim_y);
     label = QString::number(
           *it * 100, 'f', 1) + "%";
-    font_x_offset = QFontMetricsWidth(font_metrics, label) + 4;
+    font_x_offset = QtUtils::QFontMetricsWidth(font_metrics, label) + 4;
 
     p.drawText(
           histogram_start_dim_x - font_x_offset,

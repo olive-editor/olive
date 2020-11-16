@@ -47,7 +47,7 @@ BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe
   }
 
 
-  int control_point_size = QFontMetricsWidth(qApp->fontMetrics(), "o");
+  int control_point_size = QtUtils::QFontMetricsWidth(qApp->fontMetrics(), "o");
   int half_sz = control_point_size / 2;
   setRect(-half_sz, -half_sz, control_point_size, control_point_size);
 }

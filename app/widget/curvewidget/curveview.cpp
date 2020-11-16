@@ -37,9 +37,9 @@ CurveView::CurveView(QWidget *parent) :
   setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
 
-  text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
+  text_padding_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
 
-  minimum_grid_space_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
+  minimum_grid_space_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
 
   connect(scene(), &QGraphicsScene::selectionChanged, this, &CurveView::SelectionChanged);
 }

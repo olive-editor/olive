@@ -124,7 +124,7 @@ void AudioMonitor::paintGL()
 
   // Create rect where decibel markings will go on the side
   QRect db_labels_rect = rect();
-  db_labels_rect.setWidth(QFontMetricsWidth(p.fontMetrics(), "-00"));
+  db_labels_rect.setWidth(QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00"));
   db_labels_rect.adjust(0, font_height, 0, 0);
 
   // Determine rect where the main meter will go

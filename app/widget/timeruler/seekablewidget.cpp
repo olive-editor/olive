@@ -41,7 +41,7 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   text_height_ = fm.height();
 
   // Set width of playhead marker
-  playhead_width_ = QFontMetricsWidth(fm, "H");
+  playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
 }

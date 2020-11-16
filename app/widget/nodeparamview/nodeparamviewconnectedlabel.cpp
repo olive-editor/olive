@@ -35,7 +35,7 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidg
   input_(input)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setSpacing(QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
+  layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
   layout->setMargin(0);
 
   layout->addWidget(new QLabel(tr("Connected to")));

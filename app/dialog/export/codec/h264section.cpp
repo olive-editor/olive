@@ -117,7 +117,7 @@ H264CRFSection::H264CRFSection(QWidget *parent) :
   layout->addWidget(crf_slider_);
 
   IntegerSlider* crf_input = new IntegerSlider();
-  crf_input->setMaximumWidth(QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
+  crf_input->setMaximumWidth(QtUtils::QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
   crf_input->SetMinimum(kMinimumCRF);
   crf_input->SetMaximum(kMaximumCRF);
   crf_input->SetValue(kDefaultCRF);

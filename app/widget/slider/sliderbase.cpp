@@ -143,8 +143,8 @@ void SliderBase::SetValue(const QVariant &v)
   UpdateLabel(value_);
 }
 
-void SliderBase::SetDefaultValue(const QVariant &v) 
-{ 
+void SliderBase::SetDefaultValue(const QVariant &v)
+{
   default_value_ = v;
 }
 
@@ -203,12 +203,12 @@ QString SliderBase::GetFormat() const
 void SliderBase::RepositionLadder()
 {
   QPoint label_global_pos = label_->mapToGlobal(label_->pos());
-  int text_width = QFontMetricsWidth(label_->fontMetrics(), label_->text());
+  int text_width = QtUtils::QFontMetricsWidth(label_->fontMetrics(), label_->text());
   QPoint ladder_pos(label_global_pos.x(),
                     label_global_pos.y() + label_->height() / 2 - drag_ladder_->height() / 2);
 
   if (ladder_element_count_ > 0) {
-    ladder_pos.setX(ladder_pos.x() + text_width + QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("H")));
+    ladder_pos.setX(ladder_pos.x() + text_width + QtUtils::QFontMetricsWidth(label_->fontMetrics(), QStringLiteral("H")));
   } else {
     ladder_pos.setX(ladder_pos.x() + text_width / 2 - drag_ladder_->width() / 2);
   }

@@ -42,7 +42,7 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   connect(key.get(), &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdatePos);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
 
-  int keyframe_size = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
+  int keyframe_size = QtUtils::QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   int half_sz = keyframe_size/2;
   setRect(-half_sz, -half_sz, keyframe_size, keyframe_size);
 

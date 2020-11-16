@@ -717,7 +717,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
 Timeline::MovementMode PointerTool::IsCursorInTrimHandle(TimelineViewBlockItem *block, qreal cursor_x)
 {
-  double kTrimHandle = QFontMetricsWidth(parent()->fontMetrics(), "H");
+  double kTrimHandle = QtUtils::QFontMetricsWidth(parent()->fontMetrics(), "H");
 
   // Block is too narrow, no trimming allowed
   if (block->rect().width() <= kTrimHandle * 2) {
