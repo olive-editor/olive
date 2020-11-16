@@ -115,6 +115,6 @@ using TexturePtr = std::shared_ptr<Texture>;
 
 OLIVE_NAMESPACE_EXIT
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TexturePtr);
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TexturePtr)
 
 #endif // RENDERTEXTURE_H

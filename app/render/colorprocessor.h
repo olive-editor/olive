@@ -74,6 +74,6 @@ using ColorProcessorChain = QVector<ColorProcessorPtr>;
 
 OLIVE_NAMESPACE_EXIT
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ColorProcessorPtr);
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ColorProcessorPtr)
 
 #endif // COLORPROCESSOR_H

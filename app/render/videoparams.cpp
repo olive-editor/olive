@@ -24,7 +24,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER;
+OLIVE_NAMESPACE_ENTER
 
 const int VideoParams::kInternalChannelCount = kRGBAChannelCount;
 
