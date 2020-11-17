@@ -10,6 +10,15 @@ on:
       - 'docker/**'
       - 'CONTRIBUTING.md'
       - 'README.md'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/FUNDING.yml'
+      - 'docker/**'
+      - 'CONTRIBUTING.md'
+      - 'README.md'
 
 env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
@@ -257,6 +266,7 @@ jobs:
         shell: bash
         env:
           GH_AUTH_KEY: ${{ secrets.GH_AUTH_KEY }}
+        if: github.event_name == 'push'
         run: |
           curl -fLSs --retry 2 --retry-delay 60 \
             https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
