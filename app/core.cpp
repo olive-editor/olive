@@ -915,12 +915,7 @@ void Core::SetStartupLocale()
 {
   // Set language
   if (!core_params_.startup_language().isEmpty()) {
-    if (translator_->load(core_params_.startup_language())) {
-      if (QApplication::installTranslator(translator_)) {
-        qDebug() << "Successfully installed language at" << translator_->filePath();
-      } else {
-        qDebug() << "Failed to install translator";
-      }
+    if (translator_->load(core_params_.startup_language()) && QApplication::installTranslator(translator_)) {
       return;
     } else {
       qWarning() << "Failed to load translation file. Falling back to defaults.";
