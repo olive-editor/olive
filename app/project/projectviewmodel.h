@@ -39,6 +39,7 @@ OLIVE_NAMESPACE_ENTER
  */
 class ProjectViewModel : public QAbstractItemModel
 {
+  Q_OBJECT
 public:
   enum ColumnType {
     /// Media name

@@ -31,6 +31,7 @@ OLIVE_NAMESPACE_ENTER
 
 class ExportAudioTab : public QWidget
 {
+  Q_OBJECT
 public:
   ExportAudioTab(QWidget* parent = nullptr);
 

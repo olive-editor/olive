@@ -29,6 +29,7 @@ OLIVE_NAMESPACE_ENTER
 
 class NodeTableView : public QTreeWidget
 {
+  Q_OBJECT
 public:
   NodeTableView(QWidget* parent = nullptr);
 

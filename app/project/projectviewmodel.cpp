@@ -509,7 +509,7 @@ ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
 {
   source_ = static_cast<Folder*>(item->parent());
 
-  setText(tr("Move Item"));
+  setText(QCoreApplication::translate("MoveItemCommand", "Move Item"));
 }
 
 Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
@@ -535,7 +535,7 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
 {
   old_name_ = item->name();
 
-  setText(tr("Rename Item"));
+  setText(QCoreApplication::translate("RenameItemCommand", "Rename Item"));
 }
 
 Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const

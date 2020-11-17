@@ -30,6 +30,7 @@ OLIVE_NAMESPACE_ENTER
 
 class VideoInput : public MediaInput
 {
+  Q_OBJECT
 public:
   VideoInput() = default;
 

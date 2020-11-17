@@ -34,6 +34,7 @@ OLIVE_NAMESPACE_ENTER
 
 class VideoStreamProperties : public StreamProperties
 {
+  Q_OBJECT
 public:
   VideoStreamProperties(VideoStreamPtr stream);
 

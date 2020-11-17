@@ -28,7 +28,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportCodec : public QObject {
+class ExportCodec : public QObject
+{
+  Q_OBJECT
 public:
   enum Codec {
     kCodecDNxHD,

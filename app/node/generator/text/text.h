@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class TextGenerator : public Node
 {
+  Q_OBJECT
 public:
   TextGenerator();
 

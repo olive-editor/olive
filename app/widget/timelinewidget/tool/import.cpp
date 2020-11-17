@@ -314,17 +314,17 @@ void ImportTool::DropGhosts(bool insert)
     DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
 
     if (behavior == kDWSAsk) {
-      QCheckBox* dont_ask_again_box = new QCheckBox(tr("Don't ask me again"));
+      QCheckBox* dont_ask_again_box = new QCheckBox(QCoreApplication::translate("ImportTool", "Don't ask me again"));
 
       QMessageBox mbox(parent());
 
       mbox.setIcon(QMessageBox::Question);
-      mbox.setWindowTitle(tr("No Active Sequence"));
-      mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
+      mbox.setWindowTitle(QCoreApplication::translate("ImportTool", "No Active Sequence"));
+      mbox.setText(QCoreApplication::translate("ImportTool", "No sequence is currently open. Would you like to create one?"));
       mbox.setCheckBox(dont_ask_again_box);
 
-      QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
-      QPushButton* manual_params_btn = mbox.addButton(tr("Set Parameters Manually"), QMessageBox::NoRole);
+      QPushButton* auto_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+      QPushButton* manual_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Set Parameters Manually"), QMessageBox::NoRole);
       mbox.addButton(QMessageBox::Cancel);
 
       mbox.exec();
@@ -496,11 +496,6 @@ QList<ImportTool::DraggedFootage> ImportTool::FootageToDraggedFootage(QList<Foot
   }
 
   return df;
-}
-
-QString ImportTool::tr(const char *s)
-{
-  return QCoreApplication::translate("ImportTool", s);
 }
 
 OLIVE_NAMESPACE_EXIT

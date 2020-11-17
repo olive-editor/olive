@@ -29,6 +29,7 @@ OLIVE_NAMESPACE_ENTER
 
 class CodecSection : public QWidget
 {
+  Q_OBJECT
 public:
   CodecSection(QWidget* parent = nullptr);
 

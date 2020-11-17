@@ -29,6 +29,7 @@ OLIVE_NAMESPACE_ENTER
 
 class ConformTask : public Task
 {
+  Q_OBJECT
 public:
   ConformTask(AudioStreamPtr stream, const AudioParams& params);
 

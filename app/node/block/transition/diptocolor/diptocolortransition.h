@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class DipToColorTransition : public TransitionBlock
 {
+  Q_OBJECT
 public:
   DipToColorTransition();
 

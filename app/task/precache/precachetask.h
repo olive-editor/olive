@@ -30,6 +30,7 @@ OLIVE_NAMESPACE_ENTER
 
 class PreCacheTask : public RenderTask
 {
+  Q_OBJECT
 public:
   PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
 

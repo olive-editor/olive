@@ -28,6 +28,7 @@ OLIVE_NAMESPACE_ENTER
 
 class PolygonGenerator : public Node
 {
+  Q_OBJECT
 public:
   PolygonGenerator();
 

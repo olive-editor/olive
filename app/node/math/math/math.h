@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class MathNode : public MathNodeBase
 {
+  Q_OBJECT
 public:
   MathNode();
 

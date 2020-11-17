@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class SequenceViewerPanel : public ViewerPanel
 {
+  Q_OBJECT
 public:
   SequenceViewerPanel(QWidget* parent);
 

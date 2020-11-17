@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class VolumeNode : public MathNodeBase
 {
+  Q_OBJECT
 public:
   VolumeNode();
 

@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class AudioInput : public MediaInput
 {
+  Q_OBJECT
 public:
   AudioInput() = default;
 

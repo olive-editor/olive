@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class StrokeFilterNode : public Node
 {
+  Q_OBJECT
 public:
   StrokeFilterNode();
 

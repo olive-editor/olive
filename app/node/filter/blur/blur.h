@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class BlurFilterNode : public Node
 {
+  Q_OBJECT
 public:
   BlurFilterNode();
 

@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class PanNode : public Node
 {
+  Q_OBJECT
 public:
   PanNode();
 

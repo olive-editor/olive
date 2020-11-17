@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class CrossDissolveTransition : public TransitionBlock
 {
+  Q_OBJECT
 public:
   CrossDissolveTransition();
 

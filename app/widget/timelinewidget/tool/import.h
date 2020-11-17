@@ -72,8 +72,6 @@ private:
   static DraggedFootage FootageToDraggedFootage(Footage* f);
   static QList<DraggedFootage> FootageToDraggedFootage(QList<Footage*> footage);
 
-  QString tr(const char* s);
-
   void FootageToGhosts(rational ghost_start, const QList<DraggedFootage>& footage, const rational &dest_tb, const int &track_start);
 
   void PrepGhosts(const rational &frame, const int &track_index);

@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class SolidGenerator : public Node
 {
+  Q_OBJECT
 public:
   SolidGenerator();
 

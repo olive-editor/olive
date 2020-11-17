@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class MergeNode : public Node
 {
+  Q_OBJECT
 public:
   MergeNode();
 

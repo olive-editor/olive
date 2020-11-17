@@ -31,6 +31,7 @@ OLIVE_NAMESPACE_ENTER
  */
 class AudioMonitorPanel : public PanelWidget
 {
+  Q_OBJECT
 public:
   AudioMonitorPanel(QWidget* parent = nullptr);
 

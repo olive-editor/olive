@@ -29,7 +29,9 @@
 
 OLIVE_NAMESPACE_ENTER
 
-class ExportFormat : public QObject {
+class ExportFormat : public QObject
+{
+  Q_OBJECT
 public:
   enum Format {
     kFormatDNxHD,

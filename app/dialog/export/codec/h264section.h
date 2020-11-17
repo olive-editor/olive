@@ -31,6 +31,7 @@ OLIVE_NAMESPACE_ENTER
 
 class H264CRFSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264CRFSection(QWidget* parent = nullptr);
 
@@ -49,6 +50,7 @@ private:
 
 class H264BitRateSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264BitRateSection(QWidget* parent = nullptr);
 
@@ -71,6 +73,7 @@ private:
 
 class H264FileSizeSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264FileSizeSection(QWidget* parent = nullptr);
 
@@ -86,6 +89,7 @@ private:
 
 class H264Section : public CodecSection
 {
+  Q_OBJECT
 public:
   enum CompressionMethod {
     kConstantRateFactor,

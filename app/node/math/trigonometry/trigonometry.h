@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class TrigonometryNode : public Node
 {
+  Q_OBJECT
 public:
   TrigonometryNode();
 

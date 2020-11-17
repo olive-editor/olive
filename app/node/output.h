@@ -31,6 +31,7 @@ OLIVE_NAMESPACE_ENTER
  */
 class NodeOutput : public NodeParam
 {
+  Q_OBJECT
 public:
   /**
    * @brief NodeOutput Constructor

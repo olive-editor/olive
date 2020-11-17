@@ -27,6 +27,7 @@ OLIVE_NAMESPACE_ENTER
 
 class TransitionBlock : public Block
 {
+  Q_OBJECT
 public:
   TransitionBlock();
 
