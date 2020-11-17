@@ -24,6 +24,7 @@
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
+#include <QTranslator>
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
@@ -93,10 +94,22 @@ public:
       startup_project_ = p;
     }
 
+    const QString& startup_language() const
+    {
+      return startup_language_;
+    }
+
+    void set_startup_language(const QString& s)
+    {
+      startup_language_ = s;
+    }
+
   private:
     RunMode mode_;
 
     QString startup_project_;
+
+    QString startup_language_;
 
     bool run_fullscreen_;
 
@@ -273,6 +286,11 @@ public:
    */
   bool ValidateFootageInLoadedProject(ProjectPtr project, const QString &project_saved_url);
 
+  /**
+   * @brief Changes the current language
+   */
+  bool SetLanguage(const QString& locale);
+
   static const uint kProjectVersion;
 
 public slots:
@@ -432,6 +450,11 @@ private:
   static QString GetRecentProjectsFilePath();
 
   /**
+   * @brief Called only on startup to set the locale
+   */
+  void SetStartupLocale();
+
+  /**
    * @brief Saves a specific project
    */
   bool SaveProject(ProjectPtr p);
@@ -526,6 +549,11 @@ private:
    * @brief Static singleton core instance
    */
   static Core* instance_;
+
+  /**
+   * @brief Internal translator
+   */
+  QTranslator* translator_;
 
 private slots:
   void SaveAutorecovery();

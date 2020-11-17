@@ -94,6 +94,12 @@ int main(int argc, char *argv[])
       parser.AddOption({QStringLiteral("x"), QStringLiteral("-export")},
                        QCoreApplication::translate("main", "Export only (No GUI)"));
 
+  const CommandLineParser::Option* ts_option =
+      parser.AddOption({QStringLiteral("-ts")},
+                       QCoreApplication::translate("main", "Override language with file"),
+                       true,
+                       QCoreApplication::translate("main", "qm-file"));
+
   const CommandLineParser::PositionalArgument* project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
                                    QCoreApplication::translate("main", "Project to open on startup"));
@@ -114,6 +120,14 @@ int main(int argc, char *argv[])
 
   if (export_option->IsSet()) {
     startup_params.set_run_mode(OLIVE_NAMESPACE::Core::CoreParams::kHeadlessExport);
+  }
+
+  if (ts_option->IsSet()) {
+    if (ts_option->GetSetting().isEmpty()) {
+      qWarning() << "--ts was set but no translation file was provided";
+    } else {
+      startup_params.set_startup_language(ts_option->GetSetting());
+    }
   }
 
   startup_params.set_fullscreen(fullscreen_option->IsSet());
@@ -156,6 +170,7 @@ int main(int argc, char *argv[])
 
   // Start core
   OLIVE_NAMESPACE::Core c(startup_params);
+
   c.Start();
 
   int ret = a->exec();

@@ -33,7 +33,27 @@ public:
 
   DISABLE_COPY_MOVE(CommandLineParser)
 
-  class Option {
+  class PositionalArgument
+  {
+  public:
+    PositionalArgument() = default;
+
+    const QString& GetSetting() const
+    {
+      return setting_;
+    }
+
+    void SetSetting(const QString& s)
+    {
+      setting_ = s;
+    }
+
+  private:
+    QString setting_;
+
+  };
+
+  class Option : public PositionalArgument {
   public:
     Option()
     {
@@ -55,29 +75,9 @@ public:
 
   };
 
-  class PositionalArgument
-  {
-  public:
-    PositionalArgument() = default;
-
-    const QString& GetSetting() const
-    {
-      return setting_;
-    }
-
-    void SetSetting(const QString& s)
-    {
-      setting_ = s;
-    }
-
-  private:
-    QString setting_;
-
-  };
-
   CommandLineParser() = default;
 
-  const Option* AddOption(const QStringList& strings, const QString& description);
+  const Option* AddOption(const QStringList& strings, const QString& description, bool takes_arg = false, const QString& arg_placeholder = QString());
 
   const PositionalArgument* AddPositionalArgument(const QString& name, const QString& description, bool required = false);
 
@@ -90,6 +90,8 @@ private:
     QStringList args;
     QString description;
     Option* option;
+    bool takes_arg;
+    QString arg_placeholder;
   };
 
   struct KnownPositionalArgument {

@@ -31,7 +31,8 @@ OLIVE_NAMESPACE_ENTER
 /**
  * @brief A widget that is always dockable within the MainWindow.
  */
-class PanelWidget : public QDockWidget {
+class PanelWidget : public QDockWidget
+{
   Q_OBJECT
 public:
   /**

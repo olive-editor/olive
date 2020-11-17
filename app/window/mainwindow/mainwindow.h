@@ -49,7 +49,8 @@ OLIVE_NAMESPACE_ENTER
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 public:
   MainWindow(QWidget *parent = nullptr);

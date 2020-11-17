@@ -40,6 +40,8 @@ public:
   virtual void Accept() override;
 
 private:
+  void AddLanguage(const QString& locale_name);
+
   QComboBox* language_combobox_;
 
   QComboBox* autoscroll_method_;

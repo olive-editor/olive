@@ -83,6 +83,8 @@ Core::Core(const CoreParams& params) :
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
   instance_ = this;
+
+  translator_ = new QTranslator(this);
 }
 
 Core *Core::instance()
@@ -118,6 +120,9 @@ void Core::Start()
 {
   // Load application config
   Config::Load();
+
+  // Set locale based on either startup arg, config, or auto-detect
+  SetStartupLocale();
 
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
@@ -906,6 +911,34 @@ QString Core::GetRecentProjectsFilePath()
   return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("recent"));
 }
 
+void Core::SetStartupLocale()
+{
+  // Set language
+  if (!core_params_.startup_language().isEmpty()) {
+    if (translator_->load(core_params_.startup_language())) {
+      if (QApplication::installTranslator(translator_)) {
+        qDebug() << "Successfully installed language at" << translator_->filePath();
+      } else {
+        qDebug() << "Failed to install translator";
+      }
+      return;
+    } else {
+      qWarning() << "Failed to load translation file. Falling back to defaults.";
+    }
+  }
+
+  QString use_locale = Config::Current()[QStringLiteral("Language")].toString();
+
+  if (use_locale.isEmpty()) {
+    // No configured locale, auto-detect the system's locale
+    use_locale = QLocale::system().name();
+  }
+
+  if (!SetLanguage(use_locale)) {
+    qWarning() << "Trying to use locale" << use_locale << "but couldn't find a translation for it";
+  }
+}
+
 bool Core::SaveProject(ProjectPtr p)
 {
   if (p->filename().isEmpty()) {
@@ -1305,6 +1338,18 @@ bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& pro
   }
 
   return true;
+}
+
+bool Core::SetLanguage(const QString &locale)
+{
+  QApplication::removeTranslator(translator_);
+
+  QString resource_path = QStringLiteral(":/ts/%1").arg(locale);
+  if (translator_->load(resource_path) && QApplication::installTranslator(translator_)) {
+    return true;
+  }
+
+  return false;
 }
 
 bool Core::CloseAllProjects()
