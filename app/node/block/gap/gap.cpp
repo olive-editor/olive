@@ -20,7 +20,7 @@
 
 #include "gap.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 GapBlock::GapBlock()
 {
@@ -51,4 +51,4 @@ QString GapBlock::Description() const
   return tr("A time-based node that represents an empty space.");
 }
 
-OLIVE_NAMESPACE_EXIT
+}

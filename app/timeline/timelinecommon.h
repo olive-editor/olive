@@ -24,7 +24,7 @@
 #include "common/define.h"
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Block;
 class TrackOutput;
@@ -59,6 +59,6 @@ public:
 // FIXME: Hardcoded (but that might be okay here)
 #define PLAYHEAD_COLOR Qt::red
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINECOMMON_H

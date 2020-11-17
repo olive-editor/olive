@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 namespace icon {
 
@@ -125,6 +125,6 @@ void LoadAll(const QString &theme);
 
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ICONS_H

@@ -20,7 +20,7 @@
 
 #include "columnedgridlayout.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColumnedGridLayout::ColumnedGridLayout(QWidget* parent,
                                        int maximum_columns) :
@@ -55,4 +55,4 @@ void ColumnedGridLayout::SetMaximumColumns(int maximum_columns)
   maximum_columns_ = maximum_columns;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

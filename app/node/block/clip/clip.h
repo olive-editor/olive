@@ -23,7 +23,7 @@
 
 #include "node/block/block.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Node that represents a block of Media
@@ -61,6 +61,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEBLOCK_H

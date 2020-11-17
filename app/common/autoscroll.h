@@ -23,7 +23,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AutoScroll {
 public:
@@ -34,6 +34,6 @@ public:
   };
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUTOSCROLL_H

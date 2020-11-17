@@ -26,7 +26,7 @@
 #include "common/define.h"
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class UndoCommand : public QUndoCommand
 {
@@ -47,6 +47,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // UNDOCOMMAND_H

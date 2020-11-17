@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CancelableObject {
 public:
@@ -53,6 +53,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CANCELABLEOBJECT_H

@@ -27,7 +27,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)
@@ -431,4 +431,4 @@ void CurveView::AddKeyframe(NodeKeyframePtr key)
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

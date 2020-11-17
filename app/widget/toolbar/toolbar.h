@@ -27,7 +27,7 @@
 #include "widget/toolbar/toolbarbutton.h"
 #include "tool/tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget containing buttons for all of Olive's application-wide tools.
@@ -234,6 +234,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TOOLBAR_H

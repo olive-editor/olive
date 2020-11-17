@@ -25,7 +25,7 @@
 #include "keyframe.h"
 #include "param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node parameter designed to take either user input or data from another node
@@ -295,7 +295,7 @@ public:
   QVector<Node*> GetImmediateDependencies() const;
 
 signals:
-  void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);
+  void ValueChanged(const olive::TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 
@@ -431,6 +431,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEINPUT_H

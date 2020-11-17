@@ -25,7 +25,7 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineScaledObject
 {
@@ -82,6 +82,6 @@ public:
   TimelineScaledWidget(QWidget* parent = nullptr);
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINESCALEDOBJECT_H

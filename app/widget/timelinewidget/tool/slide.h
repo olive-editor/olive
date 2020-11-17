@@ -23,7 +23,7 @@
 
 #include "pointer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SlideTool : public PointerTool
 {
@@ -36,6 +36,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SLIDETIMELINETOOL_H

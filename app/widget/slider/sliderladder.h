@@ -27,7 +27,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SliderLadderElement : public QWidget
 {
@@ -98,6 +98,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SLIDERLADDER_H

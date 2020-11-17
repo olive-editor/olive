@@ -20,7 +20,7 @@
 
 #include "volume.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 VolumeNode::VolumeNode()
 {
@@ -81,4 +81,4 @@ void VolumeNode::Retranslate()
   volume_input_->set_name(tr("Volume"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

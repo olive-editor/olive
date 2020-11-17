@@ -24,7 +24,7 @@
 #include "widget/panel/panel.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeBasedPanel : public PanelWidget
 {
@@ -118,6 +118,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMEBASEDPANEL_H

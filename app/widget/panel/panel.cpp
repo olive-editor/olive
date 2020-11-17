@@ -28,7 +28,7 @@
 #include <QStyleOption>
 #include <QVariant>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
   QDockWidget(parent),
@@ -154,4 +154,4 @@ void PanelWidget::SetWidgetWithPadding(QWidget *widget)
   setWidget(wrapper);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

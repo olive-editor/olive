@@ -27,7 +27,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeComboBox::NodeComboBox(QWidget *parent) :
   QComboBox(parent)
@@ -90,4 +90,4 @@ void NodeComboBox::SetNodeInternal(const QString &id, bool emit_signal)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

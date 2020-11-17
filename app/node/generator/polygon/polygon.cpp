@@ -23,7 +23,7 @@
 #include <QGuiApplication>
 #include <QVector2D>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PolygonGenerator::PolygonGenerator()
 {
@@ -204,4 +204,4 @@ QVector<QRectF> PolygonGenerator::GetGizmoRects(const QVector<QPointF> &points) 
   return rects;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

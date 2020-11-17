@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ViewerPlaybackTimer {
 public:
@@ -43,6 +43,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERPLAYBACKTIMER_H

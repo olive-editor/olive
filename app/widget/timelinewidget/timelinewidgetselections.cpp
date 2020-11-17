@@ -20,7 +20,7 @@
 
 #include "timelinewidgetselections.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void TimelineWidgetSelections::ShiftTime(const rational &diff)
 {
@@ -68,4 +68,4 @@ void TimelineWidgetSelections::TrimOut(const rational &diff)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

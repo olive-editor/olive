@@ -20,7 +20,7 @@
 
 #include "timelinecoordinate.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineCoordinate::TimelineCoordinate() :
   track_(Timeline::kTrackTypeNone, 0)
@@ -59,4 +59,4 @@ void TimelineCoordinate::SetTrack(const TrackReference &track)
   track_ = track;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

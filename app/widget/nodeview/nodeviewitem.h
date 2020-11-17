@@ -32,7 +32,7 @@
 #include "nodeviewedge.h"
 #include "nodeviewitemwidgetproxy.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A visual widget representation of a Node object to be used in a NodeView
@@ -174,6 +174,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEWITEM_H

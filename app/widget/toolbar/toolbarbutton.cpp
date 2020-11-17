@@ -20,7 +20,7 @@
 
 #include "toolbarbutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ToolbarButton::ToolbarButton(QWidget *parent, const Tool::Item &tool) :
   QPushButton(parent),
@@ -34,4 +34,4 @@ const Tool::Item &ToolbarButton::tool()
   return tool_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -28,7 +28,7 @@
 #include "config/config.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioWaveformView::AudioWaveformView(QWidget *parent) :
   SeekableWidget(parent),
@@ -152,4 +152,4 @@ void AudioWaveformView::ForceUpdate()
   update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -28,7 +28,7 @@
 #include "render/colormanager.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorValuesTab : public QWidget
 {
@@ -110,6 +110,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORVALUESWIDGET_H

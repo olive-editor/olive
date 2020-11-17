@@ -26,7 +26,7 @@
 
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FootageRelinkDialog : public QDialog
 {
@@ -44,6 +44,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGERELINKDIALOG_H

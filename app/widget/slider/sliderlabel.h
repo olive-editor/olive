@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SliderLabel : public QLabel
 {
@@ -47,6 +47,6 @@ signals:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SLIDERLABEL_H

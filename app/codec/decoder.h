@@ -36,7 +36,7 @@ extern "C" {
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;
@@ -248,8 +248,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Decoder::RetrieveState)
+Q_DECLARE_METATYPE(olive::Decoder::RetrieveState)
 
 #endif // DECODER_H

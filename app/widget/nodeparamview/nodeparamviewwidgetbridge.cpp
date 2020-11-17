@@ -38,7 +38,7 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput *input, QObject *parent) :
   QObject(parent),
@@ -671,4 +671,4 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -25,7 +25,7 @@
 #include "nodeviewitem.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
@@ -310,4 +310,4 @@ void NodeViewScene::NodeLabelChanged()
   item_map_.value(static_cast<Node*>(sender()))->update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

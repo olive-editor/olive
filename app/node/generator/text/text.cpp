@@ -22,7 +22,7 @@
 
 #include <QTextDocument>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 enum TextVerticalAlign {
   kVerticalAlignTop,
@@ -176,4 +176,4 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

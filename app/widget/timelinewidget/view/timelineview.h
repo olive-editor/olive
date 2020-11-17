@@ -35,7 +35,7 @@
 #include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for viewing and interacting Sequences
@@ -130,6 +130,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEW_H

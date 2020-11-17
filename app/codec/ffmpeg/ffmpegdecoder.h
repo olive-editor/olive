@@ -38,7 +38,7 @@ extern "C" {
 #include "ffmpegframepool.h"
 #include "project/item/footage/videostream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -162,6 +162,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGDECODER_H

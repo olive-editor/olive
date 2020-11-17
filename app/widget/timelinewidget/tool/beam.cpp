@@ -21,7 +21,7 @@
 #include "beam.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 BeamTool::BeamTool(TimelineWidget *parent) :
   TimelineTool(parent)
@@ -46,4 +46,4 @@ TimelineCoordinate BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
   return coord;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

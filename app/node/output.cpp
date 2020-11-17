@@ -23,7 +23,7 @@
 #include "common/xmlutils.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeOutput::NodeOutput(const QString &id) :
   NodeParam(id)
@@ -68,4 +68,4 @@ void NodeOutput::Save(QXmlStreamWriter *writer) const
   writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@
 #include "node/output/track/track.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ViewerOutput;
 
@@ -114,6 +114,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKLIST_H

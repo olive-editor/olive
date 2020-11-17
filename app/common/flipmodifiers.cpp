@@ -20,7 +20,7 @@
 
 #include "flipmodifiers.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e) {
   if (e & Qt::ControlModifier & Qt::ShiftModifier) {
@@ -38,4 +38,4 @@ Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e) {
   return e;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

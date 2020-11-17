@@ -28,7 +28,7 @@
 #include "render/color.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
@@ -163,8 +163,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::FramePtr)
+Q_DECLARE_METATYPE(olive::FramePtr)
 
 #endif // FRAME_H

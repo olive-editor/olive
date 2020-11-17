@@ -24,7 +24,7 @@
 #include "common/rational.h"
 #include "trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineCoordinate
 {
@@ -46,6 +46,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINECOORDINATE_H

@@ -25,7 +25,7 @@
 #include "node/block/block.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -304,6 +304,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKOUTPUT_H

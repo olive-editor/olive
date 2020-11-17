@@ -24,7 +24,7 @@
 #include "panel/timebased/timebased.h"
 #include "widget/curvewidget/curvewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurvePanel : public TimeBasedPanel
 {
@@ -46,6 +46,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEPANEL_H

@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const rational TimelineWorkArea::kResetIn = 0;
 const rational TimelineWorkArea::kResetOut = RATIONAL_MAX;
@@ -101,4 +101,4 @@ const rational &TimelineWorkArea::length() const
   return workarea_range_.length();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

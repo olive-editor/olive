@@ -30,7 +30,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
   SeekableWidget(parent),
@@ -332,4 +332,4 @@ void TimeRuler::UpdateHeight()
   setFixedHeight(height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

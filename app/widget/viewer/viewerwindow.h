@@ -27,7 +27,7 @@
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ViewerWindow : public QWidget
 {
@@ -89,6 +89,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERWINDOW_H

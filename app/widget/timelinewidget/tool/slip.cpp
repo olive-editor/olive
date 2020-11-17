@@ -26,7 +26,7 @@
 #include "config/config.h"
 #include "slip.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
@@ -79,4 +79,4 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

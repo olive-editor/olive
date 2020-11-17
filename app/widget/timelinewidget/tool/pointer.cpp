@@ -35,7 +35,7 @@
 #include "pointer.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PointerTool::PointerTool(TimelineWidget *parent) :
   TimelineTool(parent),
@@ -924,4 +924,4 @@ rational PointerTool::ValidateOutTrimming(rational movement)
   return movement;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

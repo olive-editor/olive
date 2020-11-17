@@ -34,7 +34,7 @@
 #include "timeline/timelinecommon.h"
 #include "timeline/trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -196,6 +196,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWER_H

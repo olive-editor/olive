@@ -31,7 +31,7 @@
 #include "project/item/footage/videostream.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node::Node() :
   can_be_deleted_(true)
@@ -933,4 +933,4 @@ void Node::InputConnectionChanged(NodeEdgePtr edge)
   InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), edge->input(), edge->input());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

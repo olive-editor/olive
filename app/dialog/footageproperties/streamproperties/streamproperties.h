@@ -26,7 +26,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class StreamProperties : public QWidget
 {
@@ -39,6 +39,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // STREAMPROPERTIES_H

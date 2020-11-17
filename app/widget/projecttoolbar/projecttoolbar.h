@@ -27,7 +27,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The ProjectToolbar class
@@ -87,6 +87,6 @@ private slots:
   void ViewButtonClicked();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTTOOLBAR_H

@@ -25,7 +25,7 @@
 #include "codec/samplebuffer.h"
 #include "render/playbackcache.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A fully integrated system of storing and playing cached audio
@@ -214,6 +214,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOPLAYBACKCACHE_H

@@ -25,7 +25,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTableView : public QTreeWidget
 {
@@ -46,6 +46,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETABLEVIEW_H

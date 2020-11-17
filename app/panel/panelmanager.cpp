@@ -22,7 +22,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PanelManager* PanelManager::instance_ = nullptr;
 
@@ -164,4 +164,4 @@ void PanelManager::PanelDestroyed()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

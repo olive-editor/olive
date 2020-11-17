@@ -20,11 +20,11 @@
 
 #include "streamproperties.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 StreamProperties::StreamProperties(QWidget *parent) :
   QWidget(parent)
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

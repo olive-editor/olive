@@ -22,7 +22,7 @@
 
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
 {
@@ -265,4 +265,4 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

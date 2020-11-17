@@ -42,7 +42,7 @@
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
 
@@ -1199,4 +1199,4 @@ void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

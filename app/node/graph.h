@@ -25,7 +25,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A collection of nodes
@@ -110,6 +110,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEGRAPH_H

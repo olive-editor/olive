@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ResizableScrollBar : public QScrollBar
 {
@@ -65,6 +65,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RESIZABLESCROLLBAR_H

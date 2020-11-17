@@ -25,7 +25,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SampleBuffer;
 using SampleBufferPtr = std::shared_ptr<SampleBuffer>;
@@ -94,8 +94,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::SampleBufferPtr)
+Q_DECLARE_METATYPE(olive::SampleBufferPtr)
 
 #endif // SAMPLEBUFFER_H

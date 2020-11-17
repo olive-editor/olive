@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QThread>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskManager* TaskManager::instance_ = nullptr;
 
@@ -133,4 +133,4 @@ void TaskManager::TaskFinished()
   emit TaskListChanged();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

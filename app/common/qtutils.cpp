@@ -20,7 +20,7 @@
 
 #include "qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 int QtUtils::QFontMetricsWidth(QFontMetrics fm, const QString& s) {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
@@ -38,4 +38,4 @@ QFrame *QtUtils::CreateHorizontalLine()
   return horizontal_line;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

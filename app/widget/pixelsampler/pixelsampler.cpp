@@ -22,7 +22,7 @@
 
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PixelSamplerWidget::PixelSamplerWidget(QWidget *parent) :
   QGroupBox(parent)
@@ -77,4 +77,4 @@ void ManagedPixelSamplerWidget::SetValues(const Color &reference, const Color &d
   display_view_->SetValues(display);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -28,7 +28,7 @@ extern "C" {
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FFmpegUtils {
 public:
@@ -58,6 +58,6 @@ public:
   static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGABSTRACTION_H

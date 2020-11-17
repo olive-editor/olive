@@ -27,7 +27,7 @@
 #include "common/define.h"
 #include "exportcodec.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportFormat : public QObject
 {
@@ -53,6 +53,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTFORMAT_H

@@ -28,7 +28,7 @@
 #include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AudioWaveformView : public SeekableWidget
 {
@@ -58,6 +58,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOWAVEFORMVIEW_H

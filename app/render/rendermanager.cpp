@@ -34,7 +34,7 @@
 #include "task/taskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
 
@@ -199,4 +199,4 @@ void RenderManager::RunTicket(RenderTicketPtr ticket) const
   RenderProcessor::Process(ticket, context_, still_cache_, decoder_cache_, shader_cache_, default_shader_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

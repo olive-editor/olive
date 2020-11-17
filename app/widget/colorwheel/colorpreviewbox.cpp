@@ -22,7 +22,7 @@
 
 #include <QPainter>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorPreviewBox::ColorPreviewBox(QWidget *parent) :
   QWidget(parent),
@@ -66,4 +66,4 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
   p.drawRect(rect().adjusted(0, 0, -1, -1));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

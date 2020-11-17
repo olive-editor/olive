@@ -35,7 +35,7 @@
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewItemTitleBar : public QWidget
 {
@@ -186,6 +186,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWITEM_H

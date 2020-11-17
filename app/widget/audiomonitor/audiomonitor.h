@@ -29,7 +29,7 @@
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AudioMonitor : public QOpenGLWidget
 {
@@ -78,6 +78,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOMONITORWIDGET_H

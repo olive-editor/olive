@@ -35,7 +35,7 @@
 #include "core.h"
 #include "gizmotraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   ManagedDisplayWidget(parent),
@@ -421,4 +421,4 @@ QTransform ViewerDisplayWidget::GenerateWorldTransform()
   return world;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

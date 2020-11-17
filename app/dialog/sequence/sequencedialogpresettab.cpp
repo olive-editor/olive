@@ -36,7 +36,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int kDataIsPreset = Qt::UserRole;
 const int kDataPresetIsCustomRole = Qt::UserRole + 1;
@@ -295,4 +295,4 @@ void SequenceDialogPresetTab::DeleteSelectedPreset()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

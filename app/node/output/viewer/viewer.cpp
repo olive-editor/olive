@@ -22,7 +22,7 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerOutput::ViewerOutput() :
   video_frame_cache_(this),
@@ -345,4 +345,4 @@ void ViewerOutput::TrackHeightChangedSlot(int index, int height)
   emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

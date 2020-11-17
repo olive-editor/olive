@@ -23,7 +23,7 @@
 #include "node/node.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, bool setting, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -200,4 +200,4 @@ void NodeParamSetStandardValueCommand::undo_internal()
   input_->set_standard_value(old_value_, track_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MathNode::MathNode()
 {
@@ -119,4 +119,4 @@ void MathNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr i
   return ProcessSamplesInternal(values, GetOperation(), param_a_in_, param_b_in_, input, output, index);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

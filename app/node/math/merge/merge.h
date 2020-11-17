@@ -23,7 +23,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MergeNode : public Node
 {
@@ -55,6 +55,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MERGENODE_H

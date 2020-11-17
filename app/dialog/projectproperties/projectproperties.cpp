@@ -35,7 +35,7 @@
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   QDialog(parent),
@@ -242,4 +242,4 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

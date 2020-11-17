@@ -38,7 +38,7 @@
 #include "widget/timelinewidget/tool/import.h"
 #include "widget/timelinewidget/tool/tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Full widget for working with TimelineOutput nodes
@@ -321,6 +321,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEWIDGET_H

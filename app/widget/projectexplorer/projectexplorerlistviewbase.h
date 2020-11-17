@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A QListView derivative that contains functionality used by both List view and Icon view (which are both based
@@ -57,6 +57,6 @@ signals:
   void DoubleClickedEmptyArea();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORERLISTVIEWBASE_H

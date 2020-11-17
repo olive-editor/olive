@@ -33,7 +33,7 @@
 #include "core.h"
 #include "dialog/diskcache/diskcachedialog.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 DiskManager* DiskManager::instance_ = nullptr;
 
@@ -364,4 +364,4 @@ void DiskCacheFolder::SaveDiskCacheIndex()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

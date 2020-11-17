@@ -23,7 +23,7 @@
 
 #include "beam.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RazorTool : public BeamTool
 {
@@ -38,6 +38,6 @@ private:
   QVector<TrackReference> split_tracks_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RAZORTIMELINETOOL_H

@@ -32,7 +32,7 @@
 #include "undo/undocommand.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class BlockResizeCommand : public UndoCommand {
 public:
@@ -633,6 +633,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEUNDOABLE_H

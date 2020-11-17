@@ -24,7 +24,7 @@
 #include "node/node.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
@@ -137,6 +137,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // BLOCK_H

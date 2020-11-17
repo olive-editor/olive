@@ -41,7 +41,7 @@
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 QList<Node*> NodeFactory::library_;
 
 void NodeFactory::Initialize()
@@ -224,4 +224,4 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
   abort();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -25,7 +25,7 @@
 #include "node/node.h"
 #include "project/item/footage/stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node that imports an image
@@ -62,6 +62,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MEDIAINPUT_H

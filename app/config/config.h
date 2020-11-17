@@ -28,7 +28,7 @@
 #include "common/timecodefunctions.h"
 #include "node/param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Config {
 public:
@@ -63,6 +63,6 @@ private:
   static QString GetConfigFilePath();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CONFIG_H

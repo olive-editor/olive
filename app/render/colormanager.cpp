@@ -29,7 +29,7 @@
 #include "config/config.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 OCIO::ConstConfigRcPtr ColorManager::default_config_;
 
@@ -318,4 +318,4 @@ ColorManager::SetLocale::~SetLocale()
   setlocale(LC_NUMERIC, old_locale_.toUtf8());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -48,7 +48,7 @@ extern "C" {
 int main(int argc, char *argv[])
 {
   // Set up debug handler
-  qInstallMessageHandler(OLIVE_NAMESPACE::DebugHandler);
+  qInstallMessageHandler(olive::DebugHandler);
 
   // Generate version string
   QString app_version = APPVERSION;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   // Parse command line arguments
   //
 
-  OLIVE_NAMESPACE::Core::CoreParams startup_params;
+  olive::Core::CoreParams startup_params;
 
   CommandLineParser parser;
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   }
 
   if (export_option->IsSet()) {
-    startup_params.set_run_mode(OLIVE_NAMESPACE::Core::CoreParams::kHeadlessExport);
+    startup_params.set_run_mode(olive::Core::CoreParams::kHeadlessExport);
   }
 
   if (ts_option->IsSet()) {
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   // Create application instance
   std::unique_ptr<QCoreApplication> a;
 
-  if (startup_params.run_mode() == OLIVE_NAMESPACE::Core::CoreParams::kRunNormal) {
+  if (startup_params.run_mode() == olive::Core::CoreParams::kRunNormal) {
     a.reset(new QApplication(argc, argv));
   } else {
     a.reset(new QCoreApplication(argc, argv));
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 #endif // USE_CRASHPAD
 
   // Start core
-  OLIVE_NAMESPACE::Core c(startup_params);
+  olive::Core c(startup_params);
 
   c.Start();
 

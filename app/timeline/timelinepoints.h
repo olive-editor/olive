@@ -27,7 +27,7 @@
 #include "timelinemarker.h"
 #include "timelineworkarea.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelinePoints
 {
@@ -50,6 +50,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEPOINTS_H

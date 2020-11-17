@@ -36,7 +36,7 @@
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -699,4 +699,4 @@ QPointF NodeViewItem::GetInputPoint(int index, const QPointF& source_pos) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

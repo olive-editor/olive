@@ -23,7 +23,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ImageSection::ImageSection(QWidget* parent) :
   CodecSection(parent)
@@ -44,4 +44,4 @@ QCheckBox *ImageSection::image_sequence_checkbox() const
   return image_sequence_checkbox_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

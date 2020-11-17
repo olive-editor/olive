@@ -22,7 +22,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ScopeBase::ScopeBase(QWidget* parent) :
   ManagedDisplayWidget(parent),
@@ -121,4 +121,4 @@ void ScopeBase::OnDestroy()
   pipeline_.clear();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

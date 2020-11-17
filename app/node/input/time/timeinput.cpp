@@ -20,7 +20,7 @@
 
 #include "timeinput.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeInput::TimeInput()
 {
@@ -71,4 +71,4 @@ void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
   hash.addData(NodeParam::ValueToBytes(NodeParam::kRational, QVariant::fromValue(time)));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

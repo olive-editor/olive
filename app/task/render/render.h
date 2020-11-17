@@ -29,7 +29,7 @@
 #include "threading/threadticket.h"
 #include "threading/threadticketwatcher.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderTask : public Task
 {
@@ -102,6 +102,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERTASK_H

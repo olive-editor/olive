@@ -44,7 +44,7 @@
 #include <shobjidl.h>
 #endif
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
@@ -175,6 +175,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif

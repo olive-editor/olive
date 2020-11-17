@@ -1,6 +1,6 @@
 #include "nodetreeview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeTreeView::NodeTreeView(QWidget *parent) :
   QTreeWidget(parent),
@@ -108,4 +108,4 @@ void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

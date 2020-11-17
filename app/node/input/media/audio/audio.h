@@ -23,7 +23,7 @@
 
 #include "../media.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AudioInput : public MediaInput
 {
@@ -42,6 +42,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOINPUT_H

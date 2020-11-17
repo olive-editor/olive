@@ -23,7 +23,7 @@
 
 #include "beam.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AddTool : public BeamTool
 {
@@ -42,6 +42,6 @@ protected:
   rational drag_start_point_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ADDTIMELINETOOL_H

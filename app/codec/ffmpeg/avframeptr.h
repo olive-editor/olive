@@ -30,7 +30,7 @@ extern "C" {
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AVFrameWrapper {
 public:
@@ -55,6 +55,6 @@ private:
 
 using AVFramePtr = std::shared_ptr<AVFrameWrapper>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AVFRAMEPTR_H

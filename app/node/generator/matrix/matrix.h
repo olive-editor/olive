@@ -26,7 +26,7 @@
 #include "node/node.h"
 #include "node/inputdragger.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MatrixGenerator : public Node
 {
@@ -97,6 +97,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRANSFORMDISTORT_H

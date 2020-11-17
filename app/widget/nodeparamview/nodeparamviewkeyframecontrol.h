@@ -27,7 +27,7 @@
 #include "node/input.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewKeyframeControl : public QWidget, public TimeTargetObject
 {
@@ -77,6 +77,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWKEYFRAMECONTROL_H

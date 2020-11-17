@@ -26,7 +26,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CLIProgressDialog : public QObject
 {
@@ -47,6 +47,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CLIPROGRESSDIALOG_H

@@ -25,7 +25,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ChannelLayoutComboBox : public QComboBox
 {
@@ -57,6 +57,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CHANNELLAYOUTCOMBOBOX_H

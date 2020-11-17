@@ -32,7 +32,7 @@
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Encoder;
 using EncoderPtr = std::shared_ptr<Encoder>;
@@ -114,10 +114,10 @@ public:
 
   virtual bool Open() = 0;
 
-  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
+  virtual void WriteAudio(olive::AudioParams pcm_info,
                           QIODevice *file) = 0;
-  void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
+  void WriteAudio(olive::AudioParams pcm_info,
                   const QString& pcm_filename);
 
   virtual void Close() = 0;
@@ -132,6 +132,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ENCODER_H

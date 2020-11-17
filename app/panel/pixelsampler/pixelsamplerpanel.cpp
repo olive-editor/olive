@@ -20,7 +20,7 @@
 
 #include "pixelsamplerpanel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("ProjectPanel"), parent)
@@ -41,4 +41,4 @@ void PixelSamplerPanel::Retranslate()
   SetTitle(tr("Pixel Sampler"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

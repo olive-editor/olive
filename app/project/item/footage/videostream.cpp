@@ -28,7 +28,7 @@
 #include "project/project.h"
 #include "render/colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 VideoStream::VideoStream() :
   premultiplied_alpha_(false),
@@ -187,4 +187,4 @@ void VideoStream::DefaultColorSpaceChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -32,7 +32,7 @@
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
@@ -697,4 +697,4 @@ T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
   return panel;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

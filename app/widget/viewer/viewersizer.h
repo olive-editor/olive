@@ -27,7 +27,7 @@
 #include "common/define.h"
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A container widget that enforces the aspect ratio of a child widget
@@ -120,6 +120,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERSIZER_H

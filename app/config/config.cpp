@@ -34,7 +34,7 @@
 #include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Config Config::current_config_;
 
@@ -268,4 +268,4 @@ NodeParam::DataType Config::GetConfigEntryType(const QString &key) const
   return config_map_[key].type;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

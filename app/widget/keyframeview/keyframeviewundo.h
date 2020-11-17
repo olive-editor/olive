@@ -24,7 +24,7 @@
 #include "node/keyframe.h"
 #include "undo/undocommand.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class KeyframeSetTypeCommand : public UndoCommand {
 public:
@@ -67,6 +67,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYFRAMEVIEWUNDO_H

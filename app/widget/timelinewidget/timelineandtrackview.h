@@ -27,7 +27,7 @@
 #include "view/timelineview.h"
 #include "trackview/trackview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineAndTrackView : public QWidget
 {
@@ -55,6 +55,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEANDTRACKVIEW_H

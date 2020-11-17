@@ -33,7 +33,7 @@
 #include "node/param.h"
 #include "project/item/footage/stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Project;
 
@@ -123,6 +123,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ITEM_H

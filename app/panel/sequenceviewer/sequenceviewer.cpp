@@ -20,7 +20,7 @@
 
 #include "sequenceviewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SequenceViewerPanel::SequenceViewerPanel(QWidget *parent) :
   ViewerPanel(QStringLiteral("SequenceViewerPanel"), parent)
@@ -36,4 +36,4 @@ void SequenceViewerPanel::Retranslate()
   SetTitle(tr("Sequence Viewer"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

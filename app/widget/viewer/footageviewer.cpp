@@ -26,7 +26,7 @@
 #include "config/config.h"
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   ViewerWidget(parent),
@@ -175,4 +175,4 @@ void FootageViewerWidget::StartAudioDrag()
   StartFootageDragInternal(false, true);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -21,7 +21,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 #include "zoom.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ZoomTool::ZoomTool(TimelineWidget *parent) :
   TimelineTool(parent)
@@ -96,4 +96,4 @@ void ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
   parent()->QueueScroll(scroll_value);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

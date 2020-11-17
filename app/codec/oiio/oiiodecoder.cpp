@@ -31,7 +31,7 @@
 #include "config/config.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QStringList OIIODecoder::supported_formats_;
 
@@ -261,4 +261,4 @@ void OIIODecoder::CloseImageHandle()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

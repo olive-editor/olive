@@ -22,7 +22,7 @@
 
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   RenderTask(new ViewerOutput(), sequence->video_params(), sequence->audio_params()),
@@ -92,4 +92,4 @@ void PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr sampl
   Q_UNUSED(job_time)
 }
 
-OLIVE_NAMESPACE_EXIT
+}

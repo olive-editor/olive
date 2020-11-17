@@ -23,7 +23,7 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 double GetFloatRatioFromUser(QWidget* parent,
                              const QString& title,
@@ -88,4 +88,4 @@ double GetFloatRatioFromUser(QWidget* parent,
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

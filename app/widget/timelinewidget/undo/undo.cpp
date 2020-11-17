@@ -28,7 +28,7 @@
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 {
@@ -1751,4 +1751,4 @@ void TimelineSetSelectionsCommand::undo()
   timeline_->SetSelections(old_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@ extern "C" {
 #include <QDataStream>
 #include <QtMath>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 WaveInput::WaveInput(const QString &f) :
   file_(f)
@@ -239,4 +239,4 @@ qint64 WaveInput::calculate_max_read() const
   return data_size_ - (file_.pos() - data_position_ );
 }
 
-OLIVE_NAMESPACE_EXIT
+}

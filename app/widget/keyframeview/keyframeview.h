@@ -23,7 +23,7 @@
 
 #include "keyframeviewbase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class KeyframeView : public KeyframeViewBase
 {
@@ -49,6 +49,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYFRAMEVIEW_H

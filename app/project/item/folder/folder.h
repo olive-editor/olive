@@ -25,7 +25,7 @@
 #include "project/item/footage/footage.h"
 #include "project/item/item.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The Folder class representing a directory in a project structure
@@ -52,6 +52,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOLDER_H

@@ -20,7 +20,7 @@
 
 #include "crossdissolvetransition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CrossDissolveTransition::CrossDissolveTransition()
 {
@@ -86,4 +86,4 @@ void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, Sampl
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

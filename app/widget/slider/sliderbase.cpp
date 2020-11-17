@@ -28,7 +28,7 @@
 #include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SliderBase::SliderBase(Mode mode, QWidget *parent) :
   QStackedWidget(parent),
@@ -395,4 +395,4 @@ void SliderBase::ResetValue()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

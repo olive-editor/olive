@@ -20,7 +20,7 @@
 
 #include "rendercancel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderCancelDialog::RenderCancelDialog(QWidget *parent) :
   ProgressDialog(tr("Waiting for workers to finish..."), tr("Renderer"), parent),
@@ -79,4 +79,4 @@ void RenderCancelDialog::UpdateProgress()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

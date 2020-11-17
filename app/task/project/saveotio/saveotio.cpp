@@ -29,7 +29,7 @@
 #include "node/block/transition/transition.h"
 #include "node/input/media/media.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SaveOTIOTask::SaveOTIOTask(ProjectPtr project) :
   project_(project)
@@ -206,4 +206,4 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Tim
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

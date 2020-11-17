@@ -24,7 +24,7 @@
 
 #include "common/ocioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Renderer::Renderer(QObject *parent) :
   QObject(parent)
@@ -275,4 +275,4 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

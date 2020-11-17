@@ -30,7 +30,7 @@
 #include "sequencedialogpresettab.h"
 #include "undo/undocommand.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A dialog for editing Sequence parameters
@@ -133,6 +133,6 @@ private:
   };
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEDIALOG_H

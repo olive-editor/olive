@@ -33,7 +33,7 @@
 #include "common/clamp.h"
 #include "common/lerp.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
   QFrame(parent, Qt::Popup),
@@ -241,4 +241,4 @@ void SliderLadderElement::UpdateLabel()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

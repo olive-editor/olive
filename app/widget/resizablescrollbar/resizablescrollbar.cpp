@@ -27,7 +27,7 @@
 
 #include "common/range.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int ResizableScrollBar::kHandleWidth = 10;
 
@@ -159,4 +159,4 @@ int ResizableScrollBar::GetActiveMousePos(QMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

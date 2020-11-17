@@ -26,7 +26,7 @@
 
 #include "task/taskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Shows abbreviated information from a TaskManager object
@@ -61,6 +61,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MAINSTATUSBAR_H

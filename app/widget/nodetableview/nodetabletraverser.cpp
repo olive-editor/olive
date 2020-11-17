@@ -20,7 +20,7 @@
 
 #include "nodetabletraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QVariant NodeTableTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
@@ -43,4 +43,4 @@ QVariant NodeTableTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRan
                                          AudioParams::kInternalFormat));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

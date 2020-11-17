@@ -22,7 +22,7 @@
 
 #include <QPushButton>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskView::TaskView(QWidget* parent) :
   QScrollArea(parent)
@@ -63,4 +63,4 @@ void TaskView::RemoveTask(Task *t)
   items_.remove(t);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

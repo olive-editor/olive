@@ -32,7 +32,7 @@
 #include "project/project.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
   stream_(stream),
@@ -253,4 +253,4 @@ void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
   video_stream_->set_timebase(old_frame_rate_.flipped());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

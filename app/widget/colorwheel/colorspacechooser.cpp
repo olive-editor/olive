@@ -23,7 +23,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field, bool enable_display_fields, QWidget *parent):
   QGroupBox(parent),
@@ -200,4 +200,4 @@ void ColorSpaceChooser::ComboBoxChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

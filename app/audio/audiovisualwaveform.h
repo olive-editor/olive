@@ -27,7 +27,7 @@
 
 #include "codec/samplebuffer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A buffer of data used to store a visual representation of audio
@@ -108,8 +108,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::AudioVisualWaveform)
+Q_DECLARE_METATYPE(olive::AudioVisualWaveform)
 
 #endif // SUMSAMPLES_H

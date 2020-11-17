@@ -31,7 +31,7 @@
 #include "node/output.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParam::NodeParam(const QString &id) :
   id_(id),
@@ -286,4 +286,4 @@ QByteArray NodeParam::ValueToBytesInternal(const QVariant &v)
   return bytes;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

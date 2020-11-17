@@ -25,7 +25,7 @@
 
 #include "renderer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RendererThreadWrapper : public Renderer
 {
@@ -47,24 +47,24 @@ public slots:
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
 
-  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture2D(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
 
-  virtual QVariant CreateNativeShader(OLIVE_NAMESPACE::ShaderCode code) override;
+  virtual QVariant CreateNativeShader(olive::ShaderCode code) override;
 
   virtual void DestroyNativeShader(QVariant shader) override;
 
-  virtual void UploadToTexture(OLIVE_NAMESPACE::Texture* texture, const void* data, int linesize) override;
+  virtual void UploadToTexture(olive::Texture* texture, const void* data, int linesize) override;
 
-  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Texture* texture, void* data, int linesize) override;
+  virtual void DownloadFromTexture(olive::Texture* texture, void* data, int linesize) override;
 
 protected slots:
   virtual void Blit(QVariant shader,
-                    OLIVE_NAMESPACE::ShaderJob job,
-                    OLIVE_NAMESPACE::Texture* destination,
-                    OLIVE_NAMESPACE::VideoParams destination_params) override;
+                    olive::ShaderJob job,
+                    olive::Texture* destination,
+                    olive::VideoParams destination_params) override;
 
 private:
   Renderer* inner_;
@@ -73,6 +73,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERCONTEXTTHREADWRAPPER_H

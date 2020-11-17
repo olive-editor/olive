@@ -30,7 +30,7 @@
 #include "core.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Footage::Footage()
 {
@@ -345,4 +345,4 @@ void Footage::UpdateTooltip()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

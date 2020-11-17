@@ -20,7 +20,7 @@
 
 #include "timelineviewrect.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
   QGraphicsRectItem(parent),
@@ -62,4 +62,4 @@ void TimelineViewRect::TimebaseChangedEvent(const rational &tb)
   UpdateRect();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

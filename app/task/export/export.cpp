@@ -23,7 +23,7 @@
 #include "common/timecodefunctions.h"
 #include "render/colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportTask::ExportTask(ViewerOutput* viewer_node,
                        ColorManager* color_manager,
@@ -189,4 +189,4 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
   audio_data_.WritePCM(adjusted_range, samples, QDateTime::currentMSecsSinceEpoch());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

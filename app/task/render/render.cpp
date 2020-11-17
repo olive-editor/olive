@@ -23,7 +23,7 @@
 #include "common/timecodefunctions.h"
 #include "render/rendermanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
   viewer_(viewer),
@@ -238,4 +238,4 @@ void RenderTask::TicketDone(RenderTicketWatcher* watcher)
   finished_watcher_mutex_.unlock();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

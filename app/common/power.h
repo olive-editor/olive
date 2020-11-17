@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 uint32_t ceil_to_power_of_2(uint32_t v)
 {
@@ -51,6 +51,6 @@ uint32_t floor_to_power_of_2(uint32_t x)
   return x - (x >> 1);
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // POWER_H

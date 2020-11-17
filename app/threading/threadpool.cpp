@@ -20,7 +20,7 @@
 
 #include "threadpool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ThreadPool::ThreadPool(QThread::Priority priority, int threads, QObject *parent) :
   QObject(parent)
@@ -135,4 +135,4 @@ void ThreadPoolThread::CancelEvent()
   wait_cond_.wakeAll();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

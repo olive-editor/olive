@@ -26,7 +26,7 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/keyframeview/keyframeviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurveView : public KeyframeViewBase
 {
@@ -97,6 +97,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEVIEW_H

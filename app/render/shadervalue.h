@@ -23,7 +23,7 @@
 
 #include "node/param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 struct ShaderValue
 {
@@ -50,6 +50,6 @@ struct ShaderValue
 
 using NodeValueMap = QHash<QString, ShaderValue>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SHADERVALUE_H

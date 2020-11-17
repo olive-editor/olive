@@ -23,7 +23,7 @@
 
 #include "common/filefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ShaderCode {
 public:
@@ -57,6 +57,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SHADERCODE_H

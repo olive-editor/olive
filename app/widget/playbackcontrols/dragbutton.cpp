@@ -20,7 +20,7 @@
 
 #include "dragbutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 DragButton::DragButton(QWidget *parent) :
   QPushButton(parent)
@@ -33,4 +33,4 @@ void DragButton::mousePressEvent(QMouseEvent *event) {
   emit MousePressed();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

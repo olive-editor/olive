@@ -23,7 +23,7 @@
 
 #include "mathbase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MathNode : public MathNodeBase
 {
@@ -75,6 +75,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MATHNODE_H

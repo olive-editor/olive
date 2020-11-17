@@ -25,7 +25,7 @@
 
 #include "preferencestab.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesBehaviorTab : public PreferencesTab
 {
@@ -48,6 +48,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESBEHAVIORTAB_H

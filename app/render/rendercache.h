@@ -24,7 +24,7 @@
 #include "codec/decoder.h"
 #include "project/item/footage/stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 template <typename K, typename V>
 class RenderCache : public QHash<K, V>
@@ -43,6 +43,6 @@ private:
 using DecoderCache = RenderCache<Stream*, DecoderPtr>;
 using ShaderCache = RenderCache<QString, QVariant>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERCACHE_H

@@ -37,7 +37,7 @@
 #include "project/project.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QWidget *parent) :
   QDialog(parent),
@@ -507,4 +507,4 @@ void ExportDialog::UpdateViewerDimensions()
   preview_viewer_->SetMatrix(transform);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

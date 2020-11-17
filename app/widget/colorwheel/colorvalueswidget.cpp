@@ -23,7 +23,7 @@
 #include <QGridLayout>
 #include <QTabWidget>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
   QWidget(parent),
@@ -213,4 +213,4 @@ void ColorValuesTab::SliderChanged()
   emit ColorChanged(GetColor());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

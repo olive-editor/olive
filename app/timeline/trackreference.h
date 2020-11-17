@@ -23,7 +23,7 @@
 
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TrackReference
 {
@@ -51,6 +51,6 @@ private:
 
 uint qHash(const TrackReference& r, uint seed);
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKREFERENCE_H

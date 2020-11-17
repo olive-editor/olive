@@ -26,7 +26,7 @@
 #include <QPainter>
 #include <QtMath>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   QWidget(parent),
@@ -117,4 +117,4 @@ void TrackViewItem::UpdateLabel()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

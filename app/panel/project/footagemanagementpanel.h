@@ -25,13 +25,13 @@
 
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FootageManagementPanel {
 public:
   virtual QList<Footage*> GetSelectedFootage() const = 0;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGEMANAGEMENTPANEL_H

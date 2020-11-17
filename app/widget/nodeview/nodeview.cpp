@@ -30,7 +30,7 @@
 
 #define super HandMovableView
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
@@ -903,4 +903,4 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

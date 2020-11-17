@@ -30,7 +30,7 @@
 #include "dragbutton.h"
 #include "widget/slider/timeslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A playback controls widget providing buttons for navigating media
@@ -134,6 +134,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PLAYBACKCONTROLS_H

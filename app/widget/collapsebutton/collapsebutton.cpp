@@ -22,7 +22,7 @@
 
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CollapseButton::CollapseButton(QWidget *parent) :
   QPushButton(parent)
@@ -47,4 +47,4 @@ void CollapseButton::UpdateIcon(bool e)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

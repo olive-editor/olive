@@ -20,7 +20,7 @@
 
 #include "merge.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MergeNode::MergeNode()
 {
@@ -117,4 +117,4 @@ void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

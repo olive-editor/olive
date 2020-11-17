@@ -26,7 +26,7 @@
 #include "common/lerp.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorGradientWidget::ColorGradientWidget(Qt::Orientation orientation, QWidget *parent) :
   ColorSwatchWidget(parent),
@@ -106,4 +106,4 @@ Color ColorGradientWidget::LerpColor(const Color &a, const Color &b, int i, int 
                lerp(a.blue(), b.blue(), t));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

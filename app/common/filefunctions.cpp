@@ -29,7 +29,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QString FileFunctions::GetUniqueFileIdentifier(const QString &filename)
 {
@@ -240,4 +240,4 @@ bool FileFunctions::RenameFileAllowOverwrite(const QString &from, const QString 
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -26,7 +26,7 @@
 
 #include "render/colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorSpaceChooser : public QGroupBox
 {
@@ -66,6 +66,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORSPACECHOOSER_H

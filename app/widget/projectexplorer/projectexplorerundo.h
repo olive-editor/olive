@@ -24,7 +24,7 @@
 #include "node/input/media/media.h"
 #include "undo/undocommand.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An undo command for offlining footage when it is deleted from the project explorer
@@ -47,6 +47,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORERUNDO_H

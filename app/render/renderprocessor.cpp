@@ -27,7 +27,7 @@
 #include "project/project.h"
 #include "rendermanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
   ticket_(ticket),
@@ -512,4 +512,4 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
   return QVariant();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

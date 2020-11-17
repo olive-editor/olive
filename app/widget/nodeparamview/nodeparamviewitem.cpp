@@ -29,7 +29,7 @@
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QDockWidget(parent),
@@ -459,4 +459,4 @@ NodeParamViewItemBody::InputUI::InputUI() :
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

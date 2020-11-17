@@ -30,7 +30,7 @@
 #include "widget/slider/floatslider.h"
 #include "widget/path/pathwidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesDiskTab : public PreferencesTab
 {
@@ -53,6 +53,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESDISKTAB_H

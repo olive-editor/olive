@@ -27,7 +27,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -103,4 +103,4 @@ void BezierControlPointItem::UpdatePos()
   setPos(handle_offset - rect().center());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -26,7 +26,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Node;
 class NodeInput;
@@ -82,6 +82,6 @@ private:
 
 using NodeEdgePtr = std::shared_ptr<NodeEdge>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EDGE_H

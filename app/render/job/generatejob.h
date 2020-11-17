@@ -23,7 +23,7 @@
 
 #include "acceleratedjob.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class GenerateJob : public AcceleratedJob {
 public:
@@ -47,8 +47,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::GenerateJob)
+Q_DECLARE_METATYPE(olive::GenerateJob)
 
 #endif // GENERATEJOB_H

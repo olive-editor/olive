@@ -22,7 +22,7 @@
 
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeEdgeAddCommand::NodeEdgeAddCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -230,4 +230,4 @@ void NodeCopyInputsCommand::redo()
   Node::CopyInputs(src_, dest_, include_connections_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

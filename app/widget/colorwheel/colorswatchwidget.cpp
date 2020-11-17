@@ -22,7 +22,7 @@
 
 #include <QMouseEvent>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorSwatchWidget::ColorSwatchWidget(QWidget *parent) :
   QWidget(parent),
@@ -98,4 +98,4 @@ void ColorSwatchWidget::SetSelectedColorInternal(const Color &c, bool external)
   update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

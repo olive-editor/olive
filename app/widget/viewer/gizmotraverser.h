@@ -23,7 +23,7 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class GizmoTraverser : public NodeTraverser
 {
@@ -45,6 +45,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // GIZMOTRAVERSER_H

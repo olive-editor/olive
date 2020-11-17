@@ -25,10 +25,10 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FLIPMODIFIERS_H

@@ -29,7 +29,7 @@
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TrackViewItem : public QWidget
 {
@@ -63,6 +63,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKVIEWITEM_H

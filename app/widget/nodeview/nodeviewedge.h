@@ -27,7 +27,7 @@
 #include "node/edge.h"
 #include "nodeviewcommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A graphical representation of a NodeEdge to be used in NodeView
@@ -112,6 +112,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEEDGEITEM_H

@@ -24,7 +24,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int VideoParams::kInternalChannelCount = kRGBAChannelCount;
 
@@ -280,4 +280,4 @@ int VideoParams::GetScaledDimension(int dim, int divider)
   return dim / divider;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

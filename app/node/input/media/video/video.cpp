@@ -28,7 +28,7 @@
 #include "core.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node *VideoInput::copy() const
 {
@@ -60,4 +60,4 @@ QString VideoInput::Description() const
   return tr("Import a video footage stream.");
 }
 
-OLIVE_NAMESPACE_EXIT
+}

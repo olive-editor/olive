@@ -32,7 +32,7 @@
 #include "common/timecodefunctions.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FrameHashCache::FrameHashCache(QObject *parent) :
   PlaybackCache(parent)
@@ -438,4 +438,4 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

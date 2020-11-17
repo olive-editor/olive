@@ -27,7 +27,7 @@
 #include "core.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
   command_(nullptr),
@@ -284,4 +284,4 @@ int64_t ProjectImportTask::GetImageSequenceLimit(const QString& start_fn, int64_
   return start;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

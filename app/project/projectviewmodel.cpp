@@ -27,7 +27,7 @@
 #include "core.h"
 #include "node/input/media/media.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
@@ -604,4 +604,4 @@ void ProjectViewModel::RemoveItemCommand::undo_internal()
   model_->AddChild(parent_, item_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

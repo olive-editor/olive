@@ -28,7 +28,7 @@
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeViewScene : public QGraphicsScene
 {
@@ -146,6 +146,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEWSCENE_H

@@ -20,7 +20,7 @@
 
 #include "threadticket.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderTicket::RenderTicket() :
   started_(false),
@@ -121,4 +121,4 @@ void RenderTicket::Cancel()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

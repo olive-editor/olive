@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineAndTrackView::TimelineAndTrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QWidget(parent)
@@ -73,4 +73,4 @@ void TimelineAndTrackView::TracksValueChanged(int v)
   view_->verticalScrollBar()->setValue(view_->verticalScrollBar()->minimum() + v);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

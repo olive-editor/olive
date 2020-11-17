@@ -22,7 +22,7 @@
 
 #include <QMouseEvent>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ClickableLabel::ClickableLabel(const QString &text, QWidget *parent) :
   QLabel(text, parent)
@@ -48,4 +48,4 @@ void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -26,7 +26,7 @@
 #include "node/keyframe.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class KeyframeViewItem : public QObject, public QGraphicsRectItem, public TimeTargetObject
 {
@@ -63,6 +63,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYFRAMEVIEWITEM_H

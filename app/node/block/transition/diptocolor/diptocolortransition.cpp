@@ -20,7 +20,7 @@
 
 #include "diptocolortransition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 DipToColorTransition::DipToColorTransition()
 {
@@ -65,4 +65,4 @@ void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &j
   job.InsertValue(color_input_, value);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

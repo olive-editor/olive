@@ -27,7 +27,7 @@
 
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An object that manages background Task objects, handling their start and end
@@ -136,6 +136,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TASKMANAGER_H

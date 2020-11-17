@@ -26,7 +26,7 @@
 #include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SeekableWidget : public TimelineScaledWidget
 {
@@ -100,6 +100,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEEKABLEWIDGET_H

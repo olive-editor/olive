@@ -26,7 +26,7 @@
 #include "common/ratiodialog.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PixelAspectRatioComboBox : public QComboBox
 {
@@ -122,6 +122,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PIXELASPECTRATIOCOMBOBOX_H

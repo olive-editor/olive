@@ -27,7 +27,7 @@
 #include "codec/frame.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class OIIOUtils {
 public:
@@ -60,6 +60,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // OIIOUTILS_H

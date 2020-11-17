@@ -26,7 +26,7 @@
 #include "common/clamp.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 #define M_180_OVER_PI 57.295791433133264917914229473464
 #define M_RADIAN_TO_0_1 0.15915497620314795810531730409296
@@ -177,4 +177,4 @@ QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
   return pos;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -25,7 +25,7 @@
 
 #include "codecsection.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ImageSection : public CodecSection
 {
@@ -40,6 +40,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // IMAGESECTION_H

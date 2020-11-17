@@ -25,7 +25,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesBehaviorTab::PreferencesBehaviorTab()
 {
@@ -156,4 +156,4 @@ QTreeWidgetItem *PreferencesBehaviorTab::AddParent(const QString &text, QTreeWid
   return AddParent(text, QString(), parent);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

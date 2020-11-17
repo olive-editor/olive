@@ -20,7 +20,7 @@
 
 #include "audiostreamproperties.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioStreamProperties::AudioStreamProperties(AudioStreamPtr stream) :
   stream_(stream)
@@ -31,4 +31,4 @@ void AudioStreamProperties::Accept(QUndoCommand*)
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

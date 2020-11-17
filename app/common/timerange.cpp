@@ -23,7 +23,7 @@
 #include <QtMath>
 #include <utility>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeRange::TimeRange(const rational &in, const rational &out) :
   in_(in),
@@ -296,9 +296,9 @@ uint qHash(const TimeRange &r, uint seed)
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange &r)
+QDebug operator<<(QDebug debug, const olive::TimeRange &r)
 {
   debug.nospace() << r.in().toDouble() << " - " << r.out().toDouble();
   return debug.space();

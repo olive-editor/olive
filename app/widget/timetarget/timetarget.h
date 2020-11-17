@@ -23,7 +23,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeTargetObject
 {
@@ -50,6 +50,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMETARGETOBJECT_H

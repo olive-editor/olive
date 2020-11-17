@@ -24,7 +24,7 @@
 #include "cli/cliprogress/cliprogressdialog.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CLITaskDialog : public CLIProgressDialog
 {
@@ -39,6 +39,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CLITASKDIALOG_H

@@ -24,7 +24,7 @@
 
 #include "widget/timelinewidget/timelinescaledobject.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewMouseEvent::TimelineViewMouseEvent(const qreal &scene_x,
                                                const double &scale_x,
@@ -100,4 +100,4 @@ void TimelineViewMouseEvent::ignore()
     source_event_->ignore();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

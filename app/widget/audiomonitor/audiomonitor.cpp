@@ -27,7 +27,7 @@
 #include "audio/audiomanager.h"
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int kDecibelStep = 6;
 const int kDecibelMinimum = -200;
@@ -357,4 +357,4 @@ QVector<double> AudioMonitor::GetAverages() const
   return v;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

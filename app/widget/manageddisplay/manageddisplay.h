@@ -28,7 +28,7 @@
 #include "render/renderer.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ManagedDisplayWidgetOpenGL : public QOpenGLWidget
 {
@@ -261,6 +261,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MANAGEDDISPLAYOBJECT_H

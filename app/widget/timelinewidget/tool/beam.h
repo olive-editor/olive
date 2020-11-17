@@ -23,7 +23,7 @@
 
 #include "tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class BeamTool : public TimelineTool
 {
@@ -37,6 +37,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // BEAMTIMELINETOOL_H

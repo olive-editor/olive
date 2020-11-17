@@ -20,7 +20,7 @@
 
 #include "graph.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeGraph::NodeGraph() :
   operation_stack_(0)
@@ -164,4 +164,4 @@ bool NodeGraph::ContainsNode(Node *n) const
   return (n->parent() == this);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

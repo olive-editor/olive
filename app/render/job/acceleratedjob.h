@@ -26,7 +26,7 @@
 #include "render/shadervalue.h"
 #include "node/value.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AcceleratedJob {
 public:
@@ -96,6 +96,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ACCELERATEDJOB_H

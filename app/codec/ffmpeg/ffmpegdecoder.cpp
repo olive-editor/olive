@@ -45,7 +45,7 @@ extern "C" {
 #include "render/framehashcache.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
@@ -1085,4 +1085,4 @@ void FFmpegDecoder::Instance::Seek(int64_t timestamp)
   av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

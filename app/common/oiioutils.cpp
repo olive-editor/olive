@@ -20,7 +20,7 @@
 
 #include "oiioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
 {
@@ -117,4 +117,4 @@ VideoParams::Format OIIOUtils::GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYP
   return VideoParams::kFormatInvalid;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

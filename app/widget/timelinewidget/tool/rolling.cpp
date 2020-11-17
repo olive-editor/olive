@@ -24,7 +24,7 @@
 #include "rolling.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -39,4 +39,4 @@ void RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
   InitiateDragInternal(clicked_item, trim_mode, false, true, false);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

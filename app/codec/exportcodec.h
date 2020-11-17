@@ -26,7 +26,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportCodec : public QObject
 {
@@ -57,6 +57,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTCODEC_H

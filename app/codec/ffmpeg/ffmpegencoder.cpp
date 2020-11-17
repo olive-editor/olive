@@ -28,7 +28,7 @@ extern "C" {
 
 #include "common/ffmpegutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   Encoder(params),
@@ -634,4 +634,4 @@ void FFmpegEncoder::Error(const QString &s)
   Close();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

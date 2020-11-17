@@ -24,7 +24,7 @@
 #include "common/ocioutils.h"
 #include "colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
 {
@@ -131,4 +131,4 @@ void ColorProcessor::ConvertFrame(FramePtr f)
   ConvertFrame(f.get());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

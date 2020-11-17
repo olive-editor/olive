@@ -26,7 +26,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PathWidget : public QWidget
 {
@@ -52,6 +52,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PATHWIDGET_H

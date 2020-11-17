@@ -20,7 +20,7 @@
 
 #include "managedcolor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ManagedColor::ManagedColor()
 {
@@ -61,4 +61,4 @@ void ManagedColor::set_color_output(const ColorTransform &color_output)
   color_transform_ = color_output;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@
 #include "node/output/viewer/viewer.h"
 #include "render/colortransform.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportParams : public EncodingParams {
 public:
@@ -70,6 +70,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTPARAMS_H

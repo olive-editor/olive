@@ -22,7 +22,7 @@
 
 #include <QMouseEvent>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorerTreeView::ProjectExplorerTreeView(QWidget *parent) :
   QTreeView(parent)
@@ -54,4 +54,4 @@ void ProjectExplorerTreeView::mouseDoubleClickEvent(QMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

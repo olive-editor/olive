@@ -32,7 +32,7 @@
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveWidget::CurveWidget(QWidget *parent) :
   TimeBasedWidget(parent)
@@ -322,4 +322,4 @@ void CurveWidget::InputEnabledChanged(NodeInput *i, bool e)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -28,7 +28,7 @@
 #include "dialog/sequence/presetmanager.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SequencePreset : public Preset {
 public:
@@ -174,6 +174,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEPARAM_H

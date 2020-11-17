@@ -29,7 +29,7 @@
 
 #include "common/filefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesDiskTab::PreferencesDiskTab()
 {
@@ -117,4 +117,4 @@ void PreferencesDiskTab::Accept()
   Config::Current()["DiskCacheAhead"] = QVariant::fromValue(rational::fromDouble(cache_ahead_slider_->GetValue()));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

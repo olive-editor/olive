@@ -28,7 +28,7 @@
 #include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineViewBase : public HandMovableView, public TimelineScaledObject
 {
@@ -134,6 +134,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEWBASE_H

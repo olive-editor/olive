@@ -26,7 +26,7 @@
 #include "common/cancelableobject.h"
 #include "threading/threadticket.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ThreadPoolThread;
 
@@ -43,7 +43,7 @@ public:
   virtual void RunTicket(RenderTicketPtr ticket) const = 0;
 
 public slots:
-  void AddTicket(OLIVE_NAMESPACE::RenderTicketPtr ticket, bool prioritize = false);
+  void AddTicket(olive::RenderTicketPtr ticket, bool prioritize = false);
 
 private:
   void RunNext();
@@ -88,6 +88,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // THREADPOOL_H

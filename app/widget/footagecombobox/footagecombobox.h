@@ -27,7 +27,7 @@
 #include "project/item/footage/footage.h"
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FootageComboBox : public QComboBox
 {
@@ -63,6 +63,6 @@ private:
   bool only_show_ready_footage_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGECOMBOBOX_H

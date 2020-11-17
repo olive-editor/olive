@@ -34,7 +34,7 @@
 #include "task/export/export.h"
 #include "widget/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportDialog : public QDialog
 {
@@ -95,6 +95,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTDIALOG_H

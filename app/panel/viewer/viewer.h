@@ -25,7 +25,7 @@
 
 #include "viewerbase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Dockable wrapper around a ViewerWidget
@@ -40,6 +40,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWER_PANEL_H

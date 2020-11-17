@@ -24,7 +24,7 @@
 #include "panel/timebased/timebased.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Panel container for a TimelineWidget
@@ -97,6 +97,6 @@ signals:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINE_PANEL_H

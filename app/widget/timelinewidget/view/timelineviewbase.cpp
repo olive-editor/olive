@@ -29,7 +29,7 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const double TimelineViewBase::kMaximumScale = 8192;
 
@@ -359,4 +359,4 @@ bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -20,11 +20,11 @@
 
 #include "preferencestab.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 bool PreferencesTab::Validate()
 {
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

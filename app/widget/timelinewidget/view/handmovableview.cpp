@@ -24,7 +24,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 HandMovableView::HandMovableView(QWidget* parent) :
   QGraphicsView(parent),
@@ -115,4 +115,4 @@ const QGraphicsView::DragMode &HandMovableView::GetDefaultDragMode() const
   return default_drag_mode_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

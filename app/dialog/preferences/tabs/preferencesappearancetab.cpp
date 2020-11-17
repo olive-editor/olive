@@ -29,7 +29,7 @@
 #include "node/node.h"
 #include "widget/colorbutton/colorbutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesAppearanceTab::PreferencesAppearanceTab()
 {
@@ -122,4 +122,4 @@ void PreferencesAppearanceTab::ColorButtonClicked()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

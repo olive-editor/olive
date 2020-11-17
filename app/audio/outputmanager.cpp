@@ -25,7 +25,7 @@
 
 #include <QFile>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
@@ -151,4 +151,4 @@ void AudioOutputManager::OutputStateChanged(QAudio::State state)
   qDebug() << state << output_->error();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

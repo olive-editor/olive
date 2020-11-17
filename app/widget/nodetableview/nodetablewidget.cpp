@@ -22,7 +22,7 @@
 
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeTableWidget::NodeTableWidget(QWidget* parent) :
   TimeBasedWidget(parent)
@@ -35,4 +35,4 @@ NodeTableWidget::NodeTableWidget(QWidget* parent) :
   layout->addWidget(view_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

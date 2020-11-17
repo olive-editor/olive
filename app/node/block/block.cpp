@@ -25,7 +25,7 @@
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Block::Block() :
   previous_(nullptr),
@@ -375,4 +375,4 @@ void Block::Hash(QCryptographicHash &, const rational &) const
   // A block does nothing by default, so we hash nothing
 }
 
-OLIVE_NAMESPACE_EXIT
+}

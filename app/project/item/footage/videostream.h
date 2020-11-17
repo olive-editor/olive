@@ -24,7 +24,7 @@
 #include "render/videoparams.h"
 #include "stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Stream derivative containing video-specific information
@@ -176,6 +176,6 @@ private:
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEOSTREAM_H

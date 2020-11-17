@@ -29,7 +29,7 @@
 #include "project/item/item.h"
 #include "timeline/timelinepoints.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Sequence;
 using SequencePtr = std::shared_ptr<Sequence>;
@@ -84,6 +84,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCE_H

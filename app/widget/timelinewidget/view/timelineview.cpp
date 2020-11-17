@@ -33,7 +33,7 @@
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
@@ -480,4 +480,4 @@ void TimelineView::UserSetTime(const int64_t &time)
   emit TimeChanged(time);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

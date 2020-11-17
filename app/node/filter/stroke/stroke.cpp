@@ -22,7 +22,7 @@
 
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 StrokeFilterNode::StrokeFilterNode()
 {
@@ -113,4 +113,4 @@ ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"), QString());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

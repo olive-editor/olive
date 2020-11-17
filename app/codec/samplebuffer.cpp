@@ -20,7 +20,7 @@
 
 #include "samplebuffer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SampleBuffer::SampleBuffer() :
   sample_count_per_channel_(0),
@@ -310,4 +310,4 @@ void SampleBuffer::destroy_sample_buffer(float ***data, int nb_channels)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

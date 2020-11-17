@@ -26,7 +26,7 @@
 
 #include "common/filefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const qint64 AudioPlaybackCache::kDefaultSegmentSize = 5242880;
 
@@ -538,4 +538,4 @@ qint64 AudioPlaybackCache::Playlist::GetLength() const
   return this->last().offset() + this->last().size();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

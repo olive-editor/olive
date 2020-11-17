@@ -20,7 +20,7 @@
 
 #include "pan.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PanNode::PanNode()
 {
@@ -114,4 +114,4 @@ void PanNode::Retranslate()
   panning_input_->set_name(tr("Pan"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

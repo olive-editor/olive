@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioManager* AudioManager::instance_ = nullptr;
 
@@ -268,4 +268,4 @@ void AudioManager::InputDevicesRefreshed()
   emit InputListReady();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

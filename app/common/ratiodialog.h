@@ -25,12 +25,12 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 double GetFloatRatioFromUser(QWidget* parent,
                              const QString& title,
                              bool* ok_in);
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RATIODIALOG_H

@@ -32,7 +32,7 @@
 #include "widget/projecttoolbar/projecttoolbar.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("ProjectPanel"), parent)
@@ -243,4 +243,4 @@ QList<Footage *> ProjectPanel::GetSelectedFootage() const
   return footage;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

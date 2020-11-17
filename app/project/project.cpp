@@ -29,7 +29,7 @@
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Project::Project() :
   is_modified_(false),
@@ -228,4 +228,4 @@ void Project::DefaultColorSpaceChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

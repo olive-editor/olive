@@ -29,7 +29,7 @@
 #include "dialog/sequence/sequence.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
@@ -128,4 +128,4 @@ void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
   language_combobox_->setItemData(language_combobox_->count() - 1, locale_name);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -26,7 +26,7 @@ extern "C" {
 
 #include <QCoreApplication>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const QVector<int> AudioParams::kSupportedSampleRates = {
   8000,          // 8000 Hz
@@ -195,4 +195,4 @@ QString AudioParams::ChannelLayoutToString(const uint64_t &layout)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

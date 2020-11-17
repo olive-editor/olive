@@ -26,7 +26,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start, QWidget *parent) :
   QDialog(parent),
@@ -160,4 +160,4 @@ void ColorDialog::ColorSpaceChanged(const QString &input, const ColorTransform &
   color_values_widget_->SetColorProcessor(input_to_ref_processor_, ref_to_display, nullptr, ref_to_input);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -8,7 +8,7 @@
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
@@ -771,4 +771,4 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -32,7 +32,7 @@
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The inner display/rendering widget of a Viewer class.
@@ -252,6 +252,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERGLWIDGET_H

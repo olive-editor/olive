@@ -23,7 +23,7 @@
 
 #include "add.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TransitionTool : public AddTool
 {
@@ -37,6 +37,6 @@ private:
   bool dual_transition_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRANSITIONTIMELINETOOL_H

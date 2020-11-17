@@ -28,7 +28,7 @@
 
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RichTextDialog::RichTextDialog(QString start, QWidget* parent) :
   QDialog(parent)
@@ -336,4 +336,4 @@ void RichTextDialog::UpdateButtons()
   */
 }
 
-OLIVE_NAMESPACE_EXIT
+}

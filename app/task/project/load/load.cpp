@@ -27,7 +27,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectLoadTask::ProjectLoadTask(const QString &filename) :
   ProjectLoadBaseTask(filename)
@@ -99,4 +99,4 @@ bool ProjectLoadTask::Run()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

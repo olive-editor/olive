@@ -24,7 +24,7 @@
 #include "common/rational.h"
 #include "rendermodes.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class VideoParams {
 public:
@@ -263,9 +263,9 @@ private:
   int effective_depth_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams)
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams::Interlacing)
+Q_DECLARE_METATYPE(olive::VideoParams)
+Q_DECLARE_METATYPE(olive::VideoParams::Interlacing)
 
 #endif // VIDEOPARAMS_H

@@ -20,7 +20,7 @@
 
 #include "exportparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportParams::ExportParams() :
   video_scaling_method_(kStretch),
@@ -122,4 +122,4 @@ void ExportParams::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // export
 }
 
-OLIVE_NAMESPACE_EXIT
+}

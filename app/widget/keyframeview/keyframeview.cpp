@@ -20,7 +20,7 @@
 
 #include "keyframeview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeView::KeyframeView(QWidget *parent) :
   KeyframeViewBase(parent),
@@ -52,4 +52,4 @@ void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
   item->SetOverrideY(scene_pt.y());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

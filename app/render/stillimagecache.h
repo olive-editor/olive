@@ -8,7 +8,7 @@
 #include "project/item/footage/stream.h"
 #include "render/texture.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class StillImageCache
 {
@@ -78,6 +78,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // STILLIMAGECACHE_H

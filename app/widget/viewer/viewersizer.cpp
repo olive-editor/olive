@@ -22,7 +22,7 @@
 
 #include <QMatrix4x4>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerSizer::ViewerSizer(QWidget *parent) :
   QWidget(parent),
@@ -255,4 +255,4 @@ void ViewerSizer::ScrollBarMoved()
   emit RequestTranslate(mat);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

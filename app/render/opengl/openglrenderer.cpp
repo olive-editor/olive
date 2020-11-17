@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const QVector<GLfloat> blit_vertices = {
   -1.0f, -1.0f, 0.0f,
@@ -665,4 +665,4 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

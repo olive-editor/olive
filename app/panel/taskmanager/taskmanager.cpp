@@ -22,7 +22,7 @@
 
 #include "task/taskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
@@ -48,4 +48,4 @@ void TaskManagerPanel::Retranslate()
   SetTitle(tr("Task Manager"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

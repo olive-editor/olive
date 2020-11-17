@@ -27,7 +27,7 @@
 #include "nodeparamviewundo.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWidget *parent) :
   QWidget(parent),
@@ -277,4 +277,4 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -28,7 +28,7 @@
 #include "config/config.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PlaybackControls::PlaybackControls(QWidget *parent) :
   QWidget(parent),
@@ -229,4 +229,4 @@ void PlaybackControls::TimecodeChanged()
   SetEndTime(end_time_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

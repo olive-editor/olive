@@ -25,7 +25,7 @@
 
 #include "common/timecodefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
   QWidget(parent),
@@ -85,4 +85,4 @@ void ElapsedCounterWidget::UpdateTimers()
   remaining_lbl_->setText(tr("Remaining: %1").arg(Timecode::TimeToString(remaining_ms)));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

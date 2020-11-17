@@ -23,7 +23,7 @@
 
 #include "widget/scope/scopebase/scopebase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class WaveformScope : public ScopeBase
 {
@@ -40,6 +40,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // WAVEFORMSCOPE_H

@@ -25,7 +25,7 @@
 #include "common/clamp.h"
 #include "common/oiioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Color Color::fromHsv(const double &h, const double &s, const double &v)
 {
@@ -301,9 +301,9 @@ Color Color::operator/(const double &rhs) const
   return c;
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::Color &r)
+QDebug operator<<(QDebug debug, const olive::Color &r)
 {
   debug.nospace() << "[R: " << r.red() << ", G: " << r.green() << ", B: " << r.blue() << ", A: " << r.alpha() << "]";
   return debug.space();

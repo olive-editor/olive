@@ -23,7 +23,7 @@
 
 #include "pointer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SlipTool : public PointerTool
 {
@@ -35,6 +35,6 @@ protected:
   virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SLIPTIMELINETOOL_H

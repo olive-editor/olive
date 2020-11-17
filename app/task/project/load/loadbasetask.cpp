@@ -20,7 +20,7 @@
 
 #include "loadbasetask.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectLoadBaseTask::ProjectLoadBaseTask(const QString &filename) :
   project_(nullptr),
@@ -29,4 +29,4 @@ ProjectLoadBaseTask::ProjectLoadBaseTask(const QString &filename) :
   SetTitle(tr("Loading '%1'").arg(filename));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

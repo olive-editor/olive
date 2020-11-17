@@ -27,7 +27,7 @@
 
 #include "common/oiioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Frame::Frame() :
   timestamp_(0)
@@ -129,4 +129,4 @@ FramePtr Frame::convert(VideoParams::Format format) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 #include "common/timecodefunctions.h"
 #include "common/tohex.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
@@ -98,4 +98,4 @@ void MediaInput::FootageParametersChanged()
   InvalidateCache(TimeRange(0, RATIONAL_MAX), footage_input_, footage_input_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

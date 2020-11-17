@@ -27,7 +27,7 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -272,6 +272,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MAINMENU_H

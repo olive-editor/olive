@@ -23,7 +23,7 @@
 
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application
@@ -132,6 +132,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MENUSHARED_H

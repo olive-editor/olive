@@ -30,7 +30,7 @@ extern "C" {
 
 #include "codec/encoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FFmpegEncoder : public Encoder
 {
@@ -40,9 +40,9 @@ public:
 
   virtual bool Open() override;
 
-  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) override;
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
+  virtual void WriteAudio(olive::AudioParams pcm_info,
                           QIODevice *file) override;
 
   virtual void Close() override;
@@ -97,6 +97,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGENCODER_H

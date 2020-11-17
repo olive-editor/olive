@@ -26,7 +26,7 @@
 #include "node/param.h"
 #include "nodetabletraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeTableView::NodeTableView(QWidget* parent) :
   QTreeWidget(parent)
@@ -260,4 +260,4 @@ void NodeTableView::SetNode(Node *n, const rational &time)
 }
 */
 
-OLIVE_NAMESPACE_EXIT
+}

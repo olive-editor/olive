@@ -25,10 +25,10 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void DebugHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // DEBUG_H

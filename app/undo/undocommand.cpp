@@ -22,7 +22,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 UndoCommand::UndoCommand(QUndoCommand *parent) :
   QUndoCommand(parent)
@@ -54,4 +54,4 @@ void UndoCommand::undo_internal()
   QUndoCommand::undo();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Bezier
 {
@@ -37,6 +37,6 @@ public:
   static double CubicTtoY(double a, double b, double c, double d, double t);
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // BEZIER_H

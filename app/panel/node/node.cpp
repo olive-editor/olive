@@ -20,7 +20,7 @@
 
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodePanel::NodePanel(QWidget *parent) :
   PanelWidget(QStringLiteral("NodePanel"), parent)
@@ -39,4 +39,4 @@ NodePanel::NodePanel(QWidget *parent) :
   Retranslate();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

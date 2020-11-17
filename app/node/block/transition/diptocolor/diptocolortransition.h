@@ -23,7 +23,7 @@
 
 #include "node/block/transition/transition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class DipToColorTransition : public TransitionBlock
 {
@@ -48,6 +48,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // DIPTOCOLORTRANSITION_H

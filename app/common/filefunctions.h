@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A collection of static file and directory functions
@@ -88,6 +88,6 @@ public:
 
 
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FILEFUNCTIONS_H

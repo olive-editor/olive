@@ -30,7 +30,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CrashHandlerDialog : public QDialog
 {
@@ -72,6 +72,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CRASHHANDLERDIALOG_H

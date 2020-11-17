@@ -24,7 +24,7 @@
 #include "node.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInputDragger::NodeInputDragger() :
   input_(nullptr)
@@ -115,4 +115,4 @@ void NodeInputDragger::End()
   input_ = nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

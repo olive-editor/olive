@@ -22,7 +22,7 @@
 
 #include <QDateTime>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void ViewerPlaybackTimer::Start(const int64_t &start_timestamp, const int &playback_speed, const double &timebase)
 {
@@ -41,4 +41,4 @@ int64_t ViewerPlaybackTimer::GetTimestampNow() const
   return start_timestamp_ + frames_since_start * playback_speed_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

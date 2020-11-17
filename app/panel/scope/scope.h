@@ -28,7 +28,7 @@
 #include "widget/scope/histogram/histogram.h"
 #include "widget/scope/waveform/waveform.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ViewerPanel;
 
@@ -70,6 +70,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SCOPE_PANEL_H

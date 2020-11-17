@@ -28,7 +28,7 @@
 #include "widget/menu/menu.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidget *parent) :
   QWidget(parent),
@@ -86,4 +86,4 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
   m.exec(QCursor::pos());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

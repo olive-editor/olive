@@ -27,7 +27,7 @@
 #include "common/filefunctions.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
   project_(project)
@@ -87,4 +87,4 @@ bool ProjectSaveTask::Run()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 
 #include "task/export/export.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CLIExportManager : public QObject
 {
@@ -31,6 +31,6 @@ public:
   CLIExportManager();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CLIEXPORTMANAGER_H

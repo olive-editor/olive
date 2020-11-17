@@ -20,7 +20,7 @@
 
 #include "exportformat.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QString ExportFormat::GetName(olive::ExportFormat::Format f)
 {
@@ -135,4 +135,4 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
   return {};
 }
 
-OLIVE_NAMESPACE_EXIT
+}

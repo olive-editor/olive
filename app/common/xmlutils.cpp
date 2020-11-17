@@ -24,7 +24,7 @@
 #include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void XMLConnectNodes(const XMLNodeData &xml_node_data, QUndoCommand *command)
 {
@@ -64,4 +64,4 @@ void XMLLinkBlocks(const XMLNodeData &xml_node_data)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

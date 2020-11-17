@@ -5,7 +5,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTreeView : public QTreeWidget
 {
@@ -57,6 +57,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETREEVIEW_H

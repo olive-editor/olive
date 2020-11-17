@@ -30,7 +30,7 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewParamContainer : public QWidget
 {
@@ -134,6 +134,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEW_H

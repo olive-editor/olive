@@ -22,7 +22,7 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
   TimeBasedPanel(object_name, parent)
@@ -123,4 +123,4 @@ void ViewerPanelBase::closeEvent(QCloseEvent *e)
   TimeBasedPanel::closeEvent(e);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

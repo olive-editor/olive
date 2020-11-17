@@ -25,7 +25,7 @@
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Item::Type Folder::type() const
 {
@@ -104,4 +104,4 @@ void Folder::Save(QXmlStreamWriter *writer) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

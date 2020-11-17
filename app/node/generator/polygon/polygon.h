@@ -24,7 +24,7 @@
 #include "node/node.h"
 #include "node/inputdragger.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PolygonGenerator : public Node
 {
@@ -68,6 +68,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // POLYGONGENERATOR_H

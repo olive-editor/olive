@@ -23,7 +23,7 @@
 
 #include "tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PointerTool : public TimelineTool
 {
@@ -122,6 +122,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // POINTERTIMELINETOOL_H

@@ -33,7 +33,7 @@
 #include "widget/nodetreeview/nodetreeview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 {
@@ -100,6 +100,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEWIDGET_H

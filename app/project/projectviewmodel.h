@@ -27,7 +27,7 @@
 #include "undo/undocommand.h"
 #include "node/block/block.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
@@ -251,6 +251,6 @@ private:
   QVector<ColumnType> columns_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWMODEL_H

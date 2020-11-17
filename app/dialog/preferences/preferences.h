@@ -30,7 +30,7 @@
 
 #include "tabs/preferencestab.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The PreferencesDialog class
@@ -69,6 +69,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESDIALOG_H

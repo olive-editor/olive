@@ -20,11 +20,11 @@
 
 #include "cliexportmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CLIExportManager::CLIExportManager()
 {
 
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -22,7 +22,7 @@
 
 #include "ui/style/style.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Menu::Menu(QMenuBar *bar)
 {
@@ -111,4 +111,4 @@ void Menu::Init()
   StyleManager::UseOSNativeStyling(this);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

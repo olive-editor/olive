@@ -28,7 +28,7 @@
 #include "common/define.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RichTextDialog : public QDialog
 {
@@ -82,6 +82,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RICHTEXTDIALOG_H

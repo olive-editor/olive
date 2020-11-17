@@ -26,7 +26,7 @@
 #include "render/opengl/openglrenderer.h"
 #include "render/rendermanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   QWidget(parent),
@@ -345,4 +345,4 @@ void ManagedDisplayWidget::SetupColorProcessor()
   emit ColorProcessorChanged(color_service_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

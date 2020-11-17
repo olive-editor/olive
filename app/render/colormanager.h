@@ -28,7 +28,7 @@
 
 #define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorManager : public QObject
 {
@@ -113,6 +113,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORSERVICE_H

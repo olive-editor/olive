@@ -25,7 +25,7 @@
 #include "render/colorprocessor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ScopeBase : public ManagedDisplayWidget
 {
@@ -69,6 +69,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SCOPEBASE_H

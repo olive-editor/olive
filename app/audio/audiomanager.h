@@ -32,7 +32,7 @@
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Audio input and output management class
@@ -124,6 +124,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOMANAGER_H

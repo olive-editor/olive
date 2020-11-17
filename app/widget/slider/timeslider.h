@@ -24,7 +24,7 @@
 #include "common/rational.h"
 #include "integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeSlider : public IntegerSlider
 {
@@ -47,6 +47,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMESLIDER_H

@@ -27,7 +27,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A menu widget for context menus and menu bars
@@ -237,6 +237,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // WIDGETMENU_H

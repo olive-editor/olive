@@ -25,7 +25,7 @@
 #include "panel/timebased/timebased.h"
 #include "widget/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ViewerPanelBase : public TimeBasedPanel
 {
@@ -68,6 +68,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERPANELBASE_H

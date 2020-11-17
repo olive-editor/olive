@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The view widget used when ProjectExplorer is in Tree View
@@ -59,6 +59,6 @@ signals:
   void DoubleClickedEmptyArea();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORERTREEVIEW_H

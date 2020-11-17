@@ -28,7 +28,7 @@
 #include "seekablewidget.h"
 #include "render/playbackcache.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeRuler : public SeekableWidget
 {
@@ -69,6 +69,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMERULER_H

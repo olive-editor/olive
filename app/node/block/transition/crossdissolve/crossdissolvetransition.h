@@ -23,7 +23,7 @@
 
 #include "node/block/transition/transition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CrossDissolveTransition : public TransitionBlock
 {
@@ -47,6 +47,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CROSSDISSOLVETRANSITION_H

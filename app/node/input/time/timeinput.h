@@ -23,7 +23,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeInput : public Node
 {
@@ -44,6 +44,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMEINPUT_H

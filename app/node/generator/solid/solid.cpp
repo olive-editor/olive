@@ -22,7 +22,7 @@
 
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SolidGenerator::SolidGenerator()
 {
@@ -80,4 +80,4 @@ ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"), QString());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -7,7 +7,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidget* parent) :
   QWidget(parent)
@@ -143,4 +143,4 @@ void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
                                                        QString::number(test_param.effective_height())));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

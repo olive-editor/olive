@@ -30,7 +30,7 @@
 #include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeBasedWidget : public TimelineScaledWidget
 {
@@ -206,6 +206,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMEBASEDWIDGET_H

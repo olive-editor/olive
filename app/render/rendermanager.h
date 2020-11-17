@@ -34,7 +34,7 @@
 #include "stillimagecache.h"
 #include "threading/threadpool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderManager : public ThreadPool
 {
@@ -142,8 +142,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderManager::TicketType)
+Q_DECLARE_METATYPE(olive::RenderManager::TicketType)
 
 #endif // RENDERBACKEND_H

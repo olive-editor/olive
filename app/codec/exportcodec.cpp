@@ -25,7 +25,7 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 }
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QString ExportCodec::GetCodecName(ExportCodec::Codec c)
 {
@@ -125,4 +125,4 @@ QStringList ExportCodec::GetPixelFormatsForCodec(ExportCodec::Codec c)
   return pix_fmts;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

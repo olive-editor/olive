@@ -34,7 +34,7 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Preset
 {
@@ -234,6 +234,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PRESETMANAGER_H

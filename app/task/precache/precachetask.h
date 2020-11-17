@@ -26,7 +26,7 @@
 #include "project/item/sequence/sequence.h"
 #include "task/render/render.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreCacheTask : public RenderTask
 {
@@ -50,6 +50,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PRECACHETASK_H

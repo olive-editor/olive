@@ -24,7 +24,7 @@
 #include "node.h"
 #include "output.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input)
 {
@@ -47,4 +47,4 @@ NodeEdge::Connection NodeEdge::ParamToConnection(NodeParam *param)
   return {param->parentNode(), param->id()};
 }
 
-OLIVE_NAMESPACE_EXIT
+}

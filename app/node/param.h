@@ -30,7 +30,7 @@
 #include "common/xmlutils.h"
 #include "node/edge.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Node;
 
@@ -432,6 +432,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAM_H

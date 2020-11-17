@@ -36,7 +36,7 @@
 #include "tool/tool.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -563,7 +563,7 @@ private slots:
   /**
    * @brief Adds a project to the "open projects" list
    */
-  void AddOpenProject(OLIVE_NAMESPACE::ProjectPtr p);
+  void AddOpenProject(olive::ProjectPtr p);
 
   void AddOpenProjectFromTask(Task* task);
 
@@ -584,6 +584,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CORE_H

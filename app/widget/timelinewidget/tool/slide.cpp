@@ -24,7 +24,7 @@
 #include "slide.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -40,4 +40,4 @@ void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
   InitiateDragInternal(clicked_item, trim_mode, false, true, true);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

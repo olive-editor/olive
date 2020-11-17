@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int AudioVisualWaveform::kSumSampleRate = 200;
 
@@ -330,4 +330,4 @@ void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &su
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

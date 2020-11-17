@@ -22,7 +22,7 @@
 
 #include "codec/decoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ConformTask::ConformTask(AudioStreamPtr stream, const AudioParams& params) :
   stream_(stream),
@@ -57,4 +57,4 @@ bool ConformTask::Run()
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

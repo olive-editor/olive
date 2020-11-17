@@ -23,7 +23,7 @@
 
 #include "panel/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SequenceViewerPanel : public ViewerPanel
 {
@@ -36,6 +36,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEVIEWERPANEL_H

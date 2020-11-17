@@ -31,7 +31,7 @@
 #include "render/videoparams.h"
 #include "texture.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ShaderJob;
 
@@ -47,15 +47,15 @@ public:
   TexturePtr CreateTexture(const VideoParams& params, const void *data = nullptr, int linesize = 0);
 
   void BlitToTexture(QVariant shader,
-                     OLIVE_NAMESPACE::ShaderJob job,
-                     OLIVE_NAMESPACE::Texture* destination)
+                     olive::ShaderJob job,
+                     olive::Texture* destination)
   {
     Blit(shader, job, destination, destination->params());
   }
 
   void Blit(QVariant shader,
-            OLIVE_NAMESPACE::ShaderJob job,
-            OLIVE_NAMESPACE::VideoParams params)
+            olive::ShaderJob job,
+            olive::VideoParams params)
   {
     Blit(shader, job, nullptr, params);
   }
@@ -72,24 +72,24 @@ public slots:
 
   virtual void ClearDestination(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
 
-  virtual QVariant CreateNativeTexture2D(int width, int height, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, OLIVE_NAMESPACE::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture2D(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
 
   virtual void DestroyNativeTexture(QVariant texture) = 0;
 
-  virtual QVariant CreateNativeShader(OLIVE_NAMESPACE::ShaderCode code) = 0;
+  virtual QVariant CreateNativeShader(olive::ShaderCode code) = 0;
 
   virtual void DestroyNativeShader(QVariant shader) = 0;
 
-  virtual void UploadToTexture(OLIVE_NAMESPACE::Texture* texture, const void* data, int linesize) = 0;
+  virtual void UploadToTexture(olive::Texture* texture, const void* data, int linesize) = 0;
 
-  virtual void DownloadFromTexture(OLIVE_NAMESPACE::Texture* texture, void* data, int linesize) = 0;
+  virtual void DownloadFromTexture(olive::Texture* texture, void* data, int linesize) = 0;
 
 protected slots:
   virtual void Blit(QVariant shader,
-                    OLIVE_NAMESPACE::ShaderJob job,
-                    OLIVE_NAMESPACE::Texture* destination,
-                    OLIVE_NAMESPACE::VideoParams destination_params) = 0;
+                    olive::ShaderJob job,
+                    olive::Texture* destination,
+                    olive::VideoParams destination_params) = 0;
 
 private:
   struct ColorContext {
@@ -121,6 +121,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERCONTEXT_H

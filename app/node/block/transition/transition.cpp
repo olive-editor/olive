@@ -22,7 +22,7 @@
 
 #include "common/clamp.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
@@ -319,4 +319,4 @@ double TransitionBlock::TransformCurve(double linear) const
   return linear;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

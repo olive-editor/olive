@@ -24,7 +24,7 @@
 #include "loadbasetask.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectLoadTask : public ProjectLoadBaseTask
 {
@@ -37,6 +37,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTLOADMANAGER_H

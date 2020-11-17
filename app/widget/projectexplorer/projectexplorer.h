@@ -34,7 +34,7 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for browsing through a Project structure.
@@ -186,6 +186,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORER_H

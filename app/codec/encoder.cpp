@@ -24,7 +24,7 @@
 
 #include "ffmpeg/ffmpegencoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Encoder::Encoder(const EncodingParams &params) :
   params_(params)
@@ -236,4 +236,4 @@ Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
   return new FFmpegEncoder(params);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

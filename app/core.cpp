@@ -68,7 +68,7 @@
 #include "widget/viewer/viewer.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Core* Core::instance_ = nullptr;
 const uint Core::kProjectVersion = 201003;
@@ -103,17 +103,17 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
+  qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
-  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
-  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams::Interlacing>();
-  qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
-  qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
+  qRegisterMetaType<olive::ProjectPtr>();
+  qRegisterMetaType<olive::AudioVisualWaveform>();
+  qRegisterMetaType<olive::SampleJob>();
+  qRegisterMetaType<olive::ShaderJob>();
+  qRegisterMetaType<olive::GenerateJob>();
+  qRegisterMetaType<olive::VideoParams>();
+  qRegisterMetaType<olive::VideoParams::Interlacing>();
+  qRegisterMetaType<olive::MainWindowLayoutInfo>();
+  qRegisterMetaType<olive::RenderTicketPtr>();
 }
 
 void Core::Start()
@@ -1375,4 +1375,4 @@ Core::CoreParams::CoreParams() :
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

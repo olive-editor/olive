@@ -26,7 +26,7 @@
 
 #include "common/filefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PathWidget::PathWidget(const QString &path, QWidget *parent) :
   QWidget(parent)
@@ -65,4 +65,4 @@ void PathWidget::LineEditChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

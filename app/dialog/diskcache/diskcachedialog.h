@@ -28,7 +28,7 @@
 #include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class DiskCacheDialog : public QDialog
 {
@@ -53,6 +53,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // DISKCACHEDIALOG_H

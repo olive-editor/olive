@@ -25,7 +25,7 @@
 #include "render/audioparams.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ConformTask : public Task
 {
@@ -43,6 +43,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CONFORMTASK_H

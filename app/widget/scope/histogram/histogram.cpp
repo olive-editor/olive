@@ -27,7 +27,7 @@
 #include "common/qtutils.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 HistogramScope::HistogramScope(QWidget* parent) :
   ScopeBase(parent)
@@ -146,4 +146,4 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   p.drawLines(histogram_lines);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

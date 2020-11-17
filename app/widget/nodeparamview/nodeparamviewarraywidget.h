@@ -27,7 +27,7 @@
 
 #include "node/inputarray.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewArrayWidget : public QWidget
 {
@@ -49,6 +49,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWARRAYWIDGET_H

@@ -25,7 +25,7 @@
 
 #include "node/keyframe.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class BezierControlPointItem : public QObject, public QGraphicsRectItem
 {
@@ -63,6 +63,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // BEZIERCONTROLPOINTITEM_H

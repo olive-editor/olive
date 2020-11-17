@@ -26,7 +26,7 @@
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
@@ -80,8 +80,8 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ProjectPtr)
+Q_DECLARE_METATYPE(olive::ProjectPtr)
 
 #endif // PROJECT_PANEL_H

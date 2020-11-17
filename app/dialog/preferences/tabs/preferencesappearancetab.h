@@ -28,7 +28,7 @@
 #include "preferencestab.h"
 #include "ui/style/style.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesAppearanceTab : public PreferencesTab
 {
@@ -60,6 +60,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESAPPEARANCETAB_H

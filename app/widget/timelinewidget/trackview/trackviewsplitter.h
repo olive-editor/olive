@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TrackViewSplitterHandle : public QSplitterHandle
 {
@@ -77,6 +77,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKVIEWSPLITTER_H

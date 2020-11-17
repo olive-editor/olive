@@ -26,7 +26,7 @@
 #include "common/define.h"
 #include "common/ocioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorTransform
 {
@@ -79,6 +79,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORTRANSFORM_H

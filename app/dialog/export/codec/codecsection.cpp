@@ -20,11 +20,11 @@
 
 #include "codecsection.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CodecSection::CodecSection(QWidget *parent) :
   QWidget(parent)
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

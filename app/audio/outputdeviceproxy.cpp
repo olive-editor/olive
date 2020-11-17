@@ -22,7 +22,7 @@
 
 #include "audiomanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioOutputDeviceProxy::AudioOutputDeviceProxy(QObject *parent) :
   QIODevice(parent),
@@ -137,4 +137,4 @@ qint64 AudioOutputDeviceProxy::ReverseAwareRead(char *data, qint64 maxlen)
   return read_count;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

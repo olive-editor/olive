@@ -28,7 +28,7 @@
 #include "widget/slider/sliderbase.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
@@ -72,6 +72,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWWIDGETBRIDGE_H

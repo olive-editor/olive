@@ -30,7 +30,7 @@
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class VideoStreamProperties : public StreamProperties
 {
@@ -143,6 +143,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEOSTREAMPROPERTIES_H

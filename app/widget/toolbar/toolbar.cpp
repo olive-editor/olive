@@ -29,7 +29,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Toolbar::Toolbar(QWidget *parent) :
   QWidget(parent)
@@ -206,4 +206,4 @@ void Toolbar::TransitionMenuItemTriggered(QAction *a)
   emit SelectedTransitionChanged(NodeFactory::GetIDFromMenuAction(a));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

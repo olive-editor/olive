@@ -30,7 +30,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 extern size_t memory_pool_consumption;
 extern QMutex memory_pool_consumption_lock;
@@ -397,6 +397,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MEMORYPOOL_H

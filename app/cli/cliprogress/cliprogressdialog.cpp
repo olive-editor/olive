@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CLIProgressDialog::CLIProgressDialog(const QString& title, QObject *parent) :
   QObject(parent),
@@ -103,4 +103,4 @@ void CLIProgressDialog::SetProgress(double p)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

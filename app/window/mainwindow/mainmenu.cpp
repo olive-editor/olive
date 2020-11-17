@@ -36,7 +36,7 @@
 #include "widget/menu/menushared.h"
 #include "mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
@@ -692,4 +692,4 @@ void MainMenu::Retranslate()
   help_about_item_->setText(tr("&About..."));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

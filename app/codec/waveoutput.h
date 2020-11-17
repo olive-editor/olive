@@ -26,7 +26,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class WaveOutput
 {
@@ -63,6 +63,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // WAVEAUDIO_H

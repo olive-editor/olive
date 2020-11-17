@@ -20,7 +20,7 @@
 
 #include "keyframe.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
@@ -145,4 +145,4 @@ void NodeKeyframe::set_parent(NodeInput *parent)
   parent_ = parent;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

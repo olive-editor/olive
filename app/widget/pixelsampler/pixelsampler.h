@@ -27,7 +27,7 @@
 
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PixelSamplerWidget : public QGroupBox
 {
@@ -63,6 +63,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PIXELSAMPLERWIDGET_H

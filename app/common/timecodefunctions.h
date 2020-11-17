@@ -25,7 +25,7 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Functions for converting times/timecodes/timestamps
@@ -72,6 +72,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMECODEFUNCTIONS_H

@@ -23,7 +23,7 @@
 
 #include "sliderbase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FloatSlider : public SliderBase
 {
@@ -73,6 +73,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FLOATSLIDER_H

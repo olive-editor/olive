@@ -26,7 +26,7 @@
 #include "colorswatchwidget.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorWheelWidget : public ColorSwatchWidget
 {
@@ -71,6 +71,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORWHEELWIDGET_H

@@ -25,7 +25,7 @@
 
 #include "common/timecodefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
   QWidget(parent, Qt::Window | Qt::WindowStaysOnTopHint),
@@ -140,4 +140,4 @@ void ViewerWindow::UpdateMatrix()
   display_widget_->SetMatrixZoom(mat);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 {
@@ -239,4 +239,4 @@ void PreferencesKeyboardTab::save_shortcut_file() {
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

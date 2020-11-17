@@ -25,7 +25,7 @@
 
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportAudioTab::ExportAudioTab(QWidget* parent) :
   QWidget(parent)
@@ -64,4 +64,4 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   outer_layout->addStretch();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

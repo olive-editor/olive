@@ -29,7 +29,7 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/timeslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class KeyframePropertiesDialog : public QDialog
 {
@@ -66,6 +66,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYFRAMEPROPERTIESDIALOG_H

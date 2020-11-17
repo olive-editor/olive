@@ -20,7 +20,7 @@
 
 #include "audio.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node *AudioInput::copy() const
 {
@@ -52,4 +52,4 @@ QString AudioInput::Description() const
   return tr("Import an audio footage stream.");
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -20,7 +20,7 @@
 
 #include "curve.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurvePanel::CurvePanel(QWidget *parent) :
   TimeBasedPanel(QStringLiteral("CurvePanel"), parent)
@@ -61,4 +61,4 @@ void CurvePanel::Retranslate()
   SetTitle(tr("Curve Editor"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

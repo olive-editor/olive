@@ -27,7 +27,7 @@
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const double TrackOutput::kTrackHeightDefault = 3.0;
 const double TrackOutput::kTrackHeightMinimum = 1.5;
@@ -602,4 +602,4 @@ void TrackOutput::MutedInputValueChanged()
   emit MutedChanged(IsMuted());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

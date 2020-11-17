@@ -28,7 +28,7 @@
 #include "presetmanager.h"
 #include "sequencepreset.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SequenceDialogPresetTab : public QWidget, public PresetManager<SequencePreset>
 {
@@ -77,6 +77,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEDIALOGPRESETTAB_H

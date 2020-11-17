@@ -22,7 +22,7 @@
 
 #include <QCoreApplication>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
   QStatusBar(parent),
@@ -104,4 +104,4 @@ void MainStatusBar::mouseDoubleClickEvent(QMouseEvent* e)
   emit DoubleClicked();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

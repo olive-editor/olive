@@ -24,7 +24,7 @@
 
 #include "panel/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ScopePanel::ScopePanel(QWidget* parent) :
   PanelWidget(QStringLiteral("ScopePanel"), parent)
@@ -105,4 +105,4 @@ void ScopePanel::Retranslate()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

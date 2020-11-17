@@ -23,7 +23,7 @@
 
 #include "tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ZoomTool : public TimelineTool
 {
@@ -36,6 +36,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ZOOMTIMELINETOOL_H

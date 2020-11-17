@@ -22,7 +22,7 @@
 
 #include "widget/viewer/footageviewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   ViewerPanelBase(QStringLiteral("FootageViewerPanel"), parent)
@@ -72,4 +72,4 @@ void FootageViewerPanel::Retranslate()
   SetTitle(tr("Footage Viewer"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 #include "core.h"
 #include "widget/toolbar/toolbar.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ToolPanel::ToolPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("ToolPanel"), parent)
@@ -52,4 +52,4 @@ void ToolPanel::Retranslate()
   SetTitle(tr("Tools"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

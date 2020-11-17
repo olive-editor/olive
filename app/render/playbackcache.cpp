@@ -27,7 +27,7 @@
 #include "project/project.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
@@ -195,4 +195,4 @@ QString PlaybackCache::GetCacheDirectory() const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

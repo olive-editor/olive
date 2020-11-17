@@ -30,7 +30,7 @@
 #include "nodeview.h"
 #include "nodeviewscene.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
@@ -170,4 +170,4 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->drawPath(path());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

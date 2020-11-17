@@ -27,7 +27,7 @@
 #include "node/node.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeCopyPasteWidget
 {
@@ -45,6 +45,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODECOPYPASTEWIDGET_H

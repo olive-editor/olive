@@ -22,7 +22,7 @@
 
 #include "renderer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappedLinear;
 
@@ -36,4 +36,4 @@ void Texture::Upload(void *data, int linesize)
   renderer_->UploadToTexture(this, data, linesize);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

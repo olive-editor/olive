@@ -20,7 +20,7 @@
 
 #include "projectexplorericonview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorerIconView::ProjectExplorerIconView(QWidget *parent) :
   ProjectExplorerListViewBase(parent)
@@ -30,4 +30,4 @@ ProjectExplorerIconView::ProjectExplorerIconView(QWidget *parent) :
   setItemDelegate(&delegate_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 #include "common/timecodefunctions.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeSlider::TimeSlider(QWidget *parent) :
   IntegerSlider(parent)
@@ -63,4 +63,4 @@ void TimeSlider::TimecodeDisplayChanged()
   UpdateLabel(Value());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

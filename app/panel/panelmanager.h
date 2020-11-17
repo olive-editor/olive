@@ -26,7 +26,7 @@
 
 #include "widget/panel/panel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The PanelFocusManager class
@@ -232,6 +232,6 @@ QList<T*> PanelManager::GetPanelsOfType()
   return panels;
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PANELFOCUSMANAGER_H

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
   QApplication a(argc, argv);
 
-  OLIVE_NAMESPACE::CrashHandlerDialog chd(argv[1], argv[2]);
+  olive::CrashHandlerDialog chd(argv[1], argv[2]);
   chd.open();
 
   return a.exec();

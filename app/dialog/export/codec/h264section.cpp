@@ -28,7 +28,7 @@
 #include "common/qtutils.h"
 #include "widget/slider/integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 H264Section::H264Section(QWidget *parent) :
   CodecSection(parent)
@@ -208,4 +208,4 @@ int64_t H264FileSizeSection::GetFileSize() const
   return qRound64(file_size_->GetValue() * 1024.0 * 1024.0 * 8.0);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

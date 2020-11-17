@@ -27,7 +27,7 @@
 #include "stillimagecache.h"
 #include "threading/threadticket.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderProcessor : public NodeTraverser
 {
@@ -76,8 +76,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderProcessor::RenderedWaveform)
+Q_DECLARE_METATYPE(olive::RenderProcessor::RenderedWaveform)
 
 #endif // RENDERPROCESSOR_H

@@ -42,7 +42,7 @@
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
@@ -266,7 +266,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerShiftedRange(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
+  void ViewerShiftedRange(const olive::rational& from, const olive::rational& to);
 
   void UpdateStack();
 
@@ -286,7 +286,7 @@ private slots:
 
   void RendererGeneratedFrameForQueue();
 
-  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
+  void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
 
   void ManualSwitchToWaveform(bool e);
 
@@ -294,6 +294,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWER_WIDGET_H

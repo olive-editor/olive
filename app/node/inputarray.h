@@ -23,7 +23,7 @@
 
 #include "input.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeInputArray : public NodeInput
 {
@@ -74,6 +74,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // INPUTARRAY_H

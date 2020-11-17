@@ -23,7 +23,7 @@
 
 #include "rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeRange {
 public:
@@ -139,11 +139,11 @@ private:
 
 uint qHash(const TimeRange& r, uint seed);
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange& r);
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRangeList& r);
+QDebug operator<<(QDebug debug, const olive::TimeRange& r);
+QDebug operator<<(QDebug debug, const olive::TimeRangeList& r);
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TimeRange)
+Q_DECLARE_METATYPE(olive::TimeRange)
 
 #endif // TIMERANGE_H

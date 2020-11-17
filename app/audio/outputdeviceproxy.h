@@ -26,7 +26,7 @@
 #include "common/define.h"
 #include "tempoprocessor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief QIODevice wrapper that can adjust speed/reverse an audio file
@@ -61,6 +61,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOOUTPUTDEVICEPROXY_H

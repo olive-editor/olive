@@ -23,7 +23,7 @@
 
 #include "node/input.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeInputDragger
 {
@@ -55,6 +55,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEINPUTDRAGGER_H

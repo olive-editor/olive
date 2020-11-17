@@ -26,7 +26,7 @@
 #include "render/colormanager.h"
 #include "render/managedcolor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorButton : public QPushButton
 {
@@ -56,6 +56,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORBUTTON_H

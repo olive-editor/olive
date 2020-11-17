@@ -20,7 +20,7 @@
 
 #include "clip.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ClipBlock::ClipBlock()
 {
@@ -120,4 +120,4 @@ void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -20,7 +20,7 @@
 
 #include "value.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
@@ -153,4 +153,4 @@ int NodeValueTable::GetInternal(const NodeParam::DataType &type, const QString &
   return index;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

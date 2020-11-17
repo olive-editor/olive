@@ -25,7 +25,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesTab : public QWidget
 {
@@ -37,6 +37,6 @@ public:
   virtual void Accept() = 0;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESTAB_H

@@ -20,7 +20,7 @@
 
 #include "undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void UndoStack::pushIfHasChildren(QUndoCommand *command)
 {
@@ -31,4 +31,4 @@ void UndoStack::pushIfHasChildren(QUndoCommand *command)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

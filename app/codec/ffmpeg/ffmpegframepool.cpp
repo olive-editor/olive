@@ -22,7 +22,7 @@
 
 #include "codec/frame.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FFmpegFramePool::FFmpegFramePool(int element_count) :
   MemoryPool(element_count),
@@ -48,4 +48,4 @@ size_t FFmpegFramePool::GetElementSize()
   return Frame::generate_linesize_bytes(width_, format_, channel_count_) * height_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

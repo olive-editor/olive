@@ -22,7 +22,7 @@
 
 #include <QPainter>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewGhostItem::TimelineViewGhostItem() :
   track_adj_(0),
@@ -203,4 +203,4 @@ bool TimelineViewGhostItem::HasBeenAdjusted() const
       || GetTrackAdjustment() != 0;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

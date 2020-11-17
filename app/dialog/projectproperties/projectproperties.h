@@ -31,7 +31,7 @@
 #include "project/project.h"
 #include "widget/path/pathwidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectPropertiesDialog : public QDialog
 {
@@ -68,6 +68,6 @@ private slots:
   
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTPROPERTIESDIALOG_H

@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ClickableLabel : public QLabel
 {
@@ -44,6 +44,6 @@ signals:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CLICKABLELABEL_H

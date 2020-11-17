@@ -29,7 +29,7 @@
 #include "project/item/sequence/sequence.h"
 #include "widget/timelinewidget/undo/undo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   TimelineScaledWidget(parent),
@@ -541,4 +541,4 @@ void TimeBasedWidget::MarkerAddCommand::undo_internal()
   marker_list_->RemoveMarker(added_marker_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

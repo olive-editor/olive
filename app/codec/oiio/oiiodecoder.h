@@ -26,7 +26,7 @@
 
 #include "codec/decoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class OIIODecoder : public Decoder
 {
@@ -72,6 +72,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // OIIODECODER_H

@@ -24,7 +24,7 @@
 #include "node/input.h"
 #include "undo/undocommand.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamSetKeyframingCommand : public UndoCommand {
 public:
@@ -136,6 +136,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWUNDO_H

@@ -23,7 +23,7 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
@@ -119,4 +119,4 @@ void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
   parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

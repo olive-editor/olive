@@ -24,7 +24,7 @@
 #include "colorswatchwidget.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorGradientWidget : public ColorSwatchWidget
 {
@@ -54,6 +54,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORGRADIENTGLWIDGET_H

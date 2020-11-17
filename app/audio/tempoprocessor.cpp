@@ -30,7 +30,7 @@ extern "C" {
 
 #include "common/ffmpegutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TempoProcessor::TempoProcessor() :
   filter_graph_(nullptr),
@@ -274,4 +274,4 @@ AVFilterContext *TempoProcessor::CreateTempoFilter(AVFilterGraph* graph, AVFilte
   return nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

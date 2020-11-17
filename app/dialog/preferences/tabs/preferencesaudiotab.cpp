@@ -26,7 +26,7 @@
 #include "audio/audiomanager.h"
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesAudioTab::PreferencesAudioTab()
 {
@@ -206,4 +206,4 @@ void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing,
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

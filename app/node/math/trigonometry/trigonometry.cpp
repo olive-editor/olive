@@ -20,7 +20,7 @@
 
 #include "trigonometry.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrigonometryNode::TrigonometryNode()
 {
@@ -118,4 +118,4 @@ NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
   return table;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

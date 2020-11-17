@@ -26,7 +26,7 @@
 #include "generatejob.h"
 #include "render/texture.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ShaderJob : public GenerateJob {
 public:
@@ -93,8 +93,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ShaderJob)
+Q_DECLARE_METATYPE(olive::ShaderJob)
 
 #endif // SHADERJOB_H

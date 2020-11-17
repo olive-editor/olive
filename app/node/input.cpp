@@ -35,7 +35,7 @@
 #include "project/item/footage/stream.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVector<QVariant> &default_value) :
   NodeParam(id)
@@ -1215,4 +1215,4 @@ void NodeInput::set_combobox_strings(const QStringList &strings)
   set_property(QStringLiteral("combo_str"), strings);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -24,7 +24,7 @@
 #include "nodetableview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTableWidget : public TimeBasedWidget
 {
@@ -57,6 +57,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETABLEWIDGET_H

@@ -24,7 +24,7 @@
 #include "widget/audiomonitor/audiomonitor.h"
 #include "widget/panel/panel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief PanelWidget wrapper around an AudioMonitor
@@ -42,6 +42,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOMONITORPANEL_H

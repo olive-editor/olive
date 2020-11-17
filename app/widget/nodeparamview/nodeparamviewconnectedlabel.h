@@ -24,7 +24,7 @@
 #include "node/input.h"
 #include "widget/clickablelabel/clickablelabel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewConnectedLabel : public QWidget {
   Q_OBJECT
@@ -46,6 +46,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWCONNECTEDLABEL_H

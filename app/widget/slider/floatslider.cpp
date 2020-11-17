@@ -22,7 +22,7 @@
 
 #include <QAudio>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FloatSlider::FloatSlider(QWidget *parent) :
   SliderBase(kFloat, parent),
@@ -184,4 +184,4 @@ void FloatSlider::ConvertValue(QVariant v)
   emit ValueChanged(v.toDouble());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@
 
 #include "timeline/timelinecoordinate.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineViewMouseEvent
 {
@@ -84,6 +84,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEWMOUSEEVENT_H

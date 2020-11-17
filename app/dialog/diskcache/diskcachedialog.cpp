@@ -27,7 +27,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 DiskCacheDialog::DiskCacheDialog(DiskCacheFolder *folder, QWidget* parent) :
   QDialog(parent),
@@ -104,4 +104,4 @@ void DiskCacheDialog::ClearDiskCache()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

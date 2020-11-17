@@ -20,7 +20,7 @@
 
 #include "integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 IntegerSlider::IntegerSlider(QWidget* parent) :
   SliderBase(kInteger, parent)
@@ -72,4 +72,4 @@ void IntegerSlider::ConvertValue(QVariant v)
   emit ValueChanged(v.toInt());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

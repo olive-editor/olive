@@ -25,7 +25,7 @@
 #include "tool.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class EditTool : public BeamTool
 {
@@ -44,6 +44,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EDITTIMELINETOOL_H

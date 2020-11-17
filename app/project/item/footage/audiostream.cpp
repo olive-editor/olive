@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioStream::AudioStream()
 {
@@ -93,4 +93,4 @@ void AudioStream::SaveCustomParameters(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("rate"), QString::number(sample_rate_));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

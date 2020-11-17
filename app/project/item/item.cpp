@@ -20,7 +20,7 @@
 
 #include "item.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Item::Item() :
   parent_(nullptr),
@@ -203,4 +203,4 @@ bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
   return false;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

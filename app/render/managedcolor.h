@@ -24,7 +24,7 @@
 #include "color.h"
 #include "colortransform.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ManagedColor : public Color
 {
@@ -47,6 +47,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MANAGEDCOLOR_H

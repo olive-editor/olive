@@ -30,7 +30,7 @@
 #include "elapsedcounterwidget.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget that visually represents the status of a Task
@@ -68,6 +68,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TASKVIEWITEM_H

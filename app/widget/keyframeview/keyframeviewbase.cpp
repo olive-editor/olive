@@ -30,7 +30,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
@@ -538,4 +538,4 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
   currently_autoselecting_ = false;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

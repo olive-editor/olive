@@ -26,7 +26,7 @@
 #include "../media.h"
 #include "render/colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class VideoInput : public MediaInput
 {
@@ -45,6 +45,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEOINPUT_H

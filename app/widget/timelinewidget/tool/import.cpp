@@ -38,7 +38,7 @@
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
@@ -498,4 +498,4 @@ QList<ImportTool::DraggedFootage> ImportTool::FootageToDraggedFootage(QList<Foot
   return df;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

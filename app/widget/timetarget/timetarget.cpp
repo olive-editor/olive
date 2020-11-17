@@ -20,7 +20,7 @@
 
 #include "timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeTargetObject::TimeTargetObject() :
   time_target_(nullptr),
@@ -80,4 +80,4 @@ TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRang
   return adjusted.size();
 }*/
 
-OLIVE_NAMESPACE_EXIT
+}

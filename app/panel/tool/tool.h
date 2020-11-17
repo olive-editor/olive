@@ -23,7 +23,7 @@
 
 #include "widget/panel/panel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A PanelWidget wrapper around a Toolbar
@@ -39,6 +39,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TOOL_PANEL_H

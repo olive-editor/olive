@@ -28,7 +28,7 @@
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamView::NodeParamView(QWidget *parent) :
   TimeBasedWidget(true, false, parent),
@@ -389,4 +389,4 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

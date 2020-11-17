@@ -24,7 +24,7 @@
 #include "panel/timebased/timebased.h"
 #include "widget/nodetableview/nodetablewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTablePanel : public TimeBasedPanel
 {
@@ -48,6 +48,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETABLEPANEL_H

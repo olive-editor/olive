@@ -23,7 +23,7 @@
 
 #include "tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ImportTool : public TimelineTool
 {
@@ -84,6 +84,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // IMPORTTIMELINETOOL_H

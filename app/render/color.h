@@ -27,7 +27,7 @@
 #include "common/define.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief High precision 64-bit float based RGBA color value
@@ -111,10 +111,10 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::Color& r);
+QDebug operator<<(QDebug debug, const olive::Color& r);
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Color)
+Q_DECLARE_METATYPE(olive::Color)
 
 #endif // COLOR_H

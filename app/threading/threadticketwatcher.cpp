@@ -20,7 +20,7 @@
 
 #include "threadticketwatcher.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RenderTicketWatcher::RenderTicketWatcher(QObject *parent) :
   QObject(parent),
@@ -98,4 +98,4 @@ void RenderTicketWatcher::TicketFinished()
   emit Finished(this);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

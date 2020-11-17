@@ -26,7 +26,7 @@
 #include "render/color.h"
 #include "render/colorprocessor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorSwatchWidget : public QWidget
 {
@@ -68,6 +68,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORSWATCHWIDGET_H

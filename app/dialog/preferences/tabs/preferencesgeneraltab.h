@@ -29,7 +29,7 @@
 #include "project/item/sequence/sequence.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesGeneralTab : public PreferencesTab
 {
@@ -52,6 +52,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESGENERALTAB_H

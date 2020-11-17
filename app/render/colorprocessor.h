@@ -26,7 +26,7 @@
 #include "render/color.h"
 #include "render/colortransform.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorManager;
 
@@ -72,8 +72,8 @@ private:
 
 using ColorProcessorChain = QVector<ColorProcessorPtr>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::ColorProcessorPtr)
+Q_DECLARE_METATYPE(olive::ColorProcessorPtr)
 
 #endif // COLORPROCESSOR_H

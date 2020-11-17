@@ -23,7 +23,7 @@
 
 #include "sliderbase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class StringSlider : public SliderBase
 {
@@ -47,6 +47,6 @@ private slots:
   void ConvertValue(QVariant v);
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // STRINGSLIDER_H

@@ -26,7 +26,7 @@
 #include "common/timerange.h"
 #include "timeline/trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineWidgetSelections : public QHash<TrackReference, TimeRangeList>
 {
@@ -43,6 +43,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEWIDGETSELECTIONS_H

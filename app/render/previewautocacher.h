@@ -9,7 +9,7 @@
 #include "render/colormanager.h"
 #include "threading/threadticketwatcher.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Manager for dynamically caching a sequence in the background
@@ -160,12 +160,12 @@ private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+  void VideoInvalidated(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidated(const OLIVE_NAMESPACE::TimeRange &range);
+  void AudioInvalidated(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when we have applied all the hashes to the FrameHashCache
@@ -204,6 +204,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUTOCACHER_H

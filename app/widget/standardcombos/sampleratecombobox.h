@@ -25,7 +25,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SampleRateComboBox : public QComboBox
 {
@@ -56,6 +56,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SAMPLERATECOMBOBOX_H

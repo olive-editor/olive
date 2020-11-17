@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AboutDialog::AboutDialog(QWidget *parent) :
   QDialog(parent)
@@ -67,4 +67,4 @@ AboutDialog::AboutDialog(QWidget *parent) :
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

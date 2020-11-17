@@ -31,7 +31,7 @@
 #include "render/colormanager.h"
 #include "task/export/exportparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   QWidget(parent),
@@ -206,4 +206,4 @@ void ExportVideoTab::VideoCodecChanged()
   qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

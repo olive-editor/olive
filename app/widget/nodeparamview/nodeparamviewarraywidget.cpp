@@ -22,7 +22,7 @@
 
 #include <QHBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidget* parent) :
   QWidget(parent),
@@ -55,4 +55,4 @@ void NodeParamViewArrayWidget::AddElement()
   array_->Append();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

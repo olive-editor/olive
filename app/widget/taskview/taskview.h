@@ -26,7 +26,7 @@
 
 #include "widget/taskview/taskviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget that shows a list of Tasks
@@ -66,6 +66,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TASKVIEW_H

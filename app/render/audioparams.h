@@ -26,7 +26,7 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AudioParams {
 public:
@@ -132,8 +132,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::AudioParams)
+Q_DECLARE_METATYPE(olive::AudioParams)
 
 #endif // AUDIOPARAMS_H

@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ThreadedObject
 {
@@ -45,6 +45,6 @@ private:
   QAtomicInt threadobj_delete_lock_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // THREADEDOBJECT_H

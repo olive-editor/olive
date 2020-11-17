@@ -26,7 +26,7 @@
 #include "dialog/richtext/richtext.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
   QWidget(parent)
@@ -61,4 +61,4 @@ void NodeParamViewRichText::InnerWidgetTextChanged()
   emit textEdited(this->text());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

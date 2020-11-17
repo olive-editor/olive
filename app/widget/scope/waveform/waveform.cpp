@@ -31,7 +31,7 @@
 #include "config/config.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 WaveformScope::WaveformScope(QWidget* parent) :
   ScopeBase(parent)
@@ -122,4 +122,4 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   p.drawLines(ire_lines);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

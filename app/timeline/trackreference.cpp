@@ -20,7 +20,7 @@
 
 #include "trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackReference::TrackReference() :
   type_(Timeline::kTrackTypeNone),
@@ -62,4 +62,4 @@ uint qHash(const TrackReference &r, uint seed)
                  seed);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

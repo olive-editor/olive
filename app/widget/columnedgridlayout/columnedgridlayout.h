@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The ColumnedGridLayout class
@@ -48,6 +48,6 @@ private:
   int maximum_columns_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLUMNEDGRIDLAYOUT_H

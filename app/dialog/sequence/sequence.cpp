@@ -33,7 +33,7 @@
 #include "common/rational.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   QDialog(parent),
@@ -171,4 +171,4 @@ void SequenceDialog::SequenceParamCommand::undo_internal()
   sequence_->set_name(old_name_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

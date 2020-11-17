@@ -20,7 +20,7 @@
 
 #include "ocioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(VideoParams::Format format)
 {
@@ -44,4 +44,4 @@ OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(VideoParams::Format for
   return OCIO::BIT_DEPTH_UNKNOWN;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

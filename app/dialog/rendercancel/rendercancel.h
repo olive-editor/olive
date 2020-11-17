@@ -23,7 +23,7 @@
 
 #include "dialog/progress/progress.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderCancelDialog : public ProgressDialog
 {
@@ -54,6 +54,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERCANCELDIALOG_H

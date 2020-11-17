@@ -26,7 +26,7 @@
 #include "common/define.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
   QWidget(parent)
@@ -96,4 +96,4 @@ void ProjectExplorerNavigation::UpdateIcons()
   size_slider_->setValue(kProjectIconSizeDefault);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

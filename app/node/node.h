@@ -41,7 +41,7 @@
 #include "render/job/shaderjob.h"
 #include "render/shadercode.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -444,7 +444,7 @@ protected:
   virtual QVector<NodeInput*> GetInputsToHash() const;
 
 protected slots:
-  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
+  void InputChanged(const olive::TimeRange &range);
 
   void InputConnectionChanged(NodeEdgePtr edge);
 
@@ -586,6 +586,6 @@ QVector<T *> Node::FindOutputNode()
 
 using NodePtr = std::shared_ptr<Node>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODE_H

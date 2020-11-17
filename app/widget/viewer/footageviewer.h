@@ -26,7 +26,7 @@
 #include "node/output/viewer/viewer.h"
 #include "viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FootageViewerWidget : public ViewerWidget
 {
@@ -64,6 +64,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGEVIEWERWIDGET_H

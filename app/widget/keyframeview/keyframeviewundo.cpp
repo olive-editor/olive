@@ -24,7 +24,7 @@
 #include "node/node.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -82,4 +82,4 @@ void KeyframeSetBezierControlPoint::undo_internal()
   key_->set_bezier_control(mode_, old_point_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

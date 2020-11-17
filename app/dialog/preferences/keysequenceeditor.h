@@ -25,7 +25,7 @@
 
 #include "common/debug.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The KeySequenceEditor class
@@ -101,6 +101,6 @@ private:
   QAction* action;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYSEQUENCEEDITOR_H

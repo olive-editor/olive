@@ -36,7 +36,7 @@
 
 #define OTIO opentimelineio::v1_0
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 LoadOTIOTask::LoadOTIOTask(const QString& s) :
   ProjectLoadBaseTask(s)
@@ -209,4 +209,4 @@ bool LoadOTIOTask::Run()
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -27,7 +27,7 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeInput;
 
@@ -164,8 +164,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeKeyframe::Type)
+Q_DECLARE_METATYPE(olive::NodeKeyframe::Type)
 
 #endif // NODEKEYFRAME_H

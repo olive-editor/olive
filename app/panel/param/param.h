@@ -25,7 +25,7 @@
 #include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ParamPanel : public TimeBasedPanel
 {
@@ -51,6 +51,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PARAM_H

@@ -25,7 +25,7 @@
 #include <QListWidget>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectImportErrorDialog::ProjectImportErrorDialog(const QStringList& filenames, QWidget* parent) :
   QDialog(parent)
@@ -50,4 +50,4 @@ ProjectImportErrorDialog::ProjectImportErrorDialog(const QStringList& filenames,
   layout->addWidget(buttons);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

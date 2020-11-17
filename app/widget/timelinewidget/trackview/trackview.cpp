@@ -28,7 +28,7 @@
 
 #include "trackviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QScrollArea(parent),
@@ -132,4 +132,4 @@ void TrackView::RemoveTrack(TrackOutput *track)
   splitter_->Remove(track->Index());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

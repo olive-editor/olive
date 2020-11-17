@@ -37,7 +37,7 @@
 #include "task/taskmanager.h"
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QMutex Decoder::currently_conforming_mutex_;
 QWaitCondition Decoder::currently_conforming_wait_cond_;
@@ -377,4 +377,4 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
   return nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

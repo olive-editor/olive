@@ -26,7 +26,7 @@
 #include "node.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeFactory
 {
@@ -80,6 +80,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEFACTORY_H

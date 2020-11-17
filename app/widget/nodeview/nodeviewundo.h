@@ -29,7 +29,7 @@
 #include "undo/undocommand.h"
 #include "widget/timelinewidget/undo/undo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An undoable command for connecting two NodeParams together
@@ -209,6 +209,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEWUNDO_H

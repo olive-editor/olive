@@ -27,7 +27,7 @@
 #include "common/define.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportAudioTab : public QWidget
 {
@@ -57,6 +57,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTAUDIOTAB_H

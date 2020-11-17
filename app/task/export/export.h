@@ -27,7 +27,7 @@
 #include "task/render/render.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportTask : public RenderTask
 {
@@ -64,6 +64,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTTASK_H

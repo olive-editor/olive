@@ -24,7 +24,7 @@
 #include "project/project.h"
 #include "task/project/load/loadbasetask.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class LoadOTIOTask : public ProjectLoadBaseTask
 {
@@ -37,6 +37,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // OTIODECODER_H

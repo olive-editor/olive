@@ -23,7 +23,7 @@
 
 #include "widget/scope/scopebase/scopebase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class HistogramScope : public ScopeBase
 {
@@ -50,6 +50,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // HISTOGRAMSCOPE_H

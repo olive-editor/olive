@@ -27,7 +27,7 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWidget *parent) :
   QDialog(parent)
@@ -101,4 +101,4 @@ void ProgressDialog::ShowErrorMessage(const QString &title, const QString &messa
   b.exec();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

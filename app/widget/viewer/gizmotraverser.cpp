@@ -20,7 +20,7 @@
 
 #include "gizmotraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
@@ -40,4 +40,4 @@ QVariant GizmoTraverser::ProcessShader(const Node *node, const TimeRange &range,
   return size_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -24,7 +24,7 @@
 #include "projectexplorerlistviewbase.h"
 #include "projectexplorericonviewitemdelegate.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The view widget used when ProjectExplorer is in Icon View
@@ -39,6 +39,6 @@ private:
   ProjectExplorerIconViewItemDelegate delegate_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORERICONVIEW_H

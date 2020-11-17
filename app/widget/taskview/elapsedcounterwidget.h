@@ -27,7 +27,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ElapsedCounterWidget : public QWidget
 {
@@ -56,6 +56,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ELAPSEDCOUNTERWIDGET_H

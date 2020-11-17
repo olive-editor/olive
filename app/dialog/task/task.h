@@ -24,7 +24,7 @@
 #include "dialog/progress/progress.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TaskDialog : public ProgressDialog
 {
@@ -77,6 +77,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TASKDIALOG_H

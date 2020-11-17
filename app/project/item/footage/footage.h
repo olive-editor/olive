@@ -30,7 +30,7 @@
 #include "project/item/footage/videostream.h"
 #include "timeline/timelinepoints.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Footage;
 using FootagePtr = std::shared_ptr<Footage>;
@@ -250,6 +250,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGE_H

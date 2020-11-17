@@ -1,6 +1,6 @@
 #include "memorypool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 size_t memory_pool_consumption = 0;
 QMutex memory_pool_consumption_lock;
@@ -11,4 +11,4 @@ bool MemoryPoolLimitReached()
   return (memory_pool_consumption >= 2147483648);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

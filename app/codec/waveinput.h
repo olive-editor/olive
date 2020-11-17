@@ -25,7 +25,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class WaveInput
 {
@@ -70,6 +70,6 @@ private:
   quint32 data_size_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // WAVEINPUT_H

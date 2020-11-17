@@ -20,7 +20,7 @@
 
 #include "table.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeTablePanel::NodeTablePanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("NodeTablePanel"), parent)
@@ -35,4 +35,4 @@ void NodeTablePanel::Retranslate()
   SetTitle(tr("Table View"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

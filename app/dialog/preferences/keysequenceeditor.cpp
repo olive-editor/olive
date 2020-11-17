@@ -22,7 +22,7 @@
 
 #include <QAction>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
@@ -49,4 +49,4 @@ QString KeySequenceEditor::export_shortcut() {
   return nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

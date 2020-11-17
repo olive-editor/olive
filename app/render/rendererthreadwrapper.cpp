@@ -20,7 +20,7 @@
 
 #include "rendererthreadwrapper.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RendererThreadWrapper::RendererThreadWrapper(Renderer *inner, QObject *parent) :
   Renderer(parent),
@@ -157,4 +157,4 @@ void RendererThreadWrapper::Blit(QVariant shader, ShaderJob job, Texture *destin
                             OLIVE_NS_ARG(VideoParams, destination_params));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

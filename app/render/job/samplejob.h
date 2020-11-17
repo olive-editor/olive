@@ -24,7 +24,7 @@
 #include "acceleratedjob.h"
 #include "codec/samplebuffer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SampleJob : public AcceleratedJob {
 public:
@@ -58,8 +58,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::SampleJob)
+Q_DECLARE_METATYPE(olive::SampleJob)
 
 #endif // SAMPLEJOB_H

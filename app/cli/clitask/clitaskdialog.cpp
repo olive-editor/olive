@@ -20,7 +20,7 @@
 
 #include "clitaskdialog.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CLITaskDialog::CLITaskDialog(Task *task, QObject* parent) :
   CLIProgressDialog(task->GetTitle(), parent),
@@ -34,4 +34,4 @@ bool CLITaskDialog::Run()
   return task_->Start();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

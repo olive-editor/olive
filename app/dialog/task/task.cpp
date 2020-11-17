@@ -22,7 +22,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskDialog::TaskDialog(Task* task, const QString& title, QWidget *parent) :
   ProgressDialog(task->GetTitle(), title, parent),
@@ -85,4 +85,4 @@ void TaskDialog::TaskFinished()
   close();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

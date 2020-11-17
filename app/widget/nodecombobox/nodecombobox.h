@@ -25,7 +25,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeComboBox : public QComboBox
 {
@@ -55,6 +55,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGECOMBOBOX_H

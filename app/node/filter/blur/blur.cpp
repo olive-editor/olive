@@ -20,7 +20,7 @@
 
 #include "blur.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 BlurFilterNode::BlurFilterNode()
 {
@@ -128,4 +128,4 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   return table;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

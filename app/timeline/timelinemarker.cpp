@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineMarker::TimelineMarker(const TimeRange &time, const QString &name, QObject *parent) :
   QObject(parent),
@@ -121,4 +121,4 @@ void TimelineMarkerList::Load(QXmlStreamReader *reader)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

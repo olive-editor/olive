@@ -27,7 +27,7 @@
 #include "project/item/footage/stream.h"
 #include "value.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTraverser : public CancelableObject
 {
@@ -63,6 +63,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETRAVERSER_H

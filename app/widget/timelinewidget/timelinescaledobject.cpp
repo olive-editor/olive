@@ -25,7 +25,7 @@
 
 #include "common/clamp.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int TimelineScaledObject::kCalculateDimensionsPadding = 10;
 
@@ -134,4 +134,4 @@ TimelineScaledWidget::TimelineScaledWidget(QWidget *parent) :
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

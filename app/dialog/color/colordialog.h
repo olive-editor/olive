@@ -31,7 +31,7 @@
 #include "widget/colorwheel/colorvalueswidget.h"
 #include "widget/colorwheel/colorwheelwidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorDialog : public QDialog
 {
@@ -87,6 +87,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORDIALOG_H

@@ -27,7 +27,7 @@
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
 {
@@ -177,4 +177,4 @@ void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* read
   reader->skipCurrentElement();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

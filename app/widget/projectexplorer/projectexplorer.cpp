@@ -41,7 +41,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
@@ -683,4 +683,4 @@ void ProjectExplorer::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

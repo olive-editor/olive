@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineMarkerList *TimelinePoints::markers()
 {
@@ -68,4 +68,4 @@ TimelineWorkArea *TimelinePoints::workarea()
   return &workarea_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

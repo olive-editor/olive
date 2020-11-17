@@ -23,7 +23,7 @@
 #include "footage.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Stream::Stream() :
   footage_(nullptr),
@@ -190,4 +190,4 @@ void Stream::SaveCustomParameters(QXmlStreamWriter*) const
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

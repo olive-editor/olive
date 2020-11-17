@@ -23,7 +23,7 @@
 
 #include "node/block/block.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TransitionBlock : public Block
 {
@@ -91,6 +91,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRANSITIONBLOCK_H

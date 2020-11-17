@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectImportErrorDialog : public QDialog
 {
@@ -35,6 +35,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTIMPORTERRORDIALOG_H

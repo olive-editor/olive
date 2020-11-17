@@ -27,7 +27,7 @@
 #include "common/debug.h"
 #include "widget/taskview/elapsedcounterwidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProgressDialog : public QDialog
 {
@@ -56,6 +56,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROGRESSDIALOG_H

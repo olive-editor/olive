@@ -26,7 +26,7 @@
 #include "common/tohex.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInput *param_a_in, olive::NodeInput *param_b_in) const
 {
@@ -611,4 +611,4 @@ T MathNodeBase::PerformAddSubMultDiv(Operation operation, T a, U b)
   return a;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -23,7 +23,7 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTableTraverser : public NodeTraverser
 {
@@ -37,6 +37,6 @@ protected:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETABLETRAVERSER_H

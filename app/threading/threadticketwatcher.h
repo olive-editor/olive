@@ -23,7 +23,7 @@
 
 #include "threadticket.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderTicketWatcher : public QObject
 {
@@ -58,6 +58,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERTICKETWATCHER_H

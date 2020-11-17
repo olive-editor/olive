@@ -29,7 +29,7 @@
 #include "widget/timelinewidget/view/handmovableview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for viewing and editing node graphs
@@ -190,6 +190,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEW_H

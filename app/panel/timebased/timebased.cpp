@@ -20,7 +20,7 @@
 
 #include "timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
   PanelWidget(object_name, parent),
@@ -214,4 +214,4 @@ void TimeBasedPanel::GoToOut()
   GetTimeBasedWidget()->GoToOut();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -47,7 +47,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   TimeBasedWidget(true, true, parent),
@@ -84,20 +84,20 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   views_.append(new TimelineAndTrackView(Qt::AlignTop));
 
   // Create tools
-  tools_.resize(OLIVE_NAMESPACE::Tool::kCount);
+  tools_.resize(olive::Tool::kCount);
   tools_.fill(nullptr);
 
-  tools_.replace(OLIVE_NAMESPACE::Tool::kPointer, new PointerTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kEdit, new EditTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kRipple, new RippleTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kRolling, new RollingTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kRazor, new RazorTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kSlip, new SlipTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kSlide, new SlideTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kZoom, new ZoomTool(this));
-  tools_.replace(OLIVE_NAMESPACE::Tool::kTransition, new TransitionTool(this));
-  //tools_.replace(OLIVE_NAMESPACE::Tool::kRecord, new PointerTool(this));  FIXME: Implement
-  tools_.replace(OLIVE_NAMESPACE::Tool::kAdd, new AddTool(this));
+  tools_.replace(olive::Tool::kPointer, new PointerTool(this));
+  tools_.replace(olive::Tool::kEdit, new EditTool(this));
+  tools_.replace(olive::Tool::kRipple, new RippleTool(this));
+  tools_.replace(olive::Tool::kRolling, new RollingTool(this));
+  tools_.replace(olive::Tool::kRazor, new RazorTool(this));
+  tools_.replace(olive::Tool::kSlip, new SlipTool(this));
+  tools_.replace(olive::Tool::kSlide, new SlideTool(this));
+  tools_.replace(olive::Tool::kZoom, new ZoomTool(this));
+  tools_.replace(olive::Tool::kTransition, new TransitionTool(this));
+  //tools_.replace(olive::Tool::kRecord, new PointerTool(this));  FIXME: Implement
+  tools_.replace(olive::Tool::kAdd, new AddTool(this));
 
   import_tool_ = new ImportTool(this);
 
@@ -1655,4 +1655,4 @@ bool TimelineWidget::SnapPoint(QList<rational> start_times, rational* movement, 
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

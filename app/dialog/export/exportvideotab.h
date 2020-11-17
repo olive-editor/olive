@@ -33,7 +33,7 @@
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportVideoTab : public QWidget
 {
@@ -167,6 +167,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTVIDEOTAB_H

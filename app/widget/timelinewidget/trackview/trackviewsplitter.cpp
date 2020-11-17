@@ -25,7 +25,7 @@
 
 #include "node/output/track/track.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackViewSplitter::TrackViewSplitter(Qt::Alignment vertical_alignment, QWidget* parent) :
   QSplitter(Qt::Vertical, parent),
@@ -192,4 +192,4 @@ void TrackViewSplitterHandle::paintEvent(QPaintEvent *)
   p.fillRect(rect(), palette().base());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

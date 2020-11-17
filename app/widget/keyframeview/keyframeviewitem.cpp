@@ -28,7 +28,7 @@
 #include "common/qtutils.h"
 #include "node/input.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -127,4 +127,4 @@ void KeyframeViewItem::Redraw()
   QGraphicsItem::update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

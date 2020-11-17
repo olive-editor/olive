@@ -20,7 +20,7 @@
 
 #include "common/ffmpegutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
 {
@@ -138,4 +138,4 @@ VideoParams::Format FFmpegUtils::GetCompatiblePixelFormat(const VideoParams::For
   return VideoParams::kFormatInvalid;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

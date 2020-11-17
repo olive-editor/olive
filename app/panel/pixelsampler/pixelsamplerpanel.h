@@ -24,7 +24,7 @@
 #include "widget/panel/panel.h"
 #include "widget/pixelsampler/pixelsampler.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PixelSamplerPanel : public PanelWidget
 {
@@ -42,6 +42,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PIXELSAMPLERPANEL_H

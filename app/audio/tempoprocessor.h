@@ -35,7 +35,7 @@ extern "C" {
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TempoProcessor
 {
@@ -78,6 +78,6 @@ private:
   bool flushed_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TEMPOPROCESSOR_H

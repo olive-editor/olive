@@ -21,7 +21,7 @@
 #include "edit.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 EditTool::EditTool(TimelineWidget* parent) :
   BeamTool(parent)
@@ -85,4 +85,4 @@ void EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

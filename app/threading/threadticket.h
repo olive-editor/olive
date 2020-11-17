@@ -30,7 +30,7 @@
 #include "common/timerange.h"
 #include "node/output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderTicket : public QObject
 {
@@ -89,8 +89,8 @@ private:
 
 using RenderTicketPtr = std::shared_ptr<RenderTicket>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::RenderTicketPtr)
+Q_DECLARE_METATYPE(olive::RenderTicketPtr)
 
 #endif // RENDERTICKET_H

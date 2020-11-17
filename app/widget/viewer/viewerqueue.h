@@ -25,7 +25,7 @@
 
 #include "codec/frame.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 struct ViewerPlaybackFrame {
   rational timestamp;
@@ -52,6 +52,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERQUEUE_H

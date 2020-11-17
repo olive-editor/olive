@@ -24,7 +24,7 @@
 #include "timelineviewrect.h"
 #include "node/block/clip/clip.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A graphical representation of a ClipBlock
@@ -46,6 +46,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEWCLIPITEM_H

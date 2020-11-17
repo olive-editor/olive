@@ -27,7 +27,7 @@
 #include "widget/timelinewidget/view/timelineviewghostitem.h"
 #include "widget/timelinewidget/view/timelineviewmouseevent.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineWidget;
 
@@ -84,6 +84,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINETOOL_H

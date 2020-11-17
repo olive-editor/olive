@@ -22,7 +22,7 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
@@ -70,4 +70,4 @@ void ParamPanel::Retranslate()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

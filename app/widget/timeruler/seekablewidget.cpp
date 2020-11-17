@@ -27,7 +27,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SeekableWidget::SeekableWidget(QWidget* parent) :
   TimelineScaledWidget(parent),
@@ -260,4 +260,4 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
   p->setRenderHint(QPainter::Antialiasing, false);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

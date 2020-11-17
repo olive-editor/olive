@@ -28,7 +28,7 @@
 #include "widget/timelinewidget/view/timelineviewbase.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class KeyframeViewBase : public TimelineViewBase, public TimeTargetObject
 {
@@ -105,6 +105,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // KEYFRAMEVIEWBASE_H

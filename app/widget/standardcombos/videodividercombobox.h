@@ -25,7 +25,7 @@
 
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class VideoDividerComboBox : public QComboBox
 {
@@ -64,6 +64,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEODIVIDERCOMBOBOX_H

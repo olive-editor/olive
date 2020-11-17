@@ -26,7 +26,7 @@
 #include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TransitionTool::TransitionTool(TimelineWidget *parent) :
   AddTool(parent)
@@ -181,4 +181,4 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

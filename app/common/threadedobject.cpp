@@ -20,7 +20,7 @@
 
 #include "threadedobject.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void ThreadedObject::LockDeletes()
 {
@@ -54,4 +54,4 @@ bool ThreadedObject::TryLockMutex(int timeout)
   return threadobj_main_lock_.tryLock(timeout);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

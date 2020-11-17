@@ -26,7 +26,7 @@
 
 #include "common/range.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MatrixGenerator::MatrixGenerator()
 {
@@ -294,4 +294,4 @@ MatrixGenerator::GizmoSharedData::GizmoSharedData(const QSize &viewport, const Q
   inverted_half_scale = QVector2D(1.0f / half_scale.x(), 1.0f / half_scale.y());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

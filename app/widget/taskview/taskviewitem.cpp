@@ -26,7 +26,7 @@
 #include "common/timecodefunctions.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   QFrame(parent),
@@ -92,4 +92,4 @@ void TaskViewItem::UpdateProgress(double d)
   elapsed_timer_lbl_->SetProgress(d);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -25,7 +25,7 @@
 
 #include "codec/encoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CodecSection : public QWidget
 {
@@ -37,6 +37,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CODECSECTION_H

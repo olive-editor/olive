@@ -26,7 +26,7 @@
 
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectToolbar::ProjectToolbar(QWidget *parent) :
   QWidget(parent)
@@ -153,4 +153,4 @@ void ProjectToolbar::ViewButtonClicked()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

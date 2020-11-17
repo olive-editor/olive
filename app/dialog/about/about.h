@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The AboutDialog class
@@ -49,6 +49,6 @@ public:
   explicit AboutDialog(QWidget *parent = nullptr);
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ABOUTDIALOG_H

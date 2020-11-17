@@ -28,7 +28,7 @@
 #include "widget/keyframeview/keyframeviewundo.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> &keys, const rational &timebase, QWidget *parent) :
   QDialog(parent),
@@ -240,4 +240,4 @@ void KeyframePropertiesDialog::KeyTypeChanged(int index)
   bezier_group_->setEnabled(type_select_->itemData(index) == NodeKeyframe::kBezier);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

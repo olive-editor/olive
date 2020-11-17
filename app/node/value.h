@@ -26,7 +26,7 @@
 #include "input.h"
 #include "render/shadervalue.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeValue
 {
@@ -184,10 +184,10 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValue)
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueTable)
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueDatabase)
+Q_DECLARE_METATYPE(olive::NodeValue)
+Q_DECLARE_METATYPE(olive::NodeValueTable)
+Q_DECLARE_METATYPE(olive::NodeValueDatabase)
 
 #endif // VALUE_H

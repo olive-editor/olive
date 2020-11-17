@@ -24,7 +24,7 @@
 #include "ripple.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -147,4 +147,4 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

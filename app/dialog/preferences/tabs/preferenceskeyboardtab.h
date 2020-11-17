@@ -27,7 +27,7 @@
 #include "preferencestab.h"
 #include "../keysequenceeditor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesKeyboardTab : public PreferencesTab
 {
@@ -134,6 +134,6 @@ private:
   QVector<KeySequenceEditor*> key_shortcut_fields_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESKEYBOARDTAB_H

@@ -24,7 +24,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SliderLabel::SliderLabel(QWidget *parent) :
   QLabel(parent)
@@ -69,4 +69,4 @@ void SliderLabel::focusInEvent(QFocusEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

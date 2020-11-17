@@ -26,7 +26,7 @@
 #include "common/rational.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FrameRateComboBox : public QComboBox
 {
@@ -57,6 +57,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FRAMERATECOMBOBOX_H

@@ -27,7 +27,7 @@
 
 #include "common/timerange.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimelineMarker : public QObject
 {
@@ -80,6 +80,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEMARKER_H

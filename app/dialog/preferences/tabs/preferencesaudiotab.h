@@ -27,7 +27,7 @@
 
 #include "preferencestab.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesAudioTab : public PreferencesTab
 {
@@ -79,6 +79,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESAUDIOTAB_H

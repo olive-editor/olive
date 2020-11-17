@@ -23,7 +23,7 @@
 
 #include "pointer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RippleTool : public PointerTool
 {
@@ -36,6 +36,6 @@ protected:
                             Timeline::MovementMode trim_mode) override;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RIPPLETIMELINETOOL_H

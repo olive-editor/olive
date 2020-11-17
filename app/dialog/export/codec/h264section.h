@@ -27,7 +27,7 @@
 #include "codecsection.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class H264CRFSection : public QWidget
 {
@@ -112,6 +112,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // H264SECTION_H

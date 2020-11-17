@@ -36,7 +36,7 @@
 
 #include "common/crashpadutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CrashHandlerDialog::CrashHandlerDialog(const char *report_dir, const char* crash_time)
 {
@@ -208,4 +208,4 @@ void CrashHandlerDialog::SendErrorReport()
   manager->post(request, multipart);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

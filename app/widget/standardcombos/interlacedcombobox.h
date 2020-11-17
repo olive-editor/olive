@@ -25,7 +25,7 @@
 
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class InterlacedComboBox : public QComboBox
 {
@@ -52,6 +52,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // INTERLACEDCOMBOBOX_H

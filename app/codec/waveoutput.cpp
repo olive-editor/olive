@@ -22,7 +22,7 @@
 
 #include "render/audioparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int16_t kWAVIntegerFormat = 1;
 const int16_t kWAVFloatFormat = 3;
@@ -177,4 +177,4 @@ void WaveOutput::write_int(QFile *file, T integer)
   file->write(bytes);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

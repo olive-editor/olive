@@ -26,7 +26,7 @@
 #include "render/color.h"
 #include "render/colorprocessor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorPreviewBox : public QWidget
 {
@@ -51,6 +51,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORPREVIEWBOX_H

@@ -24,7 +24,7 @@
 #include "common/memorypool.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FFmpegFramePool : public MemoryPool<uint8_t>
 {
@@ -57,6 +57,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGFRAMEPOOL_H

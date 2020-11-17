@@ -28,7 +28,7 @@
 #include "project/projectviewmodel.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectImportTask : public Task
 {
@@ -83,6 +83,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTIMPORTMANAGER_H

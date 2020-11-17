@@ -26,7 +26,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
@@ -128,4 +128,4 @@ QString FootageComboBox::FootageToString(Stream *f)
   return f->description();
 }
 
-OLIVE_NAMESPACE_EXIT
+}
