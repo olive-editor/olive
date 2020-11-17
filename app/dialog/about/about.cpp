@@ -38,7 +38,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
   // Construct About text
   QLabel* label =
       new QLabel(QStringLiteral("<html><head/><body>"
-                                "<p><img src=\":/icons/olive-splash.png\"/></p>"
+                                "<p><img src=\":/graphics/olive-splash.png\"/></p>"
                                 "<p><a href=\"https://www.olivevideoeditor.org/\">"
                                 "<span style=\" text-decoration: underline; color:#007af4;\">"
                                 "https://www.olivevideoeditor.org/"
