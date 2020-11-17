@@ -110,6 +110,10 @@ private:
 
   bool curved_;
 
+  QPolygonF arrow_;
+
+  int arrow_size_;
+
 };
 
 }
