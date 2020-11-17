@@ -330,6 +330,12 @@ jobs:
           $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/ocio-mac.zip
           $EXTRACT_TOOL ocio-mac.zip
 
+      - name: Acquire OpenTimelineIO
+        shell: bash
+        run: |
+          $DOWNLOAD_TOOL https://olivevideoeditor.org/deps/otio-mac.zip
+          $EXTRACT_TOOL otio-mac.zip
+
       - name: Acquire OpenEXR
         shell: bash
         run: |
