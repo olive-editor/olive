@@ -1,0 +1,104 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#include "slopeoffsetpower.h"
+#include "QVector4D"
+
+OLIVE_NAMESPACE_ENTER
+
+SopFilterNode::SopFilterNode()
+{
+  texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
+  AddInput(texture_input_);
+
+  slope_input_ = new NodeInput("slope_in", NodeParam::kVec4, QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
+  AddInput(slope_input_);
+
+  offset_input_ = new NodeInput("offset_in", NodeParam::kVec4, QVector4D(0.0f, 0.0f, 0.0f, 0.0f));
+  AddInput(offset_input_);
+
+  power_input_ = new NodeInput("power_in", NodeParam::kVec4, QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
+  AddInput(power_input_);
+
+  power_pivot_input_ = new NodeInput("power_pivot_in", NodeParam::kFloat, 1.0f);
+  AddInput(power_pivot_input_);
+}
+
+Node *SopFilterNode::copy() const
+{
+  return new SopFilterNode();
+}
+
+QString SopFilterNode::Name() const
+{
+  return tr("Slope Offset Power");
+}
+
+QString SopFilterNode::id() const
+{
+  return QStringLiteral("org.olivevideoeditor.Olive.slopeoffsetpower");
+}
+
+QList<Node::CategoryID> SopFilterNode::Category() const
+{
+  return {kCategoryFilter};
+}
+
+QString SopFilterNode::Description() const
+{
+  return tr("Slope Offset Power color controls");
+}
+
+void SopFilterNode::Retranslate()
+{
+  texture_input_->set_name(tr("Input"));
+  slope_input_->set_name(tr("Slope"));
+  offset_input_->set_name(tr("Offset"));
+  power_input_->set_name(tr("Power"));
+  power_pivot_input_->set_name(tr("Power Pivot"));
+}
+
+ShaderCode SopFilterNode::GetShaderCode(const QString &shader_id) const
+{
+  Q_UNUSED(shader_id)
+  return ShaderCode(ReadFileAsString(":/shaders/colorgrade.frag"), QString());
+}
+
+NodeValueTable SopFilterNode::Value(NodeValueDatabase &value) const
+{
+  ShaderJob job;
+
+  job.InsertValue(texture_input_, value);
+  job.InsertValue(slope_input_, value);
+  job.InsertValue(offset_input_, value);
+  job.InsertValue(power_input_, value);
+  job.InsertValue(power_pivot_input_, value);
+
+  NodeValueTable table = value.Merge();
+
+  // If there's no texture, no need to run an operation
+  if (!job.GetValue(texture_input_).data().isNull()) {
+    table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  }
+
+  return table;
+}
+
+OLIVE_NAMESPACE_EXIT

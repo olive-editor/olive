@@ -46,6 +46,7 @@ public:
     kTime,
     kTrigonometry,
     kBlurFilter,
+    kColorFilter,
     kSolidGenerator,
     kMerge,
     kStrokeFilter,
