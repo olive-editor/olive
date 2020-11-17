@@ -759,13 +759,13 @@ Length: %4</source>
     </message>
     <message>
         <location filename="../core.cpp" line="709"/>
-        <location filename="../core.cpp" line="1016"/>
+        <location filename="../core.cpp" line="1011"/>
         <source>Missing OpenTimelineIO Libraries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core.cpp" line="710"/>
-        <location filename="../core.cpp" line="1017"/>
+        <location filename="../core.cpp" line="1012"/>
         <source>This build was compiled without OpenTimelineIO and therefore cannot open OpenTimelineIO files.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -803,82 +803,82 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="955"/>
+        <location filename="../core.cpp" line="950"/>
         <source>Save Project As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1026"/>
+        <location filename="../core.cpp" line="1021"/>
         <source>Load Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1091"/>
+        <location filename="../core.cpp" line="1086"/>
         <source>Label Node</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1092"/>
+        <location filename="../core.cpp" line="1087"/>
         <source>Set node label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1112"/>
+        <location filename="../core.cpp" line="1107"/>
         <source>Sequence %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1127"/>
+        <location filename="../core.cpp" line="1122"/>
         <source>Cannot open recent project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1128"/>
+        <location filename="../core.cpp" line="1123"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1156"/>
+        <location filename="../core.cpp" line="1151"/>
         <source>Unsaved Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1157"/>
+        <location filename="../core.cpp" line="1152"/>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1160"/>
+        <location filename="../core.cpp" line="1155"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1166"/>
+        <location filename="../core.cpp" line="1161"/>
         <source>Save All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1169"/>
+        <location filename="../core.cpp" line="1164"/>
         <source>Don&apos;t Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1175"/>
+        <location filename="../core.cpp" line="1170"/>
         <source>Don&apos;t Save All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1289"/>
+        <location filename="../core.cpp" line="1284"/>
         <source>Failed to cache sequence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1290"/>
+        <location filename="../core.cpp" line="1285"/>
         <source>No active viewer found with this sequence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core.cpp" line="1363"/>
+        <location filename="../core.cpp" line="1358"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
