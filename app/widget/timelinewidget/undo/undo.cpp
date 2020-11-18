@@ -942,7 +942,7 @@ void BlockTrimCommand::redo_internal()
     invalidate_range = TimeRange(block_->in(), block_->out());
   }
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void BlockTrimCommand::undo_internal()
@@ -1009,7 +1009,7 @@ void BlockTrimCommand::undo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 TrackReplaceBlockWithGapCommand::TrackReplaceBlockWithGapCommand(TrackOutput *track, Block *block, QUndoCommand *command) :
