@@ -48,23 +48,11 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   language_combobox_ = new QComboBox();
 
   // Add default language (en-US)
-  QDir language_dir(QStringLiteral(":/ts"));
-  QStringList languages = language_dir.entryList();
+  language_dir_ = new QDir(QStringLiteral(":/ts"));
+  QStringList languages = language_dir_->entryList();
   foreach (const QString& l, languages) {
     AddLanguage(l);
   }
-
-  QString current_language = Config::Current()[QStringLiteral("Language")].toString();
-  if (current_language.isEmpty()) {
-    // No configured language, use system language
-    current_language = QLocale::system().name();
-
-    // If we don't have a language for this, default to en_US
-    if (!languages.contains(current_language)) {
-      current_language = QStringLiteral("en_US");
-    }
-  }
-  language_combobox_->setCurrentIndex(languages.indexOf(current_language));
 
   general_layout->addWidget(language_combobox_, row, 1);
 
@@ -128,8 +116,20 @@ void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
   language_combobox_->setItemData(language_combobox_->count() - 1, locale_name);
 }
 
-void PreferencesGeneralTab::SetValuesFromConfig(Config config) {
-  language_combobox_->setCurrentIndex(0);  // Will need editing when more languages added
+void PreferencesGeneralTab::SetValuesFromConfig(Config config)
+{
+  QString current_language = config["Language"].toString();
+  if (current_language.isEmpty()) {
+    QStringList languages = language_dir_->entryList();
+    // No configured language, use system language
+    current_language = QLocale::system().name();
+
+    // If we don't have a language for this, default to en_US
+    if (!languages.contains(current_language)) {
+      current_language = QStringLiteral("en_US");
+    }
+  }
+  language_combobox_->setCurrentIndex(language_combobox_->findData(current_language));
   rectified_waveforms_->setChecked(config["RectifiedWaveforms"].toBool());
   autoscroll_method_->setCurrentIndex(config["Autoscroll"].toInt());
   default_still_length_->SetValue(config["DefaultStillLength"].value<rational>().toDouble());

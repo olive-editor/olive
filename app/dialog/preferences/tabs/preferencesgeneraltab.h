@@ -23,6 +23,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDir>
 #include <QSpinBox>
 
 #include "preferencestab.h"
@@ -49,6 +50,8 @@ private:
   void SetValuesFromConfig(Config config);
 
   QComboBox* language_combobox_;
+
+  QDir* language_dir_;
 
   QComboBox* autoscroll_method_;
 
