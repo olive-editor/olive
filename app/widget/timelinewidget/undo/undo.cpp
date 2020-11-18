@@ -284,9 +284,9 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
-                          track_->block_input(),
-                          track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                                track_->block_input(),
+                                track_->block_input());
 }
 
 void TrackRippleRemoveAreaCommand::undo_internal()
@@ -342,7 +342,8 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                                track_->block_input(), track_->block_input());
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :
@@ -1092,7 +1093,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void TrackReplaceBlockWithGapCommand::undo_internal()
@@ -1137,20 +1138,20 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
     // required no gap extension/replacement
 
     // However, we may have removed an unnecessary gap that preceded it
-     if (existing_merged_gap_) {
-       static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
-       track_->AppendBlock(existing_merged_gap_);
-       existing_merged_gap_ = nullptr;
-     }
+    if (existing_merged_gap_) {
+      static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
+      track_->AppendBlock(existing_merged_gap_);
+      existing_merged_gap_ = nullptr;
+    }
 
-     // Restore block
-     track_->AppendBlock(block_);
+    // Restore block
+    track_->AppendBlock(block_);
 
   }
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
 }
 
 TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :

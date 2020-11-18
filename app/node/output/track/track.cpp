@@ -300,7 +300,7 @@ void TrackOutput::PrependBlock(Block *block)
   EndOperation();
 
   // Everything has shifted at this point
-  InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
+  Node::InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::InsertBlockAtIndex(Block *block, int index)
@@ -314,7 +314,7 @@ void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 
   EndOperation();
 
-  InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
+  Node::InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::AppendBlock(Block *block)
@@ -327,7 +327,7 @@ void TrackOutput::AppendBlock(Block *block)
   EndOperation();
 
   // Invalidate area that block was added to
-  InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
+  Node::InvalidateCache(TimeRange(block->in(), track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::RippleRemoveBlock(Block *block)
@@ -335,12 +335,13 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   BeginOperation();
 
   rational remove_in = block->in();
+  rational remove_out = block->out();
 
   block_input_->RemoveAt(GetInputIndexFromCacheIndex(block));
 
   EndOperation();
 
-  InvalidateCache(TimeRange(remove_in, track_length()), block_input_, block_input_);
+  Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)), block_input_, block_input_);
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
@@ -358,9 +359,9 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   EndOperation();
 
   if (old->length() == replace->length()) {
-    InvalidateCache(TimeRange(replace->in(), replace->out()), block_input_, block_input_);
+    Node::InvalidateCache(TimeRange(replace->in(), replace->out()), block_input_, block_input_);
   } else {
-    InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX), block_input_, block_input_);
+    Node::InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX), block_input_, block_input_);
   }
 }
 
@@ -434,7 +435,7 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
 void TrackOutput::SetMuted(bool e)
 {
   muted_input_->set_standard_value(e);
-  InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
+  Node::InvalidateCache(TimeRange(0, track_length()), block_input_, block_input_);
 }
 
 void TrackOutput::SetLocked(bool e)
@@ -489,9 +490,9 @@ void TrackOutput::SetLengthInternal(const rational &r, bool invalidate)
     emit TrackLengthChanged();
 
     if (invalidate) {
-      InvalidateCache(invalidate_range,
-                      block_input_,
-                      block_input_);
+      Node::InvalidateCache(invalidate_range,
+                            block_input_,
+                            block_input_);
     }
   }
 }
@@ -594,7 +595,7 @@ void TrackOutput::BlockLengthChanged()
 
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
 
-  InvalidateCache(invalidate_region, block_input_, block_input_);
+  Node::InvalidateCache(invalidate_region, block_input_, block_input_);
 }
 
 void TrackOutput::MutedInputValueChanged()
