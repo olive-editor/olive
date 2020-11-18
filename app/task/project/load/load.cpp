@@ -37,7 +37,7 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 bool ProjectLoadTask::Run()
 {
   QFile project_file(GetFilename());
-  uint project_version;
+  uint project_version = Core::kProjectVersion;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
