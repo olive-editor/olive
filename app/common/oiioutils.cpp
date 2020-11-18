@@ -19,7 +19,9 @@
 ***/
 
 #include "oiioutils.h"
-
+#if OIIO_VERSION < 20112
+#include "render/videoparams.h"
+#endif
 namespace olive {
 
 void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
@@ -30,7 +32,7 @@ void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
   //
   // See more: https://github.com/OpenImageIO/oiio/pull/2487
   //
-  int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
+  int width_in_bytes = frame->width() * VideoParams::GetBytesPerPixel(frame->format(), frame->channel_count());
 
   for (int i=0;i<buf->spec().height;i++) {
     memcpy(
@@ -39,7 +41,7 @@ void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
 #else
           reinterpret_cast<char*>(buf->localpixels()) + i * buf->scanline_stride(),
 #endif
-          frame->data() + i * frame->linesize_bytes(),
+          frame->const_data() + i * frame->linesize_bytes(),
           width_in_bytes);
   }
 #else
@@ -59,7 +61,7 @@ void OIIOUtils::BufferToFrame(OIIO::ImageBuf *buf, Frame* frame)
   //
   // See more: https://github.com/OpenImageIO/oiio/pull/2487
   //
-  int width_in_bytes = frame->width() * PixelFormat::BytesPerPixel(frame->format());
+  int width_in_bytes = frame->width() * VideoParams::GetBytesPerPixel(frame->format(), frame->channel_count());
 
   for (int i=0;i<buf->spec().height;i++) {
     memcpy(frame->data() + i * frame->linesize_bytes(),
