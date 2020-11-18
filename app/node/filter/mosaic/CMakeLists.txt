@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(blur)
-add_subdirectory(mosaic)
-add_subdirectory(stroke)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/filter/mosaic/mosaicfilternode.h
+  node/filter/mosaic/mosaicfilternode.cpp
   PARENT_SCOPE
 )

@@ -31,6 +31,7 @@
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
 #include "filter/blur/blur.h"
+#include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "input/media/media.h"
 #include "input/time/timeinput.h"
@@ -212,6 +213,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new CrossDissolveTransition();
   case kDipToColorTransition:
     return new DipToColorTransition();
+  case kMosaicFilter:
+    return new MosaicFilterNode();
 
   case kInternalNodeCount:
     break;

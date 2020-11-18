@@ -51,6 +51,7 @@ public:
     kTextGenerator,
     kCrossDissolveTransition,
     kDipToColorTransition,
+    kMosaicFilter,
 
     // Count value
     kInternalNodeCount
