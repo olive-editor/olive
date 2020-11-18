@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PointerTool : public TimelineTool
 {
@@ -100,7 +100,7 @@ private:
   void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
   bool IsClipTrimmable(TimelineViewBlockItem* clip,
-                       const QList<TimelineViewBlockItem*>& items,
+                       const QVector<TimelineViewBlockItem *> &items,
                        const Timeline::MovementMode& mode);
 
   void ProcessGhostsForSliding();
@@ -122,6 +122,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // POINTERTIMELINETOOL_H

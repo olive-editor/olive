@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "core.h"
 #include "node/input/media/media.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
@@ -509,7 +509,7 @@ ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
 {
   source_ = static_cast<Folder*>(item->parent());
 
-  setText(tr("Move Item"));
+  setText(QCoreApplication::translate("MoveItemCommand", "Move Item"));
 }
 
 Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
@@ -535,7 +535,7 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
 {
   old_name_ = item->name();
 
-  setText(tr("Rename Item"));
+  setText(QCoreApplication::translate("RenameItemCommand", "Rename Item"));
 }
 
 Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const
@@ -604,4 +604,4 @@ void ProjectViewModel::RemoveItemCommand::undo_internal()
   model_->AddChild(parent_, item_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

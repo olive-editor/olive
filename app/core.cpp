@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -49,11 +49,9 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelformat.h"
-#include "render/shaderinfo.h"
+#include "render/rendermanager.h"
 #ifdef USE_OTIO
 #include "task/project/loadotio/loadotio.h"
 #include "task/project/saveotio/saveotio.h"
@@ -70,10 +68,10 @@
 #include "widget/viewer/viewer.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 201003;
+const uint Core::kProjectVersion = 201118;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
@@ -85,6 +83,8 @@ Core::Core(const CoreParams& params) :
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
   instance_ = this;
+
+  translator_ = new QTranslator(this);
 }
 
 Core *Core::instance()
@@ -95,8 +95,6 @@ Core *Core::instance()
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
@@ -105,23 +103,26 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
+  qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
-  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
-  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams::Interlacing>();
-  qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
-  qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
+  qRegisterMetaType<olive::ProjectPtr>();
+  qRegisterMetaType<olive::AudioVisualWaveform>();
+  qRegisterMetaType<olive::SampleJob>();
+  qRegisterMetaType<olive::ShaderJob>();
+  qRegisterMetaType<olive::GenerateJob>();
+  qRegisterMetaType<olive::VideoParams>();
+  qRegisterMetaType<olive::VideoParams::Interlacing>();
+  qRegisterMetaType<olive::MainWindowLayoutInfo>();
+  qRegisterMetaType<olive::RenderTicketPtr>();
 }
 
 void Core::Start()
 {
   // Load application config
   Config::Load();
+
+  // Set locale based on either startup arg, config, or auto-detect
+  SetStartupLocale();
 
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
@@ -135,8 +136,8 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Initialize OpenGL service
-  OpenGLProxy::CreateInstance();
+  // Initialize RenderManager
+  RenderManager::CreateInstance();
 
   //
   // Start application
@@ -172,15 +173,13 @@ void Core::Stop()
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      foreach (const QString& s, recent_projects_) {
-        ts << s << "\n";
-      }
+      ts << recent_projects_.join('\n');
 
       recent_projects_file.close();
     }
   }
 
-  OpenGLProxy::DestroyInstance();
+  RenderManager::DestroyInstance();
 
   MenuShared::DestroyInstance();
 
@@ -192,11 +191,10 @@ void Core::Stop()
 
   DiskManager::DestroyInstance();
 
-  PixelFormat::DestroyInstance();
-
   NodeFactory::Destroy();
 
   delete main_window_;
+  main_window_ = nullptr;
 }
 
 MainWindow *Core::main_window()
@@ -259,6 +257,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  emit OpenRecentListChanged();
 }
 
 void Core::CreateNewProject()
@@ -364,10 +363,12 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* sequence = GetSequenceToExport();
+  ViewerOutput* viewer = GetSequenceToExport();
 
-  if (sequence) {
-    ExportDialog ed(sequence, main_window_);
+  if (viewer) {
+    Sequence* sequence = dynamic_cast<Sequence*>(viewer->parent());
+
+    ExportDialog ed(viewer, sequence, main_window_);
     ed.exec();
   }
 }
@@ -648,9 +649,6 @@ void Core::StartGUI(bool full_screen)
   // Initialize disk service
   DiskManager::CreateInstance();
 
-  // Initialize pixel service
-  PixelFormat::CreateInstance();
-
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           &QApplication::focusChanged,
@@ -686,12 +684,15 @@ void Core::StartGUI(bool full_screen)
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      while (!ts.atEnd()) {
-        recent_projects_.append(ts.readLine());
+      QString s;
+      while (!(s = ts.readLine()).isEmpty()) {
+        recent_projects_.append(s);
       }
 
       recent_projects_file.close();
     }
+
+    emit OpenRecentListChanged();
   }
 }
 
@@ -910,6 +911,29 @@ QString Core::GetRecentProjectsFilePath()
   return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("recent"));
 }
 
+void Core::SetStartupLocale()
+{
+  // Set language
+  if (!core_params_.startup_language().isEmpty()) {
+    if (translator_->load(core_params_.startup_language()) && QApplication::installTranslator(translator_)) {
+      return;
+    } else {
+      qWarning() << "Failed to load translation file. Falling back to defaults.";
+    }
+  }
+
+  QString use_locale = Config::Current()[QStringLiteral("Language")].toString();
+
+  if (use_locale.isEmpty()) {
+    // No configured locale, auto-detect the system's locale
+    use_locale = QLocale::system().name();
+  }
+
+  if (!SetLanguage(use_locale)) {
+    qWarning() << "Trying to use locale" << use_locale << "but couldn't find a translation for it";
+  }
+}
+
 bool Core::SaveProject(ProjectPtr p)
 {
   if (p->filename().isEmpty()) {
@@ -961,6 +985,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   } else {
     recent_projects_.prepend(s);
   }
+
+  emit OpenRecentListChanged();
 }
 
 void Core::OpenProjectInternal(const QString &filename)
@@ -1038,7 +1064,7 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QList<Node *> &nodes) const
+void Core::LabelNodes(const QVector<Node *> &nodes) const
 {
   if (nodes.isEmpty()) {
     return;
@@ -1097,6 +1123,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    emit OpenRecentListChanged();
   }
 }
 
@@ -1307,6 +1335,18 @@ bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& pro
   return true;
 }
 
+bool Core::SetLanguage(const QString &locale)
+{
+  QApplication::removeTranslator(translator_);
+
+  QString resource_path = QStringLiteral(":/ts/%1").arg(locale);
+  if (translator_->load(resource_path) && QApplication::installTranslator(translator_)) {
+    return true;
+  }
+
+  return false;
+}
+
 bool Core::CloseAllProjects()
 {
   return CloseAllProjects(true);
@@ -1330,4 +1370,4 @@ Core::CoreParams::CoreParams() :
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

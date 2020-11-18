@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewParamContainer : public QWidget
 {
@@ -60,8 +60,8 @@ class NodeParamView : public TimeBasedWidget
 public:
   NodeParamView(QWidget* parent = nullptr);
 
-  void SelectNodes(const QList<Node*>& nodes);
-  void DeselectNodes(const QList<Node*>& nodes);
+  void SelectNodes(const QVector<Node *> &nodes);
+  void DeselectNodes(const QVector<Node*>& nodes);
 
   const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
   {
@@ -75,9 +75,9 @@ public:
 signals:
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& target);
+  void RequestSelectNode(const QVector<Node*>& target);
 
-  void NodeOrderChanged(const QList<Node*>& nodes);
+  void NodeOrderChanged(const QVector<Node*>& nodes);
 
   void FocusedNodeChanged(Node* n);
 
@@ -113,9 +113,9 @@ private:
   // docking windows
   QMainWindow* param_widget_area_;
 
-  QList<Node*> pinned_nodes_;
+  QVector<Node*> pinned_nodes_;
 
-  QList<Node*> active_nodes_;
+  QVector<Node*> active_nodes_;
 
   QMap<Node*, bool> node_expanded_state_;
 
@@ -134,6 +134,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEW_H

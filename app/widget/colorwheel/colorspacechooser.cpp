@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field, bool enable_display_fields, QWidget *parent):
   QGroupBox(parent),
@@ -200,4 +200,4 @@ void ColorSpaceChooser::ComboBoxChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

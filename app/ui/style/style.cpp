@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "config/config.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const char* StyleManager::kDefaultStyle = "olive-dark";
 QString StyleManager::current_style_;
@@ -192,4 +192,4 @@ void StyleManager::SetStyle(const QString &style_path)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,35 @@
 #define VIDEOPARAMS_H
 
 #include "common/rational.h"
-#include "pixelformat.h"
 #include "rendermodes.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class VideoParams {
 public:
+  enum Format {
+    /// Invalid or no format
+    kFormatInvalid = -1,
+
+    /// 8-bit unsigned integer
+    kFormatUnsigned8,
+
+    /// 16-bit unsigned integer
+    kFormatUnsigned16,
+
+    /// 16-bit half float
+    kFormatFloat16,
+
+    /// 32-bit full float
+    kFormatFloat32,
+
+    /// 64-bit double float - disabled since very, very few libs support 64-bit buffers
+    //kFormatFloat64,
+
+    /// Total format count
+    kFormatCount
+  };
+
   enum Interlacing {
     kInterlaceNone,
     kInterlacedTopFirst,
@@ -36,21 +58,49 @@ public:
   };
 
   VideoParams();
-  VideoParams(const int& width, const int& height, const PixelFormat::Format& format,
+  VideoParams(int width, int height, Format format, int nb_channels,
               const rational& pixel_aspect_ratio = 1,
-              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
-  VideoParams(const int& width, const int& height, const rational& time_base,
-              const PixelFormat::Format& format, const rational& pixel_aspect_ratio = 1,
-              const Interlacing& interlacing = kInterlaceNone, const int& divider = 1);
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
+  VideoParams(int width, int height, int depth,
+              Format format, int nb_channels,
+              const rational& pixel_aspect_ratio = 1,
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
+  VideoParams(int width, int height, const rational& time_base,
+              Format format, int nb_channels,
+              const rational& pixel_aspect_ratio = 1,
+              Interlacing interlacing = kInterlaceNone, int divider = 1);
 
-  const int& width() const
+  int width() const
   {
     return width_;
   }
 
-  const int& height() const
+  void set_width(int width)
+  {
+    width_ = width;
+    calculate_effective_size();
+  }
+
+  int height() const
   {
     return height_;
+  }
+
+  void set_height(int height)
+  {
+    height_ = height;
+    calculate_effective_size();
+  }
+
+  int depth() const
+  {
+    return depth_;
+  }
+
+  void set_depth(int depth)
+  {
+    depth_ = depth;
+    calculate_effective_size();
   }
 
   const rational& time_base() const
@@ -58,24 +108,55 @@ public:
     return time_base_;
   }
 
-  const int& divider() const
+  void set_time_base(const rational& r)
+  {
+    time_base_ = r;
+  }
+
+  int divider() const
   {
     return divider_;
   }
 
-  const int& effective_width() const
+  void set_divider(int d)
+  {
+    divider_ = d;
+    calculate_effective_size();
+  }
+
+  int effective_width() const
   {
     return effective_width_;
   }
 
-  const int& effective_height() const
+  int effective_height() const
   {
     return effective_height_;
   }
 
-  const PixelFormat::Format& format() const
+  int effective_depth() const
+  {
+    return effective_depth_;
+  }
+
+  Format format() const
   {
     return format_;
+  }
+
+  void set_format(Format f)
+  {
+    format_ = f;
+  }
+
+  int channel_count() const
+  {
+    return channel_count_;
+  }
+
+  void set_channel_count(int c)
+  {
+    channel_count_ = c;
   }
 
   const rational& pixel_aspect_ratio() const
@@ -83,9 +164,20 @@ public:
     return pixel_aspect_ratio_;
   }
 
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    pixel_aspect_ratio_ = r;
+    validate_pixel_aspect_ratio();
+  }
+
   Interlacing interlacing() const
   {
     return interlacing_;
+  }
+
+  void set_interlacing(Interlacing i)
+  {
+    interlacing_ = i;
   }
 
   static int generate_auto_divider(qint64 width, qint64 height);
@@ -94,6 +186,33 @@ public:
 
   bool operator==(const VideoParams& rhs) const;
   bool operator!=(const VideoParams& rhs) const;
+
+  static int GetBytesPerChannel(Format format);
+  int GetBytesPerChannel() const
+  {
+    return GetBytesPerChannel(format_);
+  }
+
+  static int GetBytesPerPixel(Format format, int channels);
+  int GetBytesPerPixel() const
+  {
+    return GetBytesPerPixel(format_, channel_count_);
+  }
+
+  static int GetBufferSize(int width, int height, Format format, int channels)
+  {
+    return width * height * GetBytesPerPixel(format, channels);
+  }
+  int GetBufferSize() const
+  {
+    return GetBufferSize(width_, height_, format_, channel_count_);
+  }
+
+  static bool FormatIsFloat(Format format);
+
+  static QString GetFormatName(Format format);
+
+  static const int kInternalChannelCount;
 
   static const rational kPixelAspectSquare;
   static const rational kPixelAspectNTSCStandard;
@@ -105,6 +224,10 @@ public:
   static const QVector<rational> kSupportedFrameRates;
   static const QVector<rational> kStandardPixelAspects;
   static const QVector<int> kSupportedDividers;
+
+  static const int kHSVChannelCount = 3;
+  static const int kRGBChannelCount = 3;
+  static const int kRGBAChannelCount = 4;
 
   /**
    * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
@@ -123,9 +246,12 @@ private:
 
   int width_;
   int height_;
+  int depth_;
   rational time_base_;
 
-  PixelFormat::Format format_;
+  Format format_;
+
+  int channel_count_;
 
   rational pixel_aspect_ratio_;
 
@@ -134,11 +260,12 @@ private:
   int divider_;
   int effective_width_;
   int effective_height_;
+  int effective_depth_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams)
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::VideoParams::Interlacing)
+Q_DECLARE_METATYPE(olive::VideoParams)
+Q_DECLARE_METATYPE(olive::VideoParams::Interlacing)
 
 #endif // VIDEOPARAMS_H

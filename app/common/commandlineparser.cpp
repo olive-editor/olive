@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@ CommandLineParser::~CommandLineParser()
   }
 }
 
-const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description)
+const CommandLineParser::Option *CommandLineParser::AddOption(const QStringList &strings, const QString &description, bool takes_arg, const QString &arg_placeholder)
 {
   Option* o = new Option();
 
-  options_.append({strings, description, o});
+  options_.append({strings, description, o, takes_arg, arg_placeholder});
 
   return o;
 }
@@ -72,6 +72,12 @@ void CommandLineParser::Process(int argc, char **argv)
           if (!s.compare(arg_basename, Qt::CaseInsensitive)) {
             // Flag discovered!
             o.option->Set();
+
+            if (o.takes_arg && i+1 < argc) {
+              o.option->SetSetting(argv[i+1]);
+              i++;
+            }
+
             matched_known = true;
             goto found_flag;
           }
@@ -147,7 +153,11 @@ void CommandLineParser::PrintHelp(const char* filename)
       all_args.append(this_arg);
     }
 
-    printf("    %s\n", all_args.toUtf8().constData());
+    if (o.arg_placeholder.isEmpty()) {
+      printf("    %s\n", all_args.toUtf8().constData());
+    } else {
+      printf("    %s <%s>\n", all_args.toUtf8().constData(), o.arg_placeholder.toUtf8().constData());
+    }
 
     printf("        %s\n\n", o.description.toUtf8().constData());
   }

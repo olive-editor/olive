@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ImageSection::ImageSection(QWidget* parent) :
   CodecSection(parent)
@@ -44,4 +44,4 @@ QCheckBox *ImageSection::image_sequence_checkbox() const
   return image_sequence_checkbox_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

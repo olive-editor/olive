@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const double TimelineViewBase::kMaximumScale = 8192;
 
@@ -246,7 +246,7 @@ void TimelineViewBase::UpdateSceneRect()
   bounding_rect.setLeft(0);
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  bounding_rect.setRight(TimeToScene(end_time_) + width() / 2);
+  bounding_rect.setRight(TimeToScene(end_time_) + width());
 
   // Any further rect processing from derivatives can be done here
   SceneRectUpdateEvent(bounding_rect);
@@ -359,4 +359,4 @@ bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

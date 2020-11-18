@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,10 @@
 #define SCOPEBASE_H
 
 #include "codec/frame.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
-#include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
+#include "render/colorprocessor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ScopeBase : public ManagedDisplayWidget
 {
@@ -40,50 +37,38 @@ public:
 public slots:
   void SetBuffer(Frame* frame);
 
+protected slots:
+  virtual void OnInit() override;
+
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
+
 protected:
-  virtual void initializeGL() override;
-
-  virtual void paintGL() override;
-
   virtual void showEvent(QShowEvent* e) override;
 
-  virtual OpenGLShaderPtr CreateShader();
+  virtual ShaderCode GenerateShaderCode() = 0;
 
-  virtual void DrawScope();
-
-  OpenGLShaderPtr pipeline()
-  {
-    return pipeline_;
-  }
-
-  OpenGLTexture& managed_tex()
-  {
-    return managed_tex_;
-  }
-
-  OpenGLFramebuffer& framebuffer()
-  {
-    return framebuffer_;
-  }
+  /**
+   * @brief Draw function
+   *
+   * Override this if your sub-class scope needs extra drawing.
+   */
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline);
 
 private:
   void UploadTextureFromBuffer();
 
-  OpenGLShaderPtr pipeline_;
+  QVariant pipeline_;
 
-  OpenGLTexture texture_;
+  TexturePtr texture_;
 
-  OpenGLTexture managed_tex_;
-
-  OpenGLFramebuffer framebuffer_;
+  TexturePtr managed_tex_;
 
   Frame* buffer_;
 
-private slots:
-  void CleanUp();
-
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SCOPEBASE_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "common/filefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const qint64 AudioPlaybackCache::kDefaultSegmentSize = 5242880;
 
@@ -127,7 +127,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, SampleBufferPtr sample
 
           seg_file.close();
 
-          ranges_we_validated.InsertTimeRange(TimeRange(this_write_in_point, this_write_out_point));
+          ranges_we_validated.insert(TimeRange(this_write_in_point, this_write_out_point));
         } else {
           qWarning() << "Failed to write PCM data to" << seg_file.fileName();
         }
@@ -157,7 +157,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
-  if (from_in_time == to_in_time) {
+  if (from_in_time == to_in_time || GetLength().isNull()) {
     // Nothing to be done
     return;
   }
@@ -538,4 +538,4 @@ qint64 AudioPlaybackCache::Playlist::GetLength() const
   return this->last().offset() + this->last().size();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

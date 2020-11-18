@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "undo/undocommand.h"
 #include "node/block/block.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
@@ -39,6 +39,7 @@ OLIVE_NAMESPACE_ENTER
  */
 class ProjectViewModel : public QAbstractItemModel
 {
+  Q_OBJECT
 public:
   enum ColumnType {
     /// Media name
@@ -250,6 +251,6 @@ private:
   QVector<ColumnType> columns_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWMODEL_H

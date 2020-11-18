@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "common/xmlutils.h"
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QVariant &default_value) :
   NodeInput(id, type, default_value),
@@ -235,4 +235,4 @@ void NodeInputArray::SaveInternal(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // subparameters
 }
 
-OLIVE_NAMESPACE_EXIT
+}

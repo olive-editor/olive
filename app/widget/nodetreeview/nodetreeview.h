@@ -5,7 +5,7 @@
 
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTreeView : public QTreeWidget
 {
@@ -23,7 +23,7 @@ public:
   }
 
 public slots:
-  void SetNodes(const QList<Node*>& nodes);
+  void SetNodes(const QVector<Node *> &nodes);
 
 signals:
   void NodeEnableChanged(Node* n, bool e);
@@ -44,11 +44,11 @@ private:
   static const int kItemType = Qt::UserRole;
   static const int kItemPointer = Qt::UserRole + 1;
 
-  QList<Node*> nodes_;
+  QVector<Node*> nodes_;
 
-  QList<Node*> disabled_nodes_;
+  QVector<Node*> disabled_nodes_;
 
-  QList<NodeInput*> disabled_inputs_;
+  QVector<NodeInput*> disabled_inputs_;
 
   bool only_show_keyframable_;
 
@@ -57,6 +57,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETREEVIEW_H

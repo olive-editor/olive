@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "widget/scope/scopebase/scopebase.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class WaveformScope : public ScopeBase
 {
@@ -31,13 +31,15 @@ class WaveformScope : public ScopeBase
 public:
   WaveformScope(QWidget* parent = nullptr);
 
-protected:
-  virtual OpenGLShaderPtr CreateShader() override;
+  virtual ~WaveformScope() override;
 
-  virtual void DrawScope() override;
+protected:
+  virtual ShaderCode GenerateShaderCode() override;
+
+  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // WAVEFORMSCOPE_H

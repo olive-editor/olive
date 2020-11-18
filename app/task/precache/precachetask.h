@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,16 @@
 #ifndef PRECACHETASK_H
 #define PRECACHETASK_H
 
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "task/render/render.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreCacheTask : public RenderTask
 {
+  Q_OBJECT
 public:
   PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
 
@@ -38,21 +39,17 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
-
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) override;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
   VideoStreamPtr footage_;
 
-  VideoInput* video_node_;
-
-  QThreadPool download_threads_;
+  MediaInput* video_node_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PRECACHETASK_H

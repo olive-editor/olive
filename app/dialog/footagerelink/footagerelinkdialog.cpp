@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent) :
   QDialog(parent),
@@ -100,4 +100,4 @@ void FootageRelinkDialog::BrowseForFootage()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

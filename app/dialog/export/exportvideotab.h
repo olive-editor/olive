@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportVideoTab : public QWidget
 {
@@ -111,6 +111,11 @@ public:
     return pixel_aspect_combobox_;
   }
 
+  PixelFormatComboBox* pixel_format_field() const
+  {
+    return pixel_format_field_;
+  }
+
   const int& threads() const
   {
     return threads_;
@@ -149,6 +154,7 @@ private:
 
   InterlacedComboBox* interlaced_combobox_;
   PixelAspectRatioComboBox* pixel_aspect_combobox_;
+  PixelFormatComboBox* pixel_format_field_;
 
   int threads_;
 
@@ -161,6 +167,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTVIDEOTAB_H

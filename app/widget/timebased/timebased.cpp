@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "project/item/sequence/sequence.h"
 #include "widget/timelinewidget/undo/undo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   TimelineScaledWidget(parent),
@@ -458,7 +458,8 @@ void TimeBasedWidget::SetMarker()
   }
 
   if (ok) {
-    points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(static_cast<Sequence*>(GetConnectedNode()->parent())->project(),
+                                                              points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }
 
@@ -517,4 +518,27 @@ void TimeBasedWidget::GoToOut()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
+  project_(project),
+  marker_list_(marker_list),
+  range_(range),
+  name_(name)
+{
+}
+
+Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void TimeBasedWidget::MarkerAddCommand::redo_internal()
+{
+  added_marker_ = marker_list_->AddMarker(range_, name_);
+}
+
+void TimeBasedWidget::MarkerAddCommand::undo_internal()
+{
+  marker_list_->RemoveMarker(added_marker_);
+}
+
+}

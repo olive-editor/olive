@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveWidget::CurveWidget(QWidget *parent) :
   TimeBasedWidget(parent)
@@ -131,7 +131,7 @@ void CurveWidget::DeleteSelected()
   view_->DeleteSelected();
 }
 
-void CurveWidget::SetNodes(const QList<Node *> &nodes)
+void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 {
   tree_view_->SetNodes(nodes);
 
@@ -216,7 +216,7 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 
 void CurveWidget::ConnectNode(Node *n)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     if (tree_view_->IsInputEnabled(i)) {
@@ -322,4 +322,4 @@ void CurveWidget::InputEnabledChanged(NodeInput *i, bool e)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

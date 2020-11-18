@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,14 +21,12 @@
 #ifndef COLORTRANSFORM_H
 #define COLORTRANSFORM_H
 
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
-
 #include <QString>
 
 #include "common/define.h"
+#include "common/ocioutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorTransform
 {
@@ -81,6 +79,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORTRANSFORM_H

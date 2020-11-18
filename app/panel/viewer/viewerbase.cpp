@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
   TimeBasedPanel(object_name, parent)
@@ -123,4 +123,4 @@ void ViewerPanelBase::closeEvent(QCloseEvent *e)
   TimeBasedPanel::closeEvent(e);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

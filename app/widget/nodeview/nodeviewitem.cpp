@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -133,7 +133,7 @@ int NodeViewItem::DefaultItemHeight()
 
 int NodeViewItem::DefaultItemWidth()
 {
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHH");;
+  return QtUtils::QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHH");;
 }
 
 int NodeViewItem::DefaultItemBorder()
@@ -316,7 +316,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // Calculate how much space we have for text
     int item_width = title_bar_rect_.width();
     int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
-    int label_width = QFontMetricsWidth(fm, node_label);
+    int label_width = QtUtils::QFontMetricsWidth(fm, node_label);
 
     // Concatenate text if necessary (adds a "..." to the end and removes characters until the
     // string fits in the bounds)
@@ -326,7 +326,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       do {
         node_label.chop(1);
         concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
-      } while ((label_width = QFontMetricsWidth(fm, concatenated)) > max_text_width);
+      } while ((label_width = QtUtils::QFontMetricsWidth(fm, concatenated)) > max_text_width);
 
       node_label = concatenated;
     }
@@ -699,4 +699,4 @@ QPointF NodeViewItem::GetInputPoint(int index, const QPointF& source_pos) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

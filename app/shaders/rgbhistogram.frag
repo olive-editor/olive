@@ -1,9 +1,7 @@
 #version 150
 
 uniform sampler2D ove_maintex;
-uniform vec2 ove_resolution;
-uniform vec2 ove_viewport;
-
+uniform vec2 viewport;
 uniform float histogram_scale;
 
 in vec2 ove_texcoord;
@@ -11,7 +9,7 @@ in vec2 ove_texcoord;
 out vec4 fragColor;
 
 void main(void) {
-    float histogram_width = ceil(histogram_scale * ove_viewport.y);
+    float histogram_width = ceil(histogram_scale * viewport.y);
     float quantisation = 1.0 / (histogram_width - 1.0);
     vec3 cur_col = vec3(0.0);
     vec3 sum = vec3(0.0);

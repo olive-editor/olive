@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
   QApplication a(argc, argv);
 
-  OLIVE_NAMESPACE::CrashHandlerDialog chd(argv[1], argv[2]);
+  olive::CrashHandlerDialog chd(argv[1], argv[2]);
   chd.open();
 
   return a.exec();

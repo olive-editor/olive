@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "pan.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PanNode::PanNode()
 {
@@ -49,7 +49,7 @@ QString PanNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.pan");
 }
 
-QList<Node::CategoryID> PanNode::Category() const
+QVector<Node::CategoryID> PanNode::Category() const
 {
   return {kCategoryChannels};
 }
@@ -69,7 +69,7 @@ NodeValueTable PanNode::Value(NodeValueDatabase &value) const
   NodeValueTable table = value.Merge();
 
   if (job.HasSamples()) {
-    float pan_volume = job.GetValue(panning_input_).data().toFloat();
+    float pan_volume = job.GetValue(panning_input_).data.toFloat();
     if (panning_input_->is_static()) {
       if (!qIsNull(pan_volume) && job.samples()->audio_params().channel_count() == 2) {
         if (pan_volume > 0) {
@@ -114,4 +114,4 @@ void PanNode::Retranslate()
   panning_input_->set_name(tr("Pan"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

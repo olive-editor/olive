@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include <QPainter>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewGhostItem::TimelineViewGhostItem() :
   track_adj_(0),
@@ -203,4 +203,4 @@ bool TimelineViewGhostItem::HasBeenAdjusted() const
       || GetTrackAdjustment() != 0;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

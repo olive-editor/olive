@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "common/qtutils.h"
 #include "node/input.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -42,7 +42,7 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   connect(key.get(), &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdatePos);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
 
-  int keyframe_size = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
+  int keyframe_size = QtUtils::QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   int half_sz = keyframe_size/2;
   setRect(-half_sz, -half_sz, keyframe_size, keyframe_size);
 
@@ -127,4 +127,4 @@ void KeyframeViewItem::Redraw()
   QGraphicsItem::update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

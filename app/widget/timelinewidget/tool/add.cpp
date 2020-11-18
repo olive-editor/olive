@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "node/generator/text/text.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AddTool::AddTool(TimelineWidget *parent) :
   BeamTool(parent),
@@ -48,18 +48,18 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
   Timeline::TrackType add_type = Timeline::kTrackTypeNone;
 
   switch (Core::instance()->GetSelectedAddableObject()) {
-  case OLIVE_NAMESPACE::Tool::kAddableBars:
-  case OLIVE_NAMESPACE::Tool::kAddableSolid:
-  case OLIVE_NAMESPACE::Tool::kAddableTitle:
+  case olive::Tool::kAddableBars:
+  case olive::Tool::kAddableSolid:
+  case olive::Tool::kAddableTitle:
     add_type = Timeline::kTrackTypeVideo;
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableTone:
+  case olive::Tool::kAddableTone:
     add_type = Timeline::kTrackTypeAudio;
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableEmpty:
+  case olive::Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableCount:
+  case olive::Tool::kAddableCount:
     // Return so we do nothing
     return;
   }
@@ -97,7 +97,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->GetAdjustedLength());
-      clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
+      clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
@@ -112,10 +112,10 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       switch (Core::instance()->GetSelectedAddableObject()) {
-      case OLIVE_NAMESPACE::Tool::kAddableEmpty:
+      case olive::Tool::kAddableEmpty:
         // Empty, nothing to be done
         break;
-      case OLIVE_NAMESPACE::Tool::kAddableSolid:
+      case olive::Tool::kAddableSolid:
       {
         Node* solid = new SolidGenerator();
 
@@ -126,7 +126,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
         break;
       }
-      case OLIVE_NAMESPACE::Tool::kAddableTitle:
+      case olive::Tool::kAddableTitle:
       {
         Node* text = new TextGenerator();
 
@@ -137,12 +137,12 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(text->output(), clip->texture_input(), command);
         break;
       }
-      case OLIVE_NAMESPACE::Tool::kAddableBars:
-      case OLIVE_NAMESPACE::Tool::kAddableTone:
+      case olive::Tool::kAddableBars:
+      case olive::Tool::kAddableTone:
         // Not implemented yet
         qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
         break;
-      case OLIVE_NAMESPACE::Tool::kAddableCount:
+      case olive::Tool::kAddableCount:
         // Invalid value, do nothing
         break;
       }
@@ -190,4 +190,4 @@ void AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

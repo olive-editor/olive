@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "exportparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportParams::ExportParams() :
   video_scaling_method_(kStretch),
@@ -122,4 +122,4 @@ void ExportParams::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // export
 }
 
-OLIVE_NAMESPACE_EXIT
+}

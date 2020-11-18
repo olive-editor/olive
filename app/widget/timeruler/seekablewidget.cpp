@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SeekableWidget::SeekableWidget(QWidget* parent) :
   TimelineScaledWidget(parent),
@@ -41,7 +41,7 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   text_height_ = fm.height();
 
   // Set width of playhead marker
-  playhead_width_ = QFontMetricsWidth(fm, "H");
+  playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -51,6 +51,8 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
   if (timeline_points_) {
     disconnect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     disconnect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
   }
 
   timeline_points_ = points;
@@ -58,6 +60,8 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
   if (timeline_points_) {
     connect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
     connect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
   }
 
   update();
@@ -256,4 +260,4 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
   p->setRenderHint(QPainter::Antialiasing, false);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

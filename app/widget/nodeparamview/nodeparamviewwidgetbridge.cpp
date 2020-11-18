@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput *input, QObject *parent) :
   QObject(parent),
@@ -671,4 +671,4 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

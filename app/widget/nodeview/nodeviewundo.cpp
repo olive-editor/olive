@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeEdgeAddCommand::NodeEdgeAddCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -131,7 +131,7 @@ Project *NodeAddCommand::GetRelevantProject() const
   return static_cast<Sequence*>(graph_)->project();
 }
 
-NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QList<Node *> &nodes, QUndoCommand *parent) :
+NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QVector<Node *> &nodes, QUndoCommand *parent) :
   UndoCommand(parent),
   graph_(graph),
   nodes_(nodes)
@@ -197,7 +197,7 @@ Project *NodeRemoveCommand::GetRelevantProject() const
 NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent) :
   UndoCommand(parent)
 {
-  QList<Node*> node_and_its_deps;
+  QVector<Node*> node_and_its_deps;
   node_and_its_deps.append(node);
   node_and_its_deps.append(node->GetExclusiveDependencies());
 
@@ -230,4 +230,4 @@ void NodeCopyInputsCommand::redo()
   Node::CopyInputs(src_, dest_, include_connections_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

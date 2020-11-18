@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,13 +34,13 @@
 #include "task/export/export.h"
 #include "widget/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, TimelinePoints* points = nullptr, QWidget* parent = nullptr);
 
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
@@ -49,13 +49,19 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
-  static int AlignEvenNumber(double d);
-
   ExportParams GenerateParams() const;
 
   ViewerOutput* viewer_node_;
+  TimelinePoints* points_;
 
   ExportFormat::Format previously_selected_format_;
+
+  enum RangeSelection {
+    kRangeEntireSequence,
+    kRangeInToOut
+  };
+
+  QComboBox* range_combobox_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
@@ -85,8 +91,10 @@ private slots:
 
   void StartExport();
 
+  void ExportFinished();
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTDIALOG_H

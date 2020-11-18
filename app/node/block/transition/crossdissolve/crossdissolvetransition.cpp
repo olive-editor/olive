@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "crossdissolvetransition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CrossDissolveTransition::CrossDissolveTransition()
 {
@@ -42,7 +42,7 @@ QString CrossDissolveTransition::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.crossdissolve");
 }
 
-QList<Node::CategoryID> CrossDissolveTransition::Category() const
+QVector<Node::CategoryID> CrossDissolveTransition::Category() const
 {
   return {kCategoryTransition};
 }
@@ -56,7 +56,7 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const QString &shader_id) cons
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(Node::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }
 
 void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const
@@ -86,4 +86,4 @@ void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, Sampl
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

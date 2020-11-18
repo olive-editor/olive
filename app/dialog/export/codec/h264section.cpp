@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "common/qtutils.h"
 #include "widget/slider/integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 H264Section::H264Section(QWidget *parent) :
   CodecSection(parent)
@@ -117,7 +117,7 @@ H264CRFSection::H264CRFSection(QWidget *parent) :
   layout->addWidget(crf_slider_);
 
   IntegerSlider* crf_input = new IntegerSlider();
-  crf_input->setMaximumWidth(QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
+  crf_input->setMaximumWidth(QtUtils::QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
   crf_input->SetMinimum(kMinimumCRF);
   crf_input->SetMaximum(kMaximumCRF);
   crf_input->SetValue(kDefaultCRF);
@@ -208,4 +208,4 @@ int64_t H264FileSizeSection::GetFileSize() const
   return qRound64(file_size_->GetValue() * 1024.0 * 1024.0 * 8.0);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

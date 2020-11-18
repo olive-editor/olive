@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MathNode::MathNode()
 {
@@ -55,7 +55,7 @@ QString MathNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.math");
 }
 
-QList<Node::CategoryID> MathNode::Category() const
+QVector<Node::CategoryID> MathNode::Category() const
 {
   return {kCategoryMath};
 }
@@ -119,4 +119,4 @@ void MathNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr i
   return ProcessSamplesInternal(values, GetOperation(), param_a_in_, param_b_in_, input, output, index);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

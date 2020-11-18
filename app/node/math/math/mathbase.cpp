@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "common/tohex.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInput *param_a_in, olive::NodeInput *param_b_in) const
 {
@@ -48,7 +48,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
     // No-op frag shader (can we return QString() instead?)
     operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
 
-    vert = ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
+    vert = FileFunctions::ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
 
   } else {
     switch (op) {
@@ -329,7 +329,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
     float number = RetrieveNumber(number_val);
 
     SampleJob job(val_a.type() == NodeParam::kSamples ? val_a : val_b);
-    job.InsertValue(number_param, NodeValue(NodeParam::kFloat, number, this));
+    job.InsertValue(number_param, ShaderValue(number, NodeParam::kFloat));
 
     if (job.HasSamples()) {
       if (number_param->is_static()) {
@@ -611,4 +611,4 @@ T MathNodeBase::PerformAddSubMultDiv(Operation operation, T a, U b)
   return a;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

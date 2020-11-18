@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "dialog/color/colordialog.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorButton::ColorButton(ColorManager* color_manager, QWidget *parent) :
   QPushButton(parent),
@@ -72,7 +72,7 @@ void ColorButton::UpdateColor()
 
   QColor managed = color_processor_->ConvertColor(color_).toQColor();
 
-  setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}").arg(MACRO_VAL_AS_STR(OLIVE_NAMESPACE), managed.name()));
+  setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}").arg(MACRO_VAL_AS_STR(olive), managed.name()));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

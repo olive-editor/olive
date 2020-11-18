@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,9 @@
 
 #include "common/rational.h"
 #include "render/color.h"
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
@@ -47,11 +46,37 @@ public:
   const VideoParams& video_params() const;
   void set_video_params(const VideoParams& params);
 
-  int linesize_pixels() const;
-  int linesize_bytes() const;
-  const int& width() const;
-  const int& height() const;
-  const PixelFormat::Format& format() const;
+  static int generate_linesize_bytes(int width, VideoParams::Format format, int channel_count);
+
+  int linesize_pixels() const
+  {
+    return linesize_pixels_;
+  }
+
+  int linesize_bytes() const
+  {
+    return linesize_;
+  }
+
+  int width() const
+  {
+    return params_.effective_width();
+  }
+
+  int height() const
+  {
+    return params_.effective_height();
+  }
+
+  VideoParams::Format format() const
+  {
+    return params_.format();
+  }
+
+  int channel_count() const
+  {
+    return params_.channel_count();
+  }
 
   Color get_pixel(int x, int y) const;
   bool contains_pixel(int x, int y) const;
@@ -62,18 +87,31 @@ public:
    *
    * This timestamp is always a rational that will equate to the time in seconds.
    */
-  const rational& timestamp() const;
-  void set_timestamp(const rational& timestamp);
+  const rational& timestamp() const
+  {
+    return timestamp_;
+  }
+
+  void set_timestamp(const rational& timestamp)
+  {
+    timestamp_ = timestamp;
+  }
 
   /**
    * @brief Get the data buffer of this frame
    */
-  char* data();
+  char* data()
+  {
+    return data_.data();
+  }
 
   /**
    * @brief Get the const data buffer of this frame
    */
-  const char* const_data() const;
+  const char* const_data() const
+  {
+    return data_.constData();
+  }
 
   /**
    * @brief Allocate memory buffer to store data based on parameters
@@ -82,24 +120,35 @@ public:
    *
    * If a memory buffer has been previously allocated without destroying, this function will destroy it.
    */
-  void allocate();
+  bool allocate();
 
   /**
    * @brief Return whether the frame is allocated or not
    */
-  bool is_allocated() const;
+  bool is_allocated() const
+  {
+    return !data_.isEmpty();
+  }
 
   /**
    * @brief Destroy a memory buffer allocated with allocate()
    */
-  void destroy();
+  void destroy()
+  {
+    data_.clear();
+  }
 
   /**
    * @brief Returns the size of the array returned in data() in bytes
    *
    * Returns 0 if nothing is allocated.
    */
-  int allocated_size() const;
+  int allocated_size() const
+  {
+    return data_.size();
+  }
+
+  FramePtr convert(VideoParams::Format format) const;
 
 private:
   VideoParams params_;
@@ -110,10 +159,12 @@ private:
 
   int linesize_;
 
+  int linesize_pixels_;
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::FramePtr)
+Q_DECLARE_METATYPE(olive::FramePtr)
 
 #endif // FRAME_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioStream::AudioStream()
 {
@@ -66,38 +66,6 @@ void AudioStream::set_sample_rate(const int &sample_rate)
   sample_rate_ = sample_rate;
 }
 
-bool AudioStream::try_start_conforming(const AudioParams &params)
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  if (!currently_conforming_.contains(params)
-      && !conformed_.contains(params)) {
-    currently_conforming_.append(params);
-    return true;
-  }
-
-  return false;
-}
-
-bool AudioStream::has_conformed_version(const AudioParams &params)
-{
-  QMutexLocker locker(proxy_access_lock());
-
-  return conformed_.contains(params);
-}
-
-void AudioStream::append_conformed_version(const AudioParams &params)
-{
-  {
-    QMutexLocker locker(proxy_access_lock());
-
-    currently_conforming_.removeOne(params);
-    conformed_.append(params);
-  }
-
-  emit ConformAppended(params);
-}
-
 QIcon AudioStream::icon() const
 {
   return icon::Audio;
@@ -125,4 +93,4 @@ void AudioStream::SaveCustomParameters(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("rate"), QString::number(sample_rate_));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
+#include <QTranslator>
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
@@ -35,7 +36,7 @@
 #include "tool/tool.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -93,10 +94,22 @@ public:
       startup_project_ = p;
     }
 
+    const QString& startup_language() const
+    {
+      return startup_language_;
+    }
+
+    void set_startup_language(const QString& s)
+    {
+      startup_language_ = s;
+    }
+
   private:
     RunMode mode_;
 
     QString startup_project_;
+
+    QString startup_language_;
 
     bool run_fullscreen_;
 
@@ -233,7 +246,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QList<Node*>& nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes) const;
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -272,6 +285,11 @@ public:
    * @brief Check each footage object for whether it still exists or has changed
    */
   bool ValidateFootageInLoadedProject(ProjectPtr project, const QString &project_saved_url);
+
+  /**
+   * @brief Changes the current language
+   */
+  bool SetLanguage(const QString& locale);
 
   static const uint kProjectVersion;
 
@@ -415,6 +433,11 @@ signals:
    */
   void TimecodeDisplayChanged(Timecode::Display d);
 
+  /**
+   * @brief Signal emitted when a change is made to the open recent list
+   */
+  void OpenRecentListChanged();
+
 private:
   /**
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
@@ -425,6 +448,11 @@ private:
    * @brief Returns the filename where the recently opened/saved projects should be stored
    */
   static QString GetRecentProjectsFilePath();
+
+  /**
+   * @brief Called only on startup to set the locale
+   */
+  void SetStartupLocale();
 
   /**
    * @brief Saves a specific project
@@ -522,6 +550,11 @@ private:
    */
   static Core* instance_;
 
+  /**
+   * @brief Internal translator
+   */
+  QTranslator* translator_;
+
 private slots:
   void SaveAutorecovery();
 
@@ -530,7 +563,7 @@ private slots:
   /**
    * @brief Adds a project to the "open projects" list
    */
-  void AddOpenProject(OLIVE_NAMESPACE::ProjectPtr p);
+  void AddOpenProject(olive::ProjectPtr p);
 
   void AddOpenProjectFromTask(Task* task);
 
@@ -551,6 +584,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CORE_H

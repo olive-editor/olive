@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "dialog/richtext/richtext.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
   QWidget(parent)
@@ -34,19 +34,20 @@ NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
 
-  line_edit_ = new QLineEdit();
-  connect(line_edit_, &QLineEdit::textEdited, this, &NodeParamViewRichText::textEdited);
+  line_edit_ = new QTextEdit();
+  connect(line_edit_, &QTextEdit::textChanged, this, &NodeParamViewRichText::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
   QPushButton* edit_btn = new QPushButton();
   edit_btn->setIcon(icon::ToolEdit);
+  edit_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   layout->addWidget(edit_btn);
   connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewRichText::ShowRichTextDialog);
 }
 
 void NodeParamViewRichText::ShowRichTextDialog()
 {
-  RichTextDialog d(line_edit_->text(), this);
+  RichTextDialog d(this->text(), this);
   if (d.exec() == QDialog::Accepted) {
     QString s = d.text();
 
@@ -55,4 +56,9 @@ void NodeParamViewRichText::ShowRichTextDialog()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+void NodeParamViewRichText::InnerWidgetTextChanged()
+{
+  emit textEdited(this->text());
+}
+
+}

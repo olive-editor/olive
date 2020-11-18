@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "tool/tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Simple derived class of QPushButton to contain an Tool ID. Used as the main widget through Toolbar.
@@ -59,6 +59,6 @@ private:
   Tool::Item tool_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TOOLBARBUTTON_H

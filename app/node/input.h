@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "keyframe.h"
 #include "param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node parameter designed to take either user input or data from another node
@@ -282,20 +282,20 @@ public:
 
   static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
 
-  void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
+  void GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const;
 
   QVariant GetDefaultValue() const;
 
   QVariant GetDefaultValueForTrack(int track) const;
 
-  QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
+  QVector<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
 
-  QList<Node*> GetExclusiveDependencies() const;
+  QVector<Node*> GetExclusiveDependencies() const;
 
-  QList<Node*> GetImmediateDependencies() const;
+  QVector<Node*> GetImmediateDependencies() const;
 
 signals:
-  void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);
+  void ValueChanged(const olive::TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 
@@ -431,6 +431,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEINPUT_H

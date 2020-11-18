@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,20 +28,27 @@
  */
 
 #include <QFontMetrics>
+#include <QFrame>
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-/**
- * @brief Retrieves the width of a string according to certain QFontMetrics
- *
- * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
- * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
- * earlier.
- */
-int QFontMetricsWidth(QFontMetrics fm, const QString& s);
+class QtUtils {
+public:
+  /**
+   * @brief Retrieves the width of a string according to certain QFontMetrics
+   *
+   * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
+   * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
+   * earlier.
+   */
+  static int QFontMetricsWidth(QFontMetrics fm, const QString& s);
 
-OLIVE_NAMESPACE_EXIT
+  static QFrame* CreateHorizontalLine();
+
+};
+
+}
 
 #endif // QTVERSIONABSTRACTION_H

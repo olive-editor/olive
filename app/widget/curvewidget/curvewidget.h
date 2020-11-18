@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "widget/nodetreeview/nodetreeview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 {
@@ -49,7 +49,7 @@ public:
   void DeleteSelected();
 
 public slots:
-  void SetNodes(const QList<Node*>& nodes);
+  void SetNodes(const QVector<Node *> &nodes);
 
 protected:
   virtual void TimeChangedEvent(const int64_t &) override;
@@ -85,9 +85,7 @@ private:
 
   NodeParamViewKeyframeControl* key_control_;
 
-  QList<QCheckBox*> checkboxes_;
-
-  QList<Node*> nodes_;
+  QVector<Node*> nodes_;
 
 private slots:
   void SelectionChanged();
@@ -102,6 +100,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEWIDGET_H

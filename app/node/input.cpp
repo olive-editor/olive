@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "project/item/footage/stream.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVector<QVariant> &default_value) :
   NodeParam(id)
@@ -413,7 +413,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
 
     ValidateVectorString(&vals, 4);
 
-    return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
+    return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
   } else if (data_type == kInt) {
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
@@ -423,7 +423,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
   }
 }
 
-void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
+void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
   if (is_connected()
       && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
@@ -433,7 +433,7 @@ void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusi
       list.append(connected);
 
       if (traverse) {
-        QList<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
+        QVector<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
 
         foreach (NodeInput* i, connected_inputs) {
           i->GetDependencies(list, traverse, exclusive_only);
@@ -461,21 +461,21 @@ QVariant NodeInput::GetDefaultValueForTrack(int track) const
   return default_value_.at(track);
 }
 
-QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
+QVector<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
 {
-  QList<Node *> list;
+  QVector<Node *> list;
 
   GetDependencies(list, traverse, exclusive_only);
 
   return list;
 }
 
-QList<Node *> NodeInput::GetExclusiveDependencies() const
+QVector<Node *> NodeInput::GetExclusiveDependencies() const
 {
   return GetDependencies(true, true);
 }
 
-QList<Node *> NodeInput::GetImmediateDependencies() const
+QVector<Node *> NodeInput::GetImmediateDependencies() const
 {
   return GetDependencies(false, false);
 }
@@ -1215,4 +1215,4 @@ void NodeInput::set_combobox_strings(const QStringList &strings)
   set_property(QStringLiteral("combo_str"), strings);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

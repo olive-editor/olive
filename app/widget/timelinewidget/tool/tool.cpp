@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
@@ -119,4 +119,4 @@ void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
   parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

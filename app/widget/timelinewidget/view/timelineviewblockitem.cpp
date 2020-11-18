@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "node/block/transition/transition.h"
 #include "widget/viewer/audiowaveformview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent) :
   TimelineViewRect(parent),
@@ -94,8 +94,6 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setPen(QColor(64, 64, 64));
     TrackOutput* track = TrackOutput::TrackFromBlock(block_);
     if (track) {
-      QMutexLocker locker(track->waveform_lock());
-
       AudioVisualWaveform::DrawWaveform(painter,
                                         rect().toRect(),
                                         this->GetScale(),
@@ -122,7 +120,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     // Linked clips are underlined
     if (block_->HasLinks()) {
       QFontMetrics fm = painter->fontMetrics();
-      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->GetLabel()));
+      int text_width = qMin(qRound(rect().width()), QtUtils::QFontMetricsWidth(fm, block_->GetLabel()));
 
       QPointF underline_start = rect().topLeft() + QPointF(0, text_top + fm.height());
       QPointF underline_end = underline_start + QPointF(text_width, 0);
@@ -194,4 +192,4 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

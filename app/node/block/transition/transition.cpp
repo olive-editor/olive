@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "common/clamp.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
@@ -161,15 +161,15 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
 {
   // Provides total transition progress from 0.0 (start) - 1.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_all"),
-                   NodeValue(NodeParam::kFloat, GetTotalProgress(time), this));
+                   ShaderValue(GetTotalProgress(time), NodeParam::kFloat));
 
   // Provides progress of out section from 1.0 (start) - 0.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_out"),
-                   NodeValue(NodeParam::kFloat, GetOutProgress(time), this));
+                   ShaderValue(GetOutProgress(time), NodeParam::kFloat));
 
   // Provides progress of in section from 0.0 (start) - 1.0 (end)
   job->InsertValue(QStringLiteral("ove_tprog_in"),
-                   NodeValue(NodeParam::kFloat, GetInProgress(time), this));
+                   ShaderValue(GetInProgress(time), NodeParam::kFloat));
 }
 
 void TransitionBlock::BlockConnected(NodeEdgePtr edge)
@@ -319,4 +319,4 @@ double TransitionBlock::TransformCurve(double linear) const
   return linear;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

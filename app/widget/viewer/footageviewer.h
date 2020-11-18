@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 #ifndef FOOTAGEVIEWERWIDGET_H
 #define FOOTAGEVIEWERWIDGET_H
 
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "node/output/viewer/viewer.h"
 #include "viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FootageViewerWidget : public ViewerWidget
 {
@@ -49,9 +48,9 @@ private:
 
   Sequence sequence_;
 
-  VideoInput* video_node_;
+  MediaInput* video_node_;
 
-  AudioInput* audio_node_;
+  MediaInput* audio_node_;
 
   QHash<Footage*, int64_t> cached_timestamps_;
 
@@ -64,6 +63,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGEVIEWERWIDGET_H

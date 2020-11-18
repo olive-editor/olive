@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "audio/audiomanager.h"
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int kDecibelStep = 6;
 const int kDecibelMinimum = -200;
@@ -124,7 +124,7 @@ void AudioMonitor::paintGL()
 
   // Create rect where decibel markings will go on the side
   QRect db_labels_rect = rect();
-  db_labels_rect.setWidth(QFontMetricsWidth(p.fontMetrics(), "-00"));
+  db_labels_rect.setWidth(QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00"));
   db_labels_rect.adjust(0, font_height, 0, 0);
 
   // Determine rect where the main meter will go
@@ -357,4 +357,4 @@ QVector<double> AudioMonitor::GetAverages() const
   return v;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

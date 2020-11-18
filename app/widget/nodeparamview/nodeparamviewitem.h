@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeParamViewItemTitleBar : public QWidget
 {
@@ -91,7 +91,7 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
 
 private:
   void UpdateUIForEdgeConnection(NodeInput* input);
@@ -161,7 +161,7 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
 
   void PinToggled(bool e);
 
@@ -186,6 +186,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWITEM_H

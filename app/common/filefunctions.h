@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A collection of static file and directory functions
@@ -65,10 +65,29 @@ public:
    */
   static QString EnsureFilenameExtension(QString fn, const QString& extension);
 
+  static QString ReadFileAsString(const QString& filename);
+
+  /**
+   * @brief Returns a temporary filename that can be used while writing rather than the original
+   *
+   * If overwriting a file, it's safest to write to a new file first and then only replace it at
+   * the end so that if the program crashes or the user cancels the save half way through, the
+   * original file is still intact.
+   *
+   * This function returns a slight variant of the filename provided that's guaranteed to not exist
+   * and therefore won't overwrite anything important.
+   */
+  static QString GetSafeTemporaryFilename(const QString& original);
+
+  /**
+   * @brief Renames a file from `from` to `to`, deleting `to` if such a file already exists first
+   */
+  static bool RenameFileAllowOverwrite(const QString& from, const QString& to);
+
 };
 
 
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FILEFUNCTIONS_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   QDialog(parent)
@@ -98,4 +98,4 @@ void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)
   tabs_.append(tab);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

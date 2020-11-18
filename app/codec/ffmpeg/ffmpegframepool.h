@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,17 +22,16 @@
 #define FFMPEGFRAMEPOOL_H
 
 #include "common/memorypool.h"
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FFmpegFramePool : public MemoryPool<uint8_t>
 {
 public:
   FFmpegFramePool(int element_count);
 
-  void SetParameters(int width, int height, AVPixelFormat format);
+  void SetParameters(int width, int height, VideoParams::Format format, int channel_count);
 
   const int& width() const
   {
@@ -52,10 +51,12 @@ private:
 
   int height_;
 
-  AVPixelFormat format_;
+  VideoParams::Format format_;
+
+  int channel_count_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGFRAMEPOOL_H

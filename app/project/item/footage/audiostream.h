@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "render/audioparams.h"
 #include "stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Stream derivative containing audio-specific information
@@ -49,10 +49,6 @@ public:
   const int& sample_rate() const;
   void set_sample_rate(const int& sample_rate);
 
-  bool try_start_conforming(const AudioParams& params);
-  bool has_conformed_version(const AudioParams& params);
-  void append_conformed_version(const AudioParams& params);
-
   virtual QIcon icon() const override;
 
 protected:
@@ -60,22 +56,15 @@ protected:
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
 
-signals:
-  void ConformAppended(OLIVE_NAMESPACE::AudioParams params);
-
 private:
   int channels_;
   uint64_t layout_;
   int sample_rate_;
 
-  QList<AudioParams> conformed_;
-
-  QList<AudioParams> currently_conforming_;
-
 };
 
 using AudioStreamPtr = std::shared_ptr<AudioStream>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOSTREAM_H

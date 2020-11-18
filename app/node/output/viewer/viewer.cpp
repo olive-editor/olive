@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerOutput::ViewerOutput() :
   video_frame_cache_(this),
@@ -82,7 +82,7 @@ QString ViewerOutput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.vieweroutput");
 }
 
-QList<Node::CategoryID> ViewerOutput::Category() const
+QVector<Node::CategoryID> ViewerOutput::Category() const
 {
   return {kCategoryOutput};
 }
@@ -102,7 +102,6 @@ void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
   audio_playback_cache_.Shift(from, to);
 
   foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
-    QMutexLocker locker(track->waveform_lock());
     track->waveform().Shift(from, to);
   }
 }
@@ -164,6 +163,8 @@ void ViewerOutput::set_video_params(const VideoParams &video)
   }
 
   emit VideoParamsChanged();
+
+  video_frame_cache_.InvalidateAll();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
@@ -171,6 +172,9 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
   audio_params_ = audio;
 
   emit AudioParamsChanged();
+
+  // This will automatically InvalidateAll
+  audio_playback_cache_.SetParameters(audio_params());
 }
 
 rational ViewerOutput::GetLength()
@@ -341,4 +345,4 @@ void ViewerOutput::TrackHeightChangedSlot(int index, int height)
   emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

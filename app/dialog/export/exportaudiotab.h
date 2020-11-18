@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,10 +27,11 @@
 #include "common/define.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportAudioTab : public QWidget
 {
+  Q_OBJECT
 public:
   ExportAudioTab(QWidget* parent = nullptr);
 
@@ -56,6 +57,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTAUDIOTAB_H

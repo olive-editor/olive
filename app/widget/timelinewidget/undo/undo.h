@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "undo/undocommand.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class BlockResizeCommand : public UndoCommand {
 public:
@@ -192,6 +192,7 @@ protected:
   rational out_;
 
   bool splice_;
+  QUndoCommand* splice_split_command_;
 
   Block* trim_out_;
   Block* trim_in_;
@@ -329,16 +330,17 @@ protected:
 private:
   TrackOutput* track_;
   Block* block_;
+  Block* new_block_;
 
   rational new_length_;
   rational old_length_;
   rational point_;
 
-  Block* new_block_;
-
   QList<NodeInput*> transitions_to_move_;
 
   QObject memory_manager_;
+
+  QUndoCommand* add_command_;
 
 };
 
@@ -471,12 +473,12 @@ private:
 
 class BlockLinkManyCommand : public UndoCommand {
 public:
-  BlockLinkManyCommand(const QList<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
+  BlockLinkManyCommand(const QVector<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
 private:
-  QList<Block*> blocks_;
+  QVector<Block*> blocks_;
 
 };
 
@@ -631,6 +633,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEUNDOABLE_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "core.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
   command_(nullptr),
@@ -110,8 +110,8 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
     } else {
 
-      FootagePtr item = Decoder::ProbeMedia(model_->project(), file_info.absoluteFilePath(),
-                                            &IsCancelled());
+      FootagePtr item = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
+                                       &IsCancelled());
 
       if (item) {
         // See if this footage is an image sequence
@@ -284,4 +284,4 @@ int64_t ProjectImportTask::GetImageSequenceLimit(const QString& start_fn, int64_
   return start;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

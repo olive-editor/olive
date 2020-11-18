@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -95,6 +95,8 @@ private slots:
    * @brief Adds items to open recent menu
    */
   void PopulateOpenRecent();
+
+  void RepopulateOpenRecent();
 
   /**
    * @brief Clears open recent items when menu closes
@@ -270,6 +272,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MAINMENU_H

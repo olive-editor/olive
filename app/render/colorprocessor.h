@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,10 +22,11 @@
 #define COLORPROCESSOR_H
 
 #include "codec/frame.h"
+#include "common/ocioutils.h"
 #include "render/color.h"
 #include "render/colortransform.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorManager;
 
@@ -51,15 +52,28 @@ public:
   void ConvertFrame(FramePtr f);
   void ConvertFrame(Frame* f);
 
-  Color ConvertColor(Color in);
+  Color ConvertColor(const Color &in);
+
+  const QString& id() const
+  {
+    return id_;
+  }
+
+  static QString GenerateID(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
 private:
   OCIO::ConstProcessorRcPtr processor_;
 
+  OCIO::ConstCPUProcessorRcPtr cpu_processor_;
+
+  QString id_;
+
 };
 
-using ColorProcessorChain = QList<ColorProcessorPtr>;
+using ColorProcessorChain = QVector<ColorProcessorPtr>;
 
-OLIVE_NAMESPACE_EXIT
+}
+
+Q_DECLARE_METATYPE(olive::ColorProcessorPtr)
 
 #endif // COLORPROCESSOR_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "add.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TransitionTool : public AddTool
 {
@@ -37,6 +37,6 @@ private:
   bool dual_transition_;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRANSITIONTIMELINETOOL_H

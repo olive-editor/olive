@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ extern "C" {
 int main(int argc, char *argv[])
 {
   // Set up debug handler
-  qInstallMessageHandler(OLIVE_NAMESPACE::DebugHandler);
+  qInstallMessageHandler(olive::DebugHandler);
 
   // Generate version string
   QString app_version = APPVERSION;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   // Parse command line arguments
   //
 
-  OLIVE_NAMESPACE::Core::CoreParams startup_params;
+  olive::Core::CoreParams startup_params;
 
   CommandLineParser parser;
 
@@ -93,6 +93,12 @@ int main(int argc, char *argv[])
   const CommandLineParser::Option* export_option =
       parser.AddOption({QStringLiteral("x"), QStringLiteral("-export")},
                        QCoreApplication::translate("main", "Export only (No GUI)"));
+
+  const CommandLineParser::Option* ts_option =
+      parser.AddOption({QStringLiteral("-ts")},
+                       QCoreApplication::translate("main", "Override language with file"),
+                       true,
+                       QCoreApplication::translate("main", "qm-file"));
 
   const CommandLineParser::PositionalArgument* project_argument =
       parser.AddPositionalArgument(QStringLiteral("project"),
@@ -113,7 +119,15 @@ int main(int argc, char *argv[])
   }
 
   if (export_option->IsSet()) {
-    startup_params.set_run_mode(OLIVE_NAMESPACE::Core::CoreParams::kHeadlessExport);
+    startup_params.set_run_mode(olive::Core::CoreParams::kHeadlessExport);
+  }
+
+  if (ts_option->IsSet()) {
+    if (ts_option->GetSetting().isEmpty()) {
+      qWarning() << "--ts was set but no translation file was provided";
+    } else {
+      startup_params.set_startup_language(ts_option->GetSetting());
+    }
   }
 
   startup_params.set_fullscreen(fullscreen_option->IsSet());
@@ -133,7 +147,7 @@ int main(int argc, char *argv[])
   // Create application instance
   std::unique_ptr<QCoreApplication> a;
 
-  if (startup_params.run_mode() == OLIVE_NAMESPACE::Core::CoreParams::kRunNormal) {
+  if (startup_params.run_mode() == olive::Core::CoreParams::kRunNormal) {
     a.reset(new QApplication(argc, argv));
   } else {
     a.reset(new QCoreApplication(argc, argv));
@@ -155,7 +169,8 @@ int main(int argc, char *argv[])
 #endif // USE_CRASHPAD
 
   // Start core
-  OLIVE_NAMESPACE::Core c(startup_params);
+  olive::Core c(startup_params);
+
   c.Start();
 
   int ret = a->exec();
