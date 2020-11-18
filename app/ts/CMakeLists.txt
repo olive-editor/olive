@@ -15,6 +15,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_TS_FILES
+  ts/ar_AR.ts
+  ts/bs_BS.ts
+  ts/cs_CS.ts
+  ts/de_DE.ts
   ts/en_US.ts
+  ts/es_ES.ts
+  ts/fr_FR.ts
+  ts/id_ID.ts
+  ts/it_IT.ts
+  ts/pt_BR.ts
+  ts/ru_RU.ts
+  ts/sr_SR.ts
+  ts/tr_TR.ts
+  ts/uk_UK.ts
+  ts/zh_CN.ts
+  ts/zh_TW.ts
   PARENT_SCOPE
 )
