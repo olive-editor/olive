@@ -31,7 +31,7 @@ PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   viewer()->set_video_params(sequence->video_params());
   viewer()->set_audio_params(sequence->audio_params());
 
-  video_node_ = new VideoInput();
+  video_node_ = new MediaInput();
   video_node_->SetStream(footage);
 
   NodeParam::ConnectEdge(video_node_->output(), viewer()->texture_input());

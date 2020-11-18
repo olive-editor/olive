@@ -32,10 +32,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   ViewerWidget(parent),
   footage_(nullptr)
 {
-  video_node_ = new VideoInput();
+  video_node_ = new MediaInput();
   sequence_.AddNode(video_node_);
 
-  audio_node_ = new AudioInput();
+  audio_node_ = new MediaInput();
   sequence_.AddNode(audio_node_);
 
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);

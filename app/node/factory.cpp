@@ -32,8 +32,7 @@
 #include "generator/text/text.h"
 #include "filter/blur/blur.h"
 #include "filter/stroke/stroke.h"
-#include "input/media/video/video.h"
-#include "input/media/audio/audio.h"
+#include "input/media/media.h"
 #include "input/time/timeinput.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
@@ -183,10 +182,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new PolygonGenerator();
   case kMatrixGenerator:
     return new MatrixGenerator();
-  case kVideoInput:
-    return new VideoInput();
-  case kAudioInput:
-    return new AudioInput();
+  case kFootageInput:
+    return new MediaInput();
   case kTrackOutput:
     return new TrackOutput();
   case kViewerOutput:

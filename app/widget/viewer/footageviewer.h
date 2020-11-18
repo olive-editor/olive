@@ -21,8 +21,7 @@
 #ifndef FOOTAGEVIEWERWIDGET_H
 #define FOOTAGEVIEWERWIDGET_H
 
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "node/output/viewer/viewer.h"
 #include "viewer.h"
 
@@ -49,9 +48,9 @@ private:
 
   Sequence sequence_;
 
-  VideoInput* video_node_;
+  MediaInput* video_node_;
 
-  AudioInput* audio_node_;
+  MediaInput* audio_node_;
 
   QHash<Footage*, int64_t> cached_timestamps_;
 

@@ -43,14 +43,14 @@ Project::Project() :
           this, &Project::DefaultColorSpaceChanged);
 }
 
-void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const QAtomicInt* cancelled)
+void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint version, const QAtomicInt* cancelled)
 {
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("root")) {
 
-      root_.Load(reader, xml_node_data, cancelled);
+      root_.Load(reader, xml_node_data, version, cancelled);
 
     } else if (reader->name() == QStringLiteral("colormanagement")) {
 

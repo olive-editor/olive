@@ -45,7 +45,7 @@ Sequence::Sequence()
   AddNode(viewer_output_);
 }
 
-void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
+void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
 {
   {
     XMLAttributeLoop(reader, attr) {
@@ -130,7 +130,16 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
         {
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("id")) {
-              node = NodeFactory::CreateFromID(attr.value().toString());
+              QString id = attr.value().toString();
+              if (version <= 201003) {
+                // After version 201003, the video and audio nodes were merged into one media node
+                if (id == QStringLiteral("org.olivevideoeditor.Olive.audioinput")
+                    || id == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
+                  id = QStringLiteral("org.olivevideoeditor.Olive.mediainput");
+                }
+              }
+
+              node = NodeFactory::CreateFromID(id);
               break;
             }
           }

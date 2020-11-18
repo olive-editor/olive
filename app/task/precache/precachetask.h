@@ -21,7 +21,7 @@
 #ifndef PRECACHETASK_H
 #define PRECACHETASK_H
 
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "task/render/render.h"
@@ -46,7 +46,7 @@ protected:
 private:
   VideoStreamPtr footage_;
 
-  VideoInput* video_node_;
+  MediaInput* video_node_;
 
 };
 

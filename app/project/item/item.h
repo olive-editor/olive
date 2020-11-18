@@ -67,7 +67,7 @@ public:
 
   DISABLE_COPY_MOVE(Item)
 
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled) = 0;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) = 0;
 
   virtual void Save(QXmlStreamWriter* writer) const = 0;
 

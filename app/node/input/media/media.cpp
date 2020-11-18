@@ -57,7 +57,7 @@ bool MediaInput::IsMedia() const
 
 void MediaInput::Retranslate()
 {
-  footage_input_->set_name(tr("Footage"));
+  footage_input_->set_name(tr("Media"));
 }
 
 NodeValueTable MediaInput::Value(NodeValueDatabase &value) const

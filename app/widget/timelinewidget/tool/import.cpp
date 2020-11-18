@@ -31,8 +31,7 @@
 #include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
 #include "node/generator/matrix/matrix.h"
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "node/math/math/math.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -416,7 +415,7 @@ void ImportTool::DropGhosts(bool insert)
       switch (footage_stream->type()) {
       case Stream::kVideo:
       {
-        VideoInput* video_input = new VideoInput();
+        MediaInput* video_input = new MediaInput();
         video_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
@@ -438,7 +437,7 @@ void ImportTool::DropGhosts(bool insert)
       }
       case Stream::kAudio:
       {
-        AudioInput* audio_input = new AudioInput();
+        MediaInput* audio_input = new MediaInput();
         audio_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, audio_input, command);
 

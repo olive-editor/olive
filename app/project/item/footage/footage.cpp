@@ -42,7 +42,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
+void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {

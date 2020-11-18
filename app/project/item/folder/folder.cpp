@@ -42,7 +42,7 @@ QIcon Folder::icon()
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
+void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
@@ -75,7 +75,7 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QA
     }
 
     add_child(child);
-    child->Load(reader, xml_node_data, cancelled);
+    child->Load(reader, xml_node_data, version, cancelled);
   }
 }
 

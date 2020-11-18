@@ -36,7 +36,25 @@ class MediaInput : public Node
 public:
   MediaInput();
 
-  virtual Stream::Type type() const = 0;
+  virtual QString Name() const override
+  {
+    return tr("Media");
+  }
+
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.mediainput");
+  }
+
+  virtual QString Description() const override
+  {
+    return tr("Import footage into the node graph.");
+  }
+
+  virtual Node* copy() const override
+  {
+    return new MediaInput();
+  }
 
   virtual QVector<CategoryID> Category() const override;
 
@@ -44,7 +62,6 @@ public:
   void SetStream(StreamPtr s);
 
   virtual bool IsMedia() const override;
-
 
   virtual void Retranslate() override;
 

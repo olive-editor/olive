@@ -37,6 +37,7 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 bool ProjectLoadTask::Run()
 {
   QFile project_file(GetFilename());
+  uint project_version;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
@@ -45,7 +46,7 @@ bool ProjectLoadTask::Run()
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
-            uint project_version = reader.readElementText().toUInt();
+            project_version = reader.readElementText().toUInt();
 
             if (project_version > Core::kProjectVersion) {
               // Project is newer than we support
@@ -63,7 +64,7 @@ bool ProjectLoadTask::Run()
 
             project_->set_filename(GetFilename());
 
-            project_->Load(&reader, &layout_info_, &IsCancelled());
+            project_->Load(&reader, &layout_info_, project_version, &IsCancelled());
 
             // Ensure project is in main thread
             project_->moveToThread(qApp->thread());

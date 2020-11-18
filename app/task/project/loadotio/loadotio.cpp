@@ -29,8 +29,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
 
@@ -172,12 +171,10 @@ bool LoadOTIOTask::Run()
             }
 
             if (probed_item && probed_item->type() == Item::kFootage) {
-              MediaInput* media;
+              MediaInput* media = new MediaInput();
               if (track->track_type() == Timeline::kTrackTypeVideo) {
-                media = new VideoInput();
                 media->SetStream(probed_item->get_first_stream_of_type(Stream::kVideo));
               } else {
-                media = new AudioInput();
                 media->SetStream(probed_item->get_first_stream_of_type(Stream::kAudio));
               }
               sequence->AddNode(media);
