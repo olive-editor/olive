@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "widget/viewer/footageviewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   ViewerPanelBase(QStringLiteral("FootageViewerPanel"), parent)
@@ -51,6 +51,11 @@ QList<Footage *> FootageViewerPanel::GetSelectedFootage() const
 
 void FootageViewerPanel::SetFootage(Footage *f)
 {
+  if (f && !f->IsValid()) {
+    // Do nothing if footage is invalid
+    return;
+  }
+
   static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->SetFootage(f);
 
   if (f) {
@@ -67,4 +72,4 @@ void FootageViewerPanel::Retranslate()
   SetTitle(tr("Footage Viewer"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

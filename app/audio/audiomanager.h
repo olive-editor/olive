@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,8 +30,9 @@
 #include "common/define.h"
 #include "outputmanager.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Audio input and output management class
@@ -57,11 +58,9 @@ public:
   void PushToOutput(const QByteArray& samples);
 
   /**
-   * @brief Start playing audio from QIODevice
-   *
-   * This takes ownership of the QIODevice and will delete it when StopOutput() is called
+   * @brief Start playing audio from AudioPlaybackCache
    */
-  void StartOutput(const QString& filename, qint64 offset, int playback_speed);
+  void StartOutput(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   /**
    * @brief Stop audio output immediately
@@ -86,7 +85,7 @@ signals:
 
   void OutputNotified();
 
-  void OutputDeviceStarted(const QString& filename, qint64 offset, int playback_speed);
+  void OutputDeviceStarted(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
 
   void AudioParamsChanged(const AudioParams& params);
 
@@ -108,7 +107,7 @@ private:
   static AudioManager* instance_;
 
   QThread output_thread_;
-  AudioOutputManager output_manager_;
+  AudioOutputManager* output_manager_;
   bool output_is_set_;
 
   QAudioDeviceInfo output_device_info_;
@@ -125,6 +124,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOMANAGER_H

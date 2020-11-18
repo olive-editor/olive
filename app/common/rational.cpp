@@ -3,7 +3,7 @@
 
 #include "rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 rational rational::fromDouble(const double &flt)
 {
@@ -101,6 +101,14 @@ AVRational rational::toAVRational() const
 
   return r;
 }
+
+#ifdef USE_OTIO
+opentime::RationalTime rational::toRationalTime() const
+{
+  // Is this the best way of doing this?
+  return opentime::RationalTime::from_seconds(toDouble());
+}
+#endif
 
 rational rational::flipped() const
 {
@@ -383,9 +391,9 @@ uint qHash(const rational &r, uint seed)
   return ::qHash(r.toDouble(), seed);
 }
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational &r)
+QDebug operator<<(QDebug debug, const olive::rational &r)
 {
   return debug.space() << r.toDouble();
   /*

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,9 @@
 #include "common/rational.h"
 #include "common/xmlutils.h"
 #include "dialog/sequence/presetmanager.h"
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SequencePreset : public Preset {
 public:
@@ -44,7 +43,7 @@ public:
                  int sample_rate,
                  uint64_t channel_layout,
                  int preview_divider,
-                 PixelFormat::Format preview_format) :
+                 VideoParams::Format preview_format) :
     width_(width),
     height_(height),
     frame_rate_(frame_rate),
@@ -67,7 +66,7 @@ public:
                           int sample_rate,
                           uint64_t channel_layout,
                           int preview_divider,
-                          PixelFormat::Format preview_format)
+                          VideoParams::Format preview_format)
   {
     return std::make_shared<SequencePreset>(name, width, height, frame_rate, pixel_aspect,
                                             interlacing, sample_rate, channel_layout,
@@ -96,7 +95,7 @@ public:
       } else if (reader->name() == QStringLiteral("divider")) {
         preview_divider_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("format")) {
-        preview_format_ = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
+        preview_format_ = static_cast<VideoParams::Format>(reader->readElementText().toInt());
       } else {
         reader->skipCurrentElement();
       }
@@ -157,7 +156,7 @@ public:
     return preview_divider_;
   }
 
-  PixelFormat::Format preview_format() const
+  VideoParams::Format preview_format() const
   {
     return preview_format_;
   }
@@ -171,10 +170,10 @@ private:
   int sample_rate_;
   uint64_t channel_layout_;
   int preview_divider_;
-  PixelFormat::Format preview_format_;
+  VideoParams::Format preview_format_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEPARAM_H

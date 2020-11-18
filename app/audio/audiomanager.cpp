@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioManager* AudioManager::instance_ = nullptr;
 
@@ -77,26 +77,33 @@ bool AudioManager::IsRefreshingInputs()
 
 void AudioManager::PushToOutput(const QByteArray &samples)
 {
-  output_manager_.Push(samples);
+  output_manager_->Push(samples);
 
   emit OutputPushed(samples);
 }
 
-void AudioManager::StartOutput(const QString &filename, qint64 offset, int playback_speed)
+void AudioManager::StartOutput(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
 {
-  QMetaObject::invokeMethod(&output_manager_,
+  // Create device
+  QIODevice* device = cache->CreatePlaybackDevice();
+
+  // Move to output manager's thread
+  device->moveToThread(&output_thread_);
+
+  // Queue to output manger in other thread
+  QMetaObject::invokeMethod(output_manager_,
                             "PullFromDevice",
                             Qt::QueuedConnection,
-                            Q_ARG(const QString&, filename),
+                            Q_ARG(QIODevice*, device),
                             Q_ARG(qint64, offset),
                             Q_ARG(int, playback_speed));
 
-  emit OutputDeviceStarted(filename, offset, playback_speed);
+  emit OutputDeviceStarted(cache, offset, playback_speed);
 }
 
 void AudioManager::StopOutput()
 {
-  QMetaObject::invokeMethod(&output_manager_,
+  QMetaObject::invokeMethod(output_manager_,
                             "ResetToPushMode",
                             Qt::QueuedConnection);
 
@@ -117,39 +124,11 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
     format.setChannelCount(output_params_.channel_count());
     format.setCodec("audio/pcm");
     format.setByteOrder(QAudioFormat::LittleEndian);
-
-    switch (output_params_.format()) {
-    case SampleFormat::SAMPLE_FMT_U8:
-      format.setSampleSize(8);
-      format.setSampleType(QAudioFormat::UnSignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S16:
-      format.setSampleSize(16);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S32:
-      format.setSampleSize(32);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_S64:
-      format.setSampleSize(64);
-      format.setSampleType(QAudioFormat::SignedInt);
-      break;
-    case SampleFormat::SAMPLE_FMT_FLT:
-      format.setSampleSize(32);
-      format.setSampleType(QAudioFormat::Float);
-      break;
-    case SampleFormat::SAMPLE_FMT_DBL:
-      format.setSampleSize(64);
-      format.setSampleType(QAudioFormat::Float);
-      break;
-    case SampleFormat::SAMPLE_FMT_COUNT:
-    case SampleFormat::SAMPLE_FMT_INVALID:
-      abort();
-    }
+    format.setSampleSize(output_params_.bits_per_sample());
+    format.setSampleType(AudioParams::GetQtSampleType(output_params_.format()));
 
     if (info.isFormatSupported(format)) {
-      QMetaObject::invokeMethod(&output_manager_,
+      QMetaObject::invokeMethod(output_manager_,
                                 "SetOutputDevice",
                                 Qt::QueuedConnection,
                                 Q_ARG(const QAudioDeviceInfo&, info),
@@ -166,7 +145,7 @@ void AudioManager::SetOutputParams(const AudioParams &params)
   if (output_params_ != params) {
     output_params_ = params;
 
-    QMetaObject::invokeMethod(&output_manager_,
+    QMetaObject::invokeMethod(output_manager_,
                               "SetParameters",
                               Qt::QueuedConnection,
                               OLIVE_NS_ARG(AudioParams, params));
@@ -222,14 +201,15 @@ AudioManager::AudioManager() :
   RefreshDevices();
 
   output_thread_.start(QThread::TimeCriticalPriority);
-  output_manager_.moveToThread(&output_thread_);
+  output_manager_ = new AudioOutputManager();
+  output_manager_->moveToThread(&output_thread_);
 
-  connect(&output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
+  connect(output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
 }
 
 AudioManager::~AudioManager()
 {
-  QMetaObject::invokeMethod(&output_manager_, "Close", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(output_manager_, "deleteLater", Qt::BlockingQueuedConnection);
   output_thread_.quit();
   output_thread_.wait();
 }
@@ -242,7 +222,7 @@ void AudioManager::OutputDevicesRefreshed()
   watcher->deleteLater();
   is_refreshing_outputs_ = false;
 
-  QString preferred_audio_output = Config::Current()["PreferredAudioOutput"].toString();
+  QString preferred_audio_output = Config::Current()["AudioOutput"].toString();
 
   if (!output_is_set_
       || (!preferred_audio_output.isEmpty() && output_device_info_.deviceName() != preferred_audio_output)) {
@@ -269,7 +249,7 @@ void AudioManager::InputDevicesRefreshed()
   watcher->deleteLater();
   is_refreshing_inputs_ = false;
 
-  QString preferred_audio_input = Config::Current()["PreferredAudioInput"].toString();
+  QString preferred_audio_input = Config::Current()["AudioInput"].toString();
 
   if (input_ == nullptr
       || (!preferred_audio_input.isEmpty() && input_device_info_.deviceName() != preferred_audio_input)) {
@@ -288,4 +268,4 @@ void AudioManager::InputDevicesRefreshed()
   emit InputListReady();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

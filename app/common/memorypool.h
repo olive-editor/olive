@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,11 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
+
+extern size_t memory_pool_consumption;
+extern QMutex memory_pool_consumption_lock;
+bool MemoryPoolLimitReached();
 
 template <typename T>
 /**
@@ -66,11 +70,24 @@ public:
    * Deletes all arenas.
    */
   virtual ~MemoryPool() {
-    ignore_arena_empty_signal_ = true;
-    qDeleteAll(arenas_);
+    Clear();
   }
 
   DISABLE_COPY_MOVE(MemoryPool)
+
+  /**
+   * @brief Clears all arenas, freeing all of their memory
+   *
+   * Note that this function is not safe, any elements that are still out there will be invalid
+   * and accessing them will cause a crash. You'll need to make sure all elements are already
+   * relinquished before then.
+   */
+  void Clear()
+  {
+    ignore_arena_empty_signal_ = true;
+    qDeleteAll(arenas_);
+    ignore_arena_empty_signal_ = false;
+  }
 
   /**
    * @brief Returns whether any arenas are successfully allocated
@@ -185,6 +202,7 @@ public:
     Arena(MemoryPool* parent) {
       parent_ = parent;
       data_ = nullptr;
+      allocated_sz_ = 0;
     }
 
     ~Arena() {
@@ -194,6 +212,10 @@ public:
       }
 
       delete [] data_;
+
+      memory_pool_consumption_lock.lock();
+      memory_pool_consumption -= allocated_sz_;
+      memory_pool_consumption_lock.unlock();
     }
 
     DISABLE_COPY_MOVE(Arena)
@@ -212,6 +234,7 @@ public:
           ElementPtr e = std::make_shared<Element>(this,
                                                    reinterpret_cast<T*>(data_ + i * element_sz_));
           lent_elements_.push_back(e.get());
+
           return e;
         }
       }
@@ -250,9 +273,15 @@ public:
 
       element_sz_ = ele_sz;
 
-      if ((data_ = new char[element_sz_ * nb_elements])) {
+      allocated_sz_ = element_sz_ * nb_elements;
+
+      if ((data_ = new char[allocated_sz_])) {
         available_.resize(nb_elements);
         available_.fill(true);
+
+        memory_pool_consumption_lock.lock();
+        memory_pool_consumption += allocated_sz_;
+        memory_pool_consumption_lock.unlock();
 
         return true;
       } else {
@@ -274,6 +303,8 @@ public:
     MemoryPool* parent_;
 
     char* data_;
+
+    size_t allocated_sz_;
 
     QVector<bool> available_;
 
@@ -366,6 +397,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MEMORYPOOL_H

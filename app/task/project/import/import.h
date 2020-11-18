@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,10 +24,11 @@
 #include <QFileInfoList>
 #include <QUndoCommand>
 
+#include "codec/decoder.h"
 #include "project/projectviewmodel.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectImportTask : public Task
 {
@@ -42,11 +43,29 @@ public:
     return command_;
   }
 
+  const QStringList& GetInvalidFiles() const
+  {
+    return invalid_files_;
+  }
+
+  bool HasInvalidFiles() const
+  {
+    return !invalid_files_.isEmpty();
+  }
+
 protected:
   virtual bool Run() override;
 
 private:
-  void Import(Folder* folder, const QFileInfoList &import, int& counter, QUndoCommand *parent_command);
+  void Import(Folder* folder, QFileInfoList import, int& counter, QUndoCommand *parent_command);
+
+  void ValidateImageSequence(ItemPtr item, QFileInfoList &info_list, int index);
+
+  static bool ItemIsStillImageFootageOnly(ItemPtr item);
+
+  static bool CompareStillImageSize(ItemPtr item, const QSize& sz);
+
+  static int64_t GetImageSequenceLimit(const QString &start_fn, int64_t start, bool up);
 
   QUndoCommand* command_;
 
@@ -58,8 +77,12 @@ private:
 
   int file_count_;
 
+  QStringList invalid_files_;
+
+  QList<QString> image_sequence_ignore_files_;
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTIMPORTMANAGER_H

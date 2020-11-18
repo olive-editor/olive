@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 IntegerSlider::IntegerSlider(QWidget* parent) :
   SliderBase(kInteger, parent)
@@ -72,4 +72,4 @@ void IntegerSlider::ConvertValue(QVariant v)
   emit ValueChanged(v.toInt());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

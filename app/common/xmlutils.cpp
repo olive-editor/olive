@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,50 +24,7 @@
 #include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
-
-Node* XMLLoadNode(QXmlStreamReader* reader)
-{
-  QString node_id;
-  quintptr node_ptr = 0;
-  QPointF node_pos;
-  QString node_label;
-
-  XMLAttributeLoop(reader, attr) {
-    if (attr.name() == QStringLiteral("id")) {
-      node_id = attr.value().toString();
-    } else if (attr.name() == QStringLiteral("ptr")) {
-      node_ptr = attr.value().toULongLong();
-    } else if (attr.name() == QStringLiteral("pos")) {
-      QStringList pos = attr.value().toString().split(':');
-
-      // Protection in case this file has been messed with
-      if (pos.size() == 2) {
-        node_pos.setX(pos.at(0).toDouble());
-        node_pos.setY(pos.at(1).toDouble());
-      }
-    } else if (attr.name() == QStringLiteral("label")) {
-      node_label = attr.value().toString();
-    }
-  }
-
-  if (node_id.isEmpty()) {
-    qWarning() << "Found node with no ID";
-    return nullptr;
-  }
-
-  Node* node = NodeFactory::CreateFromID(node_id);
-
-  if (node) {
-    node->setProperty("xml_ptr", node_ptr);
-    node->SetPosition(node_pos);
-    node->SetLabel(node_label);
-  } else {
-    qWarning() << "Failed to load" << node_id << "- no node with that ID is installed";
-  }
-
-  return node;
-}
+namespace olive {
 
 void XMLConnectNodes(const XMLNodeData &xml_node_data, QUndoCommand *command)
 {
@@ -102,14 +59,9 @@ bool XMLReadNextStartElement(QXmlStreamReader *reader)
 
 void XMLLinkBlocks(const XMLNodeData &xml_node_data)
 {
-  foreach (const XMLNodeData::BlockLink& l1, xml_node_data.block_links) {
-    foreach (const XMLNodeData::BlockLink& l2, xml_node_data.block_links) {
-      if (l1.link == l2.block->property("xml_ptr")) {
-        Block::Link(l1.block, l2.block);
-        break;
-      }
-    }
+  foreach (const XMLNodeData::BlockLink& l, xml_node_data.block_links) {
+    Block::Link(l.block, static_cast<Block*>(xml_node_data.node_ptrs.value(l.link)));
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

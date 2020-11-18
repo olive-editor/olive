@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeBasedWidget : public TimelineScaledWidget
 {
@@ -139,6 +139,27 @@ signals:
   void TimebaseChanged(const rational&);
 
 private:
+  class MarkerAddCommand : public UndoCommand
+  {
+  public:
+    MarkerAddCommand(Project* project, TimelineMarkerList* marker_list, const TimeRange& range, const QString& name);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
+
+  private:
+    Project* project_;
+    TimelineMarkerList* marker_list_;
+    TimeRange range_;
+    QString name_;
+
+    TimelineMarker* added_marker_;
+
+  };
+
   /**
    * @brief Set either in or out point to the current playhead
    *
@@ -185,6 +206,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMEBASEDWIDGET_H

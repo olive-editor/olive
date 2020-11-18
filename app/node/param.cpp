@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "node/output.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParam::NodeParam(const QString &id) :
   id_(id),
@@ -43,9 +43,7 @@ NodeParam::NodeParam(const QString &id) :
 NodeParam::~NodeParam()
 {
   // Clear all connected edges
-  while (!edges_.isEmpty()) {
-    DisconnectEdge(edges_.last());
-  }
+  DisconnectAll();
 }
 
 const QString NodeParam::id() const
@@ -111,7 +109,7 @@ const QVector<NodeEdgePtr> &NodeParam::edges()
 void NodeParam::DisconnectAll()
 {
   while (!edges_.isEmpty()) {
-    DisconnectEdge(edges_.first());
+    DisconnectEdge(edges_.last());
   }
 }
 
@@ -288,4 +286,4 @@ QByteArray NodeParam::ValueToBytesInternal(const QVariant &v)
   return bytes;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "config/config.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PlaybackControls::PlaybackControls(QWidget *parent) :
   QWidget(parent),
@@ -161,7 +161,10 @@ void PlaybackControls::SetTimebase(const rational &r)
   time_base_ = r;
   cur_tc_lbl_->SetTimebase(r);
 
-  cur_tc_lbl_->setEnabled(!r.isNull());
+  cur_tc_lbl_->setVisible(!r.isNull());
+  end_tc_lbl_->setVisible(!r.isNull());
+
+  setEnabled(!r.isNull());
 }
 
 void PlaybackControls::SetAudioVideoDragButtonsVisible(bool e)
@@ -226,4 +229,4 @@ void PlaybackControls::TimecodeChanged()
   SetEndTime(end_time_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

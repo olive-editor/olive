@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class PreferencesTab : public QWidget
 {
@@ -38,6 +38,6 @@ public:
   virtual void Accept() = 0;
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PREFERENCESTAB_H

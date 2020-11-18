@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,9 @@ add_subdirectory(project)
 add_subdirectory(render)
 add_subdirectory(shaders)
 add_subdirectory(task)
+add_subdirectory(threading)
 add_subdirectory(timeline)
+add_subdirectory(ts)
 add_subdirectory(tool)
 add_subdirectory(ui)
 add_subdirectory(undo)
@@ -61,11 +63,25 @@ if(APPLE)
   )
 endif()
 
+# Add translations
+qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+
+set(QRC_BODY "")
+foreach(QM_FILE ${OLIVE_QM_FILES})
+  get_filename_component(QM_FILENAME_COMPONENT ${QM_FILE} NAME_WE)
+  string(APPEND QRC_BODY "<file alias=\"${QM_FILENAME_COMPONENT}\">${QM_FILE}</file>\n")
+endforeach()
+configure_file(ts/translations.qrc.in ts/translations.qrc @ONLY)
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
+  ${CMAKE_CURRENT_BINARY_DIR}/ts/translations.qrc
+)
+
 # Add executable
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
-  ${OLIVE_QM_FILES}
 )
 
 if(APPLE)
@@ -168,6 +184,27 @@ elseif (APPLE)
   )
 endif()
 
+# Enable OTIO if found
+if (OpenTimelineIO_FOUND)
+  set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_OTIO)
+
+  target_include_directories(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${OTIO_INCLUDE_DIRS}
+  )
+
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    ${OTIO_LIBRARIES}
+  )
+endif()
+
+if(UNIX AND NOT APPLE)
+  install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
+endif()
+
 # Enable Crashpad if found
 if (GoogleCrashpad_FOUND)
   set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_CRASHPAD)
@@ -176,27 +213,72 @@ if (GoogleCrashpad_FOUND)
     ${OLIVE_TARGET}
     PRIVATE
     ${CRASHPAD_INCLUDE_DIRS}
-    )
+  )
 
   target_link_libraries(
     ${OLIVE_TARGET}
     PRIVATE
     ${CRASHPAD_LIBRARIES}
+  )
+
+  set(OLIVE_CRASH_TARGET "olive-crashhandler")
+
+  set(OLIVE_CRASH_SOURCES
+    dialog/crashhandler/crashhandler.h
+    dialog/crashhandler/crashhandler.cpp
+    dialog/crashhandler/crashhandlermain.cpp
+  )
+
+  if (WIN32)
+    add_executable(
+      ${OLIVE_CRASH_TARGET}
+      WIN32
+      ${OLIVE_CRASH_SOURCES}
     )
+  else()
+    add_executable(
+      ${OLIVE_CRASH_TARGET}
+      ${OLIVE_CRASH_SOURCES}
+    )
+  endif()
+
+  target_include_directories(
+    ${OLIVE_CRASH_TARGET}
+    PRIVATE
+    ${CRASHPAD_INCLUDE_DIRS}
+    )
+
+  target_link_libraries(
+    ${OLIVE_CRASH_TARGET}
+    PRIVATE
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::Network
+    ${CRASHPAD_LIBRARIES}
+  )
+
+  set(CRASHPAD_HANDLER "crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}")
+  set(MINIDUMP_STACKWALK "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}")
+
+  if(UNIX AND NOT APPLE)
+    install(TARGETS ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
+    install(PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} DESTINATION bin)
+    install(PROGRAMS ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} DESTINATION bin)
+  endif()
+
+  if(APPLE)
+    # Move crash handler executables inside Mac app bundle
+    add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+    )
+  endif()
 endif()
 
 # Set compiler definitions
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
-
-set(OLIVE_TS_FILES
-  # FIXME: Empty variable
-)
-
-if(UPDATE_TS)
-  qt5_create_translation(OLIVE_QM_FILES ${CMAKE_SOURCE_DIR} ${OLIVE_TS_FILES})
-else()
-  qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
-endif()
 
 add_subdirectory(packaging)
 
@@ -206,44 +288,4 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_EXTRACT_ALL "YES")
   set(DOXYGEN_EXTRACT_PRIVATE "YES")
   doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
-endif()
-
-set(OLIVE_CRASH_TARGET "olive-crashhandler")
-
-set(OLIVE_CRASH_SOURCES
-  dialog/crashhandler/crashhandler.h
-  dialog/crashhandler/crashhandler.cpp
-  dialog/crashhandler/crashhandlermain.cpp
-)
-
-if (WIN32)
-  add_executable(
-    ${OLIVE_CRASH_TARGET}
-    WIN32
-    ${OLIVE_CRASH_SOURCES}
-  )
-else()
-  add_executable(
-    ${OLIVE_CRASH_TARGET}
-    ${OLIVE_CRASH_SOURCES}
-  )
-endif()
-
-target_link_libraries(
-  ${OLIVE_CRASH_TARGET}
-  PRIVATE
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
-)
-
-if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
-endif()
-
-if(APPLE)
-  # Move crash handler program inside Mac app bundle
-  add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-  )
 endif()

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEM_H
 #define NODEPARAMVIEWITEM_H
 
+#include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -34,14 +35,38 @@
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-class NodeParamViewItemTitleBar : public QWidget {
+class NodeParamViewItemTitleBar : public QWidget
+{
+  Q_OBJECT
 public:
   NodeParamViewItemTitleBar(QWidget* parent = nullptr);
 
+  void SetExpanded(bool e);
+
+  void SetText(const QString& s)
+  {
+    lbl_->setText(s);
+  }
+
+signals:
+  void ExpandedStateChanged(bool e);
+
+  void PinToggled(bool e);
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
+
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+private:
+  bool draw_border_;
+
+  QLabel* lbl_;
+
+  CollapseButton* collapse_btn_;
+
 };
 
 class NodeParamViewItemBody : public QWidget {
@@ -66,7 +91,7 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
 
 private:
   void UpdateUIForEdgeConnection(NodeInput* input);
@@ -99,7 +124,7 @@ private slots:
 
 };
 
-class NodeParamViewItem : public QWidget
+class NodeParamViewItem : public QDockWidget
 {
   Q_OBJECT
 public:
@@ -111,8 +136,21 @@ public:
 
   Node* GetNode() const;
 
+  bool IsExpanded() const;
+
+  void SetHighlighted(bool e)
+  {
+    highlighted_ = e;
+
+    update();
+  }
+
 public slots:
   void SignalAllKeyframes();
+
+  void SetExpanded(bool e);
+
+  void ToggleExpanded();
 
 signals:
   void KeyframeAdded(NodeKeyframePtr key, int y);
@@ -123,17 +161,17 @@ signals:
 
   void InputDoubleClicked(NodeInput* input);
 
-  void RequestSelectNode(const QList<Node*>& node);
+  void RequestSelectNode(const QVector<Node*>& node);
+
+  void PinToggled(bool e);
 
 protected:
   virtual void changeEvent(QEvent *e) override;
 
+  virtual void paintEvent(QPaintEvent *event) override;
+
 private:
   NodeParamViewItemTitleBar* title_bar_;
-
-  QLabel* title_bar_lbl_;
-
-  CollapseButton* title_bar_collapse_btn_;
 
   NodeParamViewItemBody* body_;
 
@@ -141,11 +179,13 @@ private:
 
   rational time_;
 
+  bool highlighted_;
+
 private slots:
   void Retranslate();
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPARAMVIEWITEM_H

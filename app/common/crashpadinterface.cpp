@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,59 +23,111 @@
 #ifdef USE_CRASHPAD
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
+#include <QProcess>
 
+#include "crashpadutils.h"
 #include "filefunctions.h"
 
-// Copied from base::FilePath to match its macro
-#if defined(OS_POSIX)
-  // On most platforms, native pathnames are char arrays, and the encoding
-  // may or may not be specified.  On Mac OS X, native pathnames are encoded
-  // in UTF-8.
-  #define TO_BASE_STRING_TYPE(x) x.toStdString()
-#elif defined(OS_WIN)
-  // On Windows, for Unicode-aware applications, native pathnames are wchar_t
-  // arrays encoded in UTF-16.
-  #define TO_BASE_STRING_TYPE(x) x.toStdWString()
-#endif  // OS_WIN
+#ifdef OS_WIN
+#include <Windows.h>
+#endif
+
+crashpad::CrashpadClient *client;
+
+QString GenerateReportPath()
+{
+  return QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+}
+
+base::FilePath GenerateReportPathForCrashpad()
+{
+  return base::FilePath(QSTRING_TO_BASE_STRING(GenerateReportPath()));
+}
+
+#if defined(OS_WIN)
+LONG WINAPI Win32ExceptionHandler(_EXCEPTION_POINTERS *ExceptionInfo)
+{
+  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
+  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+
+  client->DumpAndCrash(ExceptionInfo);
+
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+#elif defined(OS_LINUX)
+bool LinuxExceptionHandler(int, siginfo_t*, ucontext_t*)
+{
+  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
+  QProcess::startDetached(crash_handler_exe, {GenerateReportPath(), QString::number(QDateTime::currentSecsSinceEpoch())});
+
+  // Returning false signals to Crashpad to proceed with its own exception handling
+  return false;
+}
+#endif
 
 bool InitializeCrashpad()
 {
-  QString exe_dir = QCoreApplication::applicationDirPath();
+  QString handler_fn;
 
-  // FIXME: On Linux, probably should put this in a subdir so that it doesn't conflict with
-  //        anything else in /usr/bin
+  // Determine filename of handler from platform
+#ifdef OS_WIN
+  handler_fn = QStringLiteral("crashpad_handler.exe");
+#else
+  handler_fn = QStringLiteral("crashpad_handler");
+#endif
 
-  base::FilePath handler(TO_BASE_STRING_TYPE(QDir(exe_dir).filePath(QStringLiteral("crashpad_handler.exe"))));
+  // Generate absolute path
+  QString handler_abs_path = QDir(QCoreApplication::applicationDirPath()).filePath(handler_fn);
 
-  base::FilePath reports_dir(TO_BASE_STRING_TYPE(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath("reports")));
+  bool status = false;
 
-  base::FilePath metrics_dir(TO_BASE_STRING_TYPE(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath("metrics")));
+  if (QFileInfo::exists(handler_abs_path)) {
+    base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
 
-  std::string url = "https://olivevideoeditor.org/crashpad/report.php";
+    base::FilePath reports_dir = GenerateReportPathForCrashpad();
 
-  // Metadata that will be posted to the server with the crash report map
-  std::map<std::string, std::string> annotations;
+    base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
 
-  // Disable crashpad rate limiting so that all crashes have dmp files
-  std::vector<std::string> arguments;
-  arguments.push_back("--no-rate-limit");
-  arguments.push_back("--no-upload-gzip");
+    // Metadata that will be posted to the server with the crash report map
+    std::map<std::string, std::string> annotations;
 
-  // Initialize Crashpad database
-  std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(reports_dir);
-  if (database == NULL) return false;
+    // Disable crashpad rate limiting so that all crashes have dmp files
+    std::vector<std::string> arguments;
+    arguments.push_back("--no-rate-limit");
+    arguments.push_back("--no-upload-gzip");
 
-  // Enable automated crash uploads
-  crashpad::Settings *settings = database->GetSettings();
-  if (settings == NULL) return false;
-  settings->SetUploadsEnabled(true);
+    // Initialize Crashpad database
+    std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(reports_dir);
+    if (database == NULL) return false;
 
-  // Start crash handler
-  crashpad::CrashpadClient *client = new crashpad::CrashpadClient();
-  bool status = client->StartHandler(handler, reports_dir, metrics_dir,
-                                     url, annotations, arguments, true, true);
+    // Disable automated crash uploads
+    crashpad::Settings *settings = database->GetSettings();
+    if (settings == NULL) return false;
+    settings->SetUploadsEnabled(false);
+
+    // Start crash handler
+    client = new crashpad::CrashpadClient();
+    status = client->StartHandler(handler, reports_dir, metrics_dir,
+                                  "https://olivevideoeditor.org/crashpad/report.php",
+                                  annotations, arguments, true, true);
+  }
+
+
+  // Override Crashpad exception filter with our own
+  if (status) {
+#if defined(OS_WIN)
+    SetUnhandledExceptionFilter(Win32ExceptionHandler);
+#elif defined(OS_LINUX)
+    crashpad::CrashpadClient::SetFirstChanceExceptionHandler(LinuxExceptionHandler);
+#endif
+  } else {
+    qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
+  }
+
   return status;
 }
 

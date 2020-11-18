@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,18 +30,17 @@
 #include <QXmlStreamWriter>
 
 #include "common/filefunctions.h"
+#include "config/config.h"
 #include "node/input.h"
 #include "render/videoparams.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int kDataIsPreset = Qt::UserRole;
 const int kDataPresetIsCustomRole = Qt::UserRole + 1;
 const int kDataPresetDataRole = Qt::UserRole + 2;
-
-const PixelFormat::Format kDefaultPreviewFormat = PixelFormat::PIX_FMT_RGBA16F;
 
 SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   QWidget(parent),
@@ -100,6 +99,7 @@ QTreeWidgetItem* SequenceDialogPresetTab::CreateFolder(const QString &name)
 
 QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &name, int width, int height, int divider)
 {
+  VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
   QTreeWidgetItem* parent = CreateFolder(name);
   AddStandardItem(parent, SequencePreset::Create(tr("%1 23.976 FPS").arg(name),
                                                  width,
@@ -110,7 +110,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 25 FPS").arg(name),
                                                  width,
                                                  height,
@@ -120,7 +120,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 29.97 FPS").arg(name),
                                                  width,
                                                  height,
@@ -130,7 +130,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 50 FPS").arg(name),
                                                  width,
                                                  height,
@@ -140,7 +140,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 59.94 FPS").arg(name),
                                                  width,
                                                  height,
@@ -150,12 +150,13 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   return parent;
 }
 
 QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &name, int width, int height, const rational& frame_rate, const rational &standard_par, const rational &wide_par, int divider)
 {
+  VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
   AddStandardItem(parent, SequencePreset::Create(tr("%1 Standard").arg(name),
@@ -167,7 +168,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   AddStandardItem(parent, SequencePreset::Create(tr("%1 Widescreen").arg(name),
                                                  width,
                                                  height,
@@ -177,7 +178,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                                  48000,
                                                  AV_CH_LAYOUT_STEREO,
                                                  divider,
-                                                 kDefaultPreviewFormat));
+                                                 default_format));
   return parent;
 }
 
@@ -294,4 +295,4 @@ void SequenceDialogPresetTab::DeleteSelectedPreset()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

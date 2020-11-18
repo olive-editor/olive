@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Block::Block() :
   previous_(nullptr),
@@ -49,17 +49,16 @@ Block::Block() :
   enabled_input_->set_standard_value(true);
   AddInput(enabled_input_);
 
-  speed_input_ = new NodeInput("speed_in", NodeParam::kRational);
-  speed_input_->set_standard_value(QVariant::fromValue(rational(1)));
-  speed_input_->set_connectable(false);
-  speed_input_->set_is_keyframable(false);
+  speed_input_ = new NodeInput("speed_in", NodeParam::kFloat);
+  speed_input_->set_standard_value(1.0);
+  speed_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
   AddInput(speed_input_);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
 }
 
-QList<Node::CategoryID> Block::Category() const
+QVector<Node::CategoryID> Block::Category() const
 {
   return {kCategoryTimeline};
 }
@@ -113,7 +112,7 @@ void Block::set_length_and_media_in(const rational &length)
   }
 
   // Calculate media_in adjustment
-  set_media_in(media_in() + (this->length() - length) * speed());
+  set_media_in(SequenceToMediaTime(in() + (this->length() - length)));
 
   rational old_length = this->length();
 
@@ -121,6 +120,11 @@ void Block::set_length_and_media_in(const rational &length)
   set_length_internal(length);
 
   LengthChangedEvent(old_length, length, Timeline::kTrimIn);
+}
+
+TimeRange Block::range() const
+{
+  return TimeRange(in(), out());
 }
 
 Block *Block::previous()
@@ -153,31 +157,6 @@ void Block::set_media_in(const rational &media_in)
   media_in_input_->set_standard_value(QVariant::fromValue(media_in));
 }
 
-rational Block::media_out() const
-{
-  return media_in() + length() * speed();
-}
-
-rational Block::speed() const
-{
-  return speed_input_->get_standard_value().value<rational>();
-}
-
-void Block::set_speed(const rational &speed)
-{
-  speed_input_->set_standard_value(QVariant::fromValue(speed));
-}
-
-bool Block::is_still() const
-{
-  return speed() == 0;
-}
-
-bool Block::is_reversed() const
-{
-  return speed() < 0;
-}
-
 bool Block::is_enabled() const
 {
   return enabled_input_->get_standard_value().toBool();
@@ -197,7 +176,24 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  return (sequence_time - in()) * speed() + media_in();
+  rational local_time = sequence_time - in();
+
+  // FIXME: Doesn't handle reversing
+  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
+    // FIXME: We'll need to calculate the speed hoo boy
+  } else {
+    double speed_value = speed_input_->get_standard_value().toDouble();
+
+    if (qIsNull(speed_value)) {
+      // Effectively holds the frame at the in point
+      local_time = 0;
+    } else if (!qFuzzyCompare(speed_value, 1.0)) {
+      // Multiply time
+      local_time = rational::fromDouble(local_time.toDouble() * speed_value);
+    }
+  }
+
+  return local_time + media_in();
 }
 
 rational Block::MediaToSequenceTime(const rational &media_time) const
@@ -207,15 +203,34 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  return (media_time - media_in()) / speed() + in();
+  rational sequence_time = media_time - media_in();
+
+  // FIXME: Doesn't handle reversing
+  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
+    // FIXME: We'll need to calculate the speed hoo boy
+  } else {
+    double speed_value = speed_input_->get_standard_value().toDouble();
+
+    if (qIsNull(speed_value)) {
+      // Effectively holds the frame at the in point, also prevents divide by zero
+      sequence_time = 0;
+    } else if (!qFuzzyCompare(speed_value, 1.0)) {
+      // Multiply time
+      sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
+    }
+  }
+
+  return sequence_time + in();
 }
 
 void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
 {
-  if (reader->name() == QStringLiteral("link")) {
-    xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
-  } else {
-    Node::LoadInternal(reader, xml_node_data);
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("link")) {
+      xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
+    } else {
+      reader->skipCurrentElement();
+    }
   }
 }
 
@@ -226,9 +241,9 @@ void Block::SaveInternal(QXmlStreamWriter *writer) const
   }
 }
 
-QList<NodeInput *> Block::GetInputsToHash() const
+QVector<NodeInput *> Block::GetInputsToHash() const
 {
-  QList<NodeInput*> inputs = Node::GetInputsToHash();
+  QVector<NodeInput*> inputs = Node::GetInputsToHash();
 
   // Ignore these inputs
   inputs.removeOne(media_in_input_);
@@ -360,4 +375,4 @@ void Block::Hash(QCryptographicHash &, const rational &) const
   // A block does nothing by default, so we hash nothing
 }
 
-OLIVE_NAMESPACE_EXIT
+}

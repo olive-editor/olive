@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "task/taskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
@@ -48,4 +48,4 @@ void TaskManagerPanel::Retranslate()
   SetTitle(tr("Task Manager"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

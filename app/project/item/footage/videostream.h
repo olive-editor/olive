@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,17 +21,112 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include "imagestream.h"
+#include "render/videoparams.h"
+#include "stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-class VideoStream : public ImageStream
+/**
+ * @brief A Stream derivative containing video-specific information
+ */
+class VideoStream : public Stream
 {
   Q_OBJECT
 public:
   VideoStream();
 
+  enum VideoType {
+    kVideoTypeVideo,
+    kVideoTypeStill,
+    kVideoTypeImageSequence
+  };
+
   virtual QString description() const override;
+
+  VideoType video_type() const
+  {
+    return video_type_;
+  }
+
+  void set_video_type(VideoType t)
+  {
+    video_type_ = t;
+  }
+
+  const int& width() const
+  {
+    return width_;
+  }
+
+  void set_width(const int& width)
+  {
+    width_ = width;
+  }
+
+  const int& height() const
+  {
+    return height_;
+  }
+
+  void set_height(const int& height)
+  {
+    height_ = height;
+  }
+
+  const VideoParams::Format& format() const
+  {
+    return format_;
+  }
+
+  void set_format(const VideoParams::Format& format)
+  {
+    format_ = format;
+  }
+
+  int channel_count() const
+  {
+    return channel_count_;
+  }
+
+  void set_channel_count(int c)
+  {
+    channel_count_ = c;
+  }
+
+  bool premultiplied_alpha() const;
+  void set_premultiplied_alpha(bool e);
+
+  const QString& colorspace(bool default_if_empty = true) const;
+  void set_colorspace(const QString& color);
+
+  VideoParams::Interlacing interlacing() const
+  {
+    return interlacing_;
+  }
+
+  void set_interlacing(VideoParams::Interlacing i)
+  {
+    interlacing_ = i;
+
+    emit ParametersChanged();
+  }
+
+  const rational& pixel_aspect_ratio() const
+  {
+    return pixel_aspect_ratio_;
+  }
+
+  void set_pixel_aspect_ratio(const rational& r)
+  {
+    // Auto-correct null aspect ratio to 1:1
+    if (r.isNull()) {
+      pixel_aspect_ratio_ = 1;
+    } else {
+      pixel_aspect_ratio_ = r;
+    }
+
+    emit ParametersChanged();
+  }
 
   /**
    * @brief Get this video stream's frame rate
@@ -44,35 +139,43 @@ public:
   const int64_t& start_time() const;
   void set_start_time(const int64_t& start_time);
 
-  bool is_image_sequence() const;
-  void set_image_sequence(bool e);
+  int64_t get_time_in_timebase_units(const rational& time) const;
 
-  /*
-  int64_t get_closest_timestamp_in_frame_index(const rational& time);
-  int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
+  virtual QIcon icon() const override;
 
-  void clear_frame_index();
-  void append_frame_index(const int64_t& ts);
-  bool is_frame_index_ready();
-  int64_t last_frame_index_timestamp();
+public slots:
+  void ColorConfigChanged();
 
-  bool load_frame_index(const QString& s);
-  bool save_frame_index(const QString& s);
-  */
+  void DefaultColorSpaceChanged();
+
+protected:
+  virtual void LoadCustomParameters(QXmlStreamReader *reader) override;
+
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
 
 private:
+  int width_;
+  int height_;
+  bool premultiplied_alpha_;
+  QString colorspace_;
+  VideoParams::Interlacing interlacing_;
+
+  VideoType video_type_;
+
+  VideoParams::Format format_;
+
+  int channel_count_;
+
+  rational pixel_aspect_ratio_;
+
   rational frame_rate_;
 
-  //QVector<int64_t> frame_index_;
-
   int64_t start_time_;
-
-  bool is_image_sequence_;
 
 };
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEOSTREAM_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 
 #include "audiostream.h"
 
-OLIVE_NAMESPACE_ENTER
+#include "common/xmlutils.h"
+
+namespace olive {
 
 AudioStream::AudioStream()
 {
@@ -64,36 +66,31 @@ void AudioStream::set_sample_rate(const int &sample_rate)
   sample_rate_ = sample_rate;
 }
 
-bool AudioStream::try_start_conforming(const AudioParams &params)
+QIcon AudioStream::icon() const
 {
-  QMutexLocker locker(proxy_access_lock());
+  return icon::Audio;
+}
 
-  if (!currently_conforming_.contains(params)
-      && !conformed_.contains(params)) {
-    currently_conforming_.append(params);
-    return true;
+void AudioStream::LoadCustomParameters(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("channels")) {
+      set_channels(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("layout")) {
+      set_channel_layout(reader->readElementText().toULongLong());
+    } else if (reader->name() == QStringLiteral("rate")) {
+      set_sample_rate(reader->readElementText().toInt());
+    } else {
+      reader->skipCurrentElement();
+    }
   }
-
-  return false;
 }
 
-bool AudioStream::has_conformed_version(const AudioParams &params)
+void AudioStream::SaveCustomParameters(QXmlStreamWriter *writer) const
 {
-  QMutexLocker locker(proxy_access_lock());
-
-  return conformed_.contains(params);
+  writer->writeTextElement(QStringLiteral("channels"), QString::number(channels_));
+  writer->writeTextElement(QStringLiteral("layout"), QString::number(layout_));
+  writer->writeTextElement(QStringLiteral("rate"), QString::number(sample_rate_));
 }
 
-void AudioStream::append_conformed_version(const AudioParams &params)
-{
-  {
-    QMutexLocker locker(proxy_access_lock());
-
-    currently_conforming_.removeOne(params);
-    conformed_.append(params);
-  }
-
-  emit ConformAppended(params);
 }
-
-OLIVE_NAMESPACE_EXIT

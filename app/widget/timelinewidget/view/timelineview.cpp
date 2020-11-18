@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,10 +33,12 @@
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
+  selections_(nullptr),
+  ghosts_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr)
 {
@@ -207,7 +209,7 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
   int line_y = 0;
 
   foreach (TrackOutput* track, connected_track_list_->GetTracks()) {
-    line_y += track->GetTrackHeight();
+    line_y += track->GetTrackHeightInPixels();
 
     // One px gap between tracks
     line_y++;
@@ -228,6 +230,43 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
   TimelineViewBase::drawForeground(painter, rect);
 
+  // Draw selections
+  if (selections_ && !selections_->isEmpty()) {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(0, 0, 0, 64));
+
+    for (auto it=selections_->cbegin(); it!=selections_->cend(); it++) {
+      if (it.key().type() == connected_track_list_->type()) {
+        int track_index = it.key().index();
+
+        foreach (const TimeRange& range, it.value()) {
+          painter->drawRect(TimeToScene(range.in()),
+                            GetTrackY(track_index),
+                            TimeToScene(range.length()),
+                            GetTrackHeight(track_index));
+        }
+      }
+    }
+  }
+
+  // Draw ghosts
+  if (ghosts_ && !ghosts_->isEmpty()) {
+    painter->setPen(QPen(Qt::yellow, 2));
+    painter->setBrush(Qt::NoBrush);
+
+    foreach (TimelineViewGhostItem* ghost, (*ghosts_)) {
+      if (ghost->GetTrack().type() == connected_track_list_->type()) {
+        int track_index = ghost->GetAdjustedTrack().index();
+
+        painter->drawRect(TimeToScene(ghost->GetAdjustedIn()),
+                          GetTrackY(track_index),
+                          TimeToScene(ghost->GetAdjustedLength()),
+                          GetTrackHeight(track_index));
+      }
+    }
+  }
+
+  // Draw beam cursor
   if (show_beam_cursor_
       && connected_track_list_
       && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
@@ -375,10 +414,10 @@ int TimelineView::GetTrackY(int track_index) const
 int TimelineView::GetTrackHeight(int track_index) const
 {
   if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
-    return TrackOutput::GetDefaultTrackHeight();
+    return TrackOutput::GetDefaultTrackHeightInPixels();
   }
 
-  return connected_track_list_->GetTrackAt(track_index)->GetTrackHeight();
+  return connected_track_list_->GetTrackAt(track_index)->GetTrackHeightInPixels();
 }
 
 QPoint TimelineView::GetScrollCoordinates() const
@@ -441,4 +480,4 @@ void TimelineView::UserSetTime(const int64_t &time)
   emit TimeChanged(time);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

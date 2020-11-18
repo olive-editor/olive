@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "common/timecodefunctions.h"
 #include "common/tohex.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
@@ -35,24 +35,29 @@ MediaInput::MediaInput() :
   AddInput(footage_input_);
 }
 
-QList<Node::CategoryID> MediaInput::Category() const
+QVector<Node::CategoryID> MediaInput::Category() const
 {
   return {kCategoryInput};
 }
 
-StreamPtr MediaInput::footage()
+StreamPtr MediaInput::stream()
 {
   return footage_input_->get_standard_value().value<StreamPtr>();
 }
 
-void MediaInput::SetFootage(StreamPtr f)
+void MediaInput::SetStream(StreamPtr s)
 {
-  footage_input_->set_standard_value(QVariant::fromValue(f));
+  footage_input_->set_standard_value(QVariant::fromValue(s));
+}
+
+bool MediaInput::IsMedia() const
+{
+  return true;
 }
 
 void MediaInput::Retranslate()
 {
-  footage_input_->set_name(tr("Footage"));
+  footage_input_->set_name(tr("Media"));
 }
 
 NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
@@ -93,4 +98,4 @@ void MediaInput::FootageParametersChanged()
   InvalidateCache(TimeRange(0, RATIONAL_MAX), footage_input_, footage_input_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

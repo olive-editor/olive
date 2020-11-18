@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "config/config.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioWaveformView::AudioWaveformView(QWidget *parent) :
   SeekableWidget(parent),
@@ -63,11 +63,13 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
 
+  if (!playback_) {
+    return;
+  }
+
   const AudioParams& params = playback_->GetParameters();
 
-  if (!playback_
-      || playback_->GetPCMFilename().isEmpty()
-      || !params.is_valid()) {
+  if (!params.is_valid()) {
     return;
   }
 
@@ -78,9 +80,9 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     cached_waveform_ = QPixmap(size());
     cached_waveform_.fill(Qt::transparent);
 
-    QFile fs(playback_->GetPCMFilename());
+    QIODevice* fs = playback_->CreatePlaybackDevice();
 
-    if (fs.open(QFile::ReadOnly)) {
+    if (fs->open(QFile::ReadOnly)) {
 
       QPainter wave_painter(&cached_waveform_);
 
@@ -89,13 +91,13 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 
       int drew = 0;
 
-      fs.seek(params.samples_to_bytes(ScreenToUnitRounded(0)));
+      fs->seek(params.samples_to_bytes(ScreenToUnitRounded(0)));
 
-      for (int x=0; x<width() && !fs.atEnd(); x++) {
+      for (int x=0; x<width() && !fs->atEnd(); x++) {
         int samples_len = ScreenToUnitRounded(x+1) - ScreenToUnitRounded(x);
         int max_read_size = params.samples_to_bytes(samples_len);
 
-        QByteArray read_buffer = fs.read(max_read_size);
+        QByteArray read_buffer = fs->read(max_read_size);
 
         // Detect whether we've reached EOF and recalculate sample count if so
         if (read_buffer.size() < max_read_size) {
@@ -117,9 +119,11 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
       cached_scale_ = GetScale();
       cached_scroll_ = GetScroll();
 
-      fs.close();
+      fs->close();
 
     }
+
+    delete fs;
   }
 
   QPainter p(this);
@@ -148,4 +152,4 @@ void AudioWaveformView::ForceUpdate()
   update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

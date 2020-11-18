@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
   SeekableWidget(parent),
@@ -46,13 +48,16 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
-  minimum_gap_between_lines_ = QFontMetricsWidth(fm, "H");
+  minimum_gap_between_lines_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   // Text visibility affects height, so we set that here
   UpdateHeight();
 
   // Force update if the default timecode display mode changes
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, static_cast<void (TimeRuler::*)()>(&TimeRuler::update));
+
+  // Connect context menu
+  connect(this, &TimeRuler::customContextMenuRequested, this, &TimeRuler::ShowContextMenu);
 }
 
 void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
@@ -204,7 +209,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
           QRect text_rect;
           Qt::Alignment text_align;
           QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase(), Core::instance()->GetTimecodeDisplay());
-          int timecode_width = QFontMetricsWidth(fm, timecode_str);
+          int timecode_width = QtUtils::QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 
           if (centered_text_) {
@@ -297,6 +302,16 @@ int TimeRuler::CacheStatusHeight() const
   return fontMetrics().height() / 4;
 }
 
+void TimeRuler::ShowContextMenu()
+{
+  Menu m(this);
+
+  MenuShared::instance()->AddItemsForTimeRulerMenu(&m);
+  MenuShared::instance()->AboutToShowTimeRulerActions();
+
+  m.exec(QCursor::pos());
+}
+
 void TimeRuler::UpdateHeight()
 {
   int height = text_height();
@@ -317,4 +332,4 @@ void TimeRuler::UpdateHeight()
   setFixedHeight(height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

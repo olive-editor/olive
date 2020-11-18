@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,9 +28,10 @@
 #include "common/xmlutils.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
-#include "project/item/footage/imagestream.h"
+#include "project/item/footage/videostream.h"
+#include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node::Node() :
   can_be_deleted_(true)
@@ -95,34 +96,61 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       }
 
       param->Load(reader, xml_node_data, cancelled);
-    } else {
+    } else if (reader->name() == QStringLiteral("ptr")) {
+      xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
+    } else if (reader->name() == QStringLiteral("pos")) {
+      QPointF p;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("x")) {
+          p.setX(reader->readElementText().toDouble());
+        } else if (reader->name() == QStringLiteral("y")) {
+          p.setY(reader->readElementText().toDouble());
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+      SetPosition(p);
+    } else if (reader->name() == QStringLiteral("label")) {
+      SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
 
-void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
+void Node::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(custom_name.isEmpty() ? QStringLiteral("node") : custom_name);
+  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
-  writer->writeAttribute(QStringLiteral("id"), id());
+  writer->writeStartElement(QStringLiteral("pos"));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(GetPosition().x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(GetPosition().y()));
+  writer->writeEndElement(); // pos
 
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeAttribute(QStringLiteral("pos"),
-                         QStringLiteral("%1:%2").arg(QString::number(GetPosition().x()),
-                                                     QString::number(GetPosition().y())));
-
-  writer->writeAttribute(QStringLiteral("label"),
-                         GetLabel());
+  writer->writeTextElement(QStringLiteral("label"), GetLabel());
 
   foreach (NodeParam* param, parameters()) {
+    switch (param->type()) {
+    case NodeParam::kInput:
+      writer->writeStartElement(QStringLiteral("input"));
+      break;
+    case NodeParam::kOutput:
+      writer->writeStartElement(QStringLiteral("output"));
+      break;
+    }
+
     param->Save(writer);
+
+    writer->writeEndElement(); // input/output
   }
 
+  writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
-
-  writer->writeEndElement(); // node
+  writer->writeEndElement(); // custom
 }
 
 QString Node::ShortName() const
@@ -212,6 +240,66 @@ TimeRange Node::OutputTimeAdjustment(NodeInput *, const TimeRange &input_time) c
   return input_time;
 }
 
+QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCommand* command)
+{
+  int nb_nodes = nodes.size();
+
+  QVector<Node*> copies(nb_nodes);
+
+  for (int i=0; i<nb_nodes; i++) {
+    // Create another of the same node
+    Node* c = nodes.at(i)->copy();;
+
+    // Copy the values, but NOT the connections, since we'll be connecting to our own clones later
+    Node::CopyInputs(nodes.at(i), c, false);
+
+    // Add to graph
+    NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
+    if (command) {
+      new NodeAddCommand(graph, c, command);
+    } else {
+      graph->AddNode(c);
+    }
+
+    // Store in array at the same index as source
+    copies[i] = c;
+  }
+
+  CopyDependencyGraph(nodes, copies, command);
+
+  return copies;
+}
+
+void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, QUndoCommand *command)
+{
+  int nb_nodes = src.size();
+
+  for (int i=0; i<nb_nodes; i++) {
+    // Find any interconnections
+    QVector<NodeInput*> inputs = src.at(i)->GetInputsIncludingArrays();
+
+    for (int j=0; j<nb_nodes; j++) {
+      if (i == j) {
+        continue;
+      }
+
+      foreach (NodeInput* input, inputs) {
+        if (input->get_connected_node() == src.at(j)) {
+          // Found a connection
+          NodeOutput* copy_output = dst.at(j)->GetOutputWithID(input->get_connected_output()->id());
+          NodeInput* copy_input = dst.at(i)->GetInputWithID(input->id());
+
+          if (command) {
+            new NodeEdgeAddCommand(copy_output, copy_input, command);
+          } else {
+            NodeParam::ConnectEdge(copy_output, copy_input);
+          }
+        }
+      }
+    }
+  }
+}
+
 void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
 {
   // Loop through all parameters (there should be no children that are not NodeParams)
@@ -238,24 +326,12 @@ void Node::SaveInternal(QXmlStreamWriter *) const
 {
 }
 
-QList<NodeInput *> Node::GetInputsToHash() const
+QVector<NodeInput *> Node::GetInputsToHash() const
 {
   return GetInputsIncludingArrays();
 }
 
-QString Node::ReadFileAsString(const QString &filename)
-{
-  QFile f(filename);
-  QString file_data;
-  if (f.open(QFile::ReadOnly | QFile::Text)) {
-    QTextStream text_stream(&f);
-    file_data = text_stream.readAll();
-    f.close();
-  }
-  return file_data;
-}
-
-void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>& list)
+void GetInputsIncludingArraysInternal(NodeInputArray* array, QVector<NodeInput *>& list)
 {
   foreach (NodeInput* input, array->sub_params()) {
     list.append(input);
@@ -266,9 +342,9 @@ void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>&
   }
 }
 
-QList<NodeInput *> Node::GetInputsIncludingArrays() const
+QVector<NodeInput *> Node::GetInputsIncludingArrays() const
 {
-  QList<NodeInput *> inputs;
+  QVector<NodeInput *> inputs;
 
   foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kInput) {
@@ -285,7 +361,7 @@ QList<NodeInput *> Node::GetInputsIncludingArrays() const
   return inputs;
 }
 
-QList<NodeOutput *> Node::GetOutputs() const
+QVector<NodeOutput *> Node::GetOutputs() const
 {
   // The current design only uses one output per node. This function returns a list just in case that changes.
   return {output_};
@@ -332,7 +408,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
   // Add this Node's ID
   hash.addData(id().toUtf8());
 
-  QList<NodeInput*> inputs = GetInputsToHash();
+  QVector<NodeInput*> inputs = GetInputsToHash();
 
   foreach (NodeInput* input, inputs) {
     // For each input, try to hash its value
@@ -361,13 +437,13 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
         hash.addData(stream->footage()->filename().toUtf8());
 
         // Footage last modified date
-        hash.addData(stream->footage()->timestamp().toString().toUtf8());
+        hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
 
         // Footage stream
         hash.addData(QString::number(stream->index()).toUtf8());
 
-        if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
-          ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+        if (stream->type() == Stream::kVideo) {
+          VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
 
           // Current color config and space
           hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
@@ -375,6 +451,9 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
           // Alpha associated setting
           hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+
+          // Pixel aspect ratio
+          hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
         }
 
         // Footage timestamp
@@ -398,8 +477,8 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
-  const QList<NodeParam*>& src_param = source->params_;
-  const QList<NodeParam*>& dst_param = destination->params_;
+  const QVector<NodeParam*>& src_param = source->params_;
+  const QVector<NodeParam*>& dst_param = destination->params_;
 
   for (int i=0;i<src_param.size();i++) {
     NodeParam* p = src_param.at(i);
@@ -437,7 +516,12 @@ bool Node::IsTrack() const
   return false;
 }
 
-const QList<NodeParam *>& Node::parameters() const
+bool Node::IsMedia() const
+{
+    return false;
+}
+
+const QVector<NodeParam *>& Node::parameters() const
 {
   return params_;
 }
@@ -455,9 +539,9 @@ int Node::IndexOfParameter(NodeParam *param) const
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-QList<Node*> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
-  QList<Node*> list;
+QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<Node*> list;
 
   foreach (NodeInput* i, inputs) {
     i->GetDependencies(list, traverse, exclusive_only);
@@ -466,17 +550,17 @@ QList<Node*> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) c
   return list;
 }
 
-QList<Node *> Node::GetDependencies() const
+QVector<Node *> Node::GetDependencies() const
 {
   return GetDependenciesInternal(true, false);
 }
 
-QList<Node *> Node::GetExclusiveDependencies() const
+QVector<Node *> Node::GetExclusiveDependencies() const
 {
   return GetDependenciesInternal(true, true);
 }
 
-QList<Node *> Node::GetImmediateDependencies() const
+QVector<Node *> Node::GetImmediateDependencies() const
 {
   return GetDependenciesInternal(false, false);
 }
@@ -500,7 +584,7 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
 
 NodeInput *Node::GetInputWithID(const QString &id) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     if (i->id() == id) {
@@ -525,7 +609,7 @@ NodeOutput *Node::GetOutputWithID(const QString &id) const
 
 bool Node::OutputsTo(Node *n, bool recursively) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -544,7 +628,7 @@ bool Node::OutputsTo(Node *n, bool recursively) const
 
 bool Node::OutputsTo(const QString &id, bool recursively) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -563,7 +647,7 @@ bool Node::OutputsTo(const QString &id, bool recursively) const
 
 bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
 {
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* output, outputs) {
     foreach (NodeEdgePtr edge, output->edges()) {
@@ -585,7 +669,7 @@ bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) co
 
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     foreach (NodeEdgePtr edge, input->edges()) {
@@ -604,7 +688,7 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
-  QList<NodeInput*> inputs = GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     foreach (NodeEdgePtr edge, input->edges()) {
@@ -626,7 +710,7 @@ int Node::GetRoutesTo(Node *n) const
   bool outputs_directly = false;
   int routes = 0;
 
-  QList<NodeOutput*> outputs = GetOutputs();
+  QVector<NodeOutput*> outputs = GetOutputs();
 
   foreach (NodeOutput* o, outputs) {
     foreach (NodeEdgePtr edge, o->edges()) {
@@ -705,13 +789,13 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
+QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
 {
-  QList<TimeRange> paths_found;
+  QVector<TimeRange> paths_found;
 
   if (direction == NodeParam::kInput) {
     // Get list of all inputs
-    QList<NodeInput *> inputs = GetInputsIncludingArrays();
+    QVector<NodeInput *> inputs = GetInputsIncludingArrays();
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs) {
@@ -732,7 +816,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
     }
   } else {
     // Get list of all outputs
-    QList<NodeOutput*> outputs = GetOutputs();
+    QVector<NodeOutput*> outputs = GetOutputs();
 
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeOutput* output, outputs) {
@@ -849,4 +933,4 @@ void Node::InputConnectionChanged(NodeEdgePtr edge)
   InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), edge->input(), edge->input());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

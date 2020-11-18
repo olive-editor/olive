@@ -6,7 +6,7 @@
 
 #include "widget/slider/integerslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportAdvancedVideoDialog : public QDialog
 {
@@ -42,6 +42,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTADVANCEDVIDEODIALOG_H

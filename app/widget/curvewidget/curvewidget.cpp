@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <QEvent>
 #include <QLabel>
 #include <QScrollBar>
+#include <QSplitter>
 #include <QVBoxLayout>
 
 #include "core.h"
@@ -31,15 +32,26 @@
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveWidget::CurveWidget(QWidget *parent) :
-  TimeBasedWidget(parent),
-  input_(nullptr),
-  bridge_(nullptr)
+  TimeBasedWidget(parent)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
+  QHBoxLayout* outer_layout = new QHBoxLayout(this);
+
+  QSplitter* splitter = new QSplitter();
+  outer_layout->addWidget(splitter);
+
+  tree_view_ = new NodeTreeView();
+  tree_view_->SetOnlyShowKeyframable(true);
+  connect(tree_view_, &NodeTreeView::NodeEnableChanged, this, &CurveWidget::NodeEnabledChanged);
+  connect(tree_view_, &NodeTreeView::InputEnableChanged, this, &CurveWidget::InputEnabledChanged);
+  splitter->addWidget(tree_view_);
+
+  QWidget* workarea = new QWidget();
+  QVBoxLayout* layout = new QVBoxLayout(workarea);
   layout->setMargin(0);
+  splitter->addWidget(workarea);
 
   QHBoxLayout* top_controls = new QHBoxLayout();
 
@@ -92,12 +104,8 @@ CurveWidget::CurveWidget(QWidget *parent) :
   view_->setHorizontalScrollBar(scrollbar());
   connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
-  widget_bridge_layout_ = new QHBoxLayout();
-  widget_bridge_layout_->addStretch();
-  input_label_ = new QLabel();
-  widget_bridge_layout_->addWidget(input_label_);
-  widget_bridge_layout_->addStretch();
-  layout->addLayout(widget_bridge_layout_);
+  // Disable collapsing the main curve view (but allow collapsing the tree)
+  splitter->setCollapsible(1, false);
 
   SetScale(120.0);
 }
@@ -106,71 +114,6 @@ CurveWidget::~CurveWidget()
 {
   // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other members have been destroyed
   view_->Clear();
-}
-
-NodeInput *CurveWidget::GetInput() const
-{
-  return input_;
-}
-
-void CurveWidget::SetInput(NodeInput *input)
-{
-  if (bridge_) {
-    foreach (QWidget* bridge_widget, bridge_->widgets()) {
-      bridge_widget->deleteLater();
-    }
-    bridge_->deleteLater();
-    bridge_ = nullptr;
-  }
-
-  foreach (QCheckBox* box, checkboxes_) {
-    box->deleteLater();
-  }
-  checkboxes_.clear();
-
-  if (input_) {
-    disconnect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
-    disconnect(input_, &NodeInput::KeyframeRemoved, view_, &CurveView::RemoveKeyframe);
-  }
-
-  view_->Clear();
-
-  input_ = input;
-  key_control_->SetInput(input_);
-
-  if (input_) {
-    view_->SetTrackCount(input_->get_number_of_keyframe_tracks());
-
-    bridge_ = new NodeParamViewWidgetBridge(input_, this);
-
-    bridge_->SetTimeTarget(GetTimeTarget());
-
-    for (int i=0;i<bridge_->widgets().size();i++) {
-      // Insert between two stretches to center the widget
-      QCheckBox* checkbox = new QCheckBox();
-      checkbox->setChecked(true);
-      widget_bridge_layout_->insertWidget(2 + i*2, checkbox);
-      checkboxes_.append(checkbox);
-      connect(checkbox, &QCheckBox::clicked, this, [this](bool e){
-        view_->SetTrackVisible(checkboxes_.indexOf(static_cast<QCheckBox*>(sender())), e);
-      });
-
-      widget_bridge_layout_->insertWidget(2 + i*2 + 1, bridge_->widgets().at(i));
-    }
-
-    connect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
-    connect(input_, &NodeInput::KeyframeRemoved, view_, &CurveView::RemoveKeyframe);
-
-    foreach (const NodeInput::KeyframeTrack& track, input_->keyframe_tracks()) {
-      foreach (NodeKeyframePtr key, track) {
-        view_->AddKeyframe(key);
-      }
-    }
-  }
-
-  UpdateInputLabel();
-
-  QMetaObject::invokeMethod(view_, "ZoomToFit", Qt::QueuedConnection);
 }
 
 const double &CurveWidget::GetVerticalScale()
@@ -188,12 +131,26 @@ void CurveWidget::DeleteSelected()
   view_->DeleteSelected();
 }
 
-void CurveWidget::changeEvent(QEvent *e)
+void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 {
-  if (e->type() == QEvent::LanguageChange) {
-    UpdateInputLabel();
+  tree_view_->SetNodes(nodes);
+
+  // Detect removed nodes
+  foreach (Node* n, nodes_) {
+    if (!nodes.contains(n)) {
+      view_->DisconnectNode(n);
+    }
   }
-  QWidget::changeEvent(e);
+
+  // Detect added nodes
+  foreach (Node* n, nodes) {
+    if (tree_view_->IsNodeEnabled(n) && !nodes_.contains(n)) {
+      ConnectNode(n);
+    }
+  }
+
+  // Save new node list
+  nodes_ = nodes;
 }
 
 void CurveWidget::TimeChangedEvent(const int64_t &timestamp)
@@ -223,24 +180,11 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
   key_control_->SetTimeTarget(target);
 
   view_->SetTimeTarget(target);
-
-  if (bridge_) {
-    bridge_->SetTimeTarget(target);
-  }
 }
 
 void CurveWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
   SetTimeTarget(n);
-}
-
-void CurveWidget::UpdateInputLabel()
-{
-  if (input_) {
-    input_label_->setText(QStringLiteral("%1 :: %2:").arg(input_->parentNode()->Name(), input_->name()));
-  } else {
-    input_label_->clear();
-  }
 }
 
 void CurveWidget::SetKeyframeButtonEnabled(bool enable)
@@ -266,13 +210,24 @@ void CurveWidget::SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type)
 
 void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 {
-  if (!input_) {
-    return;
-  }
-
   rational time = Timecode::timestamp_to_time(timestamp, view_->timebase());
-  bridge_->SetTime(time);
   key_control_->SetTime(time);
+}
+
+void CurveWidget::ConnectNode(Node *n)
+{
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
+
+  foreach (NodeInput* i, inputs) {
+    if (tree_view_->IsInputEnabled(i)) {
+      view_->ConnectInput(i);
+    }
+  }
+}
+
+void CurveWidget::DisconnectNode(Node *n)
+{
+  view_->DisconnectNode(n);
 }
 
 void CurveWidget::SelectionChanged()
@@ -349,4 +304,22 @@ void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
   SetTimeAndSignal(Timecode::time_to_timestamp(time, view_->timebase()));
 }
 
-OLIVE_NAMESPACE_EXIT
+void CurveWidget::NodeEnabledChanged(Node* n, bool e)
+{
+  if (e) {
+    ConnectNode(n);
+  } else {
+    DisconnectNode(n);
+  }
+}
+
+void CurveWidget::InputEnabledChanged(NodeInput *i, bool e)
+{
+  if (e) {
+    view_->ConnectInput(i);
+  } else {
+    view_->DisconnectInput(i);
+  }
+}
+
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,9 +30,10 @@
 #include "node/input.h"
 #include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
+#include "widget/nodetreeview/nodetreeview.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 {
@@ -42,17 +43,15 @@ public:
 
   virtual ~CurveWidget() override;
 
-  NodeInput* GetInput() const;
-  void SetInput(NodeInput* input);
-
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
 
   void DeleteSelected();
 
-protected:
-  virtual void changeEvent(QEvent *) override;
+public slots:
+  void SetNodes(const QVector<Node *> &nodes);
 
+protected:
   virtual void TimeChangedEvent(const int64_t &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
@@ -62,8 +61,6 @@ protected:
   virtual void ConnectedNodeChanged(ViewerOutput* n) override;
 
 private:
-  void UpdateInputLabel();
-
   void SetKeyframeButtonEnabled(bool enable);
 
   void SetKeyframeButtonChecked(bool checked);
@@ -71,6 +68,12 @@ private:
   void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
 
   void UpdateBridgeTime(const int64_t& timestamp);
+
+  void ConnectNode(Node* n);
+
+  void DisconnectNode(Node* n);
+
+  NodeTreeView* tree_view_;
 
   QPushButton* linear_button_;
 
@@ -80,17 +83,9 @@ private:
 
   CurveView* view_;
 
-  NodeInput* input_;
-
-  QLabel* input_label_;
-
-  QHBoxLayout* widget_bridge_layout_;
-
-  NodeParamViewWidgetBridge* bridge_;
-
   NodeParamViewKeyframeControl* key_control_;
 
-  QList<QCheckBox*> checkboxes_;
+  QVector<Node*> nodes_;
 
 private slots:
   void SelectionChanged();
@@ -99,8 +94,12 @@ private slots:
 
   void KeyControlRequestedTimeChanged(const rational& time);
 
+  void NodeEnabledChanged(Node* n, bool e);
+
+  void InputEnabledChanged(NodeInput* i, bool e);
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEWIDGET_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,12 +23,13 @@
 #include <QMessageBox>
 
 #include "core.h"
+#include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-void NodeCopyPasteWidget::CopyNodesToClipboard(const QList<Node *> &nodes, void *userdata)
+void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
 {
   QString copy_str;
 
@@ -39,10 +40,15 @@ void NodeCopyPasteWidget::CopyNodesToClipboard(const QList<Node *> &nodes, void 
   writer.writeStartElement(QStringLiteral("olive"));
 
   foreach (Node* n, nodes) {
+    writer.writeStartElement(QStringLiteral("node"));
+    writer.writeAttribute(QStringLiteral("id"), n->id());
     n->Save(&writer);
+    writer.writeEndElement(); // node
   }
 
+  writer.writeStartElement(QStringLiteral("custom"));
   CopyNodesToClipboardInternal(&writer, userdata);
+  writer.writeEndElement(); // custom
 
   writer.writeEndElement(); // olive
   writer.writeEndDocument();
@@ -50,32 +56,41 @@ void NodeCopyPasteWidget::CopyNodesToClipboard(const QList<Node *> &nodes, void 
   Core::CopyStringToClipboard(copy_str);
 }
 
-QList<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
+QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
 {
   QString clipboard = Core::PasteStringFromClipboard();
 
   if (clipboard.isEmpty()) {
-    return QList<Node*>();
+    return QVector<Node*>();
   }
 
   QXmlStreamReader reader(clipboard);
 
-  QList<Node*> pasted_nodes;
+  QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
       while (XMLReadNextStartElement(&reader)) {
         if (reader.name() == QStringLiteral("node")) {
-          Node* node = XMLLoadNode(&reader);
+          Node* node = nullptr;
+
+          XMLAttributeLoop((&reader), attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              node = NodeFactory::CreateFromID(attr.value().toString());
+              break;
+            }
+          }
 
           if (node) {
             node->Load(&reader, xml_node_data, nullptr);
 
             pasted_nodes.append(node);
           }
+        } else if (reader.name() == QStringLiteral("custom")) {
+          PasteNodesFromClipboardInternal(&reader, xml_node_data, userdata);
         } else {
-          PasteNodesFromClipboardInternal(&reader, userdata);
+          reader.skipCurrentElement();
         }
       }
     } else {
@@ -85,7 +100,7 @@ QList<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUnd
 
   if (pasted_nodes.isEmpty()) {
     // If we passed through the whole string and there were no nodes, it must not be data for us after all
-    return QList<Node*>();
+    return QVector<Node*>();
   }
 
   // If we have some nodes AND the XML data was malformed, the user should probably know
@@ -101,7 +116,7 @@ QList<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUnd
                           QCoreApplication::translate("NodeCopyPasteWidget", "Failed to paste nodes: %1").arg(reader.errorString()),
                           QMessageBox::Ok);
 
-    return QList<Node*>();
+    return QVector<Node*>();
   }
 
   // Add all nodes to graph
@@ -157,9 +172,9 @@ void NodeCopyPasteWidget::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
 {
 }
 
-void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, void*)
+void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
   reader->skipCurrentElement();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

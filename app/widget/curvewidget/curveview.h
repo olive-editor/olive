@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/keyframeview/keyframeviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CurveView : public KeyframeViewBase
 {
@@ -38,9 +38,11 @@ public:
 
   virtual void Clear() override;
 
-  void SetTrackCount(int count);
+  void ConnectInput(NodeInput* input);
 
-  void SetTrackVisible(int track, bool visible);
+  void DisconnectNode(Node* node);
+
+  void DisconnectInput(NodeInput* input);
 
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
@@ -61,8 +63,6 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
-  QList<NodeKeyframe*> GetKeyframesSortedByTime(int track);
-
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 
@@ -74,7 +74,7 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  QColor GetKeyframeColor(int track) const;
+  QMap<const NodeInput::KeyframeTrack*, QColor> keyframe_colors_;
 
   int text_padding_;
 
@@ -84,9 +84,7 @@ private:
 
   QList<BezierControlPointItem*> bezier_control_points_;
 
-  QVector<bool> track_visible_;
-
-  int track_count_;
+  QList<NodeInput*> connected_inputs_;
 
 private slots:
   void KeyframeValueChanged();
@@ -99,6 +97,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CURVEVIEW_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,10 +28,14 @@
 #include <QXmlStreamWriter>
 
 #include "common/rational.h"
+#include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Footage;
+class Stream;
+using StreamPtr = std::shared_ptr<Stream>;
+struct XMLNodeData;
 
 /**
  * @brief A base class for keeping metadata about a media stream.
@@ -52,8 +56,7 @@ public:
     kAudio,
     kData,
     kSubtitle,
-    kAttachment,
-    kImage = 100
+    kAttachment
   };
 
   /**
@@ -64,9 +67,9 @@ public:
   /**
    * @brief Required virtual destructor, serves no purpose
    */
-  virtual ~Stream();
+  virtual ~Stream() override;
 
-  void Load(QXmlStreamReader* reader);
+  static StreamPtr Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter *writer) const;
 
@@ -90,13 +93,11 @@ public:
   bool enabled() const;
   void set_enabled(bool e);
 
-  static QIcon IconFromType(const Type& type);
+  virtual QIcon icon() const;
 
   QMutex* proxy_access_lock();
 
 protected:
-  virtual void FootageSetEvent(Footage*);
-
   virtual void LoadCustomParameters(QXmlStreamReader *reader);
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
@@ -121,11 +122,9 @@ private:
 
 };
 
-using StreamPtr = std::shared_ptr<Stream>;
-
-OLIVE_NAMESPACE_EXIT
+}
 
 #include <QMetaType>
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::StreamPtr)
+Q_DECLARE_METATYPE(olive::StreamPtr)
 
 #endif // STREAM_H

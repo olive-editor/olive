@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeViewScene : public QGraphicsScene
 {
@@ -63,9 +63,9 @@ public:
 
   void SetGraph(NodeGraph* graph);
 
-  QList<Node*> GetSelectedNodes() const;
-  QList<NodeViewItem*> GetSelectedItems() const;
-  QList<NodeEdge *> GetSelectedEdges() const;
+  QVector<Node *> GetSelectedNodes() const;
+  QVector<NodeViewItem*> GetSelectedItems() const;
+  QVector<NodeEdge *> GetSelectedEdges() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
   const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;
@@ -146,6 +146,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEWSCENE_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 
 #include "trackviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QScrollArea(parent),
@@ -68,10 +68,9 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
 void TrackView::ConnectTrackList(TrackList *list)
 {
   if (list_ != nullptr) {
-    foreach (TrackViewItem* item, items_) {
-      delete item;
+    foreach (TrackOutput* track, list_->GetTracks()) {
+      RemoveTrack(track);
     }
-    items_.clear();
 
     disconnect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
@@ -82,9 +81,7 @@ void TrackView::ConnectTrackList(TrackList *list)
 
   if (list_ != nullptr) {
     foreach (TrackOutput* track, list_->GetTracks()) {
-      TrackViewItem* item = new TrackViewItem(track);
-      items_.append(item);
-      splitter_->Insert(track->Index(), track->GetTrackHeight(), item);
+      InsertTrack(track);
     }
 
     connect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
@@ -120,12 +117,14 @@ void TrackView::ScrollbarRangeChanged(int, int max)
 
 void TrackView::TrackHeightChanged(int index, int height)
 {
-  list_->GetTrackAt(index)->SetTrackHeight(height);
+  list_->GetTrackAt(index)->SetTrackHeightInPixels(height);
 }
 
 void TrackView::InsertTrack(TrackOutput *track)
 {
-  splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track));
+  splitter_->Insert(track->Index(),
+                    track->GetTrackHeightInPixels(),
+                    new TrackViewItem(track));
 }
 
 void TrackView::RemoveTrack(TrackOutput *track)
@@ -133,4 +132,4 @@ void TrackView::RemoveTrack(TrackOutput *track)
   splitter_->Remove(track->Index());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

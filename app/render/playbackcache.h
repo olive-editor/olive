@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "common/timerange.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Project;
 
@@ -39,23 +39,15 @@ public:
   {
   }
 
-  void Invalidate(const TimeRange& r);
-
-  void InvalidateAll();
-
   const rational& GetLength()
   {
     return length_;
   }
 
-  void SetLength(const rational& r);
-
   bool IsFullyValidated()
   {
     return invalidated_.isEmpty();
   }
-
-  void Shift(const rational& from, const rational& to);
 
   const TimeRangeList& GetInvalidatedRanges()
   {
@@ -67,14 +59,25 @@ public:
     return !invalidated_.isEmpty();
   }
 
+  QString GetCacheDirectory() const;
+
+public slots:
+  void Invalidate(const TimeRange& r);
+
+  void InvalidateAll();
+
+  void SetLength(const rational& r);
+
+  void Shift(const rational& from, const rational& to);
+
 signals:
-  void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);
+  void Invalidated(const olive::TimeRange& r);
 
-  void Validated(const OLIVE_NAMESPACE::TimeRange& r);
+  void Validated(const olive::TimeRange& r);
 
-  void Shifted(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
+  void Shifted(const olive::rational& from, const olive::rational& to);
 
-  void LengthChanged(const OLIVE_NAMESPACE::rational& r);
+  void LengthChanged(const olive::rational& r);
 
 protected:
   void Validate(const TimeRange& r);
@@ -86,8 +89,6 @@ protected:
   virtual void ShiftEvent(const rational& from, const rational& to);
 
   Project* GetProject() const;
-
-  QString GetCacheDirectory() const;
 
   struct JobIdentifier {
     TimeRange range;
@@ -105,6 +106,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PLAYBACKCACHE_H

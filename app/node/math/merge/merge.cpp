@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "merge.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MergeNode::MergeNode()
 {
@@ -46,7 +46,7 @@ QString MergeNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.merge");
 }
 
-QList<Node::CategoryID> MergeNode::Category() const
+QVector<Node::CategoryID> MergeNode::Category() const
 {
   return {kCategoryMath};
 }
@@ -66,7 +66,7 @@ ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(ReadFileAsString(":/shaders/alphaover.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"), QString());
 }
 
 NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
@@ -75,17 +75,18 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
   job.InsertValue(base_in_, value);
   job.InsertValue(blend_in_, value);
 
-  // FIXME: Check if "blend" is RGB-only, in which case it's a no-op
-
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(base_in_).data().isNull() || !job.GetValue(blend_in_).data().isNull()) {
-    if (job.GetValue(base_in_).data().isNull()) {
-      // We only have a blend texture, no need to alpha over
-      table.Push(job.GetValue(blend_in_));
-    } else if (job.GetValue(blend_in_).data().isNull()) {
+  TexturePtr base_tex = job.GetValue(base_in_).data.value<TexturePtr>();
+  TexturePtr blend_tex = job.GetValue(blend_in_).data.value<TexturePtr>();
+
+  if (base_tex || blend_tex) {
+    if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
+      // We only have a blend texture or the blend texture is RGB only, no need to alpha over
+      table.Push(job.GetValue(blend_in_), this);
+    } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table.Push(job.GetValue(base_in_));
+      table.Push(job.GetValue(base_in_), this);
     } else {
       // We have both textures, push the job
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
@@ -116,4 +117,4 @@ void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

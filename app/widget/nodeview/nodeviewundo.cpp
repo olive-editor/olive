@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeEdgeAddCommand::NodeEdgeAddCommand(NodeOutput *output, NodeInput *input, QUndoCommand *parent) :
   UndoCommand(parent),
@@ -131,7 +131,7 @@ Project *NodeAddCommand::GetRelevantProject() const
   return static_cast<Sequence*>(graph_)->project();
 }
 
-NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QList<Node *> &nodes, QUndoCommand *parent) :
+NodeRemoveCommand::NodeRemoveCommand(NodeGraph *graph, const QVector<Node *> &nodes, QUndoCommand *parent) :
   UndoCommand(parent),
   graph_(graph),
   nodes_(nodes)
@@ -154,6 +154,15 @@ void NodeRemoveCommand::redo_internal()
 
   // Take nodes from graph (TakeNode() will automatically disconnect edges)
   foreach (Node* n, nodes_) {
+    // If the node is a block, unlink any linked blocks before removing
+    if (n->IsBlock()) {
+      Block *b = static_cast<Block *>(n);
+      if (b->HasLinks()) {
+        BlockUnlinkAllCommand *unlink_command = new BlockUnlinkAllCommand(b);
+        unlink_command->redo();
+        block_unlink_commands_.append(unlink_command);
+      }
+    }
     graph_->TakeNode(n, &memory_manager_);
   }
 }
@@ -165,12 +174,19 @@ void NodeRemoveCommand::undo_internal()
     graph_->AddNode(n);
   }
 
+  // Relink any blocks that were unlinked
+  foreach(BlockUnlinkAllCommand* command, block_unlink_commands_) {
+    command->undo();
+    delete command;
+  }
+
   // Re-connect edges
   foreach (NodeEdgePtr edge, edges_) {
     NodeParam::ConnectEdge(edge->output(), edge->input());
   }
 
   edges_.clear();
+  block_unlink_commands_.clear();
 }
 
 Project *NodeRemoveCommand::GetRelevantProject() const
@@ -181,7 +197,7 @@ Project *NodeRemoveCommand::GetRelevantProject() const
 NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent) :
   UndoCommand(parent)
 {
-  QList<Node*> node_and_its_deps;
+  QVector<Node*> node_and_its_deps;
   node_and_its_deps.append(node);
   node_and_its_deps.append(node->GetExclusiveDependencies());
 
@@ -214,4 +230,4 @@ void NodeCopyInputsCommand::redo()
   Node::CopyInputs(src_, dest_, include_connections_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -60,14 +60,6 @@ private slots:
    * Tool change throughout the rest of the application.
    */
   void ToolItemTriggered();
-
-  /**
-   * @brief A slot for the timecode display menu items
-   *
-   * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
-   * timecode change throughout the rest of the application.
-   */
-  void TimecodeDisplayTriggered();
 
   /**
    * @brief Slot triggered just before the File menu shows
@@ -103,6 +95,8 @@ private slots:
    * @brief Adds items to open recent menu
    */
   void PopulateOpenRecent();
+
+  void RepopulateOpenRecent();
 
   /**
    * @brief Clears open recent items when menu closes
@@ -180,6 +174,8 @@ private slots:
   void SequenceCacheTriggered();
   void SequenceCacheInOutTriggered();
 
+  void HelpFeedbackTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
@@ -196,7 +192,8 @@ private:
   QAction* file_save_as_item_;
   QAction* file_save_all_item_;
   QAction* file_import_item_;
-  QAction* file_export_item_;
+  Menu* file_export_menu_;
+  QAction* file_export_media_item_;
   QAction* file_project_properties_item_;
   QAction* file_close_project_item_;
   QAction* file_close_all_projects_item_;
@@ -224,12 +221,6 @@ private:
   QAction* view_increase_track_height_item_;
   QAction* view_decrease_track_height_item_;
   QAction* view_show_all_item_;
-  QActionGroup* frame_view_mode_group_;
-  QAction* view_timecode_view_dropframe_item_;
-  QAction* view_timecode_view_nondropframe_item_;
-  QAction* view_timecode_view_seconds_item_;
-  QAction* view_timecode_view_frames_item_;
-  QAction* view_timecode_view_milliseconds_item_;
   QAction* view_full_screen_item_;
   QAction* view_full_screen_viewer_item_;
 
@@ -276,10 +267,11 @@ private:
 
   Menu* help_menu_;
   QAction* help_action_search_item_;
+  QAction* help_feedback_item_;
   QAction* help_about_item_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MAINMENU_H

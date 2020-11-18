@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Toolbar::Toolbar(QWidget *parent) :
   QWidget(parent)
@@ -206,4 +206,4 @@ void Toolbar::TransitionMenuItemTriggered(QAction *a)
   emit SelectedTransitionChanged(NodeFactory::GetIDFromMenuAction(a));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 
 #include <QApplication>
 #include <QClipboard>
-#include <QCommandLineParser>
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -30,6 +29,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#ifdef Q_OS_WINDOWS
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 #include "audio/audiomanager.h"
 #include "cli/clitask/clitaskdialog.h"
@@ -38,6 +40,7 @@
 #include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/export/export.h"
+#include "dialog/footagerelink/footagerelinkdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
@@ -46,12 +49,15 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
-#include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelformat.h"
-#include "render/shaderinfo.h"
+#include "render/rendermanager.h"
+#ifdef USE_OTIO
+#include "task/project/loadotio/loadotio.h"
+#include "task/project/saveotio/saveotio.h"
+#endif
 #include "task/project/import/import.h"
+#include "task/project/import/importerrordialog.h"
 #include "task/project/load/load.h"
 #include "task/project/save/save.h"
 #include "task/taskmanager.h"
@@ -62,102 +68,33 @@
 #include "widget/viewer/viewer.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-Core Core::instance_;
+Core* Core::instance_ = nullptr;
+const uint Core::kProjectVersion = 201118;
 
-Core::Core() :
+Core::Core(const CoreParams& params) :
   main_window_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
-  gui_active_(false)
+  core_params_(params)
 {
+  // Store reference to this object, making the assumption that Core will only ever be made in
+  // main(). This will obviously break if not.
+  instance_ = this;
+
+  translator_ = new QTranslator(this);
 }
 
 Core *Core::instance()
 {
-  return &instance_;
-}
-
-int Core::execute(QCoreApplication* a)
-{
-  int exit_code = 1;
-
-  //
-  // Parse command line arguments
-  //
-
-  QCommandLineParser parser;
-  QCommandLineOption help_option = parser.addHelpOption();
-  QCommandLineOption version_option = parser.addVersionOption();
-
-  // Project from command line option
-  // FIXME: What's the correct way to make a visually "optional" positional argument, or is manually adding square
-  // brackets like this correct?
-  parser.addPositionalArgument("[project]", tr("Project to open on startup"));
-
-  // Create fullscreen option
-  QCommandLineOption fullscreen_option({"f", "fullscreen"}, tr("Start in full screen mode"));
-  parser.addOption(fullscreen_option);
-
-  // Create headless export option
-  QCommandLineOption headless_export_option({"x", "export"}, tr("Export project from command line"));
-  parser.addOption(headless_export_option);
-
-  // Parse options
-  parser.process(*a);
-
-  if (parser.isSet(help_option) || parser.isSet(version_option)) {
-    // These options don't launch any of the application proper
-    return a->exec();
-  }
-
-  // Start core
-  OLIVE_NAMESPACE::Core::instance()->Start();
-
-  QStringList args = parser.positionalArguments();
-
-  // Detect project to load on startup
-  if (!args.isEmpty()) {
-    startup_project_ = args.first();
-  }
-
-  gui_active_ = !parser.isSet(headless_export_option);
-
-  if (gui_active_) {
-
-    // Start GUI
-    StartGUI(parser.isSet(fullscreen_option));
-
-    // If we have a startup
-    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
-
-    // Run application loop and receive exit code
-    exit_code = a->exec();
-
-  } else {
-
-    if (parser.isSet(headless_export_option)) {
-      // Start a headless export
-      if (StartHeadlessExport()) {
-        exit_code = 0;
-      }
-    }
-
-  }
-
-  // Clear core memory
-  OLIVE_NAMESPACE::Core::instance()->Stop();
-
-  return exit_code;
+  return instance_;
 }
 
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<rational>();
-  qRegisterMetaType<OpenGLTexturePtr>();
-  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
@@ -166,23 +103,26 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<OLIVE_NAMESPACE::TimeRange>();
+  qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ProjectPtr>();
-  qRegisterMetaType<OLIVE_NAMESPACE::AudioVisualWaveform>();
-  qRegisterMetaType<OLIVE_NAMESPACE::SampleJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::ShaderJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::GenerateJob>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams>();
-  qRegisterMetaType<OLIVE_NAMESPACE::VideoParams::Interlacing>();
-  qRegisterMetaType<OLIVE_NAMESPACE::MainWindowLayoutInfo>();
-  qRegisterMetaType<OLIVE_NAMESPACE::RenderTicketPtr>();
+  qRegisterMetaType<olive::ProjectPtr>();
+  qRegisterMetaType<olive::AudioVisualWaveform>();
+  qRegisterMetaType<olive::SampleJob>();
+  qRegisterMetaType<olive::ShaderJob>();
+  qRegisterMetaType<olive::GenerateJob>();
+  qRegisterMetaType<olive::VideoParams>();
+  qRegisterMetaType<olive::VideoParams::Interlacing>();
+  qRegisterMetaType<olive::MainWindowLayoutInfo>();
+  qRegisterMetaType<olive::RenderTicketPtr>();
 }
 
 void Core::Start()
 {
   // Load application config
   Config::Load();
+
+  // Set locale based on either startup arg, config, or auto-detect
+  SetStartupLocale();
 
   // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
@@ -196,14 +136,30 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
-  // Initialize OpenGL service
-  OpenGLProxy::CreateInstance();
+  // Initialize RenderManager
+  RenderManager::CreateInstance();
 
   //
   // Start application
   //
 
   qInfo() << "Using Qt version:" << qVersion();
+
+  switch (core_params_.run_mode()) {
+  case CoreParams::kRunNormal:
+    // Start GUI
+    StartGUI(core_params_.fullscreen());
+
+    // If we have a startup
+    QMetaObject::invokeMethod(this, "OpenStartupProject", Qt::QueuedConnection);
+    break;
+  case CoreParams::kHeadlessExport:
+    qInfo() << "Headless export is not fully implemented yet";
+    break;
+  case CoreParams::kHeadlessPreCache:
+    qInfo() << "Headless pre-cache is not fully implemented yet";
+    break;
+  }
 }
 
 void Core::Stop()
@@ -217,15 +173,13 @@ void Core::Stop()
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      foreach (const QString& s, recent_projects_) {
-        ts << s << "\n";
-      }
+      ts << recent_projects_.join('\n');
 
       recent_projects_file.close();
     }
   }
 
-  OpenGLProxy::DestroyInstance();
+  RenderManager::DestroyInstance();
 
   MenuShared::DestroyInstance();
 
@@ -237,11 +191,10 @@ void Core::Stop()
 
   DiskManager::DestroyInstance();
 
-  PixelFormat::DestroyInstance();
-
   NodeFactory::Destroy();
 
   delete main_window_;
+  main_window_ = nullptr;
 }
 
 MainWindow *Core::main_window()
@@ -304,6 +257,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  emit OpenRecentListChanged();
 }
 
 void Core::CreateNewProject()
@@ -409,18 +363,13 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  TimeBasedPanel* latest_time_based = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+  ViewerOutput* viewer = GetSequenceToExport();
 
-  if (latest_time_based && latest_time_based->GetConnectedViewer()) {
-    if (latest_time_based->GetConnectedViewer()->GetLength() == 0) {
-      QMessageBox::critical(main_window_,
-                            tr("Error"),
-                            tr("This Sequence is empty. There is nothing to export."),
-                            QMessageBox::Ok);
-    } else {
-      ExportDialog ed(latest_time_based->GetConnectedViewer(), main_window_);
-      ed.exec();
-    }
+  if (viewer) {
+    Sequence* sequence = dynamic_cast<Sequence*>(viewer->parent());
+
+    ExportDialog ed(viewer, sequence, main_window_);
+    ed.exec();
   }
 }
 
@@ -517,18 +466,27 @@ void Core::AddOpenProject(ProjectPtr p)
 
 void Core::AddOpenProjectFromTask(Task *task)
 {
-  QList<ProjectPtr> projects = static_cast<ProjectLoadTask*>(task)->GetLoadedProjects();
-  QList<MainWindowLayoutInfo> layouts = static_cast<ProjectLoadTask*>(task)->GetLoadedLayouts();
+  ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
-  for (int i=0; i<projects.size(); i++) {
-    AddOpenProject(projects.at(i));
-    main_window_->LoadLayout(layouts.at(i));
+  ProjectPtr project = load_task->GetLoadedProject();
+  MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
+
+  if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
+    AddOpenProject(project);
+    main_window_->LoadLayout(layout);
   }
 }
 
 void Core::ImportTaskComplete(Task* task)
 {
-  QUndoCommand *command = static_cast<ProjectImportTask*>(task)->GetCommand();
+  ProjectImportTask* import_task = static_cast<ProjectImportTask*>(task);
+
+  QUndoCommand *command = import_task->GetCommand();
+
+  if (import_task->HasInvalidFiles()) {
+    ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);
+    d.exec();
+  }
 
   undo_stack_.pushIfHasChildren(command);
 }
@@ -571,22 +529,24 @@ void Core::ProjectWasModified(bool e)
 
 bool Core::StartHeadlessExport()
 {
-  if (startup_project_.isEmpty()) {
+  const QString& startup_project = core_params_.startup_project();
+
+  if (startup_project.isEmpty()) {
     qCritical().noquote() << tr("You must specify a project file to export");
     return false;
   }
 
-  if (!QFileInfo::exists(startup_project_)) {
+  if (!QFileInfo::exists(startup_project)) {
     qCritical().noquote() << tr("Specified project does not exist");
     return false;
   }
 
   // Start a load task and try running it
-  ProjectLoadTask plm(startup_project_);
+  ProjectLoadTask plm(startup_project);
   CLITaskDialog task_dialog(&plm);
 
   if (task_dialog.Run()) {
-    ProjectPtr p = plm.GetLoadedProjects().first();
+    ProjectPtr p = plm.GetLoadedProject();
     QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
 
     // Check if this project contains sequences
@@ -651,21 +611,24 @@ bool Core::StartHeadlessExport()
 
 void Core::OpenStartupProject()
 {
+  const QString& startup_project = core_params_.startup_project();
+  bool startup_project_exists = !startup_project.isEmpty() && QFileInfo::exists(startup_project);
+
   // Load startup project
-  if (!startup_project_.isEmpty() && !QFileInfo::exists(startup_project_)) {
+  if (!startup_project_exists && !startup_project.isEmpty()) {
     QMessageBox::warning(main_window_,
                          tr("Failed to open startup file"),
-                         tr("The project \"%1\" doesn't exist. A new project will be started instead.").arg(startup_project_),
+                         tr("The project \"%1\" doesn't exist. "
+                            "A new project will be started instead.").arg(startup_project),
                          QMessageBox::Ok);
-
-    startup_project_.clear();
   }
 
-  if (startup_project_.isEmpty()) {
+  if (startup_project_exists) {
+    // If a startup project was set and exists, open it now
+    OpenProjectInternal(startup_project);
+  } else {
     // If no load project is set, create a new one on open
     CreateNewProject();
-  } else {
-    OpenProjectInternal(startup_project_);
   }
 }
 
@@ -686,9 +649,6 @@ void Core::StartGUI(bool full_screen)
   // Initialize disk service
   DiskManager::CreateInstance();
 
-  // Initialize pixel service
-  PixelFormat::CreateInstance();
-
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           &QApplication::focusChanged,
@@ -697,11 +657,18 @@ void Core::StartGUI(bool full_screen)
 
   // Create main window and open it
   main_window_ = new MainWindow();
+
   if (full_screen) {
     main_window_->showFullScreen();
   } else {
     main_window_->showMaximized();
   }
+
+#ifdef Q_OS_WINDOWS
+  // Workaround for Qt bug where menus don't appear in full screen mode
+  // See: https://doc.qt.io/qt-5/windows-issues.html
+  QWindowsWindowFunctions::setHasBorderInFullScreen(main_window_->windowHandle(), true);
+#endif
 
   // When a new project is opened, update the mainwindow
   connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
@@ -717,24 +684,72 @@ void Core::StartGUI(bool full_screen)
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
       QTextStream ts(&recent_projects_file);
 
-      while (!ts.atEnd()) {
-        recent_projects_.append(ts.readLine());
+      QString s;
+      while (!(s = ts.readLine()).isEmpty()) {
+        recent_projects_.append(s);
       }
 
       recent_projects_file.close();
     }
+
+    emit OpenRecentListChanged();
   }
 }
 
 void Core::SaveProjectInternal(ProjectPtr project)
 {
   // Create save manager
-  ProjectSaveTask* psm = new ProjectSaveTask(project);
+  Task* psm;
+
+  if (project->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+#ifdef USE_OTIO
+    psm = new SaveOTIOTask(project);
+#else
+    QMessageBox::critical(main_window_,
+                          tr("Missing OpenTimelineIO Libraries"),
+                          tr("This build was compiled without OpenTimelineIO and therefore "
+                             "cannot open OpenTimelineIO files."));
+    return;
+#endif
+  } else {
+    psm = new ProjectSaveTask(project);
+  }
+
   TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window_);
 
   connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::ProjectSaveSucceeded);
 
   task_dialog->open();
+}
+
+ViewerOutput *Core::GetSequenceToExport()
+{
+  // First try the most recently focused time based window
+  TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
+
+  // If that fails try defaulting to the first timeline (i.e. if a project has just been loaded).
+  if (!time_panel->GetConnectedViewer()) {
+    // Safe to assume there will always be one timeline.
+    time_panel = PanelManager::instance()->GetPanelsOfType<TimelinePanel>().first();
+  }
+
+  if (time_panel && time_panel->GetConnectedViewer()) {
+    if (time_panel->GetConnectedViewer()->GetLength() == 0) {
+      QMessageBox::critical(main_window_,
+                            tr("Error"),
+                            tr("This Sequence is empty. There is nothing to export."),
+                            QMessageBox::Ok);
+    } else {
+      return time_panel->GetConnectedViewer();
+    }
+  } else {
+    QMessageBox::critical(main_window_,
+                          tr("Error"),
+                          tr("No valid sequence detected.\n\nMake sure a sequence is loaded and it has a connected Viewer node."),
+                          QMessageBox::Ok);
+  }
+
+  return nullptr;
 }
 
 void Core::SaveAutorecovery()
@@ -871,14 +886,52 @@ bool Core::CloseAllExceptActiveProject()
   return true;
 }
 
-QString Core::GetProjectFilter()
+QString Core::GetProjectFilter(bool include_any_filter)
 {
-  return QStringLiteral("%1 (*.ove)").arg(tr("Olive Project"));
+  QString filters;
+
+#ifdef USE_OTIO
+  if (include_any_filter) {
+    filters.append(QStringLiteral("All Supported Projects (*.ove *.otio);;"));
+  }
+#endif
+
+  // Append standard filter
+  filters.append(QStringLiteral("%1 (*.ove)").arg(tr("Olive Project")));
+
+#ifdef USE_OTIO
+  filters.append(QStringLiteral(";;%2 (*.otio)").arg(tr("OpenTimelineIO")));
+#endif
+
+  return filters;
 }
 
 QString Core::GetRecentProjectsFilePath()
 {
   return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("recent"));
+}
+
+void Core::SetStartupLocale()
+{
+  // Set language
+  if (!core_params_.startup_language().isEmpty()) {
+    if (translator_->load(core_params_.startup_language()) && QApplication::installTranslator(translator_)) {
+      return;
+    } else {
+      qWarning() << "Failed to load translation file. Falling back to defaults.";
+    }
+  }
+
+  QString use_locale = Config::Current()[QStringLiteral("Language")].toString();
+
+  if (use_locale.isEmpty()) {
+    // No configured locale, auto-detect the system's locale
+    use_locale = QLocale::system().name();
+  }
+
+  if (!SetLanguage(use_locale)) {
+    qWarning() << "Trying to use locale" << use_locale << "but couldn't find a translation for it";
+  }
 }
 
 bool Core::SaveProject(ProjectPtr p)
@@ -894,16 +947,20 @@ bool Core::SaveProject(ProjectPtr p)
 
 bool Core::SaveProjectAs(ProjectPtr p)
 {
-  QString fn = QFileDialog::getSaveFileName(main_window_,
-                                            tr("Save Project As"),
-                                            QString(),
-                                            GetProjectFilter());
+  QFileDialog fd(main_window_, tr("Save Project As"));
 
-  if (!fn.isEmpty()) {
-    QString extension(QStringLiteral(".ove"));
-    if (!fn.endsWith(extension, Qt::CaseInsensitive)) {
-      fn.append(extension);
-    }
+  fd.setAcceptMode(QFileDialog::AcceptSave);
+  fd.setNameFilter(GetProjectFilter(false));
+
+  if (fd.exec() == QDialog::Accepted) {
+    QString fn = fd.selectedFiles().first();
+
+    // Somewhat hacky method of extracting the extension from the name filter
+    const QString& name_filter = fd.selectedNameFilter();
+    int ext_index = name_filter.indexOf(QStringLiteral("(*.")) + 3;
+    QString extension = name_filter.mid(ext_index, name_filter.size() - ext_index - 1);
+
+    fn = FileFunctions::EnsureFilenameExtension(fn, extension);
 
     p->set_filename(fn);
 
@@ -928,6 +985,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
   } else {
     recent_projects_.prepend(s);
   }
+
+  emit OpenRecentListChanged();
 }
 
 void Core::OpenProjectInternal(const QString &filename)
@@ -941,9 +1000,25 @@ void Core::OpenProjectInternal(const QString &filename)
     }
   }
 
-  ProjectLoadTask* plm = new ProjectLoadTask(filename);
+  Task* load_task;
 
-  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+  if (filename.endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+    // Load OpenTimelineIO project
+#ifdef USE_OTIO
+    load_task = new LoadOTIOTask(filename);
+#else
+    QMessageBox::critical(main_window_,
+                          tr("Missing OpenTimelineIO Libraries"),
+                          tr("This build was compiled without OpenTimelineIO and therefore "
+                             "cannot open OpenTimelineIO files."));
+    return;
+#endif
+  } else {
+    // Fallback to regular OVE project
+    load_task = new ProjectLoadTask(filename);
+  }
+
+  TaskDialog* task_dialog = new TaskDialog(load_task, tr("Load Project"), main_window());
 
   connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
 
@@ -989,7 +1064,7 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QList<Node *> &nodes) const
+void Core::LabelNodes(const QVector<Node *> &nodes) const
 {
   if (nodes.isEmpty()) {
     return;
@@ -1048,6 +1123,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    emit OpenRecentListChanged();
   }
 }
 
@@ -1211,6 +1288,65 @@ void Core::CacheActiveSequence(bool in_out_only)
   }
 }
 
+bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& project_saved_url)
+{
+  QList<FootagePtr> footage_we_couldnt_validate;
+
+  QList<ItemPtr> project_footage = project->get_items_of_type(Item::kFootage);
+
+  foreach (ItemPtr item, project_footage) {
+    FootagePtr footage = std::static_pointer_cast<Footage>(item);
+
+    if (!QFileInfo::exists(footage->filename()) && !project_saved_url.isEmpty()) {
+      // If the footage doesn't exist, it might have moved with the project
+      const QString& project_current_url = project->filename();
+
+      if (project_current_url != project_saved_url) {
+        // Project has definitely moved, try to resolve relative paths
+        QDir saved_dir(QFileInfo(project_saved_url).dir());
+        QDir true_dir(QFileInfo(project_current_url).dir());
+
+        QString relative_filename = saved_dir.relativeFilePath(footage->filename());
+        QString transformed_abs_filename = true_dir.filePath(relative_filename);
+
+        if (QFileInfo::exists(transformed_abs_filename)) {
+          // Use this file instead
+          qInfo() << "Resolved" << footage->filename() << "relatively to" << transformed_abs_filename;
+          footage->set_filename(transformed_abs_filename);
+        }
+      }
+    }
+
+    // Heuristically compare footage to file
+    if (Footage::CompareFootageToItsFilename(footage)) {
+      footage->SetValid();
+    } else {
+      footage_we_couldnt_validate.append(footage);
+    }
+  }
+
+  if (!footage_we_couldnt_validate.isEmpty()) {
+    FootageRelinkDialog frd(footage_we_couldnt_validate, main_window_);
+    if (frd.exec() == QDialog::Rejected) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool Core::SetLanguage(const QString &locale)
+{
+  QApplication::removeTranslator(translator_);
+
+  QString resource_path = QStringLiteral(":/ts/%1").arg(locale);
+  if (translator_->load(resource_path) && QApplication::installTranslator(translator_)) {
+    return true;
+  }
+
+  return false;
+}
+
 bool Core::CloseAllProjects()
 {
   return CloseAllProjects(true);
@@ -1221,11 +1357,17 @@ void Core::OpenProject()
   QString file = QFileDialog::getOpenFileName(main_window_,
                                               tr("Open Project"),
                                               QString(),
-                                              GetProjectFilter());
+                                              GetProjectFilter(true));
 
   if (!file.isEmpty()) {
     OpenProjectInternal(file);
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+Core::CoreParams::CoreParams() :
+  mode_(kRunNormal),
+  run_fullscreen_(false)
+{
+}
+
+}

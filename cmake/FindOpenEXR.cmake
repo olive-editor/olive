@@ -23,17 +23,19 @@ if (CMAKE_USE_PTHREADS_INIT)
 endif ()
 
 # Attempt to find OpenEXR with pkgconfig
-find_package(PkgConfig)
-if (PKG_CONFIG_FOUND)
-    if (NOT Ilmbase_ROOT AND NOT ILMBASE_ROOT
-        AND NOT DEFINED ENV{Ilmbase_ROOT} AND NOT DEFINED ENV{ILMBASE_ROOT})
-        pkg_check_modules(_ILMBASE QUIET IlmBase>=2.0.0)
-    endif ()
-    if (NOT OpenEXR_ROOT AND NOT OPENEXR_ROOT
-        AND NOT DEFINED ENV{OpenEXR_ROOT} AND NOT DEFINED ENV{OPENEXR_ROOT})
-        pkg_check_modules(_OPENEXR QUIET OpenEXR>=2.0.0)
-    endif ()
-endif (PKG_CONFIG_FOUND)
+if (NOT WIN32)
+    find_package(PkgConfig)
+    if (PKG_CONFIG_FOUND)
+        if (NOT Ilmbase_ROOT AND NOT ILMBASE_ROOT
+            AND NOT DEFINED ENV{Ilmbase_ROOT} AND NOT DEFINED ENV{ILMBASE_ROOT})
+            pkg_check_modules(_ILMBASE QUIET IlmBase>=2.0.0)
+        endif ()
+        if (NOT OpenEXR_ROOT AND NOT OPENEXR_ROOT
+            AND NOT DEFINED ENV{OpenEXR_ROOT} AND NOT DEFINED ENV{OPENEXR_ROOT})
+            pkg_check_modules(_OPENEXR QUIET OpenEXR>=2.0.0)
+        endif ()
+    endif (PKG_CONFIG_FOUND)
+endif()
 
 # List of likely places to find the headers -- note priority override of
 # ${OPENEXR_ROOT}/include.

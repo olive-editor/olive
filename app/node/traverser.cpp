@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,14 +22,14 @@
 
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     if (IsCancelled()) {
@@ -189,8 +189,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
       StreamPtr s = v.data().value<StreamPtr>();
 
       if (s) {
-        if (s->type() == Stream::kVideo
-            || s->type() == Stream::kImage) {
+        if (s->type() == Stream::kVideo) {
           take_this_value_list = &video_footage_to_retrieve;
         } else if (s->type() == Stream::kAudio) {
           take_this_value_list = &audio_footage_to_retrieve;
@@ -213,10 +212,14 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   if (!got_cached_frame) {
     // Retrieve video frames
     foreach (const NodeValue& v, video_footage_to_retrieve) {
-      QVariant value = ProcessVideoFootage(v.data().value<StreamPtr>(), range.in());
+      StreamPtr stream = v.data().value<StreamPtr>();
 
-      if (!value.isNull()) {
-        output_params.Push(NodeParam::kTexture, value, node);
+      if (stream->footage()->IsValid()) {
+        QVariant value = ProcessVideoFootage(stream, range.in());
+
+        if (!value.isNull()) {
+          output_params.Push(NodeParam::kTexture, value, node);
+        }
       }
     }
 
@@ -241,10 +244,14 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
 
   // Retrieve audio samples
   foreach (const NodeValue& v, audio_footage_to_retrieve) {
-    QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+    StreamPtr stream = v.data().value<StreamPtr>();
 
-    if (!value.isNull()) {
-      output_params.Push(NodeParam::kSamples, value, node);
+    if (stream->footage()->IsValid()) {
+      QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+
+      if (!value.isNull()) {
+        output_params.Push(NodeParam::kSamples, value, node);
+      }
     }
   }
 
@@ -258,4 +265,4 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

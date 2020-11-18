@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TrackViewItem : public QWidget
 {
@@ -59,8 +59,10 @@ private slots:
 
   void LineEditCancelled();
 
+  void UpdateLabel();
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKVIEWITEM_H

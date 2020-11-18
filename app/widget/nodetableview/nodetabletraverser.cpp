@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,16 +20,17 @@
 
 #include "nodetabletraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QVariant NodeTableTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
-  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
   return QVariant::fromValue(VideoParams(video_stream->width(),
                                          video_stream->height(),
                                          video_stream->timebase(),
                                          video_stream->format(),
+                                         video_stream->channel_count(),
                                          video_stream->pixel_aspect_ratio()));
 }
 
@@ -39,7 +40,7 @@ QVariant NodeTableTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRan
 
   return QVariant::fromValue(AudioParams(audio_stream->sample_rate(),
                                          audio_stream->channel_layout(),
-                                         SampleFormat::kInternalFormat));
+                                         AudioParams::kInternalFormat));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

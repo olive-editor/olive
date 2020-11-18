@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,8 +23,9 @@
 
 #include "codec/decoder.h"
 #include "node/node.h"
+#include "project/item/footage/stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node that imports an image
@@ -35,10 +36,32 @@ class MediaInput : public Node
 public:
   MediaInput();
 
-  virtual QList<CategoryID> Category() const override;
+  virtual QString Name() const override
+  {
+    return tr("Media");
+  }
 
-  StreamPtr footage();
-  void SetFootage(StreamPtr f);
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.mediainput");
+  }
+
+  virtual QString Description() const override
+  {
+    return tr("Import footage into the node graph.");
+  }
+
+  virtual Node* copy() const override
+  {
+    return new MediaInput();
+  }
+
+  virtual QVector<CategoryID> Category() const override;
+
+  StreamPtr stream();
+  void SetStream(StreamPtr s);
+
+  virtual bool IsMedia() const override;
 
   virtual void Retranslate() override;
 
@@ -56,6 +79,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // MEDIAINPUT_H

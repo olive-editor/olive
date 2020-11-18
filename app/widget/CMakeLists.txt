@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,9 +29,10 @@ add_subdirectory(manageddisplay)
 add_subdirectory(menu)
 add_subdirectory(nodecombobox)
 add_subdirectory(nodecopypaste)
-add_subdirectory(nodeview)
-add_subdirectory(nodeparamview)
 add_subdirectory(nodetableview)
+add_subdirectory(nodetreeview)
+add_subdirectory(nodeparamview)
+add_subdirectory(nodeview)
 add_subdirectory(panel)
 add_subdirectory(path)
 add_subdirectory(pixelsampler)

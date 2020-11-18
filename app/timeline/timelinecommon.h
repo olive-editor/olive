@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "common/define.h"
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Block;
 class TrackOutput;
@@ -59,6 +59,6 @@ public:
 // FIXME: Hardcoded (but that might be okay here)
 #define PLAYHEAD_COLOR Qt::red
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINECOMMON_H

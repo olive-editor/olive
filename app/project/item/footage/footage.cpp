@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,12 +24,13 @@
 #include <QDir>
 
 #include "codec/decoder.h"
+#include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "core.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Footage::Footage()
 {
@@ -41,69 +42,23 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
+void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
-  QXmlStreamAttributes attributes = reader->attributes();
-
-  foreach (const QXmlStreamAttribute& attr, attributes) {
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("filename")) {
-      set_filename(attr.value().toString());
-    }
-  }
-
-  // Validate filename
-  if (!QFileInfo::exists(filename_)) {
-    // Absolute filename does not exist, use some heuristics to try relocating the file
-
-    if (xml_node_data.real_project_url != xml_node_data.saved_project_url) {
-      // Project path has changed, check if the file we're looking for is the same relative to the
-      // new project path
-      QDir saved_dir(QFileInfo(xml_node_data.saved_project_url).dir());
-      QDir true_dir(QFileInfo(xml_node_data.real_project_url).dir());
-
-      QString relative_filename = saved_dir.relativeFilePath(filename_);
-      QString transformed_abs_filename = true_dir.filePath(relative_filename);
-
-      if (QFileInfo::exists(transformed_abs_filename)) {
-        // Use this file instead
-        qInfo() << "Footage" << filename_ << "doesn't exist, using relative file" << transformed_abs_filename;
-        set_filename(transformed_abs_filename);
-      }
-    }
-  }
-
-  Decoder::ProbeMedia(this, cancelled);
-
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("stream")) {
-      int stream_index = -1;
-      quintptr stream_ptr = 0;
-
-      XMLAttributeLoop(reader, attr) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (attr.name() == QStringLiteral("index")) {
-          stream_index = attr.value().toInt();
-        } else if (attr.name() == QStringLiteral("ptr")) {
-          stream_ptr = attr.value().toULongLong();
-        }
-      }
-
-      if (stream_index > -1 && stream_ptr > 0) {
-        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
-
-        stream(stream_index)->Load(reader);
-      } else {
-        qWarning() << "Invalid stream found in project file";
-      }
+    if (reader->name() == QStringLiteral("name")) {
+      set_name(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("filename")) {
+      set_filename(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("stream")) {
+      add_stream(Stream::Load(reader, xml_node_data, cancelled));
+    } else if (reader->name() == QStringLiteral("timestamp")) {
+      set_timestamp(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("decoder")) {
+      set_decoder(reader->readElementText());
     } else if (reader->name() == QStringLiteral("points")) {
       TimelinePoints::Load(reader);
     } else {
@@ -114,30 +69,20 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
 
 void Footage::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("footage");
+  writer->writeTextElement(QStringLiteral("name"), name());
+  writer->writeTextElement(QStringLiteral("filename"), filename());
+  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
+  writer->writeTextElement(QStringLiteral("decoder"), decoder_);
 
-  writer->writeAttribute("name", name());
-  writer->writeAttribute("filename", filename());
-
-  TimelinePoints::Save(writer);
+  writer->writeStartElement(QStringLiteral("points"));
+    TimelinePoints::Save(writer);
+  writer->writeEndElement(); // points
 
   foreach (StreamPtr stream, streams_) {
-    stream->Save(writer);
+    writer->writeStartElement(QStringLiteral("stream"));
+      stream->Save(writer);
+    writer->writeEndElement(); // stream
   }
-
-  writer->writeEndElement(); // footage
-}
-
-const Footage::Status& Footage::status() const
-{
-  return status_;
-}
-
-void Footage::set_status(const Footage::Status &status)
-{
-  status_ = status;
-
-  UpdateTooltip();
 }
 
 void Footage::Clear()
@@ -146,7 +91,12 @@ void Footage::Clear()
   ClearStreams();
 
   // Reset ready state
-  set_status(kUnprobed);
+  valid_ = false;
+}
+
+void Footage::SetValid()
+{
+  valid_ = true;
 }
 
 const QString &Footage::filename() const
@@ -159,12 +109,12 @@ void Footage::set_filename(const QString &s)
   filename_ = s;
 }
 
-const QDateTime &Footage::timestamp() const
+const qint64 &Footage::timestamp() const
 {
   return timestamp_;
 }
 
-void Footage::set_timestamp(const QDateTime &t)
+void Footage::set_timestamp(const qint64 &t)
 {
   timestamp_ = t;
 }
@@ -210,45 +160,31 @@ void Footage::set_decoder(const QString &id)
 
 QIcon Footage::icon()
 {
-  switch (status_) {
-  case kUnprobed:
-  case kUnindexed:
-    // FIXME Set a waiting icon
-    return QIcon();
-  case kReady:
-    if (HasStreamsOfType(Stream::kVideo)) {
+  if (valid_ && !streams_.isEmpty()) {
+    StreamPtr first_stream = streams_.first();
 
-      // Prioritize the video icon
-      return icon::Video;
-
-    } else if (HasStreamsOfType(Stream::kAudio)) {
-
-      // Otherwise assume it's audio only
+    if (first_stream->type() == Stream::kVideo) {
+      if (std::static_pointer_cast<VideoStream>(first_stream)->video_type() == VideoStream::kVideoTypeStill) {
+        return icon::Image;
+      } else {
+        return icon::Video;
+      }
+    } else if (first_stream->type() == Stream::kAudio) {
       return icon::Audio;
-
-    } else if (HasStreamsOfType(Stream::kImage)) {
-
-      // Otherwise assume it's an image
-      return icon::Image;
-
     }
-    /* fall-through */
-  case kInvalid:
-    return icon::Error;
   }
 
-  return QIcon();
+  return icon::Error;
 }
 
 QString Footage::duration()
 {
   // Find longest stream duration
-
   StreamPtr longest_stream = nullptr;
   rational longest;
 
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio) {
+    if (stream->enabled() && (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio)) {
       rational this_stream_dur = Timecode::timestamp_to_time(stream->duration(),
                                                              stream->timebase());
 
@@ -263,18 +199,20 @@ QString Footage::duration()
     if (longest_stream->type() == Stream::kVideo) {
       VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(longest_stream);
 
-      int64_t duration = video_stream->duration();
-      rational frame_rate_timebase = video_stream->frame_rate().flipped();
+      if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+        int64_t duration = video_stream->duration();
+        rational frame_rate_timebase = video_stream->frame_rate().flipped();
 
-      if (video_stream->timebase() != frame_rate_timebase) {
-        // Convert from timebase to frame rate
-        rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
-        duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+        if (video_stream->timebase() != frame_rate_timebase) {
+          // Convert from timebase to frame rate
+          rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
+          duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
+        }
+
+        return Timecode::timestamp_to_timecode(duration,
+                                               frame_rate_timebase,
+                                               Core::instance()->GetTimecodeDisplay());
       }
-
-      return Timecode::timestamp_to_timecode(duration,
-                                             frame_rate_timebase,
-                                             Core::instance()->GetTimecodeDisplay());
     } else if (longest_stream->type() == Stream::kAudio) {
       AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(longest_stream);
 
@@ -303,7 +241,10 @@ QString Footage::rate()
   if (HasStreamsOfType(Stream::kVideo)) {
     // This is a video editor, prioritize video streams
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo));
-    return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+
+    if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+      return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+    }
   } else if (HasStreamsOfType(Stream::kAudio)) {
     // No video streams, return audio
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
@@ -331,10 +272,6 @@ quint64 Footage::get_enabled_stream_flags() const
 
 void Footage::ClearStreams()
 {
-  if (streams_.empty()) {
-    return;
-  }
-
   // Delete all streams
   streams_.clear();
 }
@@ -343,7 +280,7 @@ bool Footage::HasStreamsOfType(const Stream::Type &type) const
 {
   // Return true if any streams are video streams
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == type) {
+    if (stream->enabled() && stream->type() == type) {
       return true;
     }
   }
@@ -354,7 +291,7 @@ bool Footage::HasStreamsOfType(const Stream::Type &type) const
 StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
 {
   foreach (StreamPtr stream, streams_) {
-    if (stream->type() == type) {
+    if (stream->enabled() && stream->type() == type) {
       return stream;
     }
   }
@@ -362,65 +299,50 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
   return nullptr;
 }
 
+bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+{
+  // Heuristic to determine if file has changed
+  QFileInfo info(footage->filename());
+
+  if (info.exists()) {
+    if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
+      // Footage has not been modified and is where we expect
+      return true;
+    } else {
+      // Footage may have changed and we'll have to re-probe it. It also may not have, in which
+      // case nothing needs to change.
+      ItemPtr item = Decoder::Probe(footage->project(), footage->filename(), nullptr);
+
+      if (item && item->type() == footage->type()) {
+        // Item is the same type, that's a good sign. Let's look for any differences.
+        // FIXME: Implement this
+        return true;
+      }
+    }
+  }
+
+  // Footage file couldn't be found or resolved to something we didn't expect
+  return false;
+}
+
 void Footage::UpdateTooltip()
 {
-  switch (status_) {
-  case kUnprobed:
-    set_tooltip(QCoreApplication::translate("Footage", "Waiting for probe"));
-    break;
-  case kUnindexed:
-    set_tooltip(QCoreApplication::translate("Footage", "Waiting for index"));
-    break;
-  case kReady:
-  {
+  if (valid_) {
     QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
 
     if (!streams_.isEmpty()) {
-      tip.append("\n");
-
-      for (int i=0;i<streams_.size();i++) {
-
-        StreamPtr s = streams_.at(i);
-
-        switch (s->type()) {
-        case Stream::kVideo:
-        case Stream::kImage:
-        {
-          ImageStreamPtr vs = std::static_pointer_cast<ImageStream>(s);
-
-          tip.append(
-                QCoreApplication::translate("Footage",
-                                            "\nVideo %1: %2x%3").arg(QString::number(i),
-                                                                     QString::number(vs->width()),
-                                                                     QString::number(vs->height()))
-                );
-          break;
-        }
-        case Stream::kAudio:
-        {
-          AudioStreamPtr as = std::static_pointer_cast<AudioStream>(s);
-
-          tip.append(
-                QCoreApplication::translate("Footage",
-                                            "\nAudio %1: %2 channels %3 Hz").arg(QString::number(i),
-                                                                                 QString::number(as->channels()),
-                                                                                 QString::number(as->sample_rate()))
-                );
-          break;
-        }
-        default:
-          break;
+      foreach (StreamPtr s, streams_) {
+        if (s->enabled()) {
+          tip.append("\n");
+          tip.append(s->description());
         }
       }
     }
 
     set_tooltip(tip);
-  }
-    break;
-  case kInvalid:
-    set_tooltip(QCoreApplication::translate("Footage", "An error occurred probing this footage"));
-    break;
+  } else {
+    set_tooltip(QCoreApplication::translate("Footage", "This footage is not valid for use"));
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,13 +23,15 @@
 
 #include "input.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeInputArray : public NodeInput
 {
   Q_OBJECT
 public:
   NodeInputArray(const QString &id, const DataType& type, const QVariant& default_value = 0);
+
+  virtual ~NodeInputArray() override;
 
   virtual bool IsArray() const override;
 
@@ -51,6 +53,8 @@ public:
 
   const QVector<NodeInput*>& sub_params();
 
+  virtual void DisconnectAll() override;
+
 signals:
   void SizeChanged(int size);
 
@@ -70,6 +74,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // INPUTARRAY_H

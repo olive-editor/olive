@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 
 #include "outputdeviceproxy.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class AudioOutputManager : public QObject
 {
@@ -53,13 +53,13 @@ public slots:
    * This will clear any pushed samples or QIODevices currently being read and will start reading from this next time
    * the audio output requests data.
    */
-  void PullFromDevice(const QString &filename, qint64 offset, int playback_speed);
+  void PullFromDevice(QIODevice* device, qint64 offset, int playback_speed);
 
   // Queued
   void ResetToPushMode();
 
   // Queued
-  void SetParameters(OLIVE_NAMESPACE::AudioParams params);
+  void SetParameters(olive::AudioParams params);
 
   // Queued
   void Close();
@@ -84,6 +84,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOHYBRIDDEVICE_H

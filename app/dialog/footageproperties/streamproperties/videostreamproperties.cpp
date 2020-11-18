@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,18 +25,18 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "common/ocioutils.h"
 #include "core.h"
 #include "project/item/footage/footage.h"
 #include "project/project.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
-  stream_(stream)
+VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
+  stream_(stream),
+  video_premultiply_alpha_(nullptr)
 {
   QGridLayout* video_layout = new QGridLayout(this);
   video_layout->setMargin(0);
@@ -78,15 +78,17 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
 
   video_layout->addWidget(video_color_space_, row, 1);
 
+  if (stream->channel_count() == VideoParams::kRGBAChannelCount) {
+    row++;
+
+    video_premultiply_alpha_ = new QCheckBox(tr("Premultiplied Alpha"));
+    video_premultiply_alpha_->setChecked(stream_->premultiplied_alpha());
+    video_layout->addWidget(video_premultiply_alpha_, row, 0, 1, 2);
+  }
+
   row++;
 
-  video_premultiply_alpha_ = new QCheckBox(tr("Premultiplied Alpha"));
-  video_premultiply_alpha_->setChecked(stream_->premultiplied_alpha());
-  video_layout->addWidget(video_premultiply_alpha_, row, 0, 1, 2);
-
-  row++;
-
-  if (IsImageSequence(stream.get())) {
+  if (stream->video_type() == VideoStream::kVideoTypeImageSequence) {
     QGroupBox* imgseq_group = new QGroupBox(tr("Image Sequence"));
     QGridLayout* imgseq_layout = new QGridLayout(imgseq_group);
 
@@ -130,20 +132,20 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     set_colorspace = video_color_space_->currentText();
   }
 
-  if (video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha()
+  if ((video_premultiply_alpha_ && video_premultiply_alpha_->isChecked() != stream_->premultiplied_alpha())
       || set_colorspace != stream_->colorspace(false)
       || static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()) != stream_->interlacing()
       || pixel_aspect_combo_->GetPixelAspectRatio() != stream_->pixel_aspect_ratio()) {
 
     new VideoStreamChangeCommand(stream_,
-                                 video_premultiply_alpha_->isChecked(),
+                                 video_premultiply_alpha_ ? video_premultiply_alpha_->isChecked() : stream_->premultiplied_alpha(),
                                  set_colorspace,
                                  static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
                                  pixel_aspect_combo_->GetPixelAspectRatio(),
                                  parent);
   }
 
-  if (IsImageSequence(stream_.get())) {
+  if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream_);
 
     int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
@@ -162,7 +164,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
 
 bool VideoStreamProperties::SanityCheck()
 {
-  if (IsImageSequence(stream_.get())) {
+  if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
     if (imgseq_start_time_->GetValue() >= imgseq_end_time_->GetValue()) {
       QMessageBox::critical(this,
                             tr("Invalid Configuration"),
@@ -175,12 +177,7 @@ bool VideoStreamProperties::SanityCheck()
   return true;
 }
 
-bool VideoStreamProperties::IsImageSequence(ImageStream *stream)
-{
-  return (stream->type() == Stream::kVideo && static_cast<VideoStream*>(stream)->is_image_sequence());
-}
-
-VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
+VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           VideoParams::Interlacing interlacing,
@@ -256,4 +253,4 @@ void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
   video_stream_->set_timebase(old_frame_rate_.flipped());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

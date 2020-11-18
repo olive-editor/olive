@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Config Config::current_config_;
 
@@ -68,7 +68,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeParam::kBoolean, true);
   SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeParam::kInt, 1);
   SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeParam::kInt, 10000);
-  SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, QLocale::system().name());
+  SetEntryInternal(QStringLiteral("Language"), NodeParam::kString, QString());
   SetEntryInternal(QStringLiteral("ScrollZooms"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("EnableSeekToImport"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("EditToolAlsoSeeks"), NodeParam::kBoolean, false);
@@ -87,20 +87,22 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeParam::kBoolean, true);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeParam::kBoolean, false);
-  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, TimelineWidget::kDWSAsk);
+  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeParam::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeParam::kBoolean, true);
 
-  SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);
+  SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeParam::kInt, 1000);
 
-  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeParam::kColor, QVariant::fromValue(Color(0.50f, 0.50f, 0.50f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.25f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeParam::kColor, QVariant::fromValue(Color(0.50, 0.50, 0.50)));
+  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor9"), NodeParam::kColor, QVariant::fromValue(Color(0.55, 0.55, 0.75)));
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeParam::kString, QString(""));
   SetEntryInternal(QStringLiteral("AudioInput"), NodeParam::kString, QString(""));
@@ -116,13 +118,10 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeParam::kInt, VideoParams::kInterlaceNone);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeParam::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeParam::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
-  SetEntryInternal(QStringLiteral("DefaultSequencePreviewFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA32F);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, PixelFormat::PIX_FMT_RGBA16F);
-  SetEntryInternal(QStringLiteral("OnlineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOAccurate);
-  SetEntryInternal(QStringLiteral("OfflineOCIOMethod"), NodeParam::kInt, ColorManager::kOCIOFast);
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat32);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeParam::kInt, VideoParams::kFormatFloat16);
 }
 
 void Config::Load()
@@ -206,7 +205,10 @@ void Config::Load()
 
 void Config::Save()
 {
-  QFile config_file(GetConfigFilePath());
+  QString real_filename = GetConfigFilePath();
+  QString temp_filename = FileFunctions::GetSafeTemporaryFilename(real_filename);
+
+  QFile config_file(temp_filename);
 
   if (!config_file.open(QFile::WriteOnly)) {
     QMessageBox::critical(Core::instance()->main_window(),
@@ -230,7 +232,14 @@ void Config::Save()
   QMapIterator<QString, ConfigEntry> iterator(current_config_.config_map_);
   while (iterator.hasNext()) {
     iterator.next();
-    writer.writeTextElement(iterator.key(), NodeInput::ValueToString(iterator.value().type, iterator.value().data, false));
+
+    QString value = NodeInput::ValueToString(iterator.value().type, iterator.value().data, false);
+
+    if (iterator.value().type == NodeParam::kNone) {
+      qWarning() << "Config key" << iterator.key() << "had null type and was discarded";
+    } else {
+      writer.writeTextElement(iterator.key(), value);
+    }
   }
 
   writer.writeEndElement(); // Configuration
@@ -238,6 +247,11 @@ void Config::Save()
   writer.writeEndDocument();
 
   config_file.close();
+
+  if (!FileFunctions::RenameFileAllowOverwrite(temp_filename, real_filename)) {
+    qWarning() << QStringLiteral("Failed to overwrite \"%1\". Config has been saved as \"%2\" instead.")
+                  .arg(real_filename, temp_filename);
+  }
 }
 
 QVariant Config::operator[](const QString &key) const
@@ -255,4 +269,4 @@ NodeParam::DataType Config::GetConfigEntryType(const QString &key) const
   return config_map_[key].type;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

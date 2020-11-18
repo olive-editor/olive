@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "node/output/track/track.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackViewSplitter::TrackViewSplitter(Qt::Alignment vertical_alignment, QWidget* parent) :
   QSplitter(Qt::Vertical, parent),
@@ -69,7 +69,7 @@ void TrackViewSplitter::HandleReceiver(TrackViewSplitterHandle *h, int diff)
   int new_ele_sz = old_ele_sz + diff;
 
   // Limit by track minimum height
-  new_ele_sz = qMax(new_ele_sz, TrackOutput::GetTrackHeightMinimum());
+  new_ele_sz = qMax(new_ele_sz, TrackOutput::GetMinimumTrackHeightInPixels());
 
   if (alignment_ == Qt::AlignBottom) {
     ele_id = count() - ele_id - 1;
@@ -192,4 +192,4 @@ void TrackViewSplitterHandle::paintEvent(QPaintEvent *)
   p.fillRect(rect(), palette().base());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

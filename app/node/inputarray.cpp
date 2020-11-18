@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,12 +25,18 @@
 #include "common/xmlutils.h"
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QVariant &default_value) :
   NodeInput(id, type, default_value),
   default_value_(default_value)
 {
+}
+
+NodeInputArray::~NodeInputArray()
+{
+  // Clear all connected edges (make sure our override is called)
+  DisconnectAll();
 }
 
 bool NodeInputArray::IsArray() const
@@ -58,6 +64,10 @@ void NodeInputArray::SetSize(int size)
 
   if (size < old_size) {
     // If the new size is less, delete all extraneous parameters
+    for (int i=size;i<old_size;i++) {
+      sub_params_.at(i)->DisconnectAll();
+    }
+
     for (int i=size;i<old_size;i++) {
       delete sub_params_.at(i);
     }
@@ -114,6 +124,15 @@ NodeInput *NodeInputArray::Last() const
 const QVector<NodeInput *> &NodeInputArray::sub_params()
 {
   return sub_params_;
+}
+
+void NodeInputArray::DisconnectAll()
+{
+  NodeParam::DisconnectAll();
+
+  foreach (NodeInput* input, sub_params_) {
+    input->DisconnectAll();
+  }
 }
 
 void NodeInputArray::InsertAt(int index)
@@ -187,17 +206,19 @@ void NodeInputArray::RemoveAt(int index)
 
 void NodeInputArray::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
-  if (reader->name() == QStringLiteral("subparameters")) {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("input")) {
-        Append();
-        At(GetSize() - 1)->Load(reader, xml_node_data, cancelled);
-      } else {
-        reader->skipCurrentElement();
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("subparameters")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("input")) {
+          Append();
+          At(GetSize() - 1)->Load(reader, xml_node_data, cancelled);
+        } else {
+          reader->skipCurrentElement();
+        }
       }
+    } else {
+      reader->skipCurrentElement();
     }
-  } else {
-    NodeInput::Load(reader, xml_node_data, cancelled);
   }
 }
 
@@ -206,10 +227,12 @@ void NodeInputArray::SaveInternal(QXmlStreamWriter *writer) const
   writer->writeStartElement("subparameters");
 
   foreach (NodeInput* sub, sub_params_) {
-    sub->Save(writer);
+    writer->writeStartElement(QStringLiteral("input"));
+      sub->Save(writer);
+    writer->writeEndElement();
   }
 
   writer->writeEndElement(); // subparameters
 }
 
-OLIVE_NAMESPACE_EXIT
+}

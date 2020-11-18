@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeRange {
 public:
@@ -56,6 +56,8 @@ public:
   const TimeRange& operator+=(const rational &rhs);
   const TimeRange& operator-=(const rational &rhs);
 
+  std::list<TimeRange> Split(const int &chunk_size) const;
+
 private:
   void normalize();
 
@@ -65,34 +67,83 @@ private:
 
 };
 
-class TimeRangeList : public QList<TimeRange> {
+class TimeRangeList {
 public:
   TimeRangeList() = default;
 
   TimeRangeList(std::initializer_list<TimeRange> r) :
-    QList<TimeRange>(r)
+    array_(r)
   {
   }
 
-  void InsertTimeRange(const TimeRange& range);
+  void insert(TimeRange range_to_add);
 
-  void RemoveTimeRange(const TimeRange& remove);
+  void remove(const TimeRange& remove);
 
-  bool ContainsTimeRange(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
+  bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
+
+  bool isEmpty() const
+  {
+    return array_.isEmpty();
+  }
+
+  void clear()
+  {
+    array_.clear();
+  }
+
+  int size() const
+  {
+    return array_.size();
+  }
+
+  void shift(const rational& diff);
+
+  void trim_in(const rational& diff);
+
+  void trim_out(const rational& diff);
 
   TimeRangeList Intersects(const TimeRange& range) const;
 
+  using const_iterator = QVector<TimeRange>::const_iterator;
+
+  const_iterator begin() const
+  {
+    return array_.constBegin();
+  }
+
+  const_iterator end() const
+  {
+    return array_.constEnd();
+  }
+
+  const TimeRange& first() const
+  {
+    return array_.first();
+  }
+
+  const TimeRange& last() const
+  {
+    return array_.last();
+  }
+
+  const QVector<TimeRange>& internal_array() const
+  {
+    return array_;
+  }
+
 private:
-  void PrintTimeList();
+  QVector<TimeRange> array_;
 
 };
 
 uint qHash(const TimeRange& r, uint seed);
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange& r);
+QDebug operator<<(QDebug debug, const olive::TimeRange& r);
+QDebug operator<<(QDebug debug, const olive::TimeRangeList& r);
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TimeRange)
+Q_DECLARE_METATYPE(olive::TimeRange)
 
 #endif // TIMERANGE_H

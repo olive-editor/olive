@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "node.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInputDragger::NodeInputDragger() :
   input_(nullptr)
@@ -115,4 +115,4 @@ void NodeInputDragger::End()
   input_ = nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

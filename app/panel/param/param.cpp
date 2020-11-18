@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,40 +22,32 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
 {
   NodeParamView* view = new NodeParamView();
-  connect(view, &NodeParamView::InputDoubleClicked, this, &ParamPanel::CreateCurvePanel);
   connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
-  //connect(view, &NodeParamView::FoundGizmos, this, &ParamPanel::FoundGizmos);
+  connect(view, &NodeParamView::NodeOrderChanged, this, &ParamPanel::NodeOrderChanged);
+  connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
   SetTimeBasedWidget(view);
 
   Retranslate();
 }
 
-void ParamPanel::SelectNodes(const QList<Node *> &nodes)
+void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
 
   Retranslate();
 }
 
-void ParamPanel::DeselectNodes(const QList<Node *> &nodes)
+void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 
   Retranslate();
-}
-
-void ParamPanel::SetTimestamp(const int64_t &timestamp)
-{
-  TimeBasedPanel::SetTimestamp(timestamp);
-
-  // Ensure all CurvePanels are updated with this time too
-  ParamViewTimeChanged(timestamp);
 }
 
 void ParamPanel::DeleteSelected()
@@ -78,69 +70,4 @@ void ParamPanel::Retranslate()
   }
 }
 
-void ParamPanel::CreateCurvePanel(NodeInput *input)
-{
-  if (!input->is_keyframable()) {
-    return;
-  }
-
-  CurvePanel* panel = open_curve_panels_.value(input);
-
-  if (panel) {
-    panel->raise();
-    return;
-  }
-
-  NodeParamView* view = static_cast<NodeParamView*>(GetTimeBasedWidget());
-
-  panel = Core::instance()->main_window()->AppendCurvePanel();
-
-  panel->ConnectViewerNode(view->GetConnectedNode());
-  panel->SetTimestamp(view->GetTimestamp());
-  panel->SetInput(input);
-
-  connect(view, &NodeParamView::TimeChanged, this, &ParamPanel::ParamViewTimeChanged);
-  connect(panel, &CurvePanel::TimeChanged, this, &ParamPanel::CurvePanelTimeChanged);
-  connect(panel, &CurvePanel::CloseRequested, this, &ParamPanel::ClosingCurvePanel);
-
-  open_curve_panels_.insert(input, panel);
 }
-
-void ParamPanel::ClosingCurvePanel()
-{
-  CurvePanel* panel = static_cast<CurvePanel*>(sender());
-  open_curve_panels_.remove(panel->GetInput());
-}
-
-void ParamPanel::ParamViewTimeChanged(const int64_t &time)
-{
-  // Ensure all CurvePanels are updated with this time too
-  QHash<NodeInput*, CurvePanel*>::const_iterator i;
-
-  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
-    // If connected viewers are the same, set the timestamp
-    if (i.value()->GetConnectedViewer() == GetConnectedViewer()) {
-      i.value()->SetTimestamp(time);
-    }
-  }
-}
-
-void ParamPanel::CurvePanelTimeChanged(const int64_t &time)
-{
-  GetTimeBasedWidget()->SetTimestamp(time);
-  emit GetTimeBasedWidget()->TimeChanged(time);
-
-  CurvePanel* src = static_cast<CurvePanel*>(sender());
-
-  // Ensure all CurvePanels are updated with this time too
-  QHash<NodeInput*, CurvePanel*>::const_iterator i;
-
-  for (i=open_curve_panels_.begin(); i!=open_curve_panels_.end(); i++) {
-    // If connected viewers are the same and the panel isn't the source, set the timestamp
-    if (i.value() != src && i.value()->GetConnectedViewer() == src->GetConnectedViewer()) {
-      i.value()->SetTimestamp(time);
-    }
-  }
-}
-
-OLIVE_NAMESPACE_EXIT

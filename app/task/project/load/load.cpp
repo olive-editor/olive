@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,18 +25,19 @@
 #include <QXmlStreamReader>
 
 #include "common/xmlutils.h"
+#include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectLoadTask::ProjectLoadTask(const QString &filename) :
-  filename_(filename)
+  ProjectLoadBaseTask(filename)
 {
-  SetTitle(tr("Loading '%1'").arg(filename));
 }
 
 bool ProjectLoadTask::Run()
 {
-  QFile project_file(filename_);
+  QFile project_file(GetFilename());
+  uint project_version = Core::kProjectVersion;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
@@ -45,27 +46,38 @@ bool ProjectLoadTask::Run()
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
-            qDebug() << "Project version:" << reader.readElementText();
+            project_version = reader.readElementText().toUInt();
+
+            if (project_version > Core::kProjectVersion) {
+              // Project is newer than we support
+              SetError(tr("This project is newer than this version of Olive and cannot be opened."));
+              return false;
+            } else if (project_version < 201003) { // Change this if we drop support for a project version
+              // Project is older than we support
+              SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+              return false;
+            }
+          } else if (reader.name() == QStringLiteral("url")) {
+            project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
-            ProjectPtr project = std::make_shared<Project>();
+            project_ = std::make_shared<Project>();
 
-            project->set_filename(filename_);
+            project_->set_filename(GetFilename());
 
-            MainWindowLayoutInfo layout;
-
-            project->Load(&reader, &layout, &IsCancelled());
+            project_->Load(&reader, &layout_info_, project_version, &IsCancelled());
 
             // Ensure project is in main thread
-            project->moveToThread(qApp->thread());
-
-            if (!IsCancelled()) {
-              projects_.append(project);
-              layout_info_.append(layout);
-            }
+            project_->moveToThread(qApp->thread());
+            break;
           } else {
             reader.skipCurrentElement();
           }
         }
+      } else if (reader.name() == QStringLiteral("project")) {
+        // 0.1 projects use "project" as the root instead of Olive. We don't currently support
+        // these projects
+        SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+        return false;
       } else {
         reader.skipCurrentElement();
       }
@@ -83,9 +95,9 @@ bool ProjectLoadTask::Run()
     }
 
   } else {
-    SetError(tr("Failed to read file \"%1\" for reading.").arg(filename_));
+    SetError(tr("Failed to read file \"%1\" for reading.").arg(GetFilename()));
     return false;
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

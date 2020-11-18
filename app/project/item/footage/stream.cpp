@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "footage.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Stream::Stream() :
   footage_(nullptr),
@@ -37,22 +37,71 @@ Stream::~Stream()
 {
 }
 
-void Stream::Load(QXmlStreamReader *reader)
+StreamPtr Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
-  LoadCustomParameters(reader);
+  StreamPtr stream;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("type")) {
+      Stream::Type type = static_cast<Stream::Type>(attr.value().toInt());
+      switch (type) {
+      case Stream::kVideo:
+        stream = std::make_shared<VideoStream>();
+        break;
+      case Stream::kAudio:
+        stream = std::make_shared<AudioStream>();
+        break;
+      default:
+        stream = std::make_shared<Stream>();
+        stream->set_type(type);
+        break;
+      }
+
+      // This is the only attribute we need
+      break;
+    }
+  }
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("ptr")) {
+      xml_node_data.footage_ptrs.insert(reader->readElementText().toULongLong(), stream);
+    } else if (reader->name() == QStringLiteral("index")) {
+      stream->set_index(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("timebase")) {
+      stream->set_timebase(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("duration")) {
+      stream->set_duration(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("enabled")) {
+      stream->set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("custom")) {
+      stream->LoadCustomParameters(reader);
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return stream;
 }
 
 void Stream::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("stream");
+  writer->writeAttribute(QStringLiteral("type"), QString::number(type_));
 
-  writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
+  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
-  writer->writeAttribute("index", QString::number(index_));
+  writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
+
+  writer->writeTextElement(QStringLiteral("timebase"), timebase_.toString());
+
+  writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
+
+  writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+
+  writer->writeStartElement(QStringLiteral("custom"));
 
   SaveCustomParameters(writer);
 
-  writer->writeEndElement(); // stream
+  writer->writeEndElement();
 }
 
 QString Stream::description() const
@@ -78,7 +127,6 @@ Footage *Stream::footage() const
 void Stream::set_footage(Footage *f)
 {
   footage_ = f;
-  FootageSetEvent(footage_);
 }
 
 const rational &Stream::timebase() const
@@ -123,29 +171,14 @@ void Stream::set_enabled(bool e)
   enabled_ = e;
 }
 
-QIcon Stream::IconFromType(const Stream::Type &type)
+QIcon Stream::icon() const
 {
-  switch (type) {
-  case Stream::kVideo:
-    return icon::Video;
-  case Stream::kImage:
-    return icon::Image;
-  case Stream::kAudio:
-    return icon::Audio;
-  default:
-    break;
-  }
-
   return QIcon();
 }
 
 QMutex *Stream::proxy_access_lock()
 {
   return &proxy_access_lock_;
-}
-
-void Stream::FootageSetEvent(Footage*)
-{
 }
 
 void Stream::LoadCustomParameters(QXmlStreamReader* reader)
@@ -157,4 +190,4 @@ void Stream::SaveCustomParameters(QXmlStreamWriter*) const
 {
 }
 
-OLIVE_NAMESPACE_EXIT
+}

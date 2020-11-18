@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,10 +25,11 @@
 
 #include "common/timecodefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
-  QWidget(parent, Qt::Window | Qt::WindowStaysOnTopHint)
+  QWidget(parent, Qt::Window | Qt::WindowStaysOnTopHint),
+  pixel_aspect_(1)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -43,23 +44,28 @@ ViewerDisplayWidget *ViewerWindow::display_widget() const
   return display_widget_;
 }
 
+void ViewerWindow::SetVideoParams(const VideoParams &params)
+{
+  width_ = params.width();
+  height_ = params.height();
+  pixel_aspect_ = params.pixel_aspect_ratio();
+
+  UpdateMatrix();
+}
+
 void ViewerWindow::SetResolution(int width, int height)
 {
-  // Set GL widget matrix to maintain this texture's aspect ratio
-  double window_ar = static_cast<double>(this->width()) / static_cast<double>(this->height());
-  double image_ar = static_cast<double>(width) / static_cast<double>(height);
+  width_ = width;
+  height_ = height;
 
-  QMatrix4x4 mat;
+  UpdateMatrix();
+}
 
-  if (window_ar > image_ar) {
-    // Window is wider than image, adjust X scale
-    mat.scale(image_ar / window_ar, 1.0f, 1.0f);
-  } else if (window_ar < image_ar) {
-    // Window is taller than image, adjust Y scale
-    mat.scale(1.0f, window_ar / image_ar, 1.0f);
-  }
+void ViewerWindow::SetPixelAspectRatio(const rational &pixel_aspect)
+{
+  pixel_aspect_ = pixel_aspect;
 
-  display_widget_->SetMatrix(mat);
+  UpdateMatrix();
 }
 
 void ViewerWindow::Play(const int64_t& start_timestamp, const int& playback_speed, const rational &timebase)
@@ -115,4 +121,23 @@ void ViewerWindow::UpdateFromQueue()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+void ViewerWindow::UpdateMatrix()
+{
+  // Set GL widget matrix to maintain this texture's aspect ratio
+  double window_ar = static_cast<double>(this->width()) / static_cast<double>(this->height());
+  double image_ar = static_cast<double>(width_) / static_cast<double>(height_) * pixel_aspect_.toDouble();
+
+  QMatrix4x4 mat;
+
+  if (window_ar > image_ar) {
+    // Window is wider than image, adjust X scale
+    mat.scale(image_ar / window_ar, 1.0f, 1.0f);
+  } else if (window_ar < image_ar) {
+    // Window is taller than image, adjust Y scale
+    mat.scale(1.0f, window_ar / image_ar, 1.0f);
+  }
+
+  display_widget_->SetMatrixZoom(mat);
+}
+
+}

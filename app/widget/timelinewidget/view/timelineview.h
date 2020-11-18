@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for viewing and interacting Sequences
@@ -58,6 +58,16 @@ public:
   void ConnectTrackList(TrackList* list);
 
   void SetBeamCursor(const TimelineCoordinate& coord);
+
+  void SetSelectionList(QHash<TrackReference, TimeRangeList>* s)
+  {
+    selections_ = s;
+  }
+
+  void SetGhostList(QVector<TimelineViewGhostItem*>* ghosts)
+  {
+    ghosts_ = ghosts;
+  }
 
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
@@ -108,6 +118,10 @@ private:
 
   void UpdatePlayheadRect();
 
+  QHash<TrackReference, TimeRangeList>* selections_;
+
+  QVector<TimelineViewGhostItem*>* ghosts_;
+
   bool show_beam_cursor_;
 
   TimelineCoordinate cursor_coord_;
@@ -116,6 +130,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEW_H

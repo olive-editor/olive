@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CancelableObject {
 public:
@@ -34,19 +34,25 @@ public:
   {
   }
 
-  void Cancel() {
+  void Cancel()
+  {
     cancelled_ = true;
+    CancelEvent();
   }
 
-  const QAtomicInt& IsCancelled() const {
+  const QAtomicInt& IsCancelled() const
+  {
     return cancelled_;
   }
+
+protected:
+  virtual void CancelEvent(){}
 
 private:
   QAtomicInt cancelled_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CANCELABLEOBJECT_H

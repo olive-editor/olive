@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,8 +30,9 @@
 #include "node/output/track/tracklist.h"
 #include "timeline/timelinepoints.h"
 #include "undo/undocommand.h"
+#include "widget/timelinewidget/timelinewidgetselections.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class BlockResizeCommand : public UndoCommand {
 public:
@@ -113,23 +114,6 @@ private:
   rational new_media_in_;
 };
 
-class BlockSetSpeedCommand : public UndoCommand {
-public:
-  BlockSetSpeedCommand(Block* block, const rational& new_speed, QUndoCommand* parent = nullptr);
-
-  virtual Project* GetRelevantProject() const override;
-
-protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
-
-private:
-  Block* block_;
-
-  rational old_speed_;
-  rational new_speed_;
-};
-
 class TrackRippleRemoveBlockCommand : public UndoCommand {
 public:
   TrackRippleRemoveBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);
@@ -208,6 +192,7 @@ protected:
   rational out_;
 
   bool splice_;
+  QUndoCommand* splice_split_command_;
 
   Block* trim_out_;
   Block* trim_in_;
@@ -345,16 +330,17 @@ protected:
 private:
   TrackOutput* track_;
   Block* block_;
+  Block* new_block_;
 
   rational new_length_;
   rational old_length_;
   rational point_;
 
-  Block* new_block_;
-
   QList<NodeInput*> transitions_to_move_;
 
   QObject memory_manager_;
+
+  QUndoCommand* add_command_;
 
 };
 
@@ -416,9 +402,10 @@ private:
   TrackOutput* track_;
   Block* block_;
 
-  bool we_created_gap_;
-  GapBlock* gap_;
-  GapBlock* merged_gap_;
+  GapBlock* existing_gap_;
+  GapBlock* existing_merged_gap_;
+  bool existing_gap_precedes_;
+  GapBlock* our_gap_;
 
   QObject memory_manager_;
 
@@ -486,12 +473,12 @@ private:
 
 class BlockLinkManyCommand : public UndoCommand {
 public:
-  BlockLinkManyCommand(const QList<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
+  BlockLinkManyCommand(const QVector<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
 private:
-  QList<Block*> blocks_;
+  QVector<Block*> blocks_;
 
 };
 
@@ -605,6 +592,8 @@ private:
 
   BlockSplitPreservingLinksCommand* split_command_;
 
+  QObject memory_manager_;
+
 };
 
 class TransitionRemoveCommand : public UndoCommand {
@@ -627,6 +616,23 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+class TimelineWidget;
+
+class TimelineSetSelectionsCommand : public QUndoCommand {
+public:
+  TimelineSetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineWidget* timeline_;
+  TimelineWidgetSelections old_;
+  TimelineWidgetSelections now_;
+
+};
+
+}
 
 #endif // TIMELINEUNDOABLE_H

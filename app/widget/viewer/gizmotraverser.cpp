@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 
 #include "gizmotraverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
 {
   Q_UNUSED(input_time)
 
-  ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+  VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
 
   return QSize(image_stream->width(), image_stream->height());
 }
@@ -40,4 +40,4 @@ QVariant GizmoTraverser::ProcessShader(const Node *node, const TimeRange &range,
   return size_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "common/clamp.h"
 #include "common/lerp.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QWidget* parent) :
   QFrame(parent, Qt::Popup),
@@ -103,9 +103,7 @@ void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  drag_timer_.stop();
-
-  emit Released();
+  this->close();
 }
 
 void SliderLadder::showEvent(QShowEvent *event)
@@ -113,6 +111,15 @@ void SliderLadder::showEvent(QShowEvent *event)
   QWidget::showEvent(event);
 
   drag_timer_.start();
+}
+
+void SliderLadder::closeEvent(QCloseEvent *event)
+{
+  Q_UNUSED(event)
+
+  drag_timer_.stop();
+
+  emit Released();
 }
 
 void SliderLadder::TimerUpdate()
@@ -234,4 +241,4 @@ void SliderLadderElement::UpdateLabel()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

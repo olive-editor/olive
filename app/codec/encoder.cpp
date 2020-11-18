@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@
 
 #include "encoder.h"
 
+#include <QFile>
+
 #include "ffmpeg/ffmpegencoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Encoder::Encoder(const EncodingParams &params) :
   params_(params)
@@ -32,6 +34,12 @@ Encoder::Encoder(const EncodingParams &params) :
 const EncodingParams &Encoder::params() const
 {
   return params_;
+}
+
+void Encoder::WriteAudio(AudioParams pcm_info, const QString &pcm_filename)
+{
+  QFile f(pcm_filename);
+  WriteAudio(pcm_info, &f);
 }
 
 EncodingParams::EncodingParams() :
@@ -224,8 +232,8 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
 {
   Q_UNUSED(id)
-  
+
   return new FFmpegEncoder(params);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

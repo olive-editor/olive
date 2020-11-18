@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,11 +21,12 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "slide.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
+SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
@@ -33,10 +34,10 @@ TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+void SlideTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
                                              Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, true, true);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

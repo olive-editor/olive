@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)
@@ -37,9 +37,9 @@ CurveView::CurveView(QWidget *parent) :
   setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
 
-  text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
+  text_padding_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
 
-  minimum_grid_space_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
+  minimum_grid_space_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
 
   connect(scene(), &QGraphicsScene::selectionChanged, this, &CurveView::SelectionChanged);
 }
@@ -60,19 +60,58 @@ void CurveView::Clear()
   lines_.clear();
 }
 
-void CurveView::SetTrackCount(int count)
+void CurveView::ConnectInput(NodeInput *input)
 {
-  track_count_ = count;
+  if (connected_inputs_.contains(input)) {
+    // Input wasn't connected, do nothing
+    return;
+  }
 
-  track_visible_.resize(track_count_);
-  track_visible_.fill(true);
+  // Add keyframes from this input
+  foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+    foreach (NodeKeyframePtr key, track) {
+      this->AddKeyframe(key);
+    }
+
+    if (!keyframe_colors_.contains(&track)) {
+      // Generate a random color for this input
+      keyframe_colors_.insert(&track, QColor::fromHsv(std::rand()%360, std::rand()%255, 255));
+    }
+  }
+
+  // Append to the list
+  connected_inputs_.append(input);
+
+  // Connect add/remove signals
+  connect(input, &NodeInput::KeyframeAdded, this, &CurveView::AddKeyframe);
+  connect(input, &NodeInput::KeyframeRemoved, this, &CurveView::RemoveKeyframe);
 }
 
-void CurveView::SetTrackVisible(int track, bool visible)
+void CurveView::DisconnectNode(Node *node)
 {
-  track_visible_[track] = visible;
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
-  SetKeyframeTrackVisible(track, visible);
+  foreach (NodeInput* i, inputs) {
+    DisconnectInput(i);
+  }
+}
+
+void CurveView::DisconnectInput(NodeInput *input)
+{
+  if (!connected_inputs_.contains(input)) {
+    // Input wasn't connected, do nothing
+    return;
+  }
+
+  // Remove keyframes belonging to this input
+  RemoveKeyframesOfInput(input);
+
+  // Remove from the list
+  connected_inputs_.removeOne(input);
+
+  // Disconnect add/remove signals
+  disconnect(input, &NodeInput::KeyframeAdded, this, &CurveView::AddKeyframe);
+  disconnect(input, &NodeInput::KeyframeRemoved, this, &CurveView::RemoveKeyframe);
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -126,87 +165,85 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   painter->drawLines(lines);
 
   // Draw keyframe lines
+  foreach (NodeInput* input, connected_inputs_) {
+    if (input->is_keyframing()) {
+      foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+        if (!track.isEmpty()) {
+          painter->setPen(QPen(keyframe_colors_.value(&track), qMax(1, fontMetrics().height() / 4)));
 
-  for (int j=0;j<track_count_;j++) {
-    if (!track_visible_.at(j)) {
-      continue;
-    }
+          QVector<QLineF> keyframe_lines;
 
-    painter->setPen(QPen(GetKeyframeColor(j), qMax(1, fontMetrics().height() / 4)));
-    QList<NodeKeyframe*> keys = GetKeyframesSortedByTime(j);
+          // Draw straight line leading to first keyframe
+          QPointF first_key_pos = item_map().value(track.first().get())->pos();
+          keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
 
-    if (!keys.isEmpty()) {
-      QVector<QLineF> keyframe_lines;
+          // Draw lines between each keyframe
+          for (int i=1;i<track.size();i++) {
+            NodeKeyframePtr before = track.at(i-1);
+            NodeKeyframePtr after = track.at(i);
 
-      // Draw straight line leading to first keyframe
-      QPointF first_key_pos = item_map().value(keys.first())->pos();
-      keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
+            KeyframeViewItem* before_item = item_map().value(before.get());
+            KeyframeViewItem* after_item = item_map().value(after.get());
 
-      // Draw lines between each keyframe
-      for (int i=1;i<keys.size();i++) {
-        NodeKeyframe* before = keys.at(i-1);
-        NodeKeyframe* after = keys.at(i);
+            if (before->type() == NodeKeyframe::kHold) {
+              // Draw a hold keyframe (basically a right angle)
+              keyframe_lines.append(QLineF(before_item->pos().x(),
+                                           before_item->pos().y(),
+                                           after_item->pos().x(),
+                                           before_item->pos().y()));
+              keyframe_lines.append(QLineF(after_item->pos().x(),
+                                           before_item->pos().y(),
+                                           after_item->pos().x(),
+                                           after_item->pos().y()));
+            } else if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+              // Draw a cubic bezier
 
-        KeyframeViewItem* before_item = item_map().value(before);
-        KeyframeViewItem* after_item = item_map().value(after);
+              // Cubic beziers have two control points, so we can just use both
+              QPointF before_control_point = before_item->pos() + ScalePoint(before->bezier_control_out());
+              QPointF after_control_point = after_item->pos() + ScalePoint(after->bezier_control_in());
 
-        if (before->type() == NodeKeyframe::kHold) {
-          // Draw a hold keyframe (basically a right angle)
-          keyframe_lines.append(QLineF(before_item->pos().x(),
-                                       before_item->pos().y(),
-                                       after_item->pos().x(),
-                                       before_item->pos().y()));
-          keyframe_lines.append(QLineF(after_item->pos().x(),
-                                       before_item->pos().y(),
-                                       after_item->pos().x(),
-                                       after_item->pos().y()));
-        } else if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
-          // Draw a cubic bezier
+              QPainterPath path;
+              path.moveTo(before_item->pos());
+              path.cubicTo(before_control_point, after_control_point, after_item->pos());
+              painter->drawPath(path);
 
-          // Cubic beziers have two control points, so we can just use both
-          QPointF before_control_point = before_item->pos() + ScalePoint(before->bezier_control_out());
-          QPointF after_control_point = after_item->pos() + ScalePoint(after->bezier_control_in());
+            } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
+              // Draw a quadratic bezier
 
-          QPainterPath path;
-          path.moveTo(before_item->pos());
-          path.cubicTo(before_control_point, after_control_point, after_item->pos());
-          painter->drawPath(path);
+              // Quadratic beziers have a single control point, we just have to determine which it is
+              QPointF key_anchor;
+              QPointF control_point;
 
-        } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
-          // Draw a quadratic bezier
+              if (before->type() == NodeKeyframe::kBezier) {
+                key_anchor = before_item->pos();
+                control_point = before->bezier_control_out();
+              } else {
+                key_anchor = after_item->pos();
+                control_point = after->bezier_control_in();
+              }
 
-          // Quadratic beziers have a single control point, we just have to determine which it is
-          QPointF key_anchor;
-          QPointF control_point;
+              // Scale control point
+              control_point = key_anchor + ScalePoint(control_point);
 
-          if (before->type() == NodeKeyframe::kBezier) {
-            key_anchor = before_item->pos();
-            control_point = before->bezier_control_out();
-          } else {
-            key_anchor = after_item->pos();
-            control_point = after->bezier_control_in();
+              // Create the path from both keyframes
+              QPainterPath path;
+              path.moveTo(before_item->pos());
+              path.quadTo(control_point, after_item->pos());
+              painter->drawPath(path);
+
+            } else {
+              // Linear to linear
+              keyframe_lines.append(QLineF(before_item->pos(), after_item->pos()));
+            }
           }
 
-          // Scale control point
-          control_point = key_anchor + ScalePoint(control_point);
+          // Draw straight line leading from end keyframe
+          QPointF last_key_pos = item_map().value(track.last().get())->pos();
+          keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
 
-          // Create the path from both keyframes
-          QPainterPath path;
-          path.moveTo(before_item->pos());
-          path.quadTo(control_point, after_item->pos());
-          painter->drawPath(path);
-
-        } else {
-          // Linear to linear
-          keyframe_lines.append(QLineF(before_item->pos(), after_item->pos()));
+          painter->drawLines(keyframe_lines);
         }
       }
-
-      // Draw straight line leading from end keyframe
-      QPointF last_key_pos = item_map().value(keys.last())->pos();
-      keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
-
-      painter->drawLines(keyframe_lines);
     }
   }
 
@@ -269,37 +306,6 @@ void CurveView::ContextMenuEvent(Menu &m)
   //QAction* reset_zoom_action = m.addAction(tr("Reset Zoom"));
 }
 
-QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime(int track)
-{
-  QList<NodeKeyframe *> sorted;
-
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
-    NodeKeyframe* key = iterator.key();
-
-    if (key->track() != track) {
-      continue;
-    }
-
-    bool inserted = false;
-
-    for (int i=0;i<sorted.size();i++) {
-      if (sorted.at(i)->time() > key->time()) {
-        sorted.insert(i, key);
-        inserted = true;
-        break;
-      }
-    }
-
-    if (!inserted) {
-      sorted.append(key);
-    }
-  }
-
-  return sorted;
-}
-
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
 {
   return GetItemYFromKeyframeValue(key->value().toDouble());
@@ -332,17 +338,6 @@ void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)
   bezier_out_pt->SetXScale(GetScale());
   bezier_control_points_.append(bezier_out_pt);
   connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
-}
-
-QColor CurveView::GetKeyframeColor(int track) const
-{
-  if (track_count_) {
-    QColor c;
-    c.setHsvF(static_cast<double>(track) / static_cast<double>(track_count_), 0.5, 1.0);
-    return c;
-  }
-
-  return palette().text().color();
 }
 
 void CurveView::KeyframeValueChanged()
@@ -396,15 +391,13 @@ void CurveView::ZoomToFit()
     return;
   }
 
-  QMap<NodeKeyframe *, KeyframeViewItem *>::const_iterator i;
-
   rational min_time = RATIONAL_MAX;
   rational max_time = RATIONAL_MIN;
 
   double min_val = DBL_MAX;
   double max_val = DBL_MIN;
 
-  for (i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
+  for (auto i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
     rational transformed_time = GetAdjustedTime(i.key()->parent()->parentNode(),
                                                 GetTimeTarget(),
                                                 i.key()->time(),
@@ -432,10 +425,10 @@ void CurveView::AddKeyframe(NodeKeyframePtr key)
 {
   KeyframeViewItem* item = AddKeyframeInternal(key);
   SetItemYFromKeyframeValue(key.get(), item);
-  item->SetOverrideBrush(GetKeyframeColor(key->track()));
+  item->SetOverrideBrush(keyframe_colors_.value(&key->parent()->keyframe_tracks().at(key->track())));
 
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

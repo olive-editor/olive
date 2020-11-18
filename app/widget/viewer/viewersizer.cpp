@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include <QMatrix4x4>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerSizer::ViewerSizer(QWidget *parent) :
   QWidget(parent),
@@ -32,6 +32,13 @@ ViewerSizer::ViewerSizer(QWidget *parent) :
   pixel_aspect_(1),
   zoom_(0)
 {
+  horiz_scrollbar_ = new QScrollBar(Qt::Horizontal, this);
+  horiz_scrollbar_->setVisible(false);
+  connect(horiz_scrollbar_, &QScrollBar::valueChanged, this, &ViewerSizer::ScrollBarMoved);
+
+  vert_scrollbar_ = new QScrollBar(Qt::Vertical, this);
+  vert_scrollbar_->setVisible(false);
+  connect(vert_scrollbar_, &QScrollBar::valueChanged, this, &ViewerSizer::ScrollBarMoved);
 }
 
 void ViewerSizer::SetWidget(QWidget *widget)
@@ -70,6 +77,17 @@ void ViewerSizer::SetZoom(int percent)
   UpdateSize();
 }
 
+void ViewerSizer::HandDragMove(int x, int y)
+{
+  if (horiz_scrollbar_->isVisible()) {
+    horiz_scrollbar_->setValue(horiz_scrollbar_->value() - x);
+  }
+
+  if (vert_scrollbar_->isVisible()) {
+    vert_scrollbar_->setValue(vert_scrollbar_->value() - y);
+  }
+}
+
 void ViewerSizer::resizeEvent(QResizeEvent *event)
 {
   QWidget::resizeEvent(event);
@@ -94,52 +112,147 @@ void ViewerSizer::UpdateSize()
   QSize child_size;
   QMatrix4x4 child_matrix;
 
-  double sequence_aspect_ratio = static_cast<double>(width_) / static_cast<double>(height_) * pixel_aspect_.toDouble();
+  int available_width = width();
+  int available_height = height();
+  double sequence_aspect_ratio = static_cast<double>(width_) / static_cast<double>(height_)
+      * pixel_aspect_.toDouble();
 
   if (zoom_ <= 0) {
 
-    // If zoom is 0, we auto-fit
-    double our_aspect_ratio = static_cast<double>(width()) / static_cast<double>(height());
+    // If zoom is zero or negative, we auto-fit
+    double our_aspect_ratio = static_cast<double>(available_width) / static_cast<double>(available_height);
 
     child_size = size();
 
     if (our_aspect_ratio > sequence_aspect_ratio) {
       // This container is wider than the image, scale by height
-      child_size = QSize(qRound(child_size.height() * sequence_aspect_ratio), height());
+      child_size = QSize(qRound(child_size.height() * sequence_aspect_ratio), available_height);
     } else {
       // This container is taller than the image, scale by width
-      child_size = QSize(width(), qRound(child_size.width() / sequence_aspect_ratio));
+      child_size = QSize(available_width, qRound(child_size.width() / sequence_aspect_ratio));
     }
+
+    // No scrollbars necessary for auto-fit
+    horiz_scrollbar_->setVisible(false);
+    vert_scrollbar_->setVisible(false);
 
   } else {
 
     float x_scale = 1.0f;
     float y_scale = 1.0f;
 
-    int zoomed_width = qRound(width_ * static_cast<double>(zoom_) * 0.01);
-    int zoomed_height = qRound(height_ * static_cast<double>(zoom_) * 0.01);
+    int zoomed_width = GetZoomedValue(width_);
+    int zoomed_height = GetZoomedValue(height_);
 
-    if (zoomed_width > width()) {
-      x_scale = static_cast<double>(zoomed_width) / static_cast<double>(width());
-      zoomed_width = width();
+    bool child_exceeds_parent_width = (zoomed_width > available_width);
+    bool child_exceeds_parent_height = (zoomed_height > available_height);
+
+    if (child_exceeds_parent_width != child_exceeds_parent_height) {
+      // One scrollbar definitely needs to be shown, so it's a matter of determining if the other
+      // does too since adding one scrollbar necessary limits the total area
+
+      if (child_exceeds_parent_height) {
+        // A vertical scrollbar will need to be shown, which limits the width
+        child_exceeds_parent_width = (zoomed_width > available_width - vert_scrollbar_->sizeHint().width());
+      } else {
+        // A horizontal scrollbar will need to be shown, which limits the height
+        child_exceeds_parent_height = (zoomed_height > available_height - horiz_scrollbar_->sizeHint().height());
+      }
     }
 
-    if (zoomed_height > height()) {
-      y_scale = static_cast<double>(zoomed_height) / static_cast<double>(height());
-      zoomed_height = height();
+    horiz_scrollbar_->setVisible(child_exceeds_parent_width);
+    vert_scrollbar_->setVisible(child_exceeds_parent_height);
+
+    if (vert_scrollbar_->isVisible()) {
+      // Limit available width for further calculations
+      available_width -= vert_scrollbar_->sizeHint().width();
+    }
+
+    if (horiz_scrollbar_->isVisible()) {
+      // Limit available height for further calculations
+      available_height -= horiz_scrollbar_->sizeHint().height();
+    }
+
+    if (horiz_scrollbar_->isVisible()) {
+      x_scale = static_cast<double>(zoomed_width) / static_cast<double>(available_width);
+
+      // Update scrollbar sizes
+      int horiz_width = this->width();
+
+      if (vert_scrollbar_->isVisible()) {
+        horiz_width -= vert_scrollbar_->sizeHint().width();
+      }
+
+      horiz_scrollbar_->resize(horiz_width, horiz_scrollbar_->sizeHint().height());
+      horiz_scrollbar_->move(0, this->height() - horiz_scrollbar_->height() - 1);
+      horiz_scrollbar_->setMaximum(zoomed_width - available_width);
+      horiz_scrollbar_->setPageStep(available_width);
+
+      zoomed_width = available_width;
+    }
+
+    if (vert_scrollbar_->isVisible()) {
+      y_scale = static_cast<double>(zoomed_height) / static_cast<double>(available_height);
+
+      // Update scrollbar sizes
+      int vert_height = this->height();
+
+      if (horiz_scrollbar_->isVisible()) {
+        vert_height -= horiz_scrollbar_->sizeHint().height();
+      }
+
+      vert_scrollbar_->resize(vert_scrollbar_->sizeHint().width(), vert_height);
+      vert_scrollbar_->move(this->width() - vert_scrollbar_->width() - 1, 0);
+      vert_scrollbar_->setMaximum(zoomed_height - available_height);
+      vert_scrollbar_->setPageStep(available_height);
+
+      zoomed_height = available_height;
     }
 
     // Rather than make a huge surface, we still crop at our width/height and then signal a matrix
     child_matrix.scale(x_scale, y_scale, 1.0F);
 
     child_size = QSize(zoomed_width, zoomed_height);
-
   }
 
   widget_->resize(child_size);
-  widget_->move(width() / 2 - child_size.width() / 2, height() / 2 - child_size.height() / 2);
+  widget_->move(available_width / 2 - child_size.width() / 2,
+                available_height / 2 - child_size.height() / 2);
 
-  emit RequestMatrix(child_matrix);
+  emit RequestScale(child_matrix);
+
+  ScrollBarMoved();
 }
 
-OLIVE_NAMESPACE_EXIT
+int ViewerSizer::GetZoomedValue(int value)
+{
+  return qRound(value * static_cast<double>(zoom_) * 0.01);
+}
+
+void ViewerSizer::ScrollBarMoved()
+{
+  QMatrix4x4 mat;
+
+  float x_scroll, y_scroll;
+
+  if (horiz_scrollbar_->isVisible()) {
+    int zoomed_width = GetZoomedValue(width_);
+    x_scroll = (zoomed_width/2 - horiz_scrollbar_->value() - widget_->width() / 2) * (2.0 / zoomed_width);
+  } else {
+    x_scroll = 0;
+  }
+
+  if (vert_scrollbar_->isVisible()) {
+    int zoomed_height = GetZoomedValue(height_);
+    y_scroll = (zoomed_height/2 - vert_scrollbar_->value() - widget_->height() / 2) * (2.0 / zoomed_height);
+  } else {
+    y_scroll = 0;
+  }
+
+  // Zero translate is centered, so we need to determine how much "off center" we are
+  mat.translate(x_scroll, y_scroll);
+
+  emit RequestTranslate(mat);
+}
+
+}

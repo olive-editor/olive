@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,16 +27,15 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "common/filefunctions.h"
+#include "common/ocioutils.h"
 #include "config/config.h"
 #include "core.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
   QDialog(parent),
@@ -243,4 +242,4 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

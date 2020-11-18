@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,11 @@
 
 #include "config/config.h"
 #include "common/autoscroll.h"
+#include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
@@ -47,34 +48,23 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   language_combobox_ = new QComboBox();
 
   // Add default language (en-US)
-  language_combobox_->addItem(QLocale("en_US").nativeLanguageName());
+  QDir language_dir(QStringLiteral(":/ts"));
+  QStringList languages = language_dir.entryList();
+  foreach (const QString& l, languages) {
+    AddLanguage(l);
+  }
 
-  /*
-    // add languages from file
-    QList<QString> translation_paths = get_language_paths();
+  QString current_language = Config::Current()[QStringLiteral("Language")].toString();
+  if (current_language.isEmpty()) {
+    // No configured language, use system language
+    current_language = QLocale::system().name();
 
-    // iterate through all language search paths
-    for (int j=0;j<translation_paths.size();j++) {
-      QDir translation_dir(translation_paths.at(j));
-      if (translation_dir.exists()) {
-        QStringList translation_files = translation_dir.entryList({"*.qm"}, QDir::Files | QDir::NoDotAndDotDot);
-        for (int i=0;i<translation_files.size();i++) {
-          // get path of translation relative to the application path
-          QString locale_full_path = translation_dir.filePath(translation_files.at(i));
-          QString locale_relative_path = QDir(get_app_path()).relativeFilePath(locale_full_path);
-
-          QFileInfo locale_file(translation_files.at(i));
-          QString locale_file_basename = locale_file.baseName();
-          QString locale_str = locale_file_basename.mid(locale_file_basename.lastIndexOf('_')+1);
-          language_combobox->addItem(QLocale(locale_str).nativeLanguageName(), locale_relative_path);
-
-          if (olive::config.language_file == locale_relative_path) {
-            language_combobox->setCurrentIndex(language_combobox->count() - 1);
-          }
-        }
-      }
+    // If we don't have a language for this, default to en_US
+    if (!languages.contains(current_language)) {
+      current_language = QStringLiteral("en_US");
     }
-    */
+  }
+  language_combobox_->setCurrentIndex(languages.indexOf(current_language));
 
   general_layout->addWidget(language_combobox_, row, 1);
 
@@ -112,11 +102,30 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
 void PreferencesGeneralTab::Accept()
 {
-  Config::Current()["RectifiedWaveforms"] = rectified_waveforms_->isChecked();
+  Config::Current()[QStringLiteral("RectifiedWaveforms")] = rectified_waveforms_->isChecked();
 
-  Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
+  Config::Current()[QStringLiteral("Autoscroll")] = autoscroll_method_->currentData();
 
-  Config::Current()["DefaultStillLength"] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
+  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
+
+  QString set_language = language_combobox_->currentData().toString();
+  if (QLocale::system().name() == set_language) {
+    // Language is set to the system, assume this is effectively "auto"
+    set_language = QString();
+  }
+
+  // If the language has changed, set it now
+  if (Config::Current()[QStringLiteral("Language")].toString() != set_language) {
+    Config::Current()[QStringLiteral("Language")] = set_language;
+    Core::instance()->SetLanguage(set_language.isEmpty() ? QLocale::system().name() : set_language);
+  }
+}
+
+void PreferencesGeneralTab::AddLanguage(const QString &locale_name)
+{
+  language_combobox_->addItem(tr("%1 (%2)").arg(QLocale(locale_name).nativeLanguageName(),
+                                                locale_name));;
+  language_combobox_->setItemData(language_combobox_->count() - 1, locale_name);
 }
 
 void PreferencesGeneralTab::SetValuesFromConfig(Config config) {
@@ -140,4 +149,4 @@ void PreferencesGeneralTab::ResetDefaults(bool reset_all_tabs)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

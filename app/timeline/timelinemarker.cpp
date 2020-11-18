@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "common/xmlutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineMarker::TimelineMarker(const TimeRange &time, const QString &name, QObject *parent) :
   QObject(parent),
@@ -55,8 +55,6 @@ void TimelineMarker::set_name(const QString &name)
 
 void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("markers"));
-
   foreach (TimelineMarker* marker, markers_) {
     writer->writeStartElement(QStringLiteral("marker"));
 
@@ -67,8 +65,6 @@ void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
 
     writer->writeEndElement(); // marker
   }
-
-  writer->writeEndElement(); // markers
 }
 
 TimelineMarkerList::~TimelineMarkerList()
@@ -76,11 +72,12 @@ TimelineMarkerList::~TimelineMarkerList()
   qDeleteAll(markers_);
 }
 
-void TimelineMarkerList::AddMarker(const TimeRange &time, const QString &name)
+TimelineMarker* TimelineMarkerList::AddMarker(const TimeRange &time, const QString &name)
 {
   TimelineMarker* m = new TimelineMarker(time, name);
   markers_.append(m);
   emit MarkerAdded(m);
+  return m;
 }
 
 void TimelineMarkerList::RemoveMarker(TimelineMarker *marker)
@@ -124,4 +121,4 @@ void TimelineMarkerList::Load(QXmlStreamReader *reader)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

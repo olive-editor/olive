@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const double TimelineViewBase::kMaximumScale = 8192;
 
@@ -44,16 +44,25 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   y_axis_enabled_(false),
   y_scale_(1.0)
 {
+  // Sets scene to our scene
   setScene(&scene_);
 
-  // Set default scale
+  // Set default scale (ensures non-zero scale from beginning)
   SetScale(1.0);
 
+  // Default to no default drag mode
   SetDefaultDragMode(NoDrag);
 
-  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
+  // Signal to update bounding rect when the scene changes
+  connect(&scene_, &QGraphicsScene::changed, this, &TimelineViewBase::UpdateSceneRect);
 
+  // Always enforce maximum scale
   SetMaximumScale(kMaximumScale);
+
+  // Workaround for Qt drawing issues with the default MinimalViewportUpdate. While this might be
+  // slower (Qt documentation says it may actually be faster in some situations),
+  // MinimalViewportUpdate causes all sorts of graphical crud building up in the scene
+  setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 }
 
 void TimelineViewBase::TimebaseChangedEvent(const rational &)
@@ -237,7 +246,7 @@ void TimelineViewBase::UpdateSceneRect()
   bounding_rect.setLeft(0);
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  bounding_rect.setRight(TimeToScene(end_time_) + width() / 2);
+  bounding_rect.setRight(TimeToScene(end_time_) + width());
 
   // Any further rect processing from derivatives can be done here
   SceneRectUpdateEvent(bounding_rect);
@@ -350,4 +359,4 @@ bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

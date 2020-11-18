@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QString FileFunctions::GetUniqueFileIdentifier(const QString &filename)
 {
@@ -75,7 +75,7 @@ QString FileFunctions::GetTempFilePath()
 {
   QString temp_path = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
                            .filePath(QCoreApplication::organizationName()))
-                   .filePath(QCoreApplication::applicationName());
+      .filePath(QCoreApplication::applicationName());
 
   // Ensure it exists
   QDir(temp_path).mkpath(".");
@@ -170,4 +170,74 @@ bool FileFunctions::DirectoryIsValid(const QString &dir, bool try_to_create)
   return false;
 }
 
-OLIVE_NAMESPACE_EXIT
+QString FileFunctions::EnsureFilenameExtension(QString fn, const QString &extension)
+{
+  // No-op if either input is empty
+  if (!fn.isEmpty() && !extension.isEmpty()) {
+    QString extension_with_dot;
+
+    extension_with_dot.append('.');
+    extension_with_dot.append(extension);
+
+    if (!fn.endsWith(extension_with_dot, Qt::CaseInsensitive)) {
+      fn.append(extension_with_dot);
+    }
+  }
+
+  return fn;
+}
+
+QString FileFunctions::ReadFileAsString(const QString &filename)
+{
+  QFile f(filename);
+  QString file_data;
+  if (f.open(QFile::ReadOnly | QFile::Text)) {
+    QTextStream text_stream(&f);
+    file_data = text_stream.readAll();
+    f.close();
+  }
+  return file_data;
+}
+
+QString FileFunctions::GetSafeTemporaryFilename(const QString &original)
+{
+  int counter = 0;
+
+  QFileInfo original_info(original);
+  QString basename = original_info.baseName();
+  QString complete_suffix = original_info.completeSuffix();
+
+  // If we have a complete suffix, make sure there's a period in it
+  if (!complete_suffix.isEmpty()) {
+    complete_suffix.prepend('.');
+  }
+
+  QString temp_abs_path;
+  do {
+    temp_abs_path = original_info.dir().filePath(
+          QStringLiteral("%1.tmp%2%3").arg(basename,
+                                           QString::number(counter),
+                                           complete_suffix));
+    counter++;
+  } while (QFileInfo::exists(temp_abs_path));
+
+  return temp_abs_path;
+}
+
+bool FileFunctions::RenameFileAllowOverwrite(const QString &from, const QString &to)
+{
+  if (QFileInfo::exists(to) && !QFile::remove(to)) {
+    qCritical() << "Couldn't remove existing file" << to << "for overwrite";
+    return false;
+  }
+
+  // By this point, we can assume `to` either never existed or has now been deleted
+  if (!QFile::rename(from, to)) {
+    qCritical() << "Failed to rename file" << from << "to" << to;
+    return false;
+  }
+
+  return true;
+}
+
+}

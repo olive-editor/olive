@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ViewerOutput::ViewerOutput() :
   video_frame_cache_(this),
@@ -52,7 +52,7 @@ ViewerOutput::ViewerOutput() :
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
-    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
+    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::SignalBlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
     connect(list, &TrackList::TrackRemoved, this, &ViewerOutput::TrackRemoved);
     connect(list, &TrackList::TrackHeightChanged, this, &ViewerOutput::TrackHeightChangedSlot);
@@ -60,6 +60,11 @@ ViewerOutput::ViewerOutput() :
 
   // Create UUID for this node
   uuid_ = QUuid::createUuid();
+}
+
+ViewerOutput::~ViewerOutput()
+{
+  DisconnectAll();
 }
 
 Node *ViewerOutput::copy() const
@@ -77,7 +82,7 @@ QString ViewerOutput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.vieweroutput");
 }
 
-QList<Node::CategoryID> ViewerOutput::Category() const
+QVector<Node::CategoryID> ViewerOutput::Category() const
 {
   return {kCategoryOutput};
 }
@@ -97,7 +102,6 @@ void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
   audio_playback_cache_.Shift(from, to);
 
   foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
-    QMutexLocker locker(track->waveform_lock());
     track->waveform().Shift(from, to);
   }
 }
@@ -159,6 +163,8 @@ void ViewerOutput::set_video_params(const VideoParams &video)
   }
 
   emit VideoParamsChanged();
+
+  video_frame_cache_.InvalidateAll();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)
@@ -166,6 +172,9 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
   audio_params_ = audio;
 
   emit AudioParamsChanged();
+
+  // This will automatically InvalidateAll
+  audio_playback_cache_.SetParameters(audio_params());
 }
 
 rational ViewerOutput::GetLength()
@@ -200,6 +209,10 @@ void ViewerOutput::UpdateTrackCache()
 
 void ViewerOutput::VerifyLength()
 {
+  if (operation_stack_ != 0) {
+    return;
+  }
+
   NodeTraverser traverser;
 
   rational video_length;
@@ -270,6 +283,27 @@ void ViewerOutput::set_media_name(const QString &name)
   emit MediaNameChanged(media_name_);
 }
 
+void ViewerOutput::SignalBlockAdded(Block *block, const TrackReference& track)
+{
+  if (!operation_stack_) {
+    emit BlockAdded(block, track);
+  } else {
+    cached_block_removed_.removeOne(block);
+    cached_block_added_.insert(block, track);
+  }
+}
+
+void ViewerOutput::SignalBlockRemoved(Block *block)
+{
+  if (!operation_stack_) {
+    emit BlockRemoved({block});
+  } else {
+    // We keep track of all blocks that are removed, even if we don't end up signalling them
+    cached_block_added_.remove(block);
+    cached_block_removed_.append(block);
+  }
+}
+
 void ViewerOutput::BeginOperation()
 {
   operation_stack_++;
@@ -281,13 +315,23 @@ void ViewerOutput::EndOperation()
 {
   operation_stack_--;
 
+  if (!operation_stack_) {
+    for (auto it=cached_block_added_.cbegin(); it!=cached_block_added_.cend(); it++) {
+      emit BlockAdded(it.key(), it.value());
+    }
+    cached_block_added_.clear();
+
+    emit BlockRemoved(cached_block_removed_);
+    cached_block_removed_.clear();
+  }
+
   Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)
 {
   Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
-  emit BlockAdded(block, TrackReference(type, index));
+  SignalBlockAdded(block, TrackReference(type, index));
 }
 
 void ViewerOutput::TrackListAddedTrack(TrackOutput *track)
@@ -301,4 +345,4 @@ void ViewerOutput::TrackHeightChangedSlot(int index, int height)
   emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

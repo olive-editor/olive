@@ -5,7 +5,7 @@
 #include <QGroupBox>
 #include <QLabel>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportAdvancedVideoDialog::ExportAdvancedVideoDialog(const QList<QString> &pix_fmts, QWidget *parent) :
   QDialog(parent)
@@ -59,4 +59,4 @@ ExportAdvancedVideoDialog::ExportAdvancedVideoDialog(const QList<QString> &pix_f
   layout->addWidget(buttons);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
+#include <QTranslator>
 
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
@@ -35,7 +36,7 @@
 #include "tool/tool.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindow;
 
@@ -52,12 +53,74 @@ class Core : public QObject
 {
   Q_OBJECT
 public:
+  class CoreParams
+  {
+  public:
+    CoreParams();
+
+    enum RunMode {
+      kRunNormal,
+      kHeadlessExport,
+      kHeadlessPreCache
+    };
+
+    bool fullscreen() const
+    {
+      return run_fullscreen_;
+    }
+
+    void set_fullscreen(bool e)
+    {
+      run_fullscreen_ = e;
+    }
+
+    RunMode run_mode() const
+    {
+      return mode_;
+    }
+
+    void set_run_mode(RunMode m)
+    {
+      mode_ = m;
+    }
+
+    const QString startup_project() const
+    {
+      return startup_project_;
+    }
+
+    void set_startup_project(const QString& p)
+    {
+      startup_project_ = p;
+    }
+
+    const QString& startup_language() const
+    {
+      return startup_language_;
+    }
+
+    void set_startup_language(const QString& s)
+    {
+      startup_language_ = s;
+    }
+
+  private:
+    RunMode mode_;
+
+    QString startup_project_;
+
+    QString startup_language_;
+
+    bool run_fullscreen_;
+
+  };
+
   /**
    * @brief Core Constructor
    *
    * Currently empty
    */
-  Core();
+  Core(const CoreParams& params);
 
   /**
    * @brief Core object accessible from anywhere in the code
@@ -66,7 +129,10 @@ public:
    */
   static Core* instance();
 
-  int execute(QCoreApplication *a);
+  const CoreParams& core_params() const
+  {
+    return core_params_;
+  }
 
   /**
    * @brief Start Olive Core
@@ -180,7 +246,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QList<Node*>& nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes) const;
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -214,6 +280,18 @@ public:
    * @brief Runs a modal cache task on the currently active sequence
    */
   void CacheActiveSequence(bool in_out_only);
+
+  /**
+   * @brief Check each footage object for whether it still exists or has changed
+   */
+  bool ValidateFootageInLoadedProject(ProjectPtr project, const QString &project_saved_url);
+
+  /**
+   * @brief Changes the current language
+   */
+  bool SetLanguage(const QString& locale);
+
+  static const uint kProjectVersion;
 
 public slots:
   /**
@@ -355,16 +433,26 @@ signals:
    */
   void TimecodeDisplayChanged(Timecode::Display d);
 
+  /**
+   * @brief Signal emitted when a change is made to the open recent list
+   */
+  void OpenRecentListChanged();
+
 private:
   /**
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
    */
-  static QString GetProjectFilter();
+  static QString GetProjectFilter(bool include_any_filter);
 
   /**
    * @brief Returns the filename where the recently opened/saved projects should be stored
    */
   static QString GetRecentProjectsFilePath();
+
+  /**
+   * @brief Called only on startup to set the locale
+   */
+  void SetStartupLocale();
 
   /**
    * @brief Saves a specific project
@@ -403,17 +491,14 @@ private:
   void SaveProjectInternal(ProjectPtr project);
 
   /**
+   * @brief Retrieves the currently most active sequence for exporting
+   */
+  ViewerOutput* GetSequenceToExport();
+
+  /**
    * @brief Internal main window object
    */
   MainWindow* main_window_;
-
-  /**
-   * @brief Internal startup project object
-   *
-   * If the user specifies a project file on the command line, the command line parser in Start() will write the
-   * project URL here to be loaded once Olive has finished initializing.
-   */
-  QString startup_project_;
 
   /**
    * @brief List of currently open projects
@@ -456,14 +541,19 @@ private:
   QStringList recent_projects_;
 
   /**
-   * @brief Internal variable for whether the GUI is active
+   * @brief Parameters set up in main() determining how the program should run
    */
-  bool gui_active_;
+  CoreParams core_params_;
 
   /**
    * @brief Static singleton core instance
    */
-  static Core instance_;
+  static Core* instance_;
+
+  /**
+   * @brief Internal translator
+   */
+  QTranslator* translator_;
 
 private slots:
   void SaveAutorecovery();
@@ -473,7 +563,7 @@ private slots:
   /**
    * @brief Adds a project to the "open projects" list
    */
-  void AddOpenProject(OLIVE_NAMESPACE::ProjectPtr p);
+  void AddOpenProject(olive::ProjectPtr p);
 
   void AddOpenProjectFromTask(Task* task);
 
@@ -494,6 +584,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CORE_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #include "timeline/timelinecommon.h"
 #include "timeline/trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -47,11 +47,13 @@ class ViewerOutput : public Node
 public:
   ViewerOutput();
 
+  virtual ~ViewerOutput() override;
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   void ShiftVideoCache(const rational& from, const rational& to);
@@ -139,7 +141,7 @@ signals:
   void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(Block* block);
+  void BlockRemoved(const QList<Block*>& blocks);
 
   void TrackAdded(TrackOutput* track, Timeline::TrackType type);
   void TrackRemoved(TrackOutput* track);
@@ -149,6 +151,9 @@ signals:
   void MediaNameChanged(const QString& name);
 
 private:
+  QMap<Block*, TrackReference> cached_block_added_;
+  QList<Block*> cached_block_removed_;
+
   QUuid uuid_;
 
   NodeInput* texture_input_;
@@ -186,8 +191,11 @@ private slots:
 
   void TrackHeightChangedSlot(int index, int height);
 
+  void SignalBlockAdded(Block *block, const TrackReference &track);
+  void SignalBlockRemoved(Block *block);
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWER_H

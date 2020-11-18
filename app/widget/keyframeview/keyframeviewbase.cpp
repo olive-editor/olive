@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
@@ -76,13 +76,18 @@ void KeyframeViewBase::DeleteSelected()
 
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
-    foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
-      foreach (NodeKeyframePtr key, track) {
-        RemoveKeyframe(key);
-      }
+    RemoveKeyframesOfInput(i);
+  }
+}
+
+void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *i)
+{
+  foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
+    foreach (NodeKeyframePtr key, track) {
+      RemoveKeyframe(key);
     }
   }
 }
@@ -104,10 +109,6 @@ KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
     item->SetScale(GetScale());
     item_map_.insert(key.get(), item);
     scene()->addItem(item);
-
-    if (hidden_tracks_.contains(key->track())) {
-      item->setVisible(false);
-    }
   }
 
   return item;
@@ -298,27 +299,6 @@ void KeyframeViewBase::TimeTargetChangedEvent(Node *target)
 
   for (i=item_map_.begin();i!=item_map_.end();i++) {
     i.value()->SetTimeTarget(target);
-  }
-}
-
-void KeyframeViewBase::SetKeyframeTrackVisible(int track, bool visible)
-{
-  if (!visible == hidden_tracks_.contains(track)) {
-    return;
-  }
-
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
-
-  for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
-    if (i.key()->track() == track) {
-      i.value()->setVisible(visible);
-    }
-  }
-
-  if (visible) {
-    hidden_tracks_.removeOne(track);
-  } else {
-    hidden_tracks_.append(track);
   }
 }
 
@@ -558,4 +538,4 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
   currently_autoselecting_ = false;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

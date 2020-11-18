@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Item::Type Folder::type() const
 {
@@ -42,7 +42,7 @@ QIcon Folder::icon()
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
+void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
@@ -75,23 +75,33 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QA
     }
 
     add_child(child);
-    child->Load(reader, xml_node_data, cancelled);
+    child->Load(reader, xml_node_data, version, cancelled);
   }
 }
 
 void Folder::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("folder"));
-
   writer->writeAttribute(QStringLiteral("name"), name());
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
   foreach (ItemPtr child, children()) {
-    child->Save(writer);
-  }
+    switch (child->type()) {
+    case Item::kFootage:
+      writer->writeStartElement(QStringLiteral("footage"));
+      break;
+    case Item::kSequence:
+      writer->writeStartElement(QStringLiteral("sequence"));
+      break;
+    case Item::kFolder:
+      writer->writeStartElement(QStringLiteral("folder"));
+      break;
+    }
 
-  writer->writeEndElement(); // folder
+    child->Save(writer);
+
+    writer->writeEndElement(); // footage/folder/sequence
+  }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

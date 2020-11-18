@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,34 +34,23 @@ extern "C" {
 #include <csignal>
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QSurfaceFormat>
 
 #include "core.h"
+#include "common/commandlineparser.h"
 #include "common/debug.h"
 
 #ifdef USE_CRASHPAD
 #include "common/crashpadinterface.h"
 #endif // USE_CRASHPAD
 
-int main(int argc, char *argv[]) {
-  // Set OpenGL display profile (3.2 Core)
-  QSurfaceFormat format;
-  format.setVersion(3, 2);
-  format.setDepthBufferSize(24);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
+int main(int argc, char *argv[])
+{
+  // Set up debug handler
+  qInstallMessageHandler(olive::DebugHandler);
 
-  //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-
-  // Create application instance
-  QApplication a(argc, argv);
-
-  // Set application metadata
-  QCoreApplication::setOrganizationName("olivevideoeditor.org");
-  QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
-  QCoreApplication::setApplicationName("Olive");
-
+  // Generate version string
   QString app_version = APPVERSION;
 #ifdef GITHASH
   // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is used in version
@@ -70,14 +59,99 @@ int main(int argc, char *argv[]) {
   app_version.append(GITHASH);
 #endif
 
+  // Set application metadata
+  QCoreApplication::setOrganizationName("olivevideoeditor.org");
+  QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
+  QCoreApplication::setApplicationName("Olive");
+
   QCoreApplication::setApplicationVersion(app_version);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 #endif
 
-  // Set up debug handler
-  qInstallMessageHandler(OLIVE_NAMESPACE::DebugHandler);
+  //
+  // Parse command line arguments
+  //
+
+  olive::Core::CoreParams startup_params;
+
+  CommandLineParser parser;
+
+  const CommandLineParser::Option* help_option =
+      parser.AddOption({QStringLiteral("h"), QStringLiteral("-help")},
+                       QCoreApplication::translate("main", "Show this help text"));
+
+  const CommandLineParser::Option* version_option =
+      parser.AddOption({QStringLiteral("v"), QStringLiteral("-version")},
+                       QCoreApplication::translate("main", "Show application version"));
+
+  const CommandLineParser::Option* fullscreen_option =
+      parser.AddOption({QStringLiteral("f"), QStringLiteral("-fullscreen")},
+                       QCoreApplication::translate("main", "Start in full-screen mode"));
+
+  const CommandLineParser::Option* export_option =
+      parser.AddOption({QStringLiteral("x"), QStringLiteral("-export")},
+                       QCoreApplication::translate("main", "Export only (No GUI)"));
+
+  const CommandLineParser::Option* ts_option =
+      parser.AddOption({QStringLiteral("-ts")},
+                       QCoreApplication::translate("main", "Override language with file"),
+                       true,
+                       QCoreApplication::translate("main", "qm-file"));
+
+  const CommandLineParser::PositionalArgument* project_argument =
+      parser.AddPositionalArgument(QStringLiteral("project"),
+                                   QCoreApplication::translate("main", "Project to open on startup"));
+
+  parser.Process(argc, argv);
+
+  if (help_option->IsSet()) {
+    // Show help
+    parser.PrintHelp(argv[0]);
+    return 0;
+  }
+
+  if (version_option->IsSet()) {
+    // Print version
+    printf("%s\n", app_version.toUtf8().constData());
+    return 0;
+  }
+
+  if (export_option->IsSet()) {
+    startup_params.set_run_mode(olive::Core::CoreParams::kHeadlessExport);
+  }
+
+  if (ts_option->IsSet()) {
+    if (ts_option->GetSetting().isEmpty()) {
+      qWarning() << "--ts was set but no translation file was provided";
+    } else {
+      startup_params.set_startup_language(ts_option->GetSetting());
+    }
+  }
+
+  startup_params.set_fullscreen(fullscreen_option->IsSet());
+
+  startup_params.set_startup_project(project_argument->GetSetting());
+
+  // Set OpenGL display profile (3.2 Core)
+  QSurfaceFormat format;
+  format.setVersion(3, 2);
+  format.setDepthBufferSize(24);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  QSurfaceFormat::setDefaultFormat(format);
+
+  // Enable application automatically using higher resolution images from icons
+  QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+  // Create application instance
+  std::unique_ptr<QCoreApplication> a;
+
+  if (startup_params.run_mode() == olive::Core::CoreParams::kRunNormal) {
+    a.reset(new QApplication(argc, argv));
+  } else {
+    a.reset(new QCoreApplication(argc, argv));
+  }
 
   // Register FFmpeg codecs and filters (deprecated in 4.0+)
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
@@ -94,5 +168,15 @@ int main(int argc, char *argv[]) {
   }
 #endif // USE_CRASHPAD
 
-  return OLIVE_NAMESPACE::Core::instance()->execute(&a);
+  // Start core
+  olive::Core c(startup_params);
+
+  c.Start();
+
+  int ret = a->exec();
+
+  // Clear core memory
+  c.Stop();
+
+  return ret;
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "widget/nodeview/nodeview.h"
 #include "widget/panel/panel.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A PanelWidget wrapper around a NodeView
@@ -76,30 +76,30 @@ public:
   }
 
 public slots:
-  void Select(const QList<Node*>& nodes)
+  void Select(const QVector<Node*>& nodes)
   {
     node_view_->Select(nodes);
   }
 
-  void SelectWithDependencies(const QList<Node*>& nodes)
+  void SelectWithDependencies(const QVector<Node*>& nodes)
   {
     node_view_->SelectWithDependencies(nodes);
   }
 
-  void SelectBlocks(const QList<Block*>& nodes)
+  void SelectBlocks(const QVector<Block*>& nodes)
   {
     node_view_->SelectBlocks(nodes);
   }
 
-  void DeselectBlocks(const QList<Block*>& nodes)
+  void DeselectBlocks(const QVector<Block*>& nodes)
   {
     node_view_->DeselectBlocks(nodes);
   }
 
 signals:
-  void NodesSelected(const QList<Node*>& nodes);
+  void NodesSelected(const QVector<Node*>& nodes);
 
-  void NodesDeselected(const QList<Node*>& nodes);
+  void NodesDeselected(const QVector<Node*>& nodes);
 
 private:
   virtual void Retranslate() override
@@ -111,6 +111,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEPANEL_H

@@ -29,7 +29,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ActionSearchList;
 
@@ -182,6 +182,6 @@ signals:
   void moveSelectionDown();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ACTIONSEARCH_H

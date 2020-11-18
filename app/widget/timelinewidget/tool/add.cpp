@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,21 +20,22 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+#include "add.h"
 #include "core.h"
 #include "node/factory.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/text.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
+AddTool::AddTool(TimelineWidget *parent) :
   BeamTool(parent),
   ghost_(nullptr)
 {
 }
 
-void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
+void AddTool::MousePress(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = event->GetTrack();
 
@@ -47,18 +48,18 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
   Timeline::TrackType add_type = Timeline::kTrackTypeNone;
 
   switch (Core::instance()->GetSelectedAddableObject()) {
-  case OLIVE_NAMESPACE::Tool::kAddableBars:
-  case OLIVE_NAMESPACE::Tool::kAddableSolid:
-  case OLIVE_NAMESPACE::Tool::kAddableTitle:
+  case olive::Tool::kAddableBars:
+  case olive::Tool::kAddableSolid:
+  case olive::Tool::kAddableTitle:
     add_type = Timeline::kTrackTypeVideo;
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableTone:
+  case olive::Tool::kAddableTone:
     add_type = Timeline::kTrackTypeAudio;
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableEmpty:
+  case olive::Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
     break;
-  case OLIVE_NAMESPACE::Tool::kAddableCount:
+  case olive::Tool::kAddableCount:
     // Return so we do nothing
     return;
   }
@@ -71,14 +72,13 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
     ghost_->SetIn(drag_start_point_);
     ghost_->SetOut(drag_start_point_);
     ghost_->SetTrack(track);
-    ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
     parent()->AddGhost(ghost_);
 
     snap_points_.append(drag_start_point_);
   }
 }
 
-void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
+void AddTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!ghost_) {
     return;
@@ -87,17 +87,17 @@ void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
   MouseMoveInternal(event->GetFrame(), event->GetModifiers() & Qt::AltModifier);
 }
 
-void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
+void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->Track();
+  const TrackReference& track = ghost_->GetTrack();
 
   if (ghost_) {
-    if (!ghost_->AdjustedLength().isNull()) {
+    if (!ghost_->GetAdjustedLength().isNull()) {
       QUndoCommand* command = new QUndoCommand();
 
       ClipBlock* clip = new ClipBlock();
-      clip->set_length_and_media_out(ghost_->AdjustedLength());
-      clip->SetLabel(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
+      clip->set_length_and_media_out(ghost_->GetAdjustedLength());
+      clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
@@ -112,10 +112,10 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       switch (Core::instance()->GetSelectedAddableObject()) {
-      case OLIVE_NAMESPACE::Tool::kAddableEmpty:
+      case olive::Tool::kAddableEmpty:
         // Empty, nothing to be done
         break;
-      case OLIVE_NAMESPACE::Tool::kAddableSolid:
+      case olive::Tool::kAddableSolid:
       {
         Node* solid = new SolidGenerator();
 
@@ -126,7 +126,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
         break;
       }
-      case OLIVE_NAMESPACE::Tool::kAddableTitle:
+      case olive::Tool::kAddableTitle:
       {
         Node* text = new TextGenerator();
 
@@ -137,12 +137,12 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(text->output(), clip->texture_input(), command);
         break;
       }
-      case OLIVE_NAMESPACE::Tool::kAddableBars:
-      case OLIVE_NAMESPACE::Tool::kAddableTone:
+      case olive::Tool::kAddableBars:
+      case olive::Tool::kAddableTone:
         // Not implemented yet
         qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
         break;
-      case OLIVE_NAMESPACE::Tool::kAddableCount:
+      case olive::Tool::kAddableCount:
         // Invalid value, do nothing
         break;
       }
@@ -156,14 +156,14 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
+void AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
 {
   // Calculate movement
   rational movement = cursor_frame - drag_start_point_;
 
   // Validation: Ensure in point never goes below 0
-  if (movement < -ghost_->In() || (outwards && -movement < -ghost_->In())) {
-    movement = -ghost_->In();
+  if (movement < -ghost_->GetIn() || (outwards && -movement < -ghost_->GetIn())) {
+    movement = -ghost_->GetIn();
   }
 
   // Snap movement
@@ -190,4 +190,4 @@ void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bo
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

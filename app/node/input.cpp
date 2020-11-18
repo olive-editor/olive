@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "project/item/footage/stream.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVector<QVariant> &default_value) :
   NodeParam(id)
@@ -88,7 +88,7 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
       }
 
       if (attr.name() == QStringLiteral("keyframing")) {
-        set_is_keyframing(attr.value() == QStringLiteral("1"));
+        set_is_keyframing(attr.value().toInt());
       }
     }
   }
@@ -199,16 +199,16 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
       set_property(QStringLiteral("col_view"), reader->readElementText());
     } else if (reader->name() == QStringLiteral("cslook")) {
       set_property(QStringLiteral("col_look"), reader->readElementText());
-    } else {
+    } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data, cancelled);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
 
 void NodeInput::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement("input");
-
   writer->writeAttribute("id", id());
 
   writer->writeAttribute("keyframing", QString::number(keyframing_));
@@ -258,9 +258,9 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
   SaveConnections(writer);
 
+  writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
-
-  writer->writeEndElement(); // input
+  writer->writeEndElement(); // custom
 }
 
 void NodeInput::SaveConnections(QXmlStreamWriter *writer) const
@@ -381,24 +381,39 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
   }
 }
 
+void NodeInput::ValidateVectorString(QStringList* list, int count)
+{
+  while (list->size() < count) {
+    list->append(QStringLiteral("0"));
+  }
+}
+
 QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string, bool value_is_a_key_track)
 {
   if (!value_is_a_key_track && data_type == kVec2) {
     QStringList vals = string.split(':');
 
+    ValidateVectorString(&vals, 2);
+
     return QVector2D(vals.at(0).toFloat(), vals.at(1).toFloat());
   } else if (!value_is_a_key_track && data_type == kVec3) {
     QStringList vals = string.split(':');
+
+    ValidateVectorString(&vals, 3);
 
     return QVector3D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat());
   } else if (!value_is_a_key_track && data_type == kVec4) {
     QStringList vals = string.split(':');
 
+    ValidateVectorString(&vals, 4);
+
     return QVector4D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat());
   } else if (!value_is_a_key_track && data_type == kColor) {
     QStringList vals = string.split(':');
 
-    return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
+    ValidateVectorString(&vals, 4);
+
+    return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
   } else if (data_type == kInt) {
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
@@ -408,7 +423,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
   }
 }
 
-void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusive_only) const
+void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
   if (is_connected()
       && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
@@ -418,7 +433,7 @@ void NodeInput::GetDependencies(QList<Node *> &list, bool traverse, bool exclusi
       list.append(connected);
 
       if (traverse) {
-        QList<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
+        QVector<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
 
         foreach (NodeInput* i, connected_inputs) {
           i->GetDependencies(list, traverse, exclusive_only);
@@ -446,21 +461,21 @@ QVariant NodeInput::GetDefaultValueForTrack(int track) const
   return default_value_.at(track);
 }
 
-QList<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
+QVector<Node *> NodeInput::GetDependencies(bool traverse, bool exclusive_only) const
 {
-  QList<Node *> list;
+  QVector<Node *> list;
 
   GetDependencies(list, traverse, exclusive_only);
 
   return list;
 }
 
-QList<Node *> NodeInput::GetExclusiveDependencies() const
+QVector<Node *> NodeInput::GetExclusiveDependencies() const
 {
   return GetDependencies(true, true);
 }
 
-QList<Node *> NodeInput::GetImmediateDependencies() const
+QVector<Node *> NodeInput::GetImmediateDependencies() const
 {
   return GetDependencies(false, false);
 }
@@ -1060,7 +1075,9 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   for (int i=0;i<source->keyframe_tracks_.size();i++) {
     dest->keyframe_tracks_[i].clear();
     foreach (NodeKeyframePtr key, source->keyframe_tracks_.at(i)) {
-      dest->keyframe_tracks_[i].append(key->copy());
+      NodeKeyframePtr key_copy = key->copy();
+      key_copy->set_parent(dest);
+      dest->keyframe_tracks_[i].append(key_copy);
     }
   }
 
@@ -1198,4 +1215,4 @@ void NodeInput::set_combobox_strings(const QStringList &strings)
   set_property(QStringLiteral("combo_str"), strings);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

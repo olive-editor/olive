@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,12 +44,13 @@
 #include <shobjidl.h>
 #endif
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 public:
   MainWindow(QWidget *parent = nullptr);
@@ -69,8 +70,6 @@ public:
   void FolderOpen(Project* p, Item* i, bool floating);
 
   ScopePanel* AppendScopePanel();
-
-  CurvePanel* AppendCurvePanel();
 
   enum ProgressStatus {
     kProgressNone,
@@ -138,6 +137,7 @@ private:
   // Standard panels
   NodePanel* node_panel_;
   ParamPanel* param_panel_;
+  CurvePanel* curve_panel_;
   SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
   QList<ProjectPanel*> project_panels_;
@@ -146,7 +146,6 @@ private:
   QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
-  QList<CurvePanel*> curve_panels_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
   NodeTablePanel* table_panel_;
@@ -176,6 +175,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif

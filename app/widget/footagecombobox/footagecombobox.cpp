@@ -1,7 +1,7 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
@@ -98,14 +98,14 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
 
       Footage* footage = static_cast<Footage*>(child);
 
-      if (!only_show_ready_footage_ || footage->status() == Footage::kReady) {
+      if (footage->IsValid() || !only_show_ready_footage_) {
         Menu* stream_menu = new Menu(footage->name(), m);
         m->addMenu(stream_menu);
 
         foreach (StreamPtr stream, footage->streams()) {
           QAction* stream_action = stream_menu->addAction(FootageToString(stream.get()));
           stream_action->setData(QVariant::fromValue(stream));
-          stream_action->setIcon(Stream::IconFromType(stream->type()));
+          stream_action->setIcon(stream->icon());
         }
       }
     }
@@ -128,4 +128,4 @@ QString FootageComboBox::FootageToString(Stream *f)
   return f->description();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

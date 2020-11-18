@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,8 +25,9 @@
 #include <QXmlStreamWriter>
 
 #include "common/filefunctions.h"
+#include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
   project_(project)
@@ -37,7 +38,7 @@ ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
 bool ProjectSaveTask::Run()
 {
   // File to temporarily save to (ensures we can't half-write the user's main file and crash)
-  QString temp_save = QDir(FileFunctions::GetTempFilePath()).filePath(QStringLiteral("tempsv"));
+  QString temp_save = FileFunctions::GetSafeTemporaryFilename(project_->filename());
 
   QFile project_file(temp_save);
 
@@ -49,9 +50,17 @@ bool ProjectSaveTask::Run()
 
     writer.writeStartElement("olive");
 
-    writer.writeTextElement("version", "0.2.0");
+    // Version is stored in YYMMDD from whenever the project format was last changed
+    // Allows easy integer math for checking project versions.
+    writer.writeTextElement("version", QString::number(Core::kProjectVersion));
+
+    writer.writeTextElement("url", project_->filename());
+
+    writer.writeStartElement(QStringLiteral("project"));
 
     project_->Save(&writer);
+
+    writer.writeEndElement(); // project
 
     writer.writeEndElement(); // olive
 
@@ -65,18 +74,17 @@ bool ProjectSaveTask::Run()
     }
 
     // Save was successful, we can now rewrite the original file
-    QFile original(project_->filename());
-    if ((!original.exists() || original.remove())
-        && QFile::copy(temp_save, project_->filename())) {
+    if (FileFunctions::RenameFileAllowOverwrite(temp_save, project_->filename())) {
       return true;
     } else {
-      SetError(tr("Failed to write to \"%1\".").arg(project_->filename()));
+      SetError(tr("Failed to overwrite \"%1\". Project has been saved as \"%2\" instead.")
+               .arg(project_->filename(), temp_save));
       return false;
     }
   } else {
-    SetError(tr("Failed to open file \"%1\" for writing.").arg(project_->filename()));
+    SetError(tr("Failed to open temporary file \"%1\" for writing.").arg(temp_save));
     return false;
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

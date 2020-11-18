@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,21 +18,22 @@
 
 ***/
 
+#include "beam.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-TimelineWidget::BeamTool::BeamTool(TimelineWidget *parent) :
-  Tool(parent)
+BeamTool::BeamTool(TimelineWidget *parent) :
+  TimelineTool(parent)
 {
 }
 
-void TimelineWidget::BeamTool::HoverMove(TimelineViewMouseEvent *event)
+void BeamTool::HoverMove(TimelineViewMouseEvent *event)
 {
   parent()->SetViewBeamCursor(ValidatedCoordinate(event->GetCoordinates(true)));
 }
 
-TimelineCoordinate TimelineWidget::BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
+TimelineCoordinate BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
 {
   if (Core::instance()->snapping()) {
     rational movement;
@@ -45,4 +46,4 @@ TimelineCoordinate TimelineWidget::BeamTool::ValidatedCoordinate(TimelineCoordin
   return coord;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

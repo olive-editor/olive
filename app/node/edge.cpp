@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,22 +20,31 @@
 
 #include "edge.h"
 
-OLIVE_NAMESPACE_ENTER
+#include "input.h"
+#include "node.h"
+#include "output.h"
 
-NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input) :
-  output_(output),
-  input_(input)
+namespace olive {
+
+NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input)
 {
+  output_ = ParamToConnection(output);
+  input_ = ParamToConnection(input);
 }
 
-NodeOutput *NodeEdge::output()
+NodeOutput *NodeEdge::output() const
 {
-  return output_;
+  return output_.node->GetOutputWithID(output_.id);
 }
 
-NodeInput *NodeEdge::input()
+NodeInput *NodeEdge::input() const
 {
-  return input_;
+  return input_.node->GetInputWithID(input_.id);
 }
 
-OLIVE_NAMESPACE_EXIT
+NodeEdge::Connection NodeEdge::ParamToConnection(NodeParam *param)
+{
+  return {param->parentNode(), param->id()};
+}
+
+}

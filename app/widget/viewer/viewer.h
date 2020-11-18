@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "panel/scope/scope.h"
-#include "render/backend/opengl/openglbackend.h"
-#include "render/backend/renderticketwatcher.h"
+#include "render/previewautocacher.h"
+#include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -42,7 +42,7 @@
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebased.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
@@ -81,11 +81,6 @@ public:
    * If `screen` is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor.
    */
   void SetFullScreen(QScreen* screen = nullptr);
-
-  RenderBackend* renderer() const
-  {
-    return renderer_;
-  }
 
   ColorManager* color_manager() const
   {
@@ -196,8 +191,6 @@ private:
 
   void RequestNextFrameForQueue();
 
-  PixelFormat::Format GetCurrentPixelFormat() const;
-
   RenderTicketPtr GetFrame(const rational& t, bool clear_render_queue);
 
   void FinishPlayPreprocess();
@@ -209,6 +202,8 @@ private:
   FramePtr DecodeCachedImage(const QString &fn, const rational& time) const;
 
   void DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, const rational& time) const;
+
+  bool ShouldForceWaveform() const;
 
   QStackedWidget* stack_;
 
@@ -244,8 +239,6 @@ private:
   ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
 
-  RenderBackend* renderer_;
-
   bool prequeuing_;
 
   QList<RenderTicketWatcher*> nonqueue_watchers_;
@@ -253,6 +246,8 @@ private:
   rational last_length_;
 
   int prequeue_length_;
+
+  PreviewAutoCacher auto_cacher_;
 
   static QVector<ViewerWidget*> instances_;
 
@@ -271,7 +266,7 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerShiftedRange(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
+  void ViewerShiftedRange(const olive::rational& from, const olive::rational& to);
 
   void UpdateStack();
 
@@ -291,10 +286,14 @@ private slots:
 
   void RendererGeneratedFrameForQueue();
 
-  void ViewerInvalidatedVideoRange(const OLIVE_NAMESPACE::TimeRange &range);
+  void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
+
+  void ManualSwitchToWaveform(bool e);
+
+  void TimeChangedFromWaveform(qint64 t);
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWER_WIDGET_H

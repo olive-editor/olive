@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
+
 set(OLIVE_DEFINITIONS -DAPPVERSION="${PROJECT_VERSION}" -DQT_DEPRECATED_WARNINGS)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -39,7 +41,7 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-find_package(OpenColorIO REQUIRED)
+find_package(OpenColorIO 2.0.0 REQUIRED)
 
 find_package(OpenImageIO 1.6 REQUIRED)
 
@@ -67,6 +69,12 @@ find_package(FFMPEG 3.0 REQUIRED
   swresample
 )
 
+find_package(OpenTimelineIO)
+
+if (NOT OpenTimelineIO_FOUND)
+  message("   OpenTimelineIO interchange will be disabled.")
+endif()
+
 find_package(GoogleCrashpad)
 
 if (NOT GoogleCrashpad_FOUND)
@@ -76,20 +84,12 @@ endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   find_package(Git)
   if(GIT_FOUND)
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_HASH
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
   endif()
-elseif(UNIX AND NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "OpenBSD")
-  # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
-  # (see https://answers.launchpad.net/launchpad/+question/678556)
-  execute_process(COMMAND sh -c "grep -Po '(?<=-)(([a-z0-9])\\w+)(?=\\+)' -m 1 changelog"
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/debian
-    OUTPUT_VARIABLE GIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
 endif()
 if(DEFINED GIT_HASH)
   message("Olive: Git hash = " "${GIT_HASH}")

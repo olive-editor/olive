@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include <QPainter>
 #include <QtMath>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   QWidget(parent),
@@ -39,24 +39,26 @@ TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   stack_ = new QStackedWidget();
   layout->addWidget(stack_);
 
-  label_ = new ClickableLabel(track_->GetTrackName());
-  connect(label_, SIGNAL(MouseDoubleClicked()), this, SLOT(LabelClicked()));
+  label_ = new ClickableLabel();
+  connect(label_, &ClickableLabel::MouseDoubleClicked, this, &TrackViewItem::LabelClicked);
+  connect(track_, &TrackOutput::LabelChanged, this, &TrackViewItem::UpdateLabel);
+  UpdateLabel();
   stack_->addWidget(label_);
 
   line_edit_ = new FocusableLineEdit();
-  connect(line_edit_, SIGNAL(Confirmed()), this, SLOT(LineEditConfirmed()));
-  connect(line_edit_, SIGNAL(Cancelled()), this, SLOT(LineEditCancelled()));
+  connect(line_edit_, &FocusableLineEdit::Confirmed, this, &TrackViewItem::LineEditConfirmed);
+  connect(line_edit_, &FocusableLineEdit::Cancelled, this, &TrackViewItem::LineEditCancelled);
   stack_->addWidget(line_edit_);
 
   mute_button_ = CreateMSLButton(tr("M"), Qt::red);
-  connect(mute_button_, SIGNAL(toggled(bool)), track_, SLOT(SetMuted(bool)));
+  connect(mute_button_, &QPushButton::toggled, track_, &TrackOutput::SetMuted);
   layout->addWidget(mute_button_);
 
   /*solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
   layout->addWidget(solo_button_);*/
 
   lock_button_ = CreateMSLButton(tr("L"), Qt::gray);
-  connect(lock_button_, SIGNAL(toggled(bool)), track_, SLOT(SetLocked(bool)));
+  connect(lock_button_, &QPushButton::toggled, track_, &TrackOutput::SetLocked);
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());
@@ -89,11 +91,8 @@ void TrackViewItem::LineEditConfirmed()
 {
   line_edit_->blockSignals(true);
 
-  QString line_edit_str = line_edit_->text();
-  if (!line_edit_str.isEmpty()) {
-    label_->setText(line_edit_str);
-    track_->SetTrackName(line_edit_str);
-  }
+  track_->SetLabel(line_edit_->text());
+  UpdateLabel();
 
   stack_->setCurrentWidget(label_);
 
@@ -109,4 +108,13 @@ void TrackViewItem::LineEditCancelled()
   line_edit_->blockSignals(false);
 }
 
-OLIVE_NAMESPACE_EXIT
+void TrackViewItem::UpdateLabel()
+{
+  if (track_->GetLabel().isEmpty()) {
+    label_->setText(track_->GetDefaultTrackName(track_->track_type(), track_->Index()));
+  } else {
+    label_->setText(track_->GetLabel());
+  }
+}
+
+}

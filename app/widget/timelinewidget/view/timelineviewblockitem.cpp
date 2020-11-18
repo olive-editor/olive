@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,18 +35,13 @@
 #include "node/block/transition/transition.h"
 #include "widget/viewer/audiowaveformview.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent) :
   TimelineViewRect(parent),
   block_(block)
 {
   setBrush(Qt::white);
-  setCursor(Qt::DragMoveCursor);
-  setFlag(QGraphicsItem::ItemIsSelectable,
-          block_->type() == Block::kClip
-          || block_->type() == Block::kGap
-          || block_->type() == Block::kTransition);
 
   UpdateRect();
 }
@@ -99,8 +94,6 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setPen(QColor(64, 64, 64));
     TrackOutput* track = TrackOutput::TrackFromBlock(block_);
     if (track) {
-      QMutexLocker locker(track->waveform_lock());
-
       AudioVisualWaveform::DrawWaveform(painter,
                                         rect().toRect(),
                                         this->GetScale(),
@@ -119,7 +112,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
       painter->setPen(Qt::lightGray);
     }
 
-    int text_top = TrackOutput::GetTrackHeightMinimum() / 2 - painter->fontMetrics().height() / 2;
+    int text_top = TrackOutput::GetMinimumTrackHeightInPixels() / 2 - painter->fontMetrics().height() / 2;
     QRectF text_rect = rect();
     text_rect.adjust(0, text_top, 0, 0);
     painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block_->GetLabel());
@@ -127,7 +120,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     // Linked clips are underlined
     if (block_->HasLinks()) {
       QFontMetrics fm = painter->fontMetrics();
-      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->GetLabel()));
+      int text_width = qMin(qRound(rect().width()), QtUtils::QFontMetricsWidth(fm, block_->GetLabel()));
 
       QPointF underline_start = rect().topLeft() + QPointF(0, text_top + fm.height());
       QPointF underline_end = underline_start + QPointF(text_width, 0);
@@ -199,4 +192,4 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

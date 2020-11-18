@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "common/tohex.h"
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInput *param_a_in, olive::NodeInput *param_b_in) const
 {
@@ -48,7 +48,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
     // No-op frag shader (can we return QString() instead?)
     operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
 
-    vert = ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
+    vert = FileFunctions::ReadFileAsString(":/shaders/matrix.vert").arg(mat_in->id(), tex_in->id());
 
   } else {
     switch (op) {
@@ -248,8 +248,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 
     SampleBufferPtr mixed_samples = SampleBuffer::CreateAllocated(samples_a->audio_params(), max_samples);
 
-    // Mix samples that are in both buffers
     for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
+      // Mix samples that are in both buffers
       for (int j=0;j<min_samples;j++) {
         mixed_samples->data()[i][j] = PerformAll<float, float>(operation, samples_a->data()[i][j], samples_b->data()[i][j]);
       }
@@ -259,9 +259,11 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       // Fill in remainder space with 0s
       int remainder = max_samples - min_samples;
 
+      SampleBufferPtr larger_buffer = (max_samples == samples_a->sample_count()) ? samples_a : samples_b;
+
       for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
-        memset(mixed_samples->data()[i] + min_samples * sizeof(float),
-               0,
+        memcpy(&mixed_samples->data()[i][min_samples],
+               &larger_buffer->data()[i][min_samples],
                remainder * sizeof(float));
       }
     }
@@ -327,7 +329,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
     float number = RetrieveNumber(number_val);
 
     SampleJob job(val_a.type() == NodeParam::kSamples ? val_a : val_b);
-    job.InsertValue(number_param, NodeValue(NodeParam::kFloat, number, this));
+    job.InsertValue(number_param, ShaderValue(number, NodeParam::kFloat));
 
     if (job.HasSamples()) {
       if (number_param->is_static()) {
@@ -609,4 +611,4 @@ T MathNodeBase::PerformAddSubMultDiv(Operation operation, T a, U b)
   return a;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

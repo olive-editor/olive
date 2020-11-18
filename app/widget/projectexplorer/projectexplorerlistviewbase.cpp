@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include <QMouseEvent>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorerListViewBase::ProjectExplorerListViewBase(QWidget *parent) :
   QListView(parent)
@@ -51,4 +51,4 @@ void ProjectExplorerListViewBase::mouseDoubleClickEvent(QMouseEvent *event)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

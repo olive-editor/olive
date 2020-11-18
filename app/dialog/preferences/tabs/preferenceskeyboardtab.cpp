@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 {
@@ -174,7 +174,7 @@ void PreferencesKeyboardTab::load_shortcut_file() {
   if (!fn.isEmpty()) {
     QFile f(fn);
     if (f.exists() && f.open(QFile::ReadOnly)) {
-      QByteArray ba = f.readAll();
+      QString ba = f.readAll();
       f.close();
       for (int i=0;i<key_shortcut_fields_.size();i++) {
         int index = ba.indexOf(key_shortcut_fields_.at(i)->action_name());
@@ -240,4 +240,4 @@ void PreferencesKeyboardTab::ResetDefaults(bool reset_all_tabs)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

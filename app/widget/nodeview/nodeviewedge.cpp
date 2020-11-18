@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,12 +25,13 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QStyleOptionGraphicsItem>
 
+#include "common/bezier.h"
 #include "common/clamp.h"
 #include "common/lerp.h"
 #include "nodeview.h"
 #include "nodeviewscene.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
@@ -47,6 +48,7 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
 
   // Use font metrics to set edge width for basic high DPI support
   edge_width_ = QFontMetrics(QFont()).height() / 12;
+  arrow_size_ = QFontMetrics(QFont()).height() / 2;
 }
 
 void NodeViewEdge::SetEdge(NodeEdgePtr edge)
@@ -104,6 +106,8 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
   QPainterPath path;
   path.moveTo(start);
 
+  double angle = qAtan2(end.y() - start.y(), end.x() - start.x());
+
   if (curved_) {
 
     double half_x = lerp(start.x(), end.x(), 0.5);
@@ -125,6 +129,36 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
 
     path.cubicTo(cp1, cp2, end);
 
+    if (!qFuzzyCompare(start.x(), end.x())) {
+      double continue_x = end.x() - qCos(angle)*arrow_size_;
+
+      double x1, x2, x3, x4, y1, y2, y3, y4;
+      if (start.x() < end.x()) {
+        x1 = start.x();
+        x2 = cp1.x();
+        x3 = cp2.x();
+        x4 = end.x();
+        y1 = start.y();
+        y2 = cp1.y();
+        y3 = cp2.y();
+        y4 = end.y();
+      } else {
+        x1 = end.x();
+        x2 = cp2.x();
+        x3 = cp1.x();
+        x4 = start.x();
+        y1 = end.y();
+        y2 = cp2.y();
+        y3 = cp1.y();
+        y4 = start.y();
+      }
+
+      double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
+      double y = Bezier::CubicTtoY(y1, y2, y3, y4, t);
+
+      angle = qAtan2(end.y() - y, end.x() - continue_x);
+    }
+
   } else {
 
     path.lineTo(end);
@@ -132,6 +166,15 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
   }
 
   setPath(path);
+
+  const double arrow_angle = 150.0 * 3.141592 / 180.0;
+  QVector<QPointF> arrow_points(4);
+  arrow_points[0] = end;
+  arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
+  arrow_points[2] = end + QPointF(qCos(angle - arrow_angle) * arrow_size_, qSin(angle - arrow_angle) * arrow_size_);
+  arrow_points[3] = end;
+
+  arrow_ = QPolygonF(arrow_points);
 }
 
 void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
@@ -165,9 +208,17 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     role = QPalette::Text;
   }
 
-  painter->setPen(QPen(qApp->palette().color(group, role), edge_width_));
+  // Draw main path
+  QColor edge_color = qApp->palette().color(group, role);
+
+  painter->setPen(QPen(edge_color, edge_width_));
   painter->setBrush(Qt::NoBrush);
   painter->drawPath(path());
+
+  // Draw arrow
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(edge_color);
+  painter->drawPolygon(arrow_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

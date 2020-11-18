@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 
 #define super HandMovableView
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
@@ -57,6 +57,10 @@ NodeView::NodeView(QWidget *parent) :
   scene_.setSceneRect(-1000000, -1000000, 2000000, 2000000);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  select_blocks_internal_timer_.setSingleShot(true);
+  select_blocks_internal_timer_.setInterval(100);
+  connect(&select_blocks_internal_timer_, &QTimer::timeout, this, &NodeView::SelectBlocksInternal);
 }
 
 NodeView::~NodeView()
@@ -111,7 +115,7 @@ void NodeView::DeleteSelected()
   QUndoCommand* command = new QUndoCommand();
 
   {
-    QList<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
+    QVector<NodeEdge*> selected_edges = scene_.GetSelectedEdges();
 
     foreach (NodeEdge* edge, selected_edges) {
       new NodeEdgeRemoveCommand(edge->output(), edge->input(), command);
@@ -120,7 +124,7 @@ void NodeView::DeleteSelected()
   }
 
   {
-    QList<Node*> selected_nodes = scene_.GetSelectedNodes();
+    QVector<Node*> selected_nodes = scene_.GetSelectedNodes();
 
     // Ensure no nodes are "undeletable"
     for (int i=0;i<selected_nodes.size();i++) {
@@ -162,7 +166,7 @@ void NodeView::DeselectAll()
   SceneSelectionChangedSlot();
 }
 
-void NodeView::Select(const QList<Node *> &nodes)
+void NodeView::Select(const QVector<Node *> &nodes)
 {
   if (!graph_) {
     return;
@@ -184,7 +188,7 @@ void NodeView::Select(const QList<Node *> &nodes)
   SceneSelectionChangedSlot();
 }
 
-void NodeView::SelectWithDependencies(QList<Node *> nodes)
+void NodeView::SelectWithDependencies(QVector<Node *> nodes)
 {
   if (!graph_) {
     return;
@@ -198,15 +202,23 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
   Select(nodes);
 }
 
-void NodeView::SelectBlocks(const QList<Block *> &blocks)
+void NodeView::SelectBlocks(const QVector<Block *> &blocks)
 {
+  if (!graph_) {
+    return;
+  }
+
   selected_blocks_.append(blocks);
 
-  SelectBlocksInternal();
+  QueueSelectBlocksInternal();
 }
 
-void NodeView::DeselectBlocks(const QList<Block *> &blocks)
+void NodeView::DeselectBlocks(const QVector<Block *> &blocks)
 {
+  if (!graph_) {
+    return;
+  }
+
   // Remove temporary associations
   foreach (Block* b, selected_blocks_) {
     if (!blocks.contains(b)) {
@@ -219,7 +231,7 @@ void NodeView::DeselectBlocks(const QList<Block *> &blocks)
     selected_blocks_.removeOne(b);
   }
 
-  SelectBlocksInternal();
+  QueueSelectBlocksInternal();
 }
 
 void NodeView::CopySelected(bool cut)
@@ -228,7 +240,7 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   if (selected.isEmpty()) {
     return;
@@ -249,7 +261,7 @@ void NodeView::Paste()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
+  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
@@ -268,7 +280,7 @@ void NodeView::Duplicate()
     return;
   }
 
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   if (selected.isEmpty()) {
     return;
@@ -276,43 +288,11 @@ void NodeView::Duplicate()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QList<Node*> duplicated_nodes;
-
-  foreach (Node* n, selected) {
-    Node* copy = n->copy();
-
-    Node::CopyInputs(n, copy, false);
-
-    duplicated_nodes.append(copy);
-
-    new NodeAddCommand(graph_, copy, command);
-  }
-
-  for (int i=0;i<selected.size();i++) {
-    Node* src = selected.at(i);
-
-    for (int j=0;j<selected.size();j++) {
-      if (i == j) {
-        continue;
-      }
-
-      Node* dst = selected.at(j);
-
-      foreach (NodeEdgePtr edge, src->output()->edges()) {
-        if (edge->input()->parentNode() == dst) {
-          new NodeEdgeAddCommand(duplicated_nodes.at(i)->output(),
-                                 duplicated_nodes.at(j)->GetInputWithID(edge->input()->id()),
-                                 command);
-        }
-      }
-    }
-  }
+  QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  if (!duplicated_nodes.isEmpty()) {
-    AttachNodesToCursor(duplicated_nodes);
-  }
+  AttachNodesToCursor(duplicated_nodes);
 }
 
 void NodeView::ItemsChanged()
@@ -372,8 +352,8 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
       QRect edge_detect_rect(event->pos(), event->pos());
 
-      // FIXME: Hardcoded numbers
-      edge_detect_rect.adjust(-20, -20, 20, 20);
+      int edge_detect_radius = fontMetrics().height();
+      edge_detect_rect.adjust(-edge_detect_radius, -edge_detect_radius, edge_detect_radius, edge_detect_radius);
 
       QList<QGraphicsItem*> items = this->items(edge_detect_rect);
 
@@ -476,10 +456,10 @@ void NodeView::wheelEvent(QWheelEvent *event)
 
 void NodeView::SceneSelectionChangedSlot()
 {
-  QList<Node*> current_selection = scene_.GetSelectedNodes();
+  QVector<Node*> current_selection = scene_.GetSelectedNodes();
 
-  QList<Node*> selected;
-  QList<Node*> deselected;
+  QVector<Node*> selected;
+  QVector<Node*> deselected;
 
   // Determine which nodes are newly selected
   if (selected_nodes_.isEmpty()) {
@@ -528,7 +508,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   m.addSeparator();
 
-  QList<NodeViewItem*> selected = scene_.GetSelectedItems();
+  QVector<NodeViewItem*> selected = scene_.GetSelectedItems();
 
   if (itemAt(pos) && !selected.isEmpty()) {
 
@@ -624,7 +604,7 @@ void NodeView::ContextMenuSetDirection(QAction *action)
 
 void NodeView::AutoPositionDescendents()
 {
-  QList<Node*> selected = scene_.GetSelectedNodes();
+  QVector<Node*> selected = scene_.GetSelectedNodes();
 
   foreach (Node* n, selected) {
     scene_.ReorganizeFrom(n);
@@ -653,152 +633,18 @@ void NodeView::ContextMenuFilterChanged(QAction *action)
   }
 }
 
-void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
+void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
 {
-  QRectF destination_rect = n->rect();
-  destination_rect.translate(n->pos());
+  QVector<NodeViewItem*> items(nodes.size());
 
-  double x_movement = destination_rect.width() * 1.5;
-  double y_movement = destination_rect.height() * 1.5;
-
-  QList<QGraphicsItem*> items = scene()->items(destination_rect);
-
-  n->setPos(pos);
-
-  foreach (QGraphicsItem* item, items) {
-    if (item == n) {
-      continue;
-    }
-
-    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
-
-    if (!node_item) {
-      continue;
-    }
-
-    qDebug() << "Moving" << node_item->GetNode() << "for" << n->GetNode();
-
-    QPointF new_pos;
-
-    if (item->pos() == pos) {
-      qDebug() << "Same pos, need more info";
-
-      // Item positions are exact, we'll need more information to determine where this item should go
-      Node* ours = n->GetNode();
-      Node* theirs = node_item->GetNode();
-
-      bool moved = false;
-
-      new_pos = item->pos();
-
-      // Heuristic to determine whether to move the other item above or below
-      foreach (NodeEdgePtr our_edge, ours->output()->edges()) {
-        foreach (NodeEdgePtr their_edge, theirs->output()->edges()) {
-          if (our_edge->output()->parentNode() == their_edge->output()->parentNode()) {
-            qDebug() << "  They share a node that they output to";
-            if (our_edge->input()->index() > their_edge->input()->index()) {
-              // Their edge should go above ours
-              qDebug() << "    Our edge goes BELOW theirs";
-              new_pos.setY(new_pos.y() - y_movement);
-            } else {
-              // Our edge should go below ours
-              qDebug() << "    Our edge goes ABOVE theirs";
-              new_pos.setY(new_pos.y() + y_movement);
-            }
-
-            moved = true;
-
-            break;
-          }
-        }
-      }
-
-      // If we find anything, just move at random
-      if (!moved) {
-        new_pos.setY(new_pos.y() - y_movement);
-      }
-
-    } else if (item->pos().x() == pos.x()) {
-      qDebug() << "Same X, moving vertically";
-
-      // Move strictly up or down
-      new_pos = item->pos();
-
-      if (item->pos().y() < pos.y()) {
-        // Move further up
-        new_pos.setY(pos.y() - y_movement);
-      } else {
-        // Move further down
-        new_pos.setY(pos.y() + y_movement);
-      }
-    } else if (item->pos().y() == pos.y()) {
-      qDebug() << "Same Y, moving horizontally";
-
-      // Move strictly left or right
-      new_pos = item->pos();
-
-      if (item->pos().x() < pos.x()) {
-        // Move further up
-        new_pos.setX(pos.x() - x_movement);
-      } else {
-        // Move further down
-        new_pos.setX(pos.x() + x_movement);
-      }
-    } else {
-      qDebug() << "Diff pos, pushing in angle";
-
-      // The item does not have equal X or Y, attempt to push it away from `pos` in the direction it's in
-      double x_diff = item->pos().x() - pos.x();
-      double y_diff = item->pos().y() - pos.y();
-
-      double slope = y_diff / x_diff;
-      double y_int = item->pos().y() - slope * item->pos().x();
-
-      if (qAbs(slope) > 1.0) {
-        // Vertical difference is greater than horizontal difference, prioritize vertical movement
-        double desired_y = pos.y();
-
-        if (item->pos().y() > pos.y()) {
-          desired_y += y_movement;
-        } else {
-          desired_y -= y_movement;
-        }
-
-        double x = (desired_y - y_int) / slope;
-
-        new_pos = QPointF(x, desired_y);
-      } else {
-        // Horizontal difference is greater than vertical difference, prioritize horizontal movement
-        double desired_x = pos.x();
-
-        if (item->pos().x() > pos.x()) {
-          desired_x += x_movement;
-        } else {
-          desired_x -= x_movement;
-        }
-
-        double y = slope * desired_x + y_int;
-
-        new_pos = QPointF(desired_x, y);
-      }
-    }
-
-    PlaceNode(node_item, new_pos);
-  }
-}
-
-void NodeView::AttachNodesToCursor(const QList<Node *> &nodes)
-{
-  QList<NodeViewItem*> items;
-
-  foreach (Node* p, nodes) {
-    items.append(scene_.NodeToUIObject(p));
+  for (int i=0; i<nodes.size(); i++) {
+    items[i] = scene_.NodeToUIObject(nodes.at(i));
   }
 
   AttachItemsToCursor(items);
 }
 
-void NodeView::AttachItemsToCursor(const QList<NodeViewItem*>& items)
+void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
 {
   DetachItemsFromCursor();
 
@@ -851,9 +697,9 @@ void NodeView::UpdateBlockFilter()
   }
 
   bool first = true;
-  QRectF last_rect;
+  QPointF last_bottom_right;
 
-  QList<Node*> currently_visible;
+  QVector<Node*> currently_visible;
 
   foreach (Block* b, selected_blocks_) {
     // Auto-position this node's dependencies
@@ -863,7 +709,7 @@ void NodeView::UpdateBlockFilter()
     QPointF node_pos = b->GetPosition();
     QRectF anchor(node_pos, node_pos);
 
-    QList<Node*> deps = b->GetDependencies();
+    QVector<Node*> deps = b->GetDependencies();
 
     foreach (Node* d, deps) {
       QPointF dep_pos = d->GetPosition();
@@ -883,9 +729,12 @@ void NodeView::UpdateBlockFilter()
     if (first) {
       first = false;
     } else {
-      QPointF desired_anchor_pos = last_rect.bottomRight() + QPointF(0, 2);
+      QPointF desired_anchor_pos = last_bottom_right + QPointF(0, 2);
 
       QPointF necessary_movement = anchor.topRight() - desired_anchor_pos;
+
+      // Calculate the bottom right from which we'll anchor the next rect
+      last_bottom_right = anchor.bottomRight() - necessary_movement;
 
       b->SetPosition(b->GetPosition() - necessary_movement);
       foreach (Node* d, deps) {
@@ -898,8 +747,7 @@ void NodeView::UpdateBlockFilter()
 
     // ...then add its associations
     deps.append(temporary_association_map_[b]);
-    QHash<Node*, QList<Block*> >::const_iterator i;
-    for (i=association_map_.begin(); i!=association_map_.end(); i++) {
+    for (auto i=association_map_.begin(); i!=association_map_.end(); i++) {
       if (i.value().contains(b)) {
         deps.append(i.key());
       }
@@ -915,15 +763,12 @@ void NodeView::UpdateBlockFilter()
 
     // And lastly, add them all to our currently visible list
     currently_visible.append(deps);
-
-    // Cache this rect so we can calculate other rects
-    last_rect = anchor;
   }
 
   // Show only edges between those dependencies
   foreach (NodeViewEdge* edge, scene_.edge_map()) {
-    edge->setVisible((currently_visible.contains(edge->edge()->input()->parentNode())
-                      && currently_visible.contains(edge->edge()->output()->parentNode())));
+    edge->setVisible((currently_visible.contains(edge->edge()->input_node())
+                      && currently_visible.contains(edge->edge()->output_node())));
   }
 }
 
@@ -942,16 +787,22 @@ void NodeView::DisassociateNode(Node *n, bool remove_from_map)
   disconnect(n, &Node::destroyed, this, &NodeView::AssociatedNodeDestroyed);
 }
 
+void NodeView::QueueSelectBlocksInternal()
+{
+  select_blocks_internal_timer_.stop();
+  select_blocks_internal_timer_.start();
+}
+
 void NodeView::SelectBlocksInternal()
 {
   // Block scene signals while our selection is changing a lot
-  scene_.blockSignals(true);
+  DisconnectSelectionChangedSignal();
 
   if (filter_mode_ == kFilterShowSelectedBlocks) {
     UpdateBlockFilter();
   }
 
-  QList<Node*> nodes;
+  QVector<Node*> nodes;
   nodes.reserve(selected_blocks_.size());
 
   foreach (Block* b, selected_blocks_) {
@@ -962,7 +813,7 @@ void NodeView::SelectBlocksInternal()
   SelectWithDependencies(nodes);
 
   // Stop blocking signals and send a change signal now that all of our processing is done
-  scene_.blockSignals(false);
+  ConnectSelectionChangedSignal();
   SceneSelectionChangedSlot();
 
   if (!selected_blocks_.isEmpty()) {
@@ -1004,7 +855,7 @@ void NodeView::GraphEdgeAdded(NodeEdgePtr edge)
   Node* input_node = edge->input()->parentNode();
 
   if (input_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
-    QHash<Node*, QList<Block*> >::const_iterator i = association_map_.begin();
+    auto i = association_map_.begin();
 
     while (i != association_map_.end()) {
       if (input_node->InputsFrom(i.key(), true)) {
@@ -1024,7 +875,7 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
 {
   scene_.RemoveEdge(edge);
 
-  Node* output_node = edge->output()->parentNode();
+  Node* output_node = edge->output_node();
 
   // Check if this disconnected node still connects to a selected block, in which case do nothing
   foreach (Block* b, selected_blocks_) {
@@ -1033,14 +884,14 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
     }
   }
 
-  QList<Node*> disconnected_nodes;
+  QVector<Node*> disconnected_nodes;
   disconnected_nodes.append(output_node);
   disconnected_nodes.append(output_node->GetDependencies());
 
   if (output_node->OutputsTo(static_cast<Sequence*>(graph_)->viewer_output(), true)) {
     // Check if this disconnected node still has a path to the viewer somewhere else
     foreach (Block* b, selected_blocks_) {
-      QList<Node*>& temp_assocs = temporary_association_map_[b];
+      QVector<Node*>& temp_assocs = temporary_association_map_[b];
 
       temp_assocs.append(disconnected_nodes);
     }
@@ -1052,4 +903,4 @@ void NodeView::GraphEdgeRemoved(NodeEdgePtr edge)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

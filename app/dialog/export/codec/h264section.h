@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,10 +27,11 @@
 #include "codecsection.h"
 #include "widget/slider/floatslider.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class H264CRFSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264CRFSection(QWidget* parent = nullptr);
 
@@ -49,6 +50,7 @@ private:
 
 class H264BitRateSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264BitRateSection(QWidget* parent = nullptr);
 
@@ -71,6 +73,7 @@ private:
 
 class H264FileSizeSection : public QWidget
 {
+  Q_OBJECT
 public:
   H264FileSizeSection(QWidget* parent = nullptr);
 
@@ -86,6 +89,7 @@ private:
 
 class H264Section : public CodecSection
 {
+  Q_OBJECT
 public:
   enum CompressionMethod {
     kConstantRateFactor,
@@ -108,6 +112,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // H264SECTION_H

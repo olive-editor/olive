@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,12 @@
 
 #include "graph.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
+
+NodeGraph::NodeGraph() :
+  operation_stack_(0)
+{
+}
 
 void NodeGraph::Clear()
 {
@@ -38,12 +43,92 @@ void NodeGraph::AddNode(Node *node)
 
   node->setParent(this);
 
-  connect(node, &Node::EdgeAdded, this, &NodeGraph::EdgeAdded);
-  connect(node, &Node::EdgeRemoved, this, &NodeGraph::EdgeRemoved);
+  connect(node, &Node::EdgeAdded, this, &NodeGraph::SignalEdgeAdded);
+  connect(node, &Node::EdgeRemoved, this, &NodeGraph::SignalEdgeRemoved);
 
   node_children_.append(node);
 
   emit NodeAdded(node);
+}
+
+void NodeGraph::BeginOperation()
+{
+  operation_stack_++;
+}
+
+void NodeGraph::EndOperation()
+{
+  operation_stack_--;
+
+  if (!operation_stack_) {
+    // Signal everything that we cached during the operation
+
+    // First, signal the removed edges
+    foreach (NodeEdgePtr e, cached_removed_edges_) {
+      emit EdgeRemoved(e);
+    }
+    cached_removed_edges_.clear();
+
+    // Next, signal the removed nodes
+    foreach (Node* n, cached_removed_nodes_) {
+      emit NodeRemoved(n);
+    }
+    cached_removed_nodes_.clear();
+
+    // Next, signal the added nodes
+    foreach (Node* n, cached_added_nodes_) {
+      emit NodeAdded(n);
+    }
+    cached_added_nodes_.clear();
+
+    // Finally, signal the added edges
+    foreach (NodeEdgePtr e, cached_added_edges_) {
+      emit EdgeAdded(e);
+    }
+    cached_added_edges_.clear();
+  }
+}
+
+void NodeGraph::SignalNodeAdded(Node* node)
+{
+  if (!operation_stack_) {
+    emit NodeAdded(node);
+  } else if (!cached_removed_nodes_.removeOne(node)) {
+    // If we already removed this node during the operation (appending a signal to
+    // cached_removed_nodes_), we just remove that instead of appending a new signal. However if we
+    // didn't (removeOne returning false), only then do we append an add signal
+    cached_added_nodes_.append(node);
+  }
+}
+
+void NodeGraph::SignalNodeRemoved(Node *node)
+{
+  if (!operation_stack_) {
+    emit NodeRemoved(node);
+  } else if (!cached_added_nodes_.removeOne(node)) {
+    // See SignalNodeAdded() for explanation of this
+    cached_removed_nodes_.append(node);
+  }
+}
+
+void NodeGraph::SignalEdgeAdded(NodeEdgePtr edge)
+{
+  if (!operation_stack_) {
+    emit EdgeAdded(edge);
+  } else if (!cached_removed_edges_.removeOne(edge)) {
+    // See SignalNodeAdded() for explanation of this
+    cached_added_edges_.append(edge);
+  }
+}
+
+void NodeGraph::SignalEdgeRemoved(NodeEdgePtr edge)
+{
+  if (!operation_stack_) {
+    emit EdgeRemoved(edge);
+  } else if (!cached_added_edges_.removeOne(edge)) {
+    // See SignalNodeAdded() for explanation of this
+    cached_removed_edges_.append(edge);
+  }
 }
 
 void NodeGraph::TakeNode(Node *node, QObject* new_parent)
@@ -79,4 +164,4 @@ bool NodeGraph::ContainsNode(Node *n) const
   return (n->parent() == this);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

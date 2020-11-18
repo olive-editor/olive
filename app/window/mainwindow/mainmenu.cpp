@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "mainmenu.h"
 
+#include <QDesktopServices>
 #include <QEvent>
 #include <QStyleFactory>
 
@@ -35,7 +36,7 @@
 #include "widget/menu/menushared.h"
 #include "mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
@@ -49,8 +50,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_new_menu_ = new Menu(file_menu_);
   MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), &Core::OpenProject, "Ctrl+O");
-  file_open_recent_menu_ = new Menu(file_menu_, this, &MainMenu::PopulateOpenRecent);
-  connect(file_open_recent_menu_, &Menu::aboutToHide, this, &MainMenu::CloseOpenRecentMenu);
+  file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_separator_ = file_open_recent_menu_->addSeparator();
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
   file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
@@ -59,7 +59,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, "Ctrl+I");
   file_menu_->addSeparator();
-  file_export_item_ = file_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
+  file_export_menu_ = new Menu(file_menu_);
+  file_export_media_item_ = file_export_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, "Ctrl+M");
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, "Shift+F10");
   file_menu_->addSeparator();
@@ -115,32 +116,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   view_show_all_item_->setCheckable(true);
   view_menu_->addSeparator();
 
-  frame_view_mode_group_ = new QActionGroup(this);
-
-  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
-  view_timecode_view_dropframe_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
-
-  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
-  view_timecode_view_nondropframe_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
-
-  view_timecode_view_seconds_item_ = view_menu_->AddItem("modeseconds", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
-  view_timecode_view_seconds_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
-
-  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_frames_item_->setData(Timecode::kFrames);
-  view_timecode_view_frames_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
-
-  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", this, &MainMenu::TimecodeDisplayTriggered);
-  view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
-  view_timecode_view_milliseconds_item_->setCheckable(true);
-  frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
+  MenuShared::instance()->AddItemsForTimeRulerMenu(view_menu_);
 
   view_menu_->addSeparator();
 
@@ -274,7 +250,12 @@ MainMenu::MainMenu(MainWindow *parent) :
   help_menu_ = new Menu(this);
   help_action_search_item_ = help_menu_->AddItem("actionsearch", this, &MainMenu::ActionSearchTriggered, "/");
   help_menu_->addSeparator();
+  help_feedback_item_ = help_menu_->AddItem("feedback", this, &MainMenu::HelpFeedbackTriggered);
+  help_menu_->addSeparator();
   help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
+
+  connect(Core::instance(), &Core::OpenRecentListChanged, this, &MainMenu::RepopulateOpenRecent);
+  PopulateOpenRecent();
 
   Retranslate();
 }
@@ -297,18 +278,6 @@ void MainMenu::ToolItemTriggered()
 
   // Set the Tool in Core
   Core::instance()->SetTool(tool);
-}
-
-void MainMenu::TimecodeDisplayTriggered()
-{
-  // Assume the sender is a QAction
-  QAction* action = static_cast<QAction*>(sender());
-
-  // Assume its data() is a member of Timecode::Display
-  Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
-
-  // Set the current display mode
-  Core::instance()->SetTimecodeDisplay(display);
 }
 
 void MainMenu::FileMenuAboutToShow()
@@ -341,13 +310,7 @@ void MainMenu::ViewMenuAboutToShow()
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 
   // Ensure checked timecode display mode is correct
-  QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
-  foreach (QAction* a, timecode_display_actions) {
-    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
-      a->setChecked(true);
-      break;
-    }
-  }
+  MenuShared::instance()->AboutToShowTimeRulerActions();
 }
 
 void MainMenu::ToolsMenuAboutToShow()
@@ -435,6 +398,12 @@ void MainMenu::PopulateOpenRecent()
     }
 
   }
+}
+
+void MainMenu::RepopulateOpenRecent()
+{
+  CloseOpenRecentMenu();
+  PopulateOpenRecent();
 }
 
 void MainMenu::CloseOpenRecentMenu()
@@ -621,6 +590,11 @@ void MainMenu::SequenceCacheInOutTriggered()
   Core::instance()->CacheActiveSequence(true);
 }
 
+void MainMenu::HelpFeedbackTriggered()
+{
+  QDesktopServices::openUrl(QStringLiteral("https://github.com/olive-editor/olive/issues"));
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -634,7 +608,8 @@ void MainMenu::Retranslate()
   file_open_recent_clear_item_->setText(tr("&Clear Recent List"));
   file_save_all_item_->setText(tr("Sa&ve All Projects"));
   file_import_item_->setText(tr("&Import..."));
-  file_export_item_->setText(tr("&Export..."));
+  file_export_menu_->setTitle(tr("&Export"));
+  file_export_media_item_->setText(tr("&Media..."));
   file_project_properties_item_->setText(tr("&Project Properties..."));
   file_close_all_projects_item_->setText(tr("Close All Projects"));
   file_exit_item_->setText(tr("E&xit"));
@@ -662,11 +637,6 @@ void MainMenu::Retranslate()
   view_increase_track_height_item_->setText(tr("Increase Track Height"));
   view_decrease_track_height_item_->setText(tr("Decrease Track Height"));
   view_show_all_item_->setText(tr("Toggle Show All"));
-  view_timecode_view_frames_item_->setText(tr("Frames"));
-  view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
-  view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));
-  view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
-  view_timecode_view_seconds_item_->setText(tr("Seconds"));
 
   // View menu (cont'd)
   view_full_screen_item_->setText(tr("Full Screen"));
@@ -718,7 +688,8 @@ void MainMenu::Retranslate()
   // Help menu
   help_menu_->setTitle(tr("&Help"));
   help_action_search_item_->setText(tr("A&ction Search"));
+  help_feedback_item_->setText(tr("Send &Feedback..."));
   help_about_item_->setText(tr("&About..."));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

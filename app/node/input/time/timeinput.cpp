@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "timeinput.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeInput::TimeInput()
 {
@@ -41,7 +41,7 @@ QString TimeInput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.time");
 }
 
-QList<Node::CategoryID> TimeInput::Category() const
+QVector<Node::CategoryID> TimeInput::Category() const
 {
   return {kCategoryInput};
 }
@@ -71,4 +71,4 @@ void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
   hash.addData(NodeParam::ValueToBytes(NodeParam::kRational, QVariant::fromValue(time)));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <QGuiApplication>
 #include <QVector2D>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PolygonGenerator::PolygonGenerator()
 {
@@ -69,7 +69,7 @@ QString PolygonGenerator::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.polygon");
 }
 
-QList<Node::CategoryID> PolygonGenerator::Category() const
+QVector<Node::CategoryID> PolygonGenerator::Category() const
 {
   return {kCategoryGenerator};
 }
@@ -89,7 +89,7 @@ ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(Node::ReadFileAsString(":/shaders/polygon.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/polygon.frag"), QString());
 }
 
 NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
@@ -204,4 +204,4 @@ QVector<QRectF> PolygonGenerator::GetGizmoRects(const QVector<QPointF> &points) 
   return rects;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

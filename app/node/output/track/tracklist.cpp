@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "node/math/merge/merge.h"
 #include "node/output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInputArray *track_input) :
   QObject(parent),
@@ -134,7 +134,7 @@ TrackOutput* TrackList::AddTrack()
   return track;
 }
 
-void TrackList::RemoveTrack()
+void TrackList::RemoveTrack(QObject* new_parent)
 {
   if (track_cache_.isEmpty()) {
     return;
@@ -144,7 +144,11 @@ void TrackList::RemoveTrack()
 
   GetParentGraph()->TakeNode(track);
 
-  delete track;
+  if (!new_parent) {
+    delete track;
+  } else {
+    track->setParent(new_parent);
+  }
 
   track_input_->RemoveLast();
 }
@@ -184,13 +188,14 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
         track_cache_.append(connected_track);
       }
 
-      connected_track->SetIndex(track_index);
+      // Update track indexes in the list (including this track)
+      UpdateTrackIndexesFrom(track_index);
     }
 
     connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
     connect(connected_track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
     connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
+    connect(connected_track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
     connected_track->set_track_type(type_);
 
@@ -220,9 +225,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     track_cache_.removeAt(index_of_track);
 
     // Update indices for all subsequent tracks
-    for (int i=index_of_track; i<track_cache_.size(); i++) {
-      track_cache_.at(i)->SetIndex(i);
-    }
+    UpdateTrackIndexesFrom(index_of_track);
 
     // Traverse through Tracks uncaching and disconnecting them
     emit TrackRemoved(track);
@@ -233,11 +236,18 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     disconnect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
     disconnect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
     disconnect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-    disconnect(track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
+    disconnect(track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
     emit TrackListChanged();
 
     UpdateTotalLength();
+  }
+}
+
+void TrackList::UpdateTrackIndexesFrom(int index)
+{
+  for (int i=index; i<track_cache_.size(); i++) {
+    track_cache_.at(i)->SetIndex(i);
   }
 }
 
@@ -264,4 +274,4 @@ void TrackList::TrackHeightChangedSlot(int height)
   emit TrackHeightChanged(static_cast<TrackOutput*>(sender())->Index(), height);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

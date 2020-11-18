@@ -7,6 +7,10 @@
 #define RATIONAL_H
 #include <iostream>
 
+#ifdef USE_OTIO
+#include <opentime/rationalTime.h>
+#endif
+
 #include <QDebug>
 #include <QMetaType>
 
@@ -16,7 +20,7 @@ extern "C" {
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 typedef int64_t intType;
 /*
@@ -96,6 +100,10 @@ public:
 
   AVRational toAVRational() const;
 
+#ifdef USE_OTIO
+  opentime::RationalTime toRationalTime() const;
+#endif
+
   // Produce "flipped" version
   rational flipped() const;
 
@@ -132,10 +140,10 @@ private:
 
 uint qHash(const rational& r, uint seed);
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational& r);
+QDebug operator<<(QDebug debug, const olive::rational& r);
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::rational)
+Q_DECLARE_METATYPE(olive::rational)
 
 #endif // RATIONAL_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 
 #include "precachetask.h"
 
-OLIVE_NAMESPACE_ENTER
+#include "project/project.h"
+
+namespace olive {
 
 PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   RenderTask(new ViewerOutput(), sequence->video_params(), sequence->audio_params()),
@@ -29,23 +31,18 @@ PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
   viewer()->set_video_params(sequence->video_params());
   viewer()->set_audio_params(sequence->audio_params());
 
-  // Render fastest quality
-  backend()->SetRenderMode(RenderMode::kOffline);
-
-  video_node_ = new VideoInput();
-  video_node_->SetFootage(footage);
+  video_node_ = new MediaInput();
+  video_node_->SetStream(footage);
 
   NodeParam::ConnectEdge(video_node_->output(), viewer()->texture_input());
 
   SetTitle(tr("Pre-caching %1:%2").arg(footage->footage()->filename(),
                                        QString::number(footage->index())));
-
-  backend()->NodeGraphChanged(viewer()->texture_input());
-  backend()->ProcessUpdateQueue();
 }
 
 PreCacheTask::~PreCacheTask()
 {
+  // We created this viewer node ourselves, so now we should delete it
   delete viewer();
   delete video_node_;
 }
@@ -66,23 +63,21 @@ bool PreCacheTask::Run()
   }
   */
 
-  Render(video_range, TimeRangeList(), true);
-
-  download_threads_.waitForDone();
+  Render(footage_->footage()->project()->color_manager(),
+         video_range,
+         TimeRangeList(),
+         RenderMode::kOnline,
+         viewer()->video_frame_cache());
 
   return true;
 }
 
-QFuture<void> PreCacheTask::DownloadFrame(FramePtr frame, const QByteArray &hash)
-{
-  return QtConcurrent::run(&download_threads_, viewer()->video_frame_cache(), &FrameHashCache::SaveCacheFrame, hash, frame);
-}
-
-void PreCacheTask::FrameDownloaded(const QByteArray &hash, const std::list<rational> &times, qint64 job_time)
+void PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times, qint64 job_time)
 {
   // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
   // anything else.
 
+  Q_UNUSED(frame)
   Q_UNUSED(hash)
   Q_UNUSED(times)
   Q_UNUSED(job_time)
@@ -97,4 +92,4 @@ void PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr sampl
   Q_UNUSED(job_time)
 }
 
-OLIVE_NAMESPACE_EXIT
+}

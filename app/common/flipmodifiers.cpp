@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "flipmodifiers.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e) {
   if (e & Qt::ControlModifier & Qt::ShiftModifier) {
@@ -38,4 +38,4 @@ Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e) {
   return e;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

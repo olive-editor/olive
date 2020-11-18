@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 PreferencesBehaviorTab::PreferencesBehaviorTab()
 {
@@ -100,7 +100,14 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           QStringLiteral("AutoscaleByDefault"),
           node_group);
 
+  AddItem(tr("Splitting Clips Copies Dependencies"),
+          QStringLiteral("SplitClipsCopyNodes"),
+          tr("Multiple clips can share the same nodes. Disable this to automatically share node "
+             "dependencies among clips when copying or splitting them."),
+          node_group);
+  
   SetValuesFromConfig(Config::Current());
+
 }
 
 void PreferencesBehaviorTab::Accept()
@@ -177,4 +184,4 @@ QTreeWidgetItem *PreferencesBehaviorTab::AddParent(const QString &text, QTreeWid
   return AddParent(text, QString(), parent);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

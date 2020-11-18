@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "common/timecodefunctions.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
   QWidget(parent),
@@ -85,4 +85,4 @@ void ElapsedCounterWidget::UpdateTimers()
   remaining_lbl_->setText(tr("Remaining: %1").arg(Timecode::TimeToString(remaining_ms)));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

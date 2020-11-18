@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "diptocolortransition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 DipToColorTransition::DipToColorTransition()
 {
@@ -43,7 +43,7 @@ QString DipToColorTransition::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.diptocolor");
 }
 
-QList<Node::CategoryID> DipToColorTransition::Category() const
+QVector<Node::CategoryID> DipToColorTransition::Category() const
 {
   return {kCategoryTransition};
 }
@@ -57,7 +57,7 @@ ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(Node::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
 }
 
 void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
@@ -65,4 +65,4 @@ void DipToColorTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &j
   job.InsertValue(color_input_, value);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

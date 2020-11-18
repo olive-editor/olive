@@ -4,7 +4,7 @@
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class MainWindowLayoutInfo
 {
@@ -50,8 +50,8 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::MainWindowLayoutInfo)
+Q_DECLARE_METATYPE(olive::MainWindowLayoutInfo)
 
 #endif // MAINWINDOWLAYOUTINFO_H

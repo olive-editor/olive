@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,16 @@
 #define EDGE_H
 
 #include <memory>
+#include <QString>
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-class NodeOutput;
+class Node;
 class NodeInput;
+class NodeOutput;
+class NodeParam;
 
 /**
  * @brief A connection between two node parameters (a NodeOutput and a NodeInput)
@@ -44,23 +47,41 @@ public:
    */
   NodeEdge(NodeOutput* output, NodeInput* input);
 
+  Node* output_node() const
+  {
+    return output_.node;
+  }
+
+  Node* input_node() const
+  {
+    return input_.node;
+  }
+
   /**
    * @brief Return the output parameter this edge is connected to
    */
-  NodeOutput* output();
+  NodeOutput* output() const;
 
   /**
    * @brief Return the input parameter this edge is connected to
    */
-  NodeInput* input();
+  NodeInput* input() const;
 
 private:
-  NodeOutput* output_;
-  NodeInput* input_;
+  struct Connection {
+    Node* node;
+    QString id;
+  };
+
+  static Connection ParamToConnection(NodeParam* param);
+
+  Connection output_;
+  Connection input_;
+
 };
 
 using NodeEdgePtr = std::shared_ptr<NodeEdge>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EDGE_H

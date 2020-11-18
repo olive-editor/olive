@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start, QWidget *parent) :
   QDialog(parent),
@@ -48,7 +48,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   wheel_layout->addWidget(color_wheel_);
 
   hsv_value_gradient_ = new ColorGradientWidget(Qt::Vertical);
-  hsv_value_gradient_->setFixedWidth(QFontMetricsWidth(fontMetrics(), QStringLiteral("HHH")));
+  hsv_value_gradient_->setFixedWidth(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("HHH")));
   wheel_layout->addWidget(hsv_value_gradient_);
 
   QWidget* value_area = new QWidget();
@@ -160,4 +160,4 @@ void ColorDialog::ColorSpaceChanged(const QString &input, const ColorTransform &
   color_values_widget_->SetColorProcessor(input_to_ref_processor_, ref_to_display, nullptr, ref_to_input);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

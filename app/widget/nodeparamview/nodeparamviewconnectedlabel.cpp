@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,14 +28,14 @@
 #include "widget/menu/menu.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidget *parent) :
   QWidget(parent),
   input_(input)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setSpacing(QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
+  layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
   layout->setMargin(0);
 
   layout->addWidget(new QLabel(tr("Connected to")));
@@ -86,4 +86,4 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
   m.exec(QCursor::pos());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

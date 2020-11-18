@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "project/item/folder/folder.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A project instance containing all the data pertaining to the user's project
@@ -47,7 +47,7 @@ class Project : public QObject
 public:
   Project();
 
-  void Load(QXmlStreamReader* reader, MainWindowLayoutInfo *layout, const QAtomicInt* cancelled);
+  void Load(QXmlStreamReader* reader, MainWindowLayoutInfo *layout, uint version, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter* writer) const;
 
@@ -96,10 +96,15 @@ private:
 
   QString cache_path_;
 
+private slots:
+  void ColorConfigChanged();
+
+  void DefaultColorSpaceChanged();
+
 };
 
 using ProjectPtr = std::shared_ptr<Project>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECT_H

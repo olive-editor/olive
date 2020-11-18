@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "node/node.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
@@ -43,7 +43,7 @@ public:
 
   virtual Type type() const = 0;
 
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
 
   const rational& in() const;
   const rational& out() const;
@@ -54,6 +54,8 @@ public:
   void set_length_and_media_out(const rational &length);
   void set_length_and_media_in(const rational &length);
 
+  TimeRange range() const;
+
   Block* previous();
   Block* next();
   void set_previous(Block* previous);
@@ -61,13 +63,6 @@ public:
 
   rational media_in() const;
   void set_media_in(const rational& media_in);
-
-  rational media_out() const;
-
-  rational speed() const;
-  void set_speed(const rational& speed);
-  bool is_still() const;
-  bool is_reversed() const;
 
   bool is_enabled() const;
   void set_enabled(bool e);
@@ -115,7 +110,7 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
-  virtual QList<NodeInput*> GetInputsToHash() const override;
+  virtual QVector<NodeInput*> GetInputsToHash() const override;
 
   virtual void LengthChangedEvent(const rational& old_length,
                                   const rational& new_length,
@@ -142,6 +137,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // BLOCK_H

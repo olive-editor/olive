@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@
 
 #include "common/rational.h"
 #include "common/timerange.h"
-#include "render/pixelformat.h"
+#include "codec/frame.h"
 #include "render/playbackcache.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FrameHashCache : public PlaybackCache
 {
@@ -59,12 +59,14 @@ public:
    * @brief Return the path of the cached image at this time
    */
   QString CachePathName(const QByteArray &hash) const;
+  static QString CachePathName(const QString& cache_path, const QByteArray &hash);
 
   bool SaveCacheFrame(const QString& filename, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, char *data, const VideoParams &vparam, int linesize_bytes) const;
   bool SaveCacheFrame(const QByteArray& hash, FramePtr frame) const;
+  static FramePtr LoadCacheFrame(const QString& cache_path, const QByteArray& hash);
   FramePtr LoadCacheFrame(const QByteArray& hash) const;
-  FramePtr LoadCacheFrame(const QString& fn) const;
+  static FramePtr LoadCacheFrame(const QString& fn);
 
   static QString GetFormatExtension();
 
@@ -74,12 +76,14 @@ public:
   QVector<rational> GetInvalidatedFrames(const TimeRange& intersecting);
 
 public slots:
-  void SetHash(const OLIVE_NAMESPACE::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
+  void SetHash(const olive::rational& time, const QByteArray& hash, const qint64 &job_time, bool frame_exists);
 
 protected:
   virtual void LengthChangedEvent(const rational& old, const rational& newlen) override;
 
   virtual void ShiftEvent(const rational& from, const rational& to) override;
+
+  virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
   QMap<rational, QByteArray> time_hash_map_;
@@ -93,6 +97,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEORENDERFRAMECACHE_H

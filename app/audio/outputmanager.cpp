@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,12 +25,13 @@
 
 #include <QFile>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
-  push_device_(nullptr)
+  push_device_(nullptr),
+  device_proxy_(this)
 {
 }
 
@@ -82,12 +83,12 @@ void AudioOutputManager::Close()
       device_proxy_.close();
     }
 
-    output_->deleteLater();
+    delete output_;
     output_ = nullptr;
   }
 }
 
-void AudioOutputManager::PullFromDevice(const QString &filename, qint64 offset, int playback_speed)
+void AudioOutputManager::PullFromDevice(QIODevice *device, qint64 offset, int playback_speed)
 {
   if (!output_) {
     return;
@@ -99,7 +100,7 @@ void AudioOutputManager::PullFromDevice(const QString &filename, qint64 offset, 
   push_samples_.clear();
 
   // Pull from the device
-  device_proxy_.SetDevice(filename, offset, playback_speed);
+  device_proxy_.SetDevice(device, offset, playback_speed);
   device_proxy_.open(QIODevice::ReadOnly);
   output_->start(&device_proxy_);
 }
@@ -150,4 +151,4 @@ void AudioOutputManager::OutputStateChanged(QAudio::State state)
   qDebug() << state << output_->error();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

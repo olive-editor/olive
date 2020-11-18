@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include "config/config.h"
 #include "core.h"
-#include "codec/decoder.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
   command_(nullptr),
@@ -65,12 +65,14 @@ bool ProjectImportTask::Run()
   }
 }
 
-void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int &counter, QUndoCommand* parent_command)
+void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counter, QUndoCommand* parent_command)
 {
-  foreach (const QFileInfo& file_info, import) {
+  for (int i=0; i<import.size(); i++) {
     if (IsCancelled()) {
       break;
     }
+
+    const QFileInfo& file_info = import.at(i);
 
     // Check if this file is a directory
     if (file_info.isDir()) {
@@ -80,10 +82,11 @@ void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int 
 
       // Strip out "." and ".." (for some reason QDir::NoDotAndDotDot	doesn't work with entryInfoList, so we have to
       // check manually)
-      for (int i=0;i<entry_list.size();i++) {
-        if (entry_list.at(i).fileName() == "." || entry_list.at(i).fileName() == "..") {
-          entry_list.removeAt(i);
-          i--;
+      for (int j=0;j<entry_list.size();j++) {
+        if (entry_list.at(j).fileName() == QStringLiteral(".")
+            || entry_list.at(j).fileName() == QStringLiteral("..")) {
+          entry_list.removeAt(j);
+          j--;
         }
       }
 
@@ -107,35 +110,178 @@ void ProjectImportTask::Import(Folder *folder, const QFileInfoList &import, int 
 
     } else {
 
-      FootagePtr f = std::make_shared<Footage>();
+      FootagePtr item = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
+                                       &IsCancelled());
 
-      f->set_filename(file_info.absoluteFilePath());
-      f->set_name(file_info.fileName());
-      f->set_timestamp(file_info.lastModified());
+      if (item) {
+        // See if this footage is an image sequence
+        ValidateImageSequence(item, import, i);
 
-      // Probe will fail if a project isn't set because ImageStream and its derivatives try to connect to the project's
-      // ColorManager instance
-      // FIXME: Perhaps re-think this approach at some point
-      f->set_project(model_->project());
-
-      Decoder::ProbeMedia(f.get(), &IsCancelled());
-
-      f->set_project(nullptr);
-
-      if (f->status() != Footage::kInvalid) {
         // Create undoable command that adds the items to the model
         new ProjectViewModel::AddItemCommand(model_,
                                              folder,
-                                             f,
+                                             item,
                                              parent_command);
+      } else {
+        // Add to list so we can tell the user about it later
+        invalid_files_.append(file_info.absoluteFilePath());
       }
 
       counter++;
 
-      emit ProgressChanged((counter * 100) / file_count_);
+      emit ProgressChanged(static_cast<double>(counter) / static_cast<double>(file_count_));
 
     }
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_list, int index)
+{
+  // Heuristically determine whether this file is part of an image sequence or not
+  if (!ItemIsStillImageFootageOnly(item)) {
+    return;
+  }
+
+  FootagePtr footage = std::static_pointer_cast<Footage>(item);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+
+  // By this point we've established that video contains a single still image stream. Now we'll
+  // see if it ends with numbers.
+  if (Decoder::GetImageSequenceDigitCount(footage->filename()) > 0
+      && !image_sequence_ignore_files_.contains(footage->filename())) {
+    QSize dim(video_stream->width(), video_stream->height());
+
+    int64_t ind = Decoder::GetImageSequenceIndex(footage->filename());
+
+    // Check if files around exist around it with that follow a sequence
+    QString previous_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind - 1);
+    QString next_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind + 1);
+
+    // See if the same decoder can retrieve surrounding files
+    DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
+    ItemPtr previous_file = decoder->Probe(previous_img_fn, nullptr);
+    ItemPtr next_file = decoder->Probe(next_img_fn, nullptr);
+
+    // Finally see if these files have the same dimensions
+    if ((previous_file && CompareStillImageSize(previous_file, dim))
+        || (next_file && CompareStillImageSize(next_file, dim))) {
+      // By this point, we've established this file is a still image with a number at the end of
+      // the filename surrounded by adjacent numbers. It could be a still image! But let's ask the
+      // user just in case...
+      bool is_sequence;
+
+      QMetaObject::invokeMethod(Core::instance(),
+                                "ConfirmImageSequence",
+                                Qt::BlockingQueuedConnection,
+                                Q_RETURN_ARG(bool, is_sequence),
+                                Q_ARG(QString, footage->filename()));
+
+      int64_t seq_index = Decoder::GetImageSequenceIndex(footage->filename());
+
+      // Heuristic to find the first and last images (users can always override this later in
+      // FootagePropertiesDialog)
+      int64_t start_index = GetImageSequenceLimit(footage->filename(), seq_index, false);
+      int64_t end_index = GetImageSequenceLimit(footage->filename(), seq_index, true);
+
+      // Depending on the user's choice, either remove them from the list or don't ask for the
+      // remainders
+      for (int64_t j=start_index; j<=end_index; j++) {
+        QString entry_fn = Decoder::TransformImageSequenceFileName(footage->filename(), j);
+
+        if (is_sequence) {
+          // If this is part of the sequence we're importing here, remove it
+          for (int i=index+1; i<info_list.size(); i++) {
+            if (info_list.at(i).absoluteFilePath() == entry_fn) {
+              if (is_sequence) {
+                info_list.removeAt(i);
+              }
+              break;
+            }
+          }
+        } else {
+          image_sequence_ignore_files_.append(entry_fn);
+        }
+      }
+
+      if (is_sequence) {
+        // User has confirmed it is a still image, let's set it accordingly.
+        video_stream->set_video_type(VideoStream::kVideoTypeImageSequence);
+
+        rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
+        video_stream->set_timebase(default_timebase);
+        video_stream->set_frame_rate(default_timebase.flipped());
+
+        video_stream->set_start_time(start_index);
+        video_stream->set_duration(end_index - start_index + 1);
+      }
+    }
+  }
+}
+
+bool ProjectImportTask::ItemIsStillImageFootageOnly(ItemPtr item)
+{
+  if (item->type() != Item::kFootage) {
+    // Item isn't footage, definitely isn't an image sequence
+    return false;
+  }
+
+  FootagePtr footage = std::static_pointer_cast<Footage>(item);
+
+  if (footage->stream_count() != 1) {
+    // Footage with more than one stream (usually video+audio) most likely isn't an image sequence
+    return false;
+  }
+
+  if (footage->streams().first()->type() != Stream::kVideo) {
+    // Footage with no video stream definitely isn't an image sequence
+    return false;
+  }
+
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+
+  if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+    // If video type is not a still, this definitely isn't a video stream
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectImportTask::CompareStillImageSize(ItemPtr item, const QSize &sz)
+{
+  if (!ItemIsStillImageFootageOnly(item)) {
+    return false;
+  }
+
+  FootagePtr footage = std::static_pointer_cast<Footage>(item);
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+
+  return video_stream->width() == sz.width() && video_stream->height() == sz.height();
+}
+
+int64_t ProjectImportTask::GetImageSequenceLimit(const QString& start_fn, int64_t start, bool up)
+{
+  QString test_filename;
+  int test_index;
+
+  forever {
+    if (up) {
+      test_index = start + 1;
+    } else {
+      test_index = start - 1;
+    }
+
+    test_filename = Decoder::TransformImageSequenceFileName(start_fn, test_index);
+
+    if (!QFileInfo::exists(test_filename)) {
+      // Reached end of index
+      break;
+    }
+
+    start = test_index;
+  }
+
+  return start;
+}
+
+}

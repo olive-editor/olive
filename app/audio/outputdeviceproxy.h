@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "common/define.h"
 #include "tempoprocessor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief QIODevice wrapper that can adjust speed/reverse an audio file
@@ -35,13 +35,11 @@ class AudioOutputDeviceProxy : public QIODevice
 {
   Q_OBJECT
 public:
-  AudioOutputDeviceProxy() = default;
-
-  virtual ~AudioOutputDeviceProxy() override;
+  AudioOutputDeviceProxy(QObject* parent = nullptr);
 
   void SetParameters(const AudioParams& params);
 
-  void SetDevice(const QString &filename, qint64 offset, int playback_speed);
+  void SetDevice(QIODevice *device, qint64 offset, int playback_speed);
 
   virtual void close() override;
 
@@ -53,7 +51,7 @@ protected:
 private:
   qint64 ReverseAwareRead(char* data, qint64 maxlen);
 
-  QFile file_;
+  QIODevice* device_;
 
   TempoProcessor tempo_processor_;
 
@@ -63,6 +61,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // AUDIOOUTPUTDEVICEPROXY_H

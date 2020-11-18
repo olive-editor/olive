@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@
 #include "timelineviewblockitem.h"
 #include "timelineviewrect.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 /**
  * @brief A graphical representation of changes the user is making before they apply it
  */
-class TimelineViewGhostItem : public TimelineViewRect
+class TimelineViewGhostItem
 {
 public:
   enum DataType {
@@ -44,23 +44,21 @@ public:
     kTrimShouldBeIgnored
   };
 
-  TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
+  TimelineViewGhostItem();
 
-  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track, int y, int height);
+  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track);
 
   bool CanHaveZeroLength() const;
 
-  bool CanMoveTracks() const;
+  bool GetCanMoveTracks() const;
   void SetCanMoveTracks(bool e);
 
-  void SetInvisible(bool invisible);
+  const rational& GetIn() const;
+  const rational& GetOut() const;
+  const rational& GetMediaIn() const;
 
-  const rational& In() const;
-  const rational& Out() const;
-  const rational& MediaIn() const;
-
-  rational Length() const;
-  rational AdjustedLength() const;
+  rational GetLength() const;
+  rational GetAdjustedLength() const;
 
   void SetIn(const rational& in);
   void SetOut(const rational& out);
@@ -71,22 +69,50 @@ public:
   void SetTrackAdjustment(const int& track_adj);
   void SetMediaInAdjustment(const rational& media_in_adj);
 
-  const rational& InAdjustment() const;
-  const rational& OutAdjustment() const;
-  const rational& MediaInAdjustment() const;
-  const int& TrackAdjustment() const;
+  const rational& GetInAdjustment() const;
+  const rational& GetOutAdjustment() const;
+  const rational& GetMediaInAdjustment() const;
+  const int& GetTrackAdjustment() const;
 
   rational GetAdjustedIn() const;
   rational GetAdjustedOut() const;
   rational GetAdjustedMediaIn() const;
   TrackReference GetAdjustedTrack() const;
 
-  const Timeline::MovementMode& mode() const;
-  void SetMode(const Timeline::MovementMode& mode);
+  const Timeline::MovementMode& GetMode() const;
+  void SetMode(const Timeline::MovementMode& GetMode);
 
   bool HasBeenAdjusted() const;
 
-  virtual void UpdateRect() override;
+  QVariant GetData(int key) const
+  {
+    return data_.value(key);
+  }
+
+  void SetData(int key, const QVariant& value)
+  {
+    data_.insert(key, value);
+  }
+
+  const TrackReference& GetTrack() const
+  {
+    return track_;
+  }
+
+  void SetTrack(const TrackReference& track)
+  {
+    track_ = track;
+  }
+
+  bool IsInvisible() const
+  {
+    return invisible_;
+  }
+
+  void SetInvisible(bool e)
+  {
+    invisible_ = e;
+  }
 
 protected:
 
@@ -107,8 +133,15 @@ private:
 
   bool can_have_zero_length_;
   bool can_move_tracks_;
+
+  TrackReference track_;
+
+  QHash<int, QVariant> data_;
+
+  bool invisible_;
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEVIEWGHOSTITEM_H

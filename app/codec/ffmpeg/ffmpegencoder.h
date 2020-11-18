@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ extern "C" {
 
 #include "codec/encoder.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class FFmpegEncoder : public Encoder
 {
@@ -40,12 +40,17 @@ public:
 
   virtual bool Open() override;
 
-  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) override;
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
-                          const QString& pcm_filename) override;
+  virtual void WriteAudio(olive::AudioParams pcm_info,
+                          QIODevice *file) override;
 
   virtual void Close() override;
+
+  virtual VideoParams::Format GetDesiredPixelFormat() const override
+  {
+    return video_conversion_fmt_;
+  }
 
 private:
   /**
@@ -80,8 +85,9 @@ private:
 
   AVStream* video_stream_;
   AVCodecContext* video_codec_ctx_;
-  SwsContext* video_scale_ctx_;
-  PixelFormat::Format video_conversion_fmt_;
+  SwsContext* video_alpha_scale_ctx_;
+  SwsContext* video_noalpha_scale_ctx_;
+  VideoParams::Format video_conversion_fmt_;
 
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;
@@ -91,6 +97,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FFMPEGENCODER_H

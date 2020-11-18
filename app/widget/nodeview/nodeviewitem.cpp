@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -133,12 +133,7 @@ int NodeViewItem::DefaultItemHeight()
 
 int NodeViewItem::DefaultItemWidth()
 {
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHH");;
-}
-
-int NodeViewItem::DefaultMaximumTextWidth()
-{
-  return QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHH");;
+  return QtUtils::QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHH");;
 }
 
 int NodeViewItem::DefaultItemBorder()
@@ -266,8 +261,25 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Color node_color = Config::Current()[QStringLiteral("NodeCatColor%1")
         .arg(node_->Category().first())].value<Color>();
 
+    QLinearGradient grad;
+
+    grad.setStart(0, rect().top());
+    grad.setFinalStop(0, rect().bottom());
+
+    QColor node_color_as_qcolor = node_color.toQColor();
+
+    {
+      // Generate lighter color for gradient
+      qreal hue, sat, lightness;
+      node_color_as_qcolor.getHslF(&hue, &sat, &lightness);
+      lightness = qMin(1.0, lightness + 0.2);
+      grad.setColorAt(0.0, QColor::fromHslF(hue, sat, lightness));
+    }
+
+    grad.setColorAt(1.0, node_color_as_qcolor);
+
     painter->setPen(Qt::black);
-    painter->setBrush(node_color.toQColor());
+    painter->setBrush(grad);
 
     painter->drawRect(title_bar_rect_);
 
@@ -275,41 +287,70 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     QString node_label;
 
-    if (node_->GetLabel().isEmpty()) {
-      node_label = node_->ShortName();
-    } else {
+    if (!node_->GetLabel().isEmpty()) {
+      // Use label directly if node has one
       node_label = node_->GetLabel();
+    } else if (node_->IsTrack()) {
+      // If node is a track, use a special track name to help users identify better
+      // Exception for tracks
+      TrackOutput* track = static_cast<TrackOutput*>(node_);
+      node_label = TrackOutput::GetDefaultTrackName(track->track_type(), track->Index());
+    } else {
+      // Otherwise, just use the node's short name
+      node_label = node_->ShortName();
     }
 
-    {
-      QFont f;
-      QFontMetrics fm(f);
+    QFont f;
+    QFontMetrics fm(f);
 
-      int max_text_width = DefaultMaximumTextWidth();
+    // Draw right or down arrow based on expanded state
+    int icon_size = fm.height() / 2;
+    int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
+    int icon_full_size = icon_size + icon_padding * 2;
+    const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+    expand_icon.paint(painter, QRect(title_bar_rect_.x() + icon_padding,
+                                     title_bar_rect_.y() + icon_padding,
+                                     icon_size,
+                                     icon_size));
 
-      if (QFontMetricsWidth(fm, node_label) > max_text_width) {
-        QString concatenated;
+    // Calculate how much space we have for text
+    int item_width = title_bar_rect_.width();
+    int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
+    int label_width = QtUtils::QFontMetricsWidth(fm, node_label);
 
-        do {
-          node_label.chop(1);
-          concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
-        } while (QFontMetricsWidth(fm, concatenated) > max_text_width);
+    // Concatenate text if necessary (adds a "..." to the end and removes characters until the
+    // string fits in the bounds)
+    if (label_width > max_text_width) {
+      QString concatenated;
 
-        node_label = concatenated;
-      }
+      do {
+        node_label.chop(1);
+        concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(node_label);
+      } while ((label_width = QtUtils::QFontMetricsWidth(fm, concatenated)) > max_text_width);
+
+      node_label = concatenated;
     }
 
-    if (node_color.GetRoughLuminance() > 0.66) {
+    // Determine the text color (automatically calculate from node background color)
+    if (node_color.GetRoughLuminance() > 0.5) {
       painter->setPen(Qt::black);
     } else {
       painter->setPen(Qt::white);
     }
 
-    // Draw the text in a rect (the rect is sized around text already in the constructor)
-    painter->drawText(title_bar_rect_,
-                      Qt::AlignCenter,
-                      node_label);
+    // Determine X position (favors horizontal centering unless it'll overrun the arrow)
+    QRectF text_rect = title_bar_rect_;
+    Qt::Alignment text_align = Qt::AlignCenter;
+    int likely_x = item_width / 2 - label_width / 2;
+    if (likely_x < icon_full_size) {
+      text_rect.adjust(icon_full_size, 0, 0, 0);
+      text_align = Qt::AlignLeft | Qt::AlignVCenter;
+    }
 
+    // Draw the text in a rect (the rect is sized around text already in the constructor)
+    painter->drawText(text_rect,
+                      text_align,
+                      node_label);
   }
 
   // Draw final border
@@ -658,4 +699,4 @@ QPointF NodeViewItem::GetInputPoint(int index, const QPointF& source_pos) const
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

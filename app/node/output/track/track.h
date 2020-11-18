@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "node/block/block.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -36,6 +36,8 @@ class TrackOutput : public Node
 public:
   TrackOutput();
 
+  virtual ~TrackOutput() override;
+
   const Timeline::TrackType& track_type() const;
   void set_track_type(const Timeline::TrackType& track_type);
 
@@ -43,13 +45,41 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  QString GetTrackName();
+  const double& GetTrackHeight() const;
+  void SetTrackHeight(const double& height);
 
-  const int& GetTrackHeight() const;
-  void SetTrackHeight(const int& height);
+  int GetTrackHeightInPixels() const
+  {
+    return InternalHeightToPixelHeight(GetTrackHeight());
+  }
+
+  void SetTrackHeightInPixels(int h)
+  {
+    SetTrackHeight(PixelHeightToInternalHeight(h));
+  }
+
+  static int InternalHeightToPixelHeight(double h)
+  {
+    return qRound(h * QFontMetrics(QFont()).height());
+  }
+
+  static double PixelHeightToInternalHeight(int h)
+  {
+    return double(h) / double(QFontMetrics(QFont()).height());
+  }
+
+  static int GetDefaultTrackHeightInPixels()
+  {
+    return InternalHeightToPixelHeight(kTrackHeightDefault);
+  }
+
+  static int GetMinimumTrackHeightInPixels()
+  {
+    return InternalHeightToPixelHeight(kTrackHeightMinimum);
+  }
 
   virtual void Retranslate() override;
 
@@ -172,12 +202,6 @@ public:
 
   virtual bool IsTrack() const override;
 
-  static int GetTrackHeightIncrement();
-
-  static int GetDefaultTrackHeight();
-
-  static int GetTrackHeightMinimum();
-
   static QString GetDefaultTrackName(Timeline::TrackType type, int index);
 
   bool IsMuted() const;
@@ -193,14 +217,11 @@ public:
     return waveform_;
   }
 
-  QMutex* waveform_lock()
-  {
-    return &waveform_lock_;
-  }
+  static const double kTrackHeightDefault;
+  static const double kTrackHeightMinimum;
+  static const double kTrackHeightInterval;
 
 public slots:
-  void SetTrackName(const QString& name);
-
   void SetMuted(bool e);
 
   void SetLocked(bool e);
@@ -224,7 +245,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChanged(int height);
+  void TrackHeightChangedInPixels(int pixel_height);
 
   /**
    * @brief Signal emitted when the muted setting changes
@@ -264,16 +285,13 @@ private:
 
   rational track_length_;
 
-  int track_height_;
-
-  QString track_name_;
+  double track_height_;
 
   int index_;
 
   bool locked_;
 
   AudioVisualWaveform waveform_;
-  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);
@@ -286,6 +304,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKOUTPUT_H

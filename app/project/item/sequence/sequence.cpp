@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "sequence.h"
 
 #include <QCoreApplication>
+#include <QThread>
 
 #include "config/config.h"
 #include "common/channellayout.h"
@@ -35,7 +36,7 @@
 #include "panel/sequenceviewer/sequenceviewer.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Sequence::Sequence()
 {
@@ -44,17 +45,19 @@ Sequence::Sequence()
   AddNode(viewer_output_);
 }
 
-void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
+void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  {
+    XMLAttributeLoop(reader, attr) {
+      if (cancelled && *cancelled) {
+        return;
+      }
 
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("ptr")) {
-      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+      if (attr.name() == QStringLiteral("name")) {
+        set_name(attr.value().toString());
+      } else if (attr.name() == QStringLiteral("ptr")) {
+        xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+      }
     }
   }
 
@@ -67,7 +70,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       int video_width = 0, video_height = 0, preview_div = 1;
       rational video_timebase, video_pixel_aspect;
       VideoParams::Interlacing video_interlacing = VideoParams::kInterlaceNone;
-      PixelFormat::Format preview_format = PixelFormat::PIX_FMT_INVALID;
+      VideoParams::Format preview_format = VideoParams::kFormatInvalid;
 
       while (XMLReadNextStartElement(reader)) {
         if (cancelled && *cancelled) {
@@ -83,7 +86,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
         } else if (reader->name() == QStringLiteral("divider")) {
           preview_div = reader->readElementText().toInt();
         } else if (reader->name() == QStringLiteral("format")) {
-          preview_format = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
+          preview_format = static_cast<VideoParams::Format>(reader->readElementText().toInt());
         } else if (reader->name() == QStringLiteral("pixelaspect")) {
           video_pixel_aspect = rational::fromString(reader->readElementText());
         } else if (reader->name() == QStringLiteral("interlacing")) {
@@ -94,11 +97,12 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       }
 
       set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format,
-                                   video_pixel_aspect, video_interlacing, preview_div));
+                                   VideoParams::kInternalChannelCount, video_pixel_aspect,
+                                   video_interlacing, preview_div));
     } else if (reader->name() == QStringLiteral("audio")) {
       int rate = 0;
       uint64_t layout = 0;
-      SampleFormat::Format format = SampleFormat::SAMPLE_FMT_INVALID;
+      AudioParams::Format format = AudioParams::kFormatInvalid;
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("rate")) {
@@ -106,7 +110,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
         } else if (reader->name() == QStringLiteral("layout")) {
           layout = reader->readElementText().toULongLong();
         } else if (reader->name() == QStringLiteral("format")) {
-          format = static_cast<SampleFormat::Format>(reader->readElementText().toInt());
+          format = static_cast<AudioParams::Format>(reader->readElementText().toInt());
         } else {
           reader->skipCurrentElement();
         }
@@ -121,7 +125,25 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       Node* node;
 
       if (reader->name() == QStringLiteral("node")) {
-        node = XMLLoadNode(reader);
+        node = nullptr;
+
+        {
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              QString id = attr.value().toString();
+              if (version <= 201003) {
+                // After version 201003, the video and audio nodes were merged into one media node
+                if (id == QStringLiteral("org.olivevideoeditor.Olive.audioinput")
+                    || id == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
+                  id = QStringLiteral("org.olivevideoeditor.Olive.mediainput");
+                }
+              }
+
+              node = NodeFactory::CreateFromID(id);
+              break;
+            }
+          }
+        }
       } else {
         node = viewer_output_;
       }
@@ -143,16 +165,14 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
   XMLLinkBlocks(xml_node_data);
 
   // Ensure this and all children are in the main thread
-  // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)
-  if (thread() != qApp->thread()) {
+  // NOTE: It might be good to move the Item system to QObjects so they inherit their thread
+  if (QThread::currentThread() != qApp->thread()) {
     moveToThread(qApp->thread());
   }
 }
 
 void Sequence::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("sequence"));
-
   writer->writeAttribute(QStringLiteral("name"), name());
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
@@ -178,17 +198,23 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // audio
 
   // Write TimelinePoints
-  TimelinePoints::Save(writer);
+  writer->writeStartElement(QStringLiteral("points"));
+    TimelinePoints::Save(writer);
+  writer->writeEndElement(); // points
 
   foreach (Node* node, nodes()) {
     if (node != viewer_output_) {
+      writer->writeStartElement(QStringLiteral("node"));
+      writer->writeAttribute(QStringLiteral("id"), node->id());
       node->Save(writer);
+      writer->writeEndElement(); // node;
     }
   }
 
-  viewer_output_->Save(writer, QStringLiteral("viewer"));
-
-  writer->writeEndElement(); // sequence
+  writer->writeStartElement(QStringLiteral("viewer"));
+  writer->writeAttribute(QStringLiteral("id"), viewer_output_->id());
+  viewer_output_->Save(writer);
+  writer->writeEndElement(); // viewer;
 }
 
 void Sequence::add_default_nodes()
@@ -252,13 +278,14 @@ void Sequence::set_default_parameters()
   set_video_params(VideoParams(width,
                                height,
                                Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                               static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                               static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                               VideoParams::kInternalChannelCount,
                                Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
                                Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
                                VideoParams::generate_auto_divider(width, height)));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
                    Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
-                   SampleFormat::kInternalFormat));
+                   AudioParams::kInternalFormat));
 }
 
 void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
@@ -268,43 +295,44 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
 
   foreach (Footage* f, footage) {
     foreach (StreamPtr s, f->streams()) {
+      if (!s->enabled()) {
+        continue;
+      }
+
       switch (s->type()) {
       case Stream::kVideo:
       {
         VideoStream* vs = static_cast<VideoStream*>(s.get());
 
         // If this is a video stream, use these parameters
-        if (!found_video_params && !vs->frame_rate().isNull()) {
+        if (!found_video_params) {
+          rational using_timebase;
+
+          if (vs->video_type() == VideoStream::kVideoTypeStill) {
+            // If this is a still image, we'll use it's resolution but won't set
+            // `found_video_params` in case something with a frame rate comes along which we'll
+            // prioritize
+            using_timebase = video_params().time_base();
+          } else {
+            using_timebase = vs->frame_rate().flipped();
+            found_video_params = true;
+          }
+
           set_video_params(VideoParams(vs->width(),
                                        vs->height(),
-                                       vs->frame_rate().flipped(),
-                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
+                                       using_timebase,
+                                       static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                       VideoParams::kInternalChannelCount,
                                        vs->pixel_aspect_ratio(),
                                        vs->interlacing(),
                                        VideoParams::generate_auto_divider(vs->width(), vs->height())));
-          found_video_params = true;
         }
         break;
       }
-      case Stream::kImage:
-        if (!found_video_params) {
-          // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
-          // something with a frame rate comes along which we'll prioritize
-          ImageStream* is = static_cast<ImageStream*>(s.get());
-
-          set_video_params(VideoParams(is->width(),
-                                       is->height(),
-                                       video_params().time_base(),
-                                       static_cast<PixelFormat::Format>(Config::Current()["DefaultSequencePreviewFormat"].toInt()),
-                                       is->pixel_aspect_ratio(),
-                                       is->interlacing(),
-                                       VideoParams::generate_auto_divider(is->width(), is->height())));
-        }
-        break;
       case Stream::kAudio:
         if (!found_audio_params) {
           AudioStream* as = static_cast<AudioStream*>(s.get());
-          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), SampleFormat::kInternalFormat));
+          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), AudioParams::kInternalFormat));
           found_audio_params = true;
         }
         break;
@@ -333,4 +361,4 @@ void Sequence::NameChangedEvent(const QString &name)
   viewer_output_->set_media_name(name);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

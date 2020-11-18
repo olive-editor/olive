@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "project/item/footage/stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Block;
 class Node;
@@ -38,8 +38,6 @@ class Item;
 #define XMLAttributeLoop(reader, item) \
   QXmlStreamAttributes __attributes = reader->attributes(); \
   foreach (const QXmlStreamAttribute& item, __attributes)
-
-Node *XMLLoadNode(QXmlStreamReader* reader);
 
 struct XMLNodeData {
   struct SerializedConnection {
@@ -57,15 +55,13 @@ struct XMLNodeData {
     quintptr link;
   };
 
+  QHash<quintptr, Node*> node_ptrs;
   QHash<quintptr, NodeOutput*> output_ptrs;
   QList<SerializedConnection> desired_connections;
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
   QHash<quintptr, Item*> item_ptrs;
-
-  QString real_project_url;
-  QString saved_project_url;
 
 };
 
@@ -75,6 +71,6 @@ bool XMLReadNextStartElement(QXmlStreamReader* reader);
 
 void XMLLinkBlocks(const XMLNodeData& xml_node_data);
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // XMLREADLOOP_H

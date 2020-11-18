@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,14 +25,18 @@
 #include "node/output/viewer/viewer.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
+#include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void PlaybackCache::Invalidate(const TimeRange &r)
 {
-  Q_ASSERT(r.in() != r.out());
+  if (r.in() == r.out()) {
+    qWarning() << "Tried to invalidate zero-length range";
+    return;
+  }
 
-  invalidated_.InsertTimeRange(r);
+  invalidated_.insert(r);
 
   RemoveRangeFromJobs(r);
   qint64 job_time = QDateTime::currentMSecsSinceEpoch();
@@ -68,11 +72,11 @@ void PlaybackCache::SetLength(const rational &r)
     jobs_.clear();
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
-    invalidated_.InsertTimeRange(range_diff);
+    invalidated_.insert(range_diff);
     jobs_.append({range_diff, QDateTime::currentMSecsSinceEpoch()});
   } else {
     // If new length is smaller, removed hashes
-    invalidated_.RemoveTimeRange(range_diff);
+    invalidated_.remove(range_diff);
     RemoveRangeFromJobs(range_diff);
   }
 
@@ -122,7 +126,7 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
 
 void PlaybackCache::Validate(const TimeRange &r)
 {
-  invalidated_.RemoveTimeRange(r);
+  invalidated_.remove(r);
 
   emit Validated(r);
 }
@@ -187,8 +191,8 @@ QString PlaybackCache::GetCacheDirectory() const
   if (project) {
     return project->cache_path();
   } else {
-    return QString();
+    return DiskManager::instance()->GetDefaultCachePath();
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

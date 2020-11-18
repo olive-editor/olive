@@ -3,7 +3,7 @@
 
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SnapService
 {
@@ -26,6 +26,6 @@ public:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SNAPSERVICE_H

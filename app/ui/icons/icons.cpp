@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /// Works in conjunction with `genicons.sh` to generate and utilize icons of specific sizes
 const int ICON_SIZE_COUNT = 4;
@@ -140,4 +140,4 @@ QIcon icon::Create(const QString& theme, const QString &name)
   return icon;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

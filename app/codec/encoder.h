@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Encoder;
 using EncoderPtr = std::shared_ptr<Encoder>;
@@ -114,17 +114,24 @@ public:
 
   virtual bool Open() = 0;
 
-  virtual bool WriteFrame(OLIVE_NAMESPACE::FramePtr frame, OLIVE_NAMESPACE::rational time) = 0;
-  virtual void WriteAudio(OLIVE_NAMESPACE::AudioParams pcm_info,
-                          const QString& pcm_filename) = 0;
+  virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) = 0;
+  virtual void WriteAudio(olive::AudioParams pcm_info,
+                          QIODevice *file) = 0;
+  void WriteAudio(olive::AudioParams pcm_info,
+                  const QString& pcm_filename);
 
   virtual void Close() = 0;
+
+  virtual VideoParams::Format GetDesiredPixelFormat() const
+  {
+    return VideoParams::kFormatInvalid;
+  }
 
 private:
   EncodingParams params_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // ENCODER_H

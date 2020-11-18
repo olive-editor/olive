@@ -10,7 +10,7 @@
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SequenceDialogParameterTab : public QWidget
 {
@@ -58,7 +58,7 @@ public:
     return preview_resolution_field_->GetDivider();
   }
 
-  PixelFormat::Format GetSelectedPreviewFormat() const
+  VideoParams::Format GetSelectedPreviewFormat() const
   {
     return preview_format_field_->GetPixelFormat();
   }
@@ -97,6 +97,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEQUENCEDIALOGPARAMETERTAB_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,19 +22,17 @@
 #define VIEWERGLWIDGET_H
 
 #include <QOpenGLWidget>
+#include <QMatrix4x4>
 
 #include "node/node.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
-#include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
+#include "tool/tool.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The inner display/rendering widget of a Viewer class.
@@ -66,7 +64,16 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
-  const QMatrix4x4& GetMatrix();
+  /**
+  * @brief Return the translation only matrix.
+  */
+  QMatrix4x4 GetMatrixTranslate();
+
+  /**
+   * @brief Return the complete translation and scale matrix but with the Y translation flipped
+   * as OpenGL stores textures "upside down".
+   */
+  QMatrix4x4 GetCompleteMatrixFlippedYTranslation();
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -76,6 +83,12 @@ public:
   void SetTime(const rational& time);
 
   FramePtr last_loaded_buffer() const;
+
+  /**
+   * @brief Transform a point from viewer space to the buffer space.
+   * Multiplies by the inverted transform matrix to undo the scaling and translation.
+   */
+  QPoint TransformViewerSpaceToBufferSpace(QPoint pos);
 
   bool IsDeinterlacing() const
   {
@@ -88,7 +101,12 @@ public slots:
    *
    * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
    */
-  void SetMatrix(const QMatrix4x4& mat);
+  void SetMatrixTranslate(const QMatrix4x4& mat);
+
+  /**
+  * @brief Set the scale matrix.
+  */
+  void SetMatrixZoom(const QMatrix4x4& mat);
 
   /**
    * @brief Enables or disables whether this color at the cursor should be emitted
@@ -108,6 +126,12 @@ public slots:
   void SetImage(FramePtr in_buffer);
 
   /**
+   * @brief Changes the pointer type if the tool is changed to the hand tool. Otherwise resets the pointer to it's
+   * normal type.
+   */
+  void UpdateCursor();
+
+  /**
    * @brief Enables/disables a basic deinterlace on the viewer
    */
   void SetDeinterlacing(bool e);
@@ -117,6 +141,21 @@ signals:
    * @brief Signal emitted when the user starts dragging from the viewer
    */
   void DragStarted();
+
+  /**
+   * @brief Signal emitted when a hand drag starts
+   */
+  void HandDragStarted();
+
+  /**
+   * @brief Signal emitted when a hand drag moves
+   */
+  void HandDragMoved(int x, int y);
+
+  /**
+   * @brief Signal emitted when a hand drag ends
+   */
+  void HandDragEnded();
 
   /**
    * @brief Signal emitted when cursor color is enabled and the user's mouse position changes
@@ -139,19 +178,22 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+protected:
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction
    *
    * Currently primarily used to regenerate the pipeline shader used for drawing.
    */
-  virtual void initializeGL() override;
+  virtual void OnInit() override;
 
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
    * Simple OpenGL drawing function for painting the texture on screen. Standardized around OpenGL ES 3.2 Core.
    */
-  virtual void paintGL() override;
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
 
 private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
@@ -160,15 +202,31 @@ private:
 
   rational GetGizmoTime();
 
+  bool IsHandDrag(QMouseEvent* event) const;
+
+  void UpdateMatrix();
+
+  QTransform GenerateWorldTransform();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  OpenGLTexture texture_;
+  TexturePtr texture_;
 
   /**
-   * @brief Drawing matrix (defaults to identity)
+   * @brief Translation only matrix (defaults to identity).
    */
-  QMatrix4x4 matrix_;
+  QMatrix4x4 translate_matrix_;
+
+  /**
+   * @breif Scale only matrix.
+   */
+  QMatrix4x4 scale_matrix_;
+
+  /**
+   * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied
+   */
+  QMatrix4x4 combined_matrix_;
 
   bool signal_cursor_color_;
 
@@ -184,16 +242,16 @@ private:
 
   FramePtr last_loaded_buffer_;
 
-  bool deinterlace_;
-
-private slots:
   /**
-   * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
+   * @brief Position of mouse to calculate delta from.
    */
-  void ContextCleanup();
+  QPoint hand_last_drag_pos_;
+  bool hand_dragging_;
+
+  bool deinterlace_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERGLWIDGET_H

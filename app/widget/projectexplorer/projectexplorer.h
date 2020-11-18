@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QTimer>
 #include <QTreeView>
 
+#include "node/input/media/media.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
@@ -33,7 +34,7 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for browsing through a Project structure.
@@ -101,6 +102,18 @@ signals:
   void DoubleClickedItem(Item* item);
 
 private:
+  /**
+   * @brief Check if an item is in use anywhere and return any relevant input nodes
+   */
+  QList<MediaInput*> GetMediaNodesUsingFootage(Footage* item);
+
+  /**
+   * @brief Get all the blocks that solely rely on an input node
+   * 
+   * Ignores blocks that depend on multiple inputs
+   */
+  QList<Block*> GetFootageBlocks(QList<Node*> nodes);
+
   /**
    * @brief Simple convenience function for adding a view to this stacked widget
    *
@@ -173,6 +186,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTEXPLORER_H

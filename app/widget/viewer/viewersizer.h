@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@
 #ifndef VIEWERSIZER_H
 #define VIEWERSIZER_H
 
+#include <QScrollBar>
 #include <QWidget>
 
 #include "common/define.h"
 #include "common/rational.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A container widget that enforces the aspect ratio of a child widget
@@ -69,8 +70,13 @@ public:
    */
   void SetZoom(int percent);
 
+public slots:
+  void HandDragMove(int x, int y);
+
 signals:
-  void RequestMatrix(const QMatrix4x4& matrix);
+  void RequestScale(const QMatrix4x4& matrix);
+
+  void RequestTranslate(const QMatrix4x4& matrix);
 
 protected:
   /**
@@ -83,6 +89,8 @@ private:
    * @brief Main sizing function, resizes widget_ to fit aspect_ratio_ (or hides if aspect ratio is 0)
    */
   void UpdateSize();
+
+  int GetZoomedValue(int value);
 
   /**
    * @brief Reference to widget
@@ -104,8 +112,14 @@ private:
    */
   int zoom_;
 
+  QScrollBar* horiz_scrollbar_;
+  QScrollBar* vert_scrollbar_;
+
+private slots:
+  void ScrollBarMoved();
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERSIZER_H

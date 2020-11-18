@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@
 #include <OpenImageIO/imagebuf.h>
 
 #include "codec/decoder.h"
-#include "render/pixelformat.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class OIIODecoder : public Decoder
 {
@@ -35,29 +34,18 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
-  enum ExportCodec {
-    kCodecEXR,
-    kCodecPNG,
-    kCodecTIFF
-  };
+  virtual ~OIIODecoder() override;
 
   virtual QString id() override;
 
-  virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
+  virtual bool SupportsVideo() override{return true;}
 
-  virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
-  virtual void Close() override;
+  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
-  virtual bool SupportsVideo() override;
-
-  static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
-
-  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
-
-  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
-
-  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
+protected:
+  virtual bool OpenInternal() override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual void CloseInternal() override;
 
 private:
 #if OIIO_VERSION < 10903
@@ -68,21 +56,15 @@ private:
 
   static bool FileTypeIsSupported(const QString& fn);
 
-  static int GetImageSequenceDigitCount(const QString& filename);
-
-  static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
-
-  static int64_t GetImageSequenceIndex(const QString& filename);
-
   bool OpenImageHandler(const QString& fn);
 
   void CloseImageHandle();
 
-  PixelFormat::Format pix_fmt_;
+  int64_t last_sequence_index_;
 
-  bool is_rgba_;
+  VideoParams::Format pix_fmt_;
 
-  bool is_sequence_;
+  int channel_count_;
 
   OIIO::ImageBuf* buffer_;
 
@@ -90,6 +72,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // OIIODECODER_H

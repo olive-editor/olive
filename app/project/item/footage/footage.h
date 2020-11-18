@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,11 +27,13 @@
 #include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
-#include "project/item/footage/imagestream.h"
 #include "project/item/footage/videostream.h"
 #include "timeline/timelinepoints.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
+
+class Footage;
+using FootagePtr = std::shared_ptr<Footage>;
 
 /**
  * @brief A reference to an external media file with metadata in a project structure
@@ -43,13 +45,6 @@ OLIVE_NAMESPACE_ENTER
 class Footage : public Item, public TimelinePoints
 {
 public:
-  enum Status {
-    kUnprobed,
-    kUnindexed,
-    kReady,
-    kInvalid
-  };
-
   /**
    * @brief Footage Constructor
    */
@@ -65,32 +60,12 @@ public:
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled) override;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
 
   /**
    * @brief Save function
    */
   virtual void Save(QXmlStreamWriter *writer) const override;
-
-  /**
-   * @brief Check the ready state of this Footage object
-   *
-   * @return
-   *
-   * If the Footage has been successfully probed, this will return TRUE.
-   */
-  const Status& status() const;
-
-  /**
-   * @brief Set ready state
-   *
-   * This should only be set by olive::ProbeMedia. Sets the Footage's current status to a member of enum
-   * Footage::Status.
-   *
-   * This function also runs UpdateIcon() and UpdateTooltip(). If you need to override the tooltip (e.g. for an error
-   * message), you must run set_tooltip() *after* running set_status();
-   */
-  void set_status(const Status& status);
 
   /**
    * @brief Reset Footage state ready for running through Probe() again
@@ -103,6 +78,16 @@ public:
    * to worry about this.
    */
   void Clear();
+
+  bool IsValid() const
+  {
+    return valid_;
+  }
+
+  /**
+   * @brief Sets this footage to valid and ready to use
+   */
+  void SetValid();
 
   /**
    * @brief Return the current filename of this Footage object
@@ -127,7 +112,7 @@ public:
    * The file's last modified timestamp is stored for potential organization in the ProjectExplorer. It can be
    * retrieved here.
    */
-  const QDateTime& timestamp() const;
+  const qint64 &timestamp() const;
 
   /**
    * @brief Set the last modified time/date
@@ -138,7 +123,7 @@ public:
    *
    * New last modified time/date
    */
-  void set_timestamp(const QDateTime& t);
+  void set_timestamp(const qint64 &t);
 
   /**
    * @brief Add a stream metadata object to this footage
@@ -217,6 +202,8 @@ public:
 
   StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
 
+  static bool CompareFootageToItsFilename(FootagePtr footage);
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array
@@ -247,7 +234,7 @@ private:
   /**
    * @brief Internal timestamp object
    */
-  QDateTime timestamp_;
+  qint64 timestamp_;
 
   /**
    * @brief Internal streams array
@@ -255,19 +242,14 @@ private:
   QList<StreamPtr> streams_;
 
   /**
-   * @brief Internal ready setting
-   */
-  Status status_;
-
-  /**
    * @brief Internal attached decoder ID
    */
   QString decoder_;
 
+  bool valid_;
+
 };
 
-using FootagePtr = std::shared_ptr<Footage>;
-
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGE_H

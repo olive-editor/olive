@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "trackreference.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackReference::TrackReference() :
   type_(Timeline::kTrackTypeNone),
@@ -49,6 +49,11 @@ bool TrackReference::operator==(const TrackReference &ref) const
   return type_ == ref.type_ && index_ == ref.index_;
 }
 
+bool TrackReference::operator!=(const TrackReference &ref) const
+{
+  return !(*this == ref);
+}
+
 uint qHash(const TrackReference &r, uint seed)
 {
   // Not super efficient, but couldn't think of any better way to ensure a different hash each time
@@ -57,4 +62,4 @@ uint qHash(const TrackReference &r, uint seed)
                  seed);
 }
 
-OLIVE_NAMESPACE_EXIT
+}
