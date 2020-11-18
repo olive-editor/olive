@@ -93,16 +93,16 @@ void Config::SetDefaults()
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeParam::kInt, 1000);
 
-  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeParam::kColor, QVariant::fromValue(Color(0.50f, 0.50f, 0.50f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.75f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.75f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.25f, 0.25f)));
-  SetEntryInternal(QStringLiteral("NodeCatColor9"), NodeParam::kColor, QVariant::fromValue(Color(0.55f, 0.55f, 0.75f)));
+  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeParam::kColor, QVariant::fromValue(Color(0.50, 0.50, 0.50)));
+  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeParam::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.75)));
+  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeParam::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.25)));
+  SetEntryInternal(QStringLiteral("NodeCatColor9"), NodeParam::kColor, QVariant::fromValue(Color(0.55, 0.55, 0.75)));
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeParam::kString, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeParam::kString, QString());
