@@ -413,7 +413,7 @@ QVariant NodeInput::StringToValue(const DataType& data_type, const QString &stri
 
     ValidateVectorString(&vals, 4);
 
-    return QVariant::fromValue(Color(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat()));
+    return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
   } else if (data_type == kInt) {
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
