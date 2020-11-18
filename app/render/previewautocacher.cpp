@@ -24,6 +24,10 @@ PreviewAutoCacher::PreviewAutoCacher() :
 {
   // Set default autocache range
   SetPlayhead(rational());
+
+  delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
+  delayed_requeue_timer_.setSingleShot(true);
+  connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
 }
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
@@ -169,7 +173,9 @@ void PreviewAutoCacher::HashesProcessed()
   if (hash_tasks_.contains(watcher)) {
     hash_tasks_.removeOne(watcher);
 
-    RequeueFrames();
+    // Restart delayed requeue timer
+    delayed_requeue_timer_.stop();
+    delayed_requeue_timer_.start();
   }
 
   // The cacher might be waiting for this job to finish
@@ -595,6 +601,8 @@ void PreviewAutoCacher::TryRender()
 
 void PreviewAutoCacher::RequeueFrames()
 {
+  delayed_requeue_timer_.stop();
+
   if (viewer_node_
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges()
       && hash_tasks_.isEmpty()

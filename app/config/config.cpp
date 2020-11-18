@@ -91,7 +91,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("Loop"), NodeParam::kBoolean, false);
   SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeParam::kBoolean, true);
 
-  SetEntryInternal(QStringLiteral("AutoCacheInterval"), NodeParam::kInt, 250);
+  SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeParam::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeParam::kColor, QVariant::fromValue(Color(0.75f, 0.75f, 0.75f)));
   SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeParam::kColor, QVariant::fromValue(Color(0.25f, 0.25f, 0.25f)));

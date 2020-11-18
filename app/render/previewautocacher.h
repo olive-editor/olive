@@ -105,11 +105,6 @@ private:
   void TryRender();
 
   /**
-   * @brief Generic function called whenever the frames to render need to be (re)queued
-   */
-  void RequeueFrames();
-
-  /**
    * @brief Process all changes to internal NodeGraph copy
    *
    * PreviewAutoCacher staggers updates to its internal NodeGraph copy, only applying them when the
@@ -156,6 +151,8 @@ private:
 
   ColorManager* color_manager_;
 
+  QTimer delayed_requeue_timer_;
+
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
@@ -201,6 +198,11 @@ private slots:
   void AudioParamsChanged();
 
   void SingleFrameFinished();
+
+  /**
+   * @brief Generic function called whenever the frames to render need to be (re)queued
+   */
+  void RequeueFrames();
 
 };
 
