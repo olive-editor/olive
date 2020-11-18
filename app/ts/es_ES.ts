@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="es">
 <context>
     <name>AudioParams</name>
     <message>
@@ -21,17 +21,17 @@
     <message>
         <location filename="../render/audioparams.cpp" line="188"/>
         <source>2.1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">144p {2.1?}</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="190"/>
         <source>5.1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">144p {5.1?}</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="192"/>
         <source>7.1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">144p {7.1?}</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="194"/>
@@ -264,22 +264,22 @@ Length: %4</source>
     <message>
         <location filename="../tool/tool.h" line="108"/>
         <source>Bars</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Barras</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="110"/>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sólido</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="112"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Título</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="114"/>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tono</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="119"/>
@@ -292,22 +292,22 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="211"/>
         <source>8-bit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">8-bit</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="213"/>
         <source>16-bit Integer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">16-bit Entero</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="215"/>
         <source>Half-Float (16-bit)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Medio-Coma-Flotante (16-bit)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="217"/>
         <source>Full-Float (32-bit)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máximo-Coma-Flotante (32-bit)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="223"/>
@@ -398,12 +398,12 @@ Length: %4</source>
     <message>
         <location filename="../dialog/about/about.cpp" line="51"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Olive es un editor de vídeo no lineal. Esta aplicación es gratuita y está protegida bajo la licencia GNU GPL.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="53"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El equipo de Olive está obligado a informar a los usuarios que el código fuente de la aplicación esta disponible para su descarga desde su sitio web.</translation>
     </message>
 </context>
 <context>
@@ -411,7 +411,7 @@ Length: %4</source>
     <message>
         <location filename="../dialog/actionsearch/actionsearch.cpp" line="58"/>
         <source>Search for action...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Búsqueda de acción...</translation>
     </message>
 </context>
 <context>
@@ -424,7 +424,7 @@ Length: %4</source>
     <message>
         <location filename="../node/input/media/audio/audio.cpp" line="42"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio</translation>
     </message>
     <message>
         <location filename="../node/input/media/audio/audio.cpp" line="52"/>
@@ -445,7 +445,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/block.cpp" line="352"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longitud</translation>
     </message>
     <message>
         <location filename="../node/block/block.cpp" line="353"/>
@@ -547,7 +547,7 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="34"/>
         <source>Color Management</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejo del color</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="44"/>
@@ -557,27 +557,27 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="47"/>
         <source>Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espacio de color:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="74"/>
         <source>Display:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Monitor:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="93"/>
         <source>View:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="106"/>
         <source>Look:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mira:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="113"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Nada)</translation>
     </message>
 </context>
 <context>
@@ -685,7 +685,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="395"/>
         <source>New Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nueva Carpeta</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="413"/>
@@ -772,13 +772,13 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="718"/>
         <source>Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar Proyecto</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="739"/>
         <location filename="../core.cpp" line="747"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="740"/>
@@ -825,7 +825,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1107"/>
         <source>Sequence %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Secuencia %1</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1122"/>
@@ -880,7 +880,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1358"/>
         <source>Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir Proyecto</translation>
     </message>
 </context>
 <context>
@@ -946,7 +946,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="37"/>
         <source>Cross Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fundido Cruzado</translation>
     </message>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="52"/>
@@ -975,17 +975,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="64"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lineal</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="70"/>
         <source>Bezier</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bézier</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="76"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mantener</translation>
     </message>
 </context>
 <context>
@@ -1103,7 +1103,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="13"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avanzado</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="21"/>
@@ -1113,7 +1113,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="27"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formato de Píxel:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="40"/>
@@ -1123,7 +1123,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="46"/>
         <source>Threads:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hilos (Threads):</translation>
     </message>
 </context>
 <context>
@@ -1131,12 +1131,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="40"/>
         <source>Codec:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Codificación (Códec):</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="47"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia de muestreo:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="54"/>
@@ -1146,7 +1146,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="61"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formato:</translation>
     </message>
 </context>
 <context>
@@ -1217,7 +1217,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="59"/>
         <source>Filename:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de Archivo:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="69"/>
@@ -1227,7 +1227,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="78"/>
         <source>Preset:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preestablecidos:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="82"/>
@@ -1247,22 +1247,22 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="103"/>
         <source>Range:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rango:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="106"/>
         <source>Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Secuencia entera</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="107"/>
         <source>In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">De entrada a salida</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="119"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formato:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="127"/>
@@ -1277,18 +1277,18 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="145"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="150"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="157"/>
         <location filename="../dialog/export/export.cpp" line="318"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="167"/>
@@ -1422,12 +1422,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="61"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ancho:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="69"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alto:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="77"/>
@@ -1442,7 +1442,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="89"/>
         <source>Fit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajuste Automático</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="90"/>
@@ -1462,12 +1462,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="106"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relación de aspecto de píxeles:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="113"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrelazado:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="120"/>
@@ -1482,12 +1482,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="144"/>
         <source>Codec:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Codificación (Códec):</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="166"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avanzado</translation>
     </message>
 </context>
 <context>
@@ -1508,7 +1508,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="47"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; Propiedades</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="52"/>
@@ -1518,7 +1518,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="58"/>
         <source>Tracks:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pistas:</translation>
     </message>
 </context>
 <context>
@@ -1541,7 +1541,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="53"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="74"/>
@@ -1603,7 +1603,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="188"/>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tamaño del archivo de destino (MB):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="196"/>
@@ -1647,7 +1647,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/standardcombos/interlacedcombobox.h" line="38"/>
         <source>None (Progressive)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ninguno (Progresivo)</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/interlacedcombobox.h" line="39"/>
@@ -1680,17 +1680,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="164"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lineal</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="165"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mantener</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="166"/>
         <source>Bezier</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bézier</translation>
     </message>
 </context>
 <context>
@@ -1698,17 +1698,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="437"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lineal</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="438"/>
         <source>Bezier</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bézier</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="439"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mantener</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="461"/>
@@ -1759,12 +1759,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="300"/>
         <source>&amp;Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Guardar Proyecto</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="301"/>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">G&amp;uardar Proyecto Como</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="302"/>
@@ -1779,22 +1779,22 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="386"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Nada)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="604"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Archivo</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="605"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Nuevo</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="606"/>
         <source>&amp;Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Abrir Proyecto</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="607"/>
@@ -1814,7 +1814,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="610"/>
         <source>&amp;Import...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Importar...</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="611"/>
@@ -1839,12 +1839,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="615"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Cerrar la aplicación</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="618"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Editar</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="621"/>
@@ -1859,52 +1859,52 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="623"/>
         <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccion&amp;ar Todo</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="624"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deseleccionar Todo</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="625"/>
         <source>Ripple to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer desde el punto de inicio del clip</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="626"/>
         <source>Ripple to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer desde el punto final del clip</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="627"/>
         <source>Edit to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar desde el punto de inicio del clip</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="628"/>
         <source>Edit to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar desde el punto final del clip</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="629"/>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eliminar lo comprendido entre los puntos de Entrada/Salida</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="630"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer lo comprendido entre los puntos de Entrada/Salida</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="631"/>
         <source>Set/Edit Marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Establecer/Editar Marcador</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="634"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Ver</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="635"/>
@@ -1919,107 +1919,107 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="637"/>
         <source>Increase Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aumentar la altura de la pista</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="638"/>
         <source>Decrease Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disminuir la altura de la pista</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="639"/>
         <source>Toggle Show All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alternar Mostrar Todo</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="642"/>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla completa</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="643"/>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Visor a pantalla completa</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="646"/>
         <source>&amp;Playback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Reproducción</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="647"/>
         <source>Go to Start</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al inicio</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="648"/>
         <source>Previous Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fotograma anterior</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="649"/>
         <source>Play/Pause</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproducir/Pausar</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="650"/>
         <source>Play In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproducir desde la marca de entrada a la marca de salida</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="651"/>
         <source>Next Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Siguiente fotograma</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="652"/>
         <source>Go to End</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al final</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="653"/>
         <source>Go to Previous Cut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al corte anterior</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="654"/>
         <source>Go to Next Cut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al siguiente corte</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="655"/>
         <source>Go to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al punto de entrada</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="656"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir al punto de salida</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="657"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproducir hacia la Izquierda (Inversa)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="658"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parar la Reproducción</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="659"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproducir hacia la Derecha (Normal)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="660"/>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bucle (Loop)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="663"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Sequencia</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="664"/>
@@ -2034,37 +2034,37 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="669"/>
         <source>Maximize Panel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Maximizar Panel</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="670"/>
         <source>Lock Panels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bloquear Paneles</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="671"/>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurar valores por defecto de la interfaz</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="674"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Herramientas</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="675"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Puntero de Selección/Edición/Mover Clips</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="676"/>
         <source>Edit Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta de Selección</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="677"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta para Enrrollar/Desenrrollar</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="678"/>
@@ -2079,12 +2079,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="680"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deslizar clip sin desplazar</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="681"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desplazar clip afectando a los clips contiguos</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="682"/>
@@ -2099,27 +2099,27 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="684"/>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta para Inserción de Transiciones</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="685"/>
         <source>Enable Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Habilitar Imán de Ajuste</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="686"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preferencias</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="689"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">A&amp;yuda</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="690"/>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Buscar</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="691"/>
@@ -2129,7 +2129,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="692"/>
         <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Acerca de...</translation>
     </message>
 </context>
 <context>
@@ -2137,7 +2137,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="41"/>
         <source>Welcome to %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bienvenido a %1 %2</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="74"/>
@@ -2180,7 +2180,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="282"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="302"/>
@@ -2190,7 +2190,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="309"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Nada)</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="337"/>
@@ -2242,7 +2242,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/math/math.cpp" line="76"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="77"/>
@@ -2285,27 +2285,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="87"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="88"/>
         <source>Rotation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rotación</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="89"/>
         <source>Scale</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escala</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="90"/>
         <source>Uniform Scale</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escala Uniforme</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="91"/>
         <source>Anchor Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Punto de Ancla</translation>
     </message>
 </context>
 <context>
@@ -2321,17 +2321,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="277"/>
         <source>&amp;Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Proyecto</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="278"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Sequencia</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="279"/>
         <source>&amp;Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Carpeta</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="282"/>
@@ -2341,22 +2341,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="283"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Copiar</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="284"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Pegar</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="285"/>
         <source>Paste Insert</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insertar (Pegar)</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="286"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Duplicar</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="287"/>
@@ -2366,77 +2366,77 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="288"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer Selección (Elimina el hueco)</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="289"/>
         <source>Split</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dividir clips</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="292"/>
         <source>Set In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Establecer punto de entrada</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="293"/>
         <source>Set Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Establecer punto de salida</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="294"/>
         <source>Reset In Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resetear punto de entrada</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="295"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resetear punto de salida</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="296"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Limpiar puntos de Entrada/Salida</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="299"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir Transición predeterminada</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="300"/>
         <source>Link/Unlink</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Unir/Separar clips seleccionados </translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="301"/>
         <source>Enable/Disable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Habilitar/Deshabilitar clips seleccionados</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="302"/>
         <source>Nest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anidar selección en una secuencia</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="305"/>
         <source>Frames</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fotogramas</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="306"/>
         <source>Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descartar fotograma (Drop Frame)</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="307"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No descartar fotograma (Non-Drop Frame)</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="308"/>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Milisegundos</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="309"/>
@@ -2482,7 +2482,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="769"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="771"/>
@@ -2492,7 +2492,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="773"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="775"/>
@@ -2502,7 +2502,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="777"/>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea de Tiempo</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="779"/>
@@ -2546,7 +2546,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/node/node.h" line="107"/>
         <source>Node Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editor de Nodos</translation>
     </message>
 </context>
 <context>
@@ -2584,22 +2584,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="201"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="203"/>
         <source>Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Matriz</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="205"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texto</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="207"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuente</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="209"/>
@@ -2609,7 +2609,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="211"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Textura</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="213"/>
@@ -2715,7 +2715,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="35"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="36"/>
@@ -2745,7 +2745,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="140"/>
         <source>(unknown)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Desconocido)</translation>
     </message>
 </context>
 <context>
@@ -2816,7 +2816,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="575"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir</translation>
     </message>
 </context>
 <context>
@@ -2825,7 +2825,7 @@ This driver is known to have stability and performance issues with Olive. It is 
         <location filename="../node/audio/pan/pan.cpp" line="44"/>
         <location filename="../node/audio/pan/pan.cpp" line="114"/>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Panorámica</translation>
     </message>
     <message>
         <location filename="../node/audio/pan/pan.cpp" line="59"/>
@@ -2861,7 +2861,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/param/param.cpp" line="69"/>
         <source>(multiple)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(múltiple)</translation>
     </message>
 </context>
 <context>
@@ -2869,7 +2869,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/path/pathwidget.cpp" line="42"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar</translation>
     </message>
     <message>
         <location filename="../widget/path/pathwidget.cpp" line="51"/>
@@ -2908,7 +2908,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/pixelsampler/pixelsampler.cpp" line="35"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../widget/pixelsampler/pixelsampler.cpp" line="48"/>
@@ -2936,7 +2936,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/generator/polygon/polygon.cpp" line="85"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
 </context>
 <context>
@@ -2952,7 +2952,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesappearancetab.cpp" line="45"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesappearancetab.cpp" line="67"/>
@@ -2965,22 +2965,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="39"/>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dispositivo de Salida:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="47"/>
         <source>Input Device:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dispositivo de Entrada:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="56"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia de muestreo:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="72"/>
         <source>Audio Recording:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grabación de audio en:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="75"/>
@@ -3005,7 +3005,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="191"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por defecto</translation>
     </message>
 </context>
 <context>
@@ -3013,12 +3013,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="38"/>
         <source>Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comportamiento</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="40"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="41"/>
@@ -3043,7 +3043,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="50"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="51"/>
@@ -3053,32 +3053,34 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="55"/>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea de Tiempo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="56"/>
         <source>Auto-Seek to Imported Clips</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Búsqueda automática de clips importados</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="59"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner el cursor de reproducción
+al inicio de la selección</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="62"/>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La selección incluye
+los clips vinculados</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="65"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Habilitar poder arrastrar archivos a la línea de tiempo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rueda del ratón desplaza la línea de tiempo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
@@ -3088,27 +3090,29 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="72"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El cursor de reproducción
+selecciona los clips que cruza</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="75"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desplazar el cursor al final de lo pegado</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="78"/>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Al seleccionar un clip
+poner el cursor en su inico</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="82"/>
         <source>Playback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproducir</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="83"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preguntar por el nombre al insertar un marcador</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="86"/>
@@ -3118,12 +3122,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="90"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Proyecto</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="91"/>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Colocar archivos de medios para reemplazar</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="95"/>
@@ -3133,12 +3137,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="96"/>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir efectos predeterminados a los nuevos clips</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="99"/>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escala automática por defecto</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
@@ -3156,22 +3160,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="41"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preferencias</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="53"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="54"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apariencia</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="55"/>
         <source>Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comportamiento</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="56"/>
@@ -3181,12 +3185,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="57"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="58"/>
         <source>Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atajos de Teclado</translation>
     </message>
 </context>
 <context>
@@ -3243,7 +3247,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="45"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Idioma:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="72"/>
@@ -3291,83 +3295,83 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="38"/>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar acción o atajo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="45"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Acción</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="46"/>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atajo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="51"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="55"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="61"/>
         <source>Reset Selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restablecer lo Seleccionado</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="65"/>
         <source>Reset All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restablecer Todo</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="138"/>
         <source>Confirm Reset All Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Confirmar restablecer todos los accesos directos</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="139"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Está seguro de que desea restablecer todos los métodos abreviados de teclado a sus valores predeterminados?</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="189"/>
         <source>Import Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Accesos Rápidos de Teclado</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="213"/>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="237"/>
         <source>Error saving shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al guardar los Accesos Rápidos</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="214"/>
         <source>Failed to open file for reading</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al abrir el archivo de lectura</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="221"/>
         <source>Export Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar los Accesos Rápidos de Teclado</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
         <source>Export Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Accesos Rápidos</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
         <source>Shortcuts exported successfully</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atajos exportados exitosamente</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="237"/>
         <source>Failed to open file for writing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al abrir el archivo para escribir</translation>
     </message>
 </context>
 <context>
@@ -3375,7 +3379,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/progress/progress.cpp" line="58"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cancelar</translation>
     </message>
 </context>
 <context>
@@ -3392,12 +3396,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="253"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Nuevo</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="258"/>
         <source>&amp;Import...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Importar...</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="264"/>
@@ -3417,17 +3421,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="287"/>
         <source>Reveal in Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Revelar en el explorador</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="289"/>
         <source>Reveal in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Revelar en el buscador</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="291"/>
         <source>Reveal in File Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Revelar en el administrador de archivos</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="324"/>
@@ -3539,7 +3543,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/project/project.cpp" line="178"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Proyecto</translation>
     </message>
     <message>
         <location filename="../panel/project/project.cpp" line="228"/>
@@ -3567,17 +3571,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="71"/>
         <source>Default Input Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espacio de color de entrada predeterminado:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="78"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="87"/>
         <source>Color Management</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejo del color</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="100"/>
@@ -3613,12 +3617,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="155"/>
         <source>OpenColorIO Config Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error de configuración de OpenColorIO</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="156"/>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al establecer la configuración de OpenColorIO: %1</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="175"/>
@@ -3633,7 +3637,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="206"/>
         <source>Browse for OpenColorIO configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar la configuración OpenColorIO</translation>
     </message>
 </context>
 <context>
@@ -3669,17 +3673,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="117"/>
         <source>Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir Proyecto</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="118"/>
         <source>Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar Proyecto</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="119"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deshacer los cambiós</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="120"/>
@@ -3689,7 +3693,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="122"/>
         <source>Search media, markers, etc.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buscar archivos multimedia, marcas, etc.</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="124"/>
@@ -3712,17 +3716,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="165"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="167"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Duración</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="169"/>
         <source>Rate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velocidad</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="335"/>
@@ -3753,7 +3757,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="41"/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Negrita</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="43"/>
@@ -3882,12 +3886,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="78"/>
         <source>New Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nueva Secuencia</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="81"/>
         <source>Editing &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Edición &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="101"/>
@@ -3905,17 +3909,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="21"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="23"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ancho:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="30"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alto:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="37"/>
@@ -3925,22 +3929,22 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="41"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relación de aspecto de píxeles:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="45"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrelazado:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="54"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="56"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia de muestreo:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="60"/>
@@ -3993,12 +3997,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="67"/>
         <source>1080p</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">1080p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="68"/>
         <source>720p</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">720p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="70"/>
@@ -4056,7 +4060,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/sequenceviewer/sequenceviewer.cpp" line="36"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Visor de Secuencias</translation>
     </message>
 </context>
 <context>
@@ -4077,7 +4081,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="43"/>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sólido</translation>
     </message>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="58"/>
@@ -4087,7 +4091,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="63"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
 </context>
 <context>
@@ -4118,7 +4122,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="79"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="80"/>
@@ -4128,7 +4132,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="81"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opacidad</translation>
     </message>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="82"/>
@@ -4178,13 +4182,13 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="37"/>
         <source>Sample Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texto de ejemplo</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="67"/>
         <location filename="../node/generator/text/text.cpp" line="87"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Texto</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="82"/>
@@ -4194,7 +4198,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="88"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuente</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="89"/>
@@ -4204,7 +4208,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="90"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="91"/>
@@ -4214,7 +4218,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arriba</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
@@ -4224,7 +4228,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abajo</translation>
     </message>
 </context>
 <context>
@@ -4240,7 +4244,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/timebased/timebased.cpp" line="455"/>
         <source>Set Marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Establecer Marca</translation>
     </message>
     <message>
         <location filename="../widget/timebased/timebased.cpp" line="455"/>
@@ -4266,7 +4270,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/timeline/timeline.cpp" line="182"/>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea de Tiempo</translation>
     </message>
 </context>
 <context>
@@ -4275,7 +4279,7 @@ What would you like to do with these clips?</source>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1056"/>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1078"/>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1071"/>
@@ -4296,17 +4300,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="96"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Puntero de Selección/Edición/Mover Clips</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="97"/>
         <source>Edit Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta de Selección</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="98"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta para Enrrollar/Desenrrollar</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="99"/>
@@ -4321,12 +4325,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="101"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deslizar clip sin desplazar</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="102"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desplazar clip afectando a los clips contiguos</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="103"/>
@@ -4341,7 +4345,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="105"/>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Herramienta para Inserción de Transiciones</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="106"/>
@@ -4384,17 +4388,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/track/track.cpp" line="398"/>
         <source>Video %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vídeo %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="399"/>
         <source>Audio %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Audio %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="400"/>
         <source>Subtitle %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Subtítulo %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="406"/>
@@ -4435,7 +4439,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="73"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lineal</translation>
     </message>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="73"/>
@@ -4463,7 +4467,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="63"/>
         <source>Sine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sinusoidal</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="64"/>
@@ -4521,7 +4525,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/standardcombos/videodividercombobox.h" line="43"/>
         <source>1/%1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">144p {1/%1?}</translation>
     </message>
 </context>
 <context>
@@ -4534,7 +4538,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/input/media/video/video.cpp" line="50"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
         <location filename="../node/input/media/video/video.cpp" line="60"/>
@@ -4552,12 +4556,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="54"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrelazado:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="63"/>
         <source>Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espacio de color:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="69"/>
@@ -4615,7 +4619,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="251"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Textura</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="253"/>
@@ -4651,7 +4655,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="364"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="365"/>
@@ -4667,12 +4671,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="823"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zoom</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="827"/>
         <source>Fit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajuste Automático</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="829"/>
@@ -4682,12 +4686,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="837"/>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla completa</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="843"/>
         <source>Screen %1: %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla %1: %2x%3</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="856"/>
@@ -4727,7 +4731,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="918"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apagado</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="923"/>
@@ -4751,7 +4755,7 @@ What would you like to do with these clips?</source>
         <location filename="../node/audio/volume/volume.cpp" line="44"/>
         <location filename="../node/audio/volume/volume.cpp" line="81"/>
         <source>Volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumen</translation>
     </message>
     <message>
         <location filename="../node/audio/volume/volume.cpp" line="59"/>
