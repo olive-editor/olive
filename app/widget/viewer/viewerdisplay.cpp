@@ -299,8 +299,12 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     // Draw texture through color transform
+    int device_width = width() * devicePixelRatioF();
+    int device_height = height() * devicePixelRatioF();
+    VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+
     renderer()->BlitColorManaged(color_service(), texture_, true,
-                                 VideoParams(width(), height(), static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()), VideoParams::kInternalChannelCount),
+                                 VideoParams(device_width, device_height, device_format, VideoParams::kInternalChannelCount),
                                  GetCompleteMatrixFlippedYTranslation());
   }
 
