@@ -100,10 +100,6 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
   // If we're here, we have a successful image open
   in->close();
 
-#if OIIO_VERSION < 10903
-  OIIO::ImageInput::destroy(in);
-#endif
-
   return footage;
 }
 
@@ -235,11 +231,9 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
     return false;
   }
 
-#if OIIO_VERSION < 20100
-  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type));
-#else
-  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type), OIIO::InitializePixels::No);
-#endif
+  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type),
+                               OIIO::InitializePixels::No);
+
   image_->read_image(type, buffer_->localpixels());
 
   return true;
@@ -249,9 +243,6 @@ void OIIODecoder::CloseImageHandle()
 {
   if (image_) {
     image_->close();
-#if OIIO_VERSION < 10903
-    OIIO::ImageInput::destroy(image_);
-#endif
     image_ = nullptr;
   }
 

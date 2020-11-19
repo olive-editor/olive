@@ -48,11 +48,7 @@ protected:
   virtual void CloseInternal() override;
 
 private:
-#if OIIO_VERSION < 10903
-  OIIO::ImageInput* image_;
-#else
   std::unique_ptr<OIIO::ImageInput> image_;
-#endif
 
   static bool FileTypeIsSupported(const QString& fn);
 

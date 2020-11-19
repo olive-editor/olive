@@ -43,7 +43,7 @@ find_package(OpenGL REQUIRED)
 
 find_package(OpenColorIO 2.0.0 REQUIRED)
 
-find_package(OpenImageIO 1.6 REQUIRED)
+find_package(OpenImageIO 2.1.12 REQUIRED)
 
 find_package(OpenEXR REQUIRED)
 

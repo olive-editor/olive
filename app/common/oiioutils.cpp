@@ -19,66 +19,25 @@
 ***/
 
 #include "oiioutils.h"
-#if OIIO_VERSION < 20112
-#include "render/videoparams.h"
-#endif
+
 namespace olive {
 
 void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
 {
-#if OIIO_VERSION < 20112
-  //
-  // Workaround for OIIO bug that ignores destination stride in versions OLDER than 2.1.12
-  //
-  // See more: https://github.com/OpenImageIO/oiio/pull/2487
-  //
-  int width_in_bytes = frame->width() * VideoParams::GetBytesPerPixel(frame->format(), frame->channel_count());
-
-  for (int i=0;i<buf->spec().height;i++) {
-    memcpy(
-#if OIIO_VERSION < 10903
-          reinterpret_cast<char*>(buf->localpixels()) + i * width_in_bytes,
-#else
-          reinterpret_cast<char*>(buf->localpixels()) + i * buf->scanline_stride(),
-#endif
-          frame->const_data() + i * frame->linesize_bytes(),
-          width_in_bytes);
-  }
-#else
   buf->set_pixels(OIIO::ROI(),
                   buf->spec().format,
                   frame->const_data(),
                   OIIO::AutoStride,
                   frame->linesize_bytes());
-#endif
 }
 
 void OIIOUtils::BufferToFrame(OIIO::ImageBuf *buf, Frame* frame)
 {
-#if OIIO_VERSION < 20112
-  //
-  // Workaround for OIIO bug that ignores destination stride in versions OLDER than 2.1.12
-  //
-  // See more: https://github.com/OpenImageIO/oiio/pull/2487
-  //
-  int width_in_bytes = frame->width() * VideoParams::GetBytesPerPixel(frame->format(), frame->channel_count());
-
-  for (int i=0;i<buf->spec().height;i++) {
-    memcpy(frame->data() + i * frame->linesize_bytes(),
-#if OIIO_VERSION < 10903
-           reinterpret_cast<const char*>(buf->localpixels()) + i * width_in_bytes,
-#else
-           reinterpret_cast<const char*>(buf->localpixels()) + i * buf->scanline_stride(),
-#endif
-           width_in_bytes);
-  }
-#else
   buf->get_pixels(OIIO::ROI(),
                   buf->spec().format,
                   frame->data(),
                   OIIO::AutoStride,
                   frame->linesize_bytes());
-#endif
 }
 
 rational OIIOUtils::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
