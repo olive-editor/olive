@@ -92,7 +92,7 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="317"/>
         <source>Don&apos;t ask me again</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">不再询问</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="322"/>
@@ -107,12 +107,12 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="326"/>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">自动检测素材参数</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="327"/>
         <source>Set Parameters Manually</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">手动设置参数</translation>
     </message>
 </context>
 <context>
@@ -157,22 +157,22 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="136"/>
         <source>Save Preset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存预设</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="137"/>
         <source>Set preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">设置预设名称:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="150"/>
         <source>Invalid preset name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无效的预设名称</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="151"/>
         <source>You must enter a preset name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">您必须输入预设的名称</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="184"/>
@@ -182,7 +182,7 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="185"/>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">相同名称的预设已存在.您要替换它吗?</translation>
     </message>
 </context>
 <context>
@@ -419,7 +419,7 @@ Length: %4</source>
     <message>
         <location filename="../node/input/media/audio/audio.cpp" line="37"/>
         <source>Audio Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">音频输入</translation>
     </message>
     <message>
         <location filename="../node/input/media/audio/audio.cpp" line="42"/>
@@ -468,7 +468,7 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="54"/>
         <source>Blur</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">模糊</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="69"/>
@@ -478,7 +478,7 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="74"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="75"/>
@@ -503,12 +503,12 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="78"/>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">水平</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="79"/>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">垂直</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="80"/>
@@ -552,12 +552,12 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="44"/>
         <source>Input:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="47"/>
         <source>Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">色彩空间:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="74"/>
@@ -585,17 +585,17 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="167"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">红色</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="174"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">绿色</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="181"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">蓝色</translation>
     </message>
 </context>
 <context>
@@ -603,12 +603,12 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="44"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">预览</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="58"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="64"/>
@@ -634,7 +634,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="213"/>
         <source>Import error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导入出错</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="213"/>
@@ -644,17 +644,17 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="225"/>
         <source>Importing...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导入...</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="321"/>
         <source>Import footage...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导入素材...</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="332"/>
         <source>Failed to import footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法导入素材</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="332"/>
@@ -674,7 +674,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="384"/>
         <source>Failed to create new folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法创建新文件夹</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="384"/>
@@ -735,12 +735,12 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="600"/>
         <source>Export succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导出成功</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="603"/>
         <source>Export failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导出失败: %1</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="607"/>
