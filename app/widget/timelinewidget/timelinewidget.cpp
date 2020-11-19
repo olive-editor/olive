@@ -813,11 +813,13 @@ void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)
 
   if (GetConnectedNode() && active_tool_ != nullptr) {
     active_tool_->MousePress(event);
+    UpdateViewports();
   }
 
   if (event->GetButton() != Qt::LeftButton) {
     // Suspend tool immediately if the cursor isn't the primary button
     active_tool_->MouseRelease(event);
+    UpdateViewports();
     active_tool_ = nullptr;
   }
 }
@@ -827,12 +829,14 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
   if (GetConnectedNode()) {
     if (active_tool_) {
       active_tool_->MouseMove(event);
+      UpdateViewports();
     } else {
       // Mouse is not down, attempt a hover event
       TimelineTool* hover_tool = GetActiveTool();
 
       if (hover_tool) {
         hover_tool->HoverMove(event);
+        UpdateViewports();
       }
     }
   }
@@ -842,6 +846,7 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 {
   if (GetConnectedNode() && active_tool_ != nullptr) {
     active_tool_->MouseRelease(event);
+    UpdateViewports();
     active_tool_ = nullptr;
   }
 }
@@ -850,27 +855,32 @@ void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
   if (GetConnectedNode()) {
     GetActiveTool()->MouseDoubleClick(event);
+    UpdateViewports();
   }
 }
 
 void TimelineWidget::ViewDragEntered(TimelineViewMouseEvent *event)
 {
   import_tool_->DragEnter(event);
+  UpdateViewports();
 }
 
 void TimelineWidget::ViewDragMoved(TimelineViewMouseEvent *event)
 {
   import_tool_->DragMove(event);
+  UpdateViewports();
 }
 
 void TimelineWidget::ViewDragLeft(QDragLeaveEvent *event)
 {
   import_tool_->DragLeave(event);
+  UpdateViewports();
 }
 
 void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
 {
   import_tool_->DragDrop(event);
+  UpdateViewports();
 }
 
 void TimelineWidget::AddBlock(Block *block, TrackReference track)
