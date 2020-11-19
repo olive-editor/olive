@@ -1,5 +1,3 @@
-#version 150
-
 uniform sampler2D out_block_in;
 uniform sampler2D in_block_in;
 uniform bool out_block_in_enabled;

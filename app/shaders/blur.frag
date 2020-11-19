@@ -1,5 +1,3 @@
-#version 150
-
 uniform sampler2D tex_in;
 uniform int method_in;
 uniform float radius_in;

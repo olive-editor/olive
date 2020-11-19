@@ -1,5 +1,3 @@
-#version 150
-
 uniform float histogram_scale;
 
 in vec4 a_position;

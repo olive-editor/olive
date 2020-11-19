@@ -1,5 +1,3 @@
-#version 150
-
 uniform vec2[256] points_in;
 uniform int points_in_count;
 uniform vec4 color_in;

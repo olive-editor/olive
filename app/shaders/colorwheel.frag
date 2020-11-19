@@ -1,5 +1,3 @@
-#version 150
-
 // Custom inputs
 uniform float hsv_value;
 

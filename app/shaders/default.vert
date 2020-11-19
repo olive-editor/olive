@@ -1,10 +1,3 @@
-#version 150
-
-#ifdef GL_ES
-precision highp int;
-precision highp float;
-#endif
-
 uniform mat4 ove_mvpmat;
 
 in vec4 a_position;

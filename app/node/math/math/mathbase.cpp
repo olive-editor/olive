@@ -82,9 +82,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
                               GetShaderVariableCall(param_b_in->id(), type_b));
   }
 
-  frag = QStringLiteral("#version 150\n"
-                        "\n"
-                        "uniform %1 %3;\n"
+  frag = QStringLiteral("uniform %1 %3;\n"
                         "uniform %2 %4;\n"
                         "\n"
                         "in vec2 ove_texcoord;\n"

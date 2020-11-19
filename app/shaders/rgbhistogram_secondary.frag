@@ -1,5 +1,3 @@
-#version 150
-
 uniform sampler2D ove_maintex;
 uniform vec2 viewport;
 

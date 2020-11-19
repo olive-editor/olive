@@ -1,5 +1,3 @@
-#version 150
-
 uniform mat4 %1;
 
 uniform vec2 %2_resolution;

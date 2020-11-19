@@ -1,10 +1,3 @@
-#version 150
-
-#ifdef GL_ES
-precision highp int;
-precision highp float;
-#endif
-
 // Input texture
 uniform sampler2D tex_in;
 

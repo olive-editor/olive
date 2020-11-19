@@ -1,5 +1,3 @@
-#version 150
-
 // Node parameter inputs
 uniform sampler2D tex_in;
 uniform vec4 color_in;

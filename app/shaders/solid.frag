@@ -1,5 +1,3 @@
-#version 150
-
 uniform vec4 color_in;
 
 out vec4 fragColor;

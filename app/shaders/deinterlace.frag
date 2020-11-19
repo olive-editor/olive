@@ -1,10 +1,3 @@
-#version 150
-
-#ifdef GL_ES
-precision highp int;
-precision highp float;
-#endif
-
 uniform sampler2D ove_maintex;
 uniform vec2 ove_resolution;
 

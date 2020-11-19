@@ -92,14 +92,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     color_processor->GetProcessor()->getDefaultGPUProcessor()->extractGpuShaderInfo(shader_desc);
 
     QString shader_frag;
-    shader_frag.append(QStringLiteral("#version 150\n"
-                                      "\n"
-                                      "#ifdef GL_ES\n"
-                                      "precision highp int;\n"
-                                      "precision highp float;\n"
-                                      "#endif\n"
-                                      "\n"
-                                      "// Main texture input\n"
+    shader_frag.append(QStringLiteral("// Main texture input\n"
                                       "uniform sampler2D ove_maintex;\n"
                                       "uniform int ove_maintex_alpha;\n"
                                       "\n"

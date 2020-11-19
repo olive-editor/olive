@@ -1,5 +1,3 @@
-#version 150
-
 uniform float waveform_scale;
 uniform vec2 ove_resolution;
 

@@ -1,5 +1,3 @@
-#version 150
-
 #define LINEAR_CURVE 0
 #define EXPONENTIAL_CURVE 1
 #define LOGARITHMIC_CURVE 2

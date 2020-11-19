@@ -1,5 +1,3 @@
-#version 150
-
 // Inputs
 uniform int orientation;
 uniform vec3 color_a;

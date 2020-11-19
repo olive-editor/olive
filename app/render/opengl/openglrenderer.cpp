@@ -199,12 +199,26 @@ QVariant OpenGLRenderer::CreateNativeShader(ShaderCode code)
 {
   QOpenGLShaderProgram* program = new QOpenGLShaderProgram(context_);
 
-  if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, code.vert_code())) {
+  QString vert_code = code.vert_code();
+  QString frag_code = code.frag_code();
+
+  const QString shader_preamble = QStringLiteral("#version 300 es\n"
+                                                 "\n"
+                                                 "#ifdef GL_ES\n"
+                                                 "precision highp int;\n"
+                                                 "precision highp float;\n"
+                                                 "#endif\n"
+                                                 "\n");
+
+  vert_code.prepend(shader_preamble);
+  frag_code.prepend(shader_preamble);
+
+  if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code)) {
     qCritical() << "Failed to add vertex code to shader";
     goto error;
   }
 
-  if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, code.frag_code())) {
+  if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code)) {
     qCritical() << "Failed to add fragment code to shader";
     goto error;
   }
