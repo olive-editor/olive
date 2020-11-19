@@ -63,12 +63,10 @@ int main(int argc, char *argv[])
   QCoreApplication::setOrganizationName("olivevideoeditor.org");
   QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
   QCoreApplication::setApplicationName("Olive");
+  QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 
   QCoreApplication::setApplicationVersion(app_version);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
-  QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
-#endif
 
   //
   // Parse command line arguments
@@ -134,11 +132,15 @@ int main(int argc, char *argv[])
 
   startup_params.set_startup_project(project_argument->GetSetting());
 
-  // Set OpenGL display profile (3.2 Core)
+  // Set OpenGL display profile (3.0 Core, or 3.2 on macOS)
   QSurfaceFormat format;
+#ifdef Q_OS_MAC
   format.setVersion(3, 2);
-  format.setDepthBufferSize(24);
+#else
+  format.setVersion(3, 0);
+#endif
   format.setProfile(QSurfaceFormat::CoreProfile);
+  format.setDepthBufferSize(24);
   QSurfaceFormat::setDefaultFormat(format);
 
   // Enable application automatically using higher resolution images from icons

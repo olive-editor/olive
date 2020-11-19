@@ -45,6 +45,34 @@ const QVector<GLfloat> blit_texcoords = {
   1.0f, 1.0f
 };
 
+class ErrorPrinter {
+public:
+  ErrorPrinter(const char* name, QOpenGLFunctions* f)
+  {
+    GLuint err = f->glGetError();
+    if (err > 0)
+      qDebug() << name << "entered with" << err;
+
+    name_ = name;
+    functions_ = f;
+  }
+
+  ~ErrorPrinter()
+  {
+    GLuint err = functions_->glGetError();
+    if (err > 0)
+      qDebug() << name_ << "exited with" << err;
+  }
+
+private:
+  const char* name_;
+
+  QOpenGLFunctions* functions_;
+
+};
+
+#define PRINT_GL_ERRORS ErrorPrinter __e(__FUNCTION__, functions_)
+
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
   Renderer(parent),
   context_(nullptr)
@@ -130,6 +158,7 @@ void OpenGLRenderer::ClearDestination(double r, double g, double b, double a)
 
 QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
+
   GLuint texture;
   functions_->glGenTextures(1, &texture);
 
@@ -140,9 +169,13 @@ QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParam
 
   functions_->glBindTexture(GL_TEXTURE_2D, texture);
 
+{
+
+  PRINT_GL_ERRORS;
   functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
                            width, height, 0, GetPixelFormat(channel_count),
                            GetPixelType(format), data);
+}
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
@@ -153,6 +186,8 @@ QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParam
 
 QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
+  PRINT_GL_ERRORS;
+
   GLuint texture;
   functions_->glGenTextures(1, &texture);
 
@@ -176,6 +211,8 @@ QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth,
 
 void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
 {
+  PRINT_GL_ERRORS;
+
   functions_->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
                                      GL_COLOR_ATTACHMENT0,
@@ -197,18 +234,24 @@ void OpenGLRenderer::DestroyNativeTexture(QVariant texture)
 
 QVariant OpenGLRenderer::CreateNativeShader(ShaderCode code)
 {
+  PRINT_GL_ERRORS;
+
   QOpenGLShaderProgram* program = new QOpenGLShaderProgram(context_);
 
   QString vert_code = code.vert_code();
   QString frag_code = code.frag_code();
 
-  const QString shader_preamble = QStringLiteral("#version 300 es\n"
-                                                 "\n"
-                                                 "#ifdef GL_ES\n"
-                                                 "precision highp int;\n"
-                                                 "precision highp float;\n"
-                                                 "#endif\n"
-                                                 "\n");
+  QString shader_preamble;
+  if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES) {
+    shader_preamble = QStringLiteral("#version 300 es\n"
+                                     "\n"
+                                     "precision highp int;\n"
+                                     "precision highp float;\n"
+                                     "\n");
+  } else {
+    shader_preamble = QStringLiteral("#version 150\n"
+                                     "\n");
+  }
 
   vert_code.prepend(shader_preamble);
   frag_code.prepend(shader_preamble);
@@ -242,6 +285,8 @@ void OpenGLRenderer::DestroyNativeShader(QVariant shader)
 
 void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int linesize)
 {
+  PRINT_GL_ERRORS;
+
   GLuint t = texture->id().value<GLuint>();
   const VideoParams& p = texture->params();
 
@@ -274,13 +319,16 @@ void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int lines
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
 
-  functions_->glReadPixels(0,
-                           0,
-                           p.width(),
-                           p.height(),
-                           GetPixelFormat(p.channel_count()),
-                           GetPixelType(p.format()),
-                           data);
+  {
+    PRINT_GL_ERRORS;
+    functions_->glReadPixels(0,
+                             0,
+                             p.width(),
+                             p.height(),
+                             (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES) ? GL_RGBA : GetPixelFormat(p.channel_count()),
+                             GetPixelType(p.format()),
+                             data);
+  }
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 
@@ -539,7 +587,10 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     std::swap(output_tex, input_tex);
 
     // Blit this texture through this shader
-    functions_->glDrawArrays(GL_TRIANGLES, 0, blit_vertices.size() / 3);
+    {
+      PRINT_GL_ERRORS;
+      functions_->glDrawArrays(GL_TRIANGLES, 0, blit_vertices.size() / 3);
+    }
   }
 
   if (destination) {

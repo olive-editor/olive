@@ -20,6 +20,7 @@
 
 #include "renderprocessor.h"
 
+#include <QOpenGLContext>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -72,7 +73,11 @@ void RenderProcessor::Run()
       frame_params.set_format(frame_format);
     }
 
-    if (texture) {
+    if (RenderManager::instance()->backend() == RenderManager::kOpenGL
+        && QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES) {
+      // HACK: From what I can tell, ANGLE only supports texture reading to RGBA
+      frame_params.set_channel_count(VideoParams::kRGBAChannelCount);
+    } else if (texture) {
       frame_params.set_channel_count(texture->channel_count());
     }
 
