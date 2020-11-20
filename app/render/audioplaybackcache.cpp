@@ -157,7 +157,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range, qint64 job_time)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
-  if (from_in_time == to_in_time || GetLength().isNull()) {
+  if (from_in_time == to_in_time || from_in_time >= GetLength()) {
     // Nothing to be done
     return;
   }
