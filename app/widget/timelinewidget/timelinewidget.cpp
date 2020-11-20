@@ -599,11 +599,11 @@ void TimelineWidget::ToggleLinksOnSelected()
     blocks.append(item->block());
   }
 
-  if (link) {
-    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, true));
-  } else {
-    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, false));
+  if (blocks.isEmpty()) {
+    return;
   }
+
+  Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, link));
 }
 
 void TimelineWidget::CopySelected(bool cut)
