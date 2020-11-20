@@ -59,7 +59,12 @@ void FootageViewerPanel::SetFootage(Footage *f)
   static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->SetFootage(f);
 
   if (f) {
+    // SetSubtitle() will call Retranslate(), so we don't need to call it here
     SetSubtitle(f->name());
+
+    // Pop this panel up so the user doesn't think nothing's happening if it's behind another tab
+    this->show();
+    this->raise();
   } else {
     Retranslate();
   }
