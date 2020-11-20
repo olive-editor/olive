@@ -22,7 +22,7 @@
 #define OCIOUTILS_H
 
 #include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OpenColorIO_v2_0dev;
+namespace OCIO = OCIO_NAMESPACE;
 
 #include "render/videoparams.h"
 
