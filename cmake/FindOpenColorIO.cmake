@@ -44,6 +44,8 @@ find_path(OCIO_INCLUDE_DIR
         "OCIO headers path"
 )
 
+list(APPEND OCIO_INCLUDE_DIRS ${OCIO_INCLUDE_DIR})
+
 find_library(OCIO_LIBRARY
     NAMES
         libOpenColorIO.so.2.0 # libOpenColorIO.so.2.0 (Linux)
@@ -60,7 +62,9 @@ find_library(OCIO_LIBRARY
         "OCIO library path"
 )
 
-if(OCIO_INCLUDE_DIR AND EXISTS "${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h")
+list(APPEND OCIO_LIBRARIES ${OCIO_LIBRARY})
+
+if(OCIO_INCLUDE_DIRS AND EXISTS "${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h")
     file(STRINGS ${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h
         fullVersion
         REGEX
@@ -74,8 +78,8 @@ include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(OpenColorIO
     REQUIRED_VARS
-        OCIO_LIBRARY
-        OCIO_INCLUDE_DIR
+        OCIO_LIBRARIES
+        OCIO_INCLUDE_DIRS
     VERSION_VAR
         OCIO_VERSION
 )
