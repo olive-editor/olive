@@ -1573,18 +1573,21 @@ void TrackListInsertGaps::redo_internal()
   }
 
   QVector<Block*> blocks_to_split;
-  QList<Block*> blocks_to_append_gap_to;
+  QVector<Block*> blocks_to_append_gap_to;
 
   foreach (TrackOutput* track, working_tracks_) {
     foreach (Block* b, track->Blocks()) {
       if (b->type() == Block::kGap && b->in() <= point_ && b->out() >= point_) {
+        // Found a gap at the location
         gaps_to_extend_.append(b);
+        break;
       } else if (b->type() == Block::kClip && b->out() >= point_) {
         if (b->out() > point_) {
           blocks_to_split.append(b);
         }
 
         blocks_to_append_gap_to.append(b);
+        break;
       }
     }
   }
