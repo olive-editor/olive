@@ -240,6 +240,8 @@ FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cance
     // Retrieve metadata about the media
     avformat_find_stream_info(fmt_ctx, nullptr);
 
+    int64_t footage_duration = fmt_ctx->duration;
+
     QVector<StreamPtr> streams(fmt_ctx->nb_streams);
 
     // Dump it into the Footage object
@@ -298,13 +300,23 @@ FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cance
               if (ret >= 0) {
                 // Check if we need a manual duration
                 if (avstream->duration == AV_NOPTS_VALUE) {
-                  int64_t new_dur;
+                  if (footage_duration == AV_NOPTS_VALUE) {
 
-                  do {
-                    new_dur = frame->pts;
-                  } while (instance.GetFrame(pkt, frame) >= 0);
+                    // Manually read through file for duration
+                    int64_t new_dur;
 
-                  avstream->duration = new_dur;
+                    do {
+                      new_dur = frame->pts;
+                    } while (instance.GetFrame(pkt, frame) >= 0);
+
+                    avstream->duration = new_dur;
+
+                  } else {
+
+                    // Fallback to footage duration
+                    avstream->duration = Timecode::rescale_timestamp_ceil(footage_duration, rational(1, AV_TIME_BASE), avstream->time_base);
+
+                  }
                 }
               } else if (ret == AVERROR_EOF) {
                 // Video has only one frame in it, treat it like a still image
@@ -356,24 +368,30 @@ FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cance
 
           if (avstream->duration == AV_NOPTS_VALUE) {
             // Loop through stream until we get the whole duration
-            Instance instance;
-            instance.Open(filename.toUtf8(), avstream->index);
+            if (footage_duration == AV_NOPTS_VALUE) {
+              Instance instance;
+              instance.Open(filename.toUtf8(), avstream->index);
 
-            AVPacket* pkt = av_packet_alloc();
-            AVFrame* frame = av_frame_alloc();
+              AVPacket* pkt = av_packet_alloc();
+              AVFrame* frame = av_frame_alloc();
 
-            int64_t new_dur;
+              int64_t new_dur;
 
-            do {
-              new_dur = frame->pts;
-            } while (instance.GetFrame(pkt, frame) >= 0);
+              do {
+                new_dur = frame->pts;
+              } while (instance.GetFrame(pkt, frame) >= 0);
 
-            avstream->duration = new_dur;
+              avstream->duration = new_dur;
 
-            av_frame_free(&frame);
-            av_packet_free(&pkt);
+              av_frame_free(&frame);
+              av_packet_free(&pkt);
 
-            instance.Close();
+              instance.Close();
+            } else {
+
+              avstream->duration = Timecode::rescale_timestamp_ceil(footage_duration, rational(1, AV_TIME_BASE), avstream->time_base);
+
+            }
           }
 
           str = audio_stream;
