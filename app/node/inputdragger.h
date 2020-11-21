@@ -34,7 +34,7 @@ public:
 
   void Start(NodeInput* input, const rational& time, int track);
 
-  void Drag(const QVariant &value);
+  void Drag(QVariant value);
 
   void End();
 
