@@ -64,17 +64,6 @@ public:
 
   virtual ~ViewerDisplayWidget() override;
 
-  /**
-  * @brief Return the translation only matrix.
-  */
-  QMatrix4x4 GetMatrixTranslate();
-
-  /**
-   * @brief Return the complete translation and scale matrix but with the Y translation flipped
-   * as OpenGL stores textures "upside down".
-   */
-  QMatrix4x4 GetCompleteMatrixFlippedYTranslation();
-
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
@@ -208,10 +197,22 @@ private:
 
   QTransform GenerateWorldTransform();
 
+  QTransform GenerateGizmoTransform();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
   TexturePtr texture_;
+
+  /**
+   * @brief Internal texture to deinterlace to
+   */
+  TexturePtr deinterlace_texture_;
+
+  /**
+   * @brief Deinterlace shader
+   */
+  QVariant deinterlace_shader_;
 
   /**
    * @brief Translation only matrix (defaults to identity).
@@ -227,6 +228,7 @@ private:
    * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied
    */
   QMatrix4x4 combined_matrix_;
+  QMatrix4x4 combined_matrix_flipped_;
 
   bool signal_cursor_color_;
 
@@ -236,6 +238,7 @@ private:
   NodeValueDatabase gizmo_db_;
   rational gizmo_drag_time_;
   VideoParams gizmo_params_;
+  QPoint gizmo_start_drag_;
   bool gizmo_click_;
 
   rational time_;
