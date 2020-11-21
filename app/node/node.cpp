@@ -372,16 +372,16 @@ bool Node::HasGizmos() const
   return false;
 }
 
-void Node::DrawGizmos(NodeValueDatabase &, QPainter *, const QVector2D &, const QSize &) const
+void Node::DrawGizmos(NodeValueDatabase &, QPainter *)
 {
 }
 
-bool Node::GizmoPress(NodeValueDatabase &, const QPointF &, const QVector2D &, const QSize &)
+bool Node::GizmoPress(NodeValueDatabase &, const QPointF &)
 {
   return false;
 }
 
-void Node::GizmoMove(const QPointF &, const QVector2D &, const rational &)
+void Node::GizmoMove(const QPointF &, const rational&)
 {
 }
 

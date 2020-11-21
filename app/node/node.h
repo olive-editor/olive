@@ -419,10 +419,10 @@ public:
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale, const QSize& viewport) const;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p);
 
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p, const QVector2D &scale, const QSize& viewport);
-  virtual void GizmoMove(const QPointF& p, const QVector2D &scale, const rational &time);
+  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p);
+  virtual void GizmoMove(const QPointF& p, const rational &time);
   virtual void GizmoRelease();
 
   const QString& GetLabel() const;
