@@ -5,201 +5,203 @@
     <name>AudioParams</name>
     <message>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">Stereo</translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <source>2.1</source>
-        <translation type="unfinished">1080p {2.1?}</translation>
+        <translation>2.1</translation>
     </message>
     <message>
         <source>5.1</source>
-        <translation type="unfinished">1080p {5.1?}</translation>
+        <translation>5.1</translation>
     </message>
     <message>
         <source>7.1</source>
-        <translation type="unfinished">1080p {7.1?}</translation>
+        <translation>7.1</translation>
     </message>
     <message>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámé (0x%1)</translation>
     </message>
 </context>
 <context>
     <name>Config</name>
     <message>
         <source>Error loading settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při nahrávání nastavení</translation>
     </message>
     <message>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nahrát nastavení programu. Toto sezení bude používat výchozí nastavení.
+
+%1</translation>
     </message>
     <message>
         <source>Error saving settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při ukládání nastavení</translation>
     </message>
     <message>
         <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
     </message>
 </context>
 <context>
     <name>Footage</name>
     <message>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <source>Filename: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Název souboru: %1</translation>
     </message>
     <message>
         <source>This footage is not valid for use</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento záznam není platný pro použití</translation>
     </message>
 </context>
 <context>
     <name>ImportTool</name>
     <message>
         <source>Don&apos;t ask me again</source>
-        <translation type="unfinished"></translation>
+        <translation>Neptat se znovu</translation>
     </message>
     <message>
         <source>No Active Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný činný úryvek (sled záběrů)</translation>
     </message>
     <message>
         <source>No sequence is currently open. Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation>V současnosti není otevřen žádný úryvek (sled záběrů). Chcete jeden vytvořit?</translation>
     </message>
     <message>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametry zjistit automaticky ze záznamu</translation>
     </message>
     <message>
         <source>Set Parameters Manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit parametry ručně</translation>
     </message>
 </context>
 <context>
     <name>MoveItemCommand</name>
     <message>
         <source>Move Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Přesunout položku</translation>
     </message>
 </context>
 <context>
     <name>NodeCopyPasteWidget</name>
     <message>
         <source>Error pasting nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při vkládání uzlů</translation>
     </message>
     <message>
         <source>Failed to paste nodes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vložit uzly: %1</translation>
     </message>
 </context>
 <context>
     <name>NodeFactory</name>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný</translation>
     </message>
 </context>
 <context>
     <name>NodeViewItem</name>
     <message>
         <source>%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1...</translation>
     </message>
 </context>
 <context>
     <name>PresetManager</name>
     <message>
         <source>Save Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit přednastavení</translation>
     </message>
     <message>
         <source>Set preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit název přednastavení:</translation>
     </message>
     <message>
         <source>Invalid preset name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatný název přednastavení</translation>
     </message>
     <message>
         <source>You must enter a preset name</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte zadat název přednastavení</translation>
     </message>
     <message>
         <source>Preset exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Přednastavení existuje</translation>
     </message>
     <message>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Již je přednastavení s tímto názvem. Chcete je nahradit?</translation>
     </message>
 </context>
 <context>
     <name>RatioDialog</name>
     <message>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte vlastní poměr (např. &quot;4:3&quot;, &quot;16/9&quot;, atd.):</translation>
     </message>
     <message>
         <source>Invalid custom ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatný vlastní poměr</translation>
     </message>
     <message>
         <source>Failed to parse &quot;%1&quot; into an aspect ratio. Please format a rational fraction with a &apos;:&apos; or a &apos;/&apos; separator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se zpracovat &quot;%1&quot; do poměru stran. Naformátujte, prosím, racionální zlomek pomocí oddělovače &apos;:&apos; nebo a &apos;/&apos;.</translation>
     </message>
 </context>
 <context>
     <name>RenameItemCommand</name>
     <message>
         <source>Rename Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Přejmenovat položku</translation>
     </message>
 </context>
 <context>
     <name>Sequence</name>
     <message>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
 </context>
 <context>
     <name>Stream</name>
     <message>
         <source>%1: Audio - %2 Channels, %3Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Zvuk - %2 kanály, %3 Hz</translation>
     </message>
     <message>
         <source>%1: Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Neznámý</translation>
     </message>
     <message>
         <source>%1: Image - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Obrázek - %2x%3</translation>
     </message>
     <message>
         <source>%1: Video - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Obraz - %2x%3</translation>
     </message>
 </context>
 <context>
@@ -210,3681 +212,3692 @@
 In: %2
 Out: %3
 Length: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1
+
+Začátek: %2
+Konec: %3
+Délka: %4</translation>
     </message>
 </context>
 <context>
     <name>Tool</name>
     <message>
         <source>Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Prázdné</translation>
     </message>
     <message>
         <source>Bars</source>
-        <translation type="unfinished">Pruhy</translation>
+        <translation>Pruhy</translation>
     </message>
     <message>
         <source>Solid</source>
-        <translation type="unfinished">Plná</translation>
+        <translation>Plný</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Název</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">Tón</translation>
+        <translation>Odstín</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý</translation>
     </message>
 </context>
 <context>
     <name>VideoParams</name>
     <message>
         <source>8-bit</source>
-        <translation type="unfinished">8-bitů</translation>
+        <translation>8-bitů</translation>
     </message>
     <message>
         <source>16-bit Integer</source>
-        <translation type="unfinished">16-bitů celé číslo</translation>
+        <translation>16-bitů celé číslo</translation>
     </message>
     <message>
         <source>Half-Float (16-bit)</source>
-        <translation type="unfinished">Poloviční plovoucí (16-bitů)</translation>
+        <translation>Poloviční plovoucí (16-bitů)</translation>
     </message>
     <message>
         <source>Full-Float (32-bit)</source>
-        <translation type="unfinished">Celý plovoucí (32-bitů)</translation>
+        <translation>Celý plovoucí (32-bitů)</translation>
     </message>
     <message>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý (0x%1)</translation>
     </message>
     <message>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <source>Square Pixels (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Čtvercové pixely (%1)</translation>
     </message>
     <message>
         <source>NTSC Standard (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard NTSC (%1)</translation>
     </message>
     <message>
         <source>NTSC Widescreen (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Širokoúhlé NTSC (%1)</translation>
     </message>
     <message>
         <source>PAL Standard (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard PAL (%1)</translation>
     </message>
     <message>
         <source>PAL Widescreen (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Širokoúhlé PAL (%1)</translation>
     </message>
     <message>
         <source>HD Anamorphic 1080 (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>HD deformované 1080 (%1)</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
         <source>Show this help text</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat tento text s nápovědou</translation>
     </message>
     <message>
         <source>Show application version</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat verzi programu</translation>
     </message>
     <message>
         <source>Start in full-screen mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Začít v režimu na celou obrazovku</translation>
     </message>
     <message>
         <source>Export only (No GUI)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pouze vyvést (žádné tozhraní)</translation>
     </message>
     <message>
         <source>Override language with file</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepsat jazyk souborem</translation>
     </message>
     <message>
         <source>qm-file</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor .qm</translation>
     </message>
     <message>
         <source>Project to open on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt k otevření při spuštění</translation>
     </message>
 </context>
 <context>
     <name>olive::AboutDialog</name>
     <message>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>O programu %1</translation>
     </message>
     <message>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished">Olive je nelineární editor obrazového záznamu. Tento program je zdarma a chráněn GNU GPL.</translation>
+        <translation>Olive je nelineární editor obrazového záznamu. Tento program je zdarma a chráněn GNU GPL.</translation>
     </message>
     <message>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished">Družstvo Olive se dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
+        <translation>Vývojáři Olive dává uživatelům na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
     </message>
 </context>
 <context>
     <name>olive::ActionSearch</name>
     <message>
         <source>Search for action...</source>
-        <translation type="unfinished">Hledat činnost...</translation>
+        <translation>Hledat činnost...</translation>
     </message>
 </context>
 <context>
     <name>olive::AudioInput</name>
     <message>
         <source>Audio Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup zvuku</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">Zvuk</translation>
+        <translation>Zvuk</translation>
     </message>
     <message>
         <source>Import an audio footage stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavést zvukový záznam.</translation>
     </message>
 </context>
 <context>
     <name>olive::AudioMonitorPanel</name>
     <message>
         <source>Audio Monitor</source>
-        <translation type="unfinished"></translation>
+        <translation>Sledování zvuku</translation>
     </message>
 </context>
 <context>
     <name>olive::Block</name>
     <message>
         <source>Length</source>
-        <translation type="unfinished">Délka</translation>
+        <translation>Délka</translation>
     </message>
     <message>
         <source>Media In</source>
-        <translation type="unfinished"></translation>
+        <translation>Začátek záznamu</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Povoleno</translation>
     </message>
     <message>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Rychlost</translation>
     </message>
 </context>
 <context>
     <name>olive::BlurFilterNode</name>
     <message>
         <source>Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmazání</translation>
     </message>
     <message>
         <source>Blurs an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmaže obrázek.</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Metoda</translation>
     </message>
     <message>
         <source>Box</source>
-        <translation type="unfinished"></translation>
+        <translation>Rámeček</translation>
     </message>
     <message>
         <source>Gaussian</source>
-        <translation type="unfinished"></translation>
+        <translation>Gausovské</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Poloměr</translation>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Vodorovné</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Svislé</translation>
     </message>
     <message>
         <source>Repeat Edge Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Opakovat okrajové pixely</translation>
     </message>
 </context>
 <context>
     <name>olive::ClipBlock</name>
     <message>
         <source>Clip</source>
-        <translation type="unfinished"></translation>
+        <translation>Záběr</translation>
     </message>
     <message>
         <source>A time-based node that represents a media source.</source>
-        <translation type="unfinished"></translation>
+        <translation>Časově založený uzel, který představuje zdroj záznamu.</translation>
     </message>
     <message>
         <source>Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyrovnávací paměť</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorDialog</name>
     <message>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vybrat barvu</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorSpaceChooser</name>
     <message>
         <source>Color Management</source>
-        <translation type="unfinished">Správa barev</translation>
+        <translation>Správa barev</translation>
     </message>
     <message>
         <source>Input:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup:</translation>
     </message>
     <message>
         <source>Color Space:</source>
-        <translation type="unfinished">Barevný prostor:</translation>
+        <translation>Barevný prostor:</translation>
     </message>
     <message>
         <source>Display:</source>
-        <translation type="unfinished">Zobrazení:</translation>
+        <translation>Zobrazení:</translation>
     </message>
     <message>
         <source>View:</source>
-        <translation type="unfinished">Pohled:</translation>
+        <translation>Pohled:</translation>
     </message>
     <message>
         <source>Look:</source>
-        <translation type="unfinished">Vzhled:</translation>
+        <translation>Vzhled:</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorValuesTab</name>
     <message>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Červená</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Zelená</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Modrá</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorValuesWidget</name>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhled</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Odkaz</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazení</translation>
     </message>
 </context>
 <context>
     <name>olive::ConformTask</name>
     <message>
         <source>Conforming Audio %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Přizpůsobující se zvuk %1:%2</translation>
     </message>
 </context>
 <context>
     <name>olive::Core</name>
     <message>
         <source>Import error</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při zavádění</translation>
     </message>
     <message>
         <source>Nothing to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Nic k zavedení</translation>
     </message>
     <message>
         <source>Importing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavádí se...</translation>
     </message>
     <message>
         <source>Import footage...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavést záznam...</translation>
     </message>
     <message>
         <source>Failed to import footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se zavést záznam</translation>
     </message>
     <message>
         <source>Failed to find active Project panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se najít panel s činným projektem</translation>
     </message>
     <message>
         <source>No Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný činný projekt</translation>
     </message>
     <message>
         <source>No project is currently open to set the properties for</source>
-        <translation type="unfinished"></translation>
+        <translation>V současnosti není otevřen projekt, pro nějž by se daly nastavit vlastnosti</translation>
     </message>
     <message>
         <source>Failed to create new folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vytvořit novou složku</translation>
     </message>
     <message>
         <source>Failed to find active project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se najít činný projekt</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished">Nová složka</translation>
+        <translation>Nová složka</translation>
     </message>
     <message>
         <source>Failed to create new sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vytvořit nový úryvek</translation>
     </message>
     <message>
         <source>Possible image sequence detected</source>
-        <translation type="unfinished"></translation>
+        <translation>Zjištěna možná obrázková řada</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor &apos;%1&apos; vypadá na to, že by mohl být součástí obrázkové řady. Chcete jej zavést jako takový?</translation>
     </message>
     <message>
         <source>You must specify a project file to export</source>
-        <translation type="unfinished"></translation>
+        <translation>Musíte určit soubor projektu, který chcete vyvést</translation>
     </message>
     <message>
         <source>Specified project does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Daný projekt neexistuje</translation>
     </message>
     <message>
         <source>Project contains no sequences, nothing to export</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt neobsahuje žádné úryvky, není co vyvést</translation>
     </message>
     <message>
         <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation type="unfinished"></translation>
+        <translation>V tomto projektu je více úryvků. Který chcete vyvést?</translation>
     </message>
     <message>
         <source>Enter number (or %1 to cancel): </source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte číslo (nebo %1 pro zrušení): </translation>
     </message>
     <message>
         <source>Invalid sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatné číslo úryvku</translation>
     </message>
     <message>
         <source>Export succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Podařilo se vyvést</translation>
     </message>
     <message>
         <source>Export failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vyvést: %1</translation>
     </message>
     <message>
         <source>Project failed to load: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt se nepodařilo nahrát: %1</translation>
     </message>
     <message>
         <source>Failed to open startup file</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít spouštěcí soubor</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; doesn&apos;t exist. A new project will be started instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; neexistuje. Místo toho bude zahájen nový projekt.</translation>
     </message>
     <message>
         <source>Missing OpenTimelineIO Libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Chybí knihovny OpenTimelineIO</translation>
     </message>
     <message>
         <source>This build was compiled without OpenTimelineIO and therefore cannot open OpenTimelineIO files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toto sestavení bylo přeloženo bez OpenTimelineIO, a proto nemůže otevřít soubory OpenTimelineIO.</translation>
     </message>
     <message>
         <source>Save Project</source>
-        <translation type="unfinished">Uložit projekt</translation>
+        <translation>Uložit projekt</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Chyba</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
         <source>This Sequence is empty. There is nothing to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento úryvek je prázdný. Není co vyvádět.</translation>
     </message>
     <message>
         <source>No valid sequence detected.
 
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nezjištěn žádný platný úryvek.
+
+Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</translation>
     </message>
     <message>
         <source>Olive Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Olive</translation>
     </message>
     <message>
         <source>OpenTimelineIO</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenTimelineIO</translation>
     </message>
     <message>
         <source>Save Project As</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit projekt jako</translation>
     </message>
     <message>
         <source>Load Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrát projekt</translation>
     </message>
     <message>
         <source>Label Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Označit uzel</translation>
     </message>
     <message>
         <source>Set node label</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit štítek uzlu</translation>
     </message>
     <message>
         <source>Sequence %1</source>
-        <translation type="unfinished">Úryvek %1</translation>
+        <translation>Úryvek %1</translation>
     </message>
     <message>
         <source>Cannot open recent project</source>
-        <translation type="unfinished"></translation>
+        <translation>Nelze otevřít nedávný projekt</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; neexistuje. Chcete tento soubor odstranit ze seznamu nedávno otevřených souborů?</translation>
     </message>
     <message>
         <source>Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuložené změny</translation>
     </message>
     <message>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &apos;%1&apos; má neuložené změny. Chcete je uložit?</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit</translation>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit vše</translation>
     </message>
     <message>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukládat</translation>
     </message>
     <message>
         <source>Don&apos;t Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Neukládat vše</translation>
     </message>
     <message>
         <source>Failed to cache sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Úryvek se nepodařilo uložit do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>No active viewer found with this sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenalezen žádný prohlížeč s tímto úryvkem.</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Otevřít projekt</translation>
+        <translation>Otevřít projekt</translation>
     </message>
 </context>
 <context>
     <name>olive::CrashHandlerDialog</name>
     <message>
         <source>Olive</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive</translation>
     </message>
     <message>
         <source>We&apos;re sorry, Olive has crashed. Please help us fix it by sending an error report.</source>
-        <translation type="unfinished"></translation>
+        <translation>Je nám to líto, ale Olive spadl. Pomozte nám jej opravit zasláním chybové zprávy.</translation>
     </message>
     <message>
         <source>Describe what you were doing in as much detail as possible. If you can, provide steps to reproduce this crash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Co nejpodrobněji popište, co jste dělal. Pokud můžete, poskytněte popis kroků k zopakování tohoto pádu.</translation>
     </message>
     <message>
         <source>Crash Report:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpráva o pádu:</translation>
     </message>
     <message>
         <source>Send Error Report</source>
-        <translation type="unfinished"></translation>
+        <translation>Poslat zprávu o chybě</translation>
     </message>
     <message>
         <source>Don&apos;t Send</source>
-        <translation type="unfinished"></translation>
+        <translation>Neposílat</translation>
     </message>
     <message>
         <source>Waiting for crash report to be generated...</source>
-        <translation type="unfinished"></translation>
+        <translation>Čeká se na vytvoření zprávy o pádu...</translation>
     </message>
     <message>
         <source>Upload Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrání selhalo</translation>
     </message>
     <message>
         <source>Failed to send error report. Please try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se poslat zprávu o chybě. Zkuste to, prosím, znovu později.</translation>
     </message>
     <message>
         <source>No Crash Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádné shrnutí pádu</translation>
     </message>
     <message>
         <source>Are you sure you want to send an error report with no crash summary?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete odeslat zprávu o chybě bez shrnutí okolností pádu?</translation>
     </message>
 </context>
 <context>
     <name>olive::CrossDissolveTransition</name>
     <message>
         <source>Cross Dissolve</source>
-        <translation type="unfinished">Prolínat obraz křížem</translation>
+        <translation>Prolínat obraz křížem</translation>
     </message>
     <message>
         <source>Smoothly transition between two clips.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plynulý přechod mezi dvěma záběry.</translation>
     </message>
 </context>
 <context>
     <name>olive::CurvePanel</name>
     <message>
         <source>Curve Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor křivky</translation>
     </message>
 </context>
 <context>
     <name>olive::CurveView</name>
     <message>
         <source>Zoom to Fit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvětšit pro přizpůsobení</translation>
     </message>
 </context>
 <context>
     <name>olive::CurveWidget</name>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Lineární</translation>
+        <translation>Lineární</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">Bézier</translation>
+        <translation>Bézier</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Držet</translation>
+        <translation>Držet</translation>
     </message>
 </context>
 <context>
     <name>olive::DipToColorTransition</name>
     <message>
         <source>Dip To Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Ponořit do barvy</translation>
     </message>
     <message>
         <source>Transition between clips by dipping to a color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Přechod mezi záběry ponořením do barvy.</translation>
     </message>
 </context>
 <context>
     <name>olive::DiskCacheDialog</name>
     <message>
         <source>Disk Cache: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť: %1</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení diskové vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Maximum Disk Cache:</source>
-        <translation type="unfinished"></translation>
+        <translation>Největší disková vyrovnávací paměť:</translation>
     </message>
     <message>
         <source>%1 GB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 GB</translation>
     </message>
     <message>
         <source>Clear Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyprázdnit diskovou vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Automatically clear disk cache on close</source>
-        <translation type="unfinished"></translation>
+        <translation>Při zavření automaticky vyprázdnit diskovou vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Are you sure you want to clear the disk cache in &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete vyprázdnit diskovou vyrovnávací paměť v &apos;%1&apos;?</translation>
     </message>
     <message>
         <source>Disk Cache Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť vyprázdněna</translation>
     </message>
     <message>
         <source>Disk cache failed to fully clear. You may have to delete the cache files manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diskovou vyrovnávací paměť se nepodařilo plně vyprázdnit. Možná budete muset soubory vyrovnávací paměti odstranit ručně.</translation>
     </message>
     <message>
         <source>Disk Cache Partially Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť vyprázdněna částečně</translation>
     </message>
 </context>
 <context>
     <name>olive::DiskManager</name>
     <message>
         <source>Disk Cache Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba diskové vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Unable to set custom application disk cache. Using default instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nelze nastavit diskovou vyrovnávací paměť vlastní aplikace. Místo toho se používá výchozí.</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť</translation>
     </message>
     <message>
         <source>You&apos;ve chosen to change the default disk cache location. This will invalidate your current cache. Would you like to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozhodl jste se změnit výchozí umístění diskové vyrovnávací paměti disku. To zneplatní vaši nynější vyrovnávací paměť. Chcete pokračovat?</translation>
     </message>
     <message>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít diskovou vyrovnávací paměť &quot;%1&quot;. Zkuste jinou složku.</translation>
     </message>
 </context>
 <context>
     <name>olive::ElapsedCounterWidget</name>
     <message>
         <source>Elapsed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uplynulo: %1</translation>
     </message>
     <message>
         <source>Remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbývá: %1</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportAdvancedVideoDialog</name>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Pokročilé</translation>
+        <translation>Pokročilé</translation>
     </message>
     <message>
         <source>Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrazový bod</translation>
     </message>
     <message>
         <source>Pixel Format:</source>
-        <translation type="unfinished">Formát pixelu:</translation>
+        <translation>Formát pixelu:</translation>
     </message>
     <message>
         <source>Performance</source>
-        <translation type="unfinished"></translation>
+        <translation>Provedení</translation>
     </message>
     <message>
         <source>Threads:</source>
-        <translation type="unfinished">Vlákna:</translation>
+        <translation>Vlákna:</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportAudioTab</name>
     <message>
         <source>Codec:</source>
-        <translation type="unfinished">Kodek:</translation>
+        <translation>Kodek:</translation>
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Vzorkovací kmitočet:</translation>
+        <translation>Vzorkovací kmitočet:</translation>
     </message>
     <message>
         <source>Channel Layout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozložení kanálu:</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished">Formát:</translation>
+        <translation>Formát:</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportCodec</name>
     <message>
         <source>DNxHD</source>
-        <translation type="unfinished"></translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <source>H.264</source>
-        <translation type="unfinished"></translation>
+        <translation>H.264</translation>
     </message>
     <message>
         <source>H.265</source>
-        <translation type="unfinished"></translation>
+        <translation>H.265</translation>
     </message>
     <message>
         <source>OpenEXR</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <source>PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <source>ProRes</source>
-        <translation type="unfinished"></translation>
+        <translation>ProRes</translation>
     </message>
     <message>
         <source>TIFF</source>
-        <translation type="unfinished"></translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <source>MP2</source>
-        <translation type="unfinished"></translation>
+        <translation>MP2</translation>
     </message>
     <message>
         <source>MP3</source>
-        <translation type="unfinished"></translation>
+        <translation>MP3</translation>
     </message>
     <message>
         <source>AAC</source>
-        <translation type="unfinished"></translation>
+        <translation>AAC</translation>
     </message>
     <message>
         <source>PCM (Uncompressed)</source>
-        <translation type="unfinished"></translation>
+        <translation>PCM (nekomprimovaný)</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportDialog</name>
     <message>
         <source>Filename:</source>
-        <translation type="unfinished">Název souboru:</translation>
+        <translation>Název souboru:</translation>
     </message>
     <message>
         <source>Browse for exported file filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Procházet na souborový název vyvedeného souboru</translation>
     </message>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Přednastavení:</translation>
+        <translation>Přednastavení:</translation>
     </message>
     <message>
         <source>Same As Source - High Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Stejné jako zdroj - vysoká jakost</translation>
     </message>
     <message>
         <source>Same As Source - Medium Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Stejné jako zdroj - střední jakost</translation>
     </message>
     <message>
         <source>Same As Source - Low Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Stejné jako zdroj - nízká jakost</translation>
     </message>
     <message>
         <source>Range:</source>
-        <translation type="unfinished">Rozsah:</translation>
+        <translation>Rozsah:</translation>
     </message>
     <message>
         <source>Entire Sequence</source>
-        <translation type="unfinished">Celý úryvek (sled záběrů)</translation>
+        <translation>Celý úryvek</translation>
     </message>
     <message>
         <source>In to Out</source>
-        <translation type="unfinished">Vstup do výstupu</translation>
+        <translation>Od začátku po konec</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished">Formát:</translation>
+        <translation>Formát:</translation>
     </message>
     <message>
         <source>Export Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyvést obraz</translation>
     </message>
     <message>
         <source>Export Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyvést zvuk</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">Obraz</translation>
+        <translation>Obraz</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">Zvuk</translation>
+        <translation>Zvuk</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Vyvést</translation>
+        <translation>Vyvést</translation>
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhled</translation>
     </message>
     <message>
         <source>Invalid parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatné parametry</translation>
     </message>
     <message>
         <source>Both video and audio are disabled. There&apos;s nothing to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obraz i zvuk jsou vypnuty. Není co vyvádět.</translation>
     </message>
     <message>
         <source>Invalid filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatný název souboru</translation>
     </message>
     <message>
         <source>The filename must contain the extension &quot;%1&quot;. Would you like to append it automatically?</source>
-        <translation type="unfinished"></translation>
+        <translation>Název souboru musí obsahovat příponu &quot;%1&quot;. Chcete ji připojit automaticky?</translation>
     </message>
     <message>
         <source>Failed to create output directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vytvořit výstupní adresář</translation>
     </message>
     <message>
         <source>The intended output directory doesn&apos;t exist and Olive couldn&apos;t create it. Please choose a different filename.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamýšlený výstupní adresář neexistuje a Olive jej nemohl vytvořit. Vyberte jiný název souboru.</translation>
     </message>
     <message>
         <source>Confirm Overwrite</source>
-        <translation type="unfinished"></translation>
+        <translation>Potvrdit přepsání</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor &quot;%1&quot; již existuje. Chcete jej přepsat?</translation>
     </message>
     <message>
         <source>Invalid Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatné parametry</translation>
     </message>
     <message>
         <source>Width and height must be multiples of 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Šířka a výška musí být násobkem 2.</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportFormat</name>
     <message>
         <source>DNxHD</source>
-        <translation type="unfinished"></translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <source>Matroska Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video Matroska</translation>
     </message>
     <message>
         <source>MPEG-4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video MPEG-4</translation>
     </message>
     <message>
         <source>OpenEXR</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <source>PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <source>TIFF</source>
-        <translation type="unfinished"></translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <source>QuickTime</source>
-        <translation type="unfinished"></translation>
+        <translation>QuickTime</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportTask</name>
     <message>
         <source>Exporting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyvádí se &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Failed to create encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vytvořit kodér</translation>
     </message>
     <message>
         <source>Failed to open file</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít soubor</translation>
     </message>
     <message>
         <source>Failed to overwrite &quot;%1&quot;. Export has been saved as &quot;%2&quot; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se přepsat &quot;%1&quot;. Vyvedení bylo místo toho uloženo jako &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportVideoTab</name>
     <message>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Základní</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">Šířka:</translation>
+        <translation>Šířka:</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">Výška:</translation>
+        <translation>Výška:</translation>
     </message>
     <message>
         <source>Maintain Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zachovat poměr stran:</translation>
     </message>
     <message>
         <source>Scaling Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Způsob změny velikosti:</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">Vejít se</translation>
+        <translation>Přizpůsobit</translation>
     </message>
     <message>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Roztáhnout</translation>
     </message>
     <message>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translation>Oříznout</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Snímkování:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">Poměr stran pixelu:</translation>
+        <translation>Poměr stran pixelu:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">Prokládání:</translation>
+        <translation>Prokládání:</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jakost:</translation>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Kodek</translation>
     </message>
     <message>
         <source>Codec:</source>
-        <translation type="unfinished">Kodek:</translation>
+        <translation>Kodek:</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Pokročilé</translation>
+        <translation>Pokročilé</translation>
     </message>
 </context>
 <context>
     <name>olive::FloatSlider</name>
     <message>
         <source>%1 dB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 dB</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>
     <name>olive::FootagePropertiesDialog</name>
     <message>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished">&quot;%1&quot; Vlastnosti</translation>
+        <translation>&quot;%1&quot; Vlastnosti</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Název:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>Tracks:</source>
-        <translation type="unfinished">Stopy:</translation>
+        <translation>Stopy:</translation>
     </message>
 </context>
 <context>
     <name>olive::FootageRelinkDialog</name>
     <message>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Záznam</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Název souboru</translation>
     </message>
     <message>
         <source>Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Činnosti</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Procházet</translation>
+        <translation>Procházet</translation>
     </message>
     <message>
         <source>Relink Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Opětovně propojit záběry</translation>
     </message>
     <message>
         <source>Relink &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Opětovně propojit &quot;%1&quot;</translation>
     </message>
     <message>
         <source>All Files</source>
-        <translation type="unfinished">Všechny soubory</translation>
+        <translation>Všechny soubory</translation>
     </message>
 </context>
 <context>
     <name>olive::FootageViewerPanel</name>
     <message>
         <source>Footage Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Prohlížeč záznamu</translation>
     </message>
 </context>
 <context>
     <name>olive::GapBlock</name>
     <message>
         <source>Gap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mezera</translation>
     </message>
     <message>
         <source>A time-based node that represents an empty space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Na čase založený uzel představující prázdné místo.</translation>
     </message>
 </context>
 <context>
     <name>olive::H264BitRateSection</name>
     <message>
         <source>Target Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Cílový datový tok (MB/s):</translation>
     </message>
     <message>
         <source>Maximum Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Největší datový tok (MB/s):</translation>
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Dva průchody</translation>
     </message>
 </context>
 <context>
     <name>olive::H264FileSizeSection</name>
     <message>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished">Velikost cílového souboru (MB):</translation>
+        <translation>Cílová velikost souboru (MB):</translation>
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Dva průchody</translation>
     </message>
 </context>
 <context>
     <name>olive::H264Section</name>
     <message>
         <source>Compression Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompresní postup:</translation>
     </message>
     <message>
         <source>Constant Rate Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Činitel stálého datového toku</translation>
     </message>
     <message>
         <source>Target Bit Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Cílový datový tok</translation>
     </message>
     <message>
         <source>Target File Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Cílová velikost souboru</translation>
     </message>
 </context>
 <context>
     <name>olive::ImageSection</name>
     <message>
         <source>Image Sequence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrázková řada:</translation>
     </message>
 </context>
 <context>
     <name>olive::InterlacedComboBox</name>
     <message>
         <source>None (Progressive)</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný (progresivní)</translation>
     </message>
     <message>
         <source>Top-Field First</source>
-        <translation type="unfinished"></translation>
+        <translation>Nejprve horní pole</translation>
     </message>
     <message>
         <source>Bottom-Field First</source>
-        <translation type="unfinished"></translation>
+        <translation>Nejprve dolní pole</translation>
     </message>
 </context>
 <context>
     <name>olive::KeyframePropertiesDialog</name>
     <message>
         <source>Keyframe Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastnosti klíčového snímku</translation>
     </message>
     <message>
         <source>In:</source>
-        <translation type="unfinished"></translation>
+        <translation>Začátek:</translation>
     </message>
     <message>
         <source>Out:</source>
-        <translation type="unfinished"></translation>
+        <translation>Konec:</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Lineární</translation>
+        <translation>Lineární</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Držet</translation>
+        <translation>Držet</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">Bézier</translation>
+        <translation>Bézier</translation>
     </message>
 </context>
 <context>
     <name>olive::KeyframeViewBase</name>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Lineární</translation>
+        <translation>Lineární</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">Bézier</translation>
+        <translation>Bézier</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Držet</translation>
+        <translation>Držet</translation>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vlastnosti</translation>
     </message>
 </context>
 <context>
     <name>olive::LoadOTIOTask</name>
     <message>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nahrát OpenTimelineIO ze souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unknown OpenTimelineIO root element</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý kořenový prvek OpenTimelineIO</translation>
     </message>
     <message>
         <source>Failed to load clip</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nahrát záběr</translation>
     </message>
 </context>
 <context>
     <name>olive::MainMenu</name>
     <message>
         <source>&amp;Save &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Uložit &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Save &apos;%1&apos; &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit &apos;%1&apos; &amp;jako</translation>
     </message>
     <message>
         <source>Close &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Close All Except &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít vše vyjma &apos;%1&apos;</translation>
     </message>
     <message>
         <source>&amp;Save Project</source>
-        <translation type="unfinished">&amp;Uložit projekt</translation>
+        <translation>&amp;Uložit projekt</translation>
     </message>
     <message>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished">Uložit projekt j&amp;ako</translation>
+        <translation>Uložit projekt j&amp;ako</translation>
     </message>
     <message>
         <source>Close Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít projekt</translation>
     </message>
     <message>
         <source>Close All Except Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít vše vyjma nynějšího projektu</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished">&amp;Soubor</translation>
+        <translation>&amp;Soubor</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Nový</translation>
+        <translation>&amp;Nový</translation>
     </message>
     <message>
         <source>&amp;Open Project</source>
-        <translation type="unfinished">&amp;Otevřít projekt</translation>
+        <translation>&amp;Otevřít projekt</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít &amp;nedávný</translation>
     </message>
     <message>
         <source>&amp;Clear Recent List</source>
-        <translation type="unfinished"></translation>
+        <translation>V&amp;yprázdnit seznam nedávno otevřených</translation>
     </message>
     <message>
         <source>Sa&amp;ve All Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Uložit všechny projekty</translation>
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation type="unfinished">&amp;Zavést...</translation>
+        <translation>&amp;Zavést...</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vyvést</translation>
     </message>
     <message>
         <source>&amp;Media...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Záznamy...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastnosti &amp;projektu...</translation>
     </message>
     <message>
         <source>Close All Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít všechny projekty</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished">&amp;Ukončit</translation>
+        <translation>&amp;Ukončit</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">Úp&amp;ravy</translation>
+        <translation>Úp&amp;ravy</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="unfinished"></translation>
+        <translation>Vložit</translation>
     </message>
     <message>
         <source>Overwrite</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepsat</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Vybrat &amp;vše</translation>
+        <translation>Vybrat &amp;vše</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation type="unfinished">Zrušit výběr všeho</translation>
+        <translation>Zrušit výběr všeho</translation>
     </message>
     <message>
         <source>Ripple to In Point</source>
-        <translation type="unfinished">Vložit a posunout k bodu začátku</translation>
+        <translation>Vložit a posunout k bodu začátku</translation>
     </message>
     <message>
         <source>Ripple to Out Point</source>
-        <translation type="unfinished">Vložit a posunout k bodu konce</translation>
+        <translation>Vložit a posunout k bodu konce</translation>
     </message>
     <message>
         <source>Edit to In Point</source>
-        <translation type="unfinished">Upravit po bod začátku</translation>
+        <translation>Upravit po bod začátku</translation>
     </message>
     <message>
         <source>Edit to Out Point</source>
-        <translation type="unfinished">Upravit po bod konce</translation>
+        <translation>Upravit po bod konce</translation>
     </message>
     <message>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished">Smazat bod začátku/konce</translation>
+        <translation>Smazat bod začátku/konce</translation>
     </message>
     <message>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished">Vytáhnout bod začátku/konce</translation>
+        <translation>Vytáhnout bod začátku/konce</translation>
     </message>
     <message>
         <source>Set/Edit Marker</source>
-        <translation type="unfinished">Nastavit/Upravit značku</translation>
+        <translation>Nastavit/Upravit značku</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished">&amp;Pohled</translation>
+        <translation>&amp;Pohled</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Přiblížit</translation>
+        <translation>Přiblížit</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Oddálit</translation>
+        <translation>Oddálit</translation>
     </message>
     <message>
         <source>Increase Track Height</source>
-        <translation type="unfinished">Zvětšit výšku stopy</translation>
+        <translation>Zvětšit výšku stopy</translation>
     </message>
     <message>
         <source>Decrease Track Height</source>
-        <translation type="unfinished">Zmenšit výšku stopy</translation>
+        <translation>Zmenšit výšku stopy</translation>
     </message>
     <message>
         <source>Toggle Show All</source>
-        <translation type="unfinished">Přepnout ukázání všeho</translation>
+        <translation>Přepnout ukázání všeho</translation>
     </message>
     <message>
         <source>Full Screen</source>
-        <translation type="unfinished">Celá obrazovka</translation>
+        <translation>Celá obrazovka</translation>
     </message>
     <message>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished">Prohlížeč na celou obrazovku</translation>
+        <translation>Prohlížeč na celou obrazovku</translation>
     </message>
     <message>
         <source>&amp;Playback</source>
-        <translation type="unfinished">&amp;Přehrávání</translation>
+        <translation>&amp;Přehrávání</translation>
     </message>
     <message>
         <source>Go to Start</source>
-        <translation type="unfinished">Jít na začátek</translation>
+        <translation>Jít na začátek</translation>
     </message>
     <message>
         <source>Previous Frame</source>
-        <translation type="unfinished">Předchozí snímek</translation>
+        <translation>Předchozí snímek</translation>
     </message>
     <message>
         <source>Play/Pause</source>
-        <translation type="unfinished">Přehrát/Pozastavit</translation>
+        <translation>Přehrát/Pozastavit</translation>
     </message>
     <message>
         <source>Play In to Out</source>
-        <translation type="unfinished">Přehrát od začátku po konec</translation>
+        <translation>Přehrát od začátku po konec</translation>
     </message>
     <message>
         <source>Next Frame</source>
-        <translation type="unfinished">Další snímek</translation>
+        <translation>Další snímek</translation>
     </message>
     <message>
         <source>Go to End</source>
-        <translation type="unfinished">Jít na konec</translation>
+        <translation>Jít na konec</translation>
     </message>
     <message>
         <source>Go to Previous Cut</source>
-        <translation type="unfinished">Jít na předchozí záběr</translation>
+        <translation>Jít na předchozí záběr</translation>
     </message>
     <message>
         <source>Go to Next Cut</source>
-        <translation type="unfinished">Jít na další záběr</translation>
+        <translation>Jít na další záběr</translation>
     </message>
     <message>
         <source>Go to In Point</source>
-        <translation type="unfinished">Jít na bod začátku</translation>
+        <translation>Jít na bod začátku</translation>
     </message>
     <message>
         <source>Go to Out Point</source>
-        <translation type="unfinished">Jít na bod konce</translation>
+        <translation>Jít na bod konce</translation>
     </message>
     <message>
         <source>Shuttle Left</source>
-        <translation type="unfinished">Jezdit tam a zpět vlevo</translation>
+        <translation>Jezdit tam a zpět vlevo</translation>
     </message>
     <message>
         <source>Shuttle Stop</source>
-        <translation type="unfinished">Zastavit pendlování</translation>
+        <translation>Zastavit pendlování</translation>
     </message>
     <message>
         <source>Shuttle Right</source>
-        <translation type="unfinished">Jezdit tam a zpět vpravo</translation>
+        <translation>Jezdit tam a zpět vpravo</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished">Smyčka</translation>
+        <translation>Smyčka</translation>
     </message>
     <message>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">Ú&amp;ryvek</translation>
+        <translation>Ú&amp;ryvek</translation>
     </message>
     <message>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit celý úryvek do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Cache Sequence In/Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit začátek/konec úryvku do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Maximize Panel</source>
-        <translation type="unfinished">Zvětšit panel</translation>
+        <translation>Zvětšit panel</translation>
     </message>
     <message>
         <source>Lock Panels</source>
-        <translation type="unfinished">Uzamknout panely</translation>
+        <translation>Uzamknout panely</translation>
     </message>
     <message>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished">Obnovit výchozí rozvržení</translation>
+        <translation>Obnovit výchozí rozvržení</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation type="unfinished">&amp;Nástroje</translation>
+        <translation>&amp;Nástroje</translation>
     </message>
     <message>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukazovátko</translation>
     </message>
     <message>
         <source>Edit Tool</source>
-        <translation type="unfinished">Nástroj pro úpravy</translation>
+        <translation>Upravení</translation>
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Vložení a posunutí</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Válcování</translation>
     </message>
     <message>
         <source>Razor Tool</source>
-        <translation type="unfinished">Nástroj břitvy</translation>
+        <translation>Břitva</translation>
     </message>
     <message>
         <source>Slip Tool</source>
-        <translation type="unfinished">Roztočení se ztotožněním</translation>
+        <translation>Skluz</translation>
     </message>
     <message>
         <source>Slide Tool</source>
-        <translation type="unfinished">Roztočení</translation>
+        <translation>Posouvání</translation>
     </message>
     <message>
         <source>Hand Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ručička</translation>
     </message>
     <message>
         <source>Zoom Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvětšení</translation>
     </message>
     <message>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Přechod</translation>
     </message>
     <message>
         <source>Enable Snapping</source>
-        <translation type="unfinished">Povolit přichytávání</translation>
+        <translation>Povolit přichytávání</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Nastavení</translation>
+        <translation>Nastavení</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished">Nápo&amp;věda</translation>
+        <translation>Nápo&amp;věda</translation>
     </message>
     <message>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished">Hledání č&amp;inností</translation>
+        <translation>Hledání č&amp;inností</translation>
     </message>
     <message>
         <source>Send &amp;Feedback...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odeslat &amp;zpětnou vazbu...</translation>
     </message>
     <message>
         <source>&amp;About...</source>
-        <translation type="unfinished">&amp;O programu...</translation>
+        <translation>&amp;O programu...</translation>
     </message>
 </context>
 <context>
     <name>olive::MainStatusBar</name>
     <message>
         <source>Welcome to %1 %2</source>
-        <translation type="unfinished">Vítejte v %1 %2</translation>
+        <translation>Vítejte v %1 %2</translation>
     </message>
     <message>
         <source>Running %1 background tasks</source>
-        <translation type="unfinished"></translation>
+        <translation>Na pozadí běží %1 úloh</translation>
     </message>
 </context>
 <context>
     <name>olive::MainWindow</name>
     <message>
         <source>Driver Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Varování týkající se ovladače</translation>
     </message>
     <message>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive zjistil, že systém používá grafický ovladač Nouveau.
+
+Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. Důrazně doporučujeme, abyste si před dalším používáním Olive nainstalovali vlastní ovladač NVIDIA.</translation>
     </message>
 </context>
 <context>
     <name>olive::ManagedDisplayWidget</name>
     <message>
         <source>Color Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Barevný prostor</translation>
     </message>
     <message>
         <source>No color manager connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Není připojen žádný správce barev</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazení</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished">Pohled</translation>
+        <translation>Pohled</translation>
     </message>
     <message>
         <source>Look</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
     <message>
         <source>OpenColorIO Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba v OpenColorIO</translation>
     </message>
     <message>
         <source>Failed to set color configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nastavit nastavení barev: %1</translation>
     </message>
 </context>
 <context>
     <name>olive::ManagedPixelSamplerWidget</name>
     <message>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazení</translation>
     </message>
     <message>
         <source>Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Odkaz</translation>
     </message>
 </context>
 <context>
     <name>olive::MathNode</name>
     <message>
         <source>Math</source>
-        <translation type="unfinished"></translation>
+        <translation>Matematika</translation>
     </message>
     <message>
         <source>Perform a mathematical operation between two values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Provést matematickou operaci mezi dvěma hodnotami.</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Metoda</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Hodnota</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Sčítat</translation>
     </message>
     <message>
         <source>Subtract</source>
-        <translation type="unfinished"></translation>
+        <translation>Odčítat</translation>
     </message>
     <message>
         <source>Multiply</source>
-        <translation type="unfinished">Znásobit</translation>
+        <translation>Násobit</translation>
     </message>
     <message>
         <source>Divide</source>
-        <translation type="unfinished"></translation>
+        <translation>Dělit</translation>
     </message>
     <message>
         <source>Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Mocnina</translation>
     </message>
 </context>
 <context>
     <name>olive::MatrixGenerator</name>
     <message>
         <source>Orthographic Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravopisná matice</translation>
     </message>
     <message>
         <source>Ortho</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravopis</translation>
     </message>
     <message>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořte ortografickou matici pomocí polohy, otočení a měřítka.</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Poloha</translation>
+        <translation>Poloha</translation>
     </message>
     <message>
         <source>Rotation</source>
-        <translation type="unfinished">Otočení</translation>
+        <translation>Otočení</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation type="unfinished">Měřítko</translation>
+        <translation>Měřítko</translation>
     </message>
     <message>
         <source>Uniform Scale</source>
-        <translation type="unfinished">Jednotné měřítko</translation>
+        <translation>Jednotné měřítko</translation>
     </message>
     <message>
         <source>Anchor Point</source>
-        <translation type="unfinished">Bod ukotvení</translation>
+        <translation>Bod ukotvení</translation>
     </message>
 </context>
 <context>
     <name>olive::MediaInput</name>
     <message>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Záznam</translation>
     </message>
 </context>
 <context>
     <name>olive::MenuShared</name>
     <message>
         <source>&amp;Project</source>
-        <translation type="unfinished">&amp;Projekt</translation>
+        <translation>&amp;Projekt</translation>
     </message>
     <message>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">Ú&amp;ryvek</translation>
+        <translation>Ú&amp;ryvek</translation>
     </message>
     <message>
         <source>&amp;Folder</source>
-        <translation type="unfinished">&amp;Složka</translation>
+        <translation>&amp;Složka</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">Vyjmou&amp;t</translation>
+        <translation>Vyjmou&amp;t</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">&amp;Kopírovat</translation>
+        <translation>&amp;Kopírovat</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Vložit</translation>
+        <translation>&amp;Vložit</translation>
     </message>
     <message>
         <source>Paste Insert</source>
-        <translation type="unfinished">Vložit/Přidat</translation>
+        <translation>Vložit/Přidat</translation>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">Zdvojit</translation>
+        <translation>Zdvojit</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <source>Ripple Delete</source>
-        <translation type="unfinished">Vytáhnout</translation>
+        <translation>Vytáhnout</translation>
     </message>
     <message>
         <source>Split</source>
-        <translation type="unfinished">Rozdělit</translation>
+        <translation>Rozdělit</translation>
     </message>
     <message>
         <source>Set In Point</source>
-        <translation type="unfinished">Nastavit bod začátku</translation>
+        <translation>Nastavit bod začátku</translation>
     </message>
     <message>
         <source>Set Out Point</source>
-        <translation type="unfinished">Nastavit bod konce</translation>
+        <translation>Nastavit bod konce</translation>
     </message>
     <message>
         <source>Reset In Point</source>
-        <translation type="unfinished">Obnovit výchozí bod začátku</translation>
+        <translation>Obnovit výchozí bod začátku</translation>
     </message>
     <message>
         <source>Reset Out Point</source>
-        <translation type="unfinished">Obnovit výchozí bod konce</translation>
+        <translation>Obnovit výchozí bod konce</translation>
     </message>
     <message>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">Vymazat bod začátku/konce</translation>
+        <translation>Vymazat bod začátku/konce</translation>
     </message>
     <message>
         <source>Add Default Transition</source>
-        <translation type="unfinished">Přidat výchozí přechod</translation>
+        <translation>Přidat výchozí přechod</translation>
     </message>
     <message>
         <source>Link/Unlink</source>
-        <translation type="unfinished">Spojit/Oddělit</translation>
+        <translation>Spojit/Oddělit</translation>
     </message>
     <message>
         <source>Enable/Disable</source>
-        <translation type="unfinished">Povolit/Zakázat</translation>
+        <translation>Povolit/Zakázat</translation>
     </message>
     <message>
         <source>Nest</source>
-        <translation type="unfinished">Vnořovat</translation>
+        <translation>Vnořovat</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished">Snímky</translation>
+        <translation>Snímky</translation>
     </message>
     <message>
         <source>Drop Frame</source>
-        <translation type="unfinished">Zahodit snímek</translation>
+        <translation>Zahodit snímek</translation>
     </message>
     <message>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished">Nezahodit snímek</translation>
+        <translation>Nezahodit snímek</translation>
     </message>
     <message>
         <source>Milliseconds</source>
-        <translation type="unfinished">Milisekundy</translation>
+        <translation>Milisekundy</translation>
     </message>
     <message>
         <source>Seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundy</translation>
     </message>
 </context>
 <context>
     <name>olive::MergeNode</name>
     <message>
         <source>Merge</source>
-        <translation type="unfinished"></translation>
+        <translation>Sloučit</translation>
     </message>
     <message>
         <source>Merge two textures together.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sloučit dva povrchy dohromady.</translation>
     </message>
     <message>
         <source>Base</source>
-        <translation type="unfinished"></translation>
+        <translation>Základ</translation>
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished"></translation>
+        <translation>Směs</translation>
     </message>
 </context>
 <context>
     <name>olive::Node</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Výstup</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Obecné</translation>
+        <translation>Obecné</translation>
     </message>
     <message>
         <source>Math</source>
-        <translation type="unfinished"></translation>
+        <translation>Matematika</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">Časová osa</translation>
+        <translation>Časová osa</translation>
     </message>
     <message>
         <source>Generator</source>
-        <translation type="unfinished"></translation>
+        <translation>Tvůrce</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanál</translation>
     </message>
     <message>
         <source>Transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Přechod</translation>
     </message>
     <message>
         <source>Uncategorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Nezařazeno</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeInput</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeOutput</name>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Výstup</translation>
     </message>
 </context>
 <context>
     <name>olive::NodePanel</name>
     <message>
         <source>Node Editor</source>
-        <translation type="unfinished">Editor uzlu</translation>
+        <translation>Editor uzlu</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParam</name>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Hodnota</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádná</translation>
     </message>
     <message>
         <source>Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Celé číslo</translation>
     </message>
     <message>
         <source>Float</source>
-        <translation type="unfinished"></translation>
+        <translation>Pohyblivá desetinná čárka</translation>
     </message>
     <message>
         <source>Rational</source>
-        <translation type="unfinished"></translation>
+        <translation>Racionální</translation>
     </message>
     <message>
         <source>Boolean</source>
-        <translation type="unfinished"></translation>
+        <translation>Booleánská</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Matrix</source>
-        <translation type="unfinished">Matice</translation>
+        <translation>Matice</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Písmo</translation>
+        <translation>Písmo</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">Povrch</translation>
+        <translation>Povrch</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzorky</translation>
     </message>
     <message>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Záznam</translation>
     </message>
     <message>
         <source>Vector 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Vektor 2D</translation>
     </message>
     <message>
         <source>Vector 3D</source>
-        <translation type="unfinished"></translation>
+        <translation>Vektor 3D</translation>
     </message>
     <message>
         <source>Vector 4D</source>
-        <translation type="unfinished"></translation>
+        <translation>Vektor 4D</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámý</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewArrayWidget</name>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>%1 elements</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 prvků</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewConnectedLabel</name>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished"></translation>
+        <translation>Spojeno s</translation>
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Nic</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpojit</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewItem</name>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2)</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewItemBody</name>
     <message>
         <source>%1:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewKeyframeControl</name>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Varování</translation>
     </message>
     <message>
         <source>Are you sure you want to disable keyframing on this value? This will clear all existing keyframes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravdu chcete zakázat klíčování snímků na této hodnotě? Tím budou vyprázdněny všechny stávající klíčové snímky.</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTablePanel</name>
     <message>
         <source>Table View</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulkové zobrazení</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTableView</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdroj</translation>
     </message>
     <message>
         <source>R/X</source>
-        <translation type="unfinished"></translation>
+        <translation>Č/X</translation>
     </message>
     <message>
         <source>G/Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Z/Y</translation>
     </message>
     <message>
         <source>B/Z</source>
-        <translation type="unfinished"></translation>
+        <translation>M/Z</translation>
     </message>
     <message>
         <source>A/W</source>
-        <translation type="unfinished"></translation>
+        <translation>A/W</translation>
     </message>
     <message>
         <source>(unknown)</source>
-        <translation type="unfinished">(neznámý)</translation>
+        <translation>(neznámý)</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTreeView</name>
     <message>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzly</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeView</name>
     <message>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation>Štítek</translation>
     </message>
     <message>
         <source>Auto-Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatické umístění</translation>
     </message>
     <message>
         <source>Smooth Edges</source>
-        <translation type="unfinished"></translation>
+        <translation>Jemné okraje</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat vše</translation>
     </message>
     <message>
         <source>Show Selected Blocks Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat pouze vybrané bloky</translation>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Směr</translation>
     </message>
     <message>
         <source>Top to Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Shora dolů</translation>
     </message>
     <message>
         <source>Bottom to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdola nahoru</translation>
     </message>
     <message>
         <source>Left to Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Zleva doprava</translation>
     </message>
     <message>
         <source>Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Zprava doleva</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
 </context>
 <context>
     <name>olive::PanNode</name>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Vyvážení</translation>
+        <translation>Vyvážení</translation>
     </message>
     <message>
         <source>Adjust the stereo panning of an audio source.</source>
-        <translation type="unfinished"></translation>
+        <translation>Upravit vyvážení sterea zdroje zvuku.</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzorky</translation>
     </message>
 </context>
 <context>
     <name>olive::PanelWidget</name>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
     <name>olive::ParamPanel</name>
     <message>
         <source>Parameter Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor parametru</translation>
     </message>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
     <message>
         <source>(multiple)</source>
-        <translation type="unfinished">(více)</translation>
+        <translation>(více)</translation>
     </message>
 </context>
 <context>
     <name>olive::PathWidget</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Procházet</translation>
+        <translation>Procházet</translation>
     </message>
     <message>
         <source>Browse for path</source>
-        <translation type="unfinished"></translation>
+        <translation>Procházet cestu</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelAspectRatioComboBox</name>
     <message>
         <source>Set Custom Pixel Aspect Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit vlastní poměr stran obrazového bodu</translation>
     </message>
     <message>
         <source>Custom...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastní...</translation>
     </message>
     <message>
         <source>Custom (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastní (%1)</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelSamplerPanel</name>
     <message>
         <source>Pixel Sampler</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzorkovač obrazového bodu</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelSamplerWidget</name>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;font color=&apos;#FF8080&apos;&gt;R: %1&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#80FF80&apos;&gt;G: %2&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#8080FF&apos;&gt;B: %3&lt;/font&gt;&lt;br&gt;A: %4&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;font color=&apos;#FF8080&apos;&gt;Č: %1&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#80FF80&apos;&gt;Z: %2&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#8080FF&apos;&gt;M: %3&lt;/font&gt;&lt;br&gt;A: %4&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>olive::PolygonGenerator</name>
     <message>
         <source>Polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Mnohoúhelník</translation>
     </message>
     <message>
         <source>Generate a 2D polygon of any amount of points.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit dvojrozměrný mnohoúhelník o jakémkoli počtu bodů.</translation>
     </message>
     <message>
         <source>Points</source>
-        <translation type="unfinished"></translation>
+        <translation>Body</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
 </context>
 <context>
     <name>olive::PreCacheTask</name>
     <message>
         <source>Pre-caching %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukládání do vyrovnávací paměti dopředu %1:%2</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesAppearanceTab</name>
     <message>
         <source>Theme</source>
-        <translation type="unfinished">Motiv</translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <source>Node Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Barevné schéma uzlu</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesAudioTab</name>
     <message>
         <source>Output Device:</source>
-        <translation type="unfinished">Výstupní zařízení:</translation>
+        <translation>Výstupní zařízení:</translation>
     </message>
     <message>
         <source>Input Device:</source>
-        <translation type="unfinished">Vstupní zařízení:</translation>
+        <translation>Vstupní zařízení:</translation>
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Vzorkovací kmitočet:</translation>
+        <translation>Vzorkovací kmitočet:</translation>
     </message>
     <message>
         <source>Audio Recording:</source>
-        <translation type="unfinished">Nahrávání zvuku:</translation>
+        <translation>Nahrávání zvuku:</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">Stereo</translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <source>Refresh Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovit zařízení</translation>
     </message>
     <message>
         <source>Please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>Počkejte, prosím...</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Výchozí</translation>
+        <translation>Výchozí</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesBehaviorTab</name>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">Chování</translation>
+        <translation>Chování</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Obecné</translation>
+        <translation>Obecné</translation>
     </message>
     <message>
         <source>Enable hover focus</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolit zaměření přejetím</translation>
     </message>
     <message>
         <source>Panels will be considered focused when the mouse cursor is over them without having to click them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Panely budou považovány za zaměřené, když je ukazovátko myši nad nimi, aniž byste na ně museli klepat.</translation>
     </message>
     <message>
         <source>Scroll wheel zooms by default instead of scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation>Ve výchozím nastavení kolečko myši místo posunování zvětšuje</translation>
     </message>
     <message>
         <source>Holding CTRL while using Olive toggles this setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Toto nastavení při používání Olive přepnete podržením klávesy Ctrl</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">Zvuk</translation>
+        <translation>Zvuk</translation>
     </message>
     <message>
         <source>Enable audio scrubbing</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolit přehrávání zvuku proměnlivou rychlostí</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">Časová osa</translation>
+        <translation>Časová osa</translation>
     </message>
     <message>
         <source>Auto-Seek to Imported Clips</source>
-        <translation type="unfinished">Přetáčet automaticky k zavedeným záběrům</translation>
+        <translation>Přehrávat automaticky normální rychlostí s přeskakováním k zavedeným záběrům</translation>
     </message>
     <message>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Nástroj pro úpravy také přehrává normální rychlostí s přeskakováním</translation>
     </message>
     <message>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished">Nástroj pro úpravy vybírá odkazy</translation>
+        <translation>Nástroj pro úpravy vybírá odkazy</translation>
     </message>
     <message>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished">Povolit tažení souborů na časovou osu</translation>
+        <translation>Povolit tažení souborů na časovou osu</translation>
     </message>
     <message>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished">Obrátit osy projíždění časovou osu</translation>
+        <translation>Obrátit osy posunování časové osy</translation>
     </message>
     <message>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Podržení Alt na libovolném prvku uživatelského rozhraní pro přepnutí os posunování</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
-        <translation type="unfinished"></translation>
+        <translation>Přehrávání normální rychlostí s přeskakováním také vybírá</translation>
     </message>
     <message>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished"></translation>
+        <translation>Přehrávání normální rychlostí s přeskakováním po konec vložení</translation>
     </message>
     <message>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Výběr také přehrává normální rychlostí s přeskakováním</translation>
     </message>
     <message>
         <source>Playback</source>
-        <translation type="unfinished">Přehrávání</translation>
+        <translation>Přehrávání</translation>
     </message>
     <message>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished">Požádat o název při nastavení značky</translation>
+        <translation>Požádat o název při nastavení značky</translation>
     </message>
     <message>
         <source>Automatically rewind at the end of a sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Automaticky přetočit zpět na konci úryvku</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation type="unfinished">Projekt</translation>
+        <translation>Projekt</translation>
     </message>
     <message>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished">Upustit soubory na záznam pro nahrazení</translation>
+        <translation>Upustit soubory na záznam pro nahrazení</translation>
     </message>
     <message>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzly</translation>
     </message>
     <message>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished">Přidat výchozí efekty do nových záběrů</translation>
+        <translation>Přidat výchozí efekty do nových záběrů</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished">Automaticky měnit velikost</translation>
+        <translation>Automaticky měnit velikost</translation>
     </message>
     <message>
         <source>Splitting Clips Copies Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Při rozdělení záběrů se kopírují závislosti</translation>
     </message>
     <message>
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Více uzlů může sdílet stejné uzly. Toto zakažte, aby se automaticky sdílely závislosti uzlů mezi záběry při jejich kopírování nebo rozdělování.</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Nastavení</translation>
+        <translation>Nastavení</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Obecné</translation>
+        <translation>Obecné</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished">Vzhled</translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">Chování</translation>
+        <translation>Chování</translation>
     </message>
     <message>
         <source>Disk</source>
-        <translation type="unfinished"></translation>
+        <translation>Disk</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">Zvuk</translation>
+        <translation>Zvuk</translation>
     </message>
     <message>
         <source>Keyboard</source>
-        <translation type="unfinished">Klávesnice</translation>
+        <translation>Klávesnice</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesDiskTab</name>
     <message>
         <source>Disk Management</source>
-        <translation type="unfinished"></translation>
+        <translation>Správa disku</translation>
     </message>
     <message>
         <source>Disk Cache Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umístění diskové vyrovnávací paměti:</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení diskové vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Cache Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Chování vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Cache Ahead:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyrovnávací paměť napřed:</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 sekund</translation>
     </message>
     <message>
         <source>Cache Behind:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyrovnávací paměť pozadu:</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Failed to set disk cache location. Access was denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nastavit umístění diskové vyrovnávací paměti. Přístup byl odepřen.</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesGeneralTab</name>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">Jazyk:</translation>
+        <translation>Jazyk:</translation>
     </message>
     <message>
         <source>Auto-Scroll Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Způsob automatického posunování:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný</translation>
     </message>
     <message>
         <source>Page Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunování strany</translation>
     </message>
     <message>
         <source>Smooth Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation>Plynulý posun</translation>
     </message>
     <message>
         <source>Rectified Waveforms:</source>
-        <translation type="unfinished"></translation>
+        <translation>Usměrněné tvary vln:</translation>
     </message>
     <message>
         <source>Default Still Image Length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí délka statického obrazu:</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 sekund</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2)</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesKeyboardTab</name>
     <message>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished">Hledat činnosti nebo klávesové zkratky</translation>
+        <translation>Hledat činnosti nebo klávesové zkratky</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished">Činnost</translation>
+        <translation>Činnost</translation>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished">Zkratka</translation>
+        <translation>Zkratka</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Zavést</translation>
+        <translation>Zavést</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Vyvést</translation>
+        <translation>Vyvést</translation>
     </message>
     <message>
         <source>Reset Selected</source>
-        <translation type="unfinished">Obnovit výchozí hodnotu u vybraného</translation>
+        <translation>Obnovit výchozí hodnotu u vybraného</translation>
     </message>
     <message>
         <source>Reset All</source>
-        <translation type="unfinished">Obnovit výchozí hodnotu u všeho</translation>
+        <translation>Obnovit výchozí hodnotu u všeho</translation>
     </message>
     <message>
         <source>Confirm Reset All Shortcuts</source>
-        <translation type="unfinished">Potvrdit obnovení výchozího nastavení všech klávesových zkratek</translation>
+        <translation>Potvrdit obnovení výchozího nastavení všech klávesových zkratek</translation>
     </message>
     <message>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation type="unfinished">Jste si jistý, že chcete vrátit nastavení všech klávesových zkratek do jejich výchozího stavu?</translation>
+        <translation>Jste si jistý, že chcete vrátit nastavení všech klávesových zkratek do jejich výchozího stavu?</translation>
     </message>
     <message>
         <source>Import Keyboard Shortcuts</source>
-        <translation type="unfinished">Zavést klávesové zkratky</translation>
+        <translation>Zavést klávesové zkratky</translation>
     </message>
     <message>
         <source>Error saving shortcuts</source>
-        <translation type="unfinished">Chyba při ukládání klávesových zkratek</translation>
+        <translation>Chyba při ukládání klávesových zkratek</translation>
     </message>
     <message>
         <source>Failed to open file for reading</source>
-        <translation type="unfinished">Soubor se nepodařilo otevřít pro čtení</translation>
+        <translation>Soubor se nepodařilo otevřít pro čtení</translation>
     </message>
     <message>
         <source>Export Keyboard Shortcuts</source>
-        <translation type="unfinished">Vyvést klávesové zkratky</translation>
+        <translation>Vyvést klávesové zkratky</translation>
     </message>
     <message>
         <source>Export Shortcuts</source>
-        <translation type="unfinished">Vyvést zkratky</translation>
+        <translation>Vyvést zkratky</translation>
     </message>
     <message>
         <source>Shortcuts exported successfully</source>
-        <translation type="unfinished">Zkratky úspěšně vyvedeny</translation>
+        <translation>Zkratky úspěšně vyvedeny</translation>
     </message>
     <message>
         <source>Failed to open file for writing</source>
-        <translation type="unfinished">Soubor se nepodařilo otevřít pro zápis</translation>
+        <translation>Soubor se nepodařilo otevřít pro zápis</translation>
     </message>
 </context>
 <context>
     <name>olive::ProgressDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
 </context>
 <context>
     <name>olive::Project</name>
     <message>
         <source>(untitled)</source>
-        <translation type="unfinished"></translation>
+        <translation>(bez názvu)</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectExplorer</name>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Nový</translation>
+        <translation>&amp;Nový</translation>
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation type="unfinished">&amp;Zavést...</translation>
+        <translation>&amp;Zavést...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastnosti &amp;projektu...</translation>
     </message>
     <message>
         <source>Open in New Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít v nové kartě</translation>
     </message>
     <message>
         <source>Open in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít v novém okně</translation>
     </message>
     <message>
         <source>Reveal in Explorer</source>
-        <translation type="unfinished">Ukázat v průzkumníku</translation>
+        <translation>Ukázat v průzkumníku</translation>
     </message>
     <message>
         <source>Reveal in Finder</source>
-        <translation type="unfinished">Ukázat v hledači</translation>
+        <translation>Ukázat v hledači</translation>
     </message>
     <message>
         <source>Reveal in File Manager</source>
-        <translation type="unfinished">Ukázat ve správci souborů</translation>
+        <translation>Ukázat ve správci souborů</translation>
     </message>
     <message>
         <source>Pre-Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit dopředu do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>No sequences exist in project</source>
-        <translation type="unfinished"></translation>
+        <translation>V projektu není žádný úryvek</translation>
     </message>
     <message>
         <source>For &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro &quot;%1&quot;</translation>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vlastnosti</translation>
     </message>
     <message>
         <source>Confirm Footage Deletion</source>
-        <translation type="unfinished"></translation>
+        <translation>Potvrdit smazání záznamu</translation>
     </message>
     <message>
         <source>The footage &quot;%1&quot; is currently used in the following sequence(s):
 
 %2
 What would you like to do with these clips?</source>
-        <translation type="unfinished"></translation>
+        <translation>Záznam &quot;%1&quot; se nyní používá v následujících úryvcích:
+
+%2
+Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Offline Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Nespřažený záznam</translation>
     </message>
     <message>
         <source>Delete Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat záběry</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectExplorerNavigation</name>
     <message>
         <source>Go to parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Přejít do nadřazené složky</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectImportErrorDialog</name>
     <message>
         <source>Import Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při zavádění</translation>
     </message>
     <message>
         <source>The following files failed to import. Olive likely does not support their formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>Následující soubory se nepodařilo zavést. Olive pravděpodobně nepodporuje jejich formáty.</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectImportTask</name>
     <message>
         <source>Importing %1 files</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavádí se %1 souborů</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectLoadBaseTask</name>
     <message>
         <source>Loading &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrává se &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectLoadTask</name>
     <message>
         <source>This project is newer than this version of Olive and cannot be opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento projekt je novější než tato verze Olive a nelze jej otevřít.</translation>
     </message>
     <message>
         <source>This project is from a version of Olive that is no longer supported in this version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento projekt pochází z verze Olive, která již v této verzi není podporována.</translation>
     </message>
     <message>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se přečíst soubor &quot;%1&quot; pro čtení.</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectPanel</name>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Složka</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation type="unfinished">Projekt</translation>
+        <translation>Projekt</translation>
     </message>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectPropertiesDialog</name>
     <message>
         <source>Project Properties for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastnosti projektu pro &apos;%1&apos;</translation>
     </message>
     <message>
         <source>OpenColorIO Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení OpenColorIO:</translation>
     </message>
     <message>
         <source>(default)</source>
-        <translation type="unfinished"></translation>
+        <translation>(výchozí)</translation>
     </message>
     <message>
         <source>Default Input Color Space:</source>
-        <translation type="unfinished">Výchozí vstupní barevný prostor:</translation>
+        <translation>Výchozí vstupní barevný prostor:</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Procházet</translation>
+        <translation>Procházet</translation>
     </message>
     <message>
         <source>Color Management</source>
-        <translation type="unfinished">Správa barev</translation>
+        <translation>Správa barev</translation>
     </message>
     <message>
         <source>Use Default Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít výchozí umístění</translation>
     </message>
     <message>
         <source>Store Alongside Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit projekt vedle</translation>
     </message>
     <message>
         <source>Use Custom Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít vlastní umístění:</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení vyrovnávací paměti</translation>
     </message>
     <message>
         <source>&quot;Store alignside project&quot; functionality not implemented yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkce pro Uložit projekt vedle dosud není udělána</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Disková vyrovnávací paměť</translation>
     </message>
     <message>
         <source>OpenColorIO Config Error</source>
-        <translation type="unfinished">Chyba nastavení OpenColorIO</translation>
+        <translation>Chyba nastavení OpenColorIO</translation>
     </message>
     <message>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="unfinished">Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
+        <translation>Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
     </message>
     <message>
         <source>Invalid path</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatná cesta</translation>
     </message>
     <message>
         <source>The cache path is invalid. Please check it and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cesta k vyrovnávací paměti je neplatná. Ověřte ji a zkuste to znovu.</translation>
     </message>
     <message>
         <source>Browse for OpenColorIO configuration</source>
-        <translation type="unfinished">Procházet pro nastavení OpenColorIO</translation>
+        <translation>Procházet pro nastavení OpenColorIO</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectSaveTask</name>
     <message>
         <source>Saving &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukládá se &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Failed to write XML data</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se zapsat data XML</translation>
     </message>
     <message>
         <source>Failed to overwrite &quot;%1&quot;. Project has been saved as &quot;%2&quot; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se přepsat &quot;%1&quot;. Projekt byl místo toho uložen jako &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Failed to open temporary file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít dočasný soubor &quot;%1&quot; pro zápis.</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectToolbar</name>
     <message>
         <source>New...</source>
-        <translation type="unfinished"></translation>
+        <translation>Nový...</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Otevřít projekt</translation>
+        <translation>Otevřít projekt</translation>
     </message>
     <message>
         <source>Save Project</source>
-        <translation type="unfinished">Uložit projekt</translation>
+        <translation>Uložit projekt</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished">Zpět</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished">Znovu</translation>
+        <translation>Znovu</translation>
     </message>
     <message>
         <source>Search media, markers, etc.</source>
-        <translation type="unfinished">Hledat záznam, značky atd.</translation>
+        <translation>Hledat záznam, značky atd.</translation>
     </message>
     <message>
         <source>Switch to Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepnout na stromové zobrazení</translation>
     </message>
     <message>
         <source>Switch to List View</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepnout na zobrazení seznamu</translation>
     </message>
     <message>
         <source>Switch to Icon View</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepnout na zobrazení ikon</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectViewModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Název</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Doba trvání</translation>
+        <translation>Doba trvání</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Rychlost</translation>
+        <translation>Rychlost</translation>
     </message>
     <message>
         <source>Move Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Přesunout položky</translation>
     </message>
 </context>
 <context>
     <name>olive::RenderCancelDialog</name>
     <message>
         <source>Waiting for workers to finish...</source>
-        <translation type="unfinished"></translation>
+        <translation>Čeká se na dokončení dělníky...</translation>
     </message>
     <message>
         <source>Renderer</source>
-        <translation type="unfinished"></translation>
+        <translation>Vykreslovač</translation>
     </message>
 </context>
 <context>
     <name>olive::RichTextDialog</name>
     <message>
         <source>B</source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>Bold</source>
-        <translation type="unfinished">Tučné</translation>
+        <translation>Tučné</translation>
     </message>
     <message>
         <source>I</source>
-        <translation type="unfinished"></translation>
+        <translation>I</translation>
     </message>
     <message>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurzíva</translation>
     </message>
     <message>
         <source>U</source>
-        <translation type="unfinished"></translation>
+        <translation>U</translation>
     </message>
     <message>
         <source>Underline</source>
-        <translation type="unfinished"></translation>
+        <translation>Podtržení</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Strikethrough</source>
-        <translation type="unfinished"></translation>
+        <translation>Přeškrtnutí</translation>
     </message>
     <message>
         <source>Font Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Rodina písma</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Velikost písma</translation>
     </message>
     <message>
         <source>L</source>
-        <translation type="unfinished"></translation>
+        <translation>L</translation>
     </message>
     <message>
         <source>Left Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarovnat doleva</translation>
     </message>
     <message>
         <source>C</source>
-        <translation type="unfinished"></translation>
+        <translation>C</translation>
     </message>
     <message>
         <source>Center Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Na střed</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished"></translation>
+        <translation>R</translation>
     </message>
     <message>
         <source>Right Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarovnat doprava</translation>
     </message>
     <message>
         <source>J</source>
-        <translation type="unfinished"></translation>
+        <translation>J</translation>
     </message>
     <message>
         <source>Justify Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarovnat do bloku</translation>
     </message>
 </context>
 <context>
     <name>olive::SaveOTIOTask</name>
     <message>
         <source>Exporting project to OpenTimelineIO</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt se vyvádí do OpenTimelineIO</translation>
     </message>
     <message>
         <source>Project contains no sequences to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt neobsahuje žádné úryvky k vyvedení.</translation>
     </message>
     <message>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vydat na pokračování úryvek &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>olive::ScopePanel</name>
     <message>
         <source>Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Tvar křivky</translation>
     </message>
     <message>
         <source>Histogram</source>
-        <translation type="unfinished"></translation>
+        <translation>Sloupcový graf</translation>
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Oblast</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialog</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Název:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>New Sequence</source>
-        <translation type="unfinished">Nový úryvek (sled záběrů)</translation>
+        <translation>Nový úryvek</translation>
     </message>
     <message>
         <source>Editing &quot;%1&quot;</source>
-        <translation type="unfinished">Upravení &quot;%1&quot;</translation>
+        <translation>Upravuje se &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error editing Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba při upravování úryvku</translation>
     </message>
     <message>
         <source>Please enter a name for this Sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte název tohoto úryvku.</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialogParameterTab</name>
     <message>
         <source>Video</source>
-        <translation type="unfinished">Obraz</translation>
+        <translation>Obraz</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">Šířka:</translation>
+        <translation>Šířka:</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">Výška:</translation>
+        <translation>Výška:</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Snímkování:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">Poměr stran pixelu:</translation>
+        <translation>Poměr stran pixelu:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">Prokládání:</translation>
+        <translation>Prokládání:</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">Zvuk</translation>
+        <translation>Zvuk</translation>
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Vzorkovací kmitočet:</translation>
+        <translation>Vzorkovací kmitočet:</translation>
     </message>
     <message>
         <source>Channels:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanály:</translation>
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Náhled</translation>
     </message>
     <message>
         <source>Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozlišení:</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jakost:</translation>
     </message>
     <message>
         <source>Save Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit přednastavení</translation>
     </message>
     <message>
         <source>(%1x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1x%2)</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialogPresetTab</name>
     <message>
         <source>Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Přednastavení</translation>
     </message>
     <message>
         <source>My Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>Moje přednastavení</translation>
     </message>
     <message>
         <source>4K UHD</source>
-        <translation type="unfinished"></translation>
+        <translation>4K UHD</translation>
     </message>
     <message>
         <source>1080p</source>
-        <translation type="unfinished">1080p</translation>
+        <translation>1080p</translation>
     </message>
     <message>
         <source>720p</source>
-        <translation type="unfinished">720p</translation>
+        <translation>720p</translation>
     </message>
     <message>
         <source>NTSC</source>
-        <translation type="unfinished"></translation>
+        <translation>NTSC</translation>
     </message>
     <message>
         <source>PAL</source>
-        <translation type="unfinished"></translation>
+        <translation>PAL</translation>
     </message>
     <message>
         <source>%1 23.976 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 23.976 snímků za sekundu</translation>
     </message>
     <message>
         <source>%1 25 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 25 snímků za sekundu</translation>
     </message>
     <message>
         <source>%1 29.97 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 29.97 snímků za sekundu</translation>
     </message>
     <message>
         <source>%1 50 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 50 snímků za sekundu</translation>
     </message>
     <message>
         <source>%1 59.94 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 59.94 snímků za sekundu</translation>
     </message>
     <message>
         <source>%1 Standard</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 standard</translation>
     </message>
     <message>
         <source>%1 Widescreen</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 širokoúhlé</translation>
     </message>
     <message>
         <source>Delete Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat přednastavení</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceViewerPanel</name>
     <message>
         <source>Sequence Viewer</source>
-        <translation type="unfinished">Prohlížeč úryvku (sledu záběrů)</translation>
+        <translation>Prohlížeč úryvku</translation>
     </message>
 </context>
 <context>
     <name>olive::SliderBase</name>
     <message>
         <source>Invalid Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatná hodnota</translation>
     </message>
     <message>
         <source>The entered value is not valid for this field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadaná hodnota není pro toto pole platná.</translation>
     </message>
 </context>
 <context>
     <name>olive::SolidGenerator</name>
     <message>
         <source>Solid</source>
-        <translation type="unfinished">Plná</translation>
+        <translation>Plná</translation>
     </message>
     <message>
         <source>Generate a solid color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit jednobarevné.</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
 </context>
 <context>
     <name>olive::StringSlider</name>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
 </context>
 <context>
     <name>olive::StrokeFilterNode</name>
     <message>
         <source>Stroke</source>
-        <translation type="unfinished"></translation>
+        <translation>Tah</translation>
     </message>
     <message>
         <source>Creates a stroke outline around an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvoří obrys tahu kolem obrázku.</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Poloměr</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">Neprůhlednost</translation>
+        <translation>Neprůhlednost</translation>
     </message>
     <message>
         <source>Inner</source>
-        <translation type="unfinished"></translation>
+        <translation>Vnitřní</translation>
     </message>
 </context>
 <context>
     <name>olive::Task</name>
     <message>
         <source>Task</source>
-        <translation type="unfinished"></translation>
+        <translation>Úloha</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Neznámá chyba</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskDialog</name>
     <message>
         <source>Task Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Úloha selhala</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskManagerPanel</name>
     <message>
         <source>Task Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Správce úloh</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskViewItem</name>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba: %1</translation>
     </message>
 </context>
 <context>
     <name>olive::TextGenerator</name>
     <message>
         <source>Sample Text</source>
-        <translation type="unfinished">Text příkladu</translation>
+        <translation>Text příkladu</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Generate rich text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit formátovaný text.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Písmo</translation>
+        <translation>Písmo</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Velikost písma</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Barva</translation>
+        <translation>Barva</translation>
     </message>
     <message>
         <source>Vertical Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarovnat svisle</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">Nahoře</translation>
+        <translation>Nahoře</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">Na střed</translation>
+        <translation>Na střed</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">Dole</translation>
+        <translation>Dole</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeBasedPanel</name>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(žádný)</translation>
+        <translation>(žádný)</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeBasedWidget</name>
     <message>
         <source>Set Marker</source>
-        <translation type="unfinished">Nastavit značku</translation>
+        <translation>Nastavit značku</translation>
     </message>
     <message>
         <source>Marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Název značky:</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeInput</name>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Čas</translation>
     </message>
     <message>
         <source>Generates the time (in seconds) at this frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit na tomto snímku čas (v sekundách)</translation>
     </message>
 </context>
 <context>
     <name>olive::TimelinePanel</name>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">Časová osa</translation>
+        <translation>Časová osa</translation>
     </message>
 </context>
 <context>
     <name>olive::TimelineWidget</name>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Vlastnosti</translation>
+        <translation>Vlastnosti</translation>
     </message>
     <message>
         <source>Use Audio Time Units</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít jednotky času zvuku</translation>
     </message>
 </context>
 <context>
     <name>olive::ToolPanel</name>
     <message>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Nástroje</translation>
     </message>
 </context>
 <context>
     <name>olive::Toolbar</name>
     <message>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukazovátko</translation>
     </message>
     <message>
         <source>Edit Tool</source>
-        <translation type="unfinished">Nástroj pro úpravy</translation>
+        <translation>Upravení</translation>
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Vložení a posunutí</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Válcování</translation>
     </message>
     <message>
         <source>Razor Tool</source>
-        <translation type="unfinished">Nástroj břitvy</translation>
+        <translation>Břitva</translation>
     </message>
     <message>
         <source>Slip Tool</source>
-        <translation type="unfinished">Roztočení se ztotožněním</translation>
+        <translation>Skluz</translation>
     </message>
     <message>
         <source>Slide Tool</source>
-        <translation type="unfinished">Roztočení</translation>
+        <translation>Posouvání</translation>
     </message>
     <message>
         <source>Hand Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ručička</translation>
     </message>
     <message>
         <source>Zoom Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvětšení</translation>
     </message>
     <message>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Přechod</translation>
     </message>
     <message>
         <source>Record Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrávání</translation>
     </message>
     <message>
         <source>Add Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidání</translation>
     </message>
     <message>
         <source>Toggle Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Přepnout přichytávání</translation>
     </message>
 </context>
 <context>
     <name>olive::TrackOutput</name>
     <message>
         <source>Track</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopa</translation>
     </message>
     <message>
         <source>Node for representing and processing a single array of Blocks sorted by time. Also represents the end of a Sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzel pro znázornění a zpracování jednoho pole bloků seřazených podle času. Představuje také konec úryvku.</translation>
     </message>
     <message>
         <source>Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Bloky</translation>
     </message>
     <message>
         <source>Muted</source>
-        <translation type="unfinished"></translation>
+        <translation>Ztlumeno</translation>
     </message>
     <message>
         <source>Video %1</source>
-        <translation type="unfinished">Obraz %1</translation>
+        <translation>Obraz %1</translation>
     </message>
     <message>
         <source>Audio %1</source>
-        <translation type="unfinished">Zvuk %1</translation>
+        <translation>Zvuk %1</translation>
     </message>
     <message>
         <source>Subtitle %1</source>
-        <translation type="unfinished">Titulek %1</translation>
+        <translation>Titulek %1</translation>
     </message>
     <message>
         <source>Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopa %1</translation>
     </message>
 </context>
 <context>
     <name>olive::TrackViewItem</name>
     <message>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation>M</translation>
     </message>
     <message>
         <source>L</source>
-        <translation type="unfinished"></translation>
+        <translation>L</translation>
     </message>
 </context>
 <context>
     <name>olive::TransitionBlock</name>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>Od</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>Do</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Křivka</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">Lineární</translation>
+        <translation>Lineární</translation>
     </message>
     <message>
         <source>Exponential</source>
-        <translation type="unfinished"></translation>
+        <translation>Exponenciální</translation>
     </message>
     <message>
         <source>Logarithmic</source>
-        <translation type="unfinished"></translation>
+        <translation>Logaritmický</translation>
     </message>
 </context>
 <context>
     <name>olive::TrigonometryNode</name>
     <message>
         <source>Trigonometry</source>
-        <translation type="unfinished"></translation>
+        <translation>Trigonometrie</translation>
     </message>
     <message>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Provést s hodnotou trigonometrickou operaci.</translation>
     </message>
     <message>
         <source>Sine</source>
-        <translation type="unfinished">Sinus</translation>
+        <translation>Sinus</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Tangens</translation>
     </message>
     <message>
         <source>Inverse Sine</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrátit sinus</translation>
     </message>
     <message>
         <source>Inverse Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrátit cosinus</translation>
     </message>
     <message>
         <source>Inverse Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrátit tangens</translation>
     </message>
     <message>
         <source>Hyperbolic Sine</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperbolický sinus</translation>
     </message>
     <message>
         <source>Hyperbolic Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperbolický cosinus</translation>
     </message>
     <message>
         <source>Hyperbolic Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperbolický tangens</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Metoda</translation>
     </message>
 </context>
 <context>
     <name>olive::VideoDividerComboBox</name>
     <message>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Plný</translation>
     </message>
     <message>
         <source>1/%1</source>
-        <translation type="unfinished">1080p {1/%1?}</translation>
+        <translation>1/%1</translation>
     </message>
 </context>
 <context>
     <name>olive::VideoInput</name>
     <message>
         <source>Video Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstup obrazu</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">Obraz</translation>
+        <translation>Obraz</translation>
     </message>
     <message>
         <source>Import a video footage stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavést obrazový záznam.</translation>
     </message>
 </context>
 <context>
     <name>olive::VideoStreamProperties</name>
     <message>
         <source>Pixel Aspect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Poměr stran pixelu:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">Prokládání:</translation>
+        <translation>Prokládání:</translation>
     </message>
     <message>
         <source>Color Space:</source>
-        <translation type="unfinished">Barevný prostor:</translation>
+        <translation>Barevný prostor:</translation>
     </message>
     <message>
         <source>Default (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí (%1)</translation>
     </message>
     <message>
         <source>Premultiplied Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Přednásobená alfa</translation>
     </message>
     <message>
         <source>Image Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrázková řada</translation>
     </message>
     <message>
         <source>Start Index:</source>
-        <translation type="unfinished"></translation>
+        <translation>Počáteční číslo:</translation>
     </message>
     <message>
         <source>End Index:</source>
-        <translation type="unfinished"></translation>
+        <translation>Konečné číslo:</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Snímkování:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Invalid Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatné nastavení</translation>
     </message>
     <message>
         <source>Image sequence end index must be a value higher than the start index.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konečné číslo obrázkové řady musí být hodnota vyšší než počáteční číslo.</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerOutput</name>
     <message>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Prohlížeč</translation>
     </message>
     <message>
         <source>Interface between a Viewer panel and the node system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozhraní mezi panelem prohlížeče a uzlovou soustavou.</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">Povrch</translation>
+        <translation>Povrch</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzorky</translation>
     </message>
     <message>
         <source>Video Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrazové stopy</translation>
     </message>
     <message>
         <source>Audio Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvukové stopy</translation>
     </message>
     <message>
         <source>Subtitle Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Titulkové stopy</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerPanel</name>
     <message>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Prohlížeč</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerWidget</name>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Chyba</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
         <source>No in or out points are set to cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>Do vyrovnávací paměti nejsou nastaveny žádný bod začátku nebo konce.</translation>
     </message>
     <message>
         <source>Safe Margins</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezpečné okraje</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished">Zvětšení</translation>
+        <translation>Zvětšení</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">Vejít se</translation>
+        <translation>Přizpůsobit</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>Full Screen</source>
-        <translation type="unfinished">Celá obrazovka</translation>
+        <translation>Celá obrazovka</translation>
     </message>
     <message>
         <source>Screen %1: %2x%3</source>
-        <translation type="unfinished">Obrazovka %1: %2x%3</translation>
+        <translation>Obrazovka %1: %2x%3</translation>
     </message>
     <message>
         <source>Deinterlace</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrušit prokládání</translation>
     </message>
     <message>
         <source>Scopes</source>
-        <translation type="unfinished"></translation>
+        <translation>Oblasti</translation>
     </message>
     <message>
         <source>Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Auto-Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatická vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Pause Auto-Cache During Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozastavit automatickou vyrovnávací paměť během přehrávání</translation>
     </message>
     <message>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit celý úryvek do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Cache Sequence In/Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit začátek/konec úryvku do vyrovnávací paměti</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Vypnuto</translation>
+        <translation>Vypnuto</translation>
     </message>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapnuto</translation>
     </message>
     <message>
         <source>Custom Aspect</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastní poměr</translation>
     </message>
     <message>
         <source>Show Audio Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukázat tvar křivky zvuku</translation>
     </message>
 </context>
 <context>
     <name>olive::VolumeNode</name>
     <message>
         <source>Volume</source>
-        <translation type="unfinished">Hlasitost</translation>
+        <translation>Hlasitost</translation>
     </message>
     <message>
         <source>Adjusts the volume of an audio source.</source>
-        <translation type="unfinished"></translation>
+        <translation>Upraví hlasitost zvukového zdroje.</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzorky</translation>
     </message>
 </context>
 </TS>
