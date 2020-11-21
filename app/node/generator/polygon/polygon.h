@@ -45,11 +45,11 @@ public:
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
   virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
+  //virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) const override;
 
-  virtual bool GizmoPress(NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
-  virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
-  virtual void GizmoRelease() override;
+  //virtual bool GizmoPress(NodeValueDatabase &db, const QPointF &p) override;
+  //virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
+  //virtual void GizmoRelease() override;
 
 private:
   QVector<QPointF> GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D &scale) const;

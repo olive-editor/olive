@@ -30,6 +30,7 @@
 #include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
+#include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/input/media/media.h"
 #include "node/math/math/math.h"
@@ -419,7 +420,12 @@ void ImportTool::DropGhosts(bool insert)
         video_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
-        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
+
+        TransformDistortNode* transform = new TransformDistortNode();
+        new NodeAddCommand(dst_graph, transform, command);
+
+        new NodeEdgeAddCommand(video_input->output(), transform->texture_input(), command);
+        new NodeEdgeAddCommand(transform->output(), clip->texture_input(), command);
 
         /*
         MatrixGenerator* matrix = new MatrixGenerator();

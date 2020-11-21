@@ -444,6 +444,24 @@ protected:
 
   virtual QVector<NodeInput*> GetInputsToHash() const;
 
+  enum GizmoScaleHandles {
+    kGizmoScaleTopLeft,
+    kGizmoScaleTopCenter,
+    kGizmoScaleTopRight,
+    kGizmoScaleBottomLeft,
+    kGizmoScaleBottomCenter,
+    kGizmoScaleBottomRight,
+    kGizmoScaleCenterLeft,
+    kGizmoScaleCenterRight,
+    kGizmoScaleCount,
+  };
+
+  static QRectF CreateGizmoHandleRect(const QPointF& pt, int radius);
+
+  static int GetGizmoHandleRadius();
+
+  static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
+
 protected slots:
   void InputChanged(const olive::TimeRange &range);
 

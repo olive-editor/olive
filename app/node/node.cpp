@@ -21,6 +21,7 @@
 #include "node.h"
 
 #include <QApplication>
+#include <QGuiApplication>
 #include <QDebug>
 #include <QFile>
 
@@ -933,6 +934,32 @@ void Node::InputChanged(const TimeRange& range)
 void Node::InputConnectionChanged(NodeEdgePtr edge)
 {
   InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), edge->input(), edge->input());
+}
+
+QRectF Node::CreateGizmoHandleRect(const QPointF &pt, int radius)
+{
+  return QRectF(pt.x() - radius,
+                pt.y() - radius,
+                2*radius,
+                2*radius);;
+}
+
+int Node::GetGizmoHandleRadius()
+{
+  return QFontMetrics(qApp->font()).height() / 2;
+}
+
+void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rects, int count)
+{
+  for (int i=0; i<count; i++) {
+    QRectF& r = rects[i];
+
+    // Draw rect on screen
+    p->drawRect(r);
+
+    // Extend rect so it's easier to drag with handle
+    r.adjust(-handle_radius, -handle_radius, handle_radius, handle_radius);
+  }
 }
 
 }

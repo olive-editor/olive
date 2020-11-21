@@ -26,6 +26,8 @@
 #include "block/gap/gap.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "distort/crop/cropdistortnode.h"
+#include "distort/transform/transformdistortnode.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
 #include "generator/solid/solid.h"
@@ -183,6 +185,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new PolygonGenerator();
   case kMatrixGenerator:
     return new MatrixGenerator();
+  case kTransformDistort:
+    return new TransformDistortNode();
   case kFootageInput:
     return new MediaInput();
   case kTrackOutput:
@@ -215,6 +219,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new DipToColorTransition();
   case kMosaicFilter:
     return new MosaicFilterNode();
+  case kCropDistort:
+    return new CropDistortNode();
 
   case kInternalNodeCount:
     break;

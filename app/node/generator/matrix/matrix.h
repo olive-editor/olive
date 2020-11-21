@@ -46,34 +46,40 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
-  virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p, const QVector2D &scale, const QSize& viewport) const override;
-
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF &p, const QVector2D &scale, const QSize& viewport) override;
-  virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
-  virtual void GizmoRelease() override;
-
-private:
-  struct GizmoSharedData {
-    GizmoSharedData(const QSize& viewport, const QVector2D& scale);
-
-    QPointF half_viewport;
-    QVector2D half_scale;
-    QVector2D inverted_half_scale;
-  };
-
-  QMatrix4x4 GenerateMatrix(NodeValueDatabase& value) const;
-  QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool ignore_anchor) const;
+protected:
+  QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,
                                    bool uniform_scale,
                                    const QVector2D &anchor);
 
-  QPointF GetGizmoAnchorPoint(NodeValueDatabase &db, const GizmoSharedData &gizmo_data) const;
-  static int GetGizmoAnchorPointRadius();
-  NodeInput* gizmo_drag_;
+  NodeInput* position_input() const
+  {
+    return position_input_;
+  }
 
+  NodeInput* rotation_input() const
+  {
+    return rotation_input_;
+  }
+
+  NodeInput* scale_input() const
+  {
+    return scale_input_;
+  }
+
+  NodeInput* uniform_scale_input() const
+  {
+    return uniform_scale_input_;
+  }
+
+  NodeInput* anchor_input() const
+  {
+    return anchor_input_;
+  }
+
+private:
   NodeInput* position_input_;
 
   NodeInput* rotation_input_;
@@ -83,14 +89,6 @@ private:
   NodeInput* uniform_scale_input_;
 
   NodeInput* anchor_input_;
-
-  QVector2D gizmo_start_;
-  QVector2D gizmo_start2_;
-  QPointF gizmo_mouse_start_;
-  NodeInputDragger gizmo_x_dragger_;
-  NodeInputDragger gizmo_y_dragger_;
-  NodeInputDragger gizmo_x2_dragger_;
-  NodeInputDragger gizmo_y2_dragger_;
 
 private slots:
   void UniformScaleChanged();

@@ -14,40 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
-add_subdirectory(block)
-add_subdirectory(distort)
-add_subdirectory(filter)
-add_subdirectory(generator)
-add_subdirectory(input)
-add_subdirectory(math)
-add_subdirectory(output)
+add_subdirectory(crop)
+add_subdirectory(transform)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/edge.h
-  node/edge.cpp
-  node/factory.h
-  node/factory.cpp
-  node/graph.h
-  node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/inputarray.h
-  node/inputarray.cpp
-  node/inputdragger.h
-  node/inputdragger.cpp
-  node/keyframe.h
-  node/keyframe.cpp
-  node/node.h
-  node/node.cpp
-  node/output.h
-  node/output.cpp
-  node/param.h
-  node/param.cpp
-  node/traverser.h
-  node/traverser.cpp
-  node/value.h
-  node/value.cpp
   PARENT_SCOPE
 )

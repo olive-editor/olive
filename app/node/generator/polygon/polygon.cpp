@@ -89,7 +89,7 @@ ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/polygon.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/polygon.frag"));
 }
 
 NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
@@ -98,6 +98,7 @@ NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
 
   job.InsertValue(points_input_, value);
   job.InsertValue(color_input_, value);
+  job.InsertValue(QStringLiteral("resolution_in"), ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
@@ -110,7 +111,7 @@ bool PolygonGenerator::HasGizmos() const
   return true;
 }
 
-void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize &viewport) const
+/*void PolygonGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p) const
 {
   Q_UNUSED(viewport)
 
@@ -170,7 +171,7 @@ void PolygonGenerator::GizmoRelease()
 {
   gizmo_x_dragger_.End();
   gizmo_y_dragger_.End();
-}
+}*/
 
 QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D& scale) const
 {

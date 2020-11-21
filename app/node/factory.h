@@ -37,6 +37,7 @@ public:
     kGapBlock,
     kPolygonGenerator,
     kMatrixGenerator,
+    kTransformDistort,
     kFootageInput,
     kTrackOutput,
     kAudioVolume,
@@ -52,6 +53,7 @@ public:
     kCrossDissolveTransition,
     kDipToColorTransition,
     kMosaicFilter,
+    kCropDistort,
 
     // Count value
     kInternalNodeCount
