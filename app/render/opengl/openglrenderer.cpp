@@ -169,13 +169,13 @@ QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParam
 
   functions_->glBindTexture(GL_TEXTURE_2D, texture);
 
-{
+  {
 
-  PRINT_GL_ERRORS;
-  functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
-                           width, height, 0, GetPixelFormat(channel_count),
-                           GetPixelType(format), data);
-}
+    PRINT_GL_ERRORS;
+    functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
+                             width, height, 0, GetPixelFormat(channel_count),
+                             GetPixelType(format), data);
+  }
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
@@ -418,34 +418,14 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
         iterative_name = it.key();
       }
 
-      GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
       textures_to_bind.append({texture, job.GetInterpolation(it.key())});
 
       // Set enable flag if shader wants it
+      GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
       int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(it.key()));
       if (enable_param_location > -1) {
         shader->setUniformValue(enable_param_location,
                                 tex_id > 0);
-      }
-
-      if (tex_id > 0) {
-        // Set texture resolution if shader wants it
-        int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(it.key()));
-        if (res_param_location > -1) {
-          int virtual_width = texture->params().width();
-
-          // Adjust virtual width by pixel aspect if necessary
-          if (texture->params().pixel_aspect_ratio() != 1
-              || destination_params.pixel_aspect_ratio() != 1) {
-            double relative_pixel_aspect = texture->params().pixel_aspect_ratio().toDouble() / destination_params.pixel_aspect_ratio().toDouble();
-
-            virtual_width = qRound(static_cast<double>(virtual_width) * relative_pixel_aspect);
-          }
-
-          shader->setUniformValue(res_param_location,
-                                  virtual_width,
-                                  static_cast<GLfloat>(texture->height() * texture->divider()));
-        }
       }
       break;
     }
@@ -482,11 +462,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
     PrepareInputTexture(target, t.interpolation);
   }
-
-  // Set ove_resolution to the destination to the "logical" resolution of the destination
-  shader->setUniformValue("ove_resolution",
-                          static_cast<GLfloat>(destination_params.width()),
-                          static_cast<GLfloat>(destination_params.height()));
 
   // Ensure matrix is set, at least to identity
   shader->setUniformValue("ove_mvpmat",
