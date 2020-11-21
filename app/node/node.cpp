@@ -767,6 +767,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Output");
   case kCategoryGeneral:
     return tr("General");
+  case kCategoryDistort:
+    return tr("Distort");
   case kCategoryMath:
     return tr("Math");
   case kCategoryColor:

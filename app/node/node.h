@@ -74,6 +74,7 @@ public:
     kCategoryTimeline,
     kCategoryChannels,
     kCategoryTransition,
+    kCategoryDistort,
 
     kCategoryCount
   };
