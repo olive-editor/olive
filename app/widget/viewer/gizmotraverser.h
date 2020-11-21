@@ -28,7 +28,7 @@ namespace olive {
 class GizmoTraverser : public NodeTraverser
 {
 public:
-  GizmoTraverser(const QSize& sequence_resolution) :
+  GizmoTraverser(const QVector2D& sequence_resolution) :
     size_(sequence_resolution)
   {
   }
@@ -38,10 +38,15 @@ protected:
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 
+  virtual QVector2D GenerateResolution() const
+  {
+    return size_;
+  }
+
   // FIXME: Do something about audio?
 
 private:
-  QSize size_;
+  QVector2D size_;
 
 };
 

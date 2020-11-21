@@ -28,7 +28,8 @@ QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &i
 
   VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
 
-  return QSize(image_stream->width(), image_stream->height());
+  return QVector2D(image_stream->width() * image_stream->pixel_aspect_ratio().toDouble(),
+                   image_stream->height());
 }
 
 QVariant GizmoTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
