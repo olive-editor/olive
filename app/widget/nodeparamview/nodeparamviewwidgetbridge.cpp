@@ -276,7 +276,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a IntegerSlider
     IntegerSlider* slider = static_cast<IntegerSlider*>(sender());
 
-    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));
+    int64_t offset = input_->get_property(QStringLiteral("offset")).toLongLong();
+
+    ProcessSlider(slider, QVariant::fromValue(slider->GetValue() - offset));
     break;
   }
   case NodeParam::kFloat:
@@ -284,7 +286,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    ProcessSlider(slider, slider->GetValue());
+    double offset = input_->get_property(QStringLiteral("offset")).toDouble();
+
+    ProcessSlider(slider, slider->GetValue() - offset);
     break;
   }
   case NodeParam::kVec2:
@@ -292,7 +296,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    ProcessSlider(slider, slider->GetValue());
+    QVector2D offset = input_->get_property(QStringLiteral("offset")).value<QVector2D>();
+
+    ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
   }
   case NodeParam::kVec3:
@@ -300,7 +306,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    ProcessSlider(slider, slider->GetValue());
+    QVector3D offset = input_->get_property(QStringLiteral("offset")).value<QVector3D>();
+
+    ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
   }
   case NodeParam::kVec4:
@@ -308,7 +316,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    ProcessSlider(slider, slider->GetValue());
+    QVector4D offset = input_->get_property(QStringLiteral("offset")).value<QVector4D>();
+
+    ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
   }
   case NodeParam::kFile:
@@ -417,36 +427,47 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kVector:
     break;
   case NodeParam::kInt:
-    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toLongLong());
+  {
+    int64_t offset = input_->get_property(QStringLiteral("offset")).toLongLong();
+
+    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toLongLong() + offset);
     break;
+  }
   case NodeParam::kFloat:
-    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toDouble());
+  {
+    double offset = input_->get_property(QStringLiteral("offset")).toDouble();
+
+    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toDouble() + offset);
     break;
+  }
   case NodeParam::kVec2:
   {
     QVector2D vec2 = input_->get_value_at_time(node_time).value<QVector2D>();
+    QVector2D offset = input_->get_property(QStringLiteral("offset")).value<QVector2D>();
 
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y()));
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x() + offset.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y() + offset.y()));
     break;
   }
   case NodeParam::kVec3:
   {
     QVector3D vec3 = input_->get_value_at_time(node_time).value<QVector3D>();
+    QVector3D offset = input_->get_property(QStringLiteral("offset")).value<QVector3D>();
 
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y()));
-    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec3.z()));
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x() + offset.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y() + offset.y()));
+    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec3.z() + offset.z()));
     break;
   }
   case NodeParam::kVec4:
   {
     QVector4D vec4 = input_->get_value_at_time(node_time).value<QVector4D>();
+    QVector4D offset = input_->get_property(QStringLiteral("offset")).value<QVector4D>();
 
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y()));
-    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec4.z()));
-    static_cast<FloatSlider*>(widgets_.at(3))->SetValue(static_cast<double>(vec4.w()));
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x() + offset.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y() + offset.y()));
+    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec4.z() + offset.z()));
+    static_cast<FloatSlider*>(widgets_.at(3))->SetValue(static_cast<double>(vec4.w() + offset.w()));
     break;
   }
   case NodeParam::kFile:
@@ -604,6 +625,8 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
       default:
         break;
       }
+    } else if (key == QStringLiteral("offset")) {
+      UpdateWidgetValues();
     }
   }
 
