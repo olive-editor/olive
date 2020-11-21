@@ -517,4 +517,12 @@ QVariant RenderProcessor::GetCachedFrame(const Node *node, const rational &time)
   return QVariant();
 }
 
+QVector2D RenderProcessor::GenerateResolution() const
+{
+  // Set resolution to the destination to the "logical" resolution of the destination
+  const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
+  return QVector2D(video_params.width() * video_params.pixel_aspect_ratio().toDouble(),
+                   video_params.height());
+}
+
 }

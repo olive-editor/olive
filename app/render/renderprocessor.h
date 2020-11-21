@@ -55,6 +55,8 @@ protected:
 
   virtual QVariant GetCachedFrame(const Node *node, const rational &time) override;
 
+  virtual QVector2D GenerateResolution() const override;
+
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
