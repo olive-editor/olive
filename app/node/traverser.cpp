@@ -152,12 +152,14 @@ QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
   return QVariant();
 }
 
-void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range)
+void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range) const
 {
   // Insert global variables
   NodeValueTable global;
   global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
   global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
+  global.Push(NodeParam::kVec2, GenerateResolution(), nullptr, QStringLiteral("resolution"));
+
   db.Insert(QStringLiteral("global"), global);
 }
 

@@ -21,6 +21,8 @@
 #ifndef NODETRAVERSER_H
 #define NODETRAVERSER_H
 
+#include <QVector2D>
+
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
@@ -56,7 +58,12 @@ protected:
 
   virtual QVariant GetCachedFrame(const Node *node, const rational &time);
 
-  static void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range);
+  void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
+
+  virtual QVector2D GenerateResolution() const
+  {
+    return QVector2D(0, 0);
+  }
 
 private:
   void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
