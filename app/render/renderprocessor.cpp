@@ -270,12 +270,19 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
+  // Calculate footage divider that still fits in the divider chosen
+  int footage_divider = 1;
+  while (VideoParams::GetScaledDimension(video_stream->width(), footage_divider) > video_params.effective_width()
+         || VideoParams::GetScaledDimension(video_stream->height(), footage_divider) > video_params.effective_height()) {
+    footage_divider++;
+  }
+
   StillImageCache::EntryPtr want_entry = std::make_shared<StillImageCache::Entry>(
         nullptr,
         stream,
         ColorProcessor::GenerateID(color_manager, video_stream->colorspace(), color_manager->GetReferenceColorSpace()),
         video_stream->premultiplied_alpha(),
-        video_params.divider(),
+        footage_divider,
         (video_stream->video_type() == VideoStream::kVideoTypeStill) ? 0 : input_time,
         true);
 
@@ -317,7 +324,7 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
     if (decoder) {
       FramePtr frame = decoder->RetrieveVideo(input_time,
-                                              video_params.divider());
+                                              footage_divider);
 
       if (frame) {
         // Return a texture from the derived class
