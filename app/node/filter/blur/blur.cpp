@@ -83,7 +83,7 @@ void BlurFilterNode::Retranslate()
 ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
 NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
@@ -96,6 +96,8 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(horiz_input_, value);
   job.InsertValue(vert_input_, value);
   job.InsertValue(repeat_edge_pixels_input_, value);
+  job.InsertValue(QStringLiteral("resolution_in"),
+                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
 
   NodeValueTable table = value.Merge();
 

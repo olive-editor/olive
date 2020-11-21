@@ -28,11 +28,11 @@ MosaicFilterNode::MosaicFilterNode()
   AddInput(tex_input_);
 
   horiz_input_ = new NodeInput(QStringLiteral("horiz_in"), NodeParam::kFloat);
-  horiz_input_->set_property(QStringLiteral("min"), 1.0f);
+  horiz_input_->set_property(QStringLiteral("min"), 1.0);
   AddInput(horiz_input_);
 
   vert_input_ = new NodeInput(QStringLiteral("vert_in"), NodeParam::kFloat);
-  vert_input_->set_property(QStringLiteral("min"), 1.0f);
+  vert_input_->set_property(QStringLiteral("min"), 1.0);
   AddInput(vert_input_);
 }
 
@@ -51,7 +51,7 @@ NodeValueTable MosaicFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(horiz_input_, value);
   job.InsertValue(vert_input_, value);
 
-  // Mipmapping makes this look weird
+  // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
   job.SetInterpolation(tex_input_, Texture::kLinear);
 
   NodeValueTable table = value.Merge();
@@ -75,7 +75,7 @@ ShaderCode MosaicFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
 }
 
 }

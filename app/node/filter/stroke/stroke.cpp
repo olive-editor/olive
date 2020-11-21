@@ -91,6 +91,8 @@ NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(radius_input_, value);
   job.InsertValue(opacity_input_, value);
   job.InsertValue(inner_input_, value);
+  job.InsertValue(QStringLiteral("resolution_in"),
+                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
 
   NodeValueTable table = value.Merge();
 
@@ -110,7 +112,7 @@ ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }
 
 }

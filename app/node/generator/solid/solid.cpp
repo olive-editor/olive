@@ -77,7 +77,7 @@ ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
 }
 
 }

@@ -1,5 +1,6 @@
 uniform sampler2D ove_maintex;
-uniform vec2 ove_resolution;
+
+uniform vec2 resolution_in;
 
 in vec2 ove_texcoord;
 
@@ -11,9 +12,9 @@ void main() {
     // A very basic deinterlace that halves the vertical
     // resolution and linearly interpolates the two fields
     // by reading the texture coord between them.
-    float half_vert = round(ove_resolution.y / 2.0);
+    float half_vert = round(resolution_in.y / 2.0);
     using_texcoord.y = (round(using_texcoord.y * half_vert) + 0.25) / half_vert;
 
-    vec4 color = %1(texture(ove_maintex, using_texcoord));
+    vec4 color = texture(ove_maintex, using_texcoord);
     fragColor = color;
 }

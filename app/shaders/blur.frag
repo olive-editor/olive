@@ -4,8 +4,8 @@ uniform float radius_in;
 uniform bool horiz_in;
 uniform bool vert_in;
 uniform bool repeat_edge_pixels_in;
+uniform vec2 resolution_in;
 
-uniform vec2 ove_resolution;
 uniform int ove_iteration;
 
 in vec2 ove_texcoord;
@@ -107,9 +107,9 @@ void main(void) {
 
         vec2 pixel_coord = ove_texcoord;
         if (mode == MODE_HORIZONTAL) {
-            pixel_coord.x += i / ove_resolution.x;
+            pixel_coord.x += i / resolution_in.x;
         } else if (mode == MODE_VERTICAL) {
-            pixel_coord.y += i / ove_resolution.y;
+            pixel_coord.y += i / resolution_in.y;
         }
 
         if (repeat_edge_pixels_in

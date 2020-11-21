@@ -66,7 +66,7 @@ ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
 NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
