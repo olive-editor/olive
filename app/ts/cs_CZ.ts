@@ -36,13 +36,13 @@
     <name>Config</name>
     <message>
         <source>Error loading settings</source>
-        <translation>Chyba při nahrávání nastavení</translation>
+        <translation>Chyba při načítání nastavení</translation>
     </message>
     <message>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation>Nepodařilo se nahrát nastavení programu. Toto sezení bude používat výchozí nastavení.
+        <translation>Nepodařilo se načíst nastavení programu. Toto sezení bude používat výchozí nastavení.
 
 %1</translation>
     </message>
@@ -90,7 +90,7 @@
     </message>
     <message>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation>Parametry zjistit automaticky ze záznamu</translation>
+        <translation>Automaticky zjistit parametry ze záznamu</translation>
     </message>
     <message>
         <source>Set Parameters Manually</source>
@@ -153,7 +153,7 @@
     </message>
     <message>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation>Již je přednastavení s tímto názvem. Chcete je nahradit?</translation>
+        <translation>Přednastavení s tímto názvem již existuje. Chcete je nahradit?</translation>
     </message>
 </context>
 <context>
@@ -168,7 +168,7 @@
     </message>
     <message>
         <source>Failed to parse &quot;%1&quot; into an aspect ratio. Please format a rational fraction with a &apos;:&apos; or a &apos;/&apos; separator.</source>
-        <translation>Nepodařilo se zpracovat &quot;%1&quot; do poměru stran. Naformátujte, prosím, racionální zlomek pomocí oddělovače &apos;:&apos; nebo a &apos;/&apos;.</translation>
+        <translation>Nepodařilo se zpracovat &quot;%1&quot; do poměru stran. Naformátujte, prosím, racionální zlomek pomocí oddělovače &apos;:&apos; nebo &apos;/&apos;.</translation>
     </message>
 </context>
 <context>
@@ -201,7 +201,7 @@
     </message>
     <message>
         <source>%1: Video - %2x%3</source>
-        <translation>%1: Obraz - %2x%3</translation>
+        <translation>%1: Video - %2x%3</translation>
     </message>
 </context>
 <context>
@@ -313,7 +313,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Export only (No GUI)</source>
-        <translation>Pouze vyvést (žádné tozhraní)</translation>
+        <translation>Pouze vyvést (žádné rozhraní)</translation>
     </message>
     <message>
         <source>Override language with file</source>
@@ -525,7 +525,7 @@ Délka: %4</translation>
     <name>olive::ConformTask</name>
     <message>
         <source>Conforming Audio %1:%2</source>
-        <translation>Přizpůsobující se zvuk %1:%2</translation>
+        <translation>Přizpůsobuji zvuk %1:%2</translation>
     </message>
 </context>
 <context>
@@ -584,7 +584,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Soubor &apos;%1&apos; vypadá na to, že by mohl být součástí obrázkové řady. Chcete jej zavést jako takový?</translation>
+        <translation>Soubor &apos;%1&apos; může být součástí obrázkové řady. Chcete jej tak zavést?</translation>
     </message>
     <message>
         <source>You must specify a project file to export</source>
@@ -620,7 +620,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Project failed to load: %1</source>
-        <translation>Projekt se nepodařilo nahrát: %1</translation>
+        <translation>Projekt se nepodařilo načíst: %1</translation>
     </message>
     <message>
         <source>Failed to open startup file</source>
@@ -656,7 +656,7 @@ Délka: %4</translation>
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <translation>Nezjištěn žádný platný úryvek.
 
-Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</translation>
+Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</translation>
     </message>
     <message>
         <source>Olive Project</source>
@@ -672,7 +672,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Load Project</source>
-        <translation>Nahrát projekt</translation>
+        <translation>Načíst projekt</translation>
     </message>
     <message>
         <source>Label Node</source>
@@ -869,7 +869,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Disk Cache Partially Cleared</source>
-        <translation>Disková vyrovnávací paměť vyprázdněna částečně</translation>
+        <translation>Disková vyrovnávací paměť částečně vyprázdněna</translation>
     </message>
 </context>
 <context>
@@ -1015,15 +1015,15 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Same As Source - High Quality</source>
-        <translation>Stejné jako zdroj - vysoká jakost</translation>
+        <translation>Stejné jako zdroj - vysoká kvalita</translation>
     </message>
     <message>
         <source>Same As Source - Medium Quality</source>
-        <translation>Stejné jako zdroj - střední jakost</translation>
+        <translation>Stejné jako zdroj - střední kvalita</translation>
     </message>
     <message>
         <source>Same As Source - Low Quality</source>
-        <translation>Stejné jako zdroj - nízká jakost</translation>
+        <translation>Stejné jako zdroj - nízká kvalita</translation>
     </message>
     <message>
         <source>Range:</source>
@@ -1043,7 +1043,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Export Video</source>
-        <translation>Vyvést obraz</translation>
+        <translation>Vyvést video</translation>
     </message>
     <message>
         <source>Export Audio</source>
@@ -1208,7 +1208,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Quality:</source>
-        <translation>Jakost:</translation>
+        <translation>Kvalita:</translation>
     </message>
     <message>
         <source>Codec</source>
@@ -1423,7 +1423,7 @@ Ujistěte se, že je úryvek nahrán  a má připojený uzel prohlížeče.</tra
     </message>
     <message>
         <source>Failed to load clip</source>
-        <translation>Nepodařilo se nahrát záběr</translation>
+        <translation>Nepodařilo se načíst záběr</translation>
     </message>
 </context>
 <context>
@@ -1978,7 +1978,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Nest</source>
-        <translation>Vnořovat</translation>
+        <translation>Vnořit</translation>
     </message>
     <message>
         <source>Frames</source>
@@ -1990,7 +1990,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Non-Drop Frame</source>
-        <translation>Nezahodit snímek</translation>
+        <translation>Nezahazovat snímek</translation>
     </message>
     <message>
         <source>Milliseconds</source>
@@ -2052,7 +2052,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Generator</source>
-        <translation>Tvůrce</translation>
+        <translation>Vytvořit</translation>
     </message>
     <message>
         <source>Channel</source>
@@ -2527,7 +2527,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
-        <translation>Podržení Alt na libovolném prvku uživatelského rozhraní pro přepnutí os posunování</translation>
+        <translation>Držte Alt na libovolném prvku uživatelského rozhraní pro přepnutí os posunování</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
@@ -2874,7 +2874,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::ProjectLoadBaseTask</name>
     <message>
         <source>Loading &apos;%1&apos;</source>
-        <translation>Nahrává se &apos;%1&apos;</translation>
+        <translation>Načítá se &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
