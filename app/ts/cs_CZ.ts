@@ -51,7 +51,7 @@
         <translation>Chyba při ukládání nastavení</translation>
     </message>
     <message>
-        <source>Failed to save application settings. The application may lack write permissions to this location.</source>
+        <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Nepodařilo se uložit nastavení programu. Program může postrádat oprávnění k zápisu do tohoto umístění.</translation>
     </message>
 </context>
@@ -313,7 +313,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Export only (No GUI)</source>
-        <translation>Pouze vyvést (žádné rozhraní)</translation>
+        <translation>Pouze exportovat (žádné rozhraní)</translation>
     </message>
     <message>
         <source>Override language with file</source>
@@ -362,7 +362,7 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Import an audio footage stream.</source>
-        <translation>Zavést zvukový záznam.</translation>
+        <translation>Importovat zvukový záznam.</translation>
     </message>
 </context>
 <context>
@@ -544,11 +544,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Import footage...</source>
-        <translation>Zavést záznam...</translation>
+        <translation>Importovat záznam...</translation>
     </message>
     <message>
         <source>Failed to import footage</source>
-        <translation>Nepodařilo se zavést záznam</translation>
+        <translation>Nepodařilo se importovat záznam</translation>
     </message>
     <message>
         <source>Failed to find active Project panel</source>
@@ -584,11 +584,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Soubor &apos;%1&apos; může být součástí obrázkové řady. Chcete jej tak zavést?</translation>
+        <translation>Soubor &apos;%1&apos; může být součástí obrázkové řady. Chcete jej tak importovat?</translation>
     </message>
     <message>
         <source>You must specify a project file to export</source>
-        <translation>Musíte určit soubor projektu, který chcete vyvést</translation>
+        <translation>Musíte určit soubor projektu pro export</translation>
     </message>
     <message>
         <source>Specified project does not exist</source>
@@ -596,11 +596,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Project contains no sequences, nothing to export</source>
-        <translation>Projekt neobsahuje žádné úryvky, není co vyvést</translation>
+        <translation>Projekt neobsahuje žádné úryvky, není co exportovat</translation>
     </message>
     <message>
         <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation>V tomto projektu je více úryvků. Který chcete vyvést?</translation>
+        <translation>V tomto projektu je více úryvků. Který chcete exportovat?</translation>
     </message>
     <message>
         <source>Enter number (or %1 to cancel): </source>
@@ -612,11 +612,11 @@ Délka: %4</translation>
     </message>
     <message>
         <source>Export succeeded</source>
-        <translation>Podařilo se vyvést</translation>
+        <translation>Export proběhl v pořádku</translation>
     </message>
     <message>
         <source>Export failed: %1</source>
-        <translation>Nepodařilo se vyvést: %1</translation>
+        <translation>Nepodařilo se exportovat: %1</translation>
     </message>
     <message>
         <source>Project failed to load: %1</source>
@@ -1043,11 +1043,11 @@ Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</tran
     </message>
     <message>
         <source>Export Video</source>
-        <translation>Vyvést video</translation>
+        <translation>Exportovat video</translation>
     </message>
     <message>
         <source>Export Audio</source>
-        <translation>Vyvést zvuk</translation>
+        <translation>Exportovat zvuk</translation>
     </message>
     <message>
         <source>Video</source>
@@ -1059,7 +1059,7 @@ Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</tran
     </message>
     <message>
         <source>Export</source>
-        <translation>Vyvést</translation>
+        <translation>Exportovat</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -1490,11 +1490,11 @@ Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</tran
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation>&amp;Zavést...</translation>
+        <translation>&amp;Importovat...</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Vyvést</translation>
+        <translation>&amp;Exportovat</translation>
     </message>
     <message>
         <source>&amp;Media...</source>
@@ -1860,15 +1860,15 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     <name>olive::MatrixGenerator</name>
     <message>
         <source>Orthographic Matrix</source>
-        <translation>Pravopisná matice</translation>
+        <translation>Ortografická matice</translation>
     </message>
     <message>
         <source>Ortho</source>
-        <translation>Pravopis</translation>
+        <translation>Orto</translation>
     </message>
     <message>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation>Vytvořte ortografickou matici pomocí polohy, otočení a měřítka.</translation>
+        <translation>Vytvoří ortografickou matici pomocí polohy, otočení a měřítka.</translation>
     </message>
     <message>
         <source>Position</source>
@@ -2707,11 +2707,11 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Import</source>
-        <translation>Zavést</translation>
+        <translation>Importovat</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Vyvést</translation>
+        <translation>Exportovat</translation>
     </message>
     <message>
         <source>Reset Selected</source>
@@ -2731,7 +2731,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Import Keyboard Shortcuts</source>
-        <translation>Zavést klávesové zkratky</translation>
+        <translation>Importovat klávesové zkratky</translation>
     </message>
     <message>
         <source>Error saving shortcuts</source>
@@ -2743,11 +2743,11 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Export Keyboard Shortcuts</source>
-        <translation>Vyvést klávesové zkratky</translation>
+        <translation>Exportovat klávesové zkratky</translation>
     </message>
     <message>
         <source>Export Shortcuts</source>
-        <translation>Vyvést zkratky</translation>
+        <translation>Exportovat zkratky</translation>
     </message>
     <message>
         <source>Shortcuts exported successfully</source>
@@ -2780,7 +2780,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation>&amp;Zavést...</translation>
+        <translation>&amp;Importovat...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
@@ -3641,7 +3641,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Logarithmic</source>
-        <translation>Logaritmický</translation>
+        <translation>Logaritmická</translation>
     </message>
 </context>
 <context>
@@ -3652,7 +3652,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation>Provést s hodnotou trigonometrickou operaci.</translation>
+        <translation>Provede s hodnotou trigonometrickou operaci.</translation>
     </message>
     <message>
         <source>Sine</source>
@@ -3660,7 +3660,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation>Cosinus</translation>
+        <translation>Kosinus</translation>
     </message>
     <message>
         <source>Tangent</source>
@@ -3668,15 +3668,15 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Inverse Sine</source>
-        <translation>Obrátit sinus</translation>
+        <translation>Arkus sinus</translation>
     </message>
     <message>
         <source>Inverse Cosine</source>
-        <translation>Obrátit cosinus</translation>
+        <translation>Arkus kosinus</translation>
     </message>
     <message>
         <source>Inverse Tangent</source>
-        <translation>Obrátit tangens</translation>
+        <translation>Arkus tangens</translation>
     </message>
     <message>
         <source>Hyperbolic Sine</source>
@@ -3684,7 +3684,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Hyperbolic Cosine</source>
-        <translation>Hyperbolický cosinus</translation>
+        <translation>Hyperbolický kosinus</translation>
     </message>
     <message>
         <source>Hyperbolic Tangent</source>
@@ -3718,7 +3718,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Import a video footage stream.</source>
-        <translation>Zavést obrazový záznam.</translation>
+        <translation>Importovat obrazový záznam.</translation>
     </message>
 </context>
 <context>
