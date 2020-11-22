@@ -458,7 +458,7 @@ protected:
 
   static QRectF CreateGizmoHandleRect(const QPointF& pt, int radius);
 
-  static int GetGizmoHandleRadius();
+  static double GetGizmoHandleRadius(const QTransform& transform);
 
   static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
 

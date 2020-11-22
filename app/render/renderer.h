@@ -48,20 +48,22 @@ public:
 
   void BlitToTexture(QVariant shader,
                      olive::ShaderJob job,
-                     olive::Texture* destination)
+                     olive::Texture* destination,
+                     bool clear_destination = true)
   {
-    Blit(shader, job, destination, destination->params());
+    Blit(shader, job, destination, destination->params(), clear_destination);
   }
 
   void Blit(QVariant shader,
             olive::ShaderJob job,
-            olive::VideoParams params)
+            olive::VideoParams params,
+            bool clear_destination = true)
   {
-    Blit(shader, job, nullptr, params);
+    Blit(shader, job, nullptr, params, clear_destination);
   }
 
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture* destination, const QMatrix4x4& matrix = QMatrix4x4());
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, const QMatrix4x4& matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, Texture* destination, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, bool source_is_premultiplied, VideoParams params, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4());
 
   void Destroy();
 
@@ -89,7 +91,8 @@ protected slots:
   virtual void Blit(QVariant shader,
                     olive::ShaderJob job,
                     olive::Texture* destination,
-                    olive::VideoParams destination_params) = 0;
+                    olive::VideoParams destination_params,
+                    bool clear_destination) = 0;
 
 private:
   struct ColorContext {
@@ -115,7 +118,8 @@ private:
 
   void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
                                 bool source_is_premultiplied,
-                                Texture* destination, VideoParams params, const QMatrix4x4 &matrix);
+                                Texture* destination, VideoParams params, bool clear_destination,
+                                const QMatrix4x4 &matrix);
 
   QHash<QString, ColorContext> color_cache_;
 

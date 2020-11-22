@@ -47,7 +47,7 @@ public:
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 
 protected:
-  QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position) const;
+  QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,

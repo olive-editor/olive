@@ -280,15 +280,11 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
-void ViewerDisplayWidget::OnInit()
-{
-  ManagedDisplayWidget::OnInit();
-}
-
 void ViewerDisplayWidget::OnPaint()
 {
   // Clear background to empty
-  renderer()->ClearDestination();
+  QColor bg_color = palette().window().color();
+  renderer()->ClearDestination(bg_color.redF(), bg_color.greenF(), bg_color.blueF());
 
   // We only draw if we have a pipeline
   if (last_loaded_buffer_ && color_service()) {
@@ -317,7 +313,7 @@ void ViewerDisplayWidget::OnPaint()
     VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
-    renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params,
+    renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params, false,
                                  combined_matrix_flipped_);
   }
 
@@ -444,6 +440,7 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform()
   QVector2D viewer_scale(GetTexturePosition(size()));
   QTransform gizmo_transform = GenerateWorldTransform();
   gizmo_transform.scale(viewer_scale.x(), viewer_scale.y());
+  gizmo_transform.scale(gizmo_params_.pixel_aspect_ratio().flipped().toDouble(), 1);
   return gizmo_transform;
 }
 

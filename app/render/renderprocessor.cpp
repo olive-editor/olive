@@ -104,7 +104,7 @@ void RenderProcessor::Run()
 
         if (output_color_transform) {
           // Yes color transform, blit color managed
-          render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), matrix);
+          render_ctx_->BlitColorManaged(output_color_transform, texture, true, blit_tex.get(), true, matrix);
         } else {
           // No color transform, just blit
           ShaderJob job;

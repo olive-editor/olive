@@ -28,7 +28,7 @@ namespace olive {
 
 TransformDistortNode::TransformDistortNode()
 {
-  autoscale_input_ = new NodeInput(QStringLiteral("autoscale_in"), NodeParam::kBoolean, false);
+  autoscale_input_ = new NodeInput(QStringLiteral("autoscale_in"), NodeParam::kCombo, 0);
   AddInput(autoscale_input_);
 
   texture_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
@@ -41,12 +41,14 @@ void TransformDistortNode::Retranslate()
 
   autoscale_input_->set_name(tr("Auto-Scale"));
   texture_input_->set_name(tr("Texture"));
+
+  autoscale_input_->set_combobox_strings({tr("None"), tr("Fit"), tr("Fill"), tr("Stretch")});
 }
 
 NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
 {
   // Generate matrix
-  QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false);
+  QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
 
   // Pop texture
   TexturePtr texture = value[texture_input_].Take(NodeParam::kTexture).value<TexturePtr>();
@@ -59,7 +61,7 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
     // Adjust our matrix by the resolutions involved
     QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")).value<QVector2D>();
     QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
-    bool autoscale = value[autoscale_input_].Get(NodeParam::kBoolean).toBool();
+    AutoScaleType autoscale = static_cast<AutoScaleType>(value[autoscale_input_].Get(NodeParam::kCombo).toInt());
 
     QMatrix4x4 real_matrix = AdjustMatrixByResolutions(generated_matrix,
                                                        sequence_res,
@@ -142,6 +144,9 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
       gizmo_scale_anchor_.setY(texture_sz.y() - gizmo_scale_anchor_.y());
     }
 
+    // Store current matrix
+    gizmo_matrix_ = GenerateMatrix(db, false, true, true, true);
+
     return true;
 
   } else if (gizmo_anchor_pt_.contains(p)) {
@@ -152,7 +157,7 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
     gizmo_drag_ = anchor_input();
 
     // Store current matrix
-    gizmo_matrix_ = GenerateMatrix(db, false, true, true);
+    gizmo_matrix_ = GenerateMatrix(db, false, true, true, false);
 
     return true;
 
@@ -235,24 +240,27 @@ void TransformDistortNode::GizmoMove(const QPointF &p, const rational &time)
       }
     }
 
+    QPointF mouse_relative = gizmo_matrix_.toTransform().inverted().map(QPointF(p - gizmo_anchor_pt_.center()));
 
+    double x_scaled_movement = qAbs(mouse_relative.x() / gizmo_scale_anchor_.x());
+    double y_scaled_movement = qAbs(mouse_relative.y() / gizmo_scale_anchor_.y());
 
     switch (gizmo_scale_axes_) {
     case kGizmoScaleXOnly:
-      gizmo_dragger_[0].Drag(qAbs((p.x() - gizmo_anchor_pt_.center().x()) / gizmo_scale_anchor_.x()));
+      gizmo_dragger_[0].Drag(x_scaled_movement);
       break;
     case kGizmoScaleYOnly:
-      gizmo_dragger_[0].Drag(qAbs((p.y() - gizmo_anchor_pt_.center().y()) / gizmo_scale_anchor_.y()));
+      gizmo_dragger_[0].Drag(y_scaled_movement);
       break;
     case kGizmoScaleBoth:
       if (gizmo_scale_uniform_) {
-        double distance = std::hypot(p.x() - gizmo_anchor_pt_.center().x(), p.y() - gizmo_anchor_pt_.center().y());
+        double distance = std::hypot(mouse_relative.x(), mouse_relative.y());
         double texture_diag = std::hypot(gizmo_scale_anchor_.x(), gizmo_scale_anchor_.y());
 
         gizmo_dragger_[0].Drag(qAbs(distance / texture_diag));
       } else {
-        gizmo_dragger_[0].Drag(qAbs((p.x() - gizmo_anchor_pt_.center().x()) / gizmo_scale_anchor_.x()));
-        gizmo_dragger_[1].Drag(qAbs((p.y() - gizmo_anchor_pt_.center().y()) / gizmo_scale_anchor_.y()));
+        gizmo_dragger_[0].Drag(x_scaled_movement);
+        gizmo_dragger_[1].Drag(y_scaled_movement);
       }
       break;
     }
@@ -289,7 +297,7 @@ void TransformDistortNode::GizmoRelease()
   gizmo_drag_ = nullptr;
 }
 
-QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, bool auto_sz)
+QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, AutoScaleType autoscale_type)
 {
   // First, create an identity matrix
   QMatrix4x4 adjusted_matrix;
@@ -304,21 +312,31 @@ QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat
   adjusted_matrix.scale(texture_res.x() * 0.5, texture_res.y() * 0.5, 1.0);
 
   // If auto-scale is enabled, fit the texture to the sequence (without cropping)
-  if (auto_sz) {
-    double footage_real_ar = texture_res.x() / texture_res.y();
-    double sequence_real_ar = sequence_res.x() / sequence_res.y();
-
-    double autoscale_val;
-
-    if (sequence_real_ar > footage_real_ar) {
-      // Sequence is wider than footage, scale by height
-      autoscale_val = sequence_res.y() / texture_res.y();
+  if (autoscale_type != kAutoScaleNone) {
+    if (autoscale_type == kAutoScaleStretch) {
+      adjusted_matrix.scale(sequence_res.x() / texture_res.x(),
+                            sequence_res.y() / texture_res.y(),
+                            1.0);
     } else {
-      // Footage is wider than sequence, scale by width
-      autoscale_val = sequence_res.x() / texture_res.x();
-    }
+      double footage_real_ar = texture_res.x() / texture_res.y();
+      double sequence_real_ar = sequence_res.x() / sequence_res.y();
 
-    adjusted_matrix.scale(autoscale_val, autoscale_val, 1.0);
+      double scale_by_x = sequence_res.x() / texture_res.x();
+      double scale_by_y = sequence_res.y() / texture_res.y();
+      double autoscale_val;
+
+      if ((autoscale_type == kAutoScaleFit) == (sequence_real_ar > footage_real_ar)) {
+        // Scale by height. Either the sequence is wider than the footage or we're using fill and
+        // cutting off the sides
+        autoscale_val = scale_by_y;
+      } else {
+        // Scale by width. Either the footage is wider than the sequence or we're using fill and
+        // cutting off the top and bottom
+        autoscale_val = scale_by_x;
+      }
+
+      adjusted_matrix.scale(autoscale_val, autoscale_val, 1.0);
+    }
   }
 
   return adjusted_matrix;
@@ -343,12 +361,12 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   QVector2D tex_sz = db[texture_input_].Get(NodeParam::kTexture).value<QVector2D>();
 
   // Retrieve autoscale value
-  bool autoscale = db[autoscale_input_].Get(NodeParam::kBoolean).toBool();
+  AutoScaleType autoscale = static_cast<AutoScaleType>(db[autoscale_input_].Get(NodeParam::kCombo).toInt());
 
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;
   rectangle_matrix.scale(sequence_half_res);
-  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(db, false, false, false),
+  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(db, false, false, false, false),
                                                 sequence_res,
                                                 tex_sz,
                                                 autoscale);
@@ -366,15 +384,18 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   // Draw rectangle
   p->drawPolyline(gizmo_rect_);
 
+  // Get handle size (relative to screen space rather than buffer space)
+  const double resize_handle_rad = GetGizmoHandleRadius(p->transform());
+
   // Draw anchor point
   QMatrix4x4 anchor_matrix;
   anchor_matrix.scale(sequence_half_res);
-  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(db, false, true, false),
+  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(db, false, true, false, false),
                                              sequence_res,
                                              tex_sz,
                                              autoscale);
   QPointF anchor_pt = anchor_matrix.toTransform().map(QPointF(0, 0)) + sequence_half_res_pt;
-  const int anchor_pt_radius = QFontMetrics(qApp->font()).height() / 2 * 3;
+  const double anchor_pt_radius = resize_handle_rad * 2;
 
   gizmo_anchor_pt_ = QRectF(anchor_pt.x() - anchor_pt_radius,
                             anchor_pt.y() - anchor_pt_radius,
@@ -391,8 +412,6 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   // Draw scale handles
   p->setPen(Qt::NoPen);
   p->setBrush(Qt::white);
-
-  const int resize_handle_rad = GetGizmoHandleRadius();
 
   gizmo_resize_handle_[kGizmoScaleTopLeft]      = CreateGizmoHandleRect(CreateScalePoint(-1, -1, sequence_half_res_pt, rectangle_matrix), resize_handle_rad);
   gizmo_resize_handle_[kGizmoScaleTopCenter]    = CreateGizmoHandleRect(CreateScalePoint( 0, -1, sequence_half_res_pt, rectangle_matrix), resize_handle_rad);

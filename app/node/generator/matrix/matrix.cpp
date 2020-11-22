@@ -91,16 +91,17 @@ void MatrixGenerator::Retranslate()
 NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(value, true, false, false);
+  QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
   NodeValueTable output = value.Merge();
   output.Push(NodeParam::kMatrix, mat, this);
   return output;
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
 {
   QVector2D anchor;
   QVector2D position;
+  QVector2D scale;
 
   if (!ignore_anchor) {
     if (take) {
@@ -113,6 +114,16 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, 
   } else if (take) {
     // Just take
     value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>();
+  }
+
+  if (!ignore_scale) {
+    if (take) {
+      scale = value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    } else {
+      scale = value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>();
+    }
+  } else if (take) {
+    value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
   }
 
   if (!ignore_position) {
@@ -128,13 +139,13 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, 
   if (take) {
     return GenerateMatrix(position,
                           value[rotation_input_].Take(NodeParam::kFloat).toFloat(),
-                          value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>(),
+                          scale,
                           value[uniform_scale_input_].Take(NodeParam::kBoolean).toBool(),
                           anchor);
   } else {
     return GenerateMatrix(position,
                           value[rotation_input_].Get(NodeParam::kFloat).toFloat(),
-                          value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>(),
+                          scale,
                           value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool(),
                           anchor);
 

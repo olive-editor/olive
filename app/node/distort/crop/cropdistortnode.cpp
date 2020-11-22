@@ -107,7 +107,7 @@ void CropDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
 {
   QVector2D resolution = db[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")).value<QVector2D>();
 
-  const int handle_radius = GetGizmoHandleRadius();
+  const double handle_radius = GetGizmoHandleRadius(p->transform());
 
   p->setPen(QPen(Qt::white, 0));
 
@@ -151,12 +151,6 @@ bool CropDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
   }
 
   bool in_rect = found_handle ? false : gizmo_whole_rect_.contains(p);
-
-  qDebug() << "Active handles:";
-  for (int i=0; i<kGizmoScaleCount; i++) {
-    qDebug() << "  " << i << gizmo_active[i];
-  }
-  qDebug() << "  Rect:" << in_rect;
 
   gizmo_drag_ = kGizmoNone;
 

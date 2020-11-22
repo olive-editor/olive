@@ -169,13 +169,6 @@ protected:
 
 protected:
   /**
-   * @brief Initialize function to set up the OpenGL context upon its construction
-   *
-   * Currently primarily used to regenerate the pipeline shader used for drawing.
-   */
-  virtual void OnInit() override;
-
-  /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
    * Simple OpenGL drawing function for painting the texture on screen. Standardized around OpenGL ES 3.2 Core.

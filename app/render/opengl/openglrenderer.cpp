@@ -342,7 +342,7 @@ struct TextureToBind {
   Texture::Interpolation interpolation;
 };
 
-void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, VideoParams destination_params)
+void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, VideoParams destination_params, bool clear_destination)
 {
   // If this node is iterative, we'll pick up which input here
   QString iterative_name;
@@ -541,8 +541,10 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
         DetachTextureAsDestination();
       }
 
-      // Clear the destination, whatever it is
-      ClearDestination();
+      // Clear the destination if the caller requested it
+      if (clear_destination) {
+        ClearDestination();
+      }
     } else {
       // Always draw to output_tex, which gets swapped with input_tex every iteration
       AttachTextureAsDestination(output_tex.get());

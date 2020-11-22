@@ -83,10 +83,17 @@ public:
     return texture_input_;
   }
 
+  enum AutoScaleType {
+    kAutoScaleNone,
+    kAutoScaleFit,
+    kAutoScaleFill,
+    kAutoScaleStretch
+  };
+
   static QMatrix4x4 AdjustMatrixByResolutions(const QMatrix4x4& mat,
                                               const QVector2D& sequence_res,
                                               const QVector2D& texture_res,
-                                              bool auto_sz);
+                                              AutoScaleType autoscale_type = kAutoScaleNone);
 
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);

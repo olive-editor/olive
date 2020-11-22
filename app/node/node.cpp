@@ -941,12 +941,16 @@ QRectF Node::CreateGizmoHandleRect(const QPointF &pt, int radius)
   return QRectF(pt.x() - radius,
                 pt.y() - radius,
                 2*radius,
-                2*radius);;
+                2*radius);
 }
 
-int Node::GetGizmoHandleRadius()
+double Node::GetGizmoHandleRadius(const QTransform &transform)
 {
-  return QFontMetrics(qApp->font()).height() / 2;
+  double raw_value = QFontMetrics(qApp->font()).height() * 0.25;
+
+  raw_value /= transform.m11();
+
+  return raw_value;
 }
 
 void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rects, int count)

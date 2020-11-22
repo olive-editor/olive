@@ -64,7 +64,8 @@ protected slots:
   virtual void Blit(QVariant shader,
                     olive::ShaderJob job,
                     olive::Texture* destination,
-                    olive::VideoParams destination_params) override;
+                    olive::VideoParams destination_params,
+                    bool clear_destination) override;
 
 private:
   Renderer* inner_;
