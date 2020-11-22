@@ -457,7 +457,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
     functions_->glActiveTexture(GL_TEXTURE0 + i);
 
-    GLenum target = (texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glBindTexture(target, tex_id);
 
     PrepareInputTexture(target, t.interpolation);
@@ -577,7 +577,8 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
   // Release any textures we bound before
   for (int i=textures_to_bind.size()-1; i>=0; i--) {
-    GLenum target = (textures_to_bind.at(i).texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    TexturePtr texture = textures_to_bind.at(i).texture;
+    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glActiveTexture(GL_TEXTURE0 + i);
     functions_->glBindTexture(target, 0);
   }
