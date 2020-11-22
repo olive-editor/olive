@@ -6,37 +6,37 @@
     <message>
         <location filename="../render/audioparams.cpp" line="177"/>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="184"/>
         <source>Mono</source>
-        <translation type="unfinished">Моно</translation>
+        <translation>Моно</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="186"/>
         <source>Stereo</source>
-        <translation type="unfinished">Стерео</translation>
+        <translation>Стерео</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="188"/>
         <source>2.1</source>
-        <translation type="unfinished"></translation>
+        <translation>2.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="190"/>
         <source>5.1</source>
-        <translation type="unfinished"></translation>
+        <translation>5.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="192"/>
         <source>7.1</source>
-        <translation type="unfinished"></translation>
+        <translation>7.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="194"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Непознато (0x%1)</translation>
     </message>
 </context>
 <context>
@@ -44,24 +44,27 @@
     <message>
         <location filename="../config/config.cpp" line="195"/>
         <source>Error loading settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Грешка при учитавању поставки</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="196"/>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>“Сесија” might not be the most adequate term for “session”</translatorcomment>
+        <translation type="unfinished">Неуспешно учитавање поставки апликације. Ова сесија ће користити задане поставке.
+
+%1</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="214"/>
         <source>Error saving settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Грешка при спашавању поставки</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="215"/>
         <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неуспешно спашавање поставки апликације. Апликацији можда недостају допуштења за писање у овој локацији.</translation>
     </message>
 </context>
 <context>
@@ -393,17 +396,17 @@ Length: %4</source>
     <message>
         <location filename="../dialog/about/about.cpp" line="33"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>О %1</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="51"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished">Olive је нелинеарни видео уређивач. Овај софтвер је слободан и заштићен GNU GPL-ом.</translation>
+        <translation>Olive је нелинеарни видео уређивач. Овај софтвер је слободан и заштићен GNU GPL-ом.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="53"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished">Olive тим је под обавезом да обавести своје кориснике да је Olive-ов изворни код доступан за преузимање са његове веб странице.</translation>
+        <translation>Olive тим је под обавезом да обавести кориснике да је Olive-ов изворни код доступан за преузимање са његове веб странице.</translation>
     </message>
 </context>
 <context>
