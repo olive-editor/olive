@@ -17,7 +17,7 @@
 set(OLIVE_TS_FILES
   ts/ar_AR.ts
   ts/bs_BS.ts
-  ts/cs_CS.ts
+  ts/cs_CZ.ts
   ts/de_DE.ts
   ts/en_US.ts
   ts/es_ES.ts
