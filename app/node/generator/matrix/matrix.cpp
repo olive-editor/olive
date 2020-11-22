@@ -66,7 +66,7 @@ QString MatrixGenerator::ShortName() const
 
 QString MatrixGenerator::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.transform");
+  return QStringLiteral("org.olivevideoeditor.Olive.ortho");
 }
 
 QVector<Node::CategoryID> MatrixGenerator::Category() const

@@ -139,6 +139,14 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint v
                 }
               }
 
+              if (version <= 201118) {
+                // After version 201118, the orthographic matrix node ID was changed from
+                // "org.olivevideoeditor.Olive.transform" to "org.olivevideoeditor.Olive.ortho"
+                if (id == QStringLiteral("org.olivevideoeditor.Olive.transform")) {
+                  id = QStringLiteral("org.olivevideoeditor.Olive.ortho");
+                }
+              }
+
               node = NodeFactory::CreateFromID(id);
               break;
             }
