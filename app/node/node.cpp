@@ -93,6 +93,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
 
       if (!param) {
         qDebug() << "No parameter in" << id() << "with parameter" << param_id;
+        reader->skipCurrentElement();
         continue;
       }
 
