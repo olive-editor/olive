@@ -132,14 +132,20 @@ int main(int argc, char *argv[])
 
   startup_params.set_startup_project(project_argument->GetSetting());
 
-  // Set OpenGL display profile (3.0 Core, or 3.2 on macOS)
+  // Set OpenGL display profile
   QSurfaceFormat format;
-#ifdef Q_OS_MAC
+
+  // Tries to cover all bases. If drivers don't support 3.2, they should fallback to the closest
+  // alternative. Unfortunately Qt doesn't support 3.0-3.1 without DeprecatedFunctions, so we
+  // declare that too. We also force Qt to not use ANGLE because I've had a lot of problems with it
+  // so far.
+  //
+  // https://bugreports.qt.io/browse/QTBUG-46140
+  QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
   format.setVersion(3, 2);
-#else
-  format.setVersion(3, 0);
-#endif
   format.setProfile(QSurfaceFormat::CoreProfile);
+  format.setOption(QSurfaceFormat::DeprecatedFunctions);
+
   format.setDepthBufferSize(24);
   QSurfaceFormat::setDefaultFormat(format);
 
