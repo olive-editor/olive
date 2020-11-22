@@ -36,7 +36,7 @@ double Bezier::QuadraticTtoY(double a, double b, double c, double t)
 
 double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d)
 {
-  double tolerance = 0.0001;
+  const double tolerance = 0.0001;
 
   double lower = 0.0;
   double upper = 1.0;
@@ -51,7 +51,7 @@ double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d
       upper = percent;
     }
 
-    percent = (upper + lower) / 2.0;
+    percent = (upper + lower) * 0.5;
     x = CubicTtoY(a, b, c, d, percent);
   }
 

@@ -153,7 +153,7 @@ void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool inpu
         y4 = start.y();
       }
 
-      double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
+      double t = Bezier::CubicXtoT(clamp(continue_x, x1, x4), x1, x2, x3, x4);
       double y = Bezier::CubicTtoY(y1, y2, y3, y4, t);
 
       angle = qAtan2(end.y() - y, end.x() - continue_x);
