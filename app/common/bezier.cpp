@@ -22,6 +22,8 @@
 
 #include <QtMath>
 
+#include "common/clamp.h"
+
 namespace olive {
 
 double Bezier::QuadraticXtoT(double x, double a, double b, double c)
@@ -37,6 +39,9 @@ double Bezier::QuadraticTtoY(double a, double b, double c, double t)
 double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d)
 {
   const double tolerance = 0.0001;
+
+  // Clamp to prevent deadlocks
+  x_target = clamp(x_target, a, d);
 
   double lower = 0.0;
   double upper = 1.0;
