@@ -49,6 +49,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
 
+  connect(this, &ViewerDisplayWidget::InnerWidgetMouseMove, this, &ViewerDisplayWidget::EmitColorAtCursor);
+
   // Initializes cursor based on tool
   UpdateCursor();
 }
@@ -84,7 +86,7 @@ void ViewerDisplayWidget::UpdateCursor()
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
-  setMouseTracking(e);
+  inner_widget()->setMouseTracking(e);
 }
 
 void ViewerDisplayWidget::SetImage(FramePtr in_buffer)
@@ -211,27 +213,6 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  // Do this no matter what, emits signal to any pixel samplers
-  if (signal_cursor_color_) {
-    Color reference, display;
-
-    if (last_loaded_buffer_) {
-      QVector3D pixel_pos(static_cast<float>(event->x()) / static_cast<float>(width()) * 2.0f - 1.0f,
-                          static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
-                          0);
-
-      pixel_pos = GenerateWorldTransform().inverted() * pixel_pos;
-
-      int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * last_loaded_buffer_->width());
-      int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * last_loaded_buffer_->height());
-
-      reference = last_loaded_buffer_->get_pixel(frame_x, frame_y);
-      display = color_service()->ConvertColor(reference);
-    }
-
-    emit CursorColor(reference, display);
-  }
-
   // Handle hand dragging
   if (hand_dragging_) {
 
@@ -442,6 +423,25 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform()
   gizmo_transform.scale(viewer_scale.x(), viewer_scale.y());
   gizmo_transform.scale(gizmo_params_.pixel_aspect_ratio().flipped().toDouble(), 1);
   return gizmo_transform;
+}
+
+void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
+{
+  // Do this no matter what, emits signal to any pixel samplers
+  if (signal_cursor_color_) {
+    Color reference, display;
+
+    if (last_loaded_buffer_) {
+      QPointF pixel_pos = GenerateGizmoTransform().inverted().map(e->pos());
+
+      pixel_pos /= last_loaded_buffer_->video_params().divider();
+
+      reference = last_loaded_buffer_->get_pixel(qRound(pixel_pos.x()), qRound(pixel_pos.y()));
+      display = color_service()->ConvertColor(reference);
+    }
+
+    emit CursorColor(reference, display);
+  }
 }
 
 }

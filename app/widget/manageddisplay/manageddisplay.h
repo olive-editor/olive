@@ -21,6 +21,7 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
+#include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 
@@ -46,6 +47,8 @@ signals:
 
   void OnDestroy();
 
+  void OnMouseMove(QMouseEvent* e);
+
 protected:
   virtual void initializeGL() override
   {
@@ -58,6 +61,13 @@ protected:
   virtual void paintGL() override
   {
     emit OnPaint();
+  }
+
+  virtual void mouseMoveEvent(QMouseEvent* e) override
+  {
+    emit OnMouseMove(e);
+
+    QOpenGLWidget::mouseMoveEvent(e);
   }
 
 private slots:
@@ -143,6 +153,8 @@ signals:
   void ColorManagerChanged(ColorManager* color_manager);
 
   void frameSwapped();
+
+  void InnerWidgetMouseMove(QMouseEvent* event);
 
 protected:
   /**

@@ -55,6 +55,10 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
             &ManagedDisplayWidgetOpenGL::frameSwapped,
             this, &ManagedDisplayWidget::frameSwapped, Qt::DirectConnection);
 
+    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
+            &ManagedDisplayWidgetOpenGL::OnMouseMove,
+            this, &ManagedDisplayWidget::InnerWidgetMouseMove);
+
     // Create OpenGL renderer
     attached_renderer_ = new OpenGLRenderer(this);
   } else {

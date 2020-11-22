@@ -246,6 +246,9 @@ private:
 
   bool deinterlace_;
 
+private slots:
+  void EmitColorAtCursor(QMouseEvent* e);
+
 };
 
 }
