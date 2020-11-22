@@ -52,7 +52,7 @@
 
 %1</source>
         <translatorcomment>“Sesija” might not be the most adequate term for “session”</translatorcomment>
-        <translation type="unfinished">Neuspješno učitavanje postavki aplikacije. Ova sesija će koristiti zadane postavke.
+        <translation>Neuspješno učitavanje postavki aplikacije. Ova sesija će koristiti zadane postavke.
 
 %1</translation>
     </message>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <location filename="../config/config.cpp" line="215"/>
-        <source>Failed to save application settings. The application may lack write permissions to this location.</source>
+        <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Neuspješno spašavanje postavki aplikacije. Aplikaciji možda nedostaju dopuštenja za pisanje u ovoj lokaciji.</translation>
     </message>
 </context>
@@ -77,7 +77,7 @@
     <message>
         <location filename="../project/item/footage/footage.cpp" line="251"/>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 Hz</translation>
     </message>
     <message>
         <location filename="../project/item/footage/footage.cpp" line="331"/>
@@ -315,7 +315,7 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="223"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nepoznato (0x%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="251"/>
@@ -356,37 +356,37 @@ Length: %4</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="83"/>
+        <location filename="../main.cpp" line="81"/>
         <source>Show this help text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="87"/>
+        <location filename="../main.cpp" line="85"/>
         <source>Show application version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="91"/>
+        <location filename="../main.cpp" line="89"/>
         <source>Start in full-screen mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="95"/>
+        <location filename="../main.cpp" line="93"/>
         <source>Export only (No GUI)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="99"/>
+        <location filename="../main.cpp" line="97"/>
         <source>Override language with file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="101"/>
+        <location filename="../main.cpp" line="99"/>
         <source>qm-file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="105"/>
+        <location filename="../main.cpp" line="103"/>
         <source>Project to open on startup</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1547,7 +1547,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
 <context>
     <name>olive::FootageViewerPanel</name>
     <message>
-        <location filename="../panel/footageviewer/footageviewer.cpp" line="72"/>
+        <location filename="../panel/footageviewer/footageviewer.cpp" line="77"/>
         <source>Footage Viewer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2014,6 +2014,11 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="665"/>
         <source>Cache Sequence In/Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../window/mainwindow/mainmenu.cpp" line="668"/>
+        <source>&amp;Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4012,12 +4017,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="67"/>
         <source>1080p</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">1080p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="68"/>
         <source>720p</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">720p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="70"/>
@@ -4291,13 +4296,13 @@ What would you like to do with these clips?</source>
 <context>
     <name>olive::TimelineWidget</name>
     <message>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1056"/>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1078"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1066"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1088"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1071"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1081"/>
         <source>Use Audio Time Units</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4540,7 +4545,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/standardcombos/videodividercombobox.h" line="43"/>
         <source>1/%1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">1/%1</translation>
     </message>
 </context>
 <context>

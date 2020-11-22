@@ -213,7 +213,7 @@ void Config::Save()
     QMessageBox::critical(Core::instance()->main_window(),
                           QCoreApplication::translate("Config", "Error saving settings"),
                           QCoreApplication::translate("Config", "Failed to save application settings. The application "
-                                                                "may lack write permissions to this location."),
+                                                                "may lack write permissions for this location."),
                           QMessageBox::Ok);
     return;
   }
