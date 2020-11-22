@@ -176,7 +176,7 @@ void ViewerSizer::UpdateSize()
   } else {
 
     // Fit - add a small amount of padding
-    child_matrix.scale(0.95, 0.95);
+    child_matrix.scale(0.95f, 0.95f);
 
   }
 
