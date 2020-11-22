@@ -31,6 +31,9 @@ TransformDistortNode::TransformDistortNode()
   autoscale_input_ = new NodeInput(QStringLiteral("autoscale_in"), NodeParam::kCombo, 0);
   AddInput(autoscale_input_);
 
+  interpolation_input_ = new NodeInput(QStringLiteral("interpolation_in"), NodeParam::kCombo, 2);
+  AddInput(interpolation_input_);
+
   texture_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
   AddInput(texture_input_);
 }
@@ -41,8 +44,10 @@ void TransformDistortNode::Retranslate()
 
   autoscale_input_->set_name(tr("Auto-Scale"));
   texture_input_->set_name(tr("Texture"));
+  interpolation_input_->set_name(tr("Interpolation"));
 
   autoscale_input_->set_combobox_strings({tr("None"), tr("Fit"), tr("Fill"), tr("Stretch")});
+  interpolation_input_->set_combobox_strings({tr("Nearest Neighbor"), tr("Bilinear"), tr("Mipmapped Bilinear")});
 }
 
 NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
@@ -76,6 +81,8 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
       ShaderJob job;
       job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(texture), NodeParam::kTexture));
       job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(real_matrix, NodeParam::kMatrix));
+      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[interpolation_input_].Get(NodeParam::kCombo).toInt()));
+
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
     }
   }

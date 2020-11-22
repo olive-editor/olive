@@ -67,7 +67,7 @@ public:
     return iterative_input_;
   }
 
-  Texture::Interpolation GetInterpolation(const QString& id)
+  Texture::Interpolation GetInterpolation(const QString& id) const
   {
     return interpolation_.value(id, Texture::kDefaultInterpolation);
   }

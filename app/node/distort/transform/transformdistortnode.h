@@ -100,6 +100,7 @@ private:
 
   NodeInput* texture_input_;
   NodeInput* autoscale_input_;
+  NodeInput* interpolation_input_;
 
   // Gizmo variables
   NodeInput* gizmo_drag_;
