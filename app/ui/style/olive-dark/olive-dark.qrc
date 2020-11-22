@@ -46,6 +46,10 @@
     <file>png/clock.32.png</file>
     <file>png/clock.64.png</file>
     <file>png/clock.128.png</file>
+    <file>png/copy.16.png</file>
+    <file>png/copy.32.png</file>
+    <file>png/copy.64.png</file>
+    <file>png/copy.128.png</file>
     <file>png/diamond.16.png</file>
     <file>png/diamond.32.png</file>
     <file>png/diamond.64.png</file>
@@ -58,10 +62,18 @@
     <file>png/error.32.png</file>
     <file>png/error.64.png</file>
     <file>png/error.128.png</file>
+    <file>png/export.16.png</file>
+    <file>png/export.32.png</file>
+    <file>png/export.64.png</file>
+    <file>png/export.128.png</file>
     <file>png/ff.16.png</file>
     <file>png/ff.32.png</file>
     <file>png/ff.64.png</file>
     <file>png/ff.128.png</file>
+    <file>png/filter.16.png</file>
+    <file>png/filter.32.png</file>
+    <file>png/filter.64.png</file>
+    <file>png/filter.128.png</file>
     <file>png/folder.16.png</file>
     <file>png/folder.32.png</file>
     <file>png/folder.64.png</file>
@@ -78,6 +90,10 @@
     <file>png/imagesource.32.png</file>
     <file>png/imagesource.64.png</file>
     <file>png/imagesource.128.png</file>
+    <file>png/import.16.png</file>
+    <file>png/import.32.png</file>
+    <file>png/import.64.png</file>
+    <file>png/import.128.png</file>
     <file>png/italic.16.png</file>
     <file>png/italic.32.png</file>
     <file>png/italic.64.png</file>
@@ -106,10 +122,30 @@
     <file>png/next.32.png</file>
     <file>png/next.64.png</file>
     <file>png/next.128.png</file>
+    <file>png/nodes_btt.16.png</file>
+    <file>png/nodes_btt.32.png</file>
+    <file>png/nodes_btt.64.png</file>
+    <file>png/nodes_btt.128.png</file>
+    <file>png/nodes_ltr.16.png</file>
+    <file>png/nodes_ltr.32.png</file>
+    <file>png/nodes_ltr.64.png</file>
+    <file>png/nodes_ltr.128.png</file>
+    <file>png/nodes_rtl.16.png</file>
+    <file>png/nodes_rtl.32.png</file>
+    <file>png/nodes_rtl.64.png</file>
+    <file>png/nodes_rtl.128.png</file>
+    <file>png/nodes_ttb.16.png</file>
+    <file>png/nodes_ttb.32.png</file>
+    <file>png/nodes_ttb.64.png</file>
+    <file>png/nodes_ttb.128.png</file>
     <file>png/open.16.png</file>
     <file>png/open.32.png</file>
     <file>png/open.64.png</file>
     <file>png/open.128.png</file>
+    <file>png/paste.16.png</file>
+    <file>png/paste.32.png</file>
+    <file>png/paste.64.png</file>
+    <file>png/paste.128.png</file>
     <file>png/pause.16.png</file>
     <file>png/pause.32.png</file>
     <file>png/pause.64.png</file>
@@ -166,6 +202,10 @@
     <file>png/slip.32.png</file>
     <file>png/slip.64.png</file>
     <file>png/slip.128.png</file>
+    <file>png/smooth_edges.16.png</file>
+    <file>png/smooth_edges.32.png</file>
+    <file>png/smooth_edges.64.png</file>
+    <file>png/smooth_edges.128.png</file>
     <file>png/transition-tool.16.png</file>
     <file>png/transition-tool.32.png</file>
     <file>png/transition-tool.64.png</file>
