@@ -107,117 +107,78 @@ void ViewerSizer::UpdateSize()
     return;
   }
 
-  widget_->setVisible(true);
-
-  QSize child_size;
-  QMatrix4x4 child_matrix;
-
+  // Calculate how much UI space is available (it will be less if we have to show scrollbars)
   int available_width = width();
   int available_height = height();
-  double sequence_aspect_ratio = static_cast<double>(width_) / static_cast<double>(height_)
+
+  // Determine if we need scrollbars for the zoom we want
+  horiz_scrollbar_->setVisible(zoom_ > 0 && GetZoomedValue(width_) > available_width);
+  vert_scrollbar_->setVisible(zoom_ > 0 && GetZoomedValue(height_) > available_height);
+
+  // Horizontal scrollbar will reduce the available height
+  if (horiz_scrollbar_->isVisible()) {
+    available_height -= horiz_scrollbar_->sizeHint().height();
+  }
+
+  // Vertical scrollbar will reduce the available width
+  if (vert_scrollbar_->isVisible()) {
+    available_width -= vert_scrollbar_->sizeHint().width();
+  }
+
+  // Set correct values on horizontal scrollbar
+  if (horiz_scrollbar_->isVisible()) {
+    horiz_scrollbar_->resize(available_width, horiz_scrollbar_->sizeHint().height());
+    horiz_scrollbar_->move(0, this->height() - horiz_scrollbar_->height() - 1);
+    horiz_scrollbar_->setMaximum(GetZoomedValue(width_) - available_width);
+    horiz_scrollbar_->setPageStep(available_width);
+  }
+
+  // Set correct values on vertical scrollbar
+  if (vert_scrollbar_->isVisible()) {
+    vert_scrollbar_->resize(vert_scrollbar_->sizeHint().width(), available_height);
+    vert_scrollbar_->move(this->width() - vert_scrollbar_->width() - 1, 0);
+    vert_scrollbar_->setMaximum(GetZoomedValue(height_) - available_height);
+    vert_scrollbar_->setPageStep(available_height);
+  }
+
+  // Size widget to the UI space we've calculated
+  widget_->setVisible(true);
+  widget_->resize(available_width, available_height);
+
+  // Adjust to aspect ratio
+  double sequence_aspect_ratio = double(width_) / double(height_)
       * pixel_aspect_.toDouble();
+  double our_aspect_ratio = double(available_width) / double(available_height);
 
-  if (zoom_ <= 0) {
+  QMatrix4x4 child_matrix;
+  double current_scale;
 
-    // If zoom is zero or negative, we auto-fit
-    double our_aspect_ratio = static_cast<double>(available_width) / static_cast<double>(available_height);
+  if (our_aspect_ratio > sequence_aspect_ratio) {
 
-    child_size = size();
-
-    if (our_aspect_ratio > sequence_aspect_ratio) {
-      // This container is wider than the image, scale by height
-      child_size = QSize(qRound(child_size.height() * sequence_aspect_ratio), available_height);
-    } else {
-      // This container is taller than the image, scale by width
-      child_size = QSize(available_width, qRound(child_size.width() / sequence_aspect_ratio));
-    }
-
-    // No scrollbars necessary for auto-fit
-    horiz_scrollbar_->setVisible(false);
-    vert_scrollbar_->setVisible(false);
+    // This container is wider than the image, scale by height
+    child_matrix.scale(sequence_aspect_ratio / our_aspect_ratio, 1.0);
+    current_scale = double(available_height) / double(height_);
 
   } else {
 
-    float x_scale = 1.0f;
-    float y_scale = 1.0f;
+    // This container is taller than the image, scale by width
+    child_matrix.scale(1.0, our_aspect_ratio / sequence_aspect_ratio);
+    current_scale = double(available_width) / double(width_);
 
-    int zoomed_width = GetZoomedValue(width_);
-    int zoomed_height = GetZoomedValue(height_);
-
-    bool child_exceeds_parent_width = (zoomed_width > available_width);
-    bool child_exceeds_parent_height = (zoomed_height > available_height);
-
-    if (child_exceeds_parent_width != child_exceeds_parent_height) {
-      // One scrollbar definitely needs to be shown, so it's a matter of determining if the other
-      // does too since adding one scrollbar necessary limits the total area
-
-      if (child_exceeds_parent_height) {
-        // A vertical scrollbar will need to be shown, which limits the width
-        child_exceeds_parent_width = (zoomed_width > available_width - vert_scrollbar_->sizeHint().width());
-      } else {
-        // A horizontal scrollbar will need to be shown, which limits the height
-        child_exceeds_parent_height = (zoomed_height > available_height - horiz_scrollbar_->sizeHint().height());
-      }
-    }
-
-    horiz_scrollbar_->setVisible(child_exceeds_parent_width);
-    vert_scrollbar_->setVisible(child_exceeds_parent_height);
-
-    if (vert_scrollbar_->isVisible()) {
-      // Limit available width for further calculations
-      available_width -= vert_scrollbar_->sizeHint().width();
-    }
-
-    if (horiz_scrollbar_->isVisible()) {
-      // Limit available height for further calculations
-      available_height -= horiz_scrollbar_->sizeHint().height();
-    }
-
-    if (horiz_scrollbar_->isVisible()) {
-      x_scale = static_cast<double>(zoomed_width) / static_cast<double>(available_width);
-
-      // Update scrollbar sizes
-      int horiz_width = this->width();
-
-      if (vert_scrollbar_->isVisible()) {
-        horiz_width -= vert_scrollbar_->sizeHint().width();
-      }
-
-      horiz_scrollbar_->resize(horiz_width, horiz_scrollbar_->sizeHint().height());
-      horiz_scrollbar_->move(0, this->height() - horiz_scrollbar_->height() - 1);
-      horiz_scrollbar_->setMaximum(zoomed_width - available_width);
-      horiz_scrollbar_->setPageStep(available_width);
-
-      zoomed_width = available_width;
-    }
-
-    if (vert_scrollbar_->isVisible()) {
-      y_scale = static_cast<double>(zoomed_height) / static_cast<double>(available_height);
-
-      // Update scrollbar sizes
-      int vert_height = this->height();
-
-      if (horiz_scrollbar_->isVisible()) {
-        vert_height -= horiz_scrollbar_->sizeHint().height();
-      }
-
-      vert_scrollbar_->resize(vert_scrollbar_->sizeHint().width(), vert_height);
-      vert_scrollbar_->move(this->width() - vert_scrollbar_->width() - 1, 0);
-      vert_scrollbar_->setMaximum(zoomed_height - available_height);
-      vert_scrollbar_->setPageStep(available_height);
-
-      zoomed_height = available_height;
-    }
-
-    // Rather than make a huge surface, we still crop at our width/height and then signal a matrix
-    child_matrix.scale(x_scale, y_scale, 1.0F);
-
-    child_size = QSize(zoomed_width, zoomed_height);
   }
 
-  widget_->resize(child_size);
-  widget_->move(available_width / 2 - child_size.width() / 2,
-                available_height / 2 - child_size.height() / 2);
+  if (zoom_ > 0) {
+
+    // Scale to get to the requested zoom
+    double zoom_diff = (zoom_ * 0.01) / current_scale;
+    child_matrix.scale(zoom_diff, zoom_diff, 1.0);
+
+  } else {
+
+    // Fit - add a small amount of padding
+    child_matrix.scale(0.95, 0.95);
+
+  }
 
   emit RequestScale(child_matrix);
 

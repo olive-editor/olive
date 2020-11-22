@@ -315,9 +315,9 @@ void ViewerDisplayWidget::OnPaint()
     int device_width = width() * devicePixelRatioF();
     int device_height = height() * devicePixelRatioF();
     VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+    VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
-    renderer()->BlitColorManaged(color_service(), texture_to_draw, true,
-                                 VideoParams(device_width, device_height, device_format, VideoParams::kInternalChannelCount),
+    renderer()->BlitColorManaged(color_service(), texture_to_draw, true, device_params,
                                  combined_matrix_flipped_);
   }
 
