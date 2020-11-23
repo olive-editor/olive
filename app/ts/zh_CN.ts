@@ -99,7 +99,7 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="322"/>
         <source>No Active Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">没有活动序列</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="323"/>
@@ -937,12 +937,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="171"/>
         <source>No Crash Summary</source>
-        <translation type="unfinished">无崩溃概述</translation>
+        <translation type="unfinished">没有崩溃摘要</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="172"/>
         <source>Are you sure you want to send an error report with no crash summary?</source>
-        <translation type="unfinished">确定要发送没有崩溃概述的错误报告?</translation>
+        <translation type="unfinished">确定要发送没有崩溃摘要的错误报告?</translation>
     </message>
 </context>
 <context>
@@ -2776,7 +2776,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="529"/>
         <source>Smooth Edges</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">平滑边缘</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="536"/>
@@ -2786,7 +2786,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="539"/>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">全部显示</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="543"/>
@@ -2796,27 +2796,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="551"/>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">方向</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="554"/>
         <source>Top to Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从上到下</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="558"/>
         <source>Bottom to Top</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从下到上</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="562"/>
         <source>Left to Right</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从左到右</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="566"/>
         <source>Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从右到左</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="575"/>
@@ -2856,7 +2856,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/param/param.cpp" line="60"/>
         <source>Parameter Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">参数编辑器</translation>
     </message>
     <message>
         <location filename="../panel/param/param.cpp" line="65"/>
@@ -2887,17 +2887,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/standardcombos/pixelaspectratiocombobox.h" line="92"/>
         <source>Set Custom Pixel Aspect Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">设置自定义像素长宽比</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/pixelaspectratiocombobox.h" line="108"/>
         <source>Custom...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">自定义...</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/pixelaspectratiocombobox.h" line="115"/>
         <source>Custom (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">自定义 (%1)</translation>
     </message>
 </context>
 <context>
@@ -2926,7 +2926,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/generator/polygon/polygon.cpp" line="64"/>
         <source>Polygon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">多边形</translation>
     </message>
     <message>
         <location filename="../node/generator/polygon/polygon.cpp" line="79"/>
@@ -2936,7 +2936,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/generator/polygon/polygon.cpp" line="84"/>
         <source>Points</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">点</translation>
     </message>
     <message>
         <location filename="../node/generator/polygon/polygon.cpp" line="85"/>
@@ -2949,7 +2949,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../task/precache/precachetask.cpp" line="39"/>
         <source>Pre-caching %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在预缓存 %1:%2</translation>
     </message>
 </context>
 <context>
@@ -3000,12 +3000,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="82"/>
         <source>Refresh Devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">刷新设备</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="186"/>
         <source>Please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">请等待...</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="191"/>
@@ -3028,7 +3028,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="41"/>
         <source>Enable hover focus</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">启用悬停聚焦</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="43"/>
@@ -3038,7 +3038,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="45"/>
         <source>Scroll wheel zooms by default instead of scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">滚轮默认缩放而不是滚动</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="47"/>
@@ -3214,7 +3214,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="63"/>
         <source>Cache Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缓存行为</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="69"/>
@@ -3278,7 +3278,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="92"/>
         <source>Default Still Image Length:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">默认的静态图像长度:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="96"/>
@@ -3557,7 +3557,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="47"/>
         <source>Project Properties for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;%1&apos; 的项目属性</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="63"/>
@@ -4110,7 +4110,6 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="58"/>
         <source>Stroke</source>
-        <translatorcomment>笔划</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4131,7 +4130,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="80"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">半径</translation>
     </message>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="81"/>
@@ -4319,7 +4318,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="99"/>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">滚动工具</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="100"/>
