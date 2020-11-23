@@ -6,61 +6,61 @@
     <message>
         <location filename="../render/audioparams.cpp" line="177"/>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Гц</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="184"/>
         <source>Mono</source>
-        <translation type="unfinished">Моно</translation>
+        <translation>Моно</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="186"/>
         <source>Stereo</source>
-        <translation type="unfinished">Стерео</translation>
+        <translation>Стерео</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="188"/>
         <source>2.1</source>
-        <translation type="unfinished">144p {2.1?}</translation>
+        <translation>2.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="190"/>
         <source>5.1</source>
-        <translation type="unfinished">144p {5.1?}</translation>
+        <translation>5.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="192"/>
         <source>7.1</source>
-        <translation type="unfinished">144p {7.1?}</translation>
+        <translation>7.1</translation>
     </message>
     <message>
         <location filename="../render/audioparams.cpp" line="194"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестно (0x%1)</translation>
     </message>
 </context>
 <context>
     <name>Config</name>
     <message>
-        <location filename="../config/config.cpp" line="195"/>
+        <location filename="../config/config.cpp" line="196"/>
         <source>Error loading settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка при загрузке настроек</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="196"/>
+        <location filename="../config/config.cpp" line="197"/>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="214"/>
+        <location filename="../config/config.cpp" line="215"/>
         <source>Error saving settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка при сохранении настроек</translation>
     </message>
     <message>
-        <location filename="../config/config.cpp" line="215"/>
-        <source>Failed to save application settings. The application may lack write permissions to this location.</source>
+        <location filename="../config/config.cpp" line="216"/>
+        <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -69,17 +69,17 @@
     <message>
         <location filename="../project/item/footage/footage.cpp" line="246"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 к/с</translation>
     </message>
     <message>
         <location filename="../project/item/footage/footage.cpp" line="251"/>
         <source>%1 Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Гц</translation>
     </message>
     <message>
         <location filename="../project/item/footage/footage.cpp" line="331"/>
         <source>Filename: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла: %1</translation>
     </message>
     <message>
         <location filename="../project/item/footage/footage.cpp" line="344"/>
@@ -92,7 +92,7 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="317"/>
         <source>Don&apos;t ask me again</source>
-        <translation type="unfinished"></translation>
+        <translation>Больше не спрашивать</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="322"/>
@@ -102,17 +102,17 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="323"/>
         <source>No sequence is currently open. Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет открытых последовательностей. Создать новую?</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="326"/>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматически определить</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="327"/>
         <source>Set Parameters Manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Указать вручную</translation>
     </message>
 </context>
 <context>
@@ -120,7 +120,7 @@
     <message>
         <location filename="../project/projectviewmodel.cpp" line="512"/>
         <source>Move Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить объект</translation>
     </message>
 </context>
 <context>
@@ -128,20 +128,20 @@
     <message>
         <location filename="../widget/nodecopypaste/nodecopypaste.cpp" line="115"/>
         <source>Error pasting nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка при вставке нод</translation>
     </message>
     <message>
         <location filename="../widget/nodecopypaste/nodecopypaste.cpp" line="116"/>
         <source>Failed to paste nodes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось вставить ноды: %1</translation>
     </message>
 </context>
 <context>
     <name>NodeFactory</name>
     <message>
-        <location filename="../node/factory.cpp" line="113"/>
+        <location filename="../node/factory.cpp" line="115"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет</translation>
     </message>
 </context>
 <context>
@@ -149,7 +149,7 @@
     <message>
         <location filename="../widget/nodeview/nodeviewitem.cpp" line="328"/>
         <source>%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1...</translation>
     </message>
 </context>
 <context>
@@ -157,32 +157,32 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="136"/>
         <source>Save Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить профиль</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="137"/>
         <source>Set preset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Название профиля:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="150"/>
         <source>Invalid preset name</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректное название профиля</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="151"/>
         <source>You must enter a preset name</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите название профиля</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="184"/>
         <source>Preset exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль с таким названием уже существует</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="185"/>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Уже есть профиль с таким названием. Заменить его?</translation>
     </message>
 </context>
 <context>
@@ -214,9 +214,9 @@
 <context>
     <name>Sequence</name>
     <message>
-        <location filename="../project/item/sequence/sequence.cpp" line="241"/>
+        <location filename="../project/item/sequence/sequence.cpp" line="258"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 к/с</translation>
     </message>
 </context>
 <context>
@@ -224,22 +224,22 @@
     <message>
         <location filename="../project/item/footage/audiostream.cpp" line="34"/>
         <source>%1: Audio - %2 Channels, %3Hz</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: Звук - %2 каналов, %3 Гц</translation>
     </message>
     <message>
         <location filename="../project/item/footage/stream.cpp" line="109"/>
         <source>%1: Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: неизвестно</translation>
     </message>
     <message>
         <location filename="../project/item/footage/videostream.cpp" line="46"/>
         <source>%1: Image - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Изображение - %2x%3</translation>
     </message>
     <message>
         <location filename="../project/item/footage/videostream.cpp" line="50"/>
         <source>%1: Video - %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Видео - %2x%3</translation>
     </message>
 </context>
 <context>
@@ -259,32 +259,32 @@ Length: %4</source>
     <message>
         <location filename="../tool/tool.h" line="106"/>
         <source>Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Пустота</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="108"/>
         <source>Bars</source>
-        <translation type="unfinished">Испытательная таблица</translation>
+        <translation>Испытательная таблица</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="110"/>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation>Заливка</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="112"/>
         <source>Title</source>
-        <translation type="unfinished">Титры</translation>
+        <translation>Титры</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="114"/>
         <source>Tone</source>
-        <translation type="unfinished">Звуковой сигнал</translation>
+        <translation>Звуковой сигнал</translation>
     </message>
     <message>
         <location filename="../tool/tool.h" line="119"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестно</translation>
     </message>
 </context>
 <context>
@@ -312,12 +312,12 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="223"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Неизвестно (0x%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="251"/>
         <source>%1 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 к/с</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="257"/>
@@ -353,39 +353,39 @@ Length: %4</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="83"/>
+        <location filename="../main.cpp" line="81"/>
         <source>Show this help text</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать этот справочный текст</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="87"/>
+        <location filename="../main.cpp" line="85"/>
         <source>Show application version</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать версию приложения</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="91"/>
+        <location filename="../main.cpp" line="89"/>
         <source>Start in full-screen mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Запуститься в полноэкранном режиме</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="95"/>
+        <location filename="../main.cpp" line="93"/>
         <source>Export only (No GUI)</source>
-        <translation type="unfinished"></translation>
+        <translation>Только эксперт (без графического интерфейса)</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="97"/>
+        <source>Override language with file</source>
+        <translation>Запустить с локализацией из заданного файла</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="99"/>
-        <source>Override language with file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="101"/>
         <source>qm-file</source>
-        <translation type="unfinished"></translation>
+        <translation>файл qm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="105"/>
+        <location filename="../main.cpp" line="103"/>
         <source>Project to open on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Какой проект открыть при запуске</translation>
     </message>
 </context>
 <context>
@@ -393,17 +393,17 @@ Length: %4</source>
     <message>
         <location filename="../dialog/about/about.cpp" line="33"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>О программе %1</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="51"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished">Olive — нелинейный видеоредактор. Эта программа является свободной и защищена GNU GPL.</translation>
+        <translation>Olive — нелинейный видеоредактор. Эта программа является свободной и защищена GNU GPL.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="53"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished">Исходный код Olive доступен для скачивания на сайте программы.</translation>
+        <translation>Исходный код Olive доступен для скачивания на сайте программы.</translation>
     </message>
 </context>
 <context>
@@ -411,25 +411,7 @@ Length: %4</source>
     <message>
         <location filename="../dialog/actionsearch/actionsearch.cpp" line="58"/>
         <source>Search for action...</source>
-        <translation type="unfinished">Найти действие…</translation>
-    </message>
-</context>
-<context>
-    <name>olive::AudioInput</name>
-    <message>
-        <location filename="../node/input/media/audio/audio.cpp" line="37"/>
-        <source>Audio Input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../node/input/media/audio/audio.cpp" line="42"/>
-        <source>Audio</source>
-        <translation type="unfinished">Звук</translation>
-    </message>
-    <message>
-        <location filename="../node/input/media/audio/audio.cpp" line="52"/>
-        <source>Import an audio footage stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Найти действие…</translation>
     </message>
 </context>
 <context>
@@ -437,7 +419,7 @@ Length: %4</source>
     <message>
         <location filename="../panel/audiomonitor/audiomonitor.cpp" line="37"/>
         <source>Audio Monitor</source>
-        <translation type="unfinished"></translation>
+        <translation>Монитор звука</translation>
     </message>
 </context>
 <context>
@@ -445,7 +427,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/block.cpp" line="352"/>
         <source>Length</source>
-        <translation type="unfinished">Длительность</translation>
+        <translation>Длительность</translation>
     </message>
     <message>
         <location filename="../node/block/block.cpp" line="353"/>
@@ -455,12 +437,12 @@ Length: %4</source>
     <message>
         <location filename="../node/block/block.cpp" line="354"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Включено</translation>
     </message>
     <message>
         <location filename="../node/block/block.cpp" line="355"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость</translation>
     </message>
 </context>
 <context>
@@ -468,47 +450,47 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="54"/>
         <source>Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Размытие</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="69"/>
         <source>Blurs an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Размывает изображение.</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="74"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Вход</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="75"/>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Способ</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="76"/>
         <source>Box</source>
-        <translation type="unfinished"></translation>
+        <translation>По рамке</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="76"/>
         <source>Gaussian</source>
-        <translation type="unfinished"></translation>
+        <translation>Гауссово</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="77"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="78"/>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>По горизонтали</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="79"/>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>По вертикали</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="80"/>
@@ -521,7 +503,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="44"/>
         <source>Clip</source>
-        <translation type="unfinished"></translation>
+        <translation>Клип</translation>
     </message>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="54"/>
@@ -531,7 +513,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="111"/>
         <source>Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Буфер</translation>
     </message>
 </context>
 <context>
@@ -539,7 +521,7 @@ Length: %4</source>
     <message>
         <location filename="../dialog/color/colordialog.cpp" line="35"/>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать цвет</translation>
     </message>
 </context>
 <context>
@@ -547,37 +529,37 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="34"/>
         <source>Color Management</source>
-        <translation type="unfinished"></translation>
+        <translation>Управление цветом</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="44"/>
         <source>Input:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вход:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="47"/>
         <source>Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пространство:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="74"/>
         <source>Display:</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисплей:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="93"/>
         <source>View:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вид:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="106"/>
         <source>Look:</source>
-        <translation type="unfinished"></translation>
+        <translation>Обработка:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="113"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation>(нет)</translation>
     </message>
 </context>
 <context>
@@ -585,17 +567,17 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="167"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Красный</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="174"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Зеленый</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="181"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Синий</translation>
     </message>
 </context>
 <context>
@@ -603,12 +585,12 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="44"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Предпросмотр</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="58"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Вход</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="64"/>
@@ -618,7 +600,7 @@ Length: %4</source>
     <message>
         <location filename="../widget/colorwheel/colorvalueswidget.cpp" line="68"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисплей</translation>
     </message>
 </context>
 <context>
@@ -664,7 +646,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="358"/>
         <source>No Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет активного проекта</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="359"/>
@@ -685,7 +667,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="395"/>
         <source>New Folder</source>
-        <translation type="unfinished">Новая папка</translation>
+        <translation>Новая папка</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="413"/>
@@ -772,7 +754,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="718"/>
         <source>Save Project</source>
-        <translation type="unfinished">Сохранить проект</translation>
+        <translation>Сохранить проект</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="739"/>
@@ -805,27 +787,27 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="950"/>
         <source>Save Project As</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить проект как</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1021"/>
         <source>Load Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузка проекта</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1086"/>
         <source>Label Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Метка ноды</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1087"/>
         <source>Set node label</source>
-        <translation type="unfinished"></translation>
+        <translation>Указать метку ноды</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1107"/>
         <source>Sequence %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательность %1</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1122"/>
@@ -840,32 +822,32 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1151"/>
         <source>Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Несохраненные изменения</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1152"/>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
-        <translation type="unfinished"></translation>
+        <translation>В проекте &apos;%1&apos; остались несохраненные изменения. Сохранить их?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1155"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1161"/>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить все</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1164"/>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Не сохранять</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1170"/>
         <source>Don&apos;t Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Не сохранять все</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1284"/>
@@ -880,7 +862,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1358"/>
         <source>Open Project</source>
-        <translation type="unfinished">Открыть проект</translation>
+        <translation>Открыть проект</translation>
     </message>
 </context>
 <context>
@@ -888,7 +870,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="43"/>
         <source>Olive</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="51"/>
@@ -903,17 +885,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="60"/>
         <source>Crash Report:</source>
-        <translation type="unfinished"></translation>
+        <translation>Отчет о падении:</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="71"/>
         <source>Send Error Report</source>
-        <translation type="unfinished"></translation>
+        <translation>Отправить отчет</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="75"/>
         <source>Don&apos;t Send</source>
-        <translation type="unfinished"></translation>
+        <translation>Не отправлять</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="84"/>
@@ -942,16 +924,59 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     </message>
 </context>
 <context>
+    <name>olive::CropDistortNode</name>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="63"/>
+        <source>Texture</source>
+        <translation>Текстура</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="64"/>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="65"/>
+        <source>Top</source>
+        <translation>Сверху</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="66"/>
+        <source>Right</source>
+        <translation>Справа</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="67"/>
+        <source>Bottom</source>
+        <translation>Снизу</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.cpp" line="68"/>
+        <source>Feather</source>
+        <translation>Растушевка</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.h" line="43"/>
+        <source>Crop</source>
+        <translation>Обрезка</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/crop/cropdistortnode.h" line="58"/>
+        <source>Crop the edges of an image.</source>
+        <translation>Обрезать края кадра</translation>
+    </message>
+</context>
+<context>
     <name>olive::CrossDissolveTransition</name>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="37"/>
         <source>Cross Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Наплыв</translation>
     </message>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="52"/>
         <source>Smoothly transition between two clips.</source>
-        <translation type="unfinished"></translation>
+        <translation>Плавный переход между двумя клипами.</translation>
     </message>
 </context>
 <context>
@@ -959,7 +984,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../panel/curve/curve.cpp" line="61"/>
         <source>Curve Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор кривых</translation>
     </message>
 </context>
 <context>
@@ -975,17 +1000,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="64"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="70"/>
         <source>Bezier</source>
-        <translation type="unfinished">Безье</translation>
+        <translation>Безье</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curvewidget.cpp" line="76"/>
         <source>Hold</source>
-        <translation type="unfinished">Константа</translation>
+        <translation>Константа</translation>
     </message>
 </context>
 <context>
@@ -1006,44 +1031,44 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="40"/>
         <source>Disk Cache: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш: %1</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="41"/>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры кэша на диске</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="45"/>
         <source>Maximum Disk Cache:</source>
-        <translation type="unfinished"></translation>
+        <translation>Макс. кэш на диске:</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="48"/>
         <source>%1 GB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Гбайт</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="55"/>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="90"/>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="99"/>
         <source>Clear Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить дисковый кэш</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="61"/>
         <source>Automatically clear disk cache on close</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматически стирать при закрытии</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="91"/>
         <source>Are you sure you want to clear the disk cache in &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы действительно хотите стереть дисковый кэш в &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="96"/>
         <source>Disk Cache Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш очищен</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="100"/>
@@ -1053,7 +1078,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="102"/>
         <source>Disk Cache Partially Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш частично очищен</translation>
     </message>
 </context>
 <context>
@@ -1062,7 +1087,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <location filename="../render/diskmanager.cpp" line="52"/>
         <location filename="../render/diskmanager.cpp" line="178"/>
         <source>Disk Cache Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка дискового кэша</translation>
     </message>
     <message>
         <location filename="../render/diskmanager.cpp" line="53"/>
@@ -1072,7 +1097,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../render/diskmanager.cpp" line="153"/>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш</translation>
     </message>
     <message>
         <location filename="../render/diskmanager.cpp" line="154"/>
@@ -1103,27 +1128,27 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="13"/>
         <source>Advanced</source>
-        <translation type="unfinished">Дополнительно</translation>
+        <translation>Дополнительные параметры</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="21"/>
         <source>Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Пиксели</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="27"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished">Формат пикселей:</translation>
+        <translation>Формат:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="40"/>
         <source>Performance</source>
-        <translation type="unfinished"></translation>
+        <translation>Производительность</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportadvancedvideodialog.cpp" line="46"/>
         <source>Threads:</source>
-        <translation type="unfinished">Потоков:</translation>
+        <translation>Потоков:</translation>
     </message>
 </context>
 <context>
@@ -1131,22 +1156,22 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="40"/>
         <source>Codec:</source>
-        <translation type="unfinished">Кодек:</translation>
+        <translation>Кодек:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="47"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Частота дискретизации:</translation>
+        <translation>Частота дискр.:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="54"/>
         <source>Channel Layout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Схема каналов:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportaudiotab.cpp" line="61"/>
         <source>Format:</source>
-        <translation type="unfinished">Формат:</translation>
+        <translation>Формат:</translation>
     </message>
 </context>
 <context>
@@ -1154,62 +1179,62 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../codec/exportcodec.cpp" line="34"/>
         <source>DNxHD</source>
-        <translation type="unfinished"></translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="36"/>
         <source>H.264</source>
-        <translation type="unfinished"></translation>
+        <translation>H.264</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="38"/>
         <source>H.265</source>
-        <translation type="unfinished"></translation>
+        <translation>H.265</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="40"/>
         <source>OpenEXR</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="42"/>
         <source>PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="44"/>
         <source>ProRes</source>
-        <translation type="unfinished"></translation>
+        <translation>ProRes</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="46"/>
         <source>TIFF</source>
-        <translation type="unfinished"></translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="48"/>
         <source>MP2</source>
-        <translation type="unfinished"></translation>
+        <translation>MP2</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="50"/>
         <source>MP3</source>
-        <translation type="unfinished"></translation>
+        <translation>MP3</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="52"/>
         <source>AAC</source>
-        <translation type="unfinished"></translation>
+        <translation>AAC</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="54"/>
         <source>PCM (Uncompressed)</source>
-        <translation type="unfinished"></translation>
+        <translation>PCM (несжатый)</translation>
     </message>
     <message>
         <location filename="../codec/exportcodec.cpp" line="59"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестно</translation>
     </message>
 </context>
 <context>
@@ -1217,7 +1242,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="59"/>
         <source>Filename:</source>
-        <translation type="unfinished">Имя файла:</translation>
+        <translation>Имя файла:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="69"/>
@@ -1227,7 +1252,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="78"/>
         <source>Preset:</source>
-        <translation type="unfinished">Предстановка:</translation>
+        <translation>Профиль:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="82"/>
@@ -1247,58 +1272,58 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="103"/>
         <source>Range:</source>
-        <translation type="unfinished">Диапазон:</translation>
+        <translation>Диапазон:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="106"/>
         <source>Entire Sequence</source>
-        <translation type="unfinished">Вся последовательность</translation>
+        <translation>Вся последовательность</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="107"/>
         <source>In to Out</source>
-        <translation type="unfinished">От входа от выхода</translation>
+        <translation>От входа от выхода</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="119"/>
         <source>Format:</source>
-        <translation type="unfinished">Формат:</translation>
+        <translation>Формат:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="127"/>
         <source>Export Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт видео</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="131"/>
         <source>Export Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт звука</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="145"/>
         <source>Video</source>
-        <translation type="unfinished">Видео</translation>
+        <translation>Видео</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="150"/>
         <source>Audio</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="157"/>
         <location filename="../dialog/export/export.cpp" line="318"/>
         <source>Export</source>
-        <translation type="unfinished">Экспортировать</translation>
+        <translation>Экспортировать</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="167"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Предпросмотр</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="241"/>
         <source>Invalid parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректные параметры</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="242"/>
@@ -1328,7 +1353,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="293"/>
         <source>Confirm Overwrite</source>
-        <translation type="unfinished"></translation>
+        <translation>Подтвердить перезапись</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="294"/>
@@ -1338,7 +1363,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="311"/>
         <source>Invalid Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректные параметры</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="312"/>
@@ -1351,42 +1376,42 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../codec/exportformat.cpp" line="29"/>
         <source>DNxHD</source>
-        <translation type="unfinished"></translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="31"/>
         <source>Matroska Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Matroska</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="33"/>
         <source>MPEG-4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEG-4</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="35"/>
         <source>OpenEXR</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="37"/>
         <source>PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="39"/>
         <source>TIFF</source>
-        <translation type="unfinished"></translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="41"/>
         <source>QuickTime</source>
-        <translation type="unfinished"></translation>
+        <translation>QuickTime</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="46"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестно</translation>
     </message>
 </context>
 <context>
@@ -1394,17 +1419,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../task/export/export.cpp" line="35"/>
         <source>Exporting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортируется &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../task/export/export.cpp" line="53"/>
         <source>Failed to create encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось создать кодировщик</translation>
     </message>
     <message>
         <location filename="../task/export/export.cpp" line="58"/>
         <source>Failed to open file</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось открыть файл</translation>
     </message>
     <message>
         <location filename="../task/export/export.cpp" line="139"/>
@@ -1417,77 +1442,77 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="57"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Основные</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="61"/>
         <source>Width:</source>
-        <translation type="unfinished">Ширина:</translation>
+        <translation>Ширина:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="69"/>
         <source>Height:</source>
-        <translation type="unfinished">Высота:</translation>
+        <translation>Высота:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="77"/>
         <source>Maintain Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить пропорции:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="85"/>
         <source>Scaling Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип масштабирования:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="89"/>
         <source>Fit</source>
-        <translation type="unfinished">Уместить</translation>
+        <translation>Уместить</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="90"/>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation>Растянуть</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="91"/>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translation>Обрезать</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="99"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Частота кадров:</translation>
+        <translation>Частота кадров:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="106"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">Соотношение сторон пикселя:</translation>
+        <translation>Пропорции пикселя:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="113"/>
         <source>Interlacing:</source>
-        <translation type="unfinished">Чересстрочность:</translation>
+        <translation>Чересстрочность:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="120"/>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Качество:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="140"/>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодек</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="144"/>
         <source>Codec:</source>
-        <translation type="unfinished">Кодек:</translation>
+        <translation>Кодек:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="166"/>
         <source>Advanced</source>
-        <translation type="unfinished">Дополнительно</translation>
+        <translation>Дополнительно</translation>
     </message>
 </context>
 <context>
@@ -1495,12 +1520,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/slider/floatslider.cpp" line="72"/>
         <source>%1 dB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Дб</translation>
     </message>
     <message>
         <location filename="../widget/slider/floatslider.cpp" line="75"/>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>
@@ -1508,17 +1533,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="47"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished">Свойства &quot;%1&quot;</translation>
+        <translation>Свойства &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="52"/>
         <source>Name:</source>
-        <translation type="unfinished">Название:</translation>
+        <translation>Название:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="58"/>
         <source>Tracks:</source>
-        <translation type="unfinished">Дорожек:</translation>
+        <translation>Дорожек:</translation>
     </message>
 </context>
 <context>
@@ -1526,22 +1551,22 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Видеоматериал</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Действия</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="53"/>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="74"/>
@@ -1556,15 +1581,15 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="87"/>
         <source>All Files</source>
-        <translation type="unfinished">Все файлы</translation>
+        <translation>Все файлы</translation>
     </message>
 </context>
 <context>
     <name>olive::FootageViewerPanel</name>
     <message>
-        <location filename="../panel/footageviewer/footageviewer.cpp" line="72"/>
+        <location filename="../panel/footageviewer/footageviewer.cpp" line="77"/>
         <source>Footage Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Просмотр видеоматериала</translation>
     </message>
 </context>
 <context>
@@ -1572,7 +1597,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../node/block/gap/gap.cpp" line="41"/>
         <source>Gap</source>
-        <translation type="unfinished"></translation>
+        <translation>Интервал</translation>
     </message>
     <message>
         <location filename="../node/block/gap/gap.cpp" line="51"/>
@@ -1585,17 +1610,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="144"/>
         <source>Target Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Целевая скорость потока (Мбит/с):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="152"/>
         <source>Maximum Bit Rate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Макс. скорость потока (Мбит/с):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="160"/>
         <source>Two-Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>В два прохода</translation>
     </message>
 </context>
 <context>
@@ -1603,12 +1628,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="188"/>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished">Конечный размер файла (Мб):</translation>
+        <translation>Целевой размер файла (Мбайт):</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="196"/>
         <source>Two-Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>В два прохода</translation>
     </message>
 </context>
 <context>
@@ -1616,22 +1641,22 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="41"/>
         <source>Compression Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Способ сжатия:</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="46"/>
         <source>Constant Rate Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Постоянная скорость потока</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="47"/>
         <source>Target Bit Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Целевая скорость потока</translation>
     </message>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="48"/>
         <source>Target File Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Целевой размер файла</translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1664,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/codec/imagesection.cpp" line="36"/>
         <source>Image Sequence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательность изображений:</translation>
     </message>
 </context>
 <context>
@@ -1647,7 +1672,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/standardcombos/interlacedcombobox.h" line="38"/>
         <source>None (Progressive)</source>
-        <translation type="unfinished">Нет (прогрессивно)</translation>
+        <translation>Нет (прогрессивно)</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/interlacedcombobox.h" line="39"/>
@@ -1665,32 +1690,32 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="38"/>
         <source>Keyframe Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Свойства ключевого кадра</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="65"/>
         <source>In:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вход:</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="73"/>
         <source>Out:</source>
-        <translation type="unfinished"></translation>
+        <translation>Выход:</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="164"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="165"/>
         <source>Hold</source>
-        <translation type="unfinished">Константа</translation>
+        <translation>Константа</translation>
     </message>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="166"/>
         <source>Bezier</source>
-        <translation type="unfinished">Безье</translation>
+        <translation>Безье</translation>
     </message>
 </context>
 <context>
@@ -1698,38 +1723,38 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="437"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="438"/>
         <source>Bezier</source>
-        <translation type="unfinished">Безье</translation>
+        <translation>Безье</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="439"/>
         <source>Hold</source>
-        <translation type="unfinished">Константа</translation>
+        <translation>Константа</translation>
     </message>
     <message>
         <location filename="../widget/keyframeview/keyframeviewbase.cpp" line="461"/>
         <source>P&amp;roperties</source>
-        <translation type="unfinished"></translation>
+        <translation>С&amp;войства</translation>
     </message>
 </context>
 <context>
     <name>olive::LoadOTIOTask</name>
     <message>
-        <location filename="../task/project/loadotio/loadotio.cpp" line="53"/>
+        <location filename="../task/project/loadotio/loadotio.cpp" line="52"/>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../task/project/loadotio/loadotio.cpp" line="75"/>
+        <location filename="../task/project/loadotio/loadotio.cpp" line="74"/>
         <source>Unknown OpenTimelineIO root element</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../task/project/loadotio/loadotio.cpp" line="121"/>
+        <location filename="../task/project/loadotio/loadotio.cpp" line="120"/>
         <source>Failed to load clip</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1739,242 +1764,242 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="295"/>
         <source>&amp;Save &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Со&amp;хранить &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="296"/>
         <source>Save &apos;%1&apos; &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить &apos;%1&apos; к&amp;ак</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="297"/>
         <source>Close &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="298"/>
         <source>Close All Except &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть все кроме &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="300"/>
         <source>&amp;Save Project</source>
-        <translation type="unfinished">Со&amp;хранить проект</translation>
+        <translation>&amp;Сохранить проект</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="301"/>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished">Сохранить проект &amp;как</translation>
+        <translation>Сохранить проект &amp;как</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="302"/>
         <source>Close Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть проект</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="303"/>
         <source>Close All Except Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть все проекты кроме текущего</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="386"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation>(нет)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="604"/>
         <source>&amp;File</source>
-        <translation type="unfinished">&amp;Файл</translation>
+        <translation>&amp;Файл</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="605"/>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Создать</translation>
+        <translation>&amp;Создать</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="606"/>
         <source>&amp;Open Project</source>
-        <translation type="unfinished">&amp;Открыть проект</translation>
+        <translation>&amp;Открыть проект</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="607"/>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть из &amp;недавнего</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="608"/>
         <source>&amp;Clear Recent List</source>
-        <translation type="unfinished"></translation>
+        <translation>О&amp;чистить список недавних</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="609"/>
         <source>Sa&amp;ve All Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохра&amp;нить все проекты</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="610"/>
         <source>&amp;Import...</source>
-        <translation type="unfinished">&amp;Импортировать…</translation>
+        <translation>&amp;Импортировать…</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="611"/>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Экспортировать</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="612"/>
         <source>&amp;Media...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Медиаданные…</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="613"/>
         <source>&amp;Project Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>С&amp;войства проекта…</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="614"/>
         <source>Close All Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть все проекты</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="615"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished">В&amp;ыход</translation>
+        <translation>В&amp;ыход</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="618"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Правка</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="621"/>
         <source>Insert</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="622"/>
         <source>Overwrite</source>
-        <translation type="unfinished"></translation>
+        <translation>Переписать</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="623"/>
         <source>Select &amp;All</source>
-        <translation type="unfinished">Выд&amp;елить всё</translation>
+        <translation>Выд&amp;елить всё</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="624"/>
         <source>Deselect All</source>
-        <translation type="unfinished">Снять выделение</translation>
+        <translation>Снять выделение</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="625"/>
         <source>Ripple to In Point</source>
-        <translation type="unfinished">Сдвиг до точки входа</translation>
+        <translation>Сдвиг до точки входа</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="626"/>
         <source>Ripple to Out Point</source>
-        <translation type="unfinished">Сдвиг до точки выхода</translation>
+        <translation>Сдвиг до точки выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="627"/>
         <source>Edit to In Point</source>
-        <translation type="unfinished">Правка до точки входа</translation>
+        <translation>Правка до точки входа</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="628"/>
         <source>Edit to Out Point</source>
-        <translation type="unfinished">Правка до точки выхода</translation>
+        <translation>Правка до точки выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="629"/>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished">Удалить точку входа/выхода</translation>
+        <translation>Удалить точку входа/выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="630"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished">Удалить со сдвигом точку входа/выхода</translation>
+        <translation>Удалить со сдвигом точку входа/выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="631"/>
         <source>Set/Edit Marker</source>
-        <translation type="unfinished">Установить/Изменить маркер</translation>
+        <translation>Установить/Изменить маркер</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="634"/>
         <source>&amp;View</source>
-        <translation type="unfinished">&amp;Вид</translation>
+        <translation>&amp;Вид</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="635"/>
         <source>Zoom In</source>
-        <translation type="unfinished">Приблизить</translation>
+        <translation>Приблизить</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="636"/>
         <source>Zoom Out</source>
-        <translation type="unfinished">Отдалить</translation>
+        <translation>Отдалить</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="637"/>
         <source>Increase Track Height</source>
-        <translation type="unfinished">Увеличить высоту дорожки</translation>
+        <translation>Увеличить высоту дорожки</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="638"/>
         <source>Decrease Track Height</source>
-        <translation type="unfinished">Уменьшить высоту дорожки</translation>
+        <translation>Уменьшить высоту дорожки</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="639"/>
         <source>Toggle Show All</source>
-        <translation type="unfinished">Показывать весь проект</translation>
+        <translation>Показывать весь проект</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="642"/>
         <source>Full Screen</source>
-        <translation type="unfinished">Полноэкранный режим</translation>
+        <translation>Полноэкранный режим</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="643"/>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished">Просмотр в полноэкранном режиме</translation>
+        <translation>Просмотр в полноэкранном режиме</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="646"/>
         <source>&amp;Playback</source>
-        <translation type="unfinished">Вос&amp;произведение</translation>
+        <translation>Вос&amp;произведение</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="647"/>
         <source>Go to Start</source>
-        <translation type="unfinished">К началу</translation>
+        <translation>К началу</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="648"/>
         <source>Previous Frame</source>
-        <translation type="unfinished">К предыдущему кадру</translation>
+        <translation>К предыдущему кадру</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="649"/>
         <source>Play/Pause</source>
-        <translation type="unfinished">Воспроизведение/Пауза</translation>
+        <translation>Воспроизведение/Пауза</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="650"/>
         <source>Play In to Out</source>
-        <translation type="unfinished">Проиграть от входа до выхода</translation>
+        <translation>Проиграть от входа до выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="651"/>
         <source>Next Frame</source>
-        <translation type="unfinished">К следующему кадру</translation>
+        <translation>К следующему кадру</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="652"/>
         <source>Go to End</source>
-        <translation type="unfinished">В конец</translation>
+        <translation>В конец</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="653"/>
@@ -1989,147 +2014,152 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="655"/>
         <source>Go to In Point</source>
-        <translation type="unfinished">К точке входа</translation>
+        <translation>К точке входа</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="656"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished">К точке выхода</translation>
+        <translation>К точке выхода</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="657"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished">Уменьшить скорость</translation>
+        <translation>Уменьшить скорость</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="658"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished">Пауза</translation>
+        <translation>Пауза</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="659"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished">Увеличить скорость</translation>
+        <translation>Увеличить скорость</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="660"/>
         <source>Loop</source>
-        <translation type="unfinished">Петля</translation>
+        <translation>Петля</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="663"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">П&amp;оследовательность</translation>
+        <translation>П&amp;оследовательность</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="664"/>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Закэшировать всю последовательность</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="665"/>
         <source>Cache Sequence In/Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Закэшировать вход/выход последовательности</translation>
+    </message>
+    <message>
+        <location filename="../window/mainwindow/mainmenu.cpp" line="668"/>
+        <source>&amp;Window</source>
+        <translation>&amp;Окно</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="669"/>
         <source>Maximize Panel</source>
-        <translation type="unfinished">Развернуть панель</translation>
+        <translation>Развернуть панель</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="670"/>
         <source>Lock Panels</source>
-        <translation type="unfinished">Закрепить панели</translation>
+        <translation>Закрепить панели</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="671"/>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished">Вернуть исходный вид панелей</translation>
+        <translation>Вернуть исходный вид панелей</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="674"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished">&amp;Инструменты</translation>
+        <translation>&amp;Инструменты</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="675"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished">Указатель</translation>
+        <translation>Указатель</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="676"/>
         <source>Edit Tool</source>
-        <translation type="unfinished">Выделение</translation>
+        <translation>Выделение</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="677"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished">Монтаж со сдвигом</translation>
+        <translation>Монтаж со сдвигом</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="678"/>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Монтаж с совмещением</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="679"/>
         <source>Razor Tool</source>
-        <translation type="unfinished">Подрезка</translation>
+        <translation>Подрезка</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="680"/>
         <source>Slip Tool</source>
-        <translation type="unfinished">Прокрутка с совмещением</translation>
+        <translation>Прокрутка с совмещением</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="681"/>
         <source>Slide Tool</source>
-        <translation type="unfinished">Прокрутка</translation>
+        <translation>Прокрутка</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="682"/>
         <source>Hand Tool</source>
-        <translation type="unfinished">Навигация</translation>
+        <translation>Навигация</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="683"/>
         <source>Zoom Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштаб</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="684"/>
         <source>Transition Tool</source>
-        <translation type="unfinished">Переход</translation>
+        <translation>Переход</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="685"/>
         <source>Enable Snapping</source>
-        <translation type="unfinished">Включить прилипание</translation>
+        <translation>Включить прилипание</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="686"/>
         <source>Preferences</source>
-        <translation type="unfinished">Параметры</translation>
+        <translation>Параметры</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="689"/>
         <source>&amp;Help</source>
-        <translation type="unfinished">&amp;Справка</translation>
+        <translation>&amp;Справка</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="690"/>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished">&amp;Найти команду</translation>
+        <translation>&amp;Найти команду</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="691"/>
         <source>Send &amp;Feedback...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Дать обратную связь…</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="692"/>
         <source>&amp;About...</source>
-        <translation type="unfinished">&amp;О программе…</translation>
+        <translation>&amp;О программе…</translation>
     </message>
 </context>
 <context>
@@ -2137,11 +2167,11 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="41"/>
         <source>Welcome to %1 %2</source>
-        <translation type="unfinished">Приветствуем в %1 %2</translation>
+        <translation>Приветствуем в %1 %2</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="74"/>
-        <source>Running %1 background tasks</source>
+        <source>Running %1 background task(s)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2150,7 +2180,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="447"/>
         <source>Driver Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Предупреждение драйвера</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="448"/>
@@ -2163,42 +2193,42 @@ This driver is known to have stability and performance issues with Olive. It is 
 <context>
     <name>olive::ManagedDisplayWidget</name>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="117"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="121"/>
         <source>Color Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Цветовое пространство</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="159"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="163"/>
         <source>No color manager connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="262"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="266"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисплей</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="282"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="286"/>
         <source>View</source>
-        <translation type="unfinished">Вид</translation>
+        <translation>Вид</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="302"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="306"/>
         <source>Look</source>
-        <translation type="unfinished"></translation>
+        <translation>Представление</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="309"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="313"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation>(нет)</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="337"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="341"/>
         <source>OpenColorIO Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка OpenColorIO</translation>
     </message>
     <message>
-        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="338"/>
+        <location filename="../widget/manageddisplay/manageddisplay.cpp" line="342"/>
         <source>Failed to set color configuration: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2208,7 +2238,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/pixelsampler/pixelsampler.cpp" line="66"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисплей</translation>
     </message>
     <message>
         <location filename="../widget/pixelsampler/pixelsampler.cpp" line="70"/>
@@ -2221,98 +2251,104 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/math/math.cpp" line="50"/>
         <source>Math</source>
-        <translation type="unfinished"></translation>
+        <translation>Математика</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="65"/>
         <source>Perform a mathematical operation between two values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнить математическую операцию с двумя значениями</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="72"/>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Способ</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="73"/>
         <location filename="../node/math/math/math.cpp" line="74"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Значение</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="76"/>
         <source>Add</source>
-        <translation type="unfinished">Добавить</translation>
+        <translation>Сложение</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="77"/>
         <source>Subtract</source>
-        <translation type="unfinished"></translation>
+        <translation>Вычитание</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="78"/>
         <source>Multiply</source>
-        <translation type="unfinished"></translation>
+        <translation>Умножение</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="79"/>
         <source>Divide</source>
-        <translation type="unfinished"></translation>
+        <translation>Деление</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="81"/>
         <source>Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Степень</translation>
     </message>
 </context>
 <context>
     <name>olive::MatrixGenerator</name>
     <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="62"/>
+        <location filename="../node/generator/matrix/matrix.cpp" line="59"/>
         <source>Orthographic Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation>Прямоугольная матрица</translation>
     </message>
     <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="67"/>
+        <location filename="../node/generator/matrix/matrix.cpp" line="64"/>
         <source>Ortho</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="82"/>
+        <location filename="../node/generator/matrix/matrix.cpp" line="79"/>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="87"/>
+        <location filename="../node/generator/matrix/matrix.cpp" line="84"/>
         <source>Position</source>
-        <translation type="unfinished">Позиция</translation>
+        <translation>Позиция</translation>
+    </message>
+    <message>
+        <location filename="../node/generator/matrix/matrix.cpp" line="85"/>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
+    </message>
+    <message>
+        <location filename="../node/generator/matrix/matrix.cpp" line="86"/>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <location filename="../node/generator/matrix/matrix.cpp" line="87"/>
+        <source>Uniform Scale</source>
+        <translation>Пропорции</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="88"/>
-        <source>Rotation</source>
-        <translation type="unfinished">Вращение</translation>
-    </message>
-    <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="89"/>
-        <source>Scale</source>
-        <translation type="unfinished">Масштаб</translation>
-    </message>
-    <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="90"/>
-        <source>Uniform Scale</source>
-        <translation type="unfinished">Сохранять пропорции</translation>
-    </message>
-    <message>
-        <location filename="../node/generator/matrix/matrix.cpp" line="91"/>
         <source>Anchor Point</source>
-        <translation type="unfinished">Точка привязки</translation>
+        <translation>Точка привязки</translation>
     </message>
 </context>
 <context>
     <name>olive::MediaInput</name>
     <message>
         <location filename="../node/input/media/media.cpp" line="60"/>
-        <source>Footage</source>
+        <location filename="../node/input/media/media.h" line="41"/>
+        <source>Media</source>
+        <translation>Медиа</translation>
+    </message>
+    <message>
+        <location filename="../node/input/media/media.h" line="51"/>
+        <source>Import footage into the node graph.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2321,32 +2357,32 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="277"/>
         <source>&amp;Project</source>
-        <translation type="unfinished">&amp;Проект</translation>
+        <translation>&amp;Проект</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="278"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">П&amp;оследовательность</translation>
+        <translation>П&amp;оследовательность</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="279"/>
         <source>&amp;Folder</source>
-        <translation type="unfinished">П&amp;апка</translation>
+        <translation>П&amp;апка</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="282"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">В&amp;ырезать</translation>
+        <translation>В&amp;ырезать</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="283"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">С&amp;копировать</translation>
+        <translation>С&amp;копировать</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="284"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Вставить</translation>
+        <translation>&amp;Вставить</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="285"/>
@@ -2356,92 +2392,92 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="286"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Сделать копию</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="287"/>
         <source>Delete</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="288"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished">Удалить со сдвигом</translation>
+        <translation>Удалить со сдвигом</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="289"/>
         <source>Split</source>
-        <translation type="unfinished">Разделить</translation>
+        <translation>Разделить</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="292"/>
         <source>Set In Point</source>
-        <translation type="unfinished">Установить точку входа</translation>
+        <translation>Установить точку входа</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="293"/>
         <source>Set Out Point</source>
-        <translation type="unfinished">Установить точку выхода</translation>
+        <translation>Установить точку выхода</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="294"/>
         <source>Reset In Point</source>
-        <translation type="unfinished">Сбросить точку входа</translation>
+        <translation>Сбросить точку входа</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="295"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished">Сбросить точку выхода</translation>
+        <translation>Сбросить точку выхода</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="296"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">Очистить точку входа/выхода</translation>
+        <translation>Очистить точки входа/выхода</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="299"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished">Добавить переход по умолчанию</translation>
+        <translation>Добавить переход по умолчанию</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="300"/>
         <source>Link/Unlink</source>
-        <translation type="unfinished">Связать/Убрать связь</translation>
+        <translation>Связать/Убрать связь</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="301"/>
         <source>Enable/Disable</source>
-        <translation type="unfinished">Включить/Отключить</translation>
+        <translation>Включить/Отключить</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="302"/>
         <source>Nest</source>
-        <translation type="unfinished">Вложить</translation>
+        <translation>Вложить</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="305"/>
         <source>Frames</source>
-        <translation type="unfinished">Кадры</translation>
+        <translation>Кадры</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="306"/>
         <source>Drop Frame</source>
-        <translation type="unfinished">С пропуском кадров</translation>
+        <translation>С пропуском кадров</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="307"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished">Без пропуска кадров</translation>
+        <translation>Без пропуска кадров</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="308"/>
         <source>Milliseconds</source>
-        <translation type="unfinished">Миллисекунды</translation>
+        <translation>Миллисекунды</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="309"/>
         <source>Seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Секунды</translation>
     </message>
 </context>
 <context>
@@ -2449,80 +2485,113 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/merge/merge.cpp" line="41"/>
         <source>Merge</source>
-        <translation type="unfinished"></translation>
+        <translation>Объединение</translation>
     </message>
     <message>
         <location filename="../node/math/merge/merge.cpp" line="56"/>
         <source>Merge two textures together.</source>
-        <translation type="unfinished"></translation>
+        <translation>Объединить две текстуры.</translation>
     </message>
     <message>
         <location filename="../node/math/merge/merge.cpp" line="61"/>
         <source>Base</source>
-        <translation type="unfinished"></translation>
+        <translation>Основа</translation>
     </message>
     <message>
         <location filename="../node/math/merge/merge.cpp" line="62"/>
         <source>Blend</source>
+        <translation>Совмещение</translation>
+    </message>
+</context>
+<context>
+    <name>olive::MosaicFilterNode</name>
+    <message>
+        <location filename="../node/filter/mosaic/mosaicfilternode.cpp" line="41"/>
+        <source>Texture</source>
+        <translation>Текстура</translation>
+    </message>
+    <message>
+        <location filename="../node/filter/mosaic/mosaicfilternode.cpp" line="42"/>
+        <source>Horizontal</source>
+        <translation>По горизонтали</translation>
+    </message>
+    <message>
+        <location filename="../node/filter/mosaic/mosaicfilternode.cpp" line="43"/>
+        <source>Vertical</source>
+        <translation>По вертикали</translation>
+    </message>
+    <message>
+        <location filename="../node/filter/mosaic/mosaicfilternode.h" line="41"/>
+        <source>Mosaic</source>
+        <translation>Мозаика</translation>
+    </message>
+    <message>
+        <location filename="../node/filter/mosaic/mosaicfilternode.h" line="56"/>
+        <source>Apply a pixelated mosaic filter to video.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>olive::Node</name>
     <message>
-        <location filename="../node/node.cpp" line="765"/>
-        <source>Input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../node/node.cpp" line="767"/>
-        <source>Output</source>
-        <translation type="unfinished"></translation>
+        <source>Input</source>
+        <translation>Вход</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="769"/>
-        <source>General</source>
-        <translation type="unfinished">Общие</translation>
+        <source>Output</source>
+        <translation>Выход</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="771"/>
-        <source>Math</source>
-        <translation type="unfinished"></translation>
+        <source>General</source>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="773"/>
-        <source>Color</source>
-        <translation type="unfinished">Цвет</translation>
+        <source>Distort</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="775"/>
-        <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <source>Math</source>
+        <translation>Математика</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="777"/>
-        <source>Timeline</source>
-        <translation type="unfinished">Монтажный стол</translation>
+        <source>Color</source>
+        <translation>Цвет</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="779"/>
-        <source>Generator</source>
-        <translation type="unfinished"></translation>
+        <source>Filter</source>
+        <translation>Фильтр</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="781"/>
-        <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <source>Timeline</source>
+        <translation>Монтажный стол</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="783"/>
-        <source>Transition</source>
-        <translation type="unfinished"></translation>
+        <source>Generator</source>
+        <translation>Генератор</translation>
     </message>
     <message>
-        <location filename="../node/node.cpp" line="789"/>
+        <location filename="../node/node.cpp" line="785"/>
+        <source>Channel</source>
+        <translation>Канал</translation>
+    </message>
+    <message>
+        <location filename="../node/node.cpp" line="787"/>
+        <source>Transition</source>
+        <translation>Переход</translation>
+    </message>
+    <message>
+        <location filename="../node/node.cpp" line="793"/>
         <source>Uncategorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Без категории</translation>
     </message>
 </context>
 <context>
@@ -2530,7 +2599,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/input.cpp" line="76"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Вход</translation>
     </message>
 </context>
 <context>
@@ -2538,7 +2607,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/output.cpp" line="41"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Выход</translation>
     </message>
 </context>
 <context>
@@ -2546,7 +2615,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/node/node.h" line="107"/>
         <source>Node Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор нод</translation>
     </message>
 </context>
 <context>
@@ -2554,12 +2623,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="57"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Значение</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="190"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="193"/>
@@ -2609,7 +2678,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="211"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Текстура</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="213"/>
@@ -2619,7 +2688,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="215"/>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видеоматериал</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="217"/>
@@ -2639,7 +2708,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="235"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Неизвестно</translation>
     </message>
 </context>
 <context>
@@ -2647,7 +2716,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="38"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="50"/>
@@ -2660,17 +2729,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="41"/>
         <source>Connected to</source>
-        <translation type="unfinished"></translation>
+        <translation>Соединено с</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="71"/>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>ничем</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="81"/>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation>Отсоединить</translation>
     </message>
 </context>
 <context>
@@ -2678,7 +2747,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="135"/>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2)</translation>
     </message>
 </context>
 <context>
@@ -2686,7 +2755,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="342"/>
         <source>%1:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:</translation>
     </message>
 </context>
 <context>
@@ -2694,7 +2763,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewkeyframecontrol.cpp" line="249"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewkeyframecontrol.cpp" line="250"/>
@@ -2707,7 +2776,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/table/table.cpp" line="35"/>
         <source>Table View</source>
-        <translation type="unfinished"></translation>
+        <translation>Просмотр таблицей</translation>
     </message>
 </context>
 <context>
@@ -2715,12 +2784,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="35"/>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="36"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Источник</translation>
     </message>
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="37"/>
@@ -2745,7 +2814,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetableview/nodetableview.cpp" line="140"/>
         <source>(unknown)</source>
-        <translation type="unfinished">(неизвестно)</translation>
+        <translation>(неизвестно)</translation>
     </message>
 </context>
 <context>
@@ -2753,7 +2822,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetreeview/nodetreeview.cpp" line="70"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ноды</translation>
     </message>
 </context>
 <context>
@@ -2761,62 +2830,62 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="516"/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="524"/>
         <source>Auto-Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Автопозиционирование</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="529"/>
         <source>Smooth Edges</source>
-        <translation type="unfinished"></translation>
+        <translation>Плавные края</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="536"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Фильтр</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="539"/>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать все</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="543"/>
         <source>Show Selected Blocks Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать только выбранные блоки</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="551"/>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Направление</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="554"/>
         <source>Top to Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Сверху вниз</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="558"/>
         <source>Bottom to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Снизу вверх</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="562"/>
         <source>Left to Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Слева направо</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="566"/>
         <source>Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Справа налево</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="575"/>
         <source>Add</source>
-        <translation type="unfinished">Добавить</translation>
+        <translation>Добавить</translation>
     </message>
 </context>
 <context>
@@ -2851,17 +2920,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/param/param.cpp" line="60"/>
         <source>Parameter Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор параметров</translation>
     </message>
     <message>
         <location filename="../panel/param/param.cpp" line="65"/>
         <source>(none)</source>
-        <translation type="unfinished">(нет)</translation>
+        <translation>(нет)</translation>
     </message>
     <message>
         <location filename="../panel/param/param.cpp" line="69"/>
         <source>(multiple)</source>
-        <translation type="unfinished">(больше одного)</translation>
+        <translation>(больше одного)</translation>
     </message>
 </context>
 <context>
@@ -2869,7 +2938,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/path/pathwidget.cpp" line="42"/>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <location filename="../widget/path/pathwidget.cpp" line="51"/>
@@ -2952,12 +3021,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesappearancetab.cpp" line="45"/>
         <source>Theme</source>
-        <translation type="unfinished">Тема</translation>
+        <translation>Тема</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesappearancetab.cpp" line="67"/>
         <source>Node Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Цветовая схема нод</translation>
     </message>
 </context>
 <context>
@@ -2965,47 +3034,47 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="39"/>
         <source>Output Device:</source>
-        <translation type="unfinished">Устройство выхода:</translation>
+        <translation>Устройство выхода:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="47"/>
         <source>Input Device:</source>
-        <translation type="unfinished">Устройство входа:</translation>
+        <translation>Устройство входа:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="56"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Частота дискретизации:</translation>
+        <translation>Частота дискретизации:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="72"/>
         <source>Audio Recording:</source>
-        <translation type="unfinished">Запись звука:</translation>
+        <translation>Запись звука:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="75"/>
         <source>Mono</source>
-        <translation type="unfinished">Моно</translation>
+        <translation>Моно</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="76"/>
         <source>Stereo</source>
-        <translation type="unfinished">Стерео</translation>
+        <translation>Стерео</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="82"/>
         <source>Refresh Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить список устройств</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="186"/>
         <source>Please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>Подождите, пожалуйста…</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="191"/>
         <source>Default</source>
-        <translation type="unfinished">По умолчанию</translation>
+        <translation>По умолчанию</translation>
     </message>
 </context>
 <context>
@@ -3013,12 +3082,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="38"/>
         <source>Behavior</source>
-        <translation type="unfinished">Поведение</translation>
+        <translation>Поведение</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="40"/>
         <source>General</source>
-        <translation type="unfinished">Общие</translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="41"/>
@@ -3043,7 +3112,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="50"/>
         <source>Audio</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="51"/>
@@ -3053,7 +3122,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="55"/>
         <source>Timeline</source>
-        <translation type="unfinished">Монтажный стол</translation>
+        <translation>Монтажный стол</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="56"/>
@@ -3103,12 +3172,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="82"/>
         <source>Playback</source>
-        <translation type="unfinished">Воспроизведение</translation>
+        <translation>Воспроизведение</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="83"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished">Спрашивать имя маркера при добавлении</translation>
+        <translation>Спрашивать имя маркера при добавлении</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="86"/>
@@ -3118,7 +3187,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="90"/>
         <source>Project</source>
-        <translation type="unfinished">Проект</translation>
+        <translation>Проект</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="91"/>
@@ -3128,17 +3197,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="95"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ноды</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="96"/>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished">Добавлять эффекты по умолчанию в новые клипы</translation>
+        <translation>Добавлять эффекты по умолчанию в новые клипы</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="99"/>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished">Автоматически масштабировать по умолчанию</translation>
+        <translation>Автоматически масштабировать по умолчанию</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
@@ -3156,37 +3225,37 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="41"/>
         <source>Preferences</source>
-        <translation type="unfinished">Параметры</translation>
+        <translation>Параметры</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="53"/>
         <source>General</source>
-        <translation type="unfinished">Общие</translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="54"/>
         <source>Appearance</source>
-        <translation type="unfinished">Внешний вид</translation>
+        <translation>Внешний вид</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="55"/>
         <source>Behavior</source>
-        <translation type="unfinished">Поведение</translation>
+        <translation>Поведение</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="56"/>
         <source>Disk</source>
-        <translation type="unfinished"></translation>
+        <translation>Диск</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="57"/>
         <source>Audio</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="58"/>
         <source>Keyboard</source>
-        <translation type="unfinished">Клавиатурные комбинации</translation>
+        <translation>Клавиатурные комбинации</translation>
     </message>
 </context>
 <context>
@@ -3194,22 +3263,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="41"/>
         <source>Disk Management</source>
-        <translation type="unfinished"></translation>
+        <translation>Управление диском</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="48"/>
         <source>Disk Cache Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Размещение кэша на диске:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="55"/>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры кэша на диске</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="63"/>
         <source>Cache Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Поведение кэша</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="69"/>
@@ -3230,7 +3299,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="101"/>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="102"/>
@@ -3243,27 +3312,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="45"/>
         <source>Language:</source>
-        <translation type="unfinished">Язык:</translation>
+        <translation>Язык:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="72"/>
         <source>Auto-Scroll Method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Способ автопрокрутки:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="76"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="77"/>
         <source>Page Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation>Целыми страницами</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="78"/>
         <source>Smooth Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation>Плавной прокруткой</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="84"/>
@@ -3283,7 +3352,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="126"/>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (%2)</translation>
     </message>
 </context>
 <context>
@@ -3291,63 +3360,63 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="38"/>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished">Искать действие или комбинацию клавиш</translation>
+        <translation>Искать действие или комбинацию клавиш</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="45"/>
         <source>Action</source>
-        <translation type="unfinished">Действие</translation>
+        <translation>Действие</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="46"/>
         <source>Shortcut</source>
-        <translation type="unfinished">Комбинация</translation>
+        <translation>Комбинация</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="51"/>
         <source>Import</source>
-        <translation type="unfinished">Импортировать</translation>
+        <translation>Импортировать</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="55"/>
         <source>Export</source>
-        <translation type="unfinished">Экспортировать</translation>
+        <translation>Экспортировать</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="61"/>
         <source>Reset Selected</source>
-        <translation type="unfinished">Сбросить выбранное</translation>
+        <translation>Сбросить выбранное</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="65"/>
         <source>Reset All</source>
-        <translation type="unfinished">Сбросить все</translation>
+        <translation>Сбросить все</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="138"/>
         <source>Confirm Reset All Shortcuts</source>
-        <translation type="unfinished">Подтвердите действие</translation>
+        <translation>Подтвердите действие</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="139"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation type="unfinished">Вы действительно хотите сбросить все клавиатурные комбинации к исходным значениям?</translation>
+        <translation>Вы действительно хотите сбросить все клавиатурные комбинации к исходным значениям?</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="189"/>
         <source>Import Keyboard Shortcuts</source>
-        <translation type="unfinished">Импортировать клавиатурные комбинации</translation>
+        <translation>Импортировать клавиатурные комбинации</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="213"/>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="237"/>
         <source>Error saving shortcuts</source>
-        <translation type="unfinished">Ошибка при сохранении клавиатурных комбинаций</translation>
+        <translation>Ошибка при сохранении клавиатурных комбинаций</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="214"/>
         <source>Failed to open file for reading</source>
-        <translation type="unfinished">Не удалось открыть файл для чтения</translation>
+        <translation>Не удалось открыть файл для чтения</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="221"/>
@@ -3357,7 +3426,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
         <source>Export Shortcuts</source>
-        <translation type="unfinished">Экспортировать клавиатурные комбинации</translation>
+        <translation>Экспортировать клавиатурные комбинации</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
@@ -3375,7 +3444,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/progress/progress.cpp" line="58"/>
         <source>Cancel</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -3392,27 +3461,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="253"/>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Создать</translation>
+        <translation>&amp;Создать</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="258"/>
         <source>&amp;Import...</source>
-        <translation type="unfinished">&amp;Импортировать…</translation>
+        <translation>&amp;Импортировать…</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="264"/>
         <source>&amp;Project Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>С&amp;войства проекта…</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="275"/>
         <source>Open in New Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть в новой вкладке</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="278"/>
         <source>Open in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть в новом окне</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="287"/>
@@ -3447,7 +3516,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="347"/>
         <source>P&amp;roperties</source>
-        <translation type="unfinished"></translation>
+        <translation>С&amp;войства</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="616"/>
@@ -3470,7 +3539,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="624"/>
         <source>Delete Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить клипы</translation>
     </message>
 </context>
 <context>
@@ -3499,7 +3568,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/import/import.cpp" line="43"/>
         <source>Importing %1 files</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортируется %1 файлов</translation>
     </message>
 </context>
 <context>
@@ -3507,24 +3576,24 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/load/loadbasetask.cpp" line="29"/>
         <source>Loading &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Загружается &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectLoadTask</name>
     <message>
-        <location filename="../task/project/load/load.cpp" line="52"/>
+        <location filename="../task/project/load/load.cpp" line="53"/>
         <source>This project is newer than this version of Olive and cannot be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../task/project/load/load.cpp" line="56"/>
-        <location filename="../task/project/load/load.cpp" line="78"/>
+        <location filename="../task/project/load/load.cpp" line="57"/>
+        <location filename="../task/project/load/load.cpp" line="79"/>
         <source>This project is from a version of Olive that is no longer supported in this version.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../task/project/load/load.cpp" line="97"/>
+        <location filename="../task/project/load/load.cpp" line="98"/>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3534,17 +3603,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/project/project.cpp" line="176"/>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Папка</translation>
     </message>
     <message>
         <location filename="../panel/project/project.cpp" line="178"/>
         <source>Project</source>
-        <translation type="unfinished">Проект</translation>
+        <translation>Проект</translation>
     </message>
     <message>
         <location filename="../panel/project/project.cpp" line="228"/>
         <source>(none)</source>
-        <translation type="unfinished">(нет)</translation>
+        <translation>(нет)</translation>
     </message>
 </context>
 <context>
@@ -3552,52 +3621,52 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="47"/>
         <source>Project Properties for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Свойства проекта &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="63"/>
         <source>OpenColorIO Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Конфигурация OpenColorIO:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="66"/>
         <source>(default)</source>
-        <translation type="unfinished"></translation>
+        <translation>(по умолчанию)</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="71"/>
         <source>Default Input Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пространство входа по умолчанию:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="78"/>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="87"/>
         <source>Color Management</source>
-        <translation type="unfinished"></translation>
+        <translation>Управление цветом</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="100"/>
         <source>Use Default Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать обычное размещение</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="101"/>
         <source>Store Alongside Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Хранить рядом с проектом</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="102"/>
         <source>Use Custom Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Размещать где-то еще:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="126"/>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры кэша на диске</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="132"/>
@@ -3608,12 +3677,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="139"/>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Дисковый кэш</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="155"/>
         <source>OpenColorIO Config Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка в конфгурации OpenColorIO</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="156"/>
@@ -3633,7 +3702,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="206"/>
         <source>Browse for OpenColorIO configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Указать файл конфигурации OpenColorIO</translation>
     </message>
 </context>
 <context>
@@ -3641,12 +3710,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/save/save.cpp" line="35"/>
         <source>Saving &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохраняется &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="72"/>
         <source>Failed to write XML data</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось записать данные XML</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="80"/>
@@ -3664,47 +3733,47 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="116"/>
         <source>New...</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать…</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="117"/>
         <source>Open Project</source>
-        <translation type="unfinished">Открыть проект</translation>
+        <translation>Открыть проект</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="118"/>
         <source>Save Project</source>
-        <translation type="unfinished">Сохранить проект</translation>
+        <translation>Сохранить проект</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="119"/>
         <source>Undo</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="120"/>
         <source>Redo</source>
-        <translation type="unfinished">Вернуть</translation>
+        <translation>Вернуть</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="122"/>
         <source>Search media, markers, etc.</source>
-        <translation type="unfinished">Искать файлы, маркеры и т.д.</translation>
+        <translation>Искать файлы, маркеры и т.д.</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="124"/>
         <source>Switch to Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключиться на древовидное представление</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="125"/>
         <source>Switch to List View</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключиться на список</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="126"/>
         <source>Switch to Icon View</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключиться на миниатюры</translation>
     </message>
 </context>
 <context>
@@ -3712,22 +3781,22 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="165"/>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="167"/>
         <source>Duration</source>
-        <translation type="unfinished">Длительность</translation>
+        <translation>Длительность</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="169"/>
         <source>Rate</source>
-        <translation type="unfinished">Частота</translation>
+        <translation>Частота</translation>
     </message>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="335"/>
         <source>Move Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить объекты</translation>
     </message>
 </context>
 <context>
@@ -3748,52 +3817,52 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="41"/>
         <source>B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ж</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="41"/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Полужирный</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="43"/>
         <source>I</source>
-        <translation type="unfinished"></translation>
+        <translation>К</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="43"/>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation>Курсив</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="45"/>
         <source>U</source>
-        <translation type="unfinished"></translation>
+        <translation>П</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="45"/>
         <source>Underline</source>
-        <translation type="unfinished"></translation>
+        <translation>Подчеркивание</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="47"/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>В</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="47"/>
         <source>Strikethrough</source>
-        <translation type="unfinished"></translation>
+        <translation>Вычеркнутый</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="50"/>
         <source>Font Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Гарнитура</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="55"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Кегль шрифта</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="60"/>
@@ -3859,17 +3928,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/scope/scope.cpp" line="77"/>
         <source>Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Волновая форма</translation>
     </message>
     <message>
         <location filename="../panel/scope/scope.cpp" line="79"/>
         <source>Histogram</source>
-        <translation type="unfinished"></translation>
+        <translation>Гистограмма</translation>
     </message>
     <message>
         <location filename="../panel/scope/scope.cpp" line="101"/>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Анализатор</translation>
     </message>
 </context>
 <context>
@@ -3877,27 +3946,27 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="63"/>
         <source>Name:</source>
-        <translation type="unfinished">Название:</translation>
+        <translation>Название:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="78"/>
         <source>New Sequence</source>
-        <translation type="unfinished">Новая последовательность</translation>
+        <translation>Новая последовательность</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="81"/>
         <source>Editing &quot;%1&quot;</source>
-        <translation type="unfinished">Правка &quot;%1&quot;</translation>
+        <translation>Правка &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="101"/>
         <source>Error editing Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка при редактировании последовательности</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="101"/>
         <source>Please enter a name for this Sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите название этой последовательности</translation>
     </message>
 </context>
 <context>
@@ -3905,72 +3974,72 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="21"/>
         <source>Video</source>
-        <translation type="unfinished">Видео</translation>
+        <translation>Видео</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="23"/>
         <source>Width:</source>
-        <translation type="unfinished">Ширина:</translation>
+        <translation>Ширина:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="30"/>
         <source>Height:</source>
-        <translation type="unfinished">Высота:</translation>
+        <translation>Высота:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="37"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Частота кадров:</translation>
+        <translation>Частота кадров:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="41"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">Соотношение сторон пикселя:</translation>
+        <translation>Соотн. сторон пикселя:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="45"/>
         <source>Interlacing:</source>
-        <translation type="unfinished">Чересстрочность:</translation>
+        <translation>Чересстрочность:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="54"/>
         <source>Audio</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="56"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished">Частота дискретизации:</translation>
+        <translation>Частота дискр.:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="60"/>
         <source>Channels:</source>
-        <translation type="unfinished"></translation>
+        <translation>Каналов:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="69"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Предпросмотр</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="71"/>
         <source>Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Разрешение:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="77"/>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>Качество:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="98"/>
         <source>Save Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить профиль</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="142"/>
         <source>(%1x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1x%2)</translation>
     </message>
 </context>
 <context>
@@ -3978,62 +4047,62 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="54"/>
         <source>Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Профиль</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="62"/>
         <source>My Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>Мои профили</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="66"/>
         <source>4K UHD</source>
-        <translation type="unfinished"></translation>
+        <translation>4K UHD</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="67"/>
         <source>1080p</source>
-        <translation type="unfinished">1080p</translation>
+        <translation>1080p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="68"/>
         <source>720p</source>
-        <translation type="unfinished">720p</translation>
+        <translation>720p</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="70"/>
         <source>NTSC</source>
-        <translation type="unfinished"></translation>
+        <translation>NTSC</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="73"/>
         <source>PAL</source>
-        <translation type="unfinished"></translation>
+        <translation>PAL</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="104"/>
         <source>%1 23.976 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 23,976 к/с</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="114"/>
         <source>%1 25 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 25 к/с</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="124"/>
         <source>%1 29.97 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 29,97 к/с</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="134"/>
         <source>%1 50 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 50 к/с</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="144"/>
         <source>%1 59.94 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 59,94 к/с</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="162"/>
@@ -4048,7 +4117,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="266"/>
         <source>Delete Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить профиль</translation>
     </message>
 </context>
 <context>
@@ -4056,7 +4125,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/sequenceviewer/sequenceviewer.cpp" line="36"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished">Просмотр последовательностей</translation>
+        <translation>Монитор последовательностей</translation>
     </message>
 </context>
 <context>
@@ -4113,7 +4182,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="78"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вход</translation>
     </message>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="79"/>
@@ -4123,7 +4192,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="80"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Радиус</translation>
     </message>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="81"/>
@@ -4141,12 +4210,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/task.h" line="57"/>
         <source>Task</source>
-        <translation type="unfinished"></translation>
+        <translation>Задача</translation>
     </message>
     <message>
         <location filename="../task/task.h" line="58"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестная ошибка</translation>
     </message>
 </context>
 <context>
@@ -4154,7 +4223,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/task/task.cpp" line="79"/>
         <source>Task Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось выполнить задачу</translation>
     </message>
 </context>
 <context>
@@ -4162,7 +4231,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/taskmanager/taskmanager.cpp" line="48"/>
         <source>Task Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Управление задачами</translation>
     </message>
 </context>
 <context>
@@ -4170,7 +4239,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/taskview/taskviewitem.cpp" line="86"/>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: %1</translation>
     </message>
 </context>
 <context>
@@ -4178,53 +4247,53 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="37"/>
         <source>Sample Text</source>
-        <translation type="unfinished">Образец текста</translation>
+        <translation>Образец текста</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="67"/>
         <location filename="../node/generator/text/text.cpp" line="87"/>
         <source>Text</source>
-        <translation type="unfinished">Текст</translation>
+        <translation>Текст</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="82"/>
         <source>Generate rich text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать форматированный текст.</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="88"/>
         <source>Font</source>
-        <translation type="unfinished">Шрифт</translation>
+        <translation>Шрифт</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="89"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Кегль шрифта</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="90"/>
         <source>Color</source>
-        <translation type="unfinished">Цвет</translation>
+        <translation>Цвет</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="91"/>
         <source>Vertical Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Верт. выравнивание</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Top</source>
-        <translation type="unfinished">Сверху</translation>
+        <translation>Сверху</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Center</source>
-        <translation type="unfinished">По центру</translation>
+        <translation>По центру</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Bottom</source>
-        <translation type="unfinished">Снизу</translation>
+        <translation>Снизу</translation>
     </message>
 </context>
 <context>
@@ -4232,7 +4301,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/timebased/timebased.cpp" line="168"/>
         <source>(none)</source>
-        <translation type="unfinished">(нет)</translation>
+        <translation>(нет)</translation>
     </message>
 </context>
 <context>
@@ -4240,12 +4309,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/timebased/timebased.cpp" line="455"/>
         <source>Set Marker</source>
-        <translation type="unfinished">Установить маркер</translation>
+        <translation>Установить маркер</translation>
     </message>
     <message>
         <location filename="../widget/timebased/timebased.cpp" line="455"/>
         <source>Marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Название маркера:</translation>
     </message>
 </context>
 <context>
@@ -4253,7 +4322,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/input/time/timeinput.cpp" line="36"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Время</translation>
     </message>
     <message>
         <location filename="../node/input/time/timeinput.cpp" line="51"/>
@@ -4266,19 +4335,19 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/timeline/timeline.cpp" line="182"/>
         <source>Timeline</source>
-        <translation type="unfinished">Монтажный стол</translation>
+        <translation>Монтажный стол</translation>
     </message>
 </context>
 <context>
     <name>olive::TimelineWidget</name>
     <message>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1056"/>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1078"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1068"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1090"/>
         <source>Properties</source>
-        <translation type="unfinished">Свойства</translation>
+        <translation>Свойства</translation>
     </message>
     <message>
-        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1071"/>
+        <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1083"/>
         <source>Use Audio Time Units</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4288,7 +4357,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/tool/tool.cpp" line="52"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Инструменты</translation>
     </message>
 </context>
 <context>
@@ -4296,57 +4365,57 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="96"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished">Указатель</translation>
+        <translation>Указатель</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="97"/>
         <source>Edit Tool</source>
-        <translation type="unfinished">Выделение</translation>
+        <translation>Выделение</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="98"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished">Монтаж со сдвигом</translation>
+        <translation>Монтаж со сдвигом</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="99"/>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Монтаж с совмещением</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="100"/>
         <source>Razor Tool</source>
-        <translation type="unfinished">Подрезка</translation>
+        <translation>Подрезка</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="101"/>
         <source>Slip Tool</source>
-        <translation type="unfinished">Прокрутка с совмещением</translation>
+        <translation>Прокрутка с совмещением</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="102"/>
         <source>Slide Tool</source>
-        <translation type="unfinished">Прокрутка</translation>
+        <translation>Прокрутка</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="103"/>
         <source>Hand Tool</source>
-        <translation type="unfinished">Навигация</translation>
+        <translation>Навигация</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="104"/>
         <source>Zoom Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштаб</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="105"/>
         <source>Transition Tool</source>
-        <translation type="unfinished">Переход</translation>
+        <translation>Переход</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="106"/>
         <source>Record Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Запись</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="107"/>
@@ -4356,7 +4425,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="108"/>
         <source>Toggle Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключить прилипание</translation>
     </message>
 </context>
 <context>
@@ -4364,7 +4433,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/track/track.cpp" line="80"/>
         <source>Track</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожка</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="95"/>
@@ -4382,24 +4451,24 @@ What would you like to do with these clips?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="398"/>
-        <source>Video %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../node/output/track/track.cpp" line="399"/>
-        <source>Audio %1</source>
-        <translation type="unfinished"></translation>
+        <source>Video %1</source>
+        <translation>Видео %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="400"/>
-        <source>Subtitle %1</source>
-        <translation type="unfinished"></translation>
+        <source>Audio %1</source>
+        <translation>Звук %1</translation>
     </message>
     <message>
-        <location filename="../node/output/track/track.cpp" line="406"/>
+        <location filename="../node/output/track/track.cpp" line="401"/>
+        <source>Subtitle %1</source>
+        <translation>Субтитры %1</translation>
+    </message>
+    <message>
+        <location filename="../node/output/track/track.cpp" line="407"/>
         <source>Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожка %1</translation>
     </message>
 </context>
 <context>
@@ -4407,11 +4476,74 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="53"/>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation>М</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="60"/>
         <source>L</source>
+        <translation>Б</translation>
+    </message>
+</context>
+<context>
+    <name>olive::TransformDistortNode</name>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="45"/>
+        <source>Auto-Scale</source>
+        <translation>Автомасштаб</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="46"/>
+        <source>Texture</source>
+        <translation>Текстура</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="47"/>
+        <source>Interpolation</source>
+        <translation>Интерполяция</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="49"/>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="49"/>
+        <source>Fit</source>
+        <translation>Уместить</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="49"/>
+        <source>Fill</source>
+        <translation>Заполнить</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="49"/>
+        <source>Stretch</source>
+        <translation>Растянуть</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="50"/>
+        <source>Nearest Neighbor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="50"/>
+        <source>Bilinear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.cpp" line="50"/>
+        <source>Mipmapped Bilinear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.h" line="41"/>
+        <source>Transform</source>
+        <translation>Трансформация</translation>
+    </message>
+    <message>
+        <location filename="../node/distort/transform/transformdistortnode.h" line="61"/>
+        <source>Transform an image in 2D space. Equivalent to multiplying by an orthographic matrix.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4420,17 +4552,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="68"/>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>От</translation>
     </message>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="69"/>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>До</translation>
     </message>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="70"/>
         <source>Curve</source>
-        <translation type="unfinished"></translation>
+        <translation>Кривая</translation>
     </message>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="73"/>
@@ -4453,62 +4585,62 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="43"/>
         <source>Trigonometry</source>
-        <translation type="unfinished"></translation>
+        <translation>Тригонометрия</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="58"/>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Произвести тригонометрическую операцию над значением</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="63"/>
         <source>Sine</source>
-        <translation type="unfinished">Синусоида</translation>
+        <translation>Синус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="64"/>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Косинус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="65"/>
         <source>Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Тангенс</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="67"/>
         <source>Inverse Sine</source>
-        <translation type="unfinished"></translation>
+        <translation>Инверт. синус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="68"/>
         <source>Inverse Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Инверт. косинус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="69"/>
         <source>Inverse Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Инверт. тангенс</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="71"/>
         <source>Hyperbolic Sine</source>
-        <translation type="unfinished"></translation>
+        <translation>Гипербол. синус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="72"/>
         <source>Hyperbolic Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Гипербол. косинус</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="73"/>
         <source>Hyperbolic Tangent</source>
-        <translation type="unfinished"></translation>
+        <translation>Гипербол. тангенс</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="77"/>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Способ</translation>
     </message>
 </context>
 <context>
@@ -4521,25 +4653,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/standardcombos/videodividercombobox.h" line="43"/>
         <source>1/%1</source>
-        <translation type="unfinished">144p {1/%1?}</translation>
-    </message>
-</context>
-<context>
-    <name>olive::VideoInput</name>
-    <message>
-        <location filename="../node/input/media/video/video.cpp" line="45"/>
-        <source>Video Input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../node/input/media/video/video.cpp" line="50"/>
-        <source>Video</source>
-        <translation type="unfinished">Видео</translation>
-    </message>
-    <message>
-        <location filename="../node/input/media/video/video.cpp" line="60"/>
-        <source>Import a video footage stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>144p {1/%1?}</translation>
     </message>
 </context>
 <context>
@@ -4547,22 +4661,22 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="46"/>
         <source>Pixel Aspect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пропорции пикселей:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="54"/>
         <source>Interlacing:</source>
-        <translation type="unfinished">Чересстрочность:</translation>
+        <translation>Чересстрочность:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="63"/>
         <source>Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пространство:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="69"/>
         <source>Default (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>По умолчанию (%1)</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="84"/>
@@ -4572,27 +4686,27 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="92"/>
         <source>Image Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Последовательность изображений</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="99"/>
         <source>Start Index:</source>
-        <translation type="unfinished"></translation>
+        <translation>Начало индекса:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="108"/>
         <source>End Index:</source>
-        <translation type="unfinished"></translation>
+        <translation>Конец индекса:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="117"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Частота кадров:</translation>
+        <translation>Частота кадров:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="170"/>
         <source>Invalid Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректная конфигурация</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="171"/>
@@ -4605,7 +4719,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="77"/>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Монитор</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="92"/>
@@ -4615,7 +4729,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="251"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Текстура</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="253"/>
@@ -4625,17 +4739,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="260"/>
         <source>Video Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Видеодорожки</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="263"/>
         <source>Audio Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Звуковые дорожки</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="266"/>
         <source>Subtitle Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожки субтитров</translation>
     </message>
 </context>
 <context>
@@ -4643,7 +4757,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/viewer/viewer.cpp" line="41"/>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Монитор</translation>
     </message>
 </context>
 <context>
@@ -4651,7 +4765,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="364"/>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="365"/>
@@ -4662,32 +4776,32 @@ What would you like to do with these clips?</source>
         <location filename="../widget/viewer/viewer.cpp" line="729"/>
         <location filename="../widget/viewer/viewer.cpp" line="915"/>
         <source>Safe Margins</source>
-        <translation type="unfinished"></translation>
+        <translation>Безопасная область</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="823"/>
         <source>Zoom</source>
-        <translation type="unfinished">Масштаб</translation>
+        <translation>Масштаб</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="827"/>
         <source>Fit</source>
-        <translation type="unfinished">Уместить</translation>
+        <translation>Уместить</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="829"/>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="837"/>
         <source>Full Screen</source>
-        <translation type="unfinished">Полноэкранный режим</translation>
+        <translation>Полноэкранный режим</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="843"/>
         <source>Screen %1: %2x%3</source>
-        <translation type="unfinished">Экран %1: %2×%3</translation>
+        <translation>Экран %1: %2×%3</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="856"/>
@@ -4697,52 +4811,52 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="867"/>
         <source>Scopes</source>
-        <translation type="unfinished"></translation>
+        <translation>Анализаторы</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="881"/>
         <source>Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Кэш</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="885"/>
         <source>Auto-Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Автокэширование</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="893"/>
         <source>Pause Auto-Cache During Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Приостанавливать автокэширование при воспроизведении</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="903"/>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Закэшировать всю последовательность</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="907"/>
         <source>Cache Sequence In/Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Закэшировать вход/выход последовательности</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="918"/>
         <source>Off</source>
-        <translation type="unfinished">Выкл.</translation>
+        <translation>Выкл.</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="923"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Вкл</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="928"/>
         <source>Custom Aspect</source>
-        <translation type="unfinished"></translation>
+        <translation>Другое соотношение</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="938"/>
         <source>Show Audio Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать волновую форму</translation>
     </message>
 </context>
 <context>
@@ -4751,7 +4865,7 @@ What would you like to do with these clips?</source>
         <location filename="../node/audio/volume/volume.cpp" line="44"/>
         <location filename="../node/audio/volume/volume.cpp" line="81"/>
         <source>Volume</source>
-        <translation type="unfinished">Громкость</translation>
+        <translation>Громкость</translation>
     </message>
     <message>
         <location filename="../node/audio/volume/volume.cpp" line="59"/>
