@@ -188,6 +188,11 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
     UpdateWidgetValues();
 
+    // Install event filter to disable widgets picking up scroll events
+    foreach (QWidget* w, widgets_) {
+      w->installEventFilter(&scroll_filter_);
+    }
+
   }
 }
 
@@ -692,6 +697,18 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
       }
     }
   }
+}
+
+bool NodeParamViewScrollBlocker::eventFilter(QObject *watched, QEvent *event)
+{
+  Q_UNUSED(watched)
+
+  if (event->type() == QEvent::Wheel) {
+    // Block this event
+    return true;
+  }
+
+  return false;
 }
 
 }

@@ -30,6 +30,13 @@
 
 namespace olive {
 
+class NodeParamViewScrollBlocker : public QObject
+{
+  Q_OBJECT
+public:
+  virtual bool eventFilter(QObject* watched, QEvent* event) override;
+};
+
 class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
   Q_OBJECT
@@ -62,6 +69,8 @@ private:
   rational time_;
 
   NodeInputDragger dragger_;
+
+  NodeParamViewScrollBlocker scroll_filter_;
 
 private slots:
   void WidgetCallback();
