@@ -44,24 +44,26 @@
     <message>
         <location filename="../config/config.cpp" line="195"/>
         <source>Error loading settings</source>
-        <translation type="unfinished">加载设置出错</translation>
+        <translation type="unfinished">加载设置时出错</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="196"/>
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法加载应用程序设置.此会话将使用默认设置.
+
+%1</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="214"/>
         <source>Error saving settings</source>
-        <translation type="unfinished">保存设置出错</translation>
+        <translation type="unfinished">保存设置时出错</translation>
     </message>
     <message>
         <location filename="../config/config.cpp" line="215"/>
         <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法保存应用程序设置.应用程序可能没有对此位置的写入权限.</translation>
     </message>
 </context>
 <context>
@@ -84,7 +86,7 @@
     <message>
         <location filename="../project/item/footage/footage.cpp" line="344"/>
         <source>This footage is not valid for use</source>
-        <translation type="unfinished">此素材不可用</translation>
+        <translation type="unfinished">此素材不能用</translation>
     </message>
 </context>
 <context>
@@ -102,7 +104,7 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="323"/>
         <source>No sequence is currently open. Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">没有打开的序列.您要创建一个序列吗?</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="326"/>
@@ -120,7 +122,7 @@
     <message>
         <location filename="../project/projectviewmodel.cpp" line="512"/>
         <source>Move Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">移动项</translation>
     </message>
 </context>
 <context>
@@ -172,7 +174,7 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="151"/>
         <source>You must enter a preset name</source>
-        <translation type="unfinished">您必须输入预设的名称</translation>
+        <translation type="unfinished">您必须输入预设名称</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="184"/>
@@ -182,7 +184,7 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="185"/>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation type="unfinished">相同名称的预设已存在.您要替换它吗?</translation>
+        <translation type="unfinished">存在具有此名称的预设.您要替换它吗?</translation>
     </message>
 </context>
 <context>
@@ -208,7 +210,7 @@
     <message>
         <location filename="../project/projectviewmodel.cpp" line="538"/>
         <source>Rename Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重命名项</translation>
     </message>
 </context>
 <context>
@@ -314,7 +316,7 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="223"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未知 (0x%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="251"/>
@@ -324,7 +326,7 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="257"/>
         <source>Square Pixels (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正方形像素 (%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="258"/>
@@ -387,7 +389,7 @@ Length: %4</source>
     <message>
         <location filename="../main.cpp" line="105"/>
         <source>Project to open on startup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">在启动时打开的项目</translation>
     </message>
 </context>
 <context>
@@ -413,7 +415,7 @@ Length: %4</source>
     <message>
         <location filename="../dialog/actionsearch/actionsearch.cpp" line="58"/>
         <source>Search for action...</source>
-        <translation type="unfinished">功能搜索...</translation>
+        <translation type="unfinished">操作搜索...</translation>
     </message>
 </context>
 <context>
@@ -457,7 +459,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/block.cpp" line="354"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">已启用</translation>
     </message>
     <message>
         <location filename="../node/block/block.cpp" line="355"/>
@@ -475,7 +477,7 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="69"/>
         <source>Blurs an image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">使图像变模糊.</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="74"/>
@@ -495,12 +497,12 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="76"/>
         <source>Gaussian</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高斯</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="77"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">半径</translation>
     </message>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="78"/>
@@ -515,7 +517,7 @@ Length: %4</source>
     <message>
         <location filename="../node/filter/blur/blur.cpp" line="80"/>
         <source>Repeat Edge Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重复边缘像素</translation>
     </message>
 </context>
 <context>
@@ -523,7 +525,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="44"/>
         <source>Clip</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">剪辑</translation>
     </message>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="54"/>
@@ -533,7 +535,7 @@ Length: %4</source>
     <message>
         <location filename="../node/block/clip/clip.cpp" line="111"/>
         <source>Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缓冲区</translation>
     </message>
 </context>
 <context>
@@ -541,7 +543,7 @@ Length: %4</source>
     <message>
         <location filename="../dialog/color/colordialog.cpp" line="35"/>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">选择颜色</translation>
     </message>
 </context>
 <context>
@@ -641,7 +643,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="213"/>
         <source>Nothing to import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">没有可导出的内容</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="225"/>
@@ -661,12 +663,12 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="332"/>
         <source>Failed to find active Project panel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法打开活动项目面板</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="358"/>
         <source>No Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">没有活动项目</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="359"/>
@@ -722,7 +724,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="562"/>
         <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">此项目有多个序列.您要导出哪一个?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="571"/>
@@ -900,7 +902,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="55"/>
         <source>Describe what you were doing in as much detail as possible. If you can, provide steps to reproduce this crash.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">尽可能详细地描述您正在进行地操作. 如果可以, 请您提供能重现此崩溃的步骤.</translation>
     </message>
     <message>
         <location filename="../dialog/crashhandler/crashhandler.cpp" line="60"/>
@@ -969,7 +971,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="303"/>
         <source>Zoom to Fit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缩放到合适大小</translation>
     </message>
 </context>
 <context>
@@ -1046,17 +1048,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="96"/>
         <source>Disk Cache Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存已清除</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="100"/>
         <source>Disk cache failed to fully clear. You may have to delete the cache files manually.</source>
-        <translation type="unfinished">磁盘缓存无法完全清除. 您可能需要手动删除磁盘文件.</translation>
+        <translation type="unfinished">磁盘缓存无法完全清除. 您可能需要手动删除缓存文件.</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="102"/>
         <source>Disk Cache Partially Cleared</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存已部分清除</translation>
     </message>
 </context>
 <context>
@@ -1070,7 +1072,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../render/diskmanager.cpp" line="53"/>
         <source>Unable to set custom application disk cache. Using default instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法设置自定义应用程序磁盘缓存.使用默认设置.</translation>
     </message>
     <message>
         <location filename="../render/diskmanager.cpp" line="153"/>
@@ -1080,12 +1082,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../render/diskmanager.cpp" line="154"/>
         <source>You&apos;ve chosen to change the default disk cache location. This will invalidate your current cache. Would you like to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">您已选择更改默认的磁盘缓存位置.这将使当前缓存无效.您要继续吗?</translation>
     </message>
     <message>
         <location filename="../render/diskmanager.cpp" line="179"/>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法打开位于&quot;%1&quot;的磁盘缓存.请尝试其他文件夹.</translation>
     </message>
 </context>
 <context>
@@ -1225,7 +1227,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="69"/>
         <source>Browse for exported file filename</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">浏览已导出的文件名</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="78"/>
@@ -1235,17 +1237,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="82"/>
         <source>Same As Source - High Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">与源相同 - 高质量</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="83"/>
         <source>Same As Source - Medium Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">与源相同 - 中等质量</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="84"/>
         <source>Same As Source - Low Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">与源相同 - 低质量</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="103"/>
@@ -1296,12 +1298,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="167"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">预览</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="241"/>
         <source>Invalid parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无效的参数</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="242"/>
@@ -1389,7 +1391,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../codec/exportformat.cpp" line="46"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未知</translation>
     </message>
 </context>
 <context>
@@ -1397,7 +1399,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../task/export/export.cpp" line="35"/>
         <source>Exporting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在导出 &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../task/export/export.cpp" line="53"/>
@@ -1407,7 +1409,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../task/export/export.cpp" line="58"/>
         <source>Failed to open file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法打开文件</translation>
     </message>
     <message>
         <location filename="../task/export/export.cpp" line="139"/>
@@ -1440,7 +1442,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="85"/>
         <source>Scaling Method:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缩放方式:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="89"/>
@@ -1450,17 +1452,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="90"/>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">拉伸</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="91"/>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">剪切</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="99"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">帧率:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="106"/>
@@ -1470,17 +1472,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="113"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">交错:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="120"/>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">质量:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="140"/>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">编解码器</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="144"/>
@@ -1511,7 +1513,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="47"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; 属性</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/footageproperties.cpp" line="52"/>
@@ -1529,17 +1531,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">素材</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文件名</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
         <source>Actions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">操作</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="53"/>
@@ -1549,12 +1551,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="74"/>
         <source>Relink Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新链接素材</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="85"/>
         <source>Relink &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新链接 &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="87"/>
@@ -1567,7 +1569,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../panel/footageviewer/footageviewer.cpp" line="72"/>
         <source>Footage Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">素材查看器</translation>
     </message>
 </context>
 <context>
@@ -1724,17 +1726,17 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="53"/>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法从文件 &quot;%1&quot; 加载 OpenTimelineIO</translation>
     </message>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="75"/>
         <source>Unknown OpenTimelineIO root element</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未知的 OpenTimelineIO 根元素</translation>
     </message>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="121"/>
         <source>Failed to load clip</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法加载剪辑</translation>
     </message>
 </context>
 <context>
@@ -1742,12 +1744,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="295"/>
         <source>&amp;Save &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存 &apos;%1&apos;(&amp;S)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="296"/>
         <source>Save &apos;%1&apos; &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存 &apos;%1&apos; 为(&amp;A)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="297"/>
@@ -1897,7 +1899,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="630"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">波纹删除入点/出点</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="631"/>
@@ -2072,7 +2074,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="678"/>
         <source>Rolling Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">滚动工具</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="679"/>
@@ -2097,12 +2099,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="683"/>
         <source>Zoom Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缩放工具</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="684"/>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">转场工具</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="685"/>
@@ -2122,12 +2124,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="690"/>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished">功能查找(&amp;C)</translation>
+        <translation type="unfinished">操作搜索(&amp;C)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="691"/>
         <source>Send &amp;Feedback...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">发送反馈(&amp;F)...</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="692"/>
@@ -2429,12 +2431,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="306"/>
         <source>Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">丢帧</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="307"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">不丢帧</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="308"/>
@@ -2444,7 +2446,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="309"/>
         <source>Seconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">秒</translation>
     </message>
 </context>
 <context>
@@ -2505,7 +2507,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="777"/>
         <source>Timeline</source>
-        <translation type="unfinished">时间轴</translation>
+        <translation type="unfinished">时间线</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="779"/>
@@ -3056,7 +3058,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="55"/>
         <source>Timeline</source>
-        <translation type="unfinished">时间轴</translation>
+        <translation type="unfinished">时间线</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="56"/>
@@ -3081,7 +3083,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished">反转时间轴滚动轴</translation>
+        <translation type="unfinished">反转时间线滚动轴</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
@@ -3179,7 +3181,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="56"/>
         <source>Disk</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="57"/>
@@ -3197,17 +3199,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="41"/>
         <source>Disk Management</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘管理</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="48"/>
         <source>Disk Cache Location:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存位置:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="55"/>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存设置</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="63"/>
@@ -3217,28 +3219,28 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="69"/>
         <source>Cache Ahead:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">向前缓存:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="72"/>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="81"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 秒</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="77"/>
         <source>Cache Behind:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">向后缓存:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="101"/>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="102"/>
         <source>Failed to set disk cache location. Access was denied.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法设置磁盘缓存位置.访问被拒绝.</translation>
     </message>
 </context>
 <context>
@@ -3251,22 +3253,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="72"/>
         <source>Auto-Scroll Method:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">自动滚动模式:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="76"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="77"/>
         <source>Page Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">页面滚动</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="78"/>
         <source>Smooth Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">平滑滚动</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="84"/>
@@ -3281,7 +3283,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="96"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 秒</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="126"/>
@@ -3294,12 +3296,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="38"/>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished">搜索功能或者快捷键</translation>
+        <translation type="unfinished">搜索操作或者快捷键</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="45"/>
         <source>Action</source>
-        <translation type="unfinished">功能</translation>
+        <translation type="unfinished">操作</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="46"/>
@@ -3387,7 +3389,7 @@ This driver is known to have stability and performance issues with Olive. It is 
         <location filename="../project/project.cpp" line="125"/>
         <location filename="../project/project.cpp" line="141"/>
         <source>(untitled)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(未命名)</translation>
     </message>
 </context>
 <context>
@@ -3405,7 +3407,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="264"/>
         <source>&amp;Project Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">项目属性(&amp;P)...</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="275"/>
@@ -3415,27 +3417,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="278"/>
         <source>Open in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">在新窗口中打开</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="287"/>
         <source>Reveal in Explorer</source>
-        <translation type="unfinished">在浏览器中预览</translation>
+        <translation type="unfinished">在资源管理器中显示</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="289"/>
         <source>Reveal in Finder</source>
-        <translation type="unfinished">在查找当中预览</translation>
+        <translation type="unfinished">在 Finder 中显示</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="291"/>
         <source>Reveal in File Manager</source>
-        <translation type="unfinished">在文件管理器中预览</translation>
+        <translation type="unfinished">在文件管理器中显示</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="324"/>
         <source>Pre-Cache</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">预缓存</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="330"/>
@@ -3450,12 +3452,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="347"/>
         <source>P&amp;roperties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">属性(&amp;R)</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="616"/>
         <source>Confirm Footage Deletion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">确认删除素材</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="617"/>
@@ -3468,12 +3470,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="623"/>
         <source>Offline Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">离线素材</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="624"/>
         <source>Delete Clips</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除剪辑</translation>
     </message>
 </context>
 <context>
@@ -3481,7 +3483,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projectexplorer/projectexplorernavigation.cpp" line="88"/>
         <source>Go to parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">转到上级文件夹</translation>
     </message>
 </context>
 <context>
@@ -3489,12 +3491,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/import/importerrordialog.cpp" line="35"/>
         <source>Import Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导入出错</translation>
     </message>
     <message>
         <location filename="../task/project/import/importerrordialog.cpp" line="37"/>
         <source>The following files failed to import. Olive likely does not support their formats.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">下列文件无法导入. Olive可能不支持这些文件格式.</translation>
     </message>
 </context>
 <context>
@@ -3502,7 +3504,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/import/import.cpp" line="43"/>
         <source>Importing %1 files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在导入 %1 文件</translation>
     </message>
 </context>
 <context>
@@ -3510,7 +3512,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/load/loadbasetask.cpp" line="29"/>
         <source>Loading &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在加载 &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -3529,7 +3531,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/load/load.cpp" line="97"/>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法读取文件e &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -3537,7 +3539,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/project/project.cpp" line="176"/>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文件夹</translation>
     </message>
     <message>
         <location filename="../panel/project/project.cpp" line="178"/>
@@ -3560,17 +3562,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="63"/>
         <source>OpenColorIO Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OpenColorIO 配置:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="66"/>
         <source>(default)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(默认)</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="71"/>
         <source>Default Input Color Space:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">默认的输入颜色空间:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="78"/>
@@ -3580,12 +3582,13 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="87"/>
         <source>Color Management</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>色彩管理</translatorcomment>
+        <translation type="unfinished">颜色管理</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="100"/>
         <source>Use Default Location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">使用默认位置</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="101"/>
@@ -3595,12 +3598,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="102"/>
         <source>Use Custom Location:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">使用默认位置:</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="126"/>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存设置</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="132"/>
@@ -3611,27 +3614,27 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="139"/>
         <source>Disk Cache</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">磁盘缓存</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="155"/>
         <source>OpenColorIO Config Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OpenColorIO 配置错误</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="156"/>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法设置 OpenColorIO 配置: %1</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="175"/>
         <source>Invalid path</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无效的路径</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="176"/>
         <source>The cache path is invalid. Please check it and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">缓存路径无效. 请检查后重试.</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="206"/>
@@ -3644,22 +3647,22 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/save/save.cpp" line="35"/>
         <source>Saving &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在保存 &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="72"/>
         <source>Failed to write XML data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法写入 XML 数据</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="80"/>
         <source>Failed to overwrite &quot;%1&quot;. Project has been saved as &quot;%2&quot; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法覆盖 &quot;%1&quot;. 项目已保存为 &quot;%2&quot;.</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="85"/>
         <source>Failed to open temporary file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法打开临时文件 &quot;%1&quot; 进行写入.</translation>
     </message>
 </context>
 <context>
@@ -3667,7 +3670,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="116"/>
         <source>New...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">新建...</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="117"/>
@@ -3697,17 +3700,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="124"/>
         <source>Switch to Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切换到树视图</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="125"/>
         <source>Switch to List View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切换到列表视图</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="126"/>
         <source>Switch to Icon View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切换到图标视图</translation>
     </message>
 </context>
 <context>
@@ -3730,7 +3733,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../project/projectviewmodel.cpp" line="335"/>
         <source>Move Items</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">移动项</translation>
     </message>
 </context>
 <context>
@@ -3743,6 +3746,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/rendercancel/rendercancel.cpp" line="26"/>
         <source>Renderer</source>
+        <translatorcomment>渲染器</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3766,7 +3770,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="43"/>
         <source>Italic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">斜体</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="45"/>
@@ -3776,7 +3780,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="45"/>
         <source>Underline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">下划线</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="47"/>
@@ -3786,17 +3790,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="47"/>
         <source>Strikethrough</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除线</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="50"/>
         <source>Font Family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">字体系列</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="55"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">字体大小</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="60"/>
@@ -3806,7 +3810,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="60"/>
         <source>Left Align</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">左对齐</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="62"/>
@@ -3816,7 +3820,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="62"/>
         <source>Center Align</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">居中对齐</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="64"/>
@@ -3826,7 +3830,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="64"/>
         <source>Right Align</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">右对齐</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="66"/>
@@ -3836,7 +3840,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="66"/>
         <source>Justify Align</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">两端对齐</translation>
     </message>
 </context>
 <context>
@@ -3844,7 +3848,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/saveotio/saveotio.cpp" line="37"/>
         <source>Exporting project to OpenTimelineIO</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在导出项目到 OpenTimelineIO</translation>
     </message>
     <message>
         <location filename="../task/project/saveotio/saveotio.cpp" line="45"/>
@@ -3862,17 +3866,17 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/scope/scope.cpp" line="77"/>
         <source>Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">波形</translation>
     </message>
     <message>
         <location filename="../panel/scope/scope.cpp" line="79"/>
         <source>Histogram</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">直方图</translation>
     </message>
     <message>
         <location filename="../panel/scope/scope.cpp" line="101"/>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">范围</translation>
     </message>
 </context>
 <context>
@@ -3895,12 +3899,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="101"/>
         <source>Error editing Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">编辑序列时出错</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="101"/>
         <source>Please enter a name for this Sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">请输入此序列名称.</translation>
     </message>
 </context>
 <context>
@@ -3953,7 +3957,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="69"/>
         <source>Preview</source>
-        <translation>预览</translation>
+        <translation type="unfinished">预览</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="71"/>
@@ -3968,7 +3972,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="98"/>
         <source>Save Preset</source>
-        <translation>保存预设</translation>
+        <translation type="unfinished">保存预设</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="142"/>
@@ -3991,7 +3995,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="66"/>
         <source>4K UHD</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">4K UHD</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="67"/>
@@ -4006,12 +4010,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="70"/>
         <source>NTSC</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">NTSC</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="73"/>
         <source>PAL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">PAL</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="104"/>
@@ -4059,7 +4063,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/sequenceviewer/sequenceviewer.cpp" line="36"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">序列查看器</translation>
     </message>
 </context>
 <context>
@@ -4106,6 +4110,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/filter/stroke/stroke.cpp" line="58"/>
         <source>Stroke</source>
+        <translatorcomment>笔划</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4165,7 +4170,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/taskmanager/taskmanager.cpp" line="48"/>
         <source>Task Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">任务管理器</translation>
     </message>
 </context>
 <context>
@@ -4173,7 +4178,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/taskview/taskviewitem.cpp" line="86"/>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">错误: %1</translation>
     </message>
 </context>
 <context>
@@ -4202,7 +4207,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="89"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">字体大小</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="90"/>
@@ -4212,7 +4217,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="91"/>
         <source>Vertical Align</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">垂直对齐</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
@@ -4222,7 +4227,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">居中</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="92"/>
@@ -4248,7 +4253,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/timebased/timebased.cpp" line="455"/>
         <source>Marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">标记名称:</translation>
     </message>
 </context>
 <context>
@@ -4256,7 +4261,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/input/time/timeinput.cpp" line="36"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">时间</translation>
     </message>
     <message>
         <location filename="../node/input/time/timeinput.cpp" line="51"/>
@@ -4269,7 +4274,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/timeline/timeline.cpp" line="182"/>
         <source>Timeline</source>
-        <translation type="unfinished">时间轴</translation>
+        <translation type="unfinished">时间线</translation>
     </message>
 </context>
 <context>
@@ -4283,7 +4288,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/timelinewidget/timelinewidget.cpp" line="1071"/>
         <source>Use Audio Time Units</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">使用音频时间单位</translation>
     </message>
 </context>
 <context>
@@ -4291,7 +4296,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/tool/tool.cpp" line="52"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">工具</translation>
     </message>
 </context>
 <context>
@@ -4367,7 +4372,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/track/track.cpp" line="80"/>
         <source>Track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">轨道</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="95"/>
@@ -4382,27 +4387,27 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/track/track.cpp" line="131"/>
         <source>Muted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">已静音</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="398"/>
         <source>Video %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">视频 %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="399"/>
         <source>Audio %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">音频 %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="400"/>
         <source>Subtitle %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">字幕 %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="406"/>
         <source>Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">轨道 %1</translation>
     </message>
 </context>
 <context>
@@ -4433,7 +4438,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="70"/>
         <source>Curve</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">曲线</translation>
     </message>
     <message>
         <location filename="../node/block/transition/transition.cpp" line="73"/>
@@ -4456,12 +4461,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="43"/>
         <source>Trigonometry</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">三角函数</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="58"/>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">对一个值进行三角函数运算.</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="63"/>
@@ -4600,7 +4605,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="171"/>
         <source>Image sequence end index must be a value higher than the start index.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">图像序列结束索引必须是比起始索引大的值.</translation>
     </message>
 </context>
 <context>
@@ -4608,7 +4613,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="77"/>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">查看器</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="92"/>
@@ -4646,7 +4651,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../panel/viewer/viewer.cpp" line="41"/>
         <source>Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">查看器</translation>
     </message>
 </context>
 <context>
@@ -4695,7 +4700,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="856"/>
         <source>Deinterlace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">取消隔行扫描</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="867"/>
@@ -4715,7 +4720,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="893"/>
         <source>Pause Auto-Cache During Playback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">在回放过程中暂停自动缓存</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="903"/>
