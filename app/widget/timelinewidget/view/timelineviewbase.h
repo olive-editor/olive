@@ -60,8 +60,6 @@ signals:
 
   void ScaleChanged(double scale);
 
-  void RequestCenterScrollOnPlayhead();
-
 protected:
   virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
@@ -123,14 +121,6 @@ private slots:
    * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
    */
   void UpdateSceneRect();
-
-  /**
-   * @brief Slot to handle page scrolling of the playhead
-   *
-   * If the playhead is outside the current scroll bounds, this function will scroll to where it is. Otherwise it will
-   * do nothing.
-   */
-  void PageScrollToPlayhead();
 
 };
 
