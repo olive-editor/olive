@@ -241,7 +241,7 @@
     <message>
         <location filename="../project/item/footage/videostream.cpp" line="50"/>
         <source>%1: Video - %2x%3</source>
-        <translation type="unfinished">%1: 视频o - %2x%3</translation>
+        <translation type="unfinished">%1: 视频 - %2x%3</translation>
     </message>
 </context>
 <context>
@@ -663,7 +663,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="332"/>
         <source>Failed to find active Project panel</source>
-        <translation type="unfinished">无法打开活动项目面板</translation>
+        <translation type="unfinished">找不到活动项目面板</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="358"/>
@@ -684,7 +684,7 @@ Length: %4</source>
         <location filename="../core.cpp" line="384"/>
         <location filename="../core.cpp" line="413"/>
         <source>Failed to find active project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">找不到活动项目</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="395"/>
@@ -1021,7 +1021,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="45"/>
         <source>Maximum Disk Cache:</source>
-        <translation type="unfinished">指定磁盘缓存:</translation>
+        <translation type="unfinished">最大磁盘缓存:</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="48"/>
@@ -1038,7 +1038,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="61"/>
         <source>Automatically clear disk cache on close</source>
-        <translation type="unfinished">在启动时自动清除磁盘缓存</translation>
+        <translation type="unfinished">关闭时自动清除磁盘缓存</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="91"/>
@@ -1232,7 +1232,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="78"/>
         <source>Preset:</source>
-        <translation type="unfinished">预置:</translation>
+        <translation type="unfinished">预设:</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="82"/>
@@ -1293,7 +1293,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <location filename="../dialog/export/export.cpp" line="157"/>
         <location filename="../dialog/export/export.cpp" line="318"/>
         <source>Export</source>
-        <translation type="unfinished">汇出</translation>
+        <translation type="unfinished">导出</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="167"/>
@@ -1457,7 +1457,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="91"/>
         <source>Crop</source>
-        <translation type="unfinished">剪切</translation>
+        <translation type="unfinished">裁剪</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="99"/>
@@ -1769,7 +1769,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="301"/>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished">保存项目为(&amp;A)</translation>
+        <translation type="unfinished">另存项目为(&amp;A)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="302"/>
@@ -1844,7 +1844,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="615"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished">退出(&amp;I)</translation>
+        <translation type="unfinished">退出(&amp;X)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="618"/>
@@ -2064,12 +2064,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="676"/>
         <source>Edit Tool</source>
-        <translation type="unfinished">选择部分</translation>
+        <translation type="unfinished">编辑工具</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="677"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished">涟漪的工具</translation>
+        <translation type="unfinished">波纹工具</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="678"/>
@@ -2356,7 +2356,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="285"/>
         <source>Paste Insert</source>
-        <translation type="unfinished">插入式粘贴</translation>
+        <translation type="unfinished">粘贴插入</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="286"/>
@@ -2371,7 +2371,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="288"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished">抽出片段并删除</translation>
+        <translation type="unfinished">波纹删除</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="289"/>
@@ -3316,7 +3316,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="55"/>
         <source>Export</source>
-        <translation type="unfinished">汇出</translation>
+        <translation type="unfinished">导出</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="61"/>
@@ -3357,22 +3357,22 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="221"/>
         <source>Export Keyboard Shortcuts</source>
-        <translation type="unfinished">汇出键盘快捷键配置</translation>
+        <translation type="unfinished">导出键盘快捷键</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
         <source>Export Shortcuts</source>
-        <translation type="unfinished">汇出快捷键</translation>
+        <translation type="unfinished">导出快捷键</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="235"/>
         <source>Shortcuts exported successfully</source>
-        <translation type="unfinished">快捷键成功汇出</translation>
+        <translation type="unfinished">快捷键导出成功</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="237"/>
         <source>Failed to open file for writing</source>
-        <translation type="unfinished">无法写入文件</translation>
+        <translation type="unfinished">无法打开文件进行写入</translation>
     </message>
 </context>
 <context>
