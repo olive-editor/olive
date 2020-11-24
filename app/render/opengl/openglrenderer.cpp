@@ -145,7 +145,7 @@ void OpenGLRenderer::DestroyInternal()
 
     // Destroy surface if we created it
     if (surface_.isValid()) {
-      surface_.destroy();
+      QMetaObject::invokeMethod(surface_.thread(), "destroy", Qt::AutoConnection);
     }
   }
 }
