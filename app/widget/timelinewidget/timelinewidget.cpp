@@ -299,7 +299,7 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
-  QList<TimelineViewBlockItem*>& selected = *static_cast<QList<TimelineViewBlockItem*>*>(userdata);
+  QVector<TimelineViewBlockItem*>& selected = *static_cast<QVector<TimelineViewBlockItem*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
 
   foreach (TimelineViewBlockItem* item, selected) {
@@ -329,7 +329,7 @@ void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void
 
 void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData& xml_node_data, void *userdata)
 {
-  QList<BlockPasteData>& paste_data = *static_cast<QList<BlockPasteData>*>(userdata);
+  QVector<BlockPasteData>& paste_data = *static_cast<QVector<BlockPasteData>*>(userdata);
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("block")) {
