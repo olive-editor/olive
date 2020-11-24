@@ -151,6 +151,10 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
     return;
   }
 
+  if (from_index > data_.size()) {
+    return;
+  }
+
   if (from_index > to_index) {
     // Shifting backwards <-
     int copy_sz = data_.size() - from_index;
