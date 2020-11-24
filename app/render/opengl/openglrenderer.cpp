@@ -82,6 +82,7 @@ OpenGLRenderer::OpenGLRenderer(QObject* parent) :
 OpenGLRenderer::~OpenGLRenderer()
 {
   Destroy();
+  PostDestroy();
 }
 
 void OpenGLRenderer::Init(QOpenGLContext *existing_ctx)
@@ -114,6 +115,14 @@ bool OpenGLRenderer::Init()
   return true;
 }
 
+void OpenGLRenderer::PostDestroy()
+{
+  // Destroy surface if we created it
+  if (surface_.isValid()) {
+    surface_.destroy();
+  }
+}
+
 void OpenGLRenderer::PostInit()
 {
   // Make context current on that surface
@@ -142,11 +151,6 @@ void OpenGLRenderer::DestroyInternal()
       delete context_;
     }
     context_ = nullptr;
-
-    // Destroy surface if we created it
-    if (surface_.isValid()) {
-      surface_.destroy();
-    }
   }
 }
 

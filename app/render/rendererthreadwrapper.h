@@ -35,10 +35,13 @@ public:
   virtual ~RendererThreadWrapper() override
   {
     Destroy();
+    PostDestroy();
     delete inner_;
   }
 
   virtual bool Init() override;
+
+  virtual void PostDestroy() override {}
 
 public slots:
   virtual void PostInit() override;

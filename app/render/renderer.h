@@ -67,6 +67,8 @@ public:
 
   void Destroy();
 
+  virtual void PostDestroy() = 0;
+
 public slots:
   virtual void PostInit() = 0;
 

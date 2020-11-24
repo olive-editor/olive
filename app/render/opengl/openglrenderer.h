@@ -44,6 +44,8 @@ public:
 
   virtual bool Init() override;
 
+  virtual void PostDestroy() override;
+
 public slots:
   virtual void PostInit() override;
 
