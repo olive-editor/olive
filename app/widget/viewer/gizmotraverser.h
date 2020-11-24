@@ -34,14 +34,16 @@ public:
   }
 
 protected:
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
-  virtual QVector2D GenerateResolution() const
+  virtual QVector2D GenerateResolution() const override
   {
     return size_;
   }
+
+  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
   // FIXME: Do something about audio?
 
