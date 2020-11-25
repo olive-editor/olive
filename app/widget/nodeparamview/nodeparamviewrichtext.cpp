@@ -35,6 +35,7 @@ NodeParamViewRichText::NodeParamViewRichText(QWidget *parent) :
   layout->setMargin(0);
 
   line_edit_ = new QTextEdit();
+  line_edit_->setUndoRedoEnabled(true);
   connect(line_edit_, &QTextEdit::textChanged, this, &NodeParamViewRichText::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
