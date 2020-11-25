@@ -118,7 +118,8 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    if (Config::Current()["InvertTimelineScrollAxes"].toBool() // Check if config is set to invert timeline axes
+        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
 
