@@ -22,6 +22,7 @@
 #define COLORSERVICE_H
 
 #include <memory>
+#include <QMutex>
 
 #include "codec/frame.h"
 #include "colorprocessor.h"
@@ -79,6 +80,11 @@ public:
   void GetDefaultLumaCoefs(double *rgb) const;
   Color GetDefaultLumaCoefs() const;
 
+  QMutex* lock()
+  {
+    return &lock_;
+  }
+
   class SetLocale
   {
   public:
@@ -110,6 +116,8 @@ private:
   QString reference_space_;
 
   static OCIO::ConstConfigRcPtr default_config_;
+
+  QMutex lock_;
 
 };
 

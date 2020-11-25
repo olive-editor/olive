@@ -20,16 +20,19 @@
 
 #include "colorprocessor.h"
 
+#include <QMutexLocker>
+
 #include "common/define.h"
 #include "common/ocioutils.h"
 #include "colormanager.h"
 
 namespace olive {
 
-ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
+ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform) :
+  config_(config)
 {
+  QMutexLocker locker(config_->lock());
   const QString& output = (transform.output().isEmpty()) ? config->GetDefaultDisplay() : transform.output();
-
   if (transform.is_display()) {
 
     const QString& view = (transform.view().isEmpty()) ? config->GetDefaultView(output) : transform.view();
@@ -69,7 +72,6 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
     OCIO_SET_C_LOCALE_FOR_SCOPE;
     processor_ = config->GetConfig()->getProcessor(input.toUtf8(),
                                                    output.toUtf8());
-
   }
 
   cpu_processor_ = processor_->getDefaultCPUProcessor();

@@ -61,12 +61,19 @@ public:
 
   static QString GenerateID(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
+  ColorManager* GetConfig()
+  {
+    return config_;
+  }
+
 private:
   OCIO::ConstProcessorRcPtr processor_;
 
   OCIO::ConstCPUProcessorRcPtr cpu_processor_;
 
   QString id_;
+
+  ColorManager* config_;
 
 };
 

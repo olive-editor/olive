@@ -23,6 +23,7 @@
 #include <QFloat16>
 
 #include "common/ocioutils.h"
+#include "render/colormanager.h"
 
 namespace olive {
 
@@ -89,7 +90,9 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     shader_desc->setResourcePrefix("ocio_");
 
     // Generate shader
+    color_processor->GetConfig()->lock()->lock();
     color_processor->GetProcessor()->getDefaultGPUProcessor()->extractGpuShaderInfo(shader_desc);
+    color_processor->GetConfig()->lock()->unlock();
 
     QString shader_frag;
     shader_frag.append(QStringLiteral("// Main texture input\n"
