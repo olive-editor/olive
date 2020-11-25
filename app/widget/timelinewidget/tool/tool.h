@@ -53,6 +53,8 @@ public:
 
   static Timeline::MovementMode FlipTrimMode(const Timeline::MovementMode& trim_mode);
 
+  static rational SnapMovementToTimebase(const rational& start, rational movement, const rational& timebase);
+
 protected:
   /**
    * @brief Validates Ghosts that are moving horizontally (time-based)

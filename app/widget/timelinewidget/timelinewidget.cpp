@@ -353,14 +353,6 @@ void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, X
   }
 }
 
-rational TimelineWidget::GetToolTipTimebase() const
-{
-  if (GetConnectedNode() && use_audio_time_units_) {
-    return GetConnectedNode()->audio_params().time_base();
-  }
-  return timebase();
-}
-
 void TimelineWidget::SelectAll()
 {
   QVector<Block*> newly_selected_blocks;
@@ -1209,6 +1201,11 @@ void TimelineWidget::QueueScroll(int value)
 TimelineView *TimelineWidget::GetFirstTimelineView()
 {
   return views_.first()->view();
+}
+
+rational TimelineWidget::GetTimebaseForTrackType(Timeline::TrackType type)
+{
+  return views_.at(type)->view()->timebase();
 }
 
 const QRect& TimelineWidget::GetRubberBandGeometry() const

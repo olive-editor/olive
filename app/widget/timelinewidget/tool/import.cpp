@@ -149,9 +149,10 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
       }
 
       // Generate tooltip (showing earliest in point of imported clip)
-      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, parent()->GetToolTipTimebase());
+      rational tooltip_timebase = parent()->GetTimebaseForTrackType(event->GetTrack().type());
+      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, tooltip_timebase);
       QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                             parent()->GetToolTipTimebase(),
+                                                             tooltip_timebase,
                                                              Core::instance()->GetTimecodeDisplay());
 
       // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
@@ -269,6 +270,12 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
     if (contains_image_stream && footage_duration.isNull()) {
       // Footage must ONLY be image streams so no duration value was found, use default in config
       footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
+    }
+
+    // Snap footage duration to timebase
+    rational snap_mvmt = SnapMovementToTimebase(footage_duration, 0, dest_tb);
+    if (!snap_mvmt.isNull()) {
+      footage_duration += snap_mvmt;
     }
 
     foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
