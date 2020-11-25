@@ -35,6 +35,7 @@
 #include "tool/edit.h"
 #include "tool/pointer.h"
 #include "tool/razor.h"
+#include "tool/record.h"
 #include "tool/ripple.h"
 #include "tool/rolling.h"
 #include "tool/slide.h"
@@ -96,7 +97,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(olive::Tool::kSlide, new SlideTool(this));
   tools_.replace(olive::Tool::kZoom, new ZoomTool(this));
   tools_.replace(olive::Tool::kTransition, new TransitionTool(this));
-  //tools_.replace(olive::Tool::kRecord, new PointerTool(this));  FIXME: Implement
+  tools_.replace(olive::Tool::kRecord, new RecordTool(this));
   tools_.replace(olive::Tool::kAdd, new AddTool(this));
 
   import_tool_ = new ImportTool(this);
