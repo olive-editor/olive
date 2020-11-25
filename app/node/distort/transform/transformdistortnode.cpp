@@ -83,6 +83,10 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
       job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(real_matrix, NodeParam::kMatrix));
       job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[interpolation_input_].Get(NodeParam::kCombo).toInt()));
 
+      // FIXME: This should be optimized, we can use matrix math to determine if this operation will
+      //        end up with gaps in the screen that will require an alpha channel.
+      job.SetAlphaChannelRequired(true);
+
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
     }
   }

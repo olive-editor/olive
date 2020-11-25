@@ -23,6 +23,7 @@
 #include <QInputDialog>
 #include <QUndoCommand>
 
+#include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
@@ -155,6 +156,22 @@ void TimeBasedWidget::ScrollBarResized(const double &multiplier)
   SetScale(GetScale() * corrected_scale);
 }
 
+void TimeBasedWidget::PageScrollToPlayhead()
+{
+  int playhead_pos = qRound(TimeToScene(GetTime()));
+
+  int viewport_width = ruler()->width();
+  int viewport_padding = viewport_width / 16;
+
+  if (playhead_pos < scrollbar()->value()) {
+    // Anchor the playhead to the RIGHT of where we scroll to
+    scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
+  } else if (playhead_pos > scrollbar()->value() + viewport_width) {
+    // Anchor the playhead to the LEFT of where we scroll to
+    scrollbar()->setValue(playhead_pos - viewport_padding);
+  }
+}
+
 TimeRuler *TimeBasedWidget::ruler() const
 {
   return ruler_;
@@ -223,6 +240,18 @@ void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
   ruler_->SetTime(timestamp);
+
+  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+  case AutoScroll::kNone:
+    // Do nothing
+    break;
+  case AutoScroll::kPage:
+    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
+    break;
+  case AutoScroll::kSmooth:
+    QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
+    break;
+  }
 
   TimeChangedEvent(timestamp);
 }

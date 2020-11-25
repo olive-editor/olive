@@ -74,17 +74,6 @@ void TimelineViewGhostItem::SetCanMoveTracks(bool e)
   can_move_tracks_ = e;
 }
 
-/*void TimelineViewGhostItem::SetInvisible(bool invisible)
-{
-  setBrush(Qt::NoBrush);
-
-  if (invisible) {
-    setPen(Qt::NoPen);
-  } else {
-    setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
-  }
-}*/
-
 const rational &TimelineViewGhostItem::GetIn() const
 {
   return in_;

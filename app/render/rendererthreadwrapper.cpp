@@ -58,12 +58,14 @@ void RendererThreadWrapper::DestroyInternal()
 {
   if (thread_) {
     QMetaObject::invokeMethod(inner_, "DestroyInternal", Qt::BlockingQueuedConnection);
-    inner_ = nullptr;
 
     thread_->quit();
     thread_->wait();
     delete thread_;
     thread_ = nullptr;
+
+    // Destroy in main thread
+    inner_->PostDestroy();
   }
 }
 

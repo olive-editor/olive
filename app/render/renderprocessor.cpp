@@ -270,11 +270,12 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
-  // Calculate footage divider that still fits in the divider chosen
-  int footage_divider = 1;
-  while (VideoParams::GetScaledDimension(video_stream->width(), footage_divider) > video_params.effective_width()
-         || VideoParams::GetScaledDimension(video_stream->height(), footage_divider) > video_params.effective_height()) {
-    footage_divider++;
+  // See if we can make this divider larger (i.e. if the fooage is smaller)
+  int footage_divider = video_params.divider();
+  while (footage_divider > 1
+         && VideoParams::GetScaledDimension(video_stream->width(), footage_divider-1) < video_params.effective_width()
+         && VideoParams::GetScaledDimension(video_stream->height(), footage_divider-1) < video_params.effective_height()) {
+    footage_divider--;
   }
 
   StillImageCache::EntryPtr want_entry = std::make_shared<StillImageCache::Entry>(

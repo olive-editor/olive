@@ -208,6 +208,7 @@ void ManagedDisplayWidget::MenuColorspaceSelect(QAction *action)
 void ManagedDisplayWidget::OnDestroy()
 {
   attached_renderer_->Destroy();
+  attached_renderer_->PostDestroy();
 }
 
 void ManagedDisplayWidget::SetColorTransform(const ColorTransform &transform)

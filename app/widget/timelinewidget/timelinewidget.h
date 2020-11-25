@@ -154,8 +154,6 @@ public:
     return !ghost_items_.isEmpty();
   }
 
-  rational GetToolTipTimebase() const;
-
   bool IsBlockSelected(Block* b) const
   {
     return selected_blocks_.contains(b);
@@ -166,6 +164,8 @@ public:
   void QueueScroll(int value);
 
   TimelineView* GetFirstTimelineView();
+
+  rational GetTimebaseForTrackType(Timeline::TrackType type);
 
   const QRect &GetRubberBandGeometry() const;
 

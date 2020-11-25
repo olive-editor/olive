@@ -18,40 +18,19 @@
 
 ***/
 
-#ifndef GIZMOTRAVERSER_H
-#define GIZMOTRAVERSER_H
+#ifndef RECORDTIMELINETOOL_H
+#define RECORDTIMELINETOOL_H
 
-#include "node/traverser.h"
+#include "beam.h"
 
 namespace olive {
 
-class GizmoTraverser : public NodeTraverser
+class RecordTool : public BeamTool
 {
 public:
-  GizmoTraverser(const QVector2D& sequence_resolution) :
-    size_(sequence_resolution)
-  {
-  }
-
-protected:
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
-
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
-
-  virtual QVector2D GenerateResolution() const override
-  {
-    return size_;
-  }
-
-  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
-
-  // FIXME: Do something about audio?
-
-private:
-  QVector2D size_;
-
+  RecordTool(TimelineWidget* parent);
 };
 
 }
 
-#endif // GIZMOTRAVERSER_H
+#endif // RECORDTOOL_H

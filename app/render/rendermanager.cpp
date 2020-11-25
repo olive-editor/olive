@@ -75,6 +75,7 @@ RenderManager::~RenderManager()
     delete still_cache_;
 
     context_->Destroy();
+    context_->PostDestroy();
     delete context_;
   }
 }

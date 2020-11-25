@@ -25,7 +25,6 @@
 #include <QScrollBar>
 #include <QTimer>
 
-#include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
@@ -114,18 +113,6 @@ void TimelineViewBase::SetYScale(const double &y_scale)
 void TimelineViewBase::SetTime(const int64_t time)
 {
   playhead_ = time;
-
-  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
-  case AutoScroll::kNone:
-    // Do nothing
-    break;
-  case AutoScroll::kPage:
-    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
-    break;
-  case AutoScroll::kSmooth:
-    emit RequestCenterScrollOnPlayhead();
-    break;
-  }
 
   // Force redraw for playhead
   viewport()->update();
@@ -254,21 +241,6 @@ void TimelineViewBase::UpdateSceneRect()
   // If the scene is already this rect, do nothing
   if (scene_.sceneRect() != bounding_rect) {
     scene_.setSceneRect(bounding_rect);
-  }
-}
-
-void TimelineViewBase::PageScrollToPlayhead()
-{
-  int playhead_pos = qRound(GetPlayheadX());
-
-  int viewport_padding = viewport()->width() / 16;
-
-  if (playhead_pos < horizontalScrollBar()->value()) {
-    // Anchor the playhead to the RIGHT of where we scroll to
-    horizontalScrollBar()->setValue(playhead_pos - viewport()->width() + viewport_padding);
-  } else if (playhead_pos > horizontalScrollBar()->value() + viewport()->width()) {
-    // Anchor the playhead to the LEFT of where we scroll to
-    horizontalScrollBar()->setValue(playhead_pos - viewport_padding);
   }
 }
 

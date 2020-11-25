@@ -38,7 +38,14 @@ QVariant GizmoTraverser::ProcessShader(const Node *node, const TimeRange &range,
   Q_UNUSED(range)
   Q_UNUSED(job)
 
-  return size_;
+  return GenerateResolution();
 }
 
+QVariant GizmoTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(job)
+
+  return GenerateResolution();
+}
 }

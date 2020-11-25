@@ -115,13 +115,14 @@ void TimelineView::wheelEvent(QWheelEvent *event)
     return;
   } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-    
+
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    if (Config::Current()["InvertTimelineScrollAxes"].toBool() // Check if config is set to invert timeline axes
+        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
-    
+
     QWheelEvent e(
       #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
           event->position(),
@@ -255,7 +256,8 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
     painter->setBrush(Qt::NoBrush);
 
     foreach (TimelineViewGhostItem* ghost, (*ghosts_)) {
-      if (ghost->GetTrack().type() == connected_track_list_->type()) {
+      if (ghost->GetTrack().type() == connected_track_list_->type()
+          && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
 
         painter->drawRect(TimeToScene(ghost->GetAdjustedIn()),

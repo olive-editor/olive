@@ -35,6 +35,7 @@
 #include "tool/edit.h"
 #include "tool/pointer.h"
 #include "tool/razor.h"
+#include "tool/record.h"
 #include "tool/ripple.h"
 #include "tool/rolling.h"
 #include "tool/slide.h"
@@ -96,7 +97,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(olive::Tool::kSlide, new SlideTool(this));
   tools_.replace(olive::Tool::kZoom, new ZoomTool(this));
   tools_.replace(olive::Tool::kTransition, new TransitionTool(this));
-  //tools_.replace(olive::Tool::kRecord, new PointerTool(this));  FIXME: Implement
+  tools_.replace(olive::Tool::kRecord, new RecordTool(this));
   tools_.replace(olive::Tool::kAdd, new AddTool(this));
 
   import_tool_ = new ImportTool(this);
@@ -131,7 +132,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
     connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
-    connect(view, &TimelineView::RequestCenterScrollOnPlayhead, this, &TimelineWidget::CenterScrollOnPlayhead);
 
     connect(view, &TimelineView::MousePressed, this, &TimelineWidget::ViewMousePressed);
     connect(view, &TimelineView::MouseMoved, this, &TimelineWidget::ViewMouseMoved);
@@ -299,7 +299,7 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
-  QList<TimelineViewBlockItem*>& selected = *static_cast<QList<TimelineViewBlockItem*>*>(userdata);
+  QVector<TimelineViewBlockItem*>& selected = *static_cast<QVector<TimelineViewBlockItem*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
 
   foreach (TimelineViewBlockItem* item, selected) {
@@ -329,7 +329,7 @@ void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void
 
 void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData& xml_node_data, void *userdata)
 {
-  QList<BlockPasteData>& paste_data = *static_cast<QList<BlockPasteData>*>(userdata);
+  QVector<BlockPasteData>& paste_data = *static_cast<QVector<BlockPasteData>*>(userdata);
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("block")) {
@@ -352,14 +352,6 @@ void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, X
       reader->skipCurrentElement();
     }
   }
-}
-
-rational TimelineWidget::GetToolTipTimebase() const
-{
-  if (GetConnectedNode() && use_audio_time_units_) {
-    return GetConnectedNode()->audio_params().time_base();
-  }
-  return timebase();
 }
 
 void TimelineWidget::SelectAll()
@@ -1210,6 +1202,11 @@ void TimelineWidget::QueueScroll(int value)
 TimelineView *TimelineWidget::GetFirstTimelineView()
 {
   return views_.first()->view();
+}
+
+rational TimelineWidget::GetTimebaseForTrackType(Timeline::TrackType type)
+{
+  return views_.at(type)->view()->timebase();
 }
 
 const QRect& TimelineWidget::GetRubberBandGeometry() const

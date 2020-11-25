@@ -165,6 +165,7 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
   in_(in),
   out_(out),
   splice_(false),
+  splice_split_command_(nullptr),
   trim_out_(nullptr),
   trim_in_(nullptr),
   insert_(nullptr)
@@ -305,7 +306,6 @@ void TrackRippleRemoveAreaCommand::undo_internal()
     trim_out_->set_length_and_media_out(trim_out_old_length_);
 
     splice_split_command_->undo();
-    delete splice_split_command_;
 
   } else {
 
@@ -344,6 +344,11 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   track_->Node::InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
                                 track_->block_input(), track_->block_input());
+
+  if (splice_split_command_) {
+    delete splice_split_command_;
+    splice_split_command_ = nullptr;
+  }
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :

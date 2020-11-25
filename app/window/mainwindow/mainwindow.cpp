@@ -274,9 +274,14 @@ void MainWindow::ToggleMaximizedPanel()
     // Find the currently focused panel
     PanelWidget* currently_hovered = PanelManager::instance()->CurrentlyHovered();
 
-    // If no panel is hovered, do nothing
-    if (currently_hovered == nullptr) {
-      return;
+    // If no panel is hovered, fallback to the currently active panel
+    if (!currently_hovered) {
+      currently_hovered = PanelManager::instance()->CurrentlyFocused();
+
+      // If no panel is hovered or focused, do nothing
+      if (!currently_hovered) {
+        return;
+      }
     }
 
     // If this panel is not actually on the main window, this is a no-op

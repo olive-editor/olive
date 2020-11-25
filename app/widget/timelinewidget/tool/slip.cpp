@@ -54,10 +54,11 @@ void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
   // Generate tooltip and force it to to update (otherwise the tooltip won't move as written in the
   // documentation, and could get in the way of the cursor)
+  rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, parent()->GetToolTipTimebase()),
-                                                                              parent()->GetToolTipTimebase(),
+                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
+                                                                              tooltip_timebase,
                                                                               Core::instance()->GetTimecodeDisplay(),
                                                                               true),
                      parent());

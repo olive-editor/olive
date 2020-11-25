@@ -28,6 +28,8 @@ set(OLIVE_SOURCES
   widget/timelinewidget/tool/pointer.h
   widget/timelinewidget/tool/razor.cpp
   widget/timelinewidget/tool/razor.h
+  widget/timelinewidget/tool/record.cpp
+  widget/timelinewidget/tool/record.h
   widget/timelinewidget/tool/ripple.cpp
   widget/timelinewidget/tool/ripple.h
   widget/timelinewidget/tool/rolling.cpp

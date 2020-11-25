@@ -85,7 +85,6 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_view_ = new KeyframeView();
   keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ConnectTimelineView(keyframe_view_);
-  connect(keyframe_view_, &KeyframeView::RequestCenterScrollOnPlayhead, this, &NodeParamView::CenterScrollOnPlayhead);
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
