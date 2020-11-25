@@ -36,7 +36,7 @@
     <message>
         <location filename="../render/audioparams.cpp" line="194"/>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished">未知(0x%1)</translation>
+        <translation type="unfinished">未知 (0x%1)</translation>
     </message>
 </context>
 <context>
@@ -130,12 +130,12 @@
     <message>
         <location filename="../widget/nodecopypaste/nodecopypaste.cpp" line="115"/>
         <source>Error pasting nodes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">粘贴节点时出错</translation>
     </message>
     <message>
         <location filename="../widget/nodecopypaste/nodecopypaste.cpp" line="116"/>
         <source>Failed to paste nodes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法粘贴节点: %1</translation>
     </message>
 </context>
 <context>
@@ -192,12 +192,12 @@
     <message>
         <location filename="../common/ratiodialog.cpp" line="39"/>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入自定义比率 (例如 &quot;4:3&quot;, &quot;16/9&quot;,等):</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="84"/>
         <source>Invalid custom ratio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无效的自定义比率</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="85"/>
@@ -1749,7 +1749,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="296"/>
         <source>Save &apos;%1&apos; &amp;As</source>
-        <translation type="unfinished">保存 &apos;%1&apos; 为(&amp;A)</translation>
+        <translation type="unfinished">另存 &apos;%1&apos; 为(&amp;A)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="297"/>
@@ -2142,12 +2142,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="41"/>
         <source>Welcome to %1 %2</source>
-        <translation type="unfinished">欢迎来到 %1 %2</translation>
+        <translation type="unfinished">欢迎使用 %1 %2</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainstatusbar.cpp" line="74"/>
         <source>Running %1 background tasks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正在运行 %1 后台任务</translation>
     </message>
 </context>
 <context>
@@ -2155,14 +2155,16 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="447"/>
         <source>Driver Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">驱动程序警告</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainwindow.cpp" line="448"/>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Olive 检测到您的系统正在使用 Nouveau 图形驱动程序.
+
+此驱动程序用于 Olive 会有稳定性和性能问题. 强烈建议您在继续使用 Olive 之前安装 NVIDIA 专有驱动程序.</translation>
     </message>
 </context>
 <context>
@@ -2170,7 +2172,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="117"/>
         <source>Color Space</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">颜色空间</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="159"/>
@@ -2195,17 +2197,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="309"/>
         <source>(None)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(无)</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="337"/>
         <source>OpenColorIO Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OpenColorIO 错误</translation>
     </message>
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="338"/>
         <source>Failed to set color configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法设置颜色配置: %1</translation>
     </message>
 </context>
 <context>
@@ -2242,32 +2244,32 @@ This driver is known to have stability and performance issues with Olive. It is 
         <location filename="../node/math/math/math.cpp" line="73"/>
         <location filename="../node/math/math/math.cpp" line="74"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">值</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="76"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation type="unfinished">加</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="77"/>
         <source>Subtract</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">减</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="78"/>
         <source>Multiply</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">乘</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="79"/>
         <source>Divide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">除</translation>
     </message>
     <message>
         <location filename="../node/math/math/math.cpp" line="81"/>
         <source>Power</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">幂</translation>
     </message>
 </context>
 <context>
@@ -2275,12 +2277,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="62"/>
         <source>Orthographic Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正交矩阵</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="67"/>
         <source>Ortho</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">正交</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="82"/>
@@ -2318,7 +2320,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/input/media/media.cpp" line="60"/>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">素材</translation>
     </message>
 </context>
 <context>
@@ -2454,12 +2456,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/merge/merge.cpp" line="41"/>
         <source>Merge</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">合并</translation>
     </message>
     <message>
         <location filename="../node/math/merge/merge.cpp" line="56"/>
         <source>Merge two textures together.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">合并两个纹理到一起.</translation>
     </message>
     <message>
         <location filename="../node/math/merge/merge.cpp" line="61"/>
@@ -2469,7 +2471,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/math/merge/merge.cpp" line="62"/>
         <source>Blend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">混合</translation>
     </message>
 </context>
 <context>
@@ -2477,17 +2479,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="765"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="767"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输出</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="769"/>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation type="unfinished">常规</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="771"/>
@@ -2517,17 +2519,17 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/node.cpp" line="781"/>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">通道</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="783"/>
         <source>Transition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">转场</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="789"/>
         <source>Uncategorized</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未分类</translation>
     </message>
 </context>
 <context>
@@ -2535,7 +2537,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/input.cpp" line="76"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入</translation>
     </message>
 </context>
 <context>
@@ -2543,7 +2545,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/output.cpp" line="41"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输出</translation>
     </message>
 </context>
 <context>
@@ -2551,7 +2553,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/node/node.h" line="107"/>
         <source>Node Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">节点编辑器</translation>
     </message>
 </context>
 <context>
@@ -2559,32 +2561,32 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="57"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">值</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="190"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="193"/>
         <source>Integer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">整数</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="195"/>
         <source>Float</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">浮点数</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="197"/>
         <source>Rational</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">有理数</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="199"/>
         <source>Boolean</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">布尔值</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="201"/>
@@ -2594,12 +2596,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="203"/>
         <source>Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">矩阵</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="205"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文字</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="207"/>
@@ -2609,12 +2611,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="209"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文件</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="211"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">纹理</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="213"/>
@@ -2624,27 +2626,27 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../node/param.cpp" line="215"/>
         <source>Footage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">素材</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="217"/>
         <source>Vector 2D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">矢量 2D</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="219"/>
         <source>Vector 3D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">矢量 3D</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="221"/>
         <source>Vector 4D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">矢量 4D</translation>
     </message>
     <message>
         <location filename="../node/param.cpp" line="235"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未知</translation>
     </message>
 </context>
 <context>
@@ -2665,7 +2667,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="41"/>
         <source>Connected to</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">已连接到</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="71"/>
@@ -2675,7 +2677,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewconnectedlabel.cpp" line="81"/>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">断开连接</translation>
     </message>
 </context>
 <context>
@@ -2699,7 +2701,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewkeyframecontrol.cpp" line="249"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">警告</translation>
     </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewkeyframecontrol.cpp" line="250"/>
@@ -2712,7 +2714,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../panel/table/table.cpp" line="35"/>
         <source>Table View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">表格视图</translation>
     </message>
 </context>
 <context>
@@ -2758,7 +2760,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/nodetreeview/nodetreeview.cpp" line="70"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">节点</translation>
     </message>
 </context>
 <context>
@@ -2962,7 +2964,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesappearancetab.cpp" line="67"/>
         <source>Node Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">节点配色方案</translation>
     </message>
 </context>
 <context>
@@ -3023,7 +3025,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="40"/>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation type="unfinished">常规</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="41"/>
@@ -3078,7 +3080,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="65"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">启用拖放文件到时间线</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
@@ -3128,12 +3130,12 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="91"/>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished">拖放文件以代替媒体</translation>
+        <translation type="unfinished">拖放文件到媒体进行替换</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="95"/>
         <source>Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">节点</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="96"/>
@@ -3166,7 +3168,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="53"/>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation type="unfinished">常规</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/preferences.cpp" line="54"/>
@@ -3442,7 +3444,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="330"/>
         <source>No sequences exist in project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">项目中不存在序列</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="334"/>
@@ -3531,7 +3533,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../task/project/load/load.cpp" line="97"/>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
-        <translation type="unfinished">无法读取文件e &quot;%1&quot;.</translation>
+        <translation type="unfinished">无法读取文件 &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -4084,12 +4086,12 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="43"/>
         <source>Solid</source>
-        <translation type="unfinished">单色</translation>
+        <translation type="unfinished">纯色</translation>
     </message>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="58"/>
         <source>Generate a solid color.</source>
-        <translation type="unfinished">生成单色.</translation>
+        <translation type="unfinished">生成纯色.</translation>
     </message>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="63"/>
@@ -4191,7 +4193,7 @@ What would you like to do with these clips?</source>
         <location filename="../node/generator/text/text.cpp" line="67"/>
         <location filename="../node/generator/text/text.cpp" line="87"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文字</translation>
     </message>
     <message>
         <location filename="../node/generator/text/text.cpp" line="82"/>
