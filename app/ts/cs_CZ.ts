@@ -1638,15 +1638,15 @@ Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</tran
     </message>
     <message>
         <source>Shuttle Left</source>
-        <translation>Jezdit tam a zpět vlevo</translation>
+        <translation>Přehrát pozpátku</translation>
     </message>
     <message>
         <source>Shuttle Stop</source>
-        <translation>Zastavit pendlování</translation>
+        <translation>Zastavit přehrávání</translation>
     </message>
     <message>
         <source>Shuttle Right</source>
-        <translation>Jezdit tam a zpět vpravo</translation>
+        <translation>Přehrát</translation>
     </message>
     <message>
         <source>Loop</source>
@@ -1663,6 +1663,10 @@ Ujistěte se, že je úryvek načten a má připojený uzel prohlížeče.</tran
     <message>
         <source>Cache Sequence In/Out</source>
         <translation>Uložit začátek/konec úryvku do vyrovnávací paměti</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Maximize Panel</source>
@@ -3048,7 +3052,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation>Rychlost</translation>
+        <translation>Snímková frekvence</translation>
     </message>
     <message>
         <source>Move Items</source>
@@ -3059,7 +3063,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::RenderCancelDialog</name>
     <message>
         <source>Waiting for workers to finish...</source>
-        <translation>Čeká se na dokončení dělníky...</translation>
+        <translation>Čeká se na dokončení vláken na pozadí...</translation>
     </message>
     <message>
         <source>Renderer</source>
@@ -3145,26 +3149,26 @@ Co byste s těmito záběry chtěli dělat?</translation>
     <name>olive::SaveOTIOTask</name>
     <message>
         <source>Exporting project to OpenTimelineIO</source>
-        <translation>Projekt se vyvádí do OpenTimelineIO</translation>
+        <translation>Projekt se exportuje do OpenTimelineIO</translation>
     </message>
     <message>
         <source>Project contains no sequences to export.</source>
-        <translation>Projekt neobsahuje žádné úryvky k vyvedení.</translation>
+        <translation>Projekt neobsahuje žádné úryvky k exportu.</translation>
     </message>
     <message>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
-        <translation>Nepodařilo se vydat na pokračování úryvek &quot;%1&quot;</translation>
+        <translation>Nepodařilo se serializovat úryvek &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>olive::ScopePanel</name>
     <message>
         <source>Waveform</source>
-        <translation>Tvar křivky</translation>
+        <translation>Křivka</translation>
     </message>
     <message>
         <source>Histogram</source>
-        <translation>Sloupcový graf</translation>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>Scope</source>
