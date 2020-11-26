@@ -74,17 +74,17 @@ void NodeInputDragger::Drag(QVariant value)
 {
   Q_ASSERT(input_);
 
-  if (!input_->get_property(QStringLiteral("min")).isNull()) {
+  if (input_->property("min").isValid()) {
     // Assumes the value is a double of some kind
-    double min = input_->get_property(QStringLiteral("min")).toDouble();
+    double min = input_->property("min").toDouble();
     double v = value.toDouble();
     if (v < min) {
       value = min;
     }
   }
 
-  if (!input_->get_property(QStringLiteral("max")).isNull()) {
-    double max = input_->get_property(QStringLiteral("max")).toDouble();
+  if (input_->property("max").isValid()) {
+    double max = input_->property("max").toDouble();
     double v = value.toDouble();
     if (v > max) {
       value = max;

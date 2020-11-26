@@ -180,10 +180,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
 
     // Check all properties
-    QHash<QString, QVariant>::const_iterator iterator;
-
-    for (iterator=input_->properties().begin();iterator!=input_->properties().end();iterator++) {
-      PropertyChanged(iterator.key(), iterator.value());
+    foreach (const QByteArray& key, input_->dynamicPropertyNames()) {
+      PropertyChanged(key, input_->property(key));
     }
 
     UpdateWidgetValues();
@@ -281,7 +279,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a IntegerSlider
     IntegerSlider* slider = static_cast<IntegerSlider*>(sender());
 
-    int64_t offset = input_->get_property(QStringLiteral("offset")).toLongLong();
+    int64_t offset = input_->property("offset").toLongLong();
 
     ProcessSlider(slider, QVariant::fromValue(slider->GetValue() - offset));
     break;
@@ -291,7 +289,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    double offset = input_->get_property(QStringLiteral("offset")).toDouble();
+    double offset = input_->property("offset").toDouble();
 
     ProcessSlider(slider, slider->GetValue() - offset);
     break;
@@ -301,7 +299,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector2D offset = input_->get_property(QStringLiteral("offset")).value<QVector2D>();
+    QVector2D offset = input_->property("offset").value<QVector2D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -311,7 +309,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector3D offset = input_->get_property(QStringLiteral("offset")).value<QVector3D>();
+    QVector3D offset = input_->property("offset").value<QVector3D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -321,7 +319,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector4D offset = input_->get_property(QStringLiteral("offset")).value<QVector4D>();
+    QVector4D offset = input_->property("offset").value<QVector4D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -342,10 +340,10 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValueInternal(c.alpha(), 3, command);
 
     input_->blockSignals(true);
-    input_->set_property(QStringLiteral("col_input"), c.color_input());
-    input_->set_property(QStringLiteral("col_display"), c.color_output().display());
-    input_->set_property(QStringLiteral("col_view"), c.color_output().view());
-    input_->set_property(QStringLiteral("col_look"), c.color_output().look());
+    input_->setProperty("col_input", c.color_input());
+    input_->setProperty("col_display", c.color_output().display());
+    input_->setProperty("col_view", c.color_output().view());
+    input_->setProperty("col_look", c.color_output().look());
     input_->blockSignals(false);
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -433,14 +431,14 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeParam::kInt:
   {
-    int64_t offset = input_->get_property(QStringLiteral("offset")).toLongLong();
+    int64_t offset = input_->property("offset").toLongLong();
 
     static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toLongLong() + offset);
     break;
   }
   case NodeParam::kFloat:
   {
-    double offset = input_->get_property(QStringLiteral("offset")).toDouble();
+    double offset = input_->property("offset").toDouble();
 
     static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toDouble() + offset);
     break;
@@ -448,7 +446,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kVec2:
   {
     QVector2D vec2 = input_->get_value_at_time(node_time).value<QVector2D>();
-    QVector2D offset = input_->get_property(QStringLiteral("offset")).value<QVector2D>();
+    QVector2D offset = input_->property("offset").value<QVector2D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y() + offset.y()));
@@ -457,7 +455,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kVec3:
   {
     QVector3D vec3 = input_->get_value_at_time(node_time).value<QVector3D>();
-    QVector3D offset = input_->get_property(QStringLiteral("offset")).value<QVector3D>();
+    QVector3D offset = input_->property("offset").value<QVector3D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y() + offset.y()));
@@ -467,7 +465,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kVec4:
   {
     QVector4D vec4 = input_->get_value_at_time(node_time).value<QVector4D>();
-    QVector4D offset = input_->get_property(QStringLiteral("offset")).value<QVector4D>();
+    QVector4D offset = input_->property("offset").value<QVector4D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y() + offset.y()));
@@ -482,11 +480,11 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   {
     ManagedColor mc = input_->get_value_at_time(node_time).value<Color>();
 
-    mc.set_color_input(input_->get_property(QStringLiteral("col_input")).toString());
+    mc.set_color_input(input_->property("col_input").toString());
 
-    QString d = input_->get_property(QStringLiteral("col_display")).toString();
-    QString v = input_->get_property(QStringLiteral("col_view")).toString();
-    QString l = input_->get_property(QStringLiteral("col_look")).toString();
+    QString d = input_->property("col_display").toString();
+    QString v = input_->property("col_view").toString();
+    QString l = input_->property("col_look").toString();
 
     mc.set_color_output(ColorTransform(d, v, l));
 

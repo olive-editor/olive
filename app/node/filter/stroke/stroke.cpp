@@ -35,13 +35,13 @@ StrokeFilterNode::StrokeFilterNode()
   AddInput(color_input_);
 
   radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
-  radius_input_->set_property("min", 0.0f);
+  radius_input_->setProperty("min", 0.0f);
   AddInput(radius_input_);
 
   opacity_input_ = new NodeInput("opacity_in", NodeParam::kFloat, 1.0f);
-  opacity_input_->set_property("view", "percent");
-  opacity_input_->set_property("min", 0.0f);
-  opacity_input_->set_property("max", 1.0f);
+  opacity_input_->setProperty("view", QStringLiteral("percent"));
+  opacity_input_->setProperty("min", 0.0f);
+  opacity_input_->setProperty("max", 1.0f);
   AddInput(opacity_input_);
 
   inner_input_ = new NodeInput("inner_in", NodeParam::kBoolean, false);

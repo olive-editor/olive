@@ -437,8 +437,8 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
 
   // Use offsets to make the appearance of values that start in the top left, even though we
   // really anchor around the center
-  position_input()->set_property(QStringLiteral("offset"), sequence_res * 0.5);
-  anchor_input()->set_property(QStringLiteral("offset"), tex_sz * 0.5);
+  position_input()->setProperty("offset", sequence_res * 0.5);
+  anchor_input()->setProperty("offset", tex_sz * 0.5);
 }
 
 }

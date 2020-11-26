@@ -30,31 +30,31 @@ CropDistortNode::CropDistortNode()
   AddInput(texture_input_);
 
   left_input_ = new NodeInput(QStringLiteral("left_in"), NodeParam::kFloat, 0.0);
-  left_input_->set_property(QStringLiteral("min"), 0.0);
-  left_input_->set_property(QStringLiteral("max"), 1.0);
-  left_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
+  left_input_->setProperty("min", 0.0);
+  left_input_->setProperty("max", 1.0);
+  left_input_->setProperty("view", QStringLiteral("percent"));
   AddInput(left_input_);
 
   top_input_ = new NodeInput(QStringLiteral("top_in"), NodeParam::kFloat, 0.0);
-  top_input_->set_property(QStringLiteral("min"), 0.0);
-  top_input_->set_property(QStringLiteral("max"), 1.0);
-  top_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
+  top_input_->setProperty("min", 0.0);
+  top_input_->setProperty("max", 1.0);
+  top_input_->setProperty("view", QStringLiteral("percent"));
   AddInput(top_input_);
 
   right_input_ = new NodeInput(QStringLiteral("right_in"), NodeParam::kFloat, 0.0);
-  right_input_->set_property(QStringLiteral("min"), 0.0);
-  right_input_->set_property(QStringLiteral("max"), 1.0);
-  right_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
+  right_input_->setProperty("min", 0.0);
+  right_input_->setProperty("max", 1.0);
+  right_input_->setProperty("view", QStringLiteral("percent"));
   AddInput(right_input_);
 
   bottom_input_ = new NodeInput(QStringLiteral("bottom_in"), NodeParam::kFloat, 0.0);
-  bottom_input_->set_property(QStringLiteral("min"), 0.0);
-  bottom_input_->set_property(QStringLiteral("max"), 1.0);
-  bottom_input_->set_property(QStringLiteral("view"), QStringLiteral("percent"));
+  bottom_input_->setProperty("min", 0.0);
+  bottom_input_->setProperty("max", 1.0);
+  bottom_input_->setProperty("view", QStringLiteral("percent"));
   AddInput(bottom_input_);
 
   feather_input_ = new NodeInput(QStringLiteral("feather_in"), NodeParam::kFloat, 0.0);
-  feather_input_->set_property(QStringLiteral("min"), 0.0);
+  feather_input_->setProperty("min", 0.0);
   AddInput(feather_input_);
 }
 

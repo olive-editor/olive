@@ -28,9 +28,9 @@ PanNode::PanNode()
   AddInput(samples_input_);
 
   panning_input_ = new NodeInput("panning_in", NodeParam::kFloat, 0.0);
-  panning_input_->set_property("min", -1.0);
-  panning_input_->set_property("max", 1.0);
-  panning_input_->set_property("view", "percent");
+  panning_input_->setProperty("min", -1.0);
+  panning_input_->setProperty("max", 1.0);
+  panning_input_->setProperty("view", QStringLiteral("percent"));
   AddInput(panning_input_);
 }
 

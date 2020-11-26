@@ -34,9 +34,9 @@ MatrixGenerator::MatrixGenerator()
   AddInput(rotation_input_);
 
   scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(1.0f, 1.0f));
-  scale_input_->set_property("min", QVector2D(0, 0));
-  scale_input_->set_property("view", "percent");
-  scale_input_->set_property("disabley", true);
+  scale_input_->setProperty("min", QVector2D(0, 0));
+  scale_input_->setProperty("view", QStringLiteral("percent"));
+  scale_input_->setProperty("disabley", true);
   AddInput(scale_input_);
 
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
@@ -183,7 +183,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
 
 void MatrixGenerator::UniformScaleChanged()
 {
-  scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());
+  scale_input_->setProperty("disabley", uniform_scale_input_->get_standard_value().toBool());
 }
 
 }

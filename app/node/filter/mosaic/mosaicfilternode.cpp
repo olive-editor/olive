@@ -27,12 +27,12 @@ MosaicFilterNode::MosaicFilterNode()
   tex_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
   AddInput(tex_input_);
 
-  horiz_input_ = new NodeInput(QStringLiteral("horiz_in"), NodeParam::kFloat);
-  horiz_input_->set_property(QStringLiteral("min"), 1.0);
+  horiz_input_ = new NodeInput(QStringLiteral("horiz_in"), NodeParam::kFloat, 32.0);
+  horiz_input_->setProperty("min", 1.0);
   AddInput(horiz_input_);
 
-  vert_input_ = new NodeInput(QStringLiteral("vert_in"), NodeParam::kFloat);
-  vert_input_->set_property(QStringLiteral("min"), 1.0);
+  vert_input_ = new NodeInput(QStringLiteral("vert_in"), NodeParam::kFloat, 18.0);
+  vert_input_->setProperty("min", 1.0);
   AddInput(vert_input_);
 }
 

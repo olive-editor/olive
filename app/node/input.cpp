@@ -192,13 +192,13 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
         }
       }
     } else if (reader->name() == QStringLiteral("csinput")) {
-      set_property(QStringLiteral("col_input"), reader->readElementText());
+      setProperty("col_input", reader->readElementText());
     } else if (reader->name() == QStringLiteral("csdisplay")) {
-      set_property(QStringLiteral("col_display"), reader->readElementText());
+      setProperty("col_display", reader->readElementText());
     } else if (reader->name() == QStringLiteral("csview")) {
-      set_property(QStringLiteral("col_view"), reader->readElementText());
+      setProperty("col_view", reader->readElementText());
     } else if (reader->name() == QStringLiteral("cslook")) {
-      set_property(QStringLiteral("col_look"), reader->readElementText());
+      setProperty("col_look", reader->readElementText());
     } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data, cancelled);
     } else {
@@ -250,10 +250,10 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
   if (data_type_ == NodeParam::kColor) {
     // Save color management information
-    writer->writeTextElement(QStringLiteral("csinput"), get_property(QStringLiteral("col_input")).toString());
-    writer->writeTextElement(QStringLiteral("csdisplay"), get_property(QStringLiteral("col_display")).toString());
-    writer->writeTextElement(QStringLiteral("csview"), get_property(QStringLiteral("col_view")).toString());
-    writer->writeTextElement(QStringLiteral("cslook"), get_property(QStringLiteral("col_look")).toString());
+    writer->writeTextElement(QStringLiteral("csinput"), property("col_input").toString());
+    writer->writeTextElement(QStringLiteral("csdisplay"), property("col_display").toString());
+    writer->writeTextElement(QStringLiteral("csview"), property("col_view").toString());
+    writer->writeTextElement(QStringLiteral("cslook"), property("col_look").toString());
   }
 
   SaveConnections(writer);
@@ -287,6 +287,17 @@ void NodeInput::LoadInternal(QXmlStreamReader* reader, XMLNodeData &, const QAto
 
 void NodeInput::SaveInternal(QXmlStreamWriter*) const
 {
+}
+
+bool NodeInput::event(QEvent *e)
+{
+  if (e->type() == QEvent::DynamicPropertyChange) {
+    QByteArray key = static_cast<QDynamicPropertyChangeEvent*>(e)->propertyName();
+    emit PropertyChanged(key, property(key));
+    return true;
+  }
+
+  return QObject::event(e);
 }
 
 void NodeInput::Init(DataType type)
@@ -1106,27 +1117,6 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   emit dest->ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
 }
 
-void NodeInput::set_property(const QString &key, const QVariant &value)
-{
-  properties_.insert(key, value);
-  emit PropertyChanged(key, value);
-}
-
-QVariant NodeInput::get_property(const QString &key) const
-{
-  return properties_.value(key);
-}
-
-bool NodeInput::has_property(const QString &key) const
-{
-  return properties_.contains(key);
-}
-
-const QHash<QString, QVariant> &NodeInput::properties() const
-{
-  return properties_;
-}
-
 QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant &value) const
 {
   QVector<QVariant> vals(get_number_of_keyframe_tracks());
@@ -1207,12 +1197,12 @@ QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVarian
 
 QStringList NodeInput::get_combobox_strings() const
 {
-  return get_property(QStringLiteral("combo_str")).toStringList();
+  return property("combo_str").toStringList();
 }
 
 void NodeInput::set_combobox_strings(const QStringList &strings)
 {
-  set_property(QStringLiteral("combo_str"), strings);
+  setProperty("combo_str", strings);
 }
 
 }

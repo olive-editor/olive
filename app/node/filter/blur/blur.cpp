@@ -31,7 +31,7 @@ BlurFilterNode::BlurFilterNode()
   AddInput(method_input_);
 
   radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
-  radius_input_->set_property(QStringLiteral("min"), 0.0f);
+  radius_input_->setProperty("min", 0.0f);
   AddInput(radius_input_);
 
   horiz_input_ = new NodeInput("horiz_in", NodeParam::kBoolean, true);
