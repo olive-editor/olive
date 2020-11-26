@@ -167,7 +167,6 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
-protected:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
