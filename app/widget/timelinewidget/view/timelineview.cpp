@@ -229,8 +229,6 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
 void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
-  TimelineViewBase::drawForeground(painter, rect);
-
   // Draw selections
   if (selections_ && !selections_->isEmpty()) {
     painter->setPen(Qt::NoPen);
@@ -283,6 +281,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
                       cursor_x,
                       track_y + GetTrackHeight(track_index));
   }
+
+  // Draw standard TimelineViewBase things (such as playhead)
+  TimelineViewBase::drawForeground(painter, rect);
 }
 
 void TimelineView::ToolChangedEvent(Tool::Item tool)
