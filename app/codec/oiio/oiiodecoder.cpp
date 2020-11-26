@@ -139,6 +139,8 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int&
     if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), sequence_index))) {
       return nullptr;
     }
+
+    last_sequence_index_ = sequence_index;
   }
 
   FramePtr frame = Frame::Create();
