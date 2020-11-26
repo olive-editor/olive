@@ -76,6 +76,9 @@ void ThreadPool::RunNext()
       ThreadPoolThread* thread = available_threads_.front();
       available_threads_.pop_front();
 
+      // Move ticket to other thread so event processing can occur there
+      ticket->moveToThread(thread);
+
       // Run the ticket in the thread, which actually just calls our virtual function RunTicket
       thread->RunTicket(ticket);
     }
@@ -119,6 +122,10 @@ void ThreadPoolThread::run()
 
     if (ticket_) {
       pool_->RunTicket(ticket_);
+
+      // Move back to calling thread (hacky?)
+      ticket_->moveToThread(this->thread());
+
       ticket_ = nullptr;
     }
 
