@@ -170,6 +170,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, TimelinePoints *points, QW
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
 
+  // Prioritize preview area
+  splitter->setSizes({1, 99999});
+
   // Set default filename
   SetDefaultFilename();
 
