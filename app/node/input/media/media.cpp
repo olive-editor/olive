@@ -23,6 +23,8 @@
 #include "common/timecodefunctions.h"
 #include "common/tohex.h"
 
+#include "project/item/footage/stream.h"
+
 namespace olive {
 
 MediaInput::MediaInput() :
@@ -77,7 +79,7 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
 void MediaInput::FootageChanged()
 {
   StreamPtr new_footage = footage_input_->get_standard_value().value<StreamPtr>();
-
+  
   if (new_footage == connected_footage_) {
     return;
   }
@@ -90,6 +92,20 @@ void MediaInput::FootageChanged()
 
   if (connected_footage_) {
     connect(connected_footage_.get(), &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    
+    // If no user-defined label is set
+    if (!HasUserLabel()){
+      switch (connected_footage_->type()) {
+        case olive::Stream::Type::kVideo:
+          SetLabel(tr("Video Input"), false);
+          break;
+        case olive::Stream::Type::kAudio:
+          SetLabel(tr("Audio Input"), false);
+          break;
+        default:
+          break;
+      }
+    }
   }
 }
 
