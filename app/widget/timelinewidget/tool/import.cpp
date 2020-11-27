@@ -425,6 +425,7 @@ void ImportTool::DropGhosts(bool insert)
       {
         MediaInput* video_input = new MediaInput();
         video_input->SetStream(footage_stream);
+        video_input->SetLabel(QCoreApplication::translate("ImportTool", "Video Input"));
         new NodeAddCommand(dst_graph, video_input, command);
 
 
@@ -452,6 +453,7 @@ void ImportTool::DropGhosts(bool insert)
       {
         MediaInput* audio_input = new MediaInput();
         audio_input->SetStream(footage_stream);
+        audio_input->SetLabel(QCoreApplication::translate("ImportTool", "Audio Input"));
         new NodeAddCommand(dst_graph, audio_input, command);
 
         VolumeNode* volume_node = new VolumeNode();
