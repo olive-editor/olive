@@ -64,8 +64,9 @@ bool RenderTask::Render(ColorManager* manager,
 
     IncrementRunningTickets();
 
-    RenderTicketWatcher* watcher = CreateWatcher(&watcher_thread);
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
     watcher->setProperty("range", QVariant::fromValue(r));
+    PrepareWatcher(watcher, &watcher_thread);
     watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, r, audio_params_, false));
   }
 
@@ -101,8 +102,9 @@ bool RenderTask::Render(ColorManager* manager,
 
       if (time_map[hash].size() == 1) {
         // This is the first frame with this hash, so we signal a render
-        RenderTicketWatcher* watcher = CreateWatcher(&watcher_thread);
+        RenderTicketWatcher* watcher = new RenderTicketWatcher();
         watcher->setProperty("hash", hash);
+        PrepareWatcher(watcher, &watcher_thread);
 
         IncrementRunningTickets();
 
@@ -202,9 +204,9 @@ bool RenderTask::Render(ColorManager* manager,
 
 void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
 {
-  RenderTicketWatcher* watcher = CreateWatcher(thread);
-
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
+  PrepareWatcher(watcher, thread);
 
   IncrementRunningTickets();
 
@@ -213,13 +215,11 @@ void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray
                                                                  hash));
 }
 
-RenderTicketWatcher *RenderTask::CreateWatcher(QThread *thread)
+void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)
 {
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->moveToThread(thread);
   connect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone, Qt::DirectConnection);
   running_watchers_.append(watcher);
-  return watcher;
 }
 
 void RenderTask::IncrementRunningTickets()
