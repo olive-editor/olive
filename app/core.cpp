@@ -1081,7 +1081,7 @@ void Core::LabelNodes(const QVector<Node *> &nodes) const
 
   if (ok) {
     foreach (Node* n, nodes) {
-      n->SetLabel(s);
+      n->SetLabel(s, true);
     }
   }
 }

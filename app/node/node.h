@@ -427,7 +427,8 @@ public:
   virtual void GizmoRelease();
 
   const QString& GetLabel() const;
-  void SetLabel(const QString& s);
+  void SetLabel(const QString& s, const bool user_defined);
+  bool HasUserLabel() const;
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const;
 
@@ -541,6 +542,11 @@ private:
    * @brief Custom user label for node
    */
   QString label_;
+
+  /**
+    * @brief Whether or not the user has set a custom user label for the node
+    */
+  bool has_custom_label_;
 
 };
 

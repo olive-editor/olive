@@ -91,7 +91,7 @@ void TrackViewItem::LineEditConfirmed()
 {
   line_edit_->blockSignals(true);
 
-  track_->SetLabel(line_edit_->text());
+  track_->SetLabel(line_edit_->text(), false);
   UpdateLabel();
 
   stack_->setCurrentWidget(label_);

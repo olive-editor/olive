@@ -143,7 +143,7 @@ bool LoadOTIOTask::Run()
 
         }
 
-        block->SetLabel(QString::fromStdString(otio_block->name()));
+        block->SetLabel(QString::fromStdString(otio_block->name()), false);
 
         rational start_time = rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->start_time().to_seconds());
         rational duration = rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds());

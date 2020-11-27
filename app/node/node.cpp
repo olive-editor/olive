@@ -115,7 +115,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
 
       SetPosition(p);
     } else if (reader->name() == QStringLiteral("label")) {
-      SetLabel(reader->readElementText());
+      SetLabel(reader->readElementText(), !reader->readElementText().isEmpty());
     } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data);
     } else {
@@ -396,10 +396,17 @@ const QString &Node::GetLabel() const
   return label_;
 }
 
-void Node::SetLabel(const QString &s)
+bool Node::HasUserLabel() const
+{
+  return has_custom_label_;
+}
+
+void Node::SetLabel(const QString &s, const bool user_defined)
 {
   if (label_ != s) {
     label_ = s;
+
+    has_custom_label_ = user_defined && !s.isEmpty();
 
     emit LabelChanged(label_);
   }
@@ -495,7 +502,7 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
   }
 
   destination->SetPosition(source->GetPosition());
-  destination->SetLabel(source->GetLabel());
+  destination->SetLabel(source->GetLabel(), false);
 }
 
 bool Node::CanBeDeleted() const
