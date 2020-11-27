@@ -32,7 +32,6 @@ extern "C" {
 #include <QVector>
 #include <QWaitCondition>
 
-#include "avframeptr.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
 #include "ffmpegframepool.h"

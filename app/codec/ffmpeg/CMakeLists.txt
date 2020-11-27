@@ -16,7 +16,6 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  codec/ffmpeg/avframeptr.h
   codec/ffmpeg/ffmpegdecoder.h
   codec/ffmpeg/ffmpegdecoder.cpp
   codec/ffmpeg/ffmpegencoder.h
