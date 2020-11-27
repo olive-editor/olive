@@ -33,7 +33,7 @@ class SaveOTIOTask : public Task
 {
   Q_OBJECT
 public:
-  SaveOTIOTask(ProjectPtr project);
+  SaveOTIOTask(Project* project);
 
 protected:
   virtual bool Run() override;
@@ -45,7 +45,7 @@ private:
 
   bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
 
-  ProjectPtr project_;
+  Project* project_;
 
 };
 

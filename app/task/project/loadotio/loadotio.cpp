@@ -53,7 +53,7 @@ bool LoadOTIOTask::Run()
     return false;
   }
 
-  project_ = std::make_shared<Project>();
+  project_ = new Project();
   project_->set_filename(GetFilename());
 
   std::vector<OTIO::Timeline*> timelines;
@@ -165,7 +165,7 @@ bool LoadOTIOTask::Run()
             if (imported_footage.contains(footage_url)) {
               probed_item = imported_footage.value(footage_url);
             } else {
-              probed_item = Decoder::Probe(project_.get(), footage_url, &IsCancelled());
+              probed_item = Decoder::Probe(project_, footage_url, &IsCancelled());
               imported_footage.insert(footage_url, probed_item);
               project_->root()->add_child(probed_item);
             }

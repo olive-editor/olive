@@ -31,7 +31,7 @@
 
 namespace olive {
 
-SaveOTIOTask::SaveOTIOTask(ProjectPtr project) :
+SaveOTIOTask::SaveOTIOTask(Project *project) :
   project_(project)
 {
   SetTitle(tr("Exporting project to OpenTimelineIO"));

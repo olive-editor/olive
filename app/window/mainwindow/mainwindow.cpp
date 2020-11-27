@@ -479,7 +479,7 @@ void MainWindow::ProjectCloseRequested()
   ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
   Project* p = panel->project();
 
-  Core::instance()->CloseProject(Core::instance()->GetSharedPtrFromProject(p), true);
+  Core::instance()->CloseProject(p, true);
 }
 
 void MainWindow::FloatingPanelCloseRequested()

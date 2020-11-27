@@ -105,7 +105,6 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
-  qRegisterMetaType<olive::ProjectPtr>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
   qRegisterMetaType<olive::SampleJob>();
   qRegisterMetaType<olive::ShaderJob>();
@@ -263,14 +262,14 @@ void Core::ClearOpenRecentList()
 void Core::CreateNewProject()
 {
   // If we already have an empty/new project, switch to it
-  foreach (ProjectPtr already_open, open_projects_) {
+  foreach (Project* already_open, open_projects_) {
     if (already_open->is_new()) {
       AddOpenProject(already_open);
       return;
     }
   }
 
-  AddOpenProject(std::make_shared<Project>());
+  AddOpenProject(new Project());
 }
 
 const bool &Core::snapping() const
@@ -281,17 +280,6 @@ const bool &Core::snapping() const
 const QStringList &Core::GetRecentProjects() const
 {
   return recent_projects_;
-}
-
-ProjectPtr Core::GetSharedPtrFromProject(Project *project) const
-{
-  foreach (ProjectPtr p, open_projects_) {
-    if (p.get() == project) {
-      return p;
-    }
-  }
-
-  return nullptr;
 }
 
 void Core::SetTool(const Tool::Item &tool)
@@ -348,10 +336,10 @@ void Core::DialogPreferencesShow()
 
 void Core::DialogProjectPropertiesShow()
 {
-  ProjectPtr proj = GetActiveProject();
+  Project* proj = GetActiveProject();
 
   if (proj) {
-    ProjectPropertiesDialog ppd(proj.get(), main_window_);
+    ProjectPropertiesDialog ppd(proj, main_window_);
     ppd.exec();
   } else {
     QMessageBox::critical(main_window_,
@@ -407,7 +395,7 @@ void Core::CreateNewFolder()
 
 void Core::CreateNewSequence()
 {
-  ProjectPtr active_project = GetActiveProject();
+  Project* active_project = GetActiveProject();
 
   if (!active_project) {
     QMessageBox::critical(main_window_, tr("Failed to create new sequence"), tr("Failed to find active project"));
@@ -415,7 +403,7 @@ void Core::CreateNewSequence()
   }
 
   // Create new sequence
-  SequencePtr new_sequence = CreateNewSequenceForProject(active_project.get());
+  SequencePtr new_sequence = CreateNewSequenceForProject(active_project);
 
   // Set all defaults for the sequence
   new_sequence->set_default_parameters();
@@ -440,13 +428,13 @@ void Core::CreateNewSequence()
   }
 }
 
-void Core::AddOpenProject(ProjectPtr p)
+void Core::AddOpenProject(Project* p)
 {
   // Ensure project is not open at the moment
-  foreach (ProjectPtr already_open, open_projects_) {
+  foreach (Project* already_open, open_projects_) {
     if (already_open == p) {
       // Signal UI to switch to this project
-      emit ProjectOpened(p.get());
+      emit ProjectOpened(p);
       return;
     }
   }
@@ -456,24 +444,26 @@ void Core::AddOpenProject(ProjectPtr p)
     CloseProject(open_projects_.last(), false);
   }
 
-  connect(p.get(), &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+  connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_projects_.append(p);
 
   PushRecentlyOpenedProject(p->filename());
 
-  emit ProjectOpened(p.get());
+  emit ProjectOpened(p);
 }
 
 void Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
-  ProjectPtr project = load_task->GetLoadedProject();
+  Project* project = load_task->GetLoadedProject();
   MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
 
   if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
     AddOpenProject(project);
     main_window_->LoadLayout(layout);
+  } else {
+    delete project;
   }
 }
 
@@ -516,7 +506,7 @@ void Core::ProjectWasModified(bool e)
   } else {
     // If we just set this project to "not modified", see if all projects are not modified in which case we can hide
     // the modified flag
-    foreach (ProjectPtr open, open_projects_) {
+    foreach (Project* open, open_projects_) {
       if (open->is_modified()) {
         main_window_->setWindowModified(true);
         return;
@@ -546,7 +536,7 @@ bool Core::StartHeadlessExport()
   CLITaskDialog task_dialog(&plm);
 
   if (task_dialog.Run()) {
-    ProjectPtr p = plm.GetLoadedProject();
+    std::unique_ptr<Project> p = std::unique_ptr<Project>(plm.GetLoadedProject());
     QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
 
     // Check if this project contains sequences
@@ -696,7 +686,7 @@ void Core::StartGUI(bool full_screen)
   }
 }
 
-void Core::SaveProjectInternal(ProjectPtr project)
+void Core::SaveProjectInternal(Project* project)
 {
   // Create save manager
   Task* psm;
@@ -754,7 +744,7 @@ ViewerOutput *Core::GetSequenceToExport()
 
 void Core::SaveAutorecovery()
 {
-  foreach (ProjectPtr p, open_projects_) {
+  foreach (Project* p, open_projects_) {
     if (!p->has_autorecovery_been_saved()) {
       // FIXME: SAVE AN AUTORECOVERY PROJECT
       p->set_autorecovery_saved(true);
@@ -764,19 +754,19 @@ void Core::SaveAutorecovery()
 
 void Core::ProjectSaveSucceeded(Task* task)
 {
-  ProjectPtr p = static_cast<ProjectSaveTask*>(task)->GetProject();
+  Project* p = static_cast<ProjectSaveTask*>(task)->GetProject();
 
   PushRecentlyOpenedProject(p->filename());
 
   p->set_modified(false);
 }
 
-ProjectPtr Core::GetActiveProject() const
+Project* Core::GetActiveProject() const
 {
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
   if (active_project_panel && active_project_panel->project()) {
-    return GetSharedPtrFromProject(active_project_panel->project());
+    return active_project_panel->project();
   }
 
   return nullptr;
@@ -834,7 +824,7 @@ QString Core::PasteStringFromClipboard()
 
 bool Core::SaveActiveProject()
 {
-  ProjectPtr active_project = GetActiveProject();
+  Project* active_project = GetActiveProject();
 
   if (active_project) {
     return SaveProject(active_project);
@@ -845,7 +835,7 @@ bool Core::SaveActiveProject()
 
 bool Core::SaveActiveProjectAs()
 {
-  ProjectPtr active_project = GetActiveProject();
+  Project* active_project = GetActiveProject();
 
   if (active_project) {
     return SaveProjectAs(active_project);
@@ -856,7 +846,7 @@ bool Core::SaveActiveProjectAs()
 
 bool Core::SaveAllProjects()
 {
-  foreach (ProjectPtr p, open_projects_) {
+  foreach (Project* p, open_projects_) {
     if (!SaveProject(p)) {
       return false;
     }
@@ -872,10 +862,10 @@ bool Core::CloseActiveProject()
 
 bool Core::CloseAllExceptActiveProject()
 {
-  ProjectPtr active_proj = GetActiveProject();
-  QList<ProjectPtr> copy = open_projects_;
+  Project* active_proj = GetActiveProject();
+  QList<Project*> copy = open_projects_;
 
-  foreach (ProjectPtr p, copy) {
+  foreach (Project* p, copy) {
     if (p != active_proj) {
       if (!CloseProject(p, true)) {
         return false;
@@ -934,7 +924,7 @@ void Core::SetStartupLocale()
   }
 }
 
-bool Core::SaveProject(ProjectPtr p)
+bool Core::SaveProject(Project* p)
 {
   if (p->filename().isEmpty()) {
     return SaveProjectAs(p);
@@ -945,7 +935,7 @@ bool Core::SaveProject(ProjectPtr p)
   }
 }
 
-bool Core::SaveProjectAs(ProjectPtr p)
+bool Core::SaveProjectAs(Project* p)
 {
   QFileDialog fd(main_window_, tr("Save Project As"));
 
@@ -992,7 +982,7 @@ void Core::PushRecentlyOpenedProject(const QString& s)
 void Core::OpenProjectInternal(const QString &filename)
 {
   // See if this project is open already
-  foreach (ProjectPtr p, open_projects_) {
+  foreach (Project* p, open_projects_) {
     if (p->filename() == filename) {
       // This project is already open
       AddOpenProject(p);
@@ -1128,13 +1118,13 @@ void Core::OpenProjectFromRecentList(int index)
   }
 }
 
-bool Core::CloseProject(ProjectPtr p, bool auto_open_new)
+bool Core::CloseProject(Project *p, bool auto_open_new)
 {
   CloseProjectBehavior b = kCloseProjectOnlyOne;
   return CloseProject(p, auto_open_new, b);
 }
 
-bool Core::CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &confirm_behavior)
+bool Core::CloseProject(Project* p, bool auto_open_new, CloseProjectBehavior &confirm_behavior)
 {
   for (int i=0;i<open_projects_.size();i++) {
     if (open_projects_.at(i) == p) {
@@ -1202,9 +1192,10 @@ bool Core::CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &
       // For safety, the undo stack is cleared so no commands try to affect a freed project
       undo_stack_.clear();
 
-      disconnect(p.get(), &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-      emit ProjectClosed(p.get());
+      disconnect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+      emit ProjectClosed(p);
       open_projects_.removeAt(i);
+      delete p;
       break;
     }
   }
@@ -1219,12 +1210,12 @@ bool Core::CloseProject(ProjectPtr p, bool auto_open_new, CloseProjectBehavior &
 
 bool Core::CloseAllProjects(bool auto_open_new)
 {
-  QList<ProjectPtr> copy = open_projects_;
+  QList<Project*> copy = open_projects_;
 
   // See how many projects are modified so we can set "behavior" correctly
   // (i.e. whether to show "Yes/No To All" buttons or not)
   int modified_count = 0;
-  foreach (ProjectPtr p, copy) {
+  foreach (Project* p, copy) {
     if (p->is_modified()) {
       modified_count++;
     }
@@ -1238,7 +1229,7 @@ bool Core::CloseAllProjects(bool auto_open_new)
     behavior = kCloseProjectOnlyOne;
   }
 
-  foreach (ProjectPtr p, copy) {
+  foreach (Project* p, copy) {
     // If this is the only remaining project and the user hasn't chose "yes/no to all", hide those buttons
     if (modified_count == 1 && behavior == kCloseProjectAsk) {
       behavior = kCloseProjectOnlyOne;
@@ -1288,7 +1279,7 @@ void Core::CacheActiveSequence(bool in_out_only)
   }
 }
 
-bool Core::ValidateFootageInLoadedProject(ProjectPtr project, const QString& project_saved_url)
+bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
   QList<FootagePtr> footage_we_couldnt_validate;
 

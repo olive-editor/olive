@@ -60,7 +60,7 @@ bool ProjectLoadTask::Run()
           } else if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
-            project_ = std::make_shared<Project>();
+            project_ = new Project();
 
             project_->set_filename(GetFilename());
 

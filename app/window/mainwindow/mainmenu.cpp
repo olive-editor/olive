@@ -282,7 +282,7 @@ void MainMenu::ToolItemTriggered()
 
 void MainMenu::FileMenuAboutToShow()
 {
-  Project* active_project = Core::instance()->GetActiveProject().get();
+  Project* active_project = Core::instance()->GetActiveProject();
 
   file_project_properties_item_->setEnabled(active_project);
   file_save_item_->setEnabled(active_project);
