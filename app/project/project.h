@@ -103,8 +103,6 @@ private slots:
 
 };
 
-using ProjectPtr = std::shared_ptr<Project>;
-
 }
 
 #endif // PROJECT_H

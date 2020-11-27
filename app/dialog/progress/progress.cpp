@@ -30,7 +30,8 @@
 namespace olive {
 
 ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWidget *parent) :
-  QDialog(parent)
+  QDialog(parent),
+  show_progress_(true)
 {
   if (!title.isEmpty()) {
     setWindowTitle(title);
@@ -56,7 +57,19 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
   cancel_layout->addStretch();
 
   QPushButton* cancel_btn = new QPushButton(tr("Cancel"));
-  connect(cancel_btn, &QPushButton::clicked, this, &ProgressDialog::Cancelled);
+
+  // Signal that derivatives can connect to
+  connect(cancel_btn, &QPushButton::clicked, this, &ProgressDialog::Cancelled, Qt::DirectConnection);
+
+  // Stop updating the elapsed/remaining timers
+  connect(cancel_btn, &QPushButton::clicked, elapsed_timer_lbl_, &ElapsedCounterWidget::Stop);
+
+  // Disable the button so that users know they don't need to keep clicking it
+  connect(cancel_btn, &QPushButton::clicked, this, &ProgressDialog::DisableSenderWidget);
+
+  // Prevent the progress bar from continuing to move
+  connect(cancel_btn, &QPushButton::clicked, this, &ProgressDialog::DisableProgressWidgets);
+
   cancel_layout->addWidget(cancel_btn);
 
   cancel_layout->addStretch();
@@ -80,6 +93,10 @@ void ProgressDialog::closeEvent(QCloseEvent *e)
 
 void ProgressDialog::SetProgress(double value)
 {
+  if (!show_progress_) {
+    return;
+  }
+
   int percent = qRound(100.0 * value);
 
   bar_->setValue(percent);
@@ -99,6 +116,16 @@ void ProgressDialog::ShowErrorMessage(const QString &title, const QString &messa
   b.setText(message);
   b.addButton(QMessageBox::Ok);
   b.exec();
+}
+
+void ProgressDialog::DisableSenderWidget()
+{
+  static_cast<QWidget*>(sender())->setEnabled(false);
+}
+
+void ProgressDialog::DisableProgressWidgets()
+{
+  show_progress_ = false;
 }
 
 }

@@ -78,10 +78,10 @@ private slots:
 
   void UpdateSubtitle();
 
+  void SaveConnectedProject();
+
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::ProjectPtr)
 
 #endif // PROJECT_PANEL_H

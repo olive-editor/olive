@@ -30,9 +30,9 @@ class ProjectSaveTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectSaveTask(ProjectPtr project);
+  ProjectSaveTask(Project* project);
 
-  ProjectPtr GetProject() const
+  Project* GetProject() const
   {
     return project_;
   }
@@ -41,7 +41,7 @@ protected:
   virtual bool Run() override;
 
 private:
-  ProjectPtr project_;
+  Project* project_;
 
 };
 

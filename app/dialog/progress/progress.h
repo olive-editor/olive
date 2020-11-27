@@ -54,6 +54,13 @@ private:
 
   ElapsedCounterWidget* elapsed_timer_lbl_;
 
+  bool show_progress_;
+
+private slots:
+  void DisableSenderWidget();
+
+  void DisableProgressWidgets();
+
 };
 
 }

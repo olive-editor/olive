@@ -29,7 +29,7 @@
 
 namespace olive {
 
-ProjectSaveTask::ProjectSaveTask(ProjectPtr project) :
+ProjectSaveTask::ProjectSaveTask(Project *project) :
   project_(project)
 {
   SetTitle(tr("Saving '%1'").arg(project->filename()));

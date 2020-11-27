@@ -350,10 +350,10 @@ void ImportTool::DropGhosts(bool insert)
     }
 
     if (behavior != kDWSDisable) {
-      ProjectPtr active_project = Core::instance()->GetActiveProject();
+      Project* active_project = Core::instance()->GetActiveProject();
 
       if (active_project) {
-        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project.get());
+        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
 
         new_sequence->set_default_parameters();
 

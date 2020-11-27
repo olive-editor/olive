@@ -65,6 +65,11 @@ void ElapsedCounterWidget::Start(qint64 start_time)
   UpdateTimers();
 }
 
+void ElapsedCounterWidget::Stop()
+{
+  elapsed_timer_.stop();
+}
+
 void ElapsedCounterWidget::UpdateTimers()
 {
   int64_t elapsed_ms, remaining_ms;

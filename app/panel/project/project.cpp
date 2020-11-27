@@ -51,9 +51,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   // Make toolbar connections
   connect(toolbar, &ProjectToolbar::NewClicked, this, &ProjectPanel::ShowNewMenu);
   connect(toolbar, &ProjectToolbar::OpenClicked, Core::instance(), &Core::OpenProject);
-  connect(toolbar, &ProjectToolbar::SaveClicked, Core::instance(), &Core::SaveActiveProject);
-  connect(toolbar, &ProjectToolbar::UndoClicked, Core::instance()->undo_stack(), &QUndoStack::undo);
-  connect(toolbar, &ProjectToolbar::RedoClicked, Core::instance()->undo_stack(), &QUndoStack::redo);
+  connect(toolbar, &ProjectToolbar::SaveClicked, this, &ProjectPanel::SaveConnectedProject);
 
   // Set up main explorer object
   explorer_ = new ProjectExplorer(this);
@@ -227,6 +225,11 @@ void ProjectPanel::UpdateSubtitle()
   } else {
     SetSubtitle(tr("(none)"));
   }
+}
+
+void ProjectPanel::SaveConnectedProject()
+{
+  Core::instance()->SaveProject(this->project());
 }
 
 QList<Footage *> ProjectPanel::GetSelectedFootage() const

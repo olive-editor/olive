@@ -32,7 +32,7 @@ class ProjectLoadBaseTask : public Task
 public:
   ProjectLoadBaseTask(const QString& filename);
 
-  ProjectPtr GetLoadedProject() const
+  Project* GetLoadedProject() const
   {
     return project_;
   }
@@ -58,7 +58,7 @@ public:
   }
 
 protected:
-  ProjectPtr project_;
+  Project* project_;
 
   MainWindowLayoutInfo layout_info_;
 

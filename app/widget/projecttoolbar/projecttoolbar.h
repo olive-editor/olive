@@ -60,9 +60,6 @@ signals:
   void OpenClicked();
   void SaveClicked();
 
-  void UndoClicked();
-  void RedoClicked();
-
   void SearchChanged(const QString&);
 
   void ViewChanged(ViewType type);
@@ -74,8 +71,6 @@ private:
   QPushButton* new_button_;
   QPushButton* open_button_;
   QPushButton* save_button_;
-  QPushButton* undo_button_;
-  QPushButton* redo_button_;
 
   QLineEdit* search_field_;
 
