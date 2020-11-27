@@ -40,6 +40,9 @@ public:
   void Start();
   void Start(qint64 start_time);
 
+public slots:
+  void Stop();
+
 private:
   QLabel* elapsed_lbl_;
 
