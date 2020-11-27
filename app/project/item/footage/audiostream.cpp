@@ -31,9 +31,10 @@ AudioStream::AudioStream()
 
 QString AudioStream::description() const
 {
-  return QCoreApplication::translate("Stream", "%1: Audio - %2 Channels, %3Hz").arg(QString::number(index()),
-                                                                                    QString::number(channels()),
-                                                                                    QString::number(sample_rate()));
+  return QCoreApplication::translate("Stream", "%1: Audio - %2 Channel(s), %3Hz")
+      .arg(QString::number(index()),
+           QString::number(channels()),
+           QString::number(sample_rate()));
 }
 
 const int &AudioStream::channels() const

@@ -22,6 +22,7 @@
 #define COLORSERVICE_H
 
 #include <memory>
+#include <QMutex>
 
 #include "codec/frame.h"
 #include "colorprocessor.h"
@@ -91,6 +92,11 @@ public:
 
   };
 
+  QMutex* mutex()
+  {
+    return &mutex_;
+  }
+
 signals:
   void ConfigChanged();
 
@@ -108,6 +114,8 @@ private:
   QString default_input_color_space_;
 
   QString reference_space_;
+
+  QMutex mutex_;
 
   static OCIO::ConstConfigRcPtr default_config_;
 

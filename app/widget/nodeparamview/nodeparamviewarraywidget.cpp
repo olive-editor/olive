@@ -47,7 +47,7 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidge
 
 void NodeParamViewArrayWidget::UpdateCounter()
 {
-  count_lbl_->setText(tr("%1 elements").arg(array_->GetSize()));
+  count_lbl_->setText(tr("%1 element(s)").arg(array_->GetSize()));
 }
 
 void NodeParamViewArrayWidget::AddElement()

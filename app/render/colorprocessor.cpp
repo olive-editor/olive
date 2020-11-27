@@ -28,6 +28,8 @@ namespace olive {
 
 ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
 {
+  QMutexLocker locker(config->mutex());
+
   const QString& output = (transform.output().isEmpty()) ? config->GetDefaultDisplay() : transform.output();
 
   if (transform.is_display()) {
