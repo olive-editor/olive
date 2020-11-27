@@ -71,7 +71,7 @@ void MainStatusBar::UpdateStatus()
     if (manager_->GetTaskCount() == 1) {
       showMessage(t->GetTitle());
     } else {
-      showMessage(tr("Running %1 background task(s)").arg(manager_->GetTaskCount()));
+      showMessage(tr("Running %n background task(s)", nullptr, manager_->GetTaskCount()));
     }
 
     bar_->setVisible(true);

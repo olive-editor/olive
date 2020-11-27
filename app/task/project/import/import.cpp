@@ -40,7 +40,7 @@ ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, co
 
   file_count_ = Core::CountFilesInFileList(filenames_);
 
-  SetTitle(tr("Importing %1 file(s)").arg(file_count_));
+  SetTitle(tr("Importing %n file(s)", nullptr, file_count_));
 }
 
 const int &ProjectImportTask::GetFileCount() const

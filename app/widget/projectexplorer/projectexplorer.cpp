@@ -608,14 +608,16 @@ void ProjectExplorer::DeleteSelected()
         }
 
         QString sequence_list_str;
+        int count = 0;
         foreach (Sequence* s, used_in_sequences) {
           sequence_list_str.append(QStringLiteral("%1\n").arg(s->name()));
+          count++;
         }
 
         QMessageBox msgbox(this);
         msgbox.setWindowTitle(tr("Confirm Footage Deletion"));
-        msgbox.setText(tr("The footage \"%1\" is currently used in the following sequence(s):\n\n"
-                          "%2\nWhat would you like to do with these clips?")
+        msgbox.setText(tr("The footage \"%1\" is currently used in %n sequence(s):\n\n"
+                          "%2\nWhat would you like to do with these clips?", nullptr, count)
                        .arg(footage->filename(), sequence_list_str));
         msgbox.setIcon(QMessageBox::Warning);
 

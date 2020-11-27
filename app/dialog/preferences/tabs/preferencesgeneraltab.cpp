@@ -40,6 +40,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   layout->addLayout(general_layout);
 
   int row = 0;
+  double value;
 
   // General -> Language
   general_layout->addWidget(new QLabel(tr("Language:")), row, 0);
@@ -91,10 +92,11 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   general_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
 
+  value = Config::Current()["DefaultStillLength"].value<rational>().toDouble();
   default_still_length_ = new FloatSlider();
   default_still_length_->SetMinimum(0.1);
-  default_still_length_->SetFormat(tr("%1 second(s)"));
-  default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
+  default_still_length_->SetFormat(tr("%n second(s)", nullptr, value));
+  default_still_length_->SetValue(value);
   general_layout->addWidget(default_still_length_);
 
   layout->addStretch();
