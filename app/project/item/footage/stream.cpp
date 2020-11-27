@@ -176,11 +176,6 @@ QIcon Stream::icon() const
   return QIcon();
 }
 
-QMutex *Stream::proxy_access_lock()
-{
-  return &proxy_access_lock_;
-}
-
 void Stream::LoadCustomParameters(QXmlStreamReader* reader)
 {
   reader->skipCurrentElement();

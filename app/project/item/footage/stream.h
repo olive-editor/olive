@@ -95,7 +95,10 @@ public:
 
   virtual QIcon icon() const;
 
-  QMutex* proxy_access_lock();
+  QMutex* mutex()
+  {
+    return &mutex_;
+  }
 
 protected:
   virtual void LoadCustomParameters(QXmlStreamReader *reader);
@@ -118,7 +121,7 @@ private:
 
   bool enabled_;
 
-  QMutex proxy_access_lock_;
+  QMutex mutex_;
 
 };
 

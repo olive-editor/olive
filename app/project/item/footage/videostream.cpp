@@ -134,20 +134,26 @@ void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
 }
 
-bool VideoStream::premultiplied_alpha() const
+bool VideoStream::premultiplied_alpha()
 {
+  QMutexLocker locker(mutex());
+
   return premultiplied_alpha_;
 }
 
 void VideoStream::set_premultiplied_alpha(bool e)
 {
+  mutex()->lock();
   premultiplied_alpha_ = e;
+  mutex()->unlock();
 
   emit ParametersChanged();
 }
 
-const QString &VideoStream::colorspace(bool default_if_empty) const
+const QString &VideoStream::colorspace(bool default_if_empty)
 {
+  QMutexLocker locker(mutex());
+
   if (colorspace_.isEmpty() && default_if_empty) {
     return footage()->project()->color_manager()->GetDefaultInputColorSpace();
   } else {
@@ -157,7 +163,9 @@ const QString &VideoStream::colorspace(bool default_if_empty) const
 
 void VideoStream::set_colorspace(const QString &color)
 {
+  mutex()->lock();
   colorspace_ = color;
+  mutex()->unlock();
 
   emit ParametersChanged();
 }

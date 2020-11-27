@@ -93,10 +93,10 @@ public:
     channel_count_ = c;
   }
 
-  bool premultiplied_alpha() const;
+  bool premultiplied_alpha();
   void set_premultiplied_alpha(bool e);
 
-  const QString& colorspace(bool default_if_empty = true) const;
+  const QString& colorspace(bool default_if_empty = true);
   void set_colorspace(const QString& color);
 
   VideoParams::Interlacing interlacing() const

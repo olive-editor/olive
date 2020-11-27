@@ -339,8 +339,6 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
         managed_params.set_format(video_params.format());
         value = render_ctx_->CreateTexture(managed_params);
 
-        //qDebug() << "FIXME: Accessing video_stream->colorspace() and video_stream->premultiplied_alpha() may cause race conditions";
-
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              video_stream->colorspace(),
                                                              color_manager->GetReferenceColorSpace());
