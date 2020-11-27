@@ -2672,7 +2672,7 @@ Je známo, že tento ovladač má u Olive problémy se stabilitou a výkonem. D�
     </message>
     <message>
         <source>Page Scrolling</source>
-        <translation>Posunování strany</translation>
+        <translation>Posunování po stránkách</translation>
     </message>
     <message>
         <source>Smooth Scrolling</source>
@@ -3214,7 +3214,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková frekvence:</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
@@ -3246,7 +3246,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation>Jakost:</translation>
+        <translation>Kvalita:</translation>
     </message>
     <message>
         <source>Save Preset</source>
@@ -3289,23 +3289,23 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>%1 23.976 FPS</source>
-        <translation>%1 23.976 snímků za sekundu</translation>
+        <translation>%1 23.976 FPS</translation>
     </message>
     <message>
         <source>%1 25 FPS</source>
-        <translation>%1 25 snímků za sekundu</translation>
+        <translation>%1 25 FPS</translation>
     </message>
     <message>
         <source>%1 29.97 FPS</source>
-        <translation>%1 29.97 snímků za sekundu</translation>
+        <translation>%1 29.97 FPS</translation>
     </message>
     <message>
         <source>%1 50 FPS</source>
-        <translation>%1 50 snímků za sekundu</translation>
+        <translation>%1 50 FPS</translation>
     </message>
     <message>
         <source>%1 59.94 FPS</source>
-        <translation>%1 59.94 snímků za sekundu</translation>
+        <translation>%1 59.94 FPS</translation>
     </message>
     <message>
         <source>%1 Standard</source>
@@ -3346,7 +3346,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Generate a solid color.</source>
-        <translation>Vytvořit jednobarevné.</translation>
+        <translation>Vytvoří jednobarevnou plochu.</translation>
     </message>
     <message>
         <source>Color</source>
@@ -3368,7 +3368,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Creates a stroke outline around an image.</source>
-        <translation>Vytvoří obrys tahu kolem obrázku.</translation>
+        <translation>Vytvoří obrys kolem obrázku.</translation>
     </message>
     <message>
         <source>Input</source>
@@ -3492,7 +3492,7 @@ Co byste s těmito záběry chtěli dělat?</translation>
     </message>
     <message>
         <source>Generates the time (in seconds) at this frame</source>
-        <translation>Vytvořit na tomto snímku čas (v sekundách)</translation>
+        <translation>Vytvoří na tomto snímku čas (v sekundách)</translation>
     </message>
 </context>
 <context>
