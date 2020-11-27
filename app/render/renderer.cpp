@@ -75,6 +75,8 @@ void Renderer::Destroy()
 
 bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx)
 {
+  QMutexLocker locker(&color_cache_mutex_);
+
   ColorContext& color_ctx = *ctx;
 
   if (color_cache_.contains(color_processor->id())) {

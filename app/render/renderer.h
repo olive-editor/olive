@@ -125,6 +125,8 @@ private:
 
   QHash<QString, ColorContext> color_cache_;
 
+  QMutex color_cache_mutex_;
+
 };
 
 }
