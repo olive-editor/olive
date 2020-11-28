@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Glitch" category="Distort">
+	<!-- <row name="Frequency">
+		<field type="double" min="0" default="0.5" id="frequency"/>
+	</row>
+	<row name="Intensity">
+		<field type="double" default="0.1" id="intensity"/>
+	</row> -->
+
+    <row name="Block-Size">
+		<field type="double" min="0.01" max="0.99" default="0.25" id="blockSize"/>
+	</row>
+
+	<row name="Evolution">
+		<field type="double" default="0" id="evolution"/>
+	</row>
+
+    <row name="Color-Shift">
+		<field type="double" min="0" max="1.0" default="1.0" id="colorShift"/>
+	</row> 
+    <row name="Negative">
+		<field type="double" min="0" max="1.0" default="0.15" id="negative"/>
+	</row> 
+    <row name="Darken">
+		<field type="double" min="0" max="1.0" default="0.1" id="darken"/>
+	</row> 
+
+
+	<shader vert="common.vert" frag="glitch.frag"/>
+</effect>
