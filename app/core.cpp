@@ -356,8 +356,9 @@ void Core::DialogExportShow()
   if (viewer) {
     Sequence* sequence = dynamic_cast<Sequence*>(viewer->parent());
 
-    ExportDialog ed(viewer, sequence, main_window_);
-    ed.exec();
+    ExportDialog* ed = new ExportDialog(viewer, sequence, main_window_);
+    connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
+    ed->open();
   }
 }
 
