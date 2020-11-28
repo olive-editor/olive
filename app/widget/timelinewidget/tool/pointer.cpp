@@ -52,6 +52,8 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
   // Determine if item clicked on is selectable
   clicked_item_ = parent()->GetItemAtScenePos(event->GetCoordinates());
 
+  can_rubberband_select_ = false;
+
   bool selectable_item = (clicked_item_
                           && !parent()->GetTrackFromReference(clicked_item_->Track())->IsLocked());
 
