@@ -54,6 +54,8 @@ public:
 
   TimeRuler* ruler() const;
 
+  virtual bool eventFilter(QObject* object, QEvent* event) override;
+
 public slots:
   void SetTimestamp(int64_t timestamp);
 
@@ -120,6 +122,8 @@ protected:
   TimelinePoints* GetConnectedTimelinePoints() const;
 
   void ConnectTimelineView(TimelineViewBase* base);
+
+  void PassWheelEventsToScrollBar(QObject* object);
 
 protected slots:
   /**
@@ -198,6 +202,8 @@ private:
   int toggle_show_all_old_scroll_;
 
   bool auto_set_timebase_;
+
+  QVector<QObject*> wheel_passthrough_objects_;
 
 private slots:
   void UpdateMaximumScroll();

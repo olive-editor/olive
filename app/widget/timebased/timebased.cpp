@@ -45,6 +45,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
 
   scrollbar_ = new ResizableScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
+
+  PassWheelEventsToScrollBar(ruler_);
 }
 
 void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
@@ -235,6 +237,12 @@ TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
 void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
 {
   timeline_views_.append(base);
+}
+
+void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
+{
+  wheel_passthrough_objects_.append(object);
+  object->installEventFilter(this);
 }
 
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
@@ -568,6 +576,15 @@ void TimeBasedWidget::MarkerAddCommand::redo_internal()
 void TimeBasedWidget::MarkerAddCommand::undo_internal()
 {
   marker_list_->RemoveMarker(added_marker_);
+}
+
+bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
+{
+  if (wheel_passthrough_objects_.contains(object) && event->type() == QEvent::Wheel) {
+    QCoreApplication::sendEvent(scrollbar(), event);
+  }
+
+  return false;
 }
 
 }
