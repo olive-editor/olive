@@ -34,6 +34,9 @@ public:
   virtual void MouseMove(TimelineViewMouseEvent *event) override;
   virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
+private:
+  QPoint drag_global_start_;
+
 };
 
 }

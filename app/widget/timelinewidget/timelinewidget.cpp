@@ -1427,16 +1427,19 @@ void TimelineWidget::RestoreSplitterState(const QByteArray &state)
   view_splitter_->restoreState(state);
 }
 
-void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_links)
+void TimelineWidget::StartRubberBandSelect(const QPoint &global_cursor_start)
 {
-  drag_origin_ = QCursor::pos();
+  drag_origin_ = global_cursor_start;
+
+  // Start rubberband at origin
+  QPoint local_origin = mapFromGlobal(drag_origin_);
+  rubberband_.setGeometry(QRect(local_origin.x(), local_origin.y(), 0, 0));
+
   rubberband_.show();
 
   // We don't touch any blocks that are already selected. If you want these to be deselected by
   // default, call DeselectAll() before calling StartRubberBandSelect()
   rubberband_old_selections_ = selections_;
-
-  MoveRubberBandSelect(enable_selecting, select_links);
 }
 
 void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_links)

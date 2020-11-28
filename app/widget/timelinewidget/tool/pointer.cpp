@@ -121,21 +121,38 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
 
     parent()->SignalSelectedBlocks(selected_blocks);
 
-  } else if (event->GetButton() == Qt::LeftButton) {
+  }
 
-    // Start rubberband drag
-    parent()->StartRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
+  can_rubberband_select_ =  (event->GetButton() == Qt::LeftButton                              // Only rubberband select from the primary mouse button
+                             && (!selectable_item || drag_movement_mode_ == Timeline::kNone)); // And if no item was selected OR the item isn't draggable
 
-    rubberband_selecting_ = true;
-
+  if (can_rubberband_select_) {
+    drag_global_start_ = QCursor::pos();
   }
 }
 
 void PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
-  if (rubberband_selecting_) {
+  if (can_rubberband_select_) {
+
+    if (!rubberband_selecting_) {
+
+      // If we clicked an item but are rubberband selecting anyway, deselect it now
+      if (clicked_item_) {
+        parent()->RemoveSelection(clicked_item_);
+        parent()->SignalDeselectedBlocks({clicked_item_->block()});
+        clicked_item_ = nullptr;
+      }
+
+      parent()->StartRubberBandSelect(drag_global_start_);
+
+      rubberband_selecting_ = true;
+
+    }
+
     // Process rubberband select
     parent()->MoveRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
+
   } else {
     // Process drag
     if (!dragging_) {

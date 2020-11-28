@@ -113,12 +113,15 @@ private:
   bool trimming_allowed_;
   bool track_movement_allowed_;
   bool gap_trimming_allowed_;
+  bool can_rubberband_select_;
   bool rubberband_selecting_;
 
   Timeline::TrackType drag_track_type_;
   Timeline::MovementMode drag_movement_mode_;
 
   TimelineViewBlockItem* clicked_item_;
+
+  QPoint drag_global_start_;
 
 };
 
