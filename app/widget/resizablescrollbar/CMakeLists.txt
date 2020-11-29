@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/resizablescrollbar/resizablescrollbar.h
   widget/resizablescrollbar/resizablescrollbar.cpp
+  widget/resizablescrollbar/resizablescrollbar.h
+  widget/resizablescrollbar/resizabletimelinescrollbar.cpp
+  widget/resizablescrollbar/resizabletimelinescrollbar.h
   PARENT_SCOPE
 )
