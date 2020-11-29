@@ -84,17 +84,22 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
 
     double ratio = scale_ * double(gr.width()) / double(this->maximum() + gr.width());
 
-    qDebug() << "Calculated ratio as:" << ratio << "from groove" << gr.width() << "vs max:" << this->maximum();
-
     QPainter p(this);
 
     if (points_->workarea()->enabled()) {
       QColor workarea_color(this->palette().highlight().color());
       workarea_color.setAlpha(128);
 
-      int in = qRound(ratio * TimeToScene(points_->workarea()->in()));
-      int out = qRound(ratio * TimeToScene(points_->workarea()->out()));
-      int length = qMax(1, out-in);
+      int64_t in = qMax(int64_t(0), qRound64(ratio * TimeToScene(points_->workarea()->in())));
+
+      int64_t out;
+      if (points_->workarea()->out() == RATIONAL_MAX) {
+        out = gr.width();
+      } else {
+        out = qMin(int64_t(gr.width()), qRound64(ratio * TimeToScene(points_->workarea()->out())));
+      }
+
+      int64_t length = qMax(int64_t(1), out-in);
 
       p.fillRect(gr.x() + in,
                  0,
@@ -106,9 +111,9 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
     if (!points_->markers()->list().isEmpty()) {
       QColor marker_color(0, 255, 0, 128);
       foreach (TimelineMarker* marker, points_->markers()->list()) {
-        int in = qRound(ratio * TimeToScene(marker->time().in()));
-        int out = qRound(ratio * TimeToScene(marker->time().out()));
-        int length = qMax(1, out-in);
+        int64_t in = qRound64(ratio * TimeToScene(marker->time().in()));
+        int64_t out = qRound64(ratio * TimeToScene(marker->time().out()));
+        int64_t length = qMax(int64_t(1), out-in);
 
         p.fillRect(gr.x() + in,
                    0,
