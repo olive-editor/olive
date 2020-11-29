@@ -210,7 +210,7 @@ void TrackRippleRemoveAreaCommand::redo_internal()
   // If we picked up a block to splice
   if (splice_) {
 
-    if (trim_out_->type() == Block::kGap) {
+    if (trim_out_->type() == Block::kGap && !insert_) {
 
       // Gaps shouldn't be split, just trim the difference
       trim_out_->set_length_and_media_out(trim_out_->length() - (out_ - in_));
@@ -310,7 +310,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   if (splice_) {
 
-    if (trim_out_->type() == Block::kGap) {
+    if (trim_out_->type() == Block::kGap && !insert_) {
 
       // Just restore the length
       trim_out_->set_length_and_media_out(trim_out_->length() + (out_ - in_));
