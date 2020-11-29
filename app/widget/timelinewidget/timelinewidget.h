@@ -138,7 +138,7 @@ public:
 
   void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
-  void StartRubberBandSelect(bool enable_selecting, bool select_links);
+  void StartRubberBandSelect(const QPoint& global_cursor_start);
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
   void EndRubberBandSelect();
 

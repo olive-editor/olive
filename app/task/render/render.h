@@ -81,7 +81,7 @@ protected:
   }
 
 private:
-  RenderTicketWatcher* CreateWatcher(QThread *thread);
+  void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
   void IncrementRunningTickets();
 

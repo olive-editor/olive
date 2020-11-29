@@ -47,6 +47,10 @@ void RenderProcessor::Run()
 
   ticket_->Start();
 
+  if (ticket_->WasCancelled()) {
+    return;
+  }
+
   switch (type) {
   case RenderManager::kTypeVideo:
   {
@@ -237,7 +241,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
       NodeValueTable::Merge({merged_table, table});
     }
 
-    if (ticket_->property("waveforms").toBool()) {
+    if (ticket_->property("enablewaveforms").toBool()) {
       // Generate a visual waveform and send it back to the main thread
       AudioVisualWaveform visual_waveform;
       visual_waveform.set_channel_count(audio_params.channel_count());

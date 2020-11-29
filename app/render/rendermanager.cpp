@@ -145,6 +145,10 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput* viewer, ColorManager* c
     ticket->setProperty("cache", cache->GetCacheDirectory());
   }
 
+  if (ticket->thread() != this->thread()) {
+    ticket->moveToThread(this->thread());
+  }
+
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
                             OLIVE_NS_ARG(RenderTicketPtr, ticket),
@@ -166,8 +170,12 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
-  ticket->setProperty("waveforms", generate_waveforms);
+  ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
+
+  if (ticket->thread() != this->thread()) {
+    ticket->moveToThread(this->thread());
+  }
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
@@ -186,6 +194,10 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   ticket->setProperty("frame", QVariant::fromValue(frame));
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);
+
+  if (ticket->thread() != this->thread()) {
+    ticket->moveToThread(this->thread());
+  }
 
   // Queue appending the ticket and running the next job on our thread to make this function thread-safe
   QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
