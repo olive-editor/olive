@@ -43,7 +43,7 @@ AudioWaveformView::AudioWaveformView(QWidget *parent) :
 void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
 {
   if (playback_) {
-    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    disconnect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdateOfRange);
     disconnect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(0);
@@ -52,7 +52,7 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdate);
+    connect(playback_, &AudioPlaybackCache::Validated, this, &AudioWaveformView::ForceUpdateOfRange);
     connect(playback_, &AudioPlaybackCache::ParametersChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(playback_->GetParameters().time_base());
@@ -86,7 +86,6 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
     ActiveCache& cache = cached_waveform_[i];
 
     int slice_start = width()/cached_waveform_.size() * i;
-    int slice_end = width()/cached_waveform_.size() * (i+1);
 
     if (cache.info == wanted_info) {
 
@@ -94,6 +93,8 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
       p.drawPixmap(slice_start, 0, cache.pixmap);
 
     } else if (cache.caching_info != wanted_info) {
+
+      int slice_end = width()/cached_waveform_.size() * (i+1);
 
       // Pixmap is obsolete, will need to draw again
 
@@ -183,6 +184,27 @@ void AudioWaveformView::ForceUpdate()
   update();
 }
 
+void AudioWaveformView::ForceUpdateOfRange(const TimeRange &range)
+{
+  int in = TimeToScreen(range.in());
+  int out = TimeToScreen(range.out());
+
+  // Don't need to redraw anything
+  if (out < 0 || in >= width()) {
+    return;
+  }
+
+  int start_invalidate = in/cached_waveform_.size();
+  int end_invalidate = qMin(cached_waveform_.size()-1, out/cached_waveform_.size());
+
+  for (int i=start_invalidate; i<=end_invalidate; i++) {
+    // Invalidate these
+    cached_waveform_[i].info.size = QSize();
+  }
+
+  update();
+}
+
 void AudioWaveformView::BackgroundCacheFinished()
 {
   // Retrieve sender
@@ -202,6 +224,9 @@ void AudioWaveformView::BackgroundCacheFinished()
     cached_waveform_[index].info = cached_waveform_[index].caching_info;
     cached_waveform_[index].pixmap = watcher->result();
     cached_waveform_[index].watcher = nullptr;
+
+    // Reset size
+    cached_waveform_[index].caching_info.size = QSize();
 
     // Update with new pixmap
     update();

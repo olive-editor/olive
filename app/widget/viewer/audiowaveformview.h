@@ -83,6 +83,8 @@ private slots:
 
   void ForceUpdate();
 
+  void ForceUpdateOfRange(const TimeRange& range);
+
   void BackgroundCacheFinished();
 
 };
