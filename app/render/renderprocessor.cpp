@@ -47,6 +47,10 @@ void RenderProcessor::Run()
 
   ticket_->Start();
 
+  if (ticket_->WasCancelled()) {
+    return;
+  }
+
   switch (type) {
   case RenderManager::kTypeVideo:
   {
