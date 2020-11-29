@@ -90,16 +90,16 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
       QColor workarea_color(this->palette().highlight().color());
       workarea_color.setAlpha(128);
 
-      int64_t in = qMax(int64_t(0), qRound64(ratio * TimeToScene(points_->workarea()->in())));
+      qint64 in = qMax(qint64(0), qRound64(ratio * TimeToScene(points_->workarea()->in())));
 
-      int64_t out;
+      qint64 out;
       if (points_->workarea()->out() == RATIONAL_MAX) {
         out = gr.width();
       } else {
-        out = qMin(int64_t(gr.width()), qRound64(ratio * TimeToScene(points_->workarea()->out())));
+        out = qMin(qint64(gr.width()), qRound64(ratio * TimeToScene(points_->workarea()->out())));
       }
 
-      int64_t length = qMax(int64_t(1), out-in);
+      qint64 length = qMax(qint64(1), out-in);
 
       p.fillRect(gr.x() + in,
                  0,
