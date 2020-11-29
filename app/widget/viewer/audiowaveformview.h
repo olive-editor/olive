@@ -21,6 +21,7 @@
 #ifndef AUDIOWAVEFORMVIEW_H
 #define AUDIOWAVEFORMVIEW_H
 
+#include <QtConcurrent/QtConcurrent>
 #include <QWidget>
 
 #include "audio/audiovisualwaveform.h"
@@ -44,17 +45,45 @@ protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
+  struct CachedWaveformInfo {
+    QSize size;
+    double scale;
+    int scroll;
+    AudioParams params;
+
+    bool operator==(const CachedWaveformInfo& rhs) const
+    {
+      return size == rhs.size
+          && qFuzzyCompare(scale, rhs.scale)
+          && scroll == rhs.scroll
+          && params == rhs.params;
+    }
+
+    bool operator!=(const CachedWaveformInfo& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
+
+  struct ActiveCache {
+    QPixmap pixmap;
+    CachedWaveformInfo info;
+    CachedWaveformInfo caching_info;
+    QFutureWatcher<QPixmap>* watcher = nullptr;
+  };
+
+  QPixmap DrawWaveform(QIODevice *fs, CachedWaveformInfo info, int slice_start, int slice_end) const;
+
   AudioPlaybackCache *playback_;
 
-  QPixmap cached_waveform_;
-  QSize cached_size_;
-  double cached_scale_;
-  int cached_scroll_;
+  QVector<ActiveCache> cached_waveform_;
 
 private slots:
   void BackendParamsChanged();
 
   void ForceUpdate();
+
+  void BackgroundCacheFinished();
 
 };
 
