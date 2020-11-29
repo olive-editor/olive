@@ -78,9 +78,6 @@ bool RenderTask::Render(ColorManager* manager,
     QVector<rational> times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
     QVector<QByteArray> hashes(times.size());
 
-    // Add to "total progress"
-    total_length += video_frame_sz * times.size();
-
     // Generate hashes
     for (int i=0; i<times.size(); i++) {
       if (IsCancelled()) {
@@ -115,6 +112,9 @@ bool RenderTask::Render(ColorManager* manager,
                                                                   cache));
       }
     }
+
+    // Add to "total progress"
+    total_length += video_frame_sz * time_map.size();
   }
 
   finished_watcher_mutex_.lock();
