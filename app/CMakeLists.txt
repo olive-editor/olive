@@ -50,11 +50,7 @@ add_subdirectory(undo)
 add_subdirectory(widget)
 add_subdirectory(window)
 
-# Create main application target
-set(OLIVE_TARGET "olive-editor")
 if(APPLE)
-  set(OLIVE_TARGET "Olive")
-
   set(OLIVE_ICON packaging/macos/olive.icns)
 
   set(OLIVE_RESOURCES
@@ -79,17 +75,18 @@ set(OLIVE_RESOURCES
 )
 
 # Add executable
-add_executable(${OLIVE_TARGET}
+add_executable(olive-editor
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
 )
 
 if(APPLE)
-  set_target_properties(${OLIVE_TARGET} PROPERTIES
+  set_target_properties(olive-editor PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
     MACOSX_BUNDLE_ICON_FILE olive.icns
     RESOURCE "${OLIVE_ICON}"
+    OUTPUT_NAME "Olive"
   )
 
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
@@ -98,7 +95,7 @@ endif()
 # Set compiler options
 if(MSVC)
   target_compile_options(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     /WX
     /wd4267
@@ -111,7 +108,7 @@ if(MSVC)
   )
 else()
   target_compile_options(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     "$<$<CONFIG:RELEASE>:-O2>"
     -Werror
@@ -126,7 +123,7 @@ endif()
 
 if(UNIX AND NOT APPLE)
   target_link_options(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     -rdynamic
   )
@@ -134,7 +131,7 @@ endif()
 
 # Set include directories
 target_include_directories(
-  ${OLIVE_TARGET}
+  olive-editor
   PRIVATE
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
@@ -149,7 +146,7 @@ target_include_directories(
 
 # Set link libraries
 target_link_libraries(
-  ${OLIVE_TARGET}
+  olive-editor
   PRIVATE
   Qt5::Core
   Qt5::Gui
@@ -172,13 +169,13 @@ target_link_libraries(
 
 if (WIN32)
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     DbgHelp
   )
 elseif (APPLE)
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     "-framework ApplicationServices"
   )
@@ -189,20 +186,20 @@ if (OpenTimelineIO_FOUND)
   set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_OTIO)
 
   target_include_directories(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${OTIO_INCLUDE_DIRS}
   )
 
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${OTIO_LIBRARIES}
   )
 endif()
 
 if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
+  install(TARGETS olive-editor RUNTIME DESTINATION bin)
 endif()
 
 # Enable Crashpad if found
@@ -210,13 +207,13 @@ if (GoogleCrashpad_FOUND)
   set(OLIVE_DEFINITIONS ${OLIVE_DEFINITIONS} USE_CRASHPAD)
 
   target_include_directories(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${CRASHPAD_INCLUDE_DIRS}
   )
 
   target_link_libraries(
-    ${OLIVE_TARGET}
+    olive-editor
     PRIVATE
     ${CRASHPAD_LIBRARIES}
   )
@@ -270,15 +267,15 @@ if (GoogleCrashpad_FOUND)
   if(APPLE)
     # Move crash handler executables inside Mac app bundle
     add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:olive-editor>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:olive-editor>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:olive-editor>
     )
   endif()
 endif()
 
 # Set compiler definitions
-target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
+target_compile_definitions(olive-editor PRIVATE ${OLIVE_DEFINITIONS})
 
 add_subdirectory(packaging)
 
