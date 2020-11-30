@@ -89,8 +89,6 @@ if(APPLE)
     RESOURCE "${OLIVE_ICON}"
     OUTPUT_NAME "Olive"
   )
-
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
 endif()
 
 # Set compiler options

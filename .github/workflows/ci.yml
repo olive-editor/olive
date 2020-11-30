@@ -359,7 +359,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           PATH=$GITHUB_WORKSPACE:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+            cmake $GITHUB_WORKSPACE -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
