@@ -83,6 +83,7 @@ add_executable(olive-editor
 if(APPLE)
   set_target_properties(olive-editor PROPERTIES
     MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/MacOSXBundleInfo.plist.in
     MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
     MACOSX_BUNDLE_ICON_FILE olive.icns
     RESOURCE "${OLIVE_ICON}"
