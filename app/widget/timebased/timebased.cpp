@@ -43,7 +43,7 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
 
-  scrollbar_ = new ResizableScrollBar(Qt::Horizontal, this);
+  scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
 
   PassWheelEventsToScrollBar(ruler_);
@@ -91,6 +91,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     points_ = nullptr;
     ruler()->ConnectTimelinePoints(nullptr);
+    scrollbar_->ConnectTimelinePoints(nullptr);
   }
 
   viewer_node_ = node;
@@ -102,6 +103,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     if ((points_ = ConnectTimelinePoints())) {
       ruler()->ConnectTimelinePoints(points_);
+      scrollbar_->ConnectTimelinePoints(points_);
     }
 
     if (auto_set_timebase_) {
@@ -179,7 +181,7 @@ TimeRuler *TimeBasedWidget::ruler() const
   return ruler_;
 }
 
-ResizableScrollBar *TimeBasedWidget::scrollbar() const
+ResizableTimelineScrollBar *TimeBasedWidget::scrollbar() const
 {
   return scrollbar_;
 }
@@ -189,6 +191,7 @@ void TimeBasedWidget::TimebaseChangedEvent(const rational &timebase)
   TimelineScaledWidget::TimebaseChangedEvent(timebase);
 
   ruler_->SetTimebase(timebase);
+  scrollbar_->SetTimebase(timebase);
 
   emit TimebaseChanged(timebase);
 }
@@ -198,6 +201,7 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   TimelineScaledWidget::ScaleChangedEvent(scale);
 
   ruler_->SetScale(scale);
+  scrollbar_->SetScale(scale);
 
   UpdateMaximumScroll();
 

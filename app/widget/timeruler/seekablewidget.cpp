@@ -129,27 +129,27 @@ void SeekableWidget::SetScroll(int s)
   update();
 }
 
-double SeekableWidget::ScreenToUnitFloat(int screen)
+double SeekableWidget::ScreenToUnitFloat(int screen) const
 {
   return (screen + scroll_) / GetScale() / timebase_dbl();
 }
 
-int64_t SeekableWidget::ScreenToUnit(int screen)
+int64_t SeekableWidget::ScreenToUnit(int screen) const
 {
   return qFloor(ScreenToUnitFloat(screen));
 }
 
-int64_t SeekableWidget::ScreenToUnitRounded(int screen)
+int64_t SeekableWidget::ScreenToUnitRounded(int screen) const
 {
   return qRound64(ScreenToUnitFloat(screen));
 }
 
-int SeekableWidget::UnitToScreen(int64_t unit)
+int SeekableWidget::UnitToScreen(int64_t unit) const
 {
   return qFloor(static_cast<double>(unit) * GetScale() * timebase_dbl()) - scroll_;
 }
 
-int SeekableWidget::TimeToScreen(const rational &time)
+int SeekableWidget::TimeToScreen(const rational &time) const
 {
   return qFloor(time.toDouble() * GetScale()) - scroll_;
 }

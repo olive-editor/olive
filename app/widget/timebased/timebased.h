@@ -25,7 +25,7 @@
 
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
-#include "widget/resizablescrollbar/resizablescrollbar.h"
+#include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
@@ -97,7 +97,7 @@ protected slots:
   void SetTimeAndSignal(const int64_t& t);
 
 protected:
-  ResizableScrollBar* scrollbar() const;
+  ResizableTimelineScrollBar* scrollbar() const;
 
   virtual void TimebaseChangedEvent(const rational&) override;
 
@@ -188,7 +188,7 @@ private:
 
   TimeRuler* ruler_;
 
-  ResizableScrollBar* scrollbar_;
+  ResizableTimelineScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
 
