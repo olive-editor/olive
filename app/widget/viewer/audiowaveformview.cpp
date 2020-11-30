@@ -194,7 +194,7 @@ void AudioWaveformView::ForceUpdateOfRange(const TimeRange &range)
     return;
   }
 
-  int start_invalidate = in/cached_waveform_.size();
+  int start_invalidate = qMax(0, in/cached_waveform_.size());
   int end_invalidate = qMin(cached_waveform_.size()-1, out/cached_waveform_.size());
 
   for (int i=start_invalidate; i<=end_invalidate; i++) {
