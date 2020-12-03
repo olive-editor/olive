@@ -48,7 +48,8 @@ EncodingParams::EncodingParams() :
   video_max_bit_rate_(0),
   video_buffer_size_(0),
   video_threads_(0),
-  audio_enabled_(false)
+  audio_enabled_(false),
+  audio_bit_rate_(0)
 {
 }
 

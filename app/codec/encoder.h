@@ -69,6 +69,16 @@ public:
   const ExportCodec::Codec &audio_codec() const;
   const AudioParams& audio_params() const;
 
+  const int64_t& audio_bit_rate() const
+  {
+    return audio_bit_rate_;
+  }
+
+  void set_audio_bit_rate(const int64_t& b)
+  {
+    audio_bit_rate_ = b;
+  }
+
   const rational& GetExportLength() const;
   void SetExportLength(const rational& GetExportLength);
 
@@ -90,6 +100,7 @@ private:
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
   AudioParams audio_params_;
+  int64_t audio_bit_rate_;
 
   rational export_length_;
 
