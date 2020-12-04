@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,12 +29,11 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 LoadOTIOTask::LoadOTIOTask(const QString& s) :
   ProjectLoadBaseTask(s)
@@ -52,7 +51,7 @@ bool LoadOTIOTask::Run()
     return false;
   }
 
-  project_ = std::make_shared<Project>();
+  project_ = new Project();
   project_->set_filename(GetFilename());
 
   std::vector<OTIO::Timeline*> timelines;
@@ -164,18 +163,16 @@ bool LoadOTIOTask::Run()
             if (imported_footage.contains(footage_url)) {
               probed_item = imported_footage.value(footage_url);
             } else {
-              probed_item = Decoder::ProbeMedia(project_.get(), footage_url, &IsCancelled());
+              probed_item = Decoder::Probe(project_, footage_url, &IsCancelled());
               imported_footage.insert(footage_url, probed_item);
               project_->root()->add_child(probed_item);
             }
 
             if (probed_item && probed_item->type() == Item::kFootage) {
-              MediaInput* media;
+              MediaInput* media = new MediaInput();
               if (track->track_type() == Timeline::kTrackTypeVideo) {
-                media = new VideoInput();
                 media->SetStream(probed_item->get_first_stream_of_type(Stream::kVideo));
               } else {
-                media = new AudioInput();
                 media->SetStream(probed_item->get_first_stream_of_type(Stream::kAudio));
               }
               sequence->AddNode(media);
@@ -207,4 +204,4 @@ bool LoadOTIOTask::Run()
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

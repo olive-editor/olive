@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
@@ -53,8 +53,22 @@ Timeline::MovementMode TimelineTool::FlipTrimMode(const Timeline::MovementMode &
   return trim_mode;
 }
 
+rational TimelineTool::SnapMovementToTimebase(const rational &start, rational movement, const rational &timebase)
+{
+  rational proposed_position = start + movement;
+  rational snapped = Timecode::snap_time_to_timebase(proposed_position, timebase);
+
+  if (proposed_position != snapped) {
+    movement += snapped - proposed_position;
+  }
+
+  return movement;
+}
+
 rational TimelineTool::ValidateTimeMovement(rational movement)
 {
+  bool first_ghost = true;
+
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     if (ghost->GetMode() != Timeline::kMove) {
       continue;
@@ -63,6 +77,11 @@ rational TimelineTool::ValidateTimeMovement(rational movement)
     // Prevents any ghosts from going below 0:00:00 time
     if (ghost->GetIn() + movement < 0) {
       movement = -ghost->GetIn();
+    } else if (first_ghost) {
+      // Ensure ghost is snapped to a grid
+      movement = SnapMovementToTimebase(ghost->GetIn(), movement, parent()->GetTimebaseForTrackType(ghost->GetTrack().type()));
+
+      first_ghost = false;
     }
   }
 
@@ -119,4 +138,4 @@ void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
   parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

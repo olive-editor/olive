@@ -1,8 +1,6 @@
-#version 150
-
 uniform sampler2D ove_maintex;
-uniform vec2 ove_resolution;
-uniform vec2 ove_viewport;
+
+uniform vec2 viewport;
 uniform vec3 luma_coeffs;
 
 uniform float waveform_scale;
@@ -12,7 +10,7 @@ in vec2 ove_texcoord;
 out vec4 fragColor;
 
 void main(void) {
-    float waveform_height = ceil(waveform_scale * ove_viewport.y);
+    float waveform_height = ceil(waveform_scale * viewport.y);
     float quantisation = 1.0 / (waveform_height - 1.0);
     float intensity = 0.10;
     vec4 col = vec4(0.0);

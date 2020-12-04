@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include <QPainter>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ColorPreviewBox::ColorPreviewBox(QWidget *parent) :
   QWidget(parent),
@@ -66,4 +66,4 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
   p.drawRect(rect().adjusted(0, 0, -1, -1));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectLoadTask::ProjectLoadTask(const QString &filename) :
   ProjectLoadBaseTask(filename)
@@ -37,6 +37,7 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 bool ProjectLoadTask::Run()
 {
   QFile project_file(GetFilename());
+  uint project_version = Core::kProjectVersion;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
@@ -45,7 +46,7 @@ bool ProjectLoadTask::Run()
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("version")) {
-            uint project_version = reader.readElementText().toUInt();
+            project_version = reader.readElementText().toUInt();
 
             if (project_version > Core::kProjectVersion) {
               // Project is newer than we support
@@ -59,11 +60,11 @@ bool ProjectLoadTask::Run()
           } else if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
-            project_ = std::make_shared<Project>();
+            project_ = new Project();
 
             project_->set_filename(GetFilename());
 
-            project_->Load(&reader, &layout_info_, &IsCancelled());
+            project_->Load(&reader, &layout_info_, project_version, &IsCancelled());
 
             // Ensure project is in main thread
             project_->moveToThread(qApp->thread());
@@ -99,4 +100,4 @@ bool ProjectLoadTask::Run()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "curve.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurvePanel::CurvePanel(QWidget *parent) :
   TimeBasedPanel(QStringLiteral("CurvePanel"), parent)
@@ -37,7 +37,7 @@ void CurvePanel::DeleteSelected()
   static_cast<CurveWidget*>(GetTimeBasedWidget())->DeleteSelected();
 }
 
-void CurvePanel::SetNodes(const QList<Node *> &nodes)
+void CurvePanel::SetNodes(const QVector<Node *> &nodes)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetNodes(nodes);
 }
@@ -61,4 +61,4 @@ void CurvePanel::Retranslate()
   SetTitle(tr("Curve Editor"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

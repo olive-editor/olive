@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 QString padded(int64_t arg, int padding) {
   return QStringLiteral("%1").arg(arg, padding, 10, QChar('0'));
@@ -289,4 +289,4 @@ int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &sour
   return qCeil(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

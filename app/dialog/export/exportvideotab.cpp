@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "render/colormanager.h"
 #include "task/export/exportparams.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   QWidget(parent),
@@ -114,6 +114,13 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   interlaced_combobox_ = new InterlacedComboBox();
   layout->addWidget(interlaced_combobox_, row, 1);
+
+  row++;
+
+  layout->addWidget(new QLabel(tr("Quality:")), row, 0);
+
+  pixel_format_field_ = new PixelFormatComboBox(true);
+  layout->addWidget(pixel_format_field_, row, 1);
 
   return resolution_group;
 }
@@ -199,4 +206,4 @@ void ExportVideoTab::VideoCodecChanged()
   qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

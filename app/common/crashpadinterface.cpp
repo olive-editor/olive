@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ crashpad::CrashpadClient *client;
 
 QString GenerateReportPath()
 {
-  return QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+  return QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
 }
 
 base::FilePath GenerateReportPathForCrashpad()
@@ -90,7 +90,7 @@ bool InitializeCrashpad()
 
     base::FilePath reports_dir = GenerateReportPathForCrashpad();
 
-    base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(OLIVE_NAMESPACE::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
+    base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
 
     // Metadata that will be posted to the server with the crash report map
     std::map<std::string, std::string> annotations;

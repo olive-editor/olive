@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
@@ -115,13 +115,14 @@ void TimelineView::wheelEvent(QWheelEvent *event)
     return;
   } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-    
+
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    if (Config::Current()["InvertTimelineScrollAxes"].toBool() // Check if config is set to invert timeline axes
+        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
-    
+
     QWheelEvent e(
       #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
           event->position(),
@@ -228,8 +229,6 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
 void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
-  TimelineViewBase::drawForeground(painter, rect);
-
   // Draw selections
   if (selections_ && !selections_->isEmpty()) {
     painter->setPen(Qt::NoPen);
@@ -255,7 +254,8 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
     painter->setBrush(Qt::NoBrush);
 
     foreach (TimelineViewGhostItem* ghost, (*ghosts_)) {
-      if (ghost->GetTrack().type() == connected_track_list_->type()) {
+      if (ghost->GetTrack().type() == connected_track_list_->type()
+          && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
 
         painter->drawRect(TimeToScene(ghost->GetAdjustedIn()),
@@ -281,6 +281,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
                       cursor_x,
                       track_y + GetTrackHeight(track_index));
   }
+
+  // Draw standard TimelineViewBase things (such as playhead)
+  TimelineViewBase::drawForeground(painter, rect);
 }
 
 void TimelineView::ToolChangedEvent(Tool::Item tool)
@@ -480,4 +483,4 @@ void TimelineView::UserSetTime(const int64_t &time)
   emit TimeChanged(time);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

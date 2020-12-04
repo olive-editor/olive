@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "project/project.h"
 #include "render/colormanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 VideoStream::VideoStream() :
   premultiplied_alpha_(false),
@@ -104,7 +104,9 @@ void VideoStream::LoadCustomParameters(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("type")) {
       set_video_type(static_cast<VideoType>(reader->readElementText().toInt()));
     } else if (reader->name() == QStringLiteral("format")) {
-      set_format(static_cast<PixelFormat::Format>(reader->readElementText().toInt()));
+      set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("channels")) {
+      set_channel_count(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("pixelaspect")) {
       set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("framerate")) {
@@ -126,25 +128,32 @@ void VideoStream::SaveCustomParameters(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
   writer->writeTextElement(QStringLiteral("type"), QString::number(video_type_));
   writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+  writer->writeTextElement(QStringLiteral("channels"), QString::number(channel_count_));
   writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_ratio_.toString());
   writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
   writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
 }
 
-bool VideoStream::premultiplied_alpha() const
+bool VideoStream::premultiplied_alpha()
 {
+  QMutexLocker locker(mutex());
+
   return premultiplied_alpha_;
 }
 
 void VideoStream::set_premultiplied_alpha(bool e)
 {
+  mutex()->lock();
   premultiplied_alpha_ = e;
+  mutex()->unlock();
 
   emit ParametersChanged();
 }
 
-const QString &VideoStream::colorspace(bool default_if_empty) const
+const QString &VideoStream::colorspace(bool default_if_empty)
 {
+  QMutexLocker locker(mutex());
+
   if (colorspace_.isEmpty() && default_if_empty) {
     return footage()->project()->color_manager()->GetDefaultInputColorSpace();
   } else {
@@ -154,15 +163,11 @@ const QString &VideoStream::colorspace(bool default_if_empty) const
 
 void VideoStream::set_colorspace(const QString &color)
 {
+  mutex()->lock();
   colorspace_ = color;
+  mutex()->unlock();
 
   emit ParametersChanged();
-}
-
-QString VideoStream::get_colorspace_match_string() const
-{
-  return QStringLiteral("%1:%2").arg(footage()->project()->color_manager()->GetConfigFilename(),
-                                     colorspace());
 }
 
 void VideoStream::ColorConfigChanged()
@@ -190,4 +195,4 @@ void VideoStream::DefaultColorSpaceChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

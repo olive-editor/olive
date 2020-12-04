@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@
 
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
-#include "widget/resizablescrollbar/resizablescrollbar.h"
+#include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class TimeBasedWidget : public TimelineScaledWidget
 {
@@ -53,6 +53,8 @@ public:
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
   TimeRuler* ruler() const;
+
+  virtual bool eventFilter(QObject* object, QEvent* event) override;
 
 public slots:
   void SetTimestamp(int64_t timestamp);
@@ -95,7 +97,7 @@ protected slots:
   void SetTimeAndSignal(const int64_t& t);
 
 protected:
-  ResizableScrollBar* scrollbar() const;
+  ResizableTimelineScrollBar* scrollbar() const;
 
   virtual void TimebaseChangedEvent(const rational&) override;
 
@@ -121,6 +123,8 @@ protected:
 
   void ConnectTimelineView(TimelineViewBase* base);
 
+  void PassWheelEventsToScrollBar(QObject* object);
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
@@ -139,6 +143,27 @@ signals:
   void TimebaseChanged(const rational&);
 
 private:
+  class MarkerAddCommand : public UndoCommand
+  {
+  public:
+    MarkerAddCommand(Project* project, TimelineMarkerList* marker_list, const TimeRange& range, const QString& name);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
+
+  private:
+    Project* project_;
+    TimelineMarkerList* marker_list_;
+    TimeRange range_;
+    QString name_;
+
+    TimelineMarker* added_marker_;
+
+  };
+
   /**
    * @brief Set either in or out point to the current playhead
    *
@@ -163,7 +188,7 @@ private:
 
   TimeRuler* ruler_;
 
-  ResizableScrollBar* scrollbar_;
+  ResizableTimelineScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
 
@@ -178,13 +203,23 @@ private:
 
   bool auto_set_timebase_;
 
+  QVector<QObject*> wheel_passthrough_objects_;
+
 private slots:
   void UpdateMaximumScroll();
 
   void ScrollBarResized(const double& multiplier);
 
+  /**
+   * @brief Slot to handle page scrolling of the playhead
+   *
+   * If the playhead is outside the current scroll bounds, this function will scroll to where it is. Otherwise it will
+   * do nothing.
+   */
+  void PageScrollToPlayhead();
+
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMEBASEDWIDGET_H

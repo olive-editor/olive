@@ -1,10 +1,8 @@
-#version 150
-
 uniform vec2[256] points_in;
 uniform int points_in_count;
 uniform vec4 color_in;
 
-uniform vec2 ove_resolution;
+uniform vec2 resolution_in;
 
 in vec2 ove_texcoord;
 
@@ -36,7 +34,7 @@ bool pnpoly(vec2 p) {
 }
 
 void main(void) {
-    if (points_in_count > 0 && pnpoly(ove_texcoord * ove_resolution)) {
+    if (points_in_count > 0 && pnpoly(ove_texcoord * resolution_in)) {
         fragColor = color_in;
     } else {
         fragColor = vec4(0.0, 0.0, 0.0, 0.0);

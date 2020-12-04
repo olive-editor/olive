@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "widget/projecttoolbar/projecttoolbar.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("ProjectPanel"), parent)
@@ -51,9 +51,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   // Make toolbar connections
   connect(toolbar, &ProjectToolbar::NewClicked, this, &ProjectPanel::ShowNewMenu);
   connect(toolbar, &ProjectToolbar::OpenClicked, Core::instance(), &Core::OpenProject);
-  connect(toolbar, &ProjectToolbar::SaveClicked, Core::instance(), &Core::SaveActiveProject);
-  connect(toolbar, &ProjectToolbar::UndoClicked, Core::instance()->undo_stack(), &QUndoStack::undo);
-  connect(toolbar, &ProjectToolbar::RedoClicked, Core::instance()->undo_stack(), &QUndoStack::redo);
+  connect(toolbar, &ProjectToolbar::SaveClicked, this, &ProjectPanel::SaveConnectedProject);
 
   // Set up main explorer object
   explorer_ = new ProjectExplorer(this);
@@ -229,6 +227,11 @@ void ProjectPanel::UpdateSubtitle()
   }
 }
 
+void ProjectPanel::SaveConnectedProject()
+{
+  Core::instance()->SaveProject(this->project());
+}
+
 QList<Footage *> ProjectPanel::GetSelectedFootage() const
 {
   QList<Item*> items = SelectedItems();
@@ -243,4 +246,4 @@ QList<Footage *> ProjectPanel::GetSelectedFootage() const
   return footage;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

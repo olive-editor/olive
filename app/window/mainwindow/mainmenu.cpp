@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "widget/menu/menushared.h"
 #include "mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
@@ -50,8 +50,7 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_new_menu_ = new Menu(file_menu_);
   MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", Core::instance(), &Core::OpenProject, "Ctrl+O");
-  file_open_recent_menu_ = new Menu(file_menu_, this, &MainMenu::PopulateOpenRecent);
-  connect(file_open_recent_menu_, &Menu::aboutToHide, this, &MainMenu::CloseOpenRecentMenu);
+  file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_separator_ = file_open_recent_menu_->addSeparator();
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
   file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, "Ctrl+S");
@@ -255,6 +254,9 @@ MainMenu::MainMenu(MainWindow *parent) :
   help_menu_->addSeparator();
   help_about_item_ = help_menu_->AddItem("about", Core::instance(), &Core::DialogAboutShow);
 
+  connect(Core::instance(), &Core::OpenRecentListChanged, this, &MainMenu::RepopulateOpenRecent);
+  PopulateOpenRecent();
+
   Retranslate();
 }
 
@@ -280,7 +282,7 @@ void MainMenu::ToolItemTriggered()
 
 void MainMenu::FileMenuAboutToShow()
 {
-  Project* active_project = Core::instance()->GetActiveProject().get();
+  Project* active_project = Core::instance()->GetActiveProject();
 
   file_project_properties_item_->setEnabled(active_project);
   file_save_item_->setEnabled(active_project);
@@ -396,6 +398,12 @@ void MainMenu::PopulateOpenRecent()
     }
 
   }
+}
+
+void MainMenu::RepopulateOpenRecent()
+{
+  CloseOpenRecentMenu();
+  PopulateOpenRecent();
 }
 
 void MainMenu::CloseOpenRecentMenu()
@@ -657,7 +665,7 @@ void MainMenu::Retranslate()
   sequence_cache_in_to_out_item_->setText(tr("Cache Sequence In/Out"));
 
   // Window menu
-  window_menu_->setTitle("&Window");
+  window_menu_->setTitle(tr("&Window"));
   window_maximize_panel_item_->setText(tr("Maximize Panel"));
   window_lock_layout_item_->setText(tr("Lock Panels"));
   window_reset_layout_item_->setText(tr("Reset to Default Layout"));
@@ -684,4 +692,4 @@ void MainMenu::Retranslate()
   help_about_item_->setText(tr("&About..."));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

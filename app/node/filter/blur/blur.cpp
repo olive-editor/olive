@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include "blur.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 BlurFilterNode::BlurFilterNode()
 {
@@ -31,7 +31,7 @@ BlurFilterNode::BlurFilterNode()
   AddInput(method_input_);
 
   radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
-  radius_input_->set_property(QStringLiteral("min"), 0.0f);
+  radius_input_->setProperty("min", 0.0f);
   AddInput(radius_input_);
 
   horiz_input_ = new NodeInput("horiz_in", NodeParam::kBoolean, true);
@@ -59,7 +59,7 @@ QString BlurFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.blur");
 }
 
-QList<Node::CategoryID> BlurFilterNode::Category() const
+QVector<Node::CategoryID> BlurFilterNode::Category() const
 {
   return {kCategoryFilter};
 }
@@ -83,7 +83,7 @@ void BlurFilterNode::Retranslate()
 ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(ReadFileAsString(":/shaders/blur.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
 NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
@@ -96,23 +96,25 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(horiz_input_, value);
   job.InsertValue(vert_input_, value);
   job.InsertValue(repeat_edge_pixels_input_, value);
+  job.InsertValue(QStringLiteral("resolution_in"),
+                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
 
   NodeValueTable table = value.Merge();
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(texture_input_).data().isNull()) {
+  if (!job.GetValue(texture_input_).data.isNull()) {
 
     // Check if radius > 0, and both "horiz" and/or "vert" are enabled
-    if ((job.GetValue(horiz_input_).data().toBool() || job.GetValue(vert_input_).data().toBool())
-        && job.GetValue(radius_input_).data().toDouble() > 0.0) {
+    if ((job.GetValue(horiz_input_).data.toBool() || job.GetValue(vert_input_).data.toBool())
+        && job.GetValue(radius_input_).data.toDouble() > 0.0) {
 
       // Set iteration count to 2 if we're blurring both horizontally and vertically
-      if (job.GetValue(horiz_input_).data().toBool() && job.GetValue(vert_input_).data().toBool()) {
+      if (job.GetValue(horiz_input_).data.toBool() && job.GetValue(vert_input_).data.toBool()) {
         job.SetIterations(2, texture_input_);
       }
 
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(repeat_edge_pixels_input_).data().toBool()) {
+      if (!job.GetValue(repeat_edge_pixels_input_).data.toBool()) {
         job.SetAlphaChannelRequired(true);
       }
 
@@ -120,7 +122,7 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
 
     } else {
       // If we're not performing the blur job, just push the texture
-      table.Push(job.GetValue(texture_input_));
+      table.Push(job.GetValue(texture_input_), this);
     }
 
   }
@@ -128,4 +130,4 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   return table;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

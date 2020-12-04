@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/ts">
+    @QRC_BODY@
+  </qresource>
+</RCC>

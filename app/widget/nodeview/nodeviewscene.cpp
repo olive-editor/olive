@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "nodeviewitem.h"
 #include "project/item/sequence/sequence.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
@@ -120,10 +120,10 @@ void NodeViewScene::SetGraph(NodeGraph *graph)
   graph_ = graph;
 }
 
-QList<Node *> NodeViewScene::GetSelectedNodes() const
+QVector<Node *> NodeViewScene::GetSelectedNodes() const
 {
   QHash<Node*, NodeViewItem*>::const_iterator iterator;
-  QList<Node *> selected;
+  QVector<Node *> selected;
 
   for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
     if (iterator.value()->isSelected()) {
@@ -134,10 +134,10 @@ QList<Node *> NodeViewScene::GetSelectedNodes() const
   return selected;
 }
 
-QList<NodeViewItem *> NodeViewScene::GetSelectedItems() const
+QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
 {
   QHash<Node*, NodeViewItem*>::const_iterator iterator;
-  QList<NodeViewItem *> selected;
+  QVector<NodeViewItem *> selected;
 
   for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
     if (iterator.value()->isSelected()) {
@@ -148,9 +148,9 @@ QList<NodeViewItem *> NodeViewScene::GetSelectedItems() const
   return selected;
 }
 
-QList<NodeEdge*> NodeViewScene::GetSelectedEdges() const
+QVector<NodeEdge*> NodeViewScene::GetSelectedEdges() const
 {
-  QList<NodeEdge*> edges;
+  QVector<NodeEdge*> edges;
 
   QHash<NodeEdge*, NodeViewEdge*>::const_iterator i;
 
@@ -228,7 +228,7 @@ void NodeViewScene::RemoveEdge(NodeEdgePtr edge)
 
 int NodeViewScene::DetermineWeight(Node *n)
 {
-  QList<Node*> inputs = n->GetImmediateDependencies();
+  QVector<Node*> inputs = n->GetImmediateDependencies();
 
   int weight = 0;
 
@@ -253,7 +253,7 @@ NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
 
 void NodeViewScene::ReorganizeFrom(Node* n)
 {
-  QList<Node*> immediates = n->GetImmediateDependencies();
+  QVector<Node*> immediates = n->GetImmediateDependencies();
 
   if (immediates.isEmpty()) {
     // Nothing to do
@@ -310,4 +310,4 @@ void NodeViewScene::NodeLabelChanged()
   item_map_.value(static_cast<Node*>(sender()))->update();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

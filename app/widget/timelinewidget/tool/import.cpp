@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,15 +30,15 @@
 #include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
+#include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "node/input/media/media.h"
 #include "node/math/math/math.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
@@ -63,7 +63,7 @@ ImportTool::ImportTool(TimelineWidget *parent) :
   TimelineTool(parent)
 {
   // Calculate width used for importing to give ghosts a slight lead-in so the ghosts aren't right on the cursor
-  import_pre_buffer_ = QFontMetricsWidth(parent->fontMetrics(), "HHHHHHHH");
+  import_pre_buffer_ = QtUtils::QFontMetricsWidth(parent->fontMetrics(), "HHHHHHHH");
 }
 
 void ImportTool::DragEnter(TimelineViewMouseEvent *event)
@@ -149,9 +149,10 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
       }
 
       // Generate tooltip (showing earliest in point of imported clip)
-      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, parent()->GetToolTipTimebase());
+      rational tooltip_timebase = parent()->GetTimebaseForTrackType(event->GetTrack().type());
+      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, tooltip_timebase);
       QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                             parent()->GetToolTipTimebase(),
+                                                             tooltip_timebase,
                                                              Core::instance()->GetTimecodeDisplay());
 
       // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
@@ -271,6 +272,12 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
       footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
     }
 
+    // Snap footage duration to timebase
+    rational snap_mvmt = SnapMovementToTimebase(footage_duration, 0, dest_tb);
+    if (!snap_mvmt.isNull()) {
+      footage_duration += snap_mvmt;
+    }
+
     foreach (TimelineViewGhostItem* ghost, footage_ghosts) {
       ghost->SetIn(ghost_start);
       ghost->SetOut(ghost_start + footage_duration);
@@ -314,17 +321,17 @@ void ImportTool::DropGhosts(bool insert)
     DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
 
     if (behavior == kDWSAsk) {
-      QCheckBox* dont_ask_again_box = new QCheckBox(tr("Don't ask me again"));
+      QCheckBox* dont_ask_again_box = new QCheckBox(QCoreApplication::translate("ImportTool", "Don't ask me again"));
 
       QMessageBox mbox(parent());
 
       mbox.setIcon(QMessageBox::Question);
-      mbox.setWindowTitle(tr("No Active Sequence"));
-      mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
+      mbox.setWindowTitle(QCoreApplication::translate("ImportTool", "No Active Sequence"));
+      mbox.setText(QCoreApplication::translate("ImportTool", "No sequence is currently open. Would you like to create one?"));
       mbox.setCheckBox(dont_ask_again_box);
 
-      QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
-      QPushButton* manual_params_btn = mbox.addButton(tr("Set Parameters Manually"), QMessageBox::NoRole);
+      QPushButton* auto_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+      QPushButton* manual_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Set Parameters Manually"), QMessageBox::NoRole);
       mbox.addButton(QMessageBox::Cancel);
 
       mbox.exec();
@@ -343,10 +350,10 @@ void ImportTool::DropGhosts(bool insert)
     }
 
     if (behavior != kDWSDisable) {
-      ProjectPtr active_project = Core::instance()->GetActiveProject();
+      Project* active_project = Core::instance()->GetActiveProject();
 
       if (active_project) {
-        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project.get());
+        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
 
         new_sequence->set_default_parameters();
 
@@ -397,8 +404,8 @@ void ImportTool::DropGhosts(bool insert)
 
     QVector<Block*> block_items(parent()->GetGhostItems().size());
 
-    // Check if we're inserting
-    if (insert) {
+    // Check if we're inserting (only valid if we're not creating this sequence ourselves)
+    if (insert && !open_sequence) {
       InsertGapsAtGhostDestination(command);
     }
 
@@ -416,11 +423,16 @@ void ImportTool::DropGhosts(bool insert)
       switch (footage_stream->type()) {
       case Stream::kVideo:
       {
-        VideoInput* video_input = new VideoInput();
+        MediaInput* video_input = new MediaInput();
         video_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
-        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
+
+        TransformDistortNode* transform = new TransformDistortNode();
+        new NodeAddCommand(dst_graph, transform, command);
+
+        new NodeEdgeAddCommand(video_input->output(), transform->texture_input(), command);
+        new NodeEdgeAddCommand(transform->output(), clip->texture_input(), command);
 
         /*
         MatrixGenerator* matrix = new MatrixGenerator();
@@ -438,7 +450,7 @@ void ImportTool::DropGhosts(bool insert)
       }
       case Stream::kAudio:
       {
-        AudioInput* audio_input = new AudioInput();
+        MediaInput* audio_input = new MediaInput();
         audio_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, audio_input, command);
 
@@ -498,9 +510,4 @@ QList<ImportTool::DraggedFootage> ImportTool::FootageToDraggedFootage(QList<Foot
   return df;
 }
 
-QString ImportTool::tr(const char *s)
-{
-  return QCoreApplication::translate("ImportTool", s);
 }
-
-OLIVE_NAMESPACE_EXIT

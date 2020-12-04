@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@
 
 #include <QtMath>
 
-OLIVE_NAMESPACE_ENTER
+#include "common/clamp.h"
+
+namespace olive {
 
 double Bezier::QuadraticXtoT(double x, double a, double b, double c)
 {
@@ -36,7 +38,10 @@ double Bezier::QuadraticTtoY(double a, double b, double c, double t)
 
 double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d)
 {
-  double tolerance = 0.0001;
+  const double tolerance = 0.0001;
+
+  // Clamp to prevent deadlocks
+  x_target = clamp(x_target, a, d);
 
   double lower = 0.0;
   double upper = 1.0;
@@ -51,7 +56,7 @@ double Bezier::CubicXtoT(double x_target, double a, double b, double c, double d
       upper = percent;
     }
 
-    percent = (upper + lower) / 2.0;
+    percent = (upper + lower) * 0.5;
     x = CubicTtoY(a, b, c, d, percent);
   }
 
@@ -63,4 +68,4 @@ double Bezier::CubicTtoY(double a, double b, double c, double d, double t)
   return qPow(1.0 - t, 3)*a + 3*qPow(1.0 - t, 2)*t*b + 3*(1.0 - t)*qPow(t, 2)*c + qPow(t, 3)*d;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

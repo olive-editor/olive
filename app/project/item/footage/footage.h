@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "project/item/footage/videostream.h"
 #include "timeline/timelinepoints.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Footage;
 using FootagePtr = std::shared_ptr<Footage>;
@@ -60,7 +60,7 @@ public:
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled) override;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
 
   /**
    * @brief Save function
@@ -250,6 +250,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // FOOTAGE_H

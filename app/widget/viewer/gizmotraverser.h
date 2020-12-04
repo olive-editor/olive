@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,28 +23,35 @@
 
 #include "node/traverser.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class GizmoTraverser : public NodeTraverser
 {
 public:
-  GizmoTraverser(const QSize& sequence_resolution) :
+  GizmoTraverser(const QVector2D& sequence_resolution) :
     size_(sequence_resolution)
   {
   }
 
 protected:
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
 
-  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+  virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
+
+  virtual QVector2D GenerateResolution() const override
+  {
+    return size_;
+  }
+
+  virtual QVariant ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
 
   // FIXME: Do something about audio?
 
 private:
-  QSize size_;
+  QVector2D size_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // GIZMOTRAVERSER_H

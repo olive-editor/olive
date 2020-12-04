@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 
 #include "waveoutput.h"
 
-OLIVE_NAMESPACE_ENTER
+#include "render/audioparams.h"
+
+namespace olive {
 
 const int16_t kWAVIntegerFormat = 1;
 const int16_t kWAVFloatFormat = 3;
@@ -60,18 +62,18 @@ bool WaveOutput::open()
 
     // Type of format
     switch (params_.format()) {
-    case SampleFormat::SAMPLE_FMT_U8:
-    case SampleFormat::SAMPLE_FMT_S16:
-    case SampleFormat::SAMPLE_FMT_S32:
-    case SampleFormat::SAMPLE_FMT_S64:
+    case AudioParams::kFormatUnsigned8:
+    case AudioParams::kFormatSigned16:
+    case AudioParams::kFormatSigned32:
+    case AudioParams::kFormatSigned64:
       write_int<int16_t>(&file_, kWAVIntegerFormat);
       break;
-    case SampleFormat::SAMPLE_FMT_FLT:
-    case SampleFormat::SAMPLE_FMT_DBL:
+    case AudioParams::kFormatFloat32:
+    case AudioParams::kFormatFloat64:
       write_int<int16_t>(&file_, kWAVFloatFormat);
       break;
-    case SampleFormat::SAMPLE_FMT_INVALID:
-    case SampleFormat::SAMPLE_FMT_COUNT:
+    case AudioParams::kFormatInvalid:
+    case AudioParams::kFormatCount:
       qWarning() << "Invalid sample format for WAVE audio";
       file_.close();
       return false;
@@ -175,4 +177,4 @@ void WaveOutput::write_int(QFile *file, T integer)
   file->write(bytes);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

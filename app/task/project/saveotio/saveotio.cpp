@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@
 #include "node/block/transition/transition.h"
 #include "node/input/media/media.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-SaveOTIOTask::SaveOTIOTask(ProjectPtr project) :
+SaveOTIOTask::SaveOTIOTask(Project *project) :
   project_(project)
 {
   SetTitle(tr("Exporting project to OpenTimelineIO"));
@@ -50,7 +50,7 @@ bool SaveOTIOTask::Run()
   std::vector<OTIO::SerializableObject*> serialized;
 
   foreach (ItemPtr item, sequences) {
-    SequencePtr seq = std::static_pointer_cast<Sequence>(sequences.first());
+    SequencePtr seq = std::static_pointer_cast<Sequence>(item);
 
     auto otio_timeline = SerializeTimeline(seq);
 
@@ -136,7 +136,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
       otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
                                                   block->length().toRationalTime()));
 
-      QList<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
+      QVector<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
       if (!media_nodes.isEmpty()) {
         auto media_ref = new OTIO::ExternalReference(media_nodes.first()->stream()->footage()->filename().toStdString());
         otio_clip->set_media_reference(media_ref);
@@ -209,4 +209,4 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, OTIO::Timeline* otio_time
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

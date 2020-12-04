@@ -1,14 +1,12 @@
-#version 150
-
 // Node parameter inputs
 uniform sampler2D tex_in;
 uniform vec4 color_in;
 uniform float radius_in;
 uniform float opacity_in;
 uniform bool inner_in;
+uniform vec2 resolution_in;
 
 // Standard inputs
-uniform vec2 ove_resolution;
 uniform int ove_iteration;
 
 in vec2 ove_texcoord;
@@ -34,10 +32,10 @@ void main(void) {
 
     // Loop over box
     for (float i=-radius + 0.5; i<=radius; i += 2.0) {
-        float x_coord = i / ove_resolution.x;
+        float x_coord = i / resolution_in.x;
 
         for (float j=-radius + 0.5; j<=radius; j += 2.0) {
-            float y_coord = j / ove_resolution.y;
+            float y_coord = j / resolution_in.y;
 
             if (abs(length(vec2(i, j))) < radius) {
                 // Get pixel here

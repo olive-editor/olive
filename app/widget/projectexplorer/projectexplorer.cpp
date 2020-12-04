@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
@@ -637,12 +637,12 @@ void ProjectExplorer::DeleteSelected()
         if (msgbox.clickedButton() == delete_clip_btn) {
 
           // Delete any blocks that use this footage
-          QList<Block*> blocks_to_remove;
+          QVector<Block*> blocks_to_remove;
 
           foreach (Sequence* s, used_in_sequences) {
             foreach (TrackOutput* track, s->viewer_output()->GetTracks()) {
               foreach (Block* b, track->Blocks()) {
-                QList<Node*> deps = b->GetDependencies();
+                QVector<Node*> deps = b->GetDependencies();
 
                 foreach (MediaInput* i, footage_nodes) {
                   if (deps.contains(i)) {
@@ -683,4 +683,4 @@ void ProjectExplorer::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

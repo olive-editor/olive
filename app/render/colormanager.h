@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@
 #define COLORSERVICE_H
 
 #include <memory>
+#include <QMutex>
 
 #include "codec/frame.h"
 #include "colorprocessor.h"
 
 #define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ColorManager : public QObject
 {
@@ -49,12 +50,6 @@ public:
   void SetConfig(const QString& filename);
 
   void SetConfigAndDefaultInput(const QString& filename, const QString& s);
-
-  static void DisassociateAlpha(FramePtr f);
-
-  static void AssociateAlpha(FramePtr f);
-
-  static void ReassociateAlpha(FramePtr f);
 
   QStringList ListAvailableDisplays();
 
@@ -82,17 +77,8 @@ public:
 
   static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
 
-  void GetDefaultLumaCoefs(float* rgb) const;
+  void GetDefaultLumaCoefs(double *rgb) const;
   Color GetDefaultLumaCoefs() const;
-
-  enum OCIOMethod {
-    kOCIOFast,
-    kOCIOAccurate
-  };
-
-  static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
-
-  static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
 
   class SetLocale
   {
@@ -106,6 +92,11 @@ public:
 
   };
 
+  QMutex* mutex()
+  {
+    return &mutex_;
+  }
+
 signals:
   void ConfigChanged();
 
@@ -118,27 +109,18 @@ private:
 
   OCIO::ConstConfigRcPtr config_;
 
-  enum AlphaAction {
-    kAssociate,
-    kDisassociate,
-    kReassociate
-  };
-
-  static void AssociateAlphaPixFmtFilter(AlphaAction action, FramePtr f);
-
-  template<typename T>
-  static void AssociateAlphaInternal(AlphaAction action, T* data, int pix_count);
-
   QString config_filename_;
 
   QString default_input_color_space_;
 
   QString reference_space_;
 
+  QMutex mutex_;
+
   static OCIO::ConstConfigRcPtr default_config_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // COLORSERVICE_H

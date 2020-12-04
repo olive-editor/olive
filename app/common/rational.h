@@ -20,7 +20,7 @@ extern "C" {
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 typedef int64_t intType;
 /*
@@ -141,10 +141,10 @@ private:
 
 uint qHash(const rational& r, uint seed);
 
-OLIVE_NAMESPACE_EXIT
+}
 
-QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational& r);
+QDebug operator<<(QDebug debug, const olive::rational& r);
 
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::rational)
+Q_DECLARE_METATYPE(olive::rational)
 
 #endif // RATIONAL_H

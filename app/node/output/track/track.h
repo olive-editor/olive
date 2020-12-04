@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "node/block/block.h"
 #include "timeline/timelinecommon.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -45,7 +45,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   const double& GetTrackHeight() const;
@@ -217,11 +217,6 @@ public:
     return waveform_;
   }
 
-  QMutex* waveform_lock()
-  {
-    return &waveform_lock_;
-  }
-
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
@@ -297,7 +292,6 @@ private:
   bool locked_;
 
   AudioVisualWaveform waveform_;
-  QMutex waveform_lock_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);
@@ -310,6 +304,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TRACKOUTPUT_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *footage) :
   QDialog(parent),
@@ -198,4 +198,4 @@ void FootagePropertiesDialog::StreamEnableChangeCommand::undo_internal()
   stream_->set_enabled(old_enabled_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

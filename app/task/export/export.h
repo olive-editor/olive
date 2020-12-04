@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "task/render/render.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ExportTask : public RenderTask
 {
@@ -38,15 +38,16 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) override;
-
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) override;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) override;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
-private:
-  QHash<QByteArray, FramePtr> rendered_frame_;
+  virtual bool TwoStepFrameRendering() const override
+  {
+    return false;
+  }
 
+private:
   QHash<rational, FramePtr> time_map_;
 
   ColorManager* color_manager_;
@@ -63,6 +64,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // EXPORTTASK_H

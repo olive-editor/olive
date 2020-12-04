@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "undo.h"
 
+#include "config/config.h"
 #include "core.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
@@ -27,7 +28,7 @@
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 {
@@ -164,6 +165,7 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
   in_(in),
   out_(out),
   splice_(false),
+  splice_split_command_(nullptr),
   trim_out_(nullptr),
   trim_in_(nullptr),
   insert_(nullptr)
@@ -208,18 +210,38 @@ void TrackRippleRemoveAreaCommand::redo_internal()
   // If we picked up a block to splice
   if (splice_) {
 
-    // Split the block here
-    trim_in_ = static_cast<Block*>(trim_out_->copy());
+    if (trim_out_->type() == Block::kGap && !insert_) {
 
-    static_cast<NodeGraph*>(track_->parent())->AddNode(trim_in_);
-    Node::CopyInputs(trim_out_, trim_in_);
+      // Gaps shouldn't be split, just trim the difference
+      trim_out_->set_length_and_media_out(trim_out_->length() - (out_ - in_));
 
-    trim_out_old_length_ = trim_out_->length();
-    trim_out_->set_length_and_media_out(in_ - trim_out_->in());
+    } else {
 
-    trim_in_->set_length_and_media_in(trim_out_old_length_ - (out_ - trim_out_->in()));
+      // Split the block here
+      splice_split_command_ = new QUndoCommand();
 
-    track_->InsertBlockAfter(trim_in_, trim_out_);
+      if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+        QVector<Node*> nodes_to_clone;
+        nodes_to_clone.append(trim_out_);
+        nodes_to_clone.append(trim_out_->GetDependencies());
+        QVector<Node*> duplicated = Node::CopyDependencyGraph(nodes_to_clone, splice_split_command_);
+        trim_in_ = static_cast<Block*>(duplicated.first());
+      } else {
+        trim_in_ = static_cast<Block*>(trim_out_->copy());
+        new NodeAddCommand(static_cast<NodeGraph*>(track_->parent()), trim_in_, splice_split_command_);
+        new NodeCopyInputsCommand(trim_out_, trim_in_, true, splice_split_command_);
+      }
+
+      splice_split_command_->redo();
+
+      trim_out_old_length_ = trim_out_->length();
+      trim_out_->set_length_and_media_out(in_ - trim_out_->in());
+
+      trim_in_->set_length_and_media_in(trim_out_old_length_ - (out_ - trim_out_->in()));
+
+      track_->InsertBlockAfter(trim_in_, trim_out_);
+
+    }
 
   } else {
 
@@ -272,9 +294,9 @@ void TrackRippleRemoveAreaCommand::redo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
-                          track_->block_input(),
-                          track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                                track_->block_input(),
+                                track_->block_input());
 }
 
 void TrackRippleRemoveAreaCommand::undo_internal()
@@ -288,11 +310,20 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   if (splice_) {
 
-    // trim_in_ is our copy and trim_out_ is our original
-    track_->RippleRemoveBlock(trim_in_);
-    trim_out_->set_length_and_media_out(trim_out_old_length_);
+    if (trim_out_->type() == Block::kGap && !insert_) {
 
-    TakeNodeFromParentGraph(trim_in_, &memory_manager_);
+      // Just restore the length
+      trim_out_->set_length_and_media_out(trim_out_->length() + (out_ - in_));
+
+    } else {
+
+      // trim_in_ is our copy and trim_out_ is our original
+      track_->RippleRemoveBlock(trim_in_);
+      trim_out_->set_length_and_media_out(trim_out_old_length_);
+
+      splice_split_command_->undo();
+
+    }
 
   } else {
 
@@ -329,7 +360,13 @@ void TrackRippleRemoveAreaCommand::undo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX), track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(in_, insert_ ? out_ : RATIONAL_MAX),
+                                track_->block_input(), track_->block_input());
+
+  if (splice_split_command_) {
+    delete splice_split_command_;
+    splice_split_command_ = nullptr;
+  }
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :
@@ -428,8 +465,33 @@ void BlockSplitCommand::redo_internal()
 {
   track_->BeginOperation();
 
-  static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
-  Node::CopyInputs(block_, new_block_);
+  NodeGraph* graph = static_cast<NodeGraph*>(block_->parent());
+
+  add_command_ = new QUndoCommand();
+  new NodeAddCommand(graph, new_block_, add_command_);
+  new NodeCopyInputsCommand(block_, new_block_, true, add_command_);
+
+  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+
+    QVector<Node*> src_nodes;
+    QVector<Node*> dst_nodes;
+
+    src_nodes.append(block_);
+    src_nodes.append(block_->GetDependencies());
+
+    dst_nodes.resize(src_nodes.size());
+    dst_nodes[0] = new_block_;
+    for (int i=1; i<dst_nodes.size(); i++) {
+      dst_nodes[i] = src_nodes[i]->copy();
+      new NodeAddCommand(graph, dst_nodes[i], add_command_);
+      Node::CopyInputs(src_nodes[i], dst_nodes[i], false);
+    }
+
+    Node::CopyDependencyGraph(src_nodes, dst_nodes, add_command_);
+
+  }
+
+  add_command_->redo();
 
   rational new_part_length = block_->length() - (point_ - block_->in());
 
@@ -451,15 +513,17 @@ void BlockSplitCommand::undo_internal()
 {
   track_->BeginOperation();
 
-  block_->set_length_and_media_out(old_length_);
-  track_->RippleRemoveBlock(new_block_);
-
-  TakeNodeFromParentGraph(new_block_, &memory_manager_);
-
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(new_block_->output(), transition);
     NodeParam::ConnectEdge(block_->output(), transition);
   }
+
+  block_->set_length_and_media_out(old_length_);
+  track_->RippleRemoveBlock(new_block_);
+
+  add_command_->undo();
+  new_block_->setParent(&memory_manager_);
+  delete add_command_;
 
   track_->EndOperation();
 }
@@ -765,7 +829,7 @@ void BlockUnlinkAllCommand::undo_internal()
   unlinked_.clear();
 }
 
-BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool link, QUndoCommand *parent) :
+BlockLinkManyCommand::BlockLinkManyCommand(const QVector<Block *> blocks, bool link, QUndoCommand *parent) :
   UndoCommand(parent),
   blocks_(blocks)
 {
@@ -901,7 +965,7 @@ void BlockTrimCommand::redo_internal()
     invalidate_range = TimeRange(block_->in(), block_->out());
   }
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void BlockTrimCommand::undo_internal()
@@ -968,7 +1032,7 @@ void BlockTrimCommand::undo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 TrackReplaceBlockWithGapCommand::TrackReplaceBlockWithGapCommand(TrackOutput *track, Block *block, QUndoCommand *command) :
@@ -1052,7 +1116,7 @@ void TrackReplaceBlockWithGapCommand::redo_internal()
 
   track_->EndOperation();
 
-  track_->InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(invalidate_range, track_->block_input(), track_->block_input());
 }
 
 void TrackReplaceBlockWithGapCommand::undo_internal()
@@ -1097,20 +1161,20 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
     // required no gap extension/replacement
 
     // However, we may have removed an unnecessary gap that preceded it
-     if (existing_merged_gap_) {
-       static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
-       track_->AppendBlock(existing_merged_gap_);
-       existing_merged_gap_ = nullptr;
-     }
+    if (existing_merged_gap_) {
+      static_cast<NodeGraph*>(track_->parent())->AddNode(existing_merged_gap_);
+      track_->AppendBlock(existing_merged_gap_);
+      existing_merged_gap_ = nullptr;
+    }
 
-     // Restore block
-     track_->AppendBlock(block_);
+    // Restore block
+    track_->AppendBlock(block_);
 
   }
 
   track_->EndOperation();
 
-  track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
+  track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input(), track_->block_input());
 }
 
 TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :
@@ -1532,18 +1596,21 @@ void TrackListInsertGaps::redo_internal()
   }
 
   QVector<Block*> blocks_to_split;
-  QList<Block*> blocks_to_append_gap_to;
+  QVector<Block*> blocks_to_append_gap_to;
 
   foreach (TrackOutput* track, working_tracks_) {
     foreach (Block* b, track->Blocks()) {
       if (b->type() == Block::kGap && b->in() <= point_ && b->out() >= point_) {
+        // Found a gap at the location
         gaps_to_extend_.append(b);
+        break;
       } else if (b->type() == Block::kClip && b->out() >= point_) {
         if (b->out() > point_) {
           blocks_to_split.append(b);
         }
 
         blocks_to_append_gap_to.append(b);
+        break;
       }
     }
   }
@@ -1711,4 +1778,4 @@ void TimelineSetSelectionsCommand::undo()
   timeline_->SetSelections(old_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

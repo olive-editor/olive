@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@
 #include <OpenImageIO/imagebuf.h>
 
 #include "codec/decoder.h"
-#include "render/pixelformat.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class OIIODecoder : public Decoder
 {
@@ -35,30 +34,21 @@ class OIIODecoder : public Decoder
 public:
   OIIODecoder();
 
+  virtual ~OIIODecoder() override;
+
   virtual QString id() override;
+
+  virtual bool SupportsVideo() override{return true;}
 
   virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
-  virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
-  virtual void Close() override;
-
-  virtual bool SupportsVideo() override;
-
-  static void FrameToBuffer(FramePtr frame, OIIO::ImageBuf* buf);
-
-  static void BufferToFrame(OIIO::ImageBuf* buf, FramePtr frame);
-
-  static PixelFormat::Format GetFormatFromOIIOBasetype(const OIIO::ImageSpec& spec);
-
-  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
+protected:
+  virtual bool OpenInternal() override;
+  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const int& divider) override;
+  virtual void CloseInternal() override;
 
 private:
-#if OIIO_VERSION < 10903
-  OIIO::ImageInput* image_;
-#else
   std::unique_ptr<OIIO::ImageInput> image_;
-#endif
 
   static bool FileTypeIsSupported(const QString& fn);
 
@@ -66,9 +56,11 @@ private:
 
   void CloseImageHandle();
 
-  PixelFormat::Format pix_fmt_;
+  int64_t last_sequence_index_;
 
-  bool is_rgba_;
+  VideoParams::Format pix_fmt_;
+
+  int channel_count_;
 
   OIIO::ImageBuf* buffer_;
 
@@ -76,6 +68,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // OIIODECODER_H

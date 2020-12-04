@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,13 +24,14 @@
 #include "common/timerange.h"
 #include "param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node parameter designed to serve data to the input of another node
  */
 class NodeOutput : public NodeParam
 {
+  Q_OBJECT
 public:
   /**
    * @brief NodeOutput Constructor
@@ -52,6 +53,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEOUTPUT_H

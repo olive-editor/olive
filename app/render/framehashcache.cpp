@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "common/timecodefunctions.h"
 #include "render/diskmanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FrameHashCache::FrameHashCache(QObject *parent) :
   PlaybackCache(parent)
@@ -50,20 +50,14 @@ QByteArray FrameHashCache::GetHash(const rational &time)
 
 void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, const qint64& job_time, bool frame_exists)
 {
-  bool is_current = false;
-
   for (int i=jobs_.size()-1; i>=0; i--) {
     const JobIdentifier& job = jobs_.at(i);
 
     if (job.range.Contains(time)
-        && job_time >= job.job_time) {
-      is_current = true;
-      break;
+        && job_time < job.job_time) {
+      // Hash here has changed since this frame started rendering, discard it
+      return;
     }
-  }
-
-  if (!is_current) {
-    return;
   }
 
   time_hash_map_.insert(time, hash);
@@ -82,15 +76,13 @@ void FrameHashCache::SetTimebase(const rational &tb)
 
 void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
-  QMap<rational, QByteArray>::const_iterator iterator;
-
   const TimeRangeList& invalidated_ranges = GetInvalidatedRanges();
 
-  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       TimeRange frame_range(iterator.key(), iterator.key() + timebase_);
 
-      if (invalidated_ranges.ContainsTimeRange(frame_range)) {
+      if (invalidated_ranges.contains(frame_range)) {
         Validate(frame_range);
       }
     }
@@ -101,9 +93,7 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
-  QMap<rational, QByteArray>::const_iterator iterator;
-
-  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+  for (auto iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       times.append(iterator.key());
     }
@@ -116,7 +106,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
   QList<rational> times;
 
-  QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
+  auto iterator = time_hash_map_.begin();
 
   while (iterator != time_hash_map_.end()) {
     if (iterator.value() == hash) {
@@ -167,7 +157,7 @@ QVector<rational> FrameHashCache::GetFrameListFromTimeRange(TimeRangeList range_
     }
 
     times.append(snapped);
-    range_list.RemoveTimeRange(TimeRange(snapped, next));
+    range_list.remove(TimeRange(snapped, next));
   }
 
   return times;
@@ -243,32 +233,27 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
     int height = dw.max.y - dw.min.y + 1;
     bool has_alpha = file.header().channels().findChannel("A");
 
-    PixelFormat::Format image_format;
+    VideoParams::Format image_format;
     if (pix_type == Imf::HALF) {
-      if (has_alpha) {
-        image_format = PixelFormat::PIX_FMT_RGBA16F;
-      } else {
-        image_format = PixelFormat::PIX_FMT_RGB16F;
-      }
+      image_format = VideoParams::kFormatFloat16;
     } else {
-      if (has_alpha) {
-        image_format = PixelFormat::PIX_FMT_RGBA32F;
-      } else {
-        image_format = PixelFormat::PIX_FMT_RGB32F;
-      }
+      image_format = VideoParams::kFormatFloat32;
     }
+
+    int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
 
     frame = Frame::Create();
     frame->set_video_params(VideoParams(width,
                                         height,
                                         image_format,
+                                        channel_count,
                                         rational::fromDouble(file.header().pixelAspectRatio())));
 
     frame->allocate();
 
-    int bpc = PixelFormat::BytesPerChannel(image_format);
+    int bpc = VideoParams::GetBytesPerChannel(image_format);
 
-    size_t xs = PixelFormat::ChannelCount(image_format) * bpc;
+    size_t xs = channel_count * bpc;
     size_t ys = frame->linesize_bytes();
 
     Imf::FrameBuffer framebuffer;
@@ -289,7 +274,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 void FrameHashCache::LengthChangedEvent(const rational &old, const rational &newlen)
 {
   if (newlen < old) {
-    QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+    auto i = time_hash_map_.begin();
 
     while (i != time_hash_map_.end()) {
       if (i.key() >= newlen) {
@@ -308,7 +293,7 @@ struct HashTimePair {
 
 void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
 {
-  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+  auto i = time_hash_map_.begin();
 
   // POSITIVE if moving forward ->
   // NEGATIVE if moving backward <-
@@ -359,10 +344,9 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   TimeRangeList ranges_to_invalidate;
-  QMap<rational, QByteArray>::const_iterator i;
-  for (i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
+  for (auto i=time_hash_map_.constBegin(); i!=time_hash_map_.constEnd(); i++) {
     if (i.value() == hash) {
-      ranges_to_invalidate.InsertTimeRange(TimeRange(i.key(), i.key() + timebase_));
+      ranges_to_invalidate.insert(TimeRange(i.key(), i.key() + timebase_));
     }
   }
 
@@ -406,13 +390,15 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QByteArra
 
 bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const VideoParams &vparam, int linesize_bytes) const
 {
-  Q_ASSERT(PixelFormat::FormatIsFloat(vparam.format()));
+  if (!VideoParams::FormatIsFloat(vparam.format())) {
+    qCritical() << "Tried to cache frame with non-float pixel format";
+    return false;
+  }
 
   // Floating point types are stored in EXR
   Imf::PixelType pix_type;
 
-  if (vparam.format() == PixelFormat::PIX_FMT_RGB16F
-      || vparam.format() == PixelFormat::PIX_FMT_RGBA16F) {
+  if (vparam.format() == VideoParams::kFormatFloat16) {
     pix_type = Imf::HALF;
   } else {
     pix_type = Imf::FLOAT;
@@ -423,7 +409,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   header.channels().insert("R", Imf::Channel(pix_type));
   header.channels().insert("G", Imf::Channel(pix_type));
   header.channels().insert("B", Imf::Channel(pix_type));
-  if (PixelFormat::FormatHasAlphaChannel(vparam.format())) {
+  if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
     header.channels().insert("A", Imf::Channel(pix_type));
   }
 
@@ -433,16 +419,16 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   Imf::OutputFile out(filename.toUtf8(), header, 0);
 
-  int bpc = PixelFormat::BytesPerChannel(vparam.format());
+  int bpc = VideoParams::GetBytesPerChannel(vparam.format());
 
-  size_t xs = PixelFormat::ChannelCount(vparam.format()) * bpc;
+  size_t xs = vparam.channel_count() * bpc;
   size_t ys = linesize_bytes;
 
   Imf::FrameBuffer framebuffer;
   framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
   framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
   framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
-  if (PixelFormat::FormatHasAlphaChannel(vparam.format())) {
+  if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
     framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
   }
   out.setFrameBuffer(framebuffer);
@@ -452,4 +438,4 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
   return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

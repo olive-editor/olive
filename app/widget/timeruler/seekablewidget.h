@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "widget/timelinewidget/snapservice.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SeekableWidget : public TimelineScaledWidget
 {
@@ -60,14 +60,14 @@ protected:
 
   TimelinePoints* timeline_points() const;
 
-  double ScreenToUnitFloat(int screen);
+  double ScreenToUnitFloat(int screen) const;
 
-  int64_t ScreenToUnit(int screen);
-  int64_t ScreenToUnitRounded(int screen);
+  int64_t ScreenToUnit(int screen) const;
+  int64_t ScreenToUnitRounded(int screen) const;
 
-  int UnitToScreen(int64_t unit);
+  int UnitToScreen(int64_t unit) const;
 
-  int TimeToScreen(const rational& time);
+  int TimeToScreen(const rational& time) const;
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -100,6 +100,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // SEEKABLEWIDGET_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,9 +36,12 @@
 #include "node/output.h"
 #include "node/value.h"
 #include "render/audioparams.h"
-#include "render/shaderinfo.h"
+#include "render/job/generatejob.h"
+#include "render/job/samplejob.h"
+#include "render/job/shaderjob.h"
+#include "render/shadercode.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -71,6 +74,7 @@ public:
     kCategoryTimeline,
     kCategoryChannels,
     kCategoryTransition,
+    kCategoryDistort,
 
     kCategoryCount
   };
@@ -129,7 +133,7 @@ public:
    * interpreted as an empty string category. This value should be run through a translator as its largely user
    * oriented.
    */
-  virtual QList<CategoryID> Category() const = 0;
+  virtual QVector<CategoryID> Category() const = 0;
 
   /**
    * @brief Return a description of this node's purpose (optional for subclassing, but recommended)
@@ -147,7 +151,7 @@ public:
   /**
    * @brief Return a list of NodeParams
    */
-  const QList<NodeParam*>& parameters() const;
+  const QVector<NodeParam*>& parameters() const;
 
   /**
    * @brief Return the index of a parameter
@@ -158,7 +162,7 @@ public:
   /**
    * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
    */
-  QList<Node*> GetDependencies() const;
+  QVector<Node *> GetDependencies() const;
 
   /**
    * @brief Returns a list of Nodes that this Node is dependent on, provided no other Nodes are dependent on them
@@ -166,12 +170,12 @@ public:
    *
    * Similar to GetDependencies(), but excludes any Nodes that are used outside the dependency graph of this Node.
    */
-  QList<Node*> GetExclusiveDependencies() const;
+  QVector<Node *> GetExclusiveDependencies() const;
 
   /**
    * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
    */
-  QList<Node*> GetImmediateDependencies() const;
+  QVector<Node *> GetImmediateDependencies() const;
 
   /**
    * @brief Generate hardware accelerated code for this Node
@@ -274,19 +278,19 @@ public:
   /**
    * @brief Transforms time from this node through the connections it takes to get to the specified node
    */
-  QList<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
+  QVector<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  QList<T*> FindInputNodes() const;
+  QVector<T*> FindInputNodes() const;
 
   template<class T>
   /**
    * @brief Find a node of a certain type that this Node outputs to
    */
-  QList<T *>  FindOutputNode();
+  QVector<T *>  FindOutputNode();
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -342,6 +346,12 @@ public:
    * Nodes must be of the same types (i.e. have the same ID)
    */
   static void CopyInputs(Node* source, Node* destination, bool include_connections = true);
+
+  /**
+   * @brief Clones a set of nodes and connects the new ones the way the old ones were
+   */
+  static QVector<Node*> CopyDependencyGraph(const QVector<Node*>& nodes, QUndoCommand *command);
+  static void CopyDependencyGraph(const QVector<Node*>& src, const QVector<Node*>& dst, QUndoCommand *command);
 
   /**
    * @brief Return whether this Node can be deleted or not
@@ -404,18 +414,16 @@ public:
 
   void SetPosition(const QPointF& pos);
 
-  static QString ReadFileAsString(const QString& filename);
+  QVector<NodeInput*> GetInputsIncludingArrays() const;
 
-  QList<NodeInput*> GetInputsIncludingArrays() const;
-
-  QList<NodeOutput*> GetOutputs() const;
+  QVector<NodeOutput*> GetOutputs() const;
 
   virtual bool HasGizmos() const;
 
-  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p, const QVector2D &scale, const QSize& viewport) const;
+  virtual void DrawGizmos(NodeValueDatabase& db, QPainter* p);
 
-  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p, const QVector2D &scale, const QSize& viewport);
-  virtual void GizmoMove(const QPointF& p, const QVector2D &scale, const rational &time);
+  virtual bool GizmoPress(NodeValueDatabase& db, const QPointF& p);
+  virtual void GizmoMove(const QPointF& p, const rational &time);
   virtual void GizmoRelease();
 
   const QString& GetLabel() const;
@@ -434,10 +442,28 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
-  virtual QList<NodeInput*> GetInputsToHash() const;
+  virtual QVector<NodeInput*> GetInputsToHash() const;
+
+  enum GizmoScaleHandles {
+    kGizmoScaleTopLeft,
+    kGizmoScaleTopCenter,
+    kGizmoScaleTopRight,
+    kGizmoScaleBottomLeft,
+    kGizmoScaleBottomCenter,
+    kGizmoScaleBottomRight,
+    kGizmoScaleCenterLeft,
+    kGizmoScaleCenterRight,
+    kGizmoScaleCount,
+  };
+
+  static QRectF CreateGizmoHandleRect(const QPointF& pt, int radius);
+
+  static double GetGizmoHandleRadius(const QTransform& transform);
+
+  static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
 
 protected slots:
-  void InputChanged(const OLIVE_NAMESPACE::TimeRange &range);
+  void InputChanged(const olive::TimeRange &range);
 
   void InputConnectionChanged(NodeEdgePtr edge);
 
@@ -487,14 +513,14 @@ private:
   void DisconnectInput(NodeInput* input);
 
   template<class T>
-  static void FindInputNodeInternal(const Node* n, QList<T *>& list);
+  static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
 
   template<class T>
-  static void FindOutputNodeInternal(const Node* n, QList<T *>& list);
+  static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
 
-  QList<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
+  QVector<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  QList<NodeParam *> params_;
+  QVector<NodeParam *> params_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not
@@ -519,9 +545,9 @@ private:
 };
 
 template<class T>
-void Node::FindInputNodeInternal(const Node* n, QList<T *>& list)
+void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
-  QList<NodeInput*> inputs = n->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     if (input->is_connected()) {
@@ -538,9 +564,9 @@ void Node::FindInputNodeInternal(const Node* n, QList<T *>& list)
 }
 
 template<class T>
-QList<T *> Node::FindInputNodes() const
+QVector<T *> Node::FindInputNodes() const
 {
-  QList<T *> list;
+  QVector<T *> list;
 
   FindInputNodeInternal<T>(this, list);
 
@@ -554,7 +580,7 @@ T* Node::ValueToPtr(const QVariant &ptr)
 }
 
 template<class T>
-void Node::FindOutputNodeInternal(const Node* n, QList<T *>& list) {
+void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list) {
   foreach (NodeEdgePtr edge, n->output()->edges()) {
     Node* connected = edge->input()->parentNode();
     T* cast_test = dynamic_cast<T*>(connected);
@@ -568,9 +594,9 @@ void Node::FindOutputNodeInternal(const Node* n, QList<T *>& list) {
 }
 
 template<class T>
-QList<T *> Node::FindOutputNode()
+QVector<T *> Node::FindOutputNode()
 {
-  QList<T *> list;
+  QVector<T *> list;
 
   FindOutputNodeInternal<T>(this, list);
 
@@ -579,6 +605,6 @@ QList<T *> Node::FindOutputNode()
 
 using NodePtr = std::shared_ptr<Node>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODE_H

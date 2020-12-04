@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "common/rational.h"
 #include "ui/icons/icons.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Footage;
 class Stream;
@@ -95,7 +95,10 @@ public:
 
   virtual QIcon icon() const;
 
-  QMutex* proxy_access_lock();
+  QMutex* mutex()
+  {
+    return &mutex_;
+  }
 
 protected:
   virtual void LoadCustomParameters(QXmlStreamReader *reader);
@@ -118,13 +121,13 @@ private:
 
   bool enabled_;
 
-  QMutex proxy_access_lock_;
+  QMutex mutex_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #include <QMetaType>
-Q_DECLARE_METATYPE(OLIVE_NAMESPACE::StreamPtr)
+Q_DECLARE_METATYPE(olive::StreamPtr)
 
 #endif // STREAM_H

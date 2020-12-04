@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "render/color.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 StrokeFilterNode::StrokeFilterNode()
 {
@@ -35,13 +35,13 @@ StrokeFilterNode::StrokeFilterNode()
   AddInput(color_input_);
 
   radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
-  radius_input_->set_property("min", 0.0f);
+  radius_input_->setProperty("min", 0.0f);
   AddInput(radius_input_);
 
   opacity_input_ = new NodeInput("opacity_in", NodeParam::kFloat, 1.0f);
-  opacity_input_->set_property("view", "percent");
-  opacity_input_->set_property("min", 0.0f);
-  opacity_input_->set_property("max", 1.0f);
+  opacity_input_->setProperty("view", QStringLiteral("percent"));
+  opacity_input_->setProperty("min", 0.0f);
+  opacity_input_->setProperty("max", 1.0f);
   AddInput(opacity_input_);
 
   inner_input_ = new NodeInput("inner_in", NodeParam::kBoolean, false);
@@ -63,7 +63,7 @@ QString StrokeFilterNode::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.stroke");
 }
 
-QList<Node::CategoryID> StrokeFilterNode::Category() const
+QVector<Node::CategoryID> StrokeFilterNode::Category() const
 {
   return {kCategoryFilter};
 }
@@ -91,15 +91,17 @@ NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(radius_input_, value);
   job.InsertValue(opacity_input_, value);
   job.InsertValue(inner_input_, value);
+  job.InsertValue(QStringLiteral("resolution_in"),
+                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data().isNull()) {
-    if (job.GetValue(radius_input_).data().toDouble() > 0.0
-        && job.GetValue(opacity_input_).data().toDouble() > 0.0) {
+  if (!job.GetValue(tex_input_).data.isNull()) {
+    if (job.GetValue(radius_input_).data.toDouble() > 0.0
+        && job.GetValue(opacity_input_).data.toDouble() > 0.0) {
       table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_));
+      table.Push(job.GetValue(tex_input_), this);
     }
   }
 
@@ -110,7 +112,7 @@ ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
 
-  return ShaderCode(ReadFileAsString(":/shaders/stroke.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

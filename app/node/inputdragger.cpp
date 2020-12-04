@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "node.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeInputDragger::NodeInputDragger() :
   input_(nullptr)
@@ -70,9 +70,26 @@ void NodeInputDragger::Start(NodeInput *input, const rational &time, int track)
   }
 }
 
-void NodeInputDragger::Drag(const QVariant& value)
+void NodeInputDragger::Drag(QVariant value)
 {
   Q_ASSERT(input_);
+
+  if (input_->property("min").isValid()) {
+    // Assumes the value is a double of some kind
+    double min = input_->property("min").toDouble();
+    double v = value.toDouble();
+    if (v < min) {
+      value = min;
+    }
+  }
+
+  if (input_->property("max").isValid()) {
+    double max = input_->property("max").toDouble();
+    double v = value.toDouble();
+    if (v > max) {
+      value = max;
+    }
+  }
 
   end_value_ = value;
 
@@ -115,4 +132,4 @@ void NodeInputDragger::End()
   input_ = nullptr;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

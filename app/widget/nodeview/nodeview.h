@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "widget/timelinewidget/view/handmovableview.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A widget for viewing and editing node graphs
@@ -58,22 +58,22 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(const QList<Node*>& nodes);
-  void SelectWithDependencies(QList<Node *> nodes);
+  void Select(const QVector<Node*>& nodes);
+  void SelectWithDependencies(QVector<Node *> nodes);
 
   void CopySelected(bool cut);
   void Paste();
 
   void Duplicate();
 
-  void SelectBlocks(const QList<Block*>& blocks);
+  void SelectBlocks(const QVector<Block*>& blocks);
 
-  void DeselectBlocks(const QList<Block*>& blocks);
+  void DeselectBlocks(const QVector<Block*>& blocks);
 
 signals:
-  void NodesSelected(const QList<Node*>& nodes);
+  void NodesSelected(const QVector<Node*>& nodes);
 
-  void NodesDeselected(const QList<Node*>& nodes);
+  void NodesDeselected(const QVector<Node*>& nodes);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
@@ -85,9 +85,9 @@ protected:
   virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
-  void AttachNodesToCursor(const QList<Node*>& nodes);
+  void AttachNodesToCursor(const QVector<Node *> &nodes);
 
-  void AttachItemsToCursor(const QList<NodeViewItem*>& items);
+  void AttachItemsToCursor(const QVector<NodeViewItem *> &items);
 
   void DetachItemsFromCursor();
 
@@ -121,13 +121,13 @@ private:
 
   NodeViewScene scene_;
 
-  QList<Node*> selected_nodes_;
+  QVector<Node*> selected_nodes_;
 
-  QList<Block*> selected_blocks_;
+  QVector<Block*> selected_blocks_;
 
-  QHash<Node*, QList<Block*> > association_map_;
+  QHash<Node*, QVector<Block*> > association_map_;
 
-  QHash<Block*, QList<Node*> > temporary_association_map_;
+  QHash<Block*, QVector<Node*> > temporary_association_map_;
 
   enum FilterMode {
     kFilterShowAll,
@@ -190,6 +190,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEVIEW_H

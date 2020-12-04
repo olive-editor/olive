@@ -1,6 +1,6 @@
 #include "mainwindowlayoutinfo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 void MainWindowLayoutInfo::toXml(QXmlStreamWriter *writer) const
 {
@@ -101,4 +101,4 @@ void MainWindowLayoutInfo::set_state(const QByteArray &layout)
   state_ = layout;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

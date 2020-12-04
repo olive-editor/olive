@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include "common/define.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The ProjectToolbar class
@@ -60,9 +60,6 @@ signals:
   void OpenClicked();
   void SaveClicked();
 
-  void UndoClicked();
-  void RedoClicked();
-
   void SearchChanged(const QString&);
 
   void ViewChanged(ViewType type);
@@ -74,8 +71,6 @@ private:
   QPushButton* new_button_;
   QPushButton* open_button_;
   QPushButton* save_button_;
-  QPushButton* undo_button_;
-  QPushButton* redo_button_;
 
   QLineEdit* search_field_;
 
@@ -87,6 +82,6 @@ private slots:
   void ViewButtonClicked();
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTTOOLBAR_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,13 +23,14 @@
 #include <QInputDialog>
 #include <QUndoCommand>
 
+#include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/timelinewidget/undo/undo.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   TimelineScaledWidget(parent),
@@ -42,8 +43,10 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
 
-  scrollbar_ = new ResizableScrollBar(Qt::Horizontal, this);
+  scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
+
+  PassWheelEventsToScrollBar(ruler_);
 }
 
 void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
@@ -88,6 +91,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     points_ = nullptr;
     ruler()->ConnectTimelinePoints(nullptr);
+    scrollbar_->ConnectTimelinePoints(nullptr);
   }
 
   viewer_node_ = node;
@@ -99,6 +103,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     if ((points_ = ConnectTimelinePoints())) {
       ruler()->ConnectTimelinePoints(points_);
+      scrollbar_->ConnectTimelinePoints(points_);
     }
 
     if (auto_set_timebase_) {
@@ -155,12 +160,28 @@ void TimeBasedWidget::ScrollBarResized(const double &multiplier)
   SetScale(GetScale() * corrected_scale);
 }
 
+void TimeBasedWidget::PageScrollToPlayhead()
+{
+  int playhead_pos = qRound(TimeToScene(GetTime()));
+
+  int viewport_width = ruler()->width();
+  int viewport_padding = viewport_width / 16;
+
+  if (playhead_pos < scrollbar()->value()) {
+    // Anchor the playhead to the RIGHT of where we scroll to
+    scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
+  } else if (playhead_pos > scrollbar()->value() + viewport_width) {
+    // Anchor the playhead to the LEFT of where we scroll to
+    scrollbar()->setValue(playhead_pos - viewport_padding);
+  }
+}
+
 TimeRuler *TimeBasedWidget::ruler() const
 {
   return ruler_;
 }
 
-ResizableScrollBar *TimeBasedWidget::scrollbar() const
+ResizableTimelineScrollBar *TimeBasedWidget::scrollbar() const
 {
   return scrollbar_;
 }
@@ -170,6 +191,7 @@ void TimeBasedWidget::TimebaseChangedEvent(const rational &timebase)
   TimelineScaledWidget::TimebaseChangedEvent(timebase);
 
   ruler_->SetTimebase(timebase);
+  scrollbar_->SetTimebase(timebase);
 
   emit TimebaseChanged(timebase);
 }
@@ -179,6 +201,7 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   TimelineScaledWidget::ScaleChangedEvent(scale);
 
   ruler_->SetScale(scale);
+  scrollbar_->SetScale(scale);
 
   UpdateMaximumScroll();
 
@@ -220,9 +243,27 @@ void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
   timeline_views_.append(base);
 }
 
+void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
+{
+  wheel_passthrough_objects_.append(object);
+  object->installEventFilter(this);
+}
+
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
   ruler_->SetTime(timestamp);
+
+  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+  case AutoScroll::kNone:
+    // Do nothing
+    break;
+  case AutoScroll::kPage:
+    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
+    break;
+  case AutoScroll::kSmooth:
+    QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
+    break;
+  }
 
   TimeChangedEvent(timestamp);
 }
@@ -458,7 +499,8 @@ void TimeBasedWidget::SetMarker()
   }
 
   if (ok) {
-    points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(static_cast<Sequence*>(GetConnectedNode()->parent())->project(),
+                                                              points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }
 
@@ -517,4 +559,36 @@ void TimeBasedWidget::GoToOut()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
+  project_(project),
+  marker_list_(marker_list),
+  range_(range),
+  name_(name)
+{
+}
+
+Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void TimeBasedWidget::MarkerAddCommand::redo_internal()
+{
+  added_marker_ = marker_list_->AddMarker(range_, name_);
+}
+
+void TimeBasedWidget::MarkerAddCommand::undo_internal()
+{
+  marker_list_->RemoveMarker(added_marker_);
+}
+
+bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
+{
+  if (wheel_passthrough_objects_.contains(object) && event->type() == QEvent::Wheel) {
+    QCoreApplication::sendEvent(scrollbar(), event);
+  }
+
+  return false;
+}
+
+}

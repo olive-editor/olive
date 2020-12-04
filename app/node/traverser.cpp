@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,14 +22,14 @@
 
 #include "node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
   foreach (NodeInput* input, inputs) {
     if (IsCancelled()) {
@@ -152,12 +152,14 @@ QVariant NodeTraverser::GetCachedFrame(const Node *node, const rational &time)
   return QVariant();
 }
 
-void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range)
+void NodeTraverser::AddGlobalsToDatabase(NodeValueDatabase &db, const TimeRange& range) const
 {
   // Insert global variables
   NodeValueTable global;
   global.Push(NodeParam::kFloat, range.in().toDouble(), nullptr, QStringLiteral("time_in"));
   global.Push(NodeParam::kFloat, range.out().toDouble(), nullptr, QStringLiteral("time_out"));
+  global.Push(NodeParam::kVec2, GenerateResolution(), nullptr, QStringLiteral("resolution"));
+
   db.Insert(QStringLiteral("global"), global);
 }
 
@@ -265,4 +267,4 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

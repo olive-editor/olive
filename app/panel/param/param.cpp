@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
@@ -36,14 +36,14 @@ ParamPanel::ParamPanel(QWidget* parent) :
   Retranslate();
 }
 
-void ParamPanel::SelectNodes(const QList<Node *> &nodes)
+void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
 
   Retranslate();
 }
 
-void ParamPanel::DeselectNodes(const QList<Node *> &nodes)
+void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
 {
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 
@@ -70,4 +70,4 @@ void ParamPanel::Retranslate()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

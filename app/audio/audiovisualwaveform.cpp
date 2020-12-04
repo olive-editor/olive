@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const int AudioVisualWaveform::kSumSampleRate = 200;
 
@@ -148,6 +148,10 @@ void AudioVisualWaveform::Shift(const rational &from, const rational &to)
   int to_index = time_to_samples(to);
 
   if (from_index == to_index) {
+    return;
+  }
+
+  if (from_index > data_.size()) {
     return;
   }
 
@@ -330,4 +334,4 @@ void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &su
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

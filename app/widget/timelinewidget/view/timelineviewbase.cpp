@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@
 #include <QScrollBar>
 #include <QTimer>
 
-#include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const double TimelineViewBase::kMaximumScale = 8192;
 
@@ -114,18 +113,6 @@ void TimelineViewBase::SetYScale(const double &y_scale)
 void TimelineViewBase::SetTime(const int64_t time)
 {
   playhead_ = time;
-
-  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
-  case AutoScroll::kNone:
-    // Do nothing
-    break;
-  case AutoScroll::kPage:
-    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
-    break;
-  case AutoScroll::kSmooth:
-    emit RequestCenterScrollOnPlayhead();
-    break;
-  }
 
   // Force redraw for playhead
   viewport()->update();
@@ -246,7 +233,7 @@ void TimelineViewBase::UpdateSceneRect()
   bounding_rect.setLeft(0);
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  bounding_rect.setRight(TimeToScene(end_time_) + width() / 2);
+  bounding_rect.setRight(TimeToScene(end_time_) + width());
 
   // Any further rect processing from derivatives can be done here
   SceneRectUpdateEvent(bounding_rect);
@@ -254,21 +241,6 @@ void TimelineViewBase::UpdateSceneRect()
   // If the scene is already this rect, do nothing
   if (scene_.sceneRect() != bounding_rect) {
     scene_.setSceneRect(bounding_rect);
-  }
-}
-
-void TimelineViewBase::PageScrollToPlayhead()
-{
-  int playhead_pos = qRound(GetPlayheadX());
-
-  int viewport_padding = viewport()->width() / 16;
-
-  if (playhead_pos < horizontalScrollBar()->value()) {
-    // Anchor the playhead to the RIGHT of where we scroll to
-    horizontalScrollBar()->setValue(playhead_pos - viewport()->width() + viewport_padding);
-  } else if (playhead_pos > horizontalScrollBar()->value() + viewport()->width()) {
-    // Anchor the playhead to the LEFT of where we scroll to
-    horizontalScrollBar()->setValue(playhead_pos - viewport_padding);
   }
 }
 
@@ -359,4 +331,4 @@ bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

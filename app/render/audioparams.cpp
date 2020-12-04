@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ extern "C" {
 
 #include <QCoreApplication>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 const QVector<int> AudioParams::kSupportedSampleRates = {
   8000,          // 8000 Hz
@@ -49,6 +49,8 @@ const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
   AV_CH_LAYOUT_7POINT1
 };
 
+const AudioParams::Format AudioParams::kInternalFormat = AudioParams::kFormatFloat32;
+
 qint64 AudioParams::time_to_bytes(const double &time) const
 {
   Q_ASSERT(is_valid());
@@ -68,43 +70,63 @@ bool AudioParams::operator!=(const AudioParams &other) const
   return !(*this == other);
 }
 
+QAudioFormat::SampleType AudioParams::GetQtSampleType(AudioParams::Format format)
+{
+  switch (format) {
+  case kFormatUnsigned8:
+    return QAudioFormat::UnSignedInt;
+  case kFormatSigned16:
+  case kFormatSigned32:
+  case kFormatSigned64:
+    return QAudioFormat::SignedInt;
+  case kFormatFloat32:
+  case kFormatFloat64:
+    return QAudioFormat::Float;
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return QAudioFormat::Unknown;
+}
+
 qint64 AudioParams::time_to_bytes(const rational &time) const
 {
   return time_to_bytes(time.toDouble());
 }
 
-int AudioParams::time_to_samples(const double &time) const
+qint64 AudioParams::time_to_samples(const double &time) const
 {
   Q_ASSERT(is_valid());
 
-  return qFloor(time * sample_rate());
+  return qRound64(time * sample_rate());
 }
 
-int AudioParams::time_to_samples(const rational &time) const
+qint64 AudioParams::time_to_samples(const rational &time) const
 {
   return time_to_samples(time.toDouble());
 }
 
-int AudioParams::samples_to_bytes(const int &samples) const
+qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 {
   Q_ASSERT(is_valid());
 
   return samples * channel_count() * bytes_per_sample_per_channel();
 }
 
-rational AudioParams::samples_to_time(const int &samples) const
+rational AudioParams::samples_to_time(const qint64 &samples) const
 {
   return rational(samples, sample_rate());
 }
 
-int AudioParams::bytes_to_samples(const int &bytes) const
+qint64 AudioParams::bytes_to_samples(const qint64 &bytes) const
 {
   Q_ASSERT(is_valid());
 
   return bytes / (channel_count() * bytes_per_sample_per_channel());
 }
 
-rational AudioParams::bytes_to_time(const int &bytes) const
+rational AudioParams::bytes_to_time(const qint64 &bytes) const
 {
   Q_ASSERT(is_valid());
 
@@ -119,18 +141,18 @@ int AudioParams::channel_count() const
 int AudioParams::bytes_per_sample_per_channel() const
 {
   switch (format_) {
-  case SampleFormat::SAMPLE_FMT_U8:
+  case kFormatUnsigned8:
     return 1;
-  case SampleFormat::SAMPLE_FMT_S16:
+  case kFormatSigned16:
     return 2;
-  case SampleFormat::SAMPLE_FMT_S32:
-  case SampleFormat::SAMPLE_FMT_FLT:
+  case kFormatSigned32:
+  case kFormatFloat32:
     return 4;
-  case SampleFormat::SAMPLE_FMT_DBL:
-  case SampleFormat::SAMPLE_FMT_S64:
+  case kFormatSigned64:
+  case kFormatFloat64:
     return 8;
-  case SampleFormat::SAMPLE_FMT_INVALID:
-  case SampleFormat::SAMPLE_FMT_COUNT:
+  case kFormatInvalid:
+  case kFormatCount:
     break;
   }
 
@@ -146,8 +168,8 @@ bool AudioParams::is_valid() const
 {
   return (sample_rate() > 0
           && channel_layout() > 0
-          && format_ != SampleFormat::SAMPLE_FMT_INVALID
-          && format_ != SampleFormat::SAMPLE_FMT_COUNT);
+          && format_ > kFormatInvalid
+          && format_ < kFormatCount);
 }
 
 QString AudioParams::SampleRateToString(const int &sample_rate)
@@ -173,4 +195,4 @@ QString AudioParams::ChannelLayoutToString(const uint64_t &layout)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

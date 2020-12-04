@@ -1,5 +1,3 @@
-#version 150
-
 uniform sampler2D base_in;
 uniform sampler2D blend_in;
 uniform bool base_in_enabled;

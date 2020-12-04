@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,19 +20,19 @@
 
 #include "managedcolor.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ManagedColor::ManagedColor()
 {
 }
 
-ManagedColor::ManagedColor(const float &r, const float &g, const float &b, const float &a) :
+ManagedColor::ManagedColor(const double &r, const double &g, const double &b, const double &a) :
   Color(r, g, b, a)
 {
 }
 
-ManagedColor::ManagedColor(const char *data, const PixelFormat::Format &format) :
-  Color(data, format)
+ManagedColor::ManagedColor(const char *data, const VideoParams::Format &format, int channel_layout) :
+  Color(data, format, channel_layout)
 {
 }
 
@@ -61,4 +61,4 @@ void ManagedColor::set_color_output(const ColorTransform &color_output)
   color_transform_ = color_output;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

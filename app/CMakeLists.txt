@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,9 @@ add_subdirectory(project)
 add_subdirectory(render)
 add_subdirectory(shaders)
 add_subdirectory(task)
+add_subdirectory(threading)
 add_subdirectory(timeline)
+add_subdirectory(ts)
 add_subdirectory(tool)
 add_subdirectory(ui)
 add_subdirectory(undo)
@@ -61,11 +63,25 @@ if(APPLE)
   )
 endif()
 
+# Add translations
+qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+
+set(QRC_BODY "")
+foreach(QM_FILE ${OLIVE_QM_FILES})
+  get_filename_component(QM_FILENAME_COMPONENT ${QM_FILE} NAME_WE)
+  string(APPEND QRC_BODY "<file alias=\"${QM_FILENAME_COMPONENT}\">${QM_FILE}</file>\n")
+endforeach()
+configure_file(ts/translations.qrc.in ts/translations.qrc @ONLY)
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
+  ${CMAKE_CURRENT_BINARY_DIR}/ts/translations.qrc
+)
+
 # Add executable
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
-  ${OLIVE_QM_FILES}
 )
 
 if(APPLE)
@@ -263,16 +279,6 @@ endif()
 
 # Set compiler definitions
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
-
-set(OLIVE_TS_FILES
-  # FIXME: Empty variable
-)
-
-if(UPDATE_TS)
-  qt5_create_translation(OLIVE_QM_FILES ${CMAKE_SOURCE_DIR} ${OLIVE_TS_FILES})
-else()
-  qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
-endif()
 
 add_subdirectory(packaging)
 

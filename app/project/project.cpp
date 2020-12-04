@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 Project::Project() :
   is_modified_(false),
@@ -43,14 +43,14 @@ Project::Project() :
           this, &Project::DefaultColorSpaceChanged);
 }
 
-void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, const QAtomicInt* cancelled)
+void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint version, const QAtomicInt* cancelled)
 {
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("root")) {
 
-      root_.Load(reader, xml_node_data, cancelled);
+      root_.Load(reader, xml_node_data, version, cancelled);
 
     } else if (reader->name() == QStringLiteral("colormanagement")) {
 
@@ -228,4 +228,4 @@ void Project::DefaultColorSpaceChanged()
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

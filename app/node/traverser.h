@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,13 +21,15 @@
 #ifndef NODETRAVERSER_H
 #define NODETRAVERSER_H
 
+#include <QVector2D>
+
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
 #include "project/item/footage/stream.h"
 #include "value.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class NodeTraverser : public CancelableObject
 {
@@ -56,13 +58,18 @@ protected:
 
   virtual QVariant GetCachedFrame(const Node *node, const rational &time);
 
-  static void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range);
+  void AddGlobalsToDatabase(NodeValueDatabase& db, const TimeRange &range) const;
+
+  virtual QVector2D GenerateResolution() const
+  {
+    return QVector2D(0, 0);
+  }
 
 private:
   void PostProcessTable(const Node *node, const TimeRange &range, NodeValueTable &output_params);
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODETRAVERSER_H

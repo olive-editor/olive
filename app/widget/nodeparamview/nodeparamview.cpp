@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 NodeParamView::NodeParamView(QWidget *parent) :
   TimeBasedWidget(true, false, parent),
@@ -85,7 +85,6 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_view_ = new KeyframeView();
   keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ConnectTimelineView(keyframe_view_);
-  connect(keyframe_view_, &KeyframeView::RequestCenterScrollOnPlayhead, this, &NodeParamView::CenterScrollOnPlayhead);
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
@@ -135,7 +134,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
           &NodeParamView::FocusChanged);
 }
 
-void NodeParamView::SelectNodes(const QList<Node *> &nodes)
+void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
   active_nodes_.append(nodes);
 
@@ -185,7 +184,7 @@ void NodeParamView::SelectNodes(const QList<Node *> &nodes)
   }
 }
 
-void NodeParamView::DeselectNodes(const QList<Node *> &nodes)
+void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
   // Remove item from map and delete the widget
   bool changes_made = false;
@@ -283,8 +282,8 @@ void NodeParamView::QueueKeyframePositionUpdate()
 void NodeParamView::SignalNodeOrder()
 {
   // Sort by item Y (apparently there's no way in Qt to get the order of dock widgets)
-  QList<Node*> nodes;
-  QList<int> item_ys;
+  QVector<Node*> nodes;
+  QVector<int> item_ys;
 
   for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
     int item_y = it.value()->pos().y();
@@ -389,4 +388,4 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+}

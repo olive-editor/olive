@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 AboutDialog::AboutDialog(QWidget *parent) :
   QDialog(parent)
@@ -38,7 +38,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
   // Construct About text
   QLabel* label =
       new QLabel(QStringLiteral("<html><head/><body>"
-                                "<p><img src=\":/icons/olive-splash.png\"/></p>"
+                                "<p><img src=\":/graphics/olive-splash.png\"/></p>"
                                 "<p><a href=\"https://www.olivevideoeditor.org/\">"
                                 "<span style=\" text-decoration: underline; color:#007af4;\">"
                                 "https://www.olivevideoeditor.org/"
@@ -67,4 +67,4 @@ AboutDialog::AboutDialog(QWidget *parent) :
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

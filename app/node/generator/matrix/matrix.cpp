@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,13 +20,10 @@
 
 #include "matrix.h"
 
-#include <QGuiApplication>
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#include "common/range.h"
-
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MatrixGenerator::MatrixGenerator()
 {
@@ -37,9 +34,9 @@ MatrixGenerator::MatrixGenerator()
   AddInput(rotation_input_);
 
   scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(1.0f, 1.0f));
-  scale_input_->set_property("min", QVector2D(0, 0));
-  scale_input_->set_property("view", "percent");
-  scale_input_->set_property("disabley", true);
+  scale_input_->setProperty("min", QVector2D(0, 0));
+  scale_input_->setProperty("view", QStringLiteral("percent"));
+  scale_input_->setProperty("disabley", true);
   AddInput(scale_input_);
 
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
@@ -69,10 +66,10 @@ QString MatrixGenerator::ShortName() const
 
 QString MatrixGenerator::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.transform");
+  return QStringLiteral("org.olivevideoeditor.Olive.ortho");
 }
 
-QList<Node::CategoryID> MatrixGenerator::Category() const
+QVector<Node::CategoryID> MatrixGenerator::Category() const
 {
   return {kCategoryGenerator, kCategoryMath};
 }
@@ -94,144 +91,65 @@ void MatrixGenerator::Retranslate()
 NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(value);
+  QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
   NodeValueTable output = value.Merge();
   output.Push(NodeParam::kMatrix, mat, this);
   return output;
 }
 
-bool MatrixGenerator::GizmoPress(NodeValueDatabase &db, const QPointF &p, const QVector2D &scale, const QSize &viewport)
-{
-  GizmoSharedData gizmo_data(viewport, scale);
-
-  QPointF anchor_pt = GetGizmoAnchorPoint(db, gizmo_data);
-  int anchor_radius = GetGizmoAnchorPointRadius();
-
-  if (InRange(p.x(), anchor_pt.x(), anchor_radius * 2.0)
-      && InRange(p.y(), anchor_pt.y(), anchor_radius * 2.0)) {
-    gizmo_drag_ = anchor_input_;
-    gizmo_start2_ = db[position_input_].Get(NodeParam::kVec2).value<QVector2D>();
-  } else {
-    gizmo_drag_ = position_input_;
-  }
-
-  gizmo_start_ = db[gizmo_drag_].Get(NodeParam::kVec2).value<QVector2D>();
-  gizmo_mouse_start_ = p;
-
-  return true;
-}
-
-void MatrixGenerator::GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time)
-{
-  QVector2D movement = 2.0 * QVector2D(p - gizmo_mouse_start_) / scale;
-  QVector2D new_pos = gizmo_start_ + movement;
-
-  if (!gizmo_x_dragger_.IsStarted()) {
-    gizmo_x_dragger_.Start(gizmo_drag_, time, 0);
-  }
-
-  if (!gizmo_y_dragger_.IsStarted()) {
-    gizmo_y_dragger_.Start(gizmo_drag_, time, 1);
-  }
-
-  gizmo_x_dragger_.Drag(new_pos.x());
-  gizmo_y_dragger_.Drag(new_pos.y());
-
-  if (gizmo_drag_ == anchor_input_) {
-    // If we're dragging the anchor, counter the position at the same time
-    QVector2D new_pos2 = gizmo_start2_ + movement;
-
-    if (!gizmo_x2_dragger_.IsStarted()) {
-      gizmo_x2_dragger_.Start(position_input_, time, 0);
-    }
-
-    if (!gizmo_y2_dragger_.IsStarted()) {
-      gizmo_y2_dragger_.Start(position_input_, time, 1);
-    }
-
-    gizmo_x2_dragger_.Drag(new_pos2.x());
-    gizmo_y2_dragger_.Drag(new_pos2.y());
-  }
-}
-
-void MatrixGenerator::GizmoRelease()
-{
-  gizmo_x_dragger_.End();
-  gizmo_y_dragger_.End();
-  gizmo_x2_dragger_.End();
-  gizmo_y2_dragger_.End();
-}
-
-bool MatrixGenerator::HasGizmos() const
-{
-  return true;
-}
-
-void MatrixGenerator::DrawGizmos(NodeValueDatabase &db, QPainter *p, const QVector2D &scale, const QSize& viewport) const
-{
-  p->setPen(Qt::white);
-
-  GizmoSharedData gizmo_data(viewport, scale);
-
-  {
-    // Fold values into a matrix
-    QMatrix4x4 matrix;
-    matrix.scale(gizmo_data.half_scale);
-    matrix *= GenerateMatrix(db, false);
-    matrix.scale(gizmo_data.inverted_half_scale);
-
-    // Create rect and transform it
-    QVector<QPointF> points = {QPointF(-100, -100),
-                               QPointF(100, -100),
-                               QPointF(100, 100),
-                               QPointF(-100, 100),
-                               QPointF(-100, -100)};
-    QPolygonF poly(points);
-    poly = matrix.toTransform().map(poly);
-    poly.translate(gizmo_data.half_viewport);
-
-    // Draw square
-    p->drawPolyline(poly);
-  }
-
-  {
-    // Draw anchor point marker (with no anchor point translation)
-    QPointF pt = GetGizmoAnchorPoint(db, gizmo_data);
-
-    // Draw anchor point
-    int anchor_pt_radius = GetGizmoAnchorPointRadius();
-
-    p->drawEllipse(pt, anchor_pt_radius, anchor_pt_radius);
-
-    p->drawLines({QLineF(pt.x() - anchor_pt_radius, pt.y(),
-                  pt.x() + anchor_pt_radius, pt.y()),
-                  QLineF(pt.x(), pt.y() - anchor_pt_radius,
-                  pt.x(), pt.y() + anchor_pt_radius)});
-  }
-}
-
-QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value) const
-{
-  return GenerateMatrix(value[position_input_].Take(NodeParam::kVec2).value<QVector2D>(),
-                        value[rotation_input_].Take(NodeParam::kFloat).toFloat(),
-                        value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>(),
-                        value[uniform_scale_input_].Take(NodeParam::kBoolean).toBool(),
-                        value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>());
-}
-
-QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool ignore_anchor) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
 {
   QVector2D anchor;
+  QVector2D position;
+  QVector2D scale;
 
   if (!ignore_anchor) {
-    anchor = value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>();
+    if (take) {
+      // Take and store
+      anchor = value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    } else {
+      // Get and store
+      anchor = value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>();
+    }
+  } else if (take) {
+    // Just take
+    value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>();
   }
 
-  return GenerateMatrix(value[position_input_].Get(NodeParam::kVec2).value<QVector2D>(),
-                        value[rotation_input_].Get(NodeParam::kFloat).toFloat(),
-                        value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>(),
-                        value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool(),
-                        anchor);
+  if (!ignore_scale) {
+    if (take) {
+      scale = value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    } else {
+      scale = value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>();
+    }
+  } else if (take) {
+    value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+  }
+
+  if (!ignore_position) {
+    if (take) {
+      position = value[position_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    } else {
+      position = value[position_input_].Get(NodeParam::kVec2).value<QVector2D>();
+    }
+  } else if (take) {
+    value[position_input_].Take(NodeParam::kVec2).value<QVector2D>();
+  }
+
+  if (take) {
+    return GenerateMatrix(position,
+                          value[rotation_input_].Take(NodeParam::kFloat).toFloat(),
+                          scale,
+                          value[uniform_scale_input_].Take(NodeParam::kBoolean).toBool(),
+                          anchor);
+  } else {
+    return GenerateMatrix(position,
+                          value[rotation_input_].Get(NodeParam::kFloat).toFloat(),
+                          scale,
+                          value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool(),
+                          anchor);
+
+  }
 }
 
 QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
@@ -263,35 +181,9 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   return mat;
 }
 
-QPointF MatrixGenerator::GetGizmoAnchorPoint(NodeValueDatabase &db,
-                                            const GizmoSharedData& gizmo_data) const
-{
-  QMatrix4x4 matrix;
-  matrix.scale(gizmo_data.half_scale);
-  matrix *= GenerateMatrix(db, true);
-  matrix.scale(gizmo_data.inverted_half_scale);
-
-  QPointF pt = matrix.toTransform().map(QPointF());
-  pt += gizmo_data.half_viewport;
-
-  return pt;
-}
-
-int MatrixGenerator::GetGizmoAnchorPointRadius()
-{
-  return QFontMetrics(qApp->font()).height() / 2;
-}
-
 void MatrixGenerator::UniformScaleChanged()
 {
-  scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());
+  scale_input_->setProperty("disabley", uniform_scale_input_->get_standard_value().toBool());
 }
 
-MatrixGenerator::GizmoSharedData::GizmoSharedData(const QSize &viewport, const QVector2D &scale)
-{
-  half_viewport = QPointF(viewport.width() / 2, viewport.height() / 2);
-  half_scale = scale * 0.5;
-  inverted_half_scale = QVector2D(1.0f / half_scale.x(), 1.0f / half_scale.y());
 }
-
-OLIVE_NAMESPACE_EXIT

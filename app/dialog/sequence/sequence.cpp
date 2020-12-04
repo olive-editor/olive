@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include "common/rational.h"
 #include "undo/undostack.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   QDialog(parent),
@@ -107,13 +107,14 @@ void SequenceDialog::accept()
                                          parameter_tab_->GetSelectedVideoHeight(),
                                          parameter_tab_->GetSelectedVideoFrameRate().flipped(),
                                          parameter_tab_->GetSelectedPreviewFormat(),
+                                         VideoParams::kInternalChannelCount,
                                          parameter_tab_->GetSelectedVideoPixelAspect(),
                                          parameter_tab_->GetSelectedVideoInterlacingMode(),
                                          parameter_tab_->GetSelectedPreviewResolution());
 
   AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
                                          parameter_tab_->GetSelectedAudioChannelLayout(),
-                                         SampleFormat::kInternalFormat);
+                                         AudioParams::kInternalFormat);
 
   if (make_undoable_) {
 
@@ -170,4 +171,4 @@ void SequenceDialog::SequenceParamCommand::undo_internal()
   sequence_->set_name(old_name_);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,9 +41,9 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-find_package(OpenColorIO REQUIRED)
+find_package(OpenColorIO 2.0.0 REQUIRED)
 
-find_package(OpenImageIO 1.6 REQUIRED)
+find_package(OpenImageIO 2.1.12 REQUIRED)
 
 find_package(OpenEXR REQUIRED)
 

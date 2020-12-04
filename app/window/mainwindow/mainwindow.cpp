@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,10 +25,14 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 
+#ifdef Q_OS_LINUX
+#include <QOffscreenSurface>
+#endif
+
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
@@ -270,9 +274,14 @@ void MainWindow::ToggleMaximizedPanel()
     // Find the currently focused panel
     PanelWidget* currently_hovered = PanelManager::instance()->CurrentlyHovered();
 
-    // If no panel is hovered, do nothing
-    if (currently_hovered == nullptr) {
-      return;
+    // If no panel is hovered, fallback to the currently active panel
+    if (!currently_hovered) {
+      currently_hovered = PanelManager::instance()->CurrentlyFocused();
+
+      // If no panel is hovered or focused, do nothing
+      if (!currently_hovered) {
+        return;
+      }
     }
 
     // If this panel is not actually on the main window, this is a no-op
@@ -470,7 +479,7 @@ void MainWindow::ProjectCloseRequested()
   ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
   Project* p = panel->project();
 
-  Core::instance()->CloseProject(Core::instance()->GetSharedPtrFromProject(p), true);
+  Core::instance()->CloseProject(p, true);
 }
 
 void MainWindow::FloatingPanelCloseRequested()
@@ -693,4 +702,4 @@ T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
   return panel;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,4 @@
-#version 150
-
 uniform float histogram_scale;
-uniform vec2 ove_resolution;
 
 in vec4 a_position;
 in vec2 a_texcoord;

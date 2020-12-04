@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "common/timerange.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class Project;
 
@@ -71,13 +71,13 @@ public slots:
   void Shift(const rational& from, const rational& to);
 
 signals:
-  void Invalidated(const OLIVE_NAMESPACE::TimeRange& r);
+  void Invalidated(const olive::TimeRange& r);
 
-  void Validated(const OLIVE_NAMESPACE::TimeRange& r);
+  void Validated(const olive::TimeRange& r);
 
-  void Shifted(const OLIVE_NAMESPACE::rational& from, const OLIVE_NAMESPACE::rational& to);
+  void Shifted(const olive::rational& from, const olive::rational& to);
 
-  void LengthChanged(const OLIVE_NAMESPACE::rational& r);
+  void LengthChanged(const olive::rational& r);
 
 protected:
   void Validate(const TimeRange& r);
@@ -106,6 +106,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PLAYBACKCACHE_H

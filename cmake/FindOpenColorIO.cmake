@@ -1,5 +1,6 @@
 #
 # Copyright 2019 Pixar
+# Modifications: Copyright (C) 2020 Olive Team
 #
 # Licensed under the Apache License, Version 2.0 (the "Apache License")
 # with the following modification; you may not use this file except in
@@ -22,44 +23,14 @@
 # language governing permissions and limitations under the Apache License.
 #
 
-if(UNIX)
-    find_path(OCIO_BASE_DIR
-            include/OpenColorIO/OpenColorABI.h
-        HINTS
-            "${OCIO_LOCATION}"
-            "$ENV{OCIO_LOCATION}"
-            "/opt/ocio"
-    )
-    find_path(OCIO_LIBRARY_DIR
-            libOpenColorIO.so
-        HINTS
-            "${OCIO_LOCATION}"
-            "$ENV{OCIO_LOCATION}"
-            "${OCIO_BASE_DIR}"
-        PATH_SUFFIXES
-            lib/
-        DOC
-            "OpenColorIO library path"
-    )
-elseif(WIN32)
-    find_path(OCIO_BASE_DIR
-            include/OpenColorIO/OpenColorABI.h
-        HINTS
-            "${OCIO_LOCATION}"
-            "$ENV{OCIO_LOCATION}"
-    )
-    find_path(OCIO_LIBRARY_DIR
-            OpenColorIO.lib
-        HINTS
-            "${OCIO_LOCATION}"
-            "$ENV{OCIO_LOCATION}"
-            "${OCIO_BASE_DIR}"
-        PATH_SUFFIXES
-            lib/
-        DOC
-            "OpenColorIO library path"
-    )
-endif()
+find_path(OCIO_BASE_DIR
+        include/OpenColorIO/OpenColorABI.h
+    HINTS
+        "${OCIO_LOCATION}"
+        "$ENV{OCIO_LOCATION}"
+    DOC
+        "OCIO root folder"
+)
 
 find_path(OCIO_INCLUDE_DIR
         OpenColorIO/OpenColorABI.h
@@ -70,13 +41,17 @@ find_path(OCIO_INCLUDE_DIR
     PATH_SUFFIXES
         include/
     DOC
-        "OpenColorIO headers path"
+        "OCIO headers path"
 )
 
 list(APPEND OCIO_INCLUDE_DIRS ${OCIO_INCLUDE_DIR})
 
 find_library(OCIO_LIBRARY
-        OpenColorIO
+    NAMES
+        libOpenColorIO.so.2.0 # libOpenColorIO.so.2.0 (Linux)
+        OpenColorIO.2.0       # libOpenColorIO.2.0.dylib (macOS)
+        OpenColorIO_2_0       # OpenColorIO_2_0.lib (Windows)
+        OpenColorIO           # (fallback)
     HINTS
         "${OCIO_LOCATION}"
         "$ENV{OCIO_LOCATION}"
@@ -84,7 +59,7 @@ find_library(OCIO_LIBRARY
     PATH_SUFFIXES
         lib/
     DOC
-        "OCIO's ${OCIO_LIB} library path"
+        "OCIO library path"
 )
 
 list(APPEND OCIO_LIBRARIES ${OCIO_LIBRARY})
@@ -97,8 +72,8 @@ if(OCIO_INCLUDE_DIRS AND EXISTS "${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h"
     string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]+" OCIO_VERSION ${fullVersion})
 endif()
 
-# handle the QUIETLY and REQUIRED arguments and set OCIO_FOUND to TRUE if
-# all listed variables are TRUE
+# handle the QUIETLY and REQUIRED arguments and set OpenColorIO_FOUND to TRUE
+# if all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(OpenColorIO

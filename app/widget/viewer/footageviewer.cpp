@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,16 +26,16 @@
 #include "config/config.h"
 #include "project/project.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   ViewerWidget(parent),
   footage_(nullptr)
 {
-  video_node_ = new VideoInput();
+  video_node_ = new MediaInput();
   sequence_.AddNode(video_node_);
 
-  audio_node_ = new AudioInput();
+  audio_node_ = new MediaInput();
   sequence_.AddNode(audio_node_);
 
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
@@ -175,4 +175,4 @@ void FootageViewerWidget::StartAudioDrag()
   StartFootageDragInternal(false, true);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

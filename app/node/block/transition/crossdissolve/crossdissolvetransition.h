@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,10 +23,11 @@
 
 #include "node/block/transition/transition.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class CrossDissolveTransition : public TransitionBlock
 {
+  Q_OBJECT
 public:
   CrossDissolveTransition();
 
@@ -34,7 +35,7 @@ public:
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QList<CategoryID> Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
   //virtual void Retranslate() override;
@@ -42,10 +43,12 @@ public:
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
 
 protected:
+  virtual void ShaderJobEvent(NodeValueDatabase& value, ShaderJob& job) const override;
+
   virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const override;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // CROSSDISSOLVETRANSITION_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -47,7 +47,7 @@ BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe
   }
 
 
-  int control_point_size = QFontMetricsWidth(qApp->fontMetrics(), "o");
+  int control_point_size = QtUtils::QFontMetricsWidth(qApp->fontMetrics(), "o");
   int half_sz = control_point_size / 2;
   setRect(-half_sz, -half_sz, control_point_size, control_point_size);
 }
@@ -103,4 +103,4 @@ void BezierControlPointItem::UpdatePos()
   setPos(handle_offset - rect().center());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

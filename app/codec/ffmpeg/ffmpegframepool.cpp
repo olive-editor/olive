@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,42 +20,32 @@
 
 #include "ffmpegframepool.h"
 
-extern "C" {
-#include <libavutil/imgutils.h>
-}
+#include "codec/frame.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 FFmpegFramePool::FFmpegFramePool(int element_count) :
   MemoryPool(element_count),
   width_(0),
   height_(0),
-  format_(AV_PIX_FMT_NONE)
+  format_(VideoParams::kFormatInvalid),
+  channel_count_(0)
 {
 }
 
-void FFmpegFramePool::SetParameters(int width, int height, AVPixelFormat format)
+void FFmpegFramePool::SetParameters(int width, int height, VideoParams::Format format, int channel_count)
 {
   Clear();
 
   width_ = width;
   height_ = height;
   format_ = format;
+  channel_count_ = channel_count;
 }
 
 size_t FFmpegFramePool::GetElementSize()
 {
-  int buf_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(format_),
-                                        width_,
-                                        height_,
-                                        1);
-
-  if (buf_sz < 0) {
-    qDebug() << "Failed to find buffer size:" << buf_sz;
-    return 0;
-  }
-
-  return buf_sz;
+  return Frame::generate_linesize_bytes(width_, format_, channel_count_) * height_;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include "render/pixelformat.h"
 #include "render/videoparams.h"
 #include "stream.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A Stream derivative containing video-specific information
@@ -74,23 +73,31 @@ public:
     height_ = height;
   }
 
-  const PixelFormat::Format& format() const
+  const VideoParams::Format& format() const
   {
     return format_;
   }
 
-  void set_format(const PixelFormat::Format& format)
+  void set_format(const VideoParams::Format& format)
   {
     format_ = format;
   }
 
-  bool premultiplied_alpha() const;
+  int channel_count() const
+  {
+    return channel_count_;
+  }
+
+  void set_channel_count(int c)
+  {
+    channel_count_ = c;
+  }
+
+  bool premultiplied_alpha();
   void set_premultiplied_alpha(bool e);
 
-  const QString& colorspace(bool default_if_empty = true) const;
+  const QString& colorspace(bool default_if_empty = true);
   void set_colorspace(const QString& color);
-
-  QString get_colorspace_match_string() const;
 
   VideoParams::Interlacing interlacing() const
   {
@@ -155,7 +162,9 @@ private:
 
   VideoType video_type_;
 
-  PixelFormat::Format format_;
+  VideoParams::Format format_;
+
+  int channel_count_;
 
   rational pixel_aspect_ratio_;
 
@@ -167,6 +176,6 @@ private:
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIDEOSTREAM_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 #include "zoom.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ZoomTool::ZoomTool(TimelineWidget *parent) :
   TimelineTool(parent)
@@ -31,19 +31,21 @@ ZoomTool::ZoomTool(TimelineWidget *parent) :
 void ZoomTool::MousePress(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
+
+  drag_global_start_ = QCursor::pos();
 }
 
 void ZoomTool::MouseMove(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  if (dragging_) {
-    parent()->MoveRubberBandSelect(false, false);
-  } else {
-    parent()->StartRubberBandSelect(false, false);
+  if (!dragging_) {
+    parent()->StartRubberBandSelect(drag_global_start_);
 
     dragging_ = true;
   }
+
+  parent()->MoveRubberBandSelect(false, false);
 }
 
 void ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
@@ -96,4 +98,4 @@ void ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
   parent()->QueueScroll(scroll_value);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

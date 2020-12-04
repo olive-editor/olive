@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@
 
 #include "scopebase.h"
 
-#include "render/backend/opengl/openglrenderfunctions.h"
+#include "config/config.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 ScopeBase::ScopeBase(QWidget* parent) :
   ManagedDisplayWidget(parent),
@@ -33,11 +33,7 @@ ScopeBase::ScopeBase(QWidget* parent) :
 
 ScopeBase::~ScopeBase()
 {
-  CleanUp();
-
-  if (context()) {
-    disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ScopeBase::CleanUp);
-  }
+  OnDestroy();
 }
 
 void ScopeBase::SetBuffer(Frame *frame)
@@ -54,18 +50,15 @@ void ScopeBase::showEvent(QShowEvent* e)
   UploadTextureFromBuffer();
 }
 
-OpenGLShaderPtr ScopeBase::CreateShader()
+void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
-  return OpenGLShader::CreateDefault();
-}
+  ShaderJob job;
 
-void ScopeBase::DrawScope()
-{
-  managed_tex().Bind();
+  job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
 
-  OpenGLRenderFunctions::Blit(pipeline());
-
-  managed_tex().Release();
+  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
+                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              VideoParams::kInternalChannelCount));
 }
 
 void ScopeBase::UploadTextureFromBuffer()
@@ -77,17 +70,18 @@ void ScopeBase::UploadTextureFromBuffer()
   if (buffer_) {
     makeCurrent();
 
-    if (!texture_.IsCreated()
-        || texture_.width() != buffer_->width()
-        || texture_.height() != buffer_->height()
-        || texture_.format() != buffer_->format()) {
-      texture_.Destroy();
-      managed_tex_.Destroy();
+    if (!texture_
+        || texture_->width() != buffer_->width()
+        || texture_->height() != buffer_->height()
+        || texture_->format() != buffer_->format()) {
+      texture_ = nullptr;
+      managed_tex_ = nullptr;
 
-      texture_.Create(context(), buffer_);
-      managed_tex_.Create(context(), buffer_->video_params());
+      texture_ = renderer()->CreateTexture(buffer_->video_params(),
+                                           buffer_->data(), buffer_->linesize_pixels());
+      managed_tex_ = renderer()->CreateTexture(buffer_->video_params());
     } else {
-      texture_.Upload(buffer_);
+      texture_->Upload(buffer_->data(), buffer_->linesize_pixels());
     }
 
     doneCurrent();
@@ -96,58 +90,35 @@ void ScopeBase::UploadTextureFromBuffer()
   update();
 }
 
-void ScopeBase::CleanUp()
+void ScopeBase::OnInit()
 {
-  makeCurrent();
-
-  pipeline_ = nullptr;
-  texture_.Destroy();
-  managed_tex_.Destroy();
-  framebuffer_.Destroy();
-
-  doneCurrent();
-}
-
-void ScopeBase::initializeGL()
-{
-  ManagedDisplayWidget::initializeGL();
-
-  pipeline_ = CreateShader();
-
-  framebuffer_.Create(context());
-
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ScopeBase::CleanUp, Qt::DirectConnection);
+  ManagedDisplayWidget::OnInit();
 
   UploadTextureFromBuffer();
+
+  pipeline_ = renderer()->CreateNativeShader(GenerateShaderCode());
 }
 
-void ScopeBase::paintGL()
+void ScopeBase::OnPaint()
 {
-  QOpenGLFunctions* f = context()->functions();
+  // Clear display surface
+  renderer()->ClearDestination();
 
-  f->glClearColor(0, 0, 0, 0);
-  f->glClear(GL_COLOR_BUFFER_BIT);
-
-  if (buffer_ && pipeline() && texture_.IsCreated()) {
+  if (buffer_) {
     // Convert reference frame to display space
-    framebuffer_.Attach(&managed_tex_);
-    framebuffer_.Bind();
+    renderer()->BlitColorManaged(color_service(), texture_, true, managed_tex_.get());
 
-    texture_.Bind();
-
-    f->glViewport(0, 0, texture_.width(), texture_.height());
-
-    color_service()->ProcessOpenGL();
-
-    texture_.Release();
-
-    framebuffer_.Release();
-    framebuffer_.Detach();
-
-    f->glViewport(0, 0, width(), height());
-
-    DrawScope();
+    DrawScope(managed_tex_, pipeline_);
   }
 }
 
-OLIVE_NAMESPACE_EXIT
+void ScopeBase::OnDestroy()
+{
+  ManagedDisplayWidget::OnDestroy();
+
+  managed_tex_ = nullptr;
+  texture_ = nullptr;
+  pipeline_.clear();
+}
+
+}

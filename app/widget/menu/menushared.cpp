@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 MenuShared* MenuShared::instance_ = nullptr;
 
@@ -309,4 +309,4 @@ void MenuShared::Retranslate()
   view_timecode_view_seconds_item_->setText(tr("Seconds"));
 }
 
-OLIVE_NAMESPACE_EXIT
+}

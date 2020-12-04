@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,54 +24,84 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "node/output/viewer/viewer.h"
-#include "render/backend/opengl/openglbackend.h"
+#include "render/colormanager.h"
 #include "task/task.h"
+#include "threading/threadticket.h"
+#include "threading/threadticketwatcher.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class RenderTask : public Task
 {
+  Q_OBJECT
 public:
   RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
   virtual ~RenderTask() override;
 
 protected:
-  void Render(const TimeRangeList &video_range,
-              const TimeRangeList &audio_range,
-              bool use_disk_cache);
+  bool Render(ColorManager *manager, const TimeRangeList &video_range,
+              const TimeRangeList &audio_range, RenderMode::Mode mode,
+              FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
+              const QMatrix4x4& force_matrix = QMatrix4x4(),
+              VideoParams::Format force_format = VideoParams::kFormatInvalid,
+              ColorProcessorPtr force_color_output = nullptr);
 
-  virtual QFuture<void> DownloadFrame(FramePtr frame, const QByteArray &hash) = 0;
+  virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
 
-  virtual void FrameDownloaded(const QByteArray& hash, const std::list<rational>& times, qint64 job_time) = 0;
+  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times, qint64 job_time) = 0;
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
   ViewerOutput* viewer() const
   {
-    return backend_->GetViewerNode();
+    return viewer_;
   }
 
-  VideoParams video_params() const
+  const VideoParams& video_params() const
   {
-    return backend_->GetVideoParams();
+    return video_params_;
   }
 
-  AudioParams audio_params() const
+  const AudioParams& audio_params() const
   {
-    return backend_->GetAudioParams();
+    return audio_params_;
   }
 
-  RenderBackend* backend()
+  virtual void CancelEvent() override
   {
-    return backend_;
+    finished_watcher_mutex_.lock();
+    finished_watcher_wait_cond_.wakeAll();
+    finished_watcher_mutex_.unlock();
+  }
+
+  virtual bool TwoStepFrameRendering() const
+  {
+    return true;
   }
 
 private:
-  RenderBackend* backend_;
+  void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
+
+  void IncrementRunningTickets();
+
+  ViewerOutput* viewer_;
+
+  VideoParams video_params_;
+
+  AudioParams audio_params_;
+
+  QVector<RenderTicketWatcher*> running_watchers_;
+  std::list<RenderTicketWatcher*> finished_watchers_;
+  int running_tickets_;
+  QMutex finished_watcher_mutex_;
+  QWaitCondition finished_watcher_wait_cond_;
+
+private slots:
+  void TicketDone(RenderTicketWatcher *watcher);
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // RENDERTASK_H

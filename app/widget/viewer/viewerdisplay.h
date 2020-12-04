@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,12 +22,9 @@
 #define VIEWERGLWIDGET_H
 
 #include <QOpenGLWidget>
+#include <QMatrix4x4>
 
 #include "node/node.h"
-#include "render/backend/opengl/openglcolorprocessor.h"
-#include "render/backend/opengl/openglframebuffer.h"
-#include "render/backend/opengl/openglshader.h"
-#include "render/backend/opengl/opengltexture.h"
 #include "render/color.h"
 #include "render/colormanager.h"
 #include "tool/tool.h"
@@ -35,7 +32,7 @@
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief The inner display/rendering widget of a Viewer class.
@@ -66,17 +63,6 @@ public:
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
   virtual ~ViewerDisplayWidget() override;
-
-  /**
-  * @brief Return the translation only matrix.
-  */
-  QMatrix4x4 GetMatrixTranslate();
-
-  /**
-   * @brief Return the complete translation and scale matrix but with the Y translation flipped
-   * as OpenGL stores textures "upside down".
-   */
-  QMatrix4x4 GetCompleteMatrixFlippedYTranslation();
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -182,18 +168,13 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
   /**
-   * @brief Initialize function to set up the OpenGL context upon its construction
-   *
-   * Currently primarily used to regenerate the pipeline shader used for drawing.
-   */
-  virtual void initializeGL() override;
-
-  /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
    *
    * Simple OpenGL drawing function for painting the texture on screen. Standardized around OpenGL ES 3.2 Core.
    */
-  virtual void paintGL() override;
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
 
 private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
@@ -208,10 +189,22 @@ private:
 
   QTransform GenerateWorldTransform();
 
+  QTransform GenerateGizmoTransform();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  OpenGLTexture texture_;
+  TexturePtr texture_;
+
+  /**
+   * @brief Internal texture to deinterlace to
+   */
+  TexturePtr deinterlace_texture_;
+
+  /**
+   * @brief Deinterlace shader
+   */
+  QVariant deinterlace_shader_;
 
   /**
    * @brief Translation only matrix (defaults to identity).
@@ -227,6 +220,7 @@ private:
    * @brief Cached result of translate_matrix_ and scale_matrix_ multiplied
    */
   QMatrix4x4 combined_matrix_;
+  QMatrix4x4 combined_matrix_flipped_;
 
   bool signal_cursor_color_;
 
@@ -236,6 +230,7 @@ private:
   NodeValueDatabase gizmo_db_;
   rational gizmo_drag_time_;
   VideoParams gizmo_params_;
+  QPoint gizmo_start_drag_;
   bool gizmo_click_;
 
   rational time_;
@@ -251,13 +246,10 @@ private:
   bool deinterlace_;
 
 private slots:
-  /**
-   * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
-   */
-  void ContextCleanup();
+  void EmitColorAtCursor(QMouseEvent* e);
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // VIEWERGLWIDGET_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "project/project.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class ProjectLoadBaseTask : public Task
 {
@@ -32,7 +32,7 @@ class ProjectLoadBaseTask : public Task
 public:
   ProjectLoadBaseTask(const QString& filename);
 
-  ProjectPtr GetLoadedProject() const
+  Project* GetLoadedProject() const
   {
     return project_;
   }
@@ -58,7 +58,7 @@ public:
   }
 
 protected:
-  ProjectPtr project_;
+  Project* project_;
 
   MainWindowLayoutInfo layout_info_;
 
@@ -69,6 +69,6 @@ private:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // LOADBASETASK_H

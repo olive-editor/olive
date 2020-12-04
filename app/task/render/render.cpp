@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,223 +21,221 @@
 #include "render.h"
 
 #include "common/timecodefunctions.h"
+#include "render/rendermanager.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams)
+RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
+  viewer_(viewer),
+  video_params_(vparams),
+  audio_params_(aparams),
+  running_tickets_(0)
 {
-  backend_ = new OpenGLBackend();
-  backend_->SetViewerNode(viewer);
-  backend_->SetVideoParams(vparams);
-  backend_->SetAudioParams(aparams);
 }
 
 RenderTask::~RenderTask()
 {
-  delete backend_;
 }
 
-struct TimeHashFuturePair {
-  rational time;
-  RenderTicketPtr hash_future;
-};
-
-struct HashTimePair {
-  rational time;
-  QByteArray hash;
-};
-
-struct HashFrameFuturePair {
-  QByteArray hash;
-  RenderTicketPtr frame_future;
-};
-
-struct RangeSampleFuturePair {
-  TimeRange range;
-  RenderTicketPtr sample_future;
-};
-
-struct HashDownloadFuturePair {
-  QByteArray hash;
-  QFuture<void> download_future;
-  qint64 job_time;
-};
-
-void RenderTask::Render(const TimeRangeList& video_range,
+bool RenderTask::Render(ColorManager* manager,
+                        const TimeRangeList& video_range,
                         const TimeRangeList &audio_range,
-                        bool use_disk_cache)
+                        RenderMode::Mode mode,
+                        FrameHashCache* cache, const QSize &force_size,
+                        const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
+                        ColorProcessorPtr force_color_output)
 {
+  // Run watchers in another thread so they can accept signals even while this thread is blocked
+  QThread watcher_thread;
+  watcher_thread.start();
+
   double progress_counter = 0;
   double total_length = 0;
   double video_frame_sz = video_params().time_base().toDouble();
 
-  std::list<TimeRange> audio_queue;
-  std::list<RangeSampleFuturePair> audio_lookup_table;
-  if (!audio_range.isEmpty()) {
-    foreach (const TimeRange& r, audio_range) {
-      total_length += r.length().toDouble();
+  // Store real time before any rendering takes place
+  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
 
-      std::list<TimeRange> ranges = RenderBackend::SplitRangeIntoChunks(r);
-      audio_queue.insert(audio_queue.end(), ranges.begin(), ranges.end());
-    }
+  // Queue audio jobs
+  foreach (const TimeRange& r, audio_range) {
+    // Don't count audio progress, since it's generally a lot faster than video and is weighted at
+    // 50%, which makes the progress bar look weird to the uninitiated
+    //total_length += r.length().toDouble();
+
+    IncrementRunningTickets();
+
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher->setProperty("range", QVariant::fromValue(r));
+    PrepareWatcher(watcher, &watcher_thread);
+    watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, r, audio_params_, false));
   }
 
-  std::list<HashFrameFuturePair> render_lookup_table;
-  QVector<rational> times;
-  QVector<QByteArray> hashes;
-  std::list<HashTimePair> frame_queue;
-  qint64 hash_job_time = 0;
+  // Look up hashes
+  QMap<QByteArray, QVector<rational> > time_map;
 
   if (!video_range.isEmpty()) {
-    times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    // Get list of discrete frames from range
+    QVector<rational> times = viewer()->video_frame_cache()->GetFrameListFromTimeRange(video_range);
+    QVector<QByteArray> hashes(times.size());
 
-    total_length += video_frame_sz * times.size();
-
-    RenderTicketPtr hash_future = backend_->Hash(times);
-    hashes = hash_future->Get().value<QVector<QByteArray> >();
-    hash_job_time = hash_future->GetJobTime();
-
-    if (!hash_future->WasCancelled()) {
-      for (int i=0;i<times.size();i++) {
-        frame_queue.push_back({times.at(i), hashes.at(i)});
+    // Generate hashes
+    for (int i=0; i<times.size(); i++) {
+      if (IsCancelled()) {
+        return true;
       }
+
+      hashes[i] = RenderManager::instance()->Hash(viewer(), video_params_, times.at(i));
+    }
+
+    // Filter out duplicates
+    for (int i=0; i<hashes.size(); i++) {
+      if (IsCancelled()) {
+        return true;
+      }
+
+      const QByteArray& hash = hashes.at(i);
+
+      time_map[hash].append(times.at(i));
+
+      if (time_map[hash].size() == 1) {
+        // This is the first frame with this hash, so we signal a render
+        RenderTicketWatcher* watcher = new RenderTicketWatcher();
+        watcher->setProperty("hash", hash);
+        PrepareWatcher(watcher, &watcher_thread);
+
+        IncrementRunningTickets();
+
+        watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_, manager, times.at(i),
+                                                                  mode, video_params_, audio_params_,
+                                                                  force_size, force_matrix,
+                                                                  force_format, force_color_output,
+                                                                  cache));
+      }
+    }
+
+    // Add to "total progress"
+    total_length += video_frame_sz * time_map.size();
+  }
+
+  finished_watcher_mutex_.lock();
+
+  while (!IsCancelled()) {
+    while (!finished_watchers_.empty() && !IsCancelled()) {
+      RenderTicketWatcher* watcher = finished_watchers_.front();
+      finished_watchers_.pop_front();
+
+      finished_watcher_mutex_.unlock();
+
+      // Analyze watcher here
+      RenderManager::TicketType ticket_type = watcher->GetTicket()->property("type").value<RenderManager::TicketType>();
+
+      if (ticket_type == RenderManager::kTypeAudio) {
+
+        TimeRange range = watcher->property("range").value<TimeRange>();
+
+        AudioDownloaded(range,
+                        watcher->Get().value<SampleBufferPtr>(),
+                        job_time);
+
+        // Don't count audio progress, since it's generally a lot faster than video and is weighted at
+        // 50%, which makes the progress bar look weird to the uninitiated
+        //progress_counter += range.length().toDouble();
+        //emit ProgressChanged(progress_counter / total_length);
+
+      } else if (ticket_type == RenderManager::kTypeVideo && TwoStepFrameRendering()) {
+
+        DownloadFrame(&watcher_thread,
+                      watcher->Get().value<FramePtr>(),
+                      watcher->property("hash").toByteArray());
+
+        progress_counter += video_frame_sz * 0.5;
+        emit ProgressChanged(progress_counter / total_length);
+
+      } else {
+
+        // Assume single-step video or video download ticket
+        QByteArray rendered_hash = watcher->property("hash").toByteArray();
+        FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash), job_time);
+
+        double progress_to_add = video_frame_sz;
+        if (TwoStepFrameRendering()) {
+          progress_to_add *= 0.5;
+        }
+        progress_counter += progress_to_add;
+
+        emit ProgressChanged(progress_counter / total_length);
+
+      }
+
+      delete watcher;
+      running_watchers_.removeOne(watcher);
+
+      finished_watcher_mutex_.lock();
+    }
+
+    if (IsCancelled()) {
+      break;
+    }
+
+    // Run out of finished watchers. If we still have running tickets, wait for the next one to finish.
+    if (running_tickets_ > 0) {
+      finished_watcher_wait_cond_.wait(&finished_watcher_mutex_);
+    } else {
+      // No more running tickets or finished tickets, wem ust be
+      break;
     }
   }
 
-  // Start downloading frames that have finished
-  std::list<HashDownloadFuturePair> download_futures;
+  finished_watcher_mutex_.unlock();
 
-  // Iterators
-  std::list<HashFrameFuturePair>::iterator i;
-  std::list<HashDownloadFuturePair>::iterator j;
-  std::list<RangeSampleFuturePair>::iterator k;
-
-  std::list<QByteArray> running_hashes;
-  std::list<QByteArray> existing_hashes;
-
-  while (!IsCancelled()
-         && (!render_lookup_table.empty()
-             || !frame_queue.empty()
-             || !audio_queue.empty()
-             || !download_futures.empty()
-             || !audio_lookup_table.empty())) {
-
-    while (!IsCancelled() && !frame_queue.empty()) {
-
-      // Pop another frame off the frame queue
-      const HashTimePair& p = frame_queue.front();
-
-      // Check if we're already rendering this hash
-      bool rendering_hash = (std::find(running_hashes.begin(), running_hashes.end(), p.hash) != running_hashes.end());
-
-      // Skip this hash if we're already rendering it
-      if (!rendering_hash) {
-        // Check if this frame already exists (has already been rendered previously or during this job)
-        bool hash_exists = false;
-
-        if (use_disk_cache) {
-          // Check if this hash is in our "existing hashes" list
-          hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), p.hash) != existing_hashes.end());
-
-          // If not, check if it's in the filesystem
-          if (!hash_exists) {
-            hash_exists = QFileInfo::exists(viewer()->video_frame_cache()->CachePathName(p.hash));
-
-            // If so, add it to the list so we don't have to check the filesystem again later
-            if (hash_exists) {
-              existing_hashes.push_back(p.hash);
-            }
-          }
-
-          if (hash_exists) {
-            // Already exists, no need to render it again
-            FrameDownloaded(p.hash, {p.time}, hash_job_time);
-            progress_counter += video_frame_sz;
-            emit ProgressChanged(progress_counter / total_length);
-          }
-        }
-
-        // If no existing disk cache was found, queue it now
-        if (!hash_exists) {
-          render_lookup_table.push_back({p.hash, backend_->RenderFrame(p.time)});
-          running_hashes.push_back(p.hash);
-        }
-      }
-
-      // Remove first element
-      frame_queue.pop_front();
-    }
-
-    while (!IsCancelled() && !audio_queue.empty()) {
-      audio_lookup_table.push_back({audio_queue.front(), backend_->RenderAudio(audio_queue.front())});
-      audio_queue.pop_front();
-    }
-
-    i = render_lookup_table.begin();
-
-    while (!IsCancelled() && i != render_lookup_table.end()) {
-      if (i->frame_future->IsFinished()) {
-        if (!i->frame_future->WasCancelled()) {
-          FramePtr f = i->frame_future->Get().value<FramePtr>();
-
-          // Start multithreaded download here
-          download_futures.push_back({i->hash, DownloadFrame(f, i->hash), i->frame_future->GetJobTime()});
-        }
-
-        i = render_lookup_table.erase(i);
-      } else {
-        i++;
-      }
-    }
-
-    j = download_futures.begin();
-
-    while (!IsCancelled() && j != download_futures.end()) {
-      if (j->download_future.isFinished()) {
-        // Place it in the cache
-        std::list<rational> times_with_hash;
-
-        for (int hash_index=0;hash_index<hashes.size();hash_index++) {
-          if (hashes.at(hash_index) == j->hash) {
-            times_with_hash.push_back(times.at(hash_index));
-          }
-        }
-
-        FrameDownloaded(j->hash, times_with_hash, j->job_time);
-
-        existing_hashes.push_back(j->hash);
-
-        // Signal process
-        progress_counter += times_with_hash.size() * video_frame_sz;
-        emit ProgressChanged(progress_counter / total_length);
-
-        j = download_futures.erase(j);
-
-      } else {
-        j++;
-      }
-    }
-
-    k = audio_lookup_table.begin();
-
-    while (!IsCancelled() && k != audio_lookup_table.end()) {
-      if (k->sample_future->IsFinished()) {
-        AudioDownloaded(k->range,
-                        k->sample_future->Get().value<SampleBufferPtr>(),
-                        k->sample_future->GetJobTime());
-
-        progress_counter += k->range.length().toDouble();
-        emit ProgressChanged(progress_counter / total_length);
-
-        k = audio_lookup_table.erase(k);
-      } else {
-        k++;
-      }
+  if (IsCancelled()) {
+    // Cancel every watcher we created
+    foreach (RenderTicketWatcher* watcher, running_watchers_) {
+      disconnect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone);
+      watcher->Cancel();
     }
   }
 
-  // `Close` will block until all jobs are done making a safe deletion
-  backend_->Close();
+  watcher_thread.quit();
+  watcher_thread.wait();
+
+  return true;
 }
 
-OLIVE_NAMESPACE_EXIT
+void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
+{
+  RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  watcher->setProperty("hash", hash);
+  PrepareWatcher(watcher, thread);
+
+  IncrementRunningTickets();
+
+  watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(),
+                                                                 frame,
+                                                                 hash));
+}
+
+void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)
+{
+  watcher->moveToThread(thread);
+  connect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone, Qt::DirectConnection);
+  running_watchers_.append(watcher);
+}
+
+void RenderTask::IncrementRunningTickets()
+{
+  finished_watcher_mutex_.lock();
+  running_tickets_++;
+  finished_watcher_mutex_.unlock();
+}
+
+void RenderTask::TicketDone(RenderTicketWatcher* watcher)
+{
+  finished_watcher_mutex_.lock();
+  finished_watchers_.push_back(watcher);
+  finished_watcher_wait_cond_.wakeAll();
+  running_tickets_--;
+  finished_watcher_mutex_.unlock();
+}
+
+}

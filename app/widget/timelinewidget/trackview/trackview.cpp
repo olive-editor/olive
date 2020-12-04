@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 
 #include "trackviewitem.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QScrollArea(parent),
@@ -132,4 +132,4 @@ void TrackView::RemoveTrack(TrackOutput *track)
   splitter_->Remove(track->Index());
 }
 
-OLIVE_NAMESPACE_EXIT
+}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,13 +28,13 @@
 #include "project/project.h"
 #include "task/task.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 class SaveOTIOTask : public Task
 {
   Q_OBJECT
 public:
-  SaveOTIOTask(ProjectPtr project);
+  SaveOTIOTask(Project* project);
 
 protected:
   virtual bool Run() override;
@@ -46,10 +46,10 @@ private:
 
   bool SerializeTrackList(TrackList* list, OTIO::Timeline *otio_timeline);
 
-  ProjectPtr project_;
+  Project* project_;
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // PROJECTSAVEASOTIOTASK_H

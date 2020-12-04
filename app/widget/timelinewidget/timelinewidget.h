@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #include "widget/timelinewidget/tool/import.h"
 #include "widget/timelinewidget/tool/tool.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief Full widget for working with TimelineOutput nodes
@@ -89,7 +89,7 @@ public:
 
   void ToggleSelectedEnabled();
 
-  QList<TimelineViewBlockItem*> GetSelectedBlocks();
+  QVector<TimelineViewBlockItem*> GetSelectedBlocks();
 
   virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
 
@@ -99,7 +99,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QList<Block *>& blocks, bool remove_from_graph, QUndoCommand* command);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, QUndoCommand* command);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -138,7 +138,7 @@ public:
 
   void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
-  void StartRubberBandSelect(bool enable_selecting, bool select_links);
+  void StartRubberBandSelect(const QPoint& global_cursor_start);
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
   void EndRubberBandSelect();
 
@@ -154,8 +154,6 @@ public:
     return !ghost_items_.isEmpty();
   }
 
-  rational GetToolTipTimebase() const;
-
   bool IsBlockSelected(Block* b) const
   {
     return selected_blocks_.contains(b);
@@ -166,6 +164,8 @@ public:
   void QueueScroll(int value);
 
   TimelineView* GetFirstTimelineView();
+
+  rational GetTimebaseForTrackType(Timeline::TrackType type);
 
   const QRect &GetRubberBandGeometry() const;
 
@@ -185,12 +185,12 @@ public:
    * this is preferable and should only be set to FALSE if the list is guaranteed not to contain
    * already selected blocks (and therefore filtering can be skipped to save time).
    */
-  void SignalSelectedBlocks(QList<Block *> selected_blocks, bool filter = true);
+  void SignalSelectedBlocks(QVector<Block *> selected_blocks, bool filter = true);
 
   /**
    * @brief Track blocks that have been newly deselected
    */
-  void SignalDeselectedBlocks(const QList<Block*>& deselected_blocks);
+  void SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks);
 
   /**
    * @brief Convenience function to deselect all blocks and signal them
@@ -198,9 +198,9 @@ public:
   void SignalDeselectedAllBlocks();
 
 signals:
-  void BlocksSelected(const QList<Block*>& selected_blocks);
+  void BlocksSelected(const QVector<Block*>& selected_blocks);
 
-  void BlocksDeselected(const QList<Block*>& deselected_blocks);
+  void BlocksDeselected(const QVector<Block*>& deselected_blocks);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -237,7 +237,7 @@ private:
 
   QRubberBand rubberband_;
   TimelineWidgetSelections rubberband_old_selections_;
-  QList<Block*> rubberband_now_selected_;
+  QVector<Block*> rubberband_now_selected_;
 
   TimelineWidgetSelections selections_;
 
@@ -257,7 +257,7 @@ private:
 
   TimeSlider* timecode_label_;
 
-  QList<Block*> selected_blocks_;
+  QVector<Block*> selected_blocks_;
 
   int deferred_scroll_value_;
 
@@ -321,6 +321,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // TIMELINEWIDGET_H

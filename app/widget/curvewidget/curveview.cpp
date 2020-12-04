@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include "common/qtutils.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)
@@ -37,9 +37,9 @@ CurveView::CurveView(QWidget *parent) :
   setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
 
-  text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
+  text_padding_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
 
-  minimum_grid_space_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
+  minimum_grid_space_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
 
   connect(scene(), &QGraphicsScene::selectionChanged, this, &CurveView::SelectionChanged);
 }
@@ -89,7 +89,7 @@ void CurveView::ConnectInput(NodeInput *input)
 
 void CurveView::DisconnectNode(Node *node)
 {
-  QList<NodeInput*> inputs = node->GetInputsIncludingArrays();
+  QVector<NodeInput*> inputs = node->GetInputsIncludingArrays();
 
   foreach (NodeInput* i, inputs) {
     DisconnectInput(i);
@@ -431,4 +431,4 @@ void CurveView::AddKeyframe(NodeKeyframePtr key)
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }
 
-OLIVE_NAMESPACE_EXIT
+}

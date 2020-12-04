@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,14 +26,16 @@
 #include "block/gap/gap.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "distort/crop/cropdistortnode.h"
+#include "distort/transform/transformdistortnode.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
 #include "filter/blur/blur.h"
+#include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
-#include "input/media/video/video.h"
-#include "input/media/audio/audio.h"
+#include "input/media/media.h"
 #include "input/time/timeinput.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
@@ -41,7 +43,7 @@
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 QList<Node*> NodeFactory::library_;
 
 void NodeFactory::Initialize()
@@ -183,10 +185,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new PolygonGenerator();
   case kMatrixGenerator:
     return new MatrixGenerator();
-  case kVideoInput:
-    return new VideoInput();
-  case kAudioInput:
-    return new AudioInput();
+  case kTransformDistort:
+    return new TransformDistortNode();
+  case kFootageInput:
+    return new MediaInput();
   case kTrackOutput:
     return new TrackOutput();
   case kViewerOutput:
@@ -215,6 +217,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new CrossDissolveTransition();
   case kDipToColorTransition:
     return new DipToColorTransition();
+  case kMosaicFilter:
+    return new MosaicFilterNode();
+  case kCropDistort:
+    return new CropDistortNode();
 
   case kInternalNodeCount:
     break;
@@ -224,4 +230,4 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
   abort();
 }
 
-OLIVE_NAMESPACE_EXIT
+}

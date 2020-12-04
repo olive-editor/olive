@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "keyframe.h"
 #include "param.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 /**
  * @brief A node parameter designed to take either user input or data from another node
@@ -237,39 +237,6 @@ public:
    */
   static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true, bool traverse_arrays = true);
 
-  /**
-   * @brief Set an arbitrary property on this input to influence a UI representation's behavior
-   *
-   * NodeInputs also utilize QObject's property key/value system for arbitrary properties that can influence the UI
-   * representation's behavior.
-   *
-   * Currently supported properties:
-   *
-   * - `min` - For any numeral type represented with a slider, prevents values going BELOW this number
-   * - `max` - For any numeral type represented with a slider, prevents values going ABOVE this number
-   * - `view` - For any numeral type represented with a slider, shows number either as `db`, `percent`, or `normal`
-   * - `disablex` - For kVec2, kVec3, kVec4 and kColor types, disables the first/X/R UI widget
-   * - `disabley` - For kVec2, kVec3, kVec4 and kColor types, disables the second/Y/G UI widget
-   * - `disablez` - For kVec3, kVec4 and kColor types, disables the third/Z/B UI widget
-   * - `disablew` - For kVec4 and kColor types, disables the fourth/W/A UI widget
-   */
-  void set_property(const QString& key, const QVariant& value);
-
-  /**
-   * @brief Retrieve a property (or an empty QVariant if it hasn't been set)
-   */
-  QVariant get_property(const QString& key) const;
-
-  /**
-   * @brief Return whether a certain property has been set or not
-   */
-  bool has_property(const QString& key) const;
-
-  /**
-   * @brief Get properties hashmap (useful for iterating)
-   */
-  const QHash<QString, QVariant>& properties() const;
-
   QVector<QVariant> split_normal_value_into_track_values(const QVariant &value) const;
 
   QVariant combine_track_values_into_normal_value(const QVector<QVariant>& split) const;
@@ -282,20 +249,20 @@ public:
 
   static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
 
-  void GetDependencies(QList<Node*>& list, bool traverse, bool exclusive_only) const;
+  void GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const;
 
   QVariant GetDefaultValue() const;
 
   QVariant GetDefaultValueForTrack(int track) const;
 
-  QList<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
+  QVector<Node*> GetDependencies(bool traverse = true, bool exclusive_only = false) const;
 
-  QList<Node*> GetExclusiveDependencies() const;
+  QVector<Node*> GetExclusiveDependencies() const;
 
-  QList<Node*> GetImmediateDependencies() const;
+  QVector<Node*> GetImmediateDependencies() const;
 
 signals:
-  void ValueChanged(const OLIVE_NAMESPACE::TimeRange& range);
+  void ValueChanged(const olive::TimeRange& range);
 
   void KeyframeEnableChanged(bool);
 
@@ -309,6 +276,8 @@ protected:
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
+
+  virtual bool event(QEvent* e) override;
 
 private:
   void Init(NodeParam::DataType type);
@@ -398,11 +367,6 @@ private:
    */
   bool keyframing_;
 
-  /**
-   * @brief Internal properties variable
-   */
-  QHash<QString, QVariant> properties_;
-
 private slots:
   /**
    * @brief Slot when a keyframe's time changes to keep the keyframes correctly sorted by time
@@ -431,6 +395,6 @@ private slots:
 
 };
 
-OLIVE_NAMESPACE_EXIT
+}
 
 #endif // NODEINPUT_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "common/clamp.h"
 #include "node/node.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 #define M_180_OVER_PI 57.295791433133264917914229473464
 #define M_RADIAN_TO_0_1 0.15915497620314795810531730409296
@@ -121,7 +121,7 @@ void ColorWheelWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
   if (external) {
     force_redraw_ = true;
-    val_ = clamp(c.value(), 0.0f, 1.0f);
+    val_ = clamp(c.value(), 0.0, 1.0);
   }
 }
 
@@ -159,7 +159,7 @@ Color ColorWheelWidget::GetColorFromTriangle(const ColorWheelWidget::Triangle &t
 
 QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
 {
-  float hue, sat, val;
+  double hue, sat, val;
   c.toHsv(&hue, &sat, &val);
 
   qreal hypotenuse = sat * GetRadius();
@@ -177,4 +177,4 @@ QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
   return pos;
 }
 
-OLIVE_NAMESPACE_EXIT
+}

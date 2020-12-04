@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "config/config.h"
 #include "slip.h"
 
-OLIVE_NAMESPACE_ENTER
+namespace olive {
 
 SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
@@ -54,10 +54,11 @@ void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
   // Generate tooltip and force it to to update (otherwise the tooltip won't move as written in the
   // documentation, and could get in the way of the cursor)
+  rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, parent()->GetToolTipTimebase()),
-                                                                              parent()->GetToolTipTimebase(),
+                     Timecode::timestamp_to_timecode(Timecode::time_to_timestamp(time_movement, tooltip_timebase),
+                                                                              tooltip_timebase,
                                                                               Core::instance()->GetTimecodeDisplay(),
                                                                               true),
                      parent());
@@ -79,4 +80,4 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-OLIVE_NAMESPACE_EXIT
+}
