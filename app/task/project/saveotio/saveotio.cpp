@@ -97,6 +97,8 @@ OTIO::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
   auto otio_timeline = new OTIO::Timeline(sequence->name().toStdString());
   // Retainers clean themselves up when the final user is removed
   OTIO::Timeline::Retainer<OTIO::Timeline>* timeline_retainer = new OTIO::Timeline::Retainer<OTIO::Timeline>(otio_timeline);
+  // Suppress unused variable warning
+  Q_UNUSED(timeline_retainer);
 
   if (!SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeVideo), otio_timeline)
       || !SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeAudio), otio_timeline)) {
