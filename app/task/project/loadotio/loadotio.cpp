@@ -26,7 +26,9 @@
 #include <opentimelineio/serializableCollection.h>
 #include <opentimelineio/timeline.h>
 #include <QFileInfo>
+#include <QThread>
 
+#include "core.h"
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/input/media/media.h"
@@ -75,18 +77,53 @@ bool LoadOTIOTask::Run()
     return false;
   }
 
+  QList<SequencePtr> sequences;
+
+  // Variables used for loading bar
+  float number_of_clips = 0;
+  float clips_done = 0;
+
+  // Generate a list of sequences with the same names as the timelines.
+  // Assumes each timeline has a unique name.
+  foreach (auto timeline, timelines) {
+    // Build sequence list
+    SequencePtr sequence = std::make_shared<Sequence>();
+    sequence->set_name(QString::fromStdString(timeline->name()));
+    // Set default params in case they aren't edited.
+    sequence->set_default_parameters();
+    sequences.append(sequence);
+
+    // Get number of clips for loading bar
+    foreach(auto track, timeline->tracks()->children()) {
+      auto otio_track = static_cast<OTIO::Track*>(track.value);
+      number_of_clips += otio_track->children().size();
+    }
+  }
+
+  // Dialog has to be called from the main thread so we pass the list of sequences here.
+  QMetaObject::invokeMethod(Core::instance(),
+                            "DialogImportOTIOShow",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(QList<SequencePtr>, sequences)
+                            );
+
   // Keep track of imported footage
   QMap<QString, FootagePtr> imported_footage;
 
   foreach (auto timeline, timelines) {
-    SequencePtr sequence = std::make_shared<Sequence>();
-    sequence->set_name(QString::fromStdString(timeline->name()));
+    SequencePtr sequence;
+
+    // Find correct sequence based on itmeline name.
+    foreach(SequencePtr seq, sequences) {
+      if (seq->name() == QString::fromStdString(timeline->name())) {
+        sequence = seq;
+        break;
+      }
+    }
+
     project_->root()->add_child(sequence);
 
     ViewerOutput* seq_viewer = sequence->viewer_output();
-
-    // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
-    sequence->set_default_parameters();
 
     for (auto c : timeline->tracks()->children()) {
       auto otio_track = static_cast<OTIO::Track*>(c.value);
@@ -166,17 +203,42 @@ bool LoadOTIOTask::Run()
               probed_item = imported_footage.value(footage_url);
             } else {
               probed_item = Decoder::Probe(project_, footage_url, &IsCancelled());
+              if (!probed_item) {
+                // Failed to decode footage. As we're importing an OTIO file this implies the footage just needs to be relinked
+                // so we create a empty footage object here. This triggers the relink dialog later.
+                qWarning() << "Could not decode" << footage_url << ", creating blank footage object";
+                probed_item = std::make_shared<Footage>();
+                QFileInfo file_info(footage_url);
+                probed_item->set_name(file_info.fileName());
+                probed_item->set_filename(footage_url);
+
+                probed_item->set_project(project_);
+                probed_item->set_timestamp(file_info.lastModified().toMSecsSinceEpoch());
+              }
+
               imported_footage.insert(footage_url, probed_item);
               project_->root()->add_child(probed_item);
             }
 
             if (probed_item && probed_item->type() == Item::kFootage) {
               MediaInput* media = new MediaInput();
+              StreamPtr stream;
               if (track->track_type() == Timeline::kTrackTypeVideo) {
-                media->SetStream(probed_item->get_first_stream_of_type(Stream::kVideo));
+                stream = std::make_shared<VideoStream>();
+                stream = probed_item->get_first_stream_of_type(Stream::kVideo);
               } else {
-                media->SetStream(probed_item->get_first_stream_of_type(Stream::kAudio));
+                stream = std::make_shared<AudioStream>();
+                stream = probed_item->get_first_stream_of_type(Stream::kAudio);
               }
+              if (!stream) { 
+                // Create a dummy stream that contains enough info to relink later
+                stream = std::make_shared<Stream>();
+                stream->set_type(Stream::kUnknown);
+                stream->set_footage(probed_item.get());
+                stream->set_index(0);
+                stream->set_enabled(false);
+              }
+              media->SetStream(stream);
               sequence->AddNode(media);
 
               NodeParam::ConnectEdge(media->output(), static_cast<ClipBlock*>(block)->texture_input());
@@ -185,7 +247,8 @@ bool LoadOTIOTask::Run()
             }
           }
         }
-
+        clips_done++;
+        emit ProgressChanged(clips_done / number_of_clips);
       }
     }
 

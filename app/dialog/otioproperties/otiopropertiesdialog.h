@@ -18,36 +18,39 @@
 
 ***/
 
-#ifndef FOOTAGERELINKDIALOG_H
-#define FOOTAGERELINKDIALOG_H
+#ifndef OTIOPROPERTIESDIALOG_H
+#define OTIOPROPERTIESDIALOG_H
 
 #include <QDialog>
 #include <QTreeWidget>
 
-#include "project/item/footage/footage.h"
+#include "common/define.h"
+#include "opentimelineio/timeline.h"
+#include "project/item/sequence/sequence.h"
+#include "project/project.h"
 
 namespace olive {
-
-class FootageRelinkDialog : public QDialog
-{
+/**
+ * @brief Dialog to load setting for OTIO sequences.
+ *
+ * Takes a list of Sequences and allows the setting of options for each.
+ */
+class OTIOPropertiesDialog : public QDialog {
   Q_OBJECT
-public:
-  FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent = nullptr);
+ public:
+  OTIOPropertiesDialog(QList<SequencePtr> sequences, Project* active_project, QWidget* parent = nullptr);
 
-private:
-  void AttemptAutoRelink(QString valid_path);
-
+ private:
   QTreeWidget* table_;
 
-  QList<FootagePtr> footage_;
+  QList<SequencePtr> sequences_;
 
-  QVector<FootagePtr> relink_;
-
-private slots:
-  void BrowseForFootage();
-
+ private slots:
+  /**
+   * @brief Brings up the Sequence settings dialog.
+   */
+  void SetupSequence();
 };
-
 }
 
-#endif // FOOTAGERELINKDIALOG_H
+#endif // OTIOPROPERTIESDIALOG_H
