@@ -490,6 +490,8 @@ ExportParams ExportDialog::GenerateParams() const
   if (audio_enabled_->isChecked()) {
     ExportCodec::Codec audio_codec = static_cast<ExportCodec::Codec>(audio_tab_->codec_combobox()->currentData().toInt());
     params.EnableAudio(audio_render_params, audio_codec);
+
+    params.set_audio_bit_rate(audio_tab_->bit_rate_slider()->GetValue() * 1000);
   }
 
   return params;

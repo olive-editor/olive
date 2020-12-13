@@ -202,6 +202,7 @@ public:
 
   StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
 
+  static bool CompareFootageToFile(FootagePtr footage, const QString& filename);
   static bool CompareFootageToItsFilename(FootagePtr footage);
 
 private:

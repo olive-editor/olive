@@ -500,7 +500,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
         if (codec_id == AV_CODEC_ID_H264) {
           // For some reason, FFmpeg doesn't set libx264's bff flag so we have to do it ourselves
-          av_opt_set(video_codec_ctx_->priv_data, "x264opts", "bff=1", AV_OPT_SEARCH_CHILDREN);
+          av_opt_set(codec_ctx->priv_data, "x264opts", "bff=1", AV_OPT_SEARCH_CHILDREN);
         }
       }
     }
@@ -510,28 +510,35 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       QHash<QString, QString>::const_iterator i;
 
       for (i=params().video_opts().begin();i!=params().video_opts().end();i++) {
-        av_opt_set(video_codec_ctx_->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set(codec_ctx->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
       }
 
       if (params().video_bit_rate() > 0) {
-        video_codec_ctx_->bit_rate = params().video_bit_rate();
+        codec_ctx->bit_rate = params().video_bit_rate();
       }
 
       if (params().video_max_bit_rate() > 0) {
-        video_codec_ctx_->rc_max_rate = params().video_max_bit_rate();
+        codec_ctx->rc_max_rate = params().video_max_bit_rate();
       }
 
       if (params().video_buffer_size() > 0) {
-        video_codec_ctx_->rc_buffer_size = static_cast<int>(params().video_buffer_size());
+        codec_ctx->rc_buffer_size = static_cast<int>(params().video_buffer_size());
       }
     }
 
   } else {
+
+    // Assume audio stream
     codec_ctx->sample_rate = params().audio_params().sample_rate();
     codec_ctx->channel_layout = params().audio_params().channel_layout();
     codec_ctx->channels = av_get_channel_layout_nb_channels(codec_ctx->channel_layout);
     codec_ctx->sample_fmt = encoder->sample_fmts[0];
     codec_ctx->time_base = {1, codec_ctx->sample_rate};
+
+    if (params().audio_bit_rate() > 0) {
+      codec_ctx->bit_rate = params().audio_bit_rate();
+    }
+
   }
 
   if (!SetupCodecContext(stream, codec_ctx, encoder)) {
