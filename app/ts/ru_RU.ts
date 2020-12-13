@@ -77,12 +77,12 @@
         <translation>%1 Гц</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="331"/>
+        <location filename="../project/item/footage/footage.cpp" line="336"/>
         <source>Filename: %1</source>
         <translation>Имя файла: %1</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="344"/>
+        <location filename="../project/item/footage/footage.cpp" line="349"/>
         <source>This footage is not valid for use</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1176,6 +1176,16 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
         <source>Format:</source>
         <translation>Формат:</translation>
     </message>
+    <message>
+        <location filename="../dialog/export/exportaudiotab.cpp" line="66"/>
+        <source>Bit Rate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialog/export/exportaudiotab.cpp" line="72"/>
+        <source>%1 kbps</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>olive::ExportCodec</name>
@@ -1552,37 +1562,37 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
 <context>
     <name>olive::FootageRelinkDialog</name>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="46"/>
         <source>Footage</source>
         <translation>Видеоматериал</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="46"/>
         <source>Filename</source>
         <translation>Имя файла</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="44"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="46"/>
         <source>Actions</source>
         <translation>Действия</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="53"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="62"/>
         <source>Browse</source>
         <translation>Просмотр</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="74"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="83"/>
         <source>Relink Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Связать видеоматериалы заново</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="85"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="104"/>
         <source>Relink &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Связать &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="87"/>
+        <location filename="../dialog/footagerelink/footagerelinkdialog.cpp" line="106"/>
         <source>All Files</source>
         <translation>Все файлы</translation>
     </message>
@@ -1605,7 +1615,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../node/block/gap/gap.cpp" line="51"/>
         <source>A time-based node that represents an empty space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нода в единицах времени, представляющая пустое пространство.</translation>
     </message>
 </context>
 <context>
@@ -2233,7 +2243,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/manageddisplay/manageddisplay.cpp" line="343"/>
         <source>Failed to set color configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось установить конфигурацию управления цветом: %1</translation>
     </message>
 </context>
 <context>
@@ -3016,7 +3026,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../task/precache/precachetask.cpp" line="39"/>
         <source>Pre-caching %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Предкэширование %1:%2</translation>
     </message>
 </context>
 <context>
