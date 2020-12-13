@@ -299,10 +299,10 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
   return nullptr;
 }
 
-bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
 {
   // Heuristic to determine if file has changed
-  QFileInfo info(footage->filename());
+  QFileInfo info(filename);
 
   if (info.exists()) {
     if (info.lastModified().toMSecsSinceEpoch() == footage->timestamp()) {
@@ -311,7 +311,7 @@ bool Footage::CompareFootageToItsFilename(FootagePtr footage)
     } else {
       // Footage may have changed and we'll have to re-probe it. It also may not have, in which
       // case nothing needs to change.
-      ItemPtr item = Decoder::Probe(footage->project(), footage->filename(), nullptr);
+      ItemPtr item = Decoder::Probe(footage->project(), filename, nullptr);
 
       if (item && item->type() == footage->type()) {
         // Item is the same type, that's a good sign. Let's look for any differences.
@@ -323,6 +323,11 @@ bool Footage::CompareFootageToItsFilename(FootagePtr footage)
 
   // Footage file couldn't be found or resolved to something we didn't expect
   return false;
+}
+
+bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+{
+  return CompareFootageToFile(footage, footage->filename());
 }
 
 void Footage::UpdateTooltip()

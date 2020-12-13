@@ -35,6 +35,8 @@ public:
   FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent = nullptr);
 
 private:
+  void UpdateFootageItem(int index);
+
   QTreeWidget* table_;
 
   QList<FootagePtr> footage_;
