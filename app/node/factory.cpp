@@ -32,6 +32,7 @@
 #include "generator/polygon/polygon.h"
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
+#include "generator/value/value.h"
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
@@ -221,6 +222,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MosaicFilterNode();
   case kCropDistort:
     return new CropDistortNode();
+  case kValueGenerator:
+    return new ValueNode();
 
   case kInternalNodeCount:
     break;

@@ -54,6 +54,7 @@ public:
     kDipToColorTransition,
     kMosaicFilter,
     kCropDistort,
+    kValueGenerator,
 
     // Count value
     kInternalNodeCount

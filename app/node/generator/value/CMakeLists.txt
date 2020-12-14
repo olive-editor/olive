@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2020 Olive Team
+# Copyright (C) 2019 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(polygon)
-add_subdirectory(solid)
-add_subdirectory(text)
-add_subdirectory(value)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/value/value.h
+  node/generator/value/value.cpp
   PARENT_SCOPE
 )
