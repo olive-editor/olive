@@ -20,6 +20,9 @@ namespace olive {
 
 ValueNode::ValueNode()
 {
+  type_input_ = new NodeInput("type_in", NodeParam::kCombo, 0);
+  AddInput(type_input_);
+
   value_input_ = new NodeInput("value_in", NodeParam::kFloat, 1.0f);
   AddInput(value_input_);
 }
@@ -52,6 +55,7 @@ QString ValueNode::Description() const
 void ValueNode::Retranslate()
 {
   value_input_->set_name(tr("Value"));
+  type_input_->set_combobox_strings({tr("Float"), tr("Integer")});
 }
 
 NodeValueTable ValueNode::Value(NodeValueDatabase &value) const

@@ -37,6 +37,8 @@ class ValueNode : public Node {
 
  private:
   NodeInput* value_input_;
+
+  NodeInput* type_input_;
 };
 
 }  // namespace olive
