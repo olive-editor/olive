@@ -56,6 +56,9 @@ public:
   void SetFormat(const QString& s);
   void ClearFormat();
 
+  bool IsFormatPlural() const;
+  void SetFormatPlural();
+
   void SetLadderElementCount(int b)
   {
     ladder_element_count_ = b;
@@ -118,6 +121,8 @@ private:
   bool tristate_;
 
   QString custom_format_;
+
+  bool format_plural_;
 
   SliderLadder* drag_ladder_;
 

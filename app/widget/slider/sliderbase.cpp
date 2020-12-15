@@ -39,6 +39,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   dragged_diff_(0),
   require_valid_input_(true),
   tristate_(false),
+  format_plural_(false),
   drag_ladder_(nullptr),
   ladder_element_count_(0),
   dragged_(false)
@@ -113,6 +114,18 @@ void SliderBase::ClearFormat()
 {
   custom_format_.clear();
   ForceLabelUpdate();
+}
+
+bool SliderBase::IsFormatPlural() const
+{
+  return format_plural_;
+}
+
+void SliderBase::SetFormatPlural()
+{
+  format_plural_ = true;
+  qDebug() << "SetFormatPlural()";
+  //UpdateLabel(0);
 }
 
 void SliderBase::ForceLabelUpdate()
@@ -220,6 +233,9 @@ void SliderBase::UpdateLabel(const QVariant &v)
 {
   if (tristate_) {
     label_->setText("---");
+  } else if (format_plural_) {
+    //QString s = tr(GetFormat().toStdString().c_str(), nullptr, v.toInt());
+    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, v.toInt()));
   } else {
     label_->setText(GetFormat().arg(ValueToString(v)));
   }

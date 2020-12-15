@@ -32,16 +32,6 @@
     </message>
 </context>
 <context>
-    <name>olive::PreferencesDiskTab</name>
-    <message numerus="yes">
-        <source>%n second(s)</source>
-        <translation>
-            <numerusform>%n second</numerusform>
-            <numerusform>%n seconds</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>olive::PreferencesGeneralTab</name>
     <message numerus="yes">
         <source>%n second(s)</source>
@@ -77,6 +67,16 @@ What would you like to do with these clips?</numerusform>
         <translation>
             <numerusform>Importing %n file</numerusform>
             <numerusform>Importing %n files</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>olive::SliderBase</name>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n second</numerusform>
+            <numerusform>%n seconds</numerusform>
         </translation>
     </message>
 </context>

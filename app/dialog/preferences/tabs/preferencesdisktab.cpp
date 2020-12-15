@@ -44,7 +44,6 @@ PreferencesDiskTab::PreferencesDiskTab()
   QGridLayout* disk_management_layout = new QGridLayout(disk_management_group);
 
   int row = 0;
-  double value;
 
   disk_management_layout->addWidget(new QLabel(tr("Disk Cache Location:")), row, 0);
 
@@ -69,20 +68,20 @@ PreferencesDiskTab::PreferencesDiskTab()
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Ahead:")), row, 0);
 
-  value = Config::Current()["DiskCacheAhead"].value<rational>().toDouble();
   cache_ahead_slider_ = new FloatSlider();
-  cache_ahead_slider_->SetFormat(tr("%n second(s)", nullptr, value));
+  cache_ahead_slider_->SetFormatPlural();
+  cache_ahead_slider_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n second(s)"));
   cache_ahead_slider_->SetMinimum(0);
-  cache_ahead_slider_->SetValue(value);
+  cache_ahead_slider_->SetValue(Config::Current()["DiskCacheAhead"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_ahead_slider_, row, 1);
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Behind:")), row, 2);
 
-  value = Config::Current()["DiskCacheBehind"].value<rational>().toDouble();
   cache_behind_slider_ = new FloatSlider();
   cache_behind_slider_->SetMinimum(0);
-  cache_behind_slider_->SetFormat(tr("%n second(s)", nullptr, value));
-  cache_behind_slider_->SetValue(value);
+  cache_behind_slider_->SetFormatPlural();
+  cache_behind_slider_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n second(s)"));
+  cache_behind_slider_->SetValue(Config::Current()["DiskCacheBehind"].value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_behind_slider_, row, 3);
 
   outer_layout->addStretch();
