@@ -1,0 +1,142 @@
+/***
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2020 Olive Team
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+***/
+
+#include "rationalslider.h"
+
+#include "common/timecodefunctions.h"
+#include "core.h"
+
+namespace olive {
+
+RationalSlider::RationalSlider(rational timebase, QWidget *parent) :
+  SliderBase(SliderBase::kRational, parent),
+  display_type_(kTimecode),
+  decimal_places_(2),
+  autotrim_decimal_places_(false),
+  timebase_(timebase)
+{
+  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+}
+
+rational RationalSlider::GetValue()
+{
+  return Value().value<rational>();
+}
+
+void RationalSlider::SetValue(const rational &d)
+{
+  QVariant r;
+  r.setValue(d);
+  SliderBase::SetValue(r);
+}
+
+void RationalSlider::SetMinimum(const rational &d)
+{
+  QVariant r;
+  r.setValue(d);
+  SetMinimumInternal(r);
+}
+
+void RationalSlider::SetMaximum(const rational &d)
+{
+  QVariant r;
+  r.setValue(d);
+  SetMaximumInternal(r);
+}
+
+void RationalSlider::SetDecimalPlaces(int i)
+{
+  decimal_places_ = i;
+
+  ForceLabelUpdate();
+}
+
+void RationalSlider::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
+
+  // Refresh label since we have a new timebase to generate a timecode with
+  UpdateLabel(Value());
+}
+
+void RationalSlider::SetAutoTrimDecimalPlaces(bool e) {
+  autotrim_decimal_places_ = e;
+
+  ForceLabelUpdate();
+}
+
+void RationalSlider::SetDisplayType(const RationalSlider::DisplayType &type)
+{
+  display_type_ = type;
+
+  switch (display_type_) {
+    case kTimecode:
+    case kRational:
+      ClearFormat();
+      break;
+    case kTimestamp:
+      SetFormat("%1 Frames");
+      break;
+    case kFloat:
+      SetFormat("%1 Seconds");
+      break;
+  }
+}
+
+QString RationalSlider::ValueToString(const QVariant &v)
+{
+  rational r = v.value<rational>();
+  switch (display_type_) {
+    case kTimecode:
+      return Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay());
+    case kTimestamp:
+      return QString::number(Timecode::time_to_timestamp(r, timebase_));
+    case kRational:
+      // Might we want to call reduce() on r here?
+      return r.toString();
+    case kFloat:
+    {
+      QString s = QString::number(r.toDouble(), 'f', decimal_places_);
+
+      if (autotrim_decimal_places_) {
+        while (s.endsWith('0') && s.at(s.size() - 2).isDigit()) {
+          s = s.left(s.size() - 1);
+        }
+      }
+      return s;
+    }
+  }
+  return r.toString();
+}
+
+QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
+{
+  // Just try to convert the string to a double
+  // REMEMBER TO IMPLEMENT!!!!
+  return s.toDouble(ok);
+}
+
+double RationalSlider::AdjustDragDistanceInternal(const double &start, const double &drag)
+{
+  // Assume we want smallest increment to be timebase or 1 frame
+  return start + drag*timebase_.toDouble();
+}
+
+void RationalSlider::ConvertValue(QVariant v)
+{
+  emit ValueChanged(v.value<rational>());
+}
+
+}

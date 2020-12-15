@@ -65,6 +65,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
     break;
   case kInteger:
   case kFloat:
+  case kRational:
     setCursor(Qt::SizeHorCursor);
     break;
   }
@@ -276,6 +277,7 @@ void SliderBase::LadderDragged(int value, double multiplier)
     break;
   case kInteger:
   case kFloat:
+  case kRational:
   {
     dragged_diff_ += value * drag_multiplier_ * multiplier;
 
@@ -322,6 +324,10 @@ void SliderBase::LadderReleased()
     case kFloat:
       SetValue(clamped_temp_dragged_value_.toDouble());
       break;
+    case kRational:
+      QVariant r;
+      r.setValue(rational(temp_dragged_value_.toDouble()));
+      SetValue(r);
     }
 
     emit ValueChanged(value_);

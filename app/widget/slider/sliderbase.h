@@ -35,7 +35,8 @@ public:
   enum Mode {
     kString,
     kInteger,
-    kFloat
+    kFloat,
+    kRational
   };
 
   SliderBase(Mode mode, QWidget* parent = nullptr);
