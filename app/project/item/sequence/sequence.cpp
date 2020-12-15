@@ -171,12 +171,6 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint v
 
   // Link blocks
   XMLLinkBlocks(xml_node_data);
-
-  // Ensure this and all children are in the main thread
-  // NOTE: It might be good to move the Item system to QObjects so they inherit their thread
-  if (QThread::currentThread() != qApp->thread()) {
-    moveToThread(qApp->thread());
-  }
 }
 
 void Sequence::Save(QXmlStreamWriter *writer) const

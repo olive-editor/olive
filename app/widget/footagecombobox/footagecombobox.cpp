@@ -38,7 +38,7 @@ FootageComboBox::FootageComboBox(QWidget *parent) :
 
 void FootageComboBox::showPopup()
 {
-  if (root_ == nullptr || root_->child_count() == 0) {
+  if (root_ == nullptr || root_->item_child_count() == 0) {
     return;
   }
 
@@ -82,10 +82,9 @@ void FootageComboBox::SetFootage(StreamPtr f)
   UpdateText();
 }
 
-void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
+void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m) const
 {
-  for (int i=0;i<f->child_count();i++) {
-    Item* child = f->child(i);
+  foreach (Item* child, f->children()) {
 
     if (child->CanHaveChildren()) {
 
@@ -108,7 +107,9 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
           stream_action->setIcon(stream->icon());
         }
       }
+
     }
+
   }
 }
 

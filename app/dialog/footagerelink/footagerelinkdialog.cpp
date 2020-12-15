@@ -31,7 +31,7 @@
 
 namespace olive {
 
-FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent) :
+FootageRelinkDialog::FootageRelinkDialog(const QVector<Footage *> &footage, QWidget* parent) :
   QDialog(parent),
   footage_(footage)
 {
@@ -54,7 +54,7 @@ FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidg
   table_->header()->setStretchLastSection(false);
 
   for (int i=0; i<footage.size(); i++) {
-    FootagePtr f = footage.at(i);
+    Footage* f = footage.at(i);
     QTreeWidgetItem* item = new QTreeWidgetItem();
 
     QWidget* item_actions = new QWidget();
@@ -87,7 +87,7 @@ FootageRelinkDialog::FootageRelinkDialog(const QList<FootagePtr>& footage, QWidg
 
 void FootageRelinkDialog::UpdateFootageItem(int index)
 {
-  FootagePtr f = footage_.at(index);
+  Footage* f = footage_.at(index);
   QTreeWidgetItem* item = table_->topLevelItem(index);
   item->setIcon(0, f->icon());
   item->setText(1, f->filename());
@@ -96,7 +96,7 @@ void FootageRelinkDialog::UpdateFootageItem(int index)
 void FootageRelinkDialog::BrowseForFootage()
 {
   int index = sender()->property("index").toInt();
-  FootagePtr f = footage_.at(index);
+  Footage* f = footage_.at(index);
 
   QFileInfo info(f->filename());
 
@@ -124,7 +124,7 @@ void FootageRelinkDialog::BrowseForFootage()
 
     // Check all other footage files for matches
     for (int it=0; it<footage_.size(); it++) {
-      FootagePtr other_footage = footage_.at(it);
+      Footage* other_footage = footage_.at(it);
 
       // Ignore current footage file and footage that's already valid of course
       if (index != it && !other_footage->IsValid()) {

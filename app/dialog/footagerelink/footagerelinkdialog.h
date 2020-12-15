@@ -32,14 +32,14 @@ class FootageRelinkDialog : public QDialog
 {
   Q_OBJECT
 public:
-  FootageRelinkDialog(const QList<FootagePtr>& footage, QWidget* parent = nullptr);
+  FootageRelinkDialog(const QVector<Footage*>& footage, QWidget* parent = nullptr);
 
 private:
   void UpdateFootageItem(int index);
 
   QTreeWidget* table_;
 
-  QList<FootagePtr> footage_;
+  QVector<Footage*> footage_;
 
 private slots:
   void BrowseForFootage();

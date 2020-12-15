@@ -129,7 +129,7 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static FootagePtr Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
+  static Footage *Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
 
   /**
    * @brief Generate a Footage object from a file
@@ -142,7 +142,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual Footage *Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory

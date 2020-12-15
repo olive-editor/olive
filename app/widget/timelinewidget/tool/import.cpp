@@ -353,7 +353,7 @@ void ImportTool::DropGhosts(bool insert)
       Project* active_project = Core::instance()->GetActiveProject();
 
       if (active_project) {
-        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+        Sequence* new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
 
         new_sequence->set_default_parameters();
 
@@ -371,7 +371,7 @@ void ImportTool::DropGhosts(bool insert)
 
         } else {
 
-          SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, parent());
+          SequenceDialog sd(new_sequence, SequenceDialog::kNew, parent());
           sd.SetUndoable(false);
 
           if (sd.exec() != QDialog::Accepted) {
@@ -390,11 +390,15 @@ void ImportTool::DropGhosts(bool insert)
 
           FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
 
-          dst_graph = new_sequence.get();
+          dst_graph = new_sequence;
           viewer_node = new_sequence->viewer_output();
 
           // Set this as the sequence to open
-          open_sequence = new_sequence.get();
+          open_sequence = new_sequence;
+        } else {
+          // If the sequence is valid, ownership is passed to AddItemCommand.
+          // Otherwise, we're responsible for deleting it.
+          delete new_sequence;
         }
       }
     }

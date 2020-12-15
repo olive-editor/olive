@@ -50,7 +50,7 @@ signals:
   void FootageChanged(StreamPtr f);
 
 private:
-  void TraverseFolder(const Folder *f, QMenu* m);
+  void TraverseFolder(const Folder *f, QMenu* m) const;
 
   void UpdateText();
 

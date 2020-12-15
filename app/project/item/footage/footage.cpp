@@ -299,7 +299,7 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
   return nullptr;
 }
 
-bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
+bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
 {
   // Heuristic to determine if file has changed
   QFileInfo info(filename);
@@ -311,9 +311,9 @@ bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
     } else {
       // Footage may have changed and we'll have to re-probe it. It also may not have, in which
       // case nothing needs to change.
-      ItemPtr item = Decoder::Probe(footage->project(), filename, nullptr);
+      std::unique_ptr<Footage> item(Decoder::Probe(footage->project(), filename, nullptr));
 
-      if (item && item->type() == footage->type()) {
+      if (item) {
         // Item is the same type, that's a good sign. Let's look for any differences.
         // FIXME: Implement this
         return true;
@@ -325,7 +325,7 @@ bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
   return false;
 }
 
-bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+bool Footage::CompareFootageToItsFilename(Footage *footage)
 {
   return CompareFootageToFile(footage, footage->filename());
 }

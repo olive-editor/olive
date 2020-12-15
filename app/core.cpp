@@ -378,7 +378,7 @@ void Core::CreateNewFolder()
   Folder* folder = active_project_panel->GetSelectedFolder();
 
   // Create new folder
-  ItemPtr new_folder = std::make_shared<Folder>();
+  Folder* new_folder = new Folder();
 
   // Set a default name
   new_folder->set_name(tr("New Folder"));
@@ -391,7 +391,7 @@ void Core::CreateNewFolder()
   Core::instance()->undo_stack()->push(aic);
 
   // Trigger an automatic rename so users can enter the folder name
-  active_project_panel->Edit(new_folder.get());
+  active_project_panel->Edit(new_folder);
 }
 
 void Core::CreateNewSequence()
@@ -404,18 +404,19 @@ void Core::CreateNewSequence()
   }
 
   // Create new sequence
-  SequencePtr new_sequence = CreateNewSequenceForProject(active_project);
+  Sequence* new_sequence = CreateNewSequenceForProject(active_project);
 
   // Set all defaults for the sequence
   new_sequence->set_default_parameters();
 
-  SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, main_window_);
+  SequenceDialog sd(new_sequence, SequenceDialog::kNew, main_window_);
 
   // Make sure SequenceDialog doesn't make an undo command for editing the sequence, since we make an undo command for
   // adding it later on
   sd.SetUndoable(false);
 
   if (sd.exec() == QDialog::Accepted) {
+
     // Create an undoable command
     ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(GetActiveProjectModel(),
                                                                                  GetSelectedFolderInActiveProject(),
@@ -425,7 +426,13 @@ void Core::CreateNewSequence()
 
     Core::instance()->undo_stack()->push(aic);
 
-    Core::instance()->main_window()->OpenSequence(new_sequence.get());
+    Core::instance()->main_window()->OpenSequence(new_sequence);
+
+  } else {
+
+    // If the dialog was accepted, ownership goes to the AddItemCommand. But if we get here, just delete
+    delete new_sequence;
+
   }
 }
 
@@ -538,7 +545,7 @@ bool Core::StartHeadlessExport()
 
   if (task_dialog.Run()) {
     std::unique_ptr<Project> p = std::unique_ptr<Project>(plm.GetLoadedProject());
-    QList<ItemPtr> items = p->get_items_of_type(Item::kSequence);
+    QVector<Item*> items = p->get_items_of_type(Item::kSequence);
 
     // Check if this project contains sequences
     if (items.isEmpty()) {
@@ -546,7 +553,7 @@ bool Core::StartHeadlessExport()
       return false;
     }
 
-    SequencePtr sequence = nullptr;
+    Sequence* sequence = nullptr;
 
     // Check if this project contains multiple sequences
     if (items.size() > 1) {
@@ -579,9 +586,9 @@ bool Core::StartHeadlessExport()
         }
       }
 
-      sequence = std::static_pointer_cast<Sequence>(items.at(sequence_index));
+      sequence = static_cast<Sequence*>(items.at(sequence_index));
     } else {
-      sequence = std::static_pointer_cast<Sequence>(items.first());
+      sequence = static_cast<Sequence*>(items.first());
     }
 
     ExportParams params;
@@ -1087,9 +1094,9 @@ void Core::LabelNodes(const QVector<Node *> &nodes) const
   }
 }
 
-SequencePtr Core::CreateNewSequenceForProject(Project* project) const
+Sequence *Core::CreateNewSequenceForProject(Project* project) const
 {
-  SequencePtr new_sequence = std::make_shared<Sequence>();
+  Sequence* new_sequence = new Sequence();
 
   // Get default name for this sequence (in the format "Sequence N", the first that doesn't exist)
   int sequence_number = 1;
@@ -1282,12 +1289,12 @@ void Core::CacheActiveSequence(bool in_out_only)
 
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
-  QList<FootagePtr> footage_we_couldnt_validate;
+  QVector<Footage*> footage_we_couldnt_validate;
 
-  QList<ItemPtr> project_footage = project->get_items_of_type(Item::kFootage);
+  QVector<Item*> project_footage = project->get_items_of_type(Item::kFootage);
 
-  foreach (ItemPtr item, project_footage) {
-    FootagePtr footage = std::static_pointer_cast<Footage>(item);
+  foreach (Item* item, project_footage) {
+    Footage* footage = static_cast<Footage*>(item);
 
     if (!QFileInfo::exists(footage->filename()) && !project_saved_url.isEmpty()) {
       // If the footage doesn't exist, it might have moved with the project

@@ -329,10 +329,10 @@ void MainWindow::ProjectOpen(Project *p)
 void MainWindow::ProjectClose(Project *p)
 {
   // Close any open sequences from project
-  QList<ItemPtr> open_sequences = p->get_items_of_type(Item::kSequence);
+  QVector<Item*> open_sequences = p->get_items_of_type(Item::kSequence);
 
-  foreach (ItemPtr item, open_sequences) {
-    Sequence* seq = static_cast<Sequence*>(item.get());
+  foreach (Item* item, open_sequences) {
+    Sequence* seq = static_cast<Sequence*>(item);
 
     if (IsSequenceOpen(seq)) {
       CloseSequence(seq);
@@ -340,15 +340,15 @@ void MainWindow::ProjectClose(Project *p)
   }
 
   // Close any open footage in footage viewer
-  QList<ItemPtr> footage = p->get_items_of_type(Item::kFootage);
+  QVector<Item*> footage = p->get_items_of_type(Item::kFootage);
   QList<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
 
   if (!footage_in_viewer.isEmpty()) {
     // FootageViewer only has the one footage item
     Footage* f = footage_in_viewer.first();
 
-    foreach (ItemPtr i, footage) {
-      if (f == i.get()) {
+    foreach (Item* i, footage) {
+      if (f == i) {
         footage_viewer_panel_->SetFootage(nullptr);
         break;
       }

@@ -324,15 +324,15 @@ void ProjectExplorer::ShowContextMenu()
       Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
-      QList<ItemPtr> sequences = project()->get_items_of_type(Item::kSequence);
+      QVector<Item*> sequences = project()->get_items_of_type(Item::kSequence);
 
       if (sequences.isEmpty()) {
         QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
         a->setEnabled(false);
       } else {
-        foreach (ItemPtr i, sequences) {
+        foreach (Item* i, sequences) {
           QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->name()));
-          a->setData(Node::PtrToValue(i.get()));
+          a->setData(Node::PtrToValue(i));
         }
 
         connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
@@ -501,7 +501,7 @@ Folder *ProjectExplorer::GetSelectedFolder() const
 
     // If this item is not a folder, presumably it's parent is
     if (!sel_item->CanHaveChildren()) {
-      sel_item = sel_item->parent();
+      sel_item = sel_item->item_parent();
 
       Q_ASSERT(sel_item->CanHaveChildren());
     }
@@ -545,11 +545,11 @@ QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
   QList<MediaInput *> list;
 
   // Get all sequences.
-  QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+  QVector<Item*> sequences = model_.project()->get_items_of_type(Item::kSequence);
 
   // Footage can contain multiple streams, all of which need to be dealt with
-  foreach (ItemPtr s, sequences) {
-    const QList<Node*>& nodes = static_cast<Sequence*>(s.get())->nodes();
+  foreach (Item* s, sequences) {
+    const QList<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
     foreach (Node* n, nodes) {
       if (n->IsMedia()) {
         MediaInput* media_node = static_cast<MediaInput*>(n);
@@ -677,7 +677,7 @@ void ProjectExplorer::DeleteSelected()
       break;
     }
 
-    new ProjectViewModel::RemoveItemCommand(&model_, item->get_shared_ptr(), command);
+    new ProjectViewModel::RemoveItemCommand(&model_, item, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

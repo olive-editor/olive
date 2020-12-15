@@ -21,16 +21,18 @@
 #ifndef NODEGRAPH_H
 #define NODEGRAPH_H
 
-#include <QObject>
-
 #include "node/node.h"
+#include "project/item/item.h"
 
 namespace olive {
 
 /**
  * @brief A collection of nodes
+ *
+ * This doesn't technically need to be a derivative of Item, but since both Item and NodeGraph need
+ * to be QObject derivatives, this simplifies Sequence.
  */
-class NodeGraph : public QObject
+class NodeGraph : public Item
 {
   Q_OBJECT
 public:

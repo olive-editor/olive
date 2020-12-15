@@ -100,8 +100,8 @@ public:
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
   /** Other model functions */
-  void AddChild(Item* parent, ItemPtr child);
-  void RemoveChild(Item* parent, Item* child);
+  void AddChild(Item* parent, Item* child);
+  void RemoveChild(Item* parent, Item* child, QObject* new_parent);
   void RenameChild(Item* item, const QString& name);
 
   /**
@@ -157,7 +157,7 @@ public:
    */
   class AddItemCommand : public UndoCommand {
   public:
-    AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent = nullptr);
+    AddItemCommand(ProjectViewModel* model, Item* folder, Item *child, QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
 
@@ -169,8 +169,9 @@ public:
   private:
     ProjectViewModel* model_;
     Item* parent_;
-    ItemPtr child_;
-    bool done_;
+    Item* child_;
+    QObject memory_manager_;
+
   };
 
   /**
@@ -178,7 +179,7 @@ public:
    */
   class RemoveItemCommand : public UndoCommand {
   public:
-    RemoveItemCommand(ProjectViewModel* model, ItemPtr item, QUndoCommand* parent = nullptr);
+    RemoveItemCommand(ProjectViewModel* model, Item* item, QUndoCommand* parent = nullptr);
 
     virtual Project* GetRelevantProject() const override;
 
@@ -189,10 +190,9 @@ public:
 
   private:
     ProjectViewModel* model_;
-
-    ItemPtr item_;
-
+    Item* item_;
     Item* parent_;
+    QObject memory_manager_;
 
   };
 

@@ -93,8 +93,9 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
       // Only proceed if the empty actually has files in it
       if (!entry_list.isEmpty()) {
         // Create a folder corresponding to the directory
+        Folder* f = new Folder();
 
-        ItemPtr f = std::make_shared<Folder>();
+        f->moveToThread(folder->thread());
 
         f->set_name(file_info.fileName());
 
@@ -105,22 +106,25 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
                                              parent_command);
 
         // Recursively follow this path
-        Import(static_cast<Folder*>(f.get()), entry_list, counter, parent_command);
+        Import(f, entry_list, counter, parent_command);
       }
 
     } else {
 
-      FootagePtr item = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
-                                       &IsCancelled());
+      Footage* footage = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
+                                        &IsCancelled());
 
-      if (item) {
+      if (footage) {
+        // Move footage to main thread
+        footage->moveToThread(folder->thread());
+
         // See if this footage is an image sequence
-        ValidateImageSequence(item, import, i);
+        ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
         new ProjectViewModel::AddItemCommand(model_,
                                              folder,
-                                             item,
+                                             footage,
                                              parent_command);
       } else {
         // Add to list so we can tell the user about it later
@@ -135,14 +139,9 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
   }
 }
 
-void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_list, int index)
+void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& info_list, int index)
 {
   // Heuristically determine whether this file is part of an image sequence or not
-  if (!ItemIsStillImageFootageOnly(item)) {
-    return;
-  }
-
-  FootagePtr footage = std::static_pointer_cast<Footage>(item);
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
 
   // By this point we've established that video contains a single still image stream. Now we'll
@@ -159,8 +158,8 @@ void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_
 
     // See if the same decoder can retrieve surrounding files
     DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
-    ItemPtr previous_file = decoder->Probe(previous_img_fn, nullptr);
-    ItemPtr next_file = decoder->Probe(next_img_fn, nullptr);
+    Footage* previous_file = decoder->Probe(previous_img_fn, nullptr);
+    Footage* next_file = decoder->Probe(next_img_fn, nullptr);
 
     // Finally see if these files have the same dimensions
     if ((previous_file && CompareStillImageSize(previous_file, dim))
@@ -218,15 +217,8 @@ void ProjectImportTask::ValidateImageSequence(ItemPtr item, QFileInfoList& info_
   }
 }
 
-bool ProjectImportTask::ItemIsStillImageFootageOnly(ItemPtr item)
+bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)
 {
-  if (item->type() != Item::kFootage) {
-    // Item isn't footage, definitely isn't an image sequence
-    return false;
-  }
-
-  FootagePtr footage = std::static_pointer_cast<Footage>(item);
-
   if (footage->stream_count() != 1) {
     // Footage with more than one stream (usually video+audio) most likely isn't an image sequence
     return false;
@@ -247,13 +239,12 @@ bool ProjectImportTask::ItemIsStillImageFootageOnly(ItemPtr item)
   return true;
 }
 
-bool ProjectImportTask::CompareStillImageSize(ItemPtr item, const QSize &sz)
+bool ProjectImportTask::CompareStillImageSize(Footage* footage, const QSize &sz)
 {
-  if (!ItemIsStillImageFootageOnly(item)) {
+  if (!ItemIsStillImageFootageOnly(footage)) {
     return false;
   }
 
-  FootagePtr footage = std::static_pointer_cast<Footage>(item);
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
 
   return video_stream->width() == sz.width() && video_stream->height() == sz.height();

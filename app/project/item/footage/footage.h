@@ -32,9 +32,6 @@
 
 namespace olive {
 
-class Footage;
-using FootagePtr = std::shared_ptr<Footage>;
-
 /**
  * @brief A reference to an external media file with metadata in a project structure
  *
@@ -44,6 +41,7 @@ using FootagePtr = std::shared_ptr<Footage>;
  */
 class Footage : public Item, public TimelinePoints
 {
+  Q_OBJECT
 public:
   /**
    * @brief Footage Constructor
@@ -202,8 +200,8 @@ public:
 
   StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
 
-  static bool CompareFootageToFile(FootagePtr footage, const QString& filename);
-  static bool CompareFootageToItsFilename(FootagePtr footage);
+  static bool CompareFootageToFile(Footage* footage, const QString& filename);
+  static bool CompareFootageToItsFilename(Footage* footage);
 
 private:
   /**

@@ -246,7 +246,7 @@ public:
   /**
    * @brief Create a new sequence named appropriately for the active project
    */
-  SequencePtr CreateNewSequenceForProject(Project *project) const;
+  Sequence* CreateNewSequenceForProject(Project *project) const;
 
   /**
    * @brief Opens a project from the recently opened list

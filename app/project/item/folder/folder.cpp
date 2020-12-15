@@ -61,20 +61,20 @@ void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint ver
       return;
     }
 
-    ItemPtr child;
+    Item* child;
 
     if (reader->name() == QStringLiteral("folder")) {
-      child = std::make_shared<Folder>();
+      child = new Folder();
     } else if (reader->name() == QStringLiteral("footage")) {
-      child = std::make_shared<Footage>();
+      child = new Footage();
     } else if (reader->name() == QStringLiteral("sequence")) {
-      child = std::make_shared<Sequence>();
+      child = new Sequence();
     } else {
       reader->skipCurrentElement();
       continue;
     }
 
-    add_child(child);
+    child->setParent(this);
     child->Load(reader, xml_node_data, version, cancelled);
   }
 }
@@ -85,7 +85,7 @@ void Folder::Save(QXmlStreamWriter *writer) const
 
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
-  foreach (ItemPtr child, children()) {
+  foreach (Item* child, children()) {
     switch (child->type()) {
     case Item::kFootage:
       writer->writeStartElement(QStringLiteral("footage"));

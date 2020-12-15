@@ -135,7 +135,7 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
   // Connect footage to existing footage if it exists
   if (!xml_node_data.footage_connections.isEmpty()) {
     // Get list of all footage from project
-    QList<ItemPtr> footage = graph->project()->get_items_of_type(Item::kFootage);
+    QVector<Item*> footage = graph->project()->get_items_of_type(Item::kFootage);
 
     if (!footage.isEmpty()) {
       foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
@@ -145,8 +145,8 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
 
           bool found = false;
 
-          foreach (ItemPtr item, footage) {
-            const QList<StreamPtr>& streams = std::static_pointer_cast<Footage>(item)->streams();
+          foreach (Item* item, footage) {
+            const QList<StreamPtr>& streams = static_cast<Footage*>(item)->streams();
 
             foreach (StreamPtr s, streams) {
               if (s.get() == loaded_stream) {

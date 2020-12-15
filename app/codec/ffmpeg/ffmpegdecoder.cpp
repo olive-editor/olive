@@ -218,13 +218,13 @@ QString FFmpegDecoder::id()
   return QStringLiteral("ffmpeg");
 }
 
-FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
   // Variable for receiving errors from FFmpeg
   int error_code;
 
   // Result to return
-  FootagePtr footage = nullptr;
+  Footage* footage = nullptr;
 
   // Convert QString to a C string
   QByteArray ba = filename.toUtf8();
@@ -444,7 +444,7 @@ FootagePtr FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cance
 
     if (found_valid_streams) {
       // We actually have footage we can return instead of nullptr
-      footage = std::make_shared<Footage>();
+      footage = new Footage();
 
       // Copy streams over
       foreach (StreamPtr stream, streams) {

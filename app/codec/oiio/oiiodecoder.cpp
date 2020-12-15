@@ -51,7 +51,7 @@ QString OIIODecoder::id()
   return QStringLiteral("oiio");
 }
 
-FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
   Q_UNUSED(cancelled)
 
@@ -75,7 +75,7 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
     return nullptr;
   }
 
-  FootagePtr footage = std::make_shared<Footage>();
+  Footage* footage = new Footage();
 
   VideoStreamPtr image_stream = std::make_shared<VideoStream>();
 
