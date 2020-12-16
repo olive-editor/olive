@@ -95,7 +95,7 @@ bool FFmpegDecoder::OpenInternal()
 FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &divider)
 {
   // This is a still image
-  VideoStreamPtr is = std::static_pointer_cast<VideoStream>(stream());
+  VideoStream* is = static_cast<VideoStream*>(stream());
 
   QString img_filename = stream()->footage()->filename();
 
@@ -103,7 +103,7 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
 
   // If it's an image sequence, we'll probably need to transform the filename
   if (is->video_type() == VideoStream::kVideoTypeImageSequence) {
-    ts = std::static_pointer_cast<VideoStream>(stream())->get_time_in_timebase_units(timecode);
+    ts = static_cast<VideoStream*>(stream())->get_time_in_timebase_units(timecode);
 
     img_filename = TransformImageSequenceFileName(stream()->footage()->filename(), ts);
   } else {
@@ -126,8 +126,8 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
                                                frame->height,
                                                native_pix_fmt_,
                                                native_channel_count_,
-                                               std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
-                                               std::static_pointer_cast<VideoStream>(stream())->interlacing(),
+                                               is->pixel_aspect_ratio(),
+                                               is->interlacing(),
                                                divider));
     output_frame->set_timestamp(timecode);
     output_frame->allocate();
@@ -150,7 +150,7 @@ FramePtr FFmpegDecoder::RetrieveStillImage(const rational &timecode, const int &
 
 FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const int &divider)
 {
-  VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(stream());
+  VideoStream* vs = static_cast<VideoStream*>(stream());
 
   if (scale_divider_ != divider) {
     FreeScaler();
@@ -187,8 +187,8 @@ FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const in
                                          vs->height(),
                                          native_pix_fmt_,
                                          native_channel_count_,
-                                         std::static_pointer_cast<VideoStream>(stream())->pixel_aspect_ratio(),
-                                         std::static_pointer_cast<VideoStream>(stream())->interlacing(),
+                                         vs->pixel_aspect_ratio(),
+                                         vs->interlacing(),
                                          divider));
       copy->set_timestamp(timecode);
       copy->allocate();
@@ -242,7 +242,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
 
     int64_t footage_duration = fmt_ctx->duration;
 
-    QVector<StreamPtr> streams(fmt_ctx->nb_streams);
+    QVector<Stream*> streams(fmt_ctx->nb_streams);
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
@@ -252,7 +252,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
       // Find decoder for this stream, if it exists we can proceed
       AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
 
-      StreamPtr str;
+      Stream* str;
 
       if (decoder
           && (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
@@ -330,7 +330,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
             av_packet_free(&pkt);
           }
 
-          VideoStreamPtr video_stream = std::make_shared<VideoStream>();
+          VideoStream* video_stream = new VideoStream();
 
           if (image_is_still) {
             video_stream->set_video_type(VideoStream::kVideoTypeStill);
@@ -355,7 +355,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
         } else {
 
           // Create an audio stream object
-          AudioStreamPtr audio_stream = std::make_shared<AudioStream>();
+          AudioStream* audio_stream = new AudioStream();
 
           uint64_t channel_layout = avstream->codecpar->channel_layout;
           if (!channel_layout) {
@@ -401,7 +401,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
       } else {
 
         // This is data we can't utilize at the moment, but we make a Stream object anyway to keep parity with the file
-        str = std::make_shared<Stream>();
+        str = new Stream();
 
         // Set the correct codec type based on FFmpeg's result
         switch (avstream->codecpar->codec_type) {
@@ -435,7 +435,7 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
     // Check if we could pick up any streams in this file
     bool found_valid_streams = false;
 
-    foreach (StreamPtr stream, streams) {
+    foreach (Stream* stream, streams) {
       if (stream->type() != Stream::kUnknown) {
         found_valid_streams = true;
         break;
@@ -446,10 +446,8 @@ Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancell
       // We actually have footage we can return instead of nullptr
       footage = new Footage();
 
-      // Copy streams over
-      foreach (StreamPtr stream, streams) {
-        footage->add_stream(stream);
-      }
+      // Add streams
+      footage->add_streams(streams);
     }
   }
 
@@ -469,7 +467,6 @@ QString FFmpegDecoder::FFmpegError(int error_code)
 bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioParams &params, const QAtomicInt *cancelled)
 {
   // Iterate through each audio frame and extract the PCM data
-  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
 
   // Seek to starting point
   instance_.Seek(0);
@@ -810,7 +807,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const int64_t& target_t
 
 void FFmpegDecoder::InitScaler(int divider)
 {
-  VideoStream* vs = static_cast<VideoStream*>(stream().get());
+  VideoStream* vs = static_cast<VideoStream*>(stream());
 
   int scaled_width = VideoParams::GetScaledDimension(vs->width(), divider);
   int scaled_height = VideoParams::GetScaledDimension(vs->height(), divider);

@@ -24,7 +24,7 @@
 
 namespace olive {
 
-PreCacheTask::PreCacheTask(VideoStreamPtr footage, Sequence* sequence) :
+PreCacheTask::PreCacheTask(VideoStream *footage, Sequence* sequence) :
   RenderTask(new ViewerOutput(), sequence->video_params(), sequence->audio_params()),
   footage_(footage)
 {

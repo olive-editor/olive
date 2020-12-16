@@ -41,13 +41,16 @@ public:
 
   void SetOnlyShowReadyFootage(bool e);
 
-  StreamPtr SelectedFootage();
+  Stream* SelectedFootage() const
+  {
+    return footage_;
+  }
 
 public slots:
-  void SetFootage(StreamPtr f);
+  void SetFootage(Stream* f);
 
 signals:
-  void FootageChanged(StreamPtr f);
+  void FootageChanged(Stream* f);
 
 private:
   void TraverseFolder(const Folder *f, QMenu* m) const;
@@ -58,7 +61,7 @@ private:
 
   const Folder* root_;
 
-  StreamPtr footage_;
+  Stream* footage_;
 
   bool only_show_ready_footage_;
 };

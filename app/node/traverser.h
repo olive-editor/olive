@@ -46,9 +46,9 @@ protected:
 
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
 
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(VideoStream* stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time);
+  virtual QVariant ProcessAudioFootage(AudioStream* stream, const TimeRange &input_time);
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 

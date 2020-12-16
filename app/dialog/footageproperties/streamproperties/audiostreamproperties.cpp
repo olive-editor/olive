@@ -22,7 +22,7 @@
 
 namespace olive {
 
-AudioStreamProperties::AudioStreamProperties(AudioStreamPtr stream) :
+AudioStreamProperties::AudioStreamProperties(AudioStream *stream) :
   stream_(stream)
 {
 }

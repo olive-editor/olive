@@ -207,9 +207,9 @@ void Project::ColorConfigChanged()
   QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
 
   foreach (Item* item, footage) {
-    foreach (StreamPtr s, static_cast<Footage*>(item)->streams()) {
+    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
       if (s->type() == Stream::kVideo) {
-        std::static_pointer_cast<VideoStream>(s)->ColorConfigChanged();
+        static_cast<VideoStream*>(s)->ColorConfigChanged();
       }
     }
   }
@@ -220,9 +220,9 @@ void Project::DefaultColorSpaceChanged()
   QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
 
   foreach (Item* item, footage) {
-    foreach (StreamPtr s, static_cast<Footage*>(item)->streams()) {
+    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
       if (s->type() == Stream::kVideo) {
-        std::static_pointer_cast<VideoStream>(s)->DefaultColorSpaceChanged();
+        static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
       }
     }
   }

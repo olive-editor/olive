@@ -22,11 +22,11 @@
 
 namespace olive {
 
-QVariant GizmoTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
+QVariant GizmoTraverser::ProcessVideoFootage(VideoStream *stream, const rational &input_time)
 {
   Q_UNUSED(input_time)
 
-  VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
+  VideoStream* image_stream = static_cast<VideoStream*>(stream);
 
   return QVector2D(image_stream->width() * image_stream->pixel_aspect_ratio().toDouble(),
                    image_stream->height());

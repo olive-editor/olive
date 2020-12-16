@@ -307,7 +307,7 @@ void ProjectExplorer::ShowContextMenu()
     bool all_items_are_footage_or_sequence = true;
 
     foreach (Item* i, context_menu_items_) {
-      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasStreamsOfType(Stream::kVideo)) {
+      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasEnabledStreamsOfType(Stream::kVideo)) {
         all_items_have_video_streams = false;
       }
 
@@ -416,11 +416,12 @@ void ProjectExplorer::OpenContextMenuItemInNewWindow()
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  QList<VideoStreamPtr> video_streams;
+  QVector<VideoStream*> video_streams;
 
   // To get here, the `context_menu_items_` must be all kFootage
   foreach (Item* i, context_menu_items_) {
-    VideoStreamPtr s = std::static_pointer_cast<VideoStream>(static_cast<Footage*>(i)->get_first_stream_of_type(Stream::kVideo));
+    Footage* f = static_cast<Footage*>(i);
+    VideoStream* s = static_cast<VideoStream*>(f->get_first_enabled_stream_of_type(Stream::kVideo));
 
     if (s) {
       video_streams.append(s);
@@ -430,7 +431,7 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // Start a background task for proxying
-  foreach (VideoStreamPtr video_stream, video_streams) {
+  foreach (VideoStream* video_stream, video_streams) {
     PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
     TaskManager::instance()->AddTask(proxy_task);
   }

@@ -51,7 +51,7 @@ void FootageComboBox::showPopup()
   QAction* selected = menu.exec(parentWidget()->mapToGlobal(pos()));
 
   if (selected != nullptr) {
-    SetFootage(selected->data().value<StreamPtr>());
+    SetFootage(Node::ValueToPtr<Stream>(selected->data()));
 
     emit FootageChanged(footage_);
   }
@@ -69,12 +69,7 @@ void FootageComboBox::SetOnlyShowReadyFootage(bool e)
   only_show_ready_footage_ = e;
 }
 
-StreamPtr FootageComboBox::SelectedFootage()
-{
-  return footage_;
-}
-
-void FootageComboBox::SetFootage(StreamPtr f)
+void FootageComboBox::SetFootage(Stream *f)
 {
   // Remove existing single item used to show the footage name
   footage_ = f;
@@ -101,9 +96,9 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m) const
         Menu* stream_menu = new Menu(footage->name(), m);
         m->addMenu(stream_menu);
 
-        foreach (StreamPtr stream, footage->streams()) {
-          QAction* stream_action = stream_menu->addAction(FootageToString(stream.get()));
-          stream_action->setData(QVariant::fromValue(stream));
+        foreach (Stream* stream, footage->streams()) {
+          QAction* stream_action = stream_menu->addAction(FootageToString(stream));
+          stream_action->setData(Node::PtrToValue(stream));
           stream_action->setIcon(stream->icon());
         }
       }
@@ -120,7 +115,7 @@ void FootageComboBox::UpdateText()
 
   if (footage_) {
     // Use combobox functions to show the footage name
-    addItem(FootageToString(footage_.get()));
+    addItem(FootageToString(footage_));
   }
 }
 

@@ -43,9 +43,9 @@ public:
 protected:
   virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
 
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
+  virtual QVariant ProcessVideoFootage(VideoStream* video_stream, const rational &input_time) override;
 
-  virtual QVariant ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time) override;
+  virtual QVariant ProcessAudioFootage(AudioStream* stream, const TimeRange &input_time) override;
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
@@ -62,7 +62,7 @@ private:
 
   void Run();
 
-  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
+  DecoderPtr ResolveDecoderFromInput(Stream* stream);
 
   RenderTicketPtr ticket_;
 

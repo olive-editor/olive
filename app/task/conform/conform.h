@@ -31,13 +31,13 @@ class ConformTask : public Task
 {
   Q_OBJECT
 public:
-  ConformTask(AudioStreamPtr stream, const AudioParams& params);
+  ConformTask(AudioStream* stream, const AudioParams& params);
 
 protected:
   virtual bool Run() override;
 
 private:
-  AudioStreamPtr stream_;
+  AudioStream* stream_;
 
   AudioParams params_;
 

@@ -134,7 +134,9 @@ public:
    *
    * A pointer to a stream object. The Footage takes ownership of this object and will free it when it's deleted.
    */
-  void add_stream(StreamPtr s);
+  void add_stream(Stream *s);
+
+  void add_streams(const QVector<Stream*>& streams);
 
   /**
    * @brief Retrieve a stream at the given index.
@@ -148,12 +150,15 @@ public:
    *
    * The stream at the index provided
    */
-  StreamPtr stream(int index) const;
+  Stream *stream(int index) const;
 
   /**
    * @brief Returns a list of the streams in this Footage
    */
-  const QList<StreamPtr>& streams() const;
+  const QVector<Stream*>& streams() const
+  {
+    return streams_;
+  }
 
   /**
    * @brief Retrieve total number of streams in this Footage file
@@ -196,9 +201,9 @@ public:
    *
    * The stream type to check for
    */
-  bool HasStreamsOfType(const Stream::Type& type) const;
+  bool HasEnabledStreamsOfType(const Stream::Type& type) const;
 
-  StreamPtr get_first_stream_of_type(const Stream::Type& type) const;
+  Stream* get_first_enabled_stream_of_type(const Stream::Type& type) const;
 
   static bool CompareFootageToFile(Footage* footage, const QString& filename);
   static bool CompareFootageToItsFilename(Footage* footage);
@@ -238,7 +243,7 @@ private:
   /**
    * @brief Internal streams array
    */
-  QList<StreamPtr> streams_;
+  QVector<Stream*> streams_;
 
   /**
    * @brief Internal attached decoder ID

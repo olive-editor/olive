@@ -48,7 +48,7 @@ Decoder::Decoder() :
 {
 }
 
-bool Decoder::Open(StreamPtr fs)
+bool Decoder::Open(Stream *fs)
 {
   QMutexLocker locker(&mutex_);
 

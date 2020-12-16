@@ -24,7 +24,7 @@
 
 namespace olive {
 
-ConformTask::ConformTask(AudioStreamPtr stream, const AudioParams& params) :
+ConformTask::ConformTask(AudioStream *stream, const AudioParams& params) :
   stream_(stream),
   params_(params)
 {

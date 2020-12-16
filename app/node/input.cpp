@@ -371,7 +371,7 @@ QString NodeInput::ValueToString(const DataType& data_type, const QVariant &valu
   } else if (data_type == kRational) {
     return value.value<rational>().toString();
   } else if (data_type == kFootage) {
-    return QString::number(reinterpret_cast<quintptr>(value.value<StreamPtr>().get()));
+    return QString::number(value.value<quintptr>());
   } else if (data_type == kTexture
              || data_type == kSamples
              || data_type == kBuffer) {

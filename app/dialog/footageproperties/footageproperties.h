@@ -77,7 +77,7 @@ private:
 
   class StreamEnableChangeCommand : public UndoCommand {
   public:
-    StreamEnableChangeCommand(StreamPtr stream,
+    StreamEnableChangeCommand(Stream* stream,
                               bool enabled,
                               QUndoCommand* command = nullptr);
 
@@ -88,7 +88,7 @@ private:
     virtual void undo_internal() override;
 
   private:
-    StreamPtr stream_;
+    Stream* stream_;
 
     bool old_enabled_;
     bool new_enabled_;

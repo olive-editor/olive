@@ -26,7 +26,6 @@ namespace olive {
 
 TimelineViewGhostItem::TimelineViewGhostItem() :
   track_adj_(0),
-  stream_(nullptr),
   mode_(Timeline::kNone),
   can_have_zero_length_(true),
   can_move_tracks_(true),

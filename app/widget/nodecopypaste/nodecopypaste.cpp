@@ -146,11 +146,9 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
           bool found = false;
 
           foreach (Item* item, footage) {
-            const QList<StreamPtr>& streams = static_cast<Footage*>(item)->streams();
-
-            foreach (StreamPtr s, streams) {
-              if (s.get() == loaded_stream) {
-                con.input->set_standard_value(QVariant::fromValue(s));
+            foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
+              if (s == loaded_stream) {
+                con.input->set_standard_value(Node::PtrToValue(s));
                 found = true;
                 break;
               }

@@ -34,7 +34,7 @@
 
 namespace olive {
 
-VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
+VideoStreamProperties::VideoStreamProperties(VideoStream *stream) :
   stream_(stream),
   video_premultiply_alpha_(nullptr)
 {
@@ -94,7 +94,7 @@ VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
 
     int imgseq_row = 0;
 
-    VideoStream* video_stream = static_cast<VideoStream*>(stream.get());
+    VideoStream* video_stream = static_cast<VideoStream*>(stream);
 
     imgseq_layout->addWidget(new QLabel(tr("Start Index:")), imgseq_row, 0);
 
@@ -146,7 +146,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   }
 
   if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
-    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream_);
+    VideoStream* video_stream = static_cast<VideoStream*>(stream_);
 
     int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
 
@@ -177,7 +177,7 @@ bool VideoStreamProperties::SanityCheck()
   return true;
 }
 
-VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoStreamPtr stream,
+VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoStream *stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           VideoParams::Interlacing interlacing,
@@ -218,7 +218,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
   stream_->set_pixel_aspect_ratio(old_pixel_ar_);
 }
 
-VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStreamPtr video_stream, int64_t start_index, int64_t duration, const rational &frame_rate, QUndoCommand *parent) :
+VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStream *video_stream, int64_t start_index, int64_t duration, const rational &frame_rate, QUndoCommand *parent) :
   UndoCommand(parent),
   video_stream_(video_stream),
   new_start_index_(start_index),

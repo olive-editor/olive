@@ -296,7 +296,7 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
   bool found_audio_params = false;
 
   foreach (Footage* f, footage) {
-    foreach (StreamPtr s, f->streams()) {
+    foreach (Stream* s, f->streams()) {
       if (!s->enabled()) {
         continue;
       }
@@ -304,7 +304,7 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
       switch (s->type()) {
       case Stream::kVideo:
       {
-        VideoStream* vs = static_cast<VideoStream*>(s.get());
+        VideoStream* vs = static_cast<VideoStream*>(s);
 
         // If this is a video stream, use these parameters
         if (!found_video_params) {
@@ -333,7 +333,7 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
       }
       case Stream::kAudio:
         if (!found_audio_params) {
-          AudioStream* as = static_cast<AudioStream*>(s.get());
+          AudioStream* as = static_cast<AudioStream*>(s);
           set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), AudioParams::kInternalFormat));
           found_audio_params = true;
         }

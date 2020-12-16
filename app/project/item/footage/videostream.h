@@ -174,8 +174,6 @@ private:
 
 };
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
-
 }
 
 #endif // VIDEOSTREAM_H

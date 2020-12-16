@@ -153,7 +153,7 @@ void RenderProcessor::Run()
   }
 }
 
-DecoderPtr RenderProcessor::ResolveDecoderFromInput(StreamPtr stream)
+DecoderPtr RenderProcessor::ResolveDecoderFromInput(Stream *stream)
 {
   if (!stream) {
     qWarning() << "Attempted to resolve the decoder of a null stream";
@@ -162,14 +162,14 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(StreamPtr stream)
 
   QMutexLocker locker(decoder_cache_->mutex());
 
-  DecoderPtr decoder = decoder_cache_->value(stream.get());
+  DecoderPtr decoder = decoder_cache_->value(stream);
 
   if (!decoder) {
     // No decoder
     decoder = Decoder::CreateFromID(stream->footage()->decoder());
 
     if (decoder->Open(stream)) {
-      decoder_cache_->insert(stream.get(), decoder);
+      decoder_cache_->insert(stream, decoder);
     } else {
       qWarning() << "Failed to open decoder for" << stream->footage()->filename()
                  << "::" << stream->index();
@@ -262,14 +262,13 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
   }
 }
 
-QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
+QVariant RenderProcessor::ProcessVideoFootage(VideoStream *video_stream, const rational &input_time)
 {
   TexturePtr value = nullptr;
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
   // and color managing them for every frame is a waste of time, so we implement a small cache here
   // to optimize such a situation
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
   const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
@@ -284,7 +283,7 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
   StillImageCache::EntryPtr want_entry = std::make_shared<StillImageCache::Entry>(
         nullptr,
-        stream,
+        video_stream,
         ColorProcessor::GenerateID(color_manager, video_stream->colorspace(), color_manager->GetReferenceColorSpace()),
         video_stream->premultiplied_alpha(),
         footage_divider,
@@ -325,7 +324,7 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
 
     still_image_cache_->mutex()->unlock();
 
-    DecoderPtr decoder = ResolveDecoderFromInput(stream);
+    DecoderPtr decoder = ResolveDecoderFromInput(video_stream);
 
     if (decoder) {
       FramePtr frame = decoder->RetrieveVideo(input_time,
@@ -367,7 +366,7 @@ QVariant RenderProcessor::ProcessVideoFootage(StreamPtr stream, const rational &
   return QVariant::fromValue(value);
 }
 
-QVariant RenderProcessor::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)
+QVariant RenderProcessor::ProcessAudioFootage(AudioStream *stream, const TimeRange &input_time)
 {
   QVariant value;
 

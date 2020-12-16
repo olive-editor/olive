@@ -224,7 +224,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
     quint64 enabled_streams = footage.streams();
 
     // Loop through all streams in footage
-    foreach (StreamPtr stream, footage.footage()->streams()) {
+    foreach (Stream* stream, footage.footage()->streams()) {
       Timeline::TrackType track_type = TrackTypeFromStreamType(stream->type());
 
       quint64 cached_enabled_streams = enabled_streams;
@@ -239,7 +239,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
       if (stream->type() == Stream::kVideo
-          && std::static_pointer_cast<VideoStream>(stream)->video_type() == VideoStream::kVideoTypeStill) {
+          && static_cast<VideoStream*>(stream)->video_type() == VideoStream::kVideoTypeStill) {
         // Stream is essentially length-less - we may use the default still image length in config,
         // or we may use another stream's length depending on the circumstance
         contains_image_stream = true;
@@ -260,7 +260,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, Node::PtrToValue(stream));
       ghost->SetMode(Timeline::kMove);
 
       footage_ghosts.append(ghost);
@@ -416,7 +416,7 @@ void ImportTool::DropGhosts(bool insert)
     for (int i=0;i<parent()->GetGhostItems().size();i++) {
       TimelineViewGhostItem* ghost = parent()->GetGhostItems().at(i);
 
-      StreamPtr footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+      Stream* footage_stream = Node::ValueToPtr<Stream>(ghost->GetData(TimelineViewGhostItem::kAttachedFootage));
 
       ClipBlock* clip = new ClipBlock();
       clip->set_media_in(ghost->GetMediaIn());
@@ -479,7 +479,7 @@ void ImportTool::DropGhosts(bool insert)
 
       // Link any clips so far that share the same Footage with this one
       for (int j=0;j<i;j++) {
-        StreamPtr footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+        Stream* footage_compare = Node::ValueToPtr<Stream>(parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage));
 
         if (footage_compare->footage() == footage_stream->footage()) {
           Block::Link(block_items.at(j), clip);

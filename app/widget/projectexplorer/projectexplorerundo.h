@@ -41,7 +41,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  QMap<MediaInput*, StreamPtr> stream_data_;
+  QMap<MediaInput*, Stream*> stream_data_;
 
   Project* project_;
 

@@ -142,7 +142,7 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& info_list, int index)
 {
   // Heuristically determine whether this file is part of an image sequence or not
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
 
   // By this point we've established that video contains a single still image stream. Now we'll
   // see if it ends with numbers.
@@ -229,7 +229,7 @@ bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)
     return false;
   }
 
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
 
   if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
     // If video type is not a still, this definitely isn't a video stream
@@ -245,7 +245,7 @@ bool ProjectImportTask::CompareStillImageSize(Footage* footage, const QSize &sz)
     return false;
   }
 
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(footage->streams().first());
+  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
 
   return video_stream->width() == sz.width() && video_stream->height() == sz.height();
 }

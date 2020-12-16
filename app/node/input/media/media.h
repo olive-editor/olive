@@ -58,8 +58,8 @@ public:
 
   virtual QVector<CategoryID> Category() const override;
 
-  StreamPtr stream();
-  void SetStream(StreamPtr s);
+  Stream* stream() const;
+  void SetStream(Stream *s);
 
   virtual bool IsMedia() const override;
 
@@ -70,7 +70,7 @@ public:
 protected:
   NodeInput* footage_input_;
 
-  StreamPtr connected_footage_;
+  Stream* connected_footage_;
 
 private slots:
   void FootageChanged();

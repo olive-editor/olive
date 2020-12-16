@@ -40,14 +40,14 @@ QVector<Node::CategoryID> MediaInput::Category() const
   return {kCategoryInput};
 }
 
-StreamPtr MediaInput::stream()
+Stream *MediaInput::stream() const
 {
-  return footage_input_->get_standard_value().value<StreamPtr>();
+  return Node::ValueToPtr<Stream>(footage_input_->get_standard_value());
 }
 
-void MediaInput::SetStream(StreamPtr s)
+void MediaInput::SetStream(Stream* s)
 {
-  footage_input_->set_standard_value(QVariant::fromValue(s));
+  footage_input_->set_standard_value(Node::PtrToValue(s));
 }
 
 bool MediaInput::IsMedia() const
@@ -76,20 +76,20 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
 
 void MediaInput::FootageChanged()
 {
-  StreamPtr new_footage = footage_input_->get_standard_value().value<StreamPtr>();
+  Stream* new_footage = footage_input_->get_standard_value().value<Stream*>();
 
   if (new_footage == connected_footage_) {
     return;
   }
 
   if (connected_footage_) {
-    disconnect(connected_footage_.get(), &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    disconnect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
   }
 
   connected_footage_ = new_footage;
 
   if (connected_footage_) {
-    connect(connected_footage_.get(), &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    connect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
   }
 }
 

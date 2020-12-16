@@ -127,8 +127,6 @@ private:
 
   int track_adj_;
 
-  StreamPtr stream_;
-
   Timeline::MovementMode mode_;
 
   bool can_have_zero_length_;
