@@ -16,11 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timebased/timebasedview.cpp
-  widget/timebased/timebasedview.h
-  widget/timebased/timebasedwidget.cpp
-  widget/timebased/timebasedwidget.h
-  widget/timebased/timescaledobject.cpp
-  widget/timebased/timescaledobject.h
+  widget/snapservice/snapservice.cpp
+  widget/snapservice/snapservice.h
   PARENT_SCOPE
 )

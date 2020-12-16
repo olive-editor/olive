@@ -28,10 +28,10 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
-#include "timelineviewbase.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
 #include "timelineviewghostitem.h"
+#include "widget/timebased/timebasedview.h"
 #include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
 
@@ -42,7 +42,7 @@ namespace olive {
  *
  * This widget primarily exposes users to viewing and modifying Block nodes, usually through a TimelineOutput node.
  */
-class TimelineView : public TimelineViewBase
+class TimelineView : public TimeBasedView
 {
   Q_OBJECT
 public:

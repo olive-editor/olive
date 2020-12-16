@@ -23,11 +23,11 @@
 
 #include "resizablescrollbar.h"
 #include "timeline/timelinepoints.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 
-class ResizableTimelineScrollBar : public ResizableScrollBar, public TimelineScaledObject
+class ResizableTimelineScrollBar : public ResizableScrollBar, public TimeScaledObject
 {
   Q_OBJECT
 public:

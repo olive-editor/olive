@@ -18,7 +18,7 @@
 
 ***/
 
-#include "timelineviewbase.h"
+#include "timebasedview.h"
 
 #include <QGraphicsRectItem>
 #include <QMouseEvent>
@@ -30,9 +30,9 @@
 
 namespace olive {
 
-const double TimelineViewBase::kMaximumScale = 8192;
+const double TimeBasedView::kMaximumScale = 8192;
 
-TimelineViewBase::TimelineViewBase(QWidget *parent) :
+TimeBasedView::TimeBasedView(QWidget *parent) :
   HandMovableView(parent),
   playhead_(0),
   playhead_scene_left_(-1),
@@ -53,7 +53,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   SetDefaultDragMode(NoDrag);
 
   // Signal to update bounding rect when the scene changes
-  connect(&scene_, &QGraphicsScene::changed, this, &TimelineViewBase::UpdateSceneRect);
+  connect(&scene_, &QGraphicsScene::changed, this, &TimeBasedView::UpdateSceneRect);
 
   // Always enforce maximum scale
   SetMaximumScale(kMaximumScale);
@@ -64,13 +64,13 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 }
 
-void TimelineViewBase::TimebaseChangedEvent(const rational &)
+void TimeBasedView::TimebaseChangedEvent(const rational &)
 {
   // Timebase influences position/visibility of playhead
   viewport()->update();
 }
 
-void TimelineViewBase::EnableSnap(const QList<rational> &points)
+void TimeBasedView::EnableSnap(const QList<rational> &points)
 {
   snapped_ = true;
   snap_time_ = points;
@@ -78,28 +78,28 @@ void TimelineViewBase::EnableSnap(const QList<rational> &points)
   viewport()->update();
 }
 
-void TimelineViewBase::DisableSnap()
+void TimeBasedView::DisableSnap()
 {
   snapped_ = false;
 
   viewport()->update();
 }
 
-void TimelineViewBase::SetSnapService(SnapService *service)
+void TimeBasedView::SetSnapService(SnapService *service)
 {
   snap_service_ = service;
 }
 
-const double &TimelineViewBase::GetYScale() const
+const double &TimeBasedView::GetYScale() const
 {
   return y_scale_;
 }
 
-void TimelineViewBase::VerticalScaleChangedEvent(double)
+void TimeBasedView::VerticalScaleChangedEvent(double)
 {
 }
 
-void TimelineViewBase::SetYScale(const double &y_scale)
+void TimeBasedView::SetYScale(const double &y_scale)
 {
   y_scale_ = y_scale;
 
@@ -110,7 +110,7 @@ void TimelineViewBase::SetYScale(const double &y_scale)
   }
 }
 
-void TimelineViewBase::SetTime(const int64_t time)
+void TimeBasedView::SetTime(const int64_t time)
 {
   playhead_ = time;
 
@@ -118,7 +118,7 @@ void TimelineViewBase::SetTime(const int64_t time)
   viewport()->update();
 }
 
-void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
+void TimeBasedView::drawForeground(QPainter *painter, const QRectF &rect)
 {
   QGraphicsView::drawForeground(painter, rect);
 
@@ -154,12 +154,12 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
   }
 }
 
-rational TimelineViewBase::GetPlayheadTime() const
+rational TimeBasedView::GetPlayheadTime() const
 {
   return Timecode::timestamp_to_time(playhead_, timebase());
 }
 
-bool TimelineViewBase::PlayheadPress(QMouseEvent *event)
+bool TimeBasedView::PlayheadPress(QMouseEvent *event)
 {
   QPointF scene_pos = mapToScene(event->pos());
 
@@ -170,7 +170,7 @@ bool TimelineViewBase::PlayheadPress(QMouseEvent *event)
   return dragging_playhead_;
 }
 
-bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
+bool TimeBasedView::PlayheadMove(QMouseEvent *event)
 {
   if (!dragging_playhead_) {
     return false;
@@ -198,7 +198,7 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
   return true;
 }
 
-bool TimelineViewBase::PlayheadRelease(QMouseEvent*)
+bool TimeBasedView::PlayheadRelease(QMouseEvent*)
 {
   if (dragging_playhead_) {
     dragging_playhead_ = false;
@@ -213,19 +213,19 @@ bool TimelineViewBase::PlayheadRelease(QMouseEvent*)
   return false;
 }
 
-qreal TimelineViewBase::GetPlayheadX()
+qreal TimeBasedView::GetPlayheadX()
 {
   return TimeToScene(Timecode::timestamp_to_time(playhead_, timebase()));
 }
 
-void TimelineViewBase::SetEndTime(const rational &length)
+void TimeBasedView::SetEndTime(const rational &length)
 {
   end_time_ = length;
 
   UpdateSceneRect();
 }
 
-void TimelineViewBase::UpdateSceneRect()
+void TimeBasedView::UpdateSceneRect()
 {
   QRectF bounding_rect = scene_.itemsBoundingRect();
 
@@ -244,16 +244,16 @@ void TimelineViewBase::UpdateSceneRect()
   }
 }
 
-void TimelineViewBase::resizeEvent(QResizeEvent *event)
+void TimeBasedView::resizeEvent(QResizeEvent *event)
 {
   QGraphicsView::resizeEvent(event);
 
   UpdateSceneRect();
 }
 
-void TimelineViewBase::ScaleChangedEvent(const double &scale)
+void TimeBasedView::ScaleChangedEvent(const double &scale)
 {
-  TimelineScaledObject::ScaleChangedEvent(scale);
+  TimeScaledObject::ScaleChangedEvent(scale);
 
   // Update scene rect
   UpdateSceneRect();
@@ -262,7 +262,7 @@ void TimelineViewBase::ScaleChangedEvent(const double &scale)
   viewport()->update();
 }
 
-bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
+bool TimeBasedView::HandleZoomFromScroll(QWheelEvent *event)
 {
   if (WheelEventIsAZoomEvent(event)) {
     // If CTRL is held (or a preference is set to swap CTRL behavior), we zoom instead of scrolling
@@ -326,7 +326,7 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
   return false;
 }
 
-bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
+bool TimeBasedView::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }

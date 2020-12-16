@@ -41,6 +41,8 @@ set(OLIVE_SOURCES
   node/keyframe.cpp
   node/node.h
   node/node.cpp
+  node/nodecopypaste.h
+  node/nodecopypaste.cpp
   node/output.h
   node/output.cpp
   node/param.h

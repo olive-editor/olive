@@ -25,12 +25,12 @@
 #include "node/keyframe.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
 #include "widget/menu/menu.h"
-#include "widget/timelinewidget/view/timelineviewbase.h"
+#include "widget/timebased/timebasedview.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
-class KeyframeViewBase : public TimelineViewBase, public TimeTargetObject
+class KeyframeViewBase : public TimeBasedView, public TimeTargetObject
 {
   Q_OBJECT
 public:

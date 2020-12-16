@@ -27,11 +27,14 @@
 
 namespace olive {
 
-class TimelineScaledObject
+/**
+ * @brief Provides base functionality for any object that uses time and scale
+ */
+class TimeScaledObject
 {
 public:
-  TimelineScaledObject();
-  virtual ~TimelineScaledObject() = default;
+  TimeScaledObject();
+  virtual ~TimeScaledObject() = default;
 
   void SetTimebase(const rational &timebase);
 
@@ -75,7 +78,7 @@ private:
 
 };
 
-class TimelineScaledWidget : public QWidget, public TimelineScaledObject
+class TimelineScaledWidget : public QWidget, public TimeScaledObject
 {
   Q_OBJECT
 public:

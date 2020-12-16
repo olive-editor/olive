@@ -40,7 +40,7 @@ public:
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
 
   TimelineCoordinate GetCoordinates(bool round_time = false) const;
-  const Qt::KeyboardModifiers GetModifiers() const;
+  const Qt::KeyboardModifiers& GetModifiers() const;
 
   /**
    * @brief Gets the time at this cursor point

@@ -28,7 +28,7 @@
 #include "node/node.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 

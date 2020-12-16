@@ -68,7 +68,7 @@ void ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
     // Normalize scale to 1.0 scale
     double scene_width = (scene_right - scene_left) / parent()->GetScale();
 
-    double new_scale = qMin(TimelineViewBase::kMaximumScale, static_cast<double>(reference_view->viewport()->width()) / scene_width);
+    double new_scale = qMin(TimeBasedView::kMaximumScale, static_cast<double>(reference_view->viewport()->width()) / scene_width);
 
     parent()->SetScale(new_scale);
 

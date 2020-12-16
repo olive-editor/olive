@@ -50,14 +50,14 @@ void TimelineViewRect::SetTrack(const TrackReference &track)
 
 void TimelineViewRect::ScaleChangedEvent(const double &scale)
 {
-  TimelineScaledObject::ScaleChangedEvent(scale);
+  TimeScaledObject::ScaleChangedEvent(scale);
 
   UpdateRect();
 }
 
 void TimelineViewRect::TimebaseChangedEvent(const rational &tb)
 {
-  TimelineScaledObject::TimebaseChangedEvent(tb);
+  TimeScaledObject::TimebaseChangedEvent(tb);
 
   UpdateRect();
 }

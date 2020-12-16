@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/nodecopypaste/nodecopypaste.h
-  widget/nodecopypaste/nodecopypaste.cpp
+  widget/handmovableview/handmovableview.h
+  widget/handmovableview/handmovableview.cpp
   PARENT_SCOPE
 )

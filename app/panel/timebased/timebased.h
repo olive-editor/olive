@@ -22,7 +22,7 @@
 #define TIMEBASEDPANEL_H
 
 #include "widget/panel/panel.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 

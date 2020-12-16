@@ -22,7 +22,7 @@
 
 #include <QEvent>
 
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 
@@ -48,14 +48,14 @@ TimelineCoordinate TimelineViewMouseEvent::GetCoordinates(bool round_time) const
   return TimelineCoordinate(GetFrame(round_time), track_);
 }
 
-const Qt::KeyboardModifiers TimelineViewMouseEvent::GetModifiers() const
+const Qt::KeyboardModifiers &TimelineViewMouseEvent::GetModifiers() const
 {
   return modifiers_;
 }
 
 rational TimelineViewMouseEvent::GetFrame(bool round) const
 {
-  return TimelineScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
+  return TimeScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
 }
 
 const TrackReference &TimelineViewMouseEvent::GetTrack() const

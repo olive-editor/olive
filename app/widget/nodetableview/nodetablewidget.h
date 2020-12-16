@@ -22,7 +22,7 @@
 #define NODETABLEWIDGET_H
 
 #include "nodetableview.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 

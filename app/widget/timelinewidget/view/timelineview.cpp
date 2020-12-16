@@ -36,7 +36,7 @@
 namespace olive {
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
-  TimelineViewBase(parent),
+  TimeBasedView(parent),
   selections_(nullptr),
   ghosts_(nullptr),
   show_beam_cursor_(false),
@@ -59,7 +59,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimelineViewBase::mousePressEvent(event);
+    TimeBasedView::mousePressEvent(event);
     return;
   }
 
@@ -76,7 +76,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimelineViewBase::mouseMoveEvent(event);
+    TimeBasedView::mouseMoveEvent(event);
     return;
   }
 
@@ -93,7 +93,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (dragMode() != GetDefaultDragMode()) {
-    TimelineViewBase::mouseReleaseEvent(event);
+    TimeBasedView::mouseReleaseEvent(event);
     return;
   }
 
@@ -283,7 +283,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
   }
 
   // Draw standard TimelineViewBase things (such as playhead)
-  TimelineViewBase::drawForeground(painter, rect);
+  TimeBasedView::drawForeground(painter, rect);
 }
 
 void TimelineView::ToolChangedEvent(Tool::Item tool)

@@ -26,7 +26,7 @@
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
 #include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timebased/timescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -121,7 +121,7 @@ protected:
 
   TimelinePoints* GetConnectedTimelinePoints() const;
 
-  void ConnectTimelineView(TimelineViewBase* base);
+  void ConnectTimelineView(TimeBasedView* base);
 
   void PassWheelEventsToScrollBar(QObject* object);
 
@@ -194,7 +194,7 @@ private:
 
   TimelinePoints* points_;
 
-  QList<TimelineViewBase*> timeline_views_;
+  QList<TimeBasedView*> timeline_views_;
 
   bool toggle_show_all_;
 

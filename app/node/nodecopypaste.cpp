@@ -29,7 +29,7 @@
 
 namespace olive {
 
-void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
+void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
 {
   QString copy_str;
 
@@ -56,7 +56,7 @@ void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, voi
   Core::CopyStringToClipboard(copy_str);
 }
 
-QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
+QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
 {
   QString clipboard = Core::PasteStringFromClipboard();
 
@@ -166,11 +166,11 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
   return pasted_nodes;
 }
 
-void NodeCopyPasteWidget::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
+void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
 {
 }
 
-void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
+void NodeCopyPasteService::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
   reader->skipCurrentElement();
 }

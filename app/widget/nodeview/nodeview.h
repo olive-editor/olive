@@ -25,9 +25,9 @@
 #include <QTimer>
 
 #include "node/graph.h"
+#include "node/nodecopypaste.h"
 #include "nodeviewscene.h"
-#include "widget/timelinewidget/view/handmovableview.h"
-#include "widget/nodecopypaste/nodecopypaste.h"
+#include "widget/handmovableview/handmovableview.h"
 
 namespace olive {
 
@@ -37,7 +37,7 @@ namespace olive {
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public HandMovableView, public NodeCopyPasteWidget
+class NodeView : public HandMovableView, public NodeCopyPasteService
 {
   Q_OBJECT
 public:

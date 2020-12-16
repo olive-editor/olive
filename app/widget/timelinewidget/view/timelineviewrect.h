@@ -24,14 +24,14 @@
 #include <QGraphicsRectItem>
 
 #include "timeline/timelinecoordinate.h"
-#include "../timelinescaledobject.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 
 /**
  * @brief A base class for graphical representations of Block nodes
  */
-class TimelineViewRect : public QGraphicsRectItem, public TimelineScaledObject
+class TimelineViewRect : public QGraphicsRectItem, public TimeScaledObject
 {
 public:
   TimelineViewRect(QGraphicsItem* parent = nullptr);
