@@ -39,7 +39,7 @@ protected:
   virtual bool Run() override;
 
 private:
-  opentimelineio::v1_0::Timeline* SerializeTimeline(SequencePtr sequence);
+  opentimelineio::v1_0::Timeline* SerializeTimeline(Sequence* sequence);
 
   opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
 

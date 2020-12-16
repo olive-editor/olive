@@ -558,6 +558,11 @@ ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* 
   parent_(folder),
   child_(child)
 {
+  // Ensure all operations are done in folder's thread
+  if (memory_manager_.thread() != parent_->thread()) {
+    memory_manager_.moveToThread(parent_->thread());
+  }
+
   child_->setParent(&memory_manager_);
 }
 
@@ -581,6 +586,12 @@ ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, 
   model_(model),
   item_(item)
 {
+  // Ensure all operations are done in folder's thread
+  parent_ = item_->item_parent();
+
+  if (memory_manager_.thread() != item_->thread()) {
+    memory_manager_.moveToThread(item_->thread());
+  }
 }
 
 Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
@@ -590,7 +601,6 @@ Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
 
 void ProjectViewModel::RemoveItemCommand::redo_internal()
 {
-  parent_ = item_->item_parent();
   model_->RemoveChild(parent_, item_, &memory_manager_);
 }
 
