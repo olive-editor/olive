@@ -228,7 +228,7 @@ void SliderBase::UpdateLabel(const QVariant &v)
   if (tristate_) {
     label_->setText("---");
   } else if (format_plural_) {
-    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, v.toInt()));
+    label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, qCeil(v.toReal())).arg(ValueToString(v)));
   } else {
     label_->setText(GetFormat().arg(ValueToString(v)));
   }

@@ -74,9 +74,16 @@ What would you like to do with these clips?</numerusform>
     <name>olive::SliderBase</name>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             <numerusform>%n second</numerusform>
             <numerusform>%n seconds</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1 second(s)</source>
+        <translation type="unfinished">
+            <numerusform>%1 second</numerusform>
+            <numerusform>%1 seconds</numerusform>
         </translation>
     </message>
 </context>
