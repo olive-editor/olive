@@ -53,11 +53,10 @@ public:
 
   bool IsDragging() const;
 
-  void SetFormat(const QString& s);
+  void SetFormat(const QString& s, const bool plural=false);
   void ClearFormat();
 
   bool IsFormatPlural() const;
-  void SetFormatPlural();
 
   void SetLadderElementCount(int b)
   {

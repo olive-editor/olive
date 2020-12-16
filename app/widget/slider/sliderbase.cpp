@@ -104,9 +104,10 @@ bool SliderBase::IsDragging() const
   return drag_ladder_;
 }
 
-void SliderBase::SetFormat(const QString &s)
+void SliderBase::SetFormat(const QString &s, const bool plural)
 {
   custom_format_ = s;
+  if (plural) format_plural_ = true;
   ForceLabelUpdate();
 }
 
@@ -119,13 +120,6 @@ void SliderBase::ClearFormat()
 bool SliderBase::IsFormatPlural() const
 {
   return format_plural_;
-}
-
-void SliderBase::SetFormatPlural()
-{
-  format_plural_ = true;
-  qDebug() << "SetFormatPlural()";
-  //UpdateLabel(0);
 }
 
 void SliderBase::ForceLabelUpdate()
@@ -234,7 +228,6 @@ void SliderBase::UpdateLabel(const QVariant &v)
   if (tristate_) {
     label_->setText("---");
   } else if (format_plural_) {
-    //QString s = tr(GetFormat().toStdString().c_str(), nullptr, v.toInt());
     label_->setText(tr(GetFormat().toUtf8().constData(), nullptr, v.toInt()));
   } else {
     label_->setText(GetFormat().arg(ValueToString(v)));
