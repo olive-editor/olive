@@ -18,16 +18,27 @@
 
 #include "sliderbase.h"
 
+#include <QMouseEvent>
+
 #include "common/rational.h"
 
 namespace olive {
 
+ /**
+ * @brief A olive::rational based slider
+ * 
+ * A slider that can display rationals as either timecode, a timestamp (frames), a rational (a/b)
+ * or a float (seconds). 
+ * 
+ * Control clikcing the slider (see sliderlabel.h) changes thedisplay type
+ */
 class RationalSlider : public SliderBase
 {
   Q_OBJECT
 public:
-  RationalSlider(QWidget* parent = nullptr);
-
+  /**
+   * @brief enum containing the possibly display types
+   */
   enum DisplayType {
     kTimecode,
     kTimestamp,
@@ -35,18 +46,41 @@ public:
     kFloat
   };
 
+  RationalSlider(DisplayType display_type, rational timebase, QWidget* parent = nullptr);
+
+  /**
+   * @brief Returns the sliders value as a rational
+   */
   rational GetValue();
 
+  /**
+   * @brief Sets the sliders value
+   */
   void SetValue(const rational& d);
 
+  /**
+   * @brief Sets the sliders minimum value
+   */
   void SetMinimum(const rational& d);
 
+  /**
+   * @brief Sets the sliders maximum value
+   */
   void SetMaximum(const rational& d);
 
+  /**
+   * @brief Sets the number of decimal places the slider shows when displaying a float
+   */
   void SetDecimalPlaces(int i);
 
+  /**
+   * @brief Sets the sliders timebase which is also the minimum increment of the slider
+   */
   void SetTimebase(const rational& timebase);
 
+  /**
+   * @brief Sets the display type of the slider
+   */
   void SetDisplayType(const DisplayType& type);
 
   void SetAutoTrimDecimalPlaces(bool e);
@@ -63,6 +97,13 @@ signals:
 
 private slots:
   void ConvertValue(QVariant v);
+
+  void changeDisplayType();
+
+  /**
+   * @brief Changes the timecodes display type (e.g. drop frome to none drop frame)
+   */
+  void ChangeTimecodeDisplayType();
 
 private:
   DisplayType display_type_;

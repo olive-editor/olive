@@ -20,14 +20,18 @@
 
 namespace olive {
 
-RationalSlider::RationalSlider(rational timebase, QWidget *parent) :
+RationalSlider::RationalSlider(DisplayType display_type, rational timebase, QWidget *parent) :
   SliderBase(SliderBase::kRational, parent),
-  display_type_(kTimecode),
+  display_type_(display_type),
   decimal_places_(2),
   autotrim_decimal_places_(false),
   timebase_(timebase)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+  connect(this, &SliderBase::changeRationalDisplayType, this, &RationalSlider::changeDisplayType);
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &RationalSlider::ChangeTimecodeDisplayType);
+
+  SetDisplayType(display_type_);
 }
 
 rational RationalSlider::GetValue()
@@ -90,25 +94,26 @@ void RationalSlider::SetDisplayType(const RationalSlider::DisplayType &type)
       SetFormat("%1 Frames");
       break;
     case kFloat:
-      SetFormat("%1 Seconds");
+      SetFormat("%1 s");
       break;
   }
 }
 
 QString RationalSlider::ValueToString(const QVariant &v)
 {
-  rational r = v.value<rational>();
+  double time = v.value<rational>().toDouble();
+
   switch (display_type_) {
     case kTimecode:
-      return Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay());
+      return Timecode::time_to_timecode(v.value<rational>(), timebase_, Core::instance()->GetTimecodeDisplay());
     case kTimestamp:
-      return QString::number(Timecode::time_to_timestamp(r, timebase_));
+      return QString::number(Timecode::time_to_timestamp(time, timebase_));
     case kRational:
       // Might we want to call reduce() on r here?
-      return r.toString();
+      return v.value<rational>().toString();
     case kFloat:
     {
-      QString s = QString::number(r.toDouble(), 'f', decimal_places_);
+      QString s = QString::number(time, 'f', decimal_places_);
 
       if (autotrim_decimal_places_) {
         while (s.endsWith('0') && s.at(s.size() - 2).isDigit()) {
@@ -118,14 +123,40 @@ QString RationalSlider::ValueToString(const QVariant &v)
       return s;
     }
   }
-  return r.toString();
+  return v.toString();
 }
 
 QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
 {
-  // Just try to convert the string to a double
-  // REMEMBER TO IMPLEMENT!!!!
-  return s.toDouble(ok);
+  QVariant v;
+  rational r;
+  *ok = false;
+
+  switch (display_type_) {
+    case kTimecode:
+    {
+      int t = Timecode::timecode_to_timestamp(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok);
+      r = rational(t, timebase_.denominator());
+      break;
+    }
+    case kTimestamp:
+      r = rational(s.toInt(ok), timebase_.denominator());
+      break;
+    case kRational:
+      r = rational::fromString(s);
+      if (!r.isNull()) {
+        *ok = true;
+      }
+      break;
+    case kFloat:
+      r = rational::fromDouble(s.toDouble(ok));
+      if (!r.isNull()) {
+        *ok = true;
+      }
+      break;
+  }
+  v.setValue(r);
+  return v;
 }
 
 double RationalSlider::AdjustDragDistanceInternal(const double &start, const double &drag)
@@ -137,6 +168,17 @@ double RationalSlider::AdjustDragDistanceInternal(const double &start, const dou
 void RationalSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.value<rational>());
+}
+
+void RationalSlider::changeDisplayType()
+{
+  SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_)+1)%4));
+  ForceLabelUpdate();
+}
+
+void RationalSlider::ChangeTimecodeDisplayType()
+{
+  ForceLabelUpdate();
 }
 
 }

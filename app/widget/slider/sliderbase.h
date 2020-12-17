@@ -72,6 +72,8 @@ public:
 signals:
   void ValueChanged(QVariant v);
 
+  void changeRationalDisplayType();
+
 protected:
   const QVariant& Value() const;
 
@@ -151,6 +153,7 @@ private slots:
 
   void RepositionLadder();
 
+  void ChangeSliderType();
 };
 
 }

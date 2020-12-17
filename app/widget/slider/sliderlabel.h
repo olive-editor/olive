@@ -45,6 +45,8 @@ signals:
 
   void RequestReset();
 
+  void ChangeSliderType();
+
 };
 
 }
