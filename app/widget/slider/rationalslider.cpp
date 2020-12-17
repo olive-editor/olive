@@ -172,6 +172,7 @@ void RationalSlider::ConvertValue(QVariant v)
 
 void RationalSlider::changeDisplayType()
 {
+  // Loop through the display types
   SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_)+1)%4));
   ForceLabelUpdate();
 }

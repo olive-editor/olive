@@ -375,9 +375,7 @@ void SliderBase::LadderReleased()
       SetValue(clamped_temp_dragged_value_.toDouble());
       break;
     case kRational:
-      QVariant r;
-      r.setValue(rational::fromDouble(temp_dragged_value_.value<rational>().toDouble()));
-      SetValue(r);
+      SetValue(temp_dragged_value_);
     }
 
     emit ValueChanged(value_);
