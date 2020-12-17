@@ -20,12 +20,13 @@
 
 namespace olive {
 
-RationalSlider::RationalSlider(DisplayType display_type, rational timebase, QWidget *parent) :
+RationalSlider::RationalSlider(rational timebase, QWidget *parent) :
   SliderBase(SliderBase::kRational, parent),
-  display_type_(display_type),
+  display_type_(kTimecode),
   decimal_places_(2),
   autotrim_decimal_places_(false),
-  timebase_(timebase)
+  timebase_(timebase),
+  lock_display_type_(false)
 {
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
   connect(this, &SliderBase::changeRationalDisplayType, this, &RationalSlider::changeDisplayType);
@@ -106,6 +107,16 @@ void RationalSlider::SetDisplayType(const RationalSlider::DisplayType &type)
   }
 }
 
+void RationalSlider::SetLockDisplayType(bool e)
+{
+  lock_display_type_ = e;
+}
+
+bool RationalSlider::LockDisplayType()
+{
+  return lock_display_type_;
+}
+
 QString RationalSlider::ValueToString(const QVariant &v)
 {
   double time = v.value<rational>().toDouble();
@@ -179,9 +190,11 @@ void RationalSlider::ConvertValue(QVariant v)
 
 void RationalSlider::changeDisplayType()
 {
-  // Loop through the display types
-  SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_)+1)%4));
-  ForceLabelUpdate();
+  if (!LockDisplayType()) {
+    // Loop through the display types
+    SetDisplayType(static_cast<RationalSlider::DisplayType>(((int)(display_type_) + 1) % 4));
+    ForceLabelUpdate();
+  }
 }
 
 void RationalSlider::ChangeTimecodeDisplayType()

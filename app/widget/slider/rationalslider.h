@@ -46,7 +46,7 @@ public:
     kFloat
   };
 
-  RationalSlider(DisplayType display_type, rational timebase, QWidget* parent = nullptr);
+  RationalSlider(rational timebase, QWidget* parent = nullptr);
 
   /**
    * @brief Returns the sliders value as a rational
@@ -58,6 +58,9 @@ public:
    */
   void SetValue(const rational& d);
 
+  /**
+   * @brief Sets the sliders default value
+   */
   void SetDefaultValue(const rational& r);
 
   /**
@@ -84,6 +87,10 @@ public:
    * @brief Sets the display type of the slider
    */
   void SetDisplayType(const DisplayType& type);
+
+  void SetLockDisplayType(bool e);
+
+  bool LockDisplayType();
 
   void SetAutoTrimDecimalPlaces(bool e);
 
@@ -116,6 +123,7 @@ private:
 
   rational timebase_;
 
+  bool lock_display_type_;
 };
 
 }

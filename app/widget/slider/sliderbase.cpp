@@ -214,7 +214,6 @@ const QVariant &SliderBase::ClampValue(const QVariant &v)
   if (has_min_ && value < min) {
     return min_value_;
   }else if (has_max_ && value > max) {
-    printf("MAX: %f\n", max_value_.value<rational>().toDouble());
     return max_value_;
   }
 
