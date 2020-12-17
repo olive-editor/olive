@@ -46,6 +46,13 @@ void RationalSlider::SetValue(const rational &d)
   SliderBase::SetValue(r);
 }
 
+void RationalSlider::SetDefaultValue(const rational &r)
+{
+  QVariant v;
+  v.setValue(r);
+  SliderBase::SetDefaultValue(v);
+}
+
 void RationalSlider::SetMinimum(const rational &d)
 {
   QVariant r;

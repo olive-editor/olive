@@ -58,6 +58,8 @@ public:
    */
   void SetValue(const rational& d);
 
+  void SetDefaultValue(const rational& r);
+
   /**
    * @brief Sets the sliders minimum value
    */
