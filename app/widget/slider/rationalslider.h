@@ -88,8 +88,14 @@ public:
    */
   void SetDisplayType(const DisplayType& type);
 
+  /**
+   * @brief Set whether the user can change the display type or not
+   */
   void SetLockDisplayType(bool e);
 
+  /**
+   * @brief Get whether the user can change the display type or not
+   */
   bool LockDisplayType();
 
   void SetAutoTrimDecimalPlaces(bool e);
