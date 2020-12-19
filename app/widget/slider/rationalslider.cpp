@@ -42,30 +42,22 @@ rational RationalSlider::GetValue()
 
 void RationalSlider::SetValue(const rational &d)
 {
-  QVariant r;
-  r.setValue(d);
-  SliderBase::SetValue(r);
+  SliderBase::SetValue(QVariant::fromValue(d));
 }
 
 void RationalSlider::SetDefaultValue(const rational &r)
 {
-  QVariant v;
-  v.setValue(r);
-  SliderBase::SetDefaultValue(v);
+  SliderBase::SetDefaultValue(QVariant::fromValue(r));
 }
 
 void RationalSlider::SetMinimum(const rational &d)
 {
-  QVariant r;
-  r.setValue(d);
-  SetMinimumInternal(r);
+  SetMinimumInternal(QVariant::fromValue(d));
 }
 
 void RationalSlider::SetMaximum(const rational &d)
 {
-  QVariant r;
-  r.setValue(d);
-  SetMaximumInternal(r);
+  SetMaximumInternal(QVariant::fromValue(d));
 }
 
 void RationalSlider::SetDecimalPlaces(int i)
@@ -173,8 +165,8 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
       }
       break;
   }
-  v.setValue(r);
-  return v;
+
+  return QVariant::fromValue(r);
 }
 
 double RationalSlider::AdjustDragDistanceInternal(const double &start, const double &drag)
