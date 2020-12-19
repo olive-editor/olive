@@ -138,7 +138,6 @@ QString RationalSlider::ValueToString(const QVariant &v)
 
 QVariant RationalSlider::StringToValue(const QString &s, bool *ok)
 {
-  QVariant v;
   rational r;
   *ok = false;
 
