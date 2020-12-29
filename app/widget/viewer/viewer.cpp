@@ -463,9 +463,13 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     return;
   }
 
-  // Kindly tell all viewers to stop caching
-  if (pause_autocache_during_playback_) {
-    foreach (ViewerWidget* viewer, instances_) {
+  // Kindly tell all viewers to stop playing (and caching if that's been set as an option)
+  foreach (ViewerWidget* viewer, instances_) {
+    if (viewer != this) {
+      viewer->Pause();
+    }
+
+    if (pause_autocache_during_playback_) {
       viewer->auto_cacher_.ClearVideoQueue();
     }
   }
