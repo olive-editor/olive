@@ -167,7 +167,13 @@ void AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)
   }
 
   // Snap movement
-  bool snapped = parent()->SnapPoint(snap_points_, &movement);
+  bool snapped;
+
+  if (Core::instance()->snapping()) {
+    snapped = parent()->SnapPoint(snap_points_, &movement);
+  } else {
+    snapped = false;
+  }
 
   // If alt is held, our movement goes both ways (outwards)
   if (!snapped && outwards) {
