@@ -29,6 +29,7 @@ AudioStreamProperties::AudioStreamProperties(AudioStream *stream) :
 
 void AudioStreamProperties::Accept(QUndoCommand*)
 {
+  Q_UNUSED(stream_)
 }
 
 }
