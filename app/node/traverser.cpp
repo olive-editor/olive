@@ -102,7 +102,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const
   return table;
 }
 
-QVariant NodeTraverser::ProcessVideoFootage(StreamPtr stream, const rational &input_time)
+QVariant NodeTraverser::ProcessVideoFootage(VideoStream *stream, const rational &input_time)
 {
   Q_UNUSED(stream)
   Q_UNUSED(input_time)
@@ -110,7 +110,7 @@ QVariant NodeTraverser::ProcessVideoFootage(StreamPtr stream, const rational &in
   return QVariant();
 }
 
-QVariant NodeTraverser::ProcessAudioFootage(StreamPtr stream, const TimeRange &input_time)
+QVariant NodeTraverser::ProcessAudioFootage(AudioStream *stream, const TimeRange &input_time)
 {
   Q_UNUSED(stream)
   Q_UNUSED(input_time)
@@ -188,7 +188,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     QList<NodeValue>* take_this_value_list = nullptr;
 
     if (v.type() == NodeParam::kFootage) {
-      StreamPtr s = v.data().value<StreamPtr>();
+      Stream* s = Node::ValueToPtr<Stream>(v.data());
 
       if (s) {
         if (s->type() == Stream::kVideo) {
@@ -214,7 +214,8 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   if (!got_cached_frame) {
     // Retrieve video frames
     foreach (const NodeValue& v, video_footage_to_retrieve) {
-      StreamPtr stream = v.data().value<StreamPtr>();
+      // Assume this is a VideoStream, we did a type check earlier in the function
+      VideoStream* stream = Node::ValueToPtr<VideoStream>(v.data());
 
       if (stream->footage()->IsValid()) {
         QVariant value = ProcessVideoFootage(stream, range.in());
@@ -246,10 +247,11 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
 
   // Retrieve audio samples
   foreach (const NodeValue& v, audio_footage_to_retrieve) {
-    StreamPtr stream = v.data().value<StreamPtr>();
+    // Assume this is an AudioStream, we did a type check earlier in the function
+    AudioStream* stream = Node::ValueToPtr<AudioStream>(v.data());
 
     if (stream->footage()->IsValid()) {
-      QVariant value = ProcessAudioFootage(v.data().value<StreamPtr>(), range);
+      QVariant value = ProcessAudioFootage(stream, range);
 
       if (!value.isNull()) {
         output_params.Push(NodeParam::kSamples, value, node);

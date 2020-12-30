@@ -21,12 +21,8 @@ add_subdirectory(view)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelinewidget/snapservice.h
-  widget/timelinewidget/snapservice.cpp
   widget/timelinewidget/timelineandtrackview.h
   widget/timelinewidget/timelineandtrackview.cpp
-  widget/timelinewidget/timelinescaledobject.h
-  widget/timelinewidget/timelinescaledobject.cpp
   widget/timelinewidget/timelinewidget.h
   widget/timelinewidget/timelinewidget.cpp
   widget/timelinewidget/timelinewidgetselections.h

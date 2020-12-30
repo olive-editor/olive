@@ -69,7 +69,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   int first_usable_stream = -1;
 
   for (int i=0;i<footage_->streams().size();i++) {
-    StreamPtr stream = footage_->stream(i);
+    Stream* stream = footage_->stream(i);
 
     QListWidgetItem* item = new QListWidgetItem(stream->description(), track_list);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -78,10 +78,10 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
     switch (stream->type()) {
     case Stream::kVideo:
-      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<VideoStream>(stream)));
+      stacked_widget_->addWidget(new VideoStreamProperties(static_cast<VideoStream*>(stream)));
       break;
     case Stream::kAudio:
-      stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
+      stacked_widget_->addWidget(new AudioStreamProperties(static_cast<AudioStream*>(stream)));
       break;
     default:
       stacked_widget_->addWidget(new StreamProperties());
@@ -175,7 +175,7 @@ void FootagePropertiesDialog::FootageChangeCommand::undo_internal()
   footage_->set_name(old_name_);
 }
 
-FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(StreamPtr stream, bool enabled, QUndoCommand *command) :
+FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(Stream *stream, bool enabled, QUndoCommand *command) :
   UndoCommand(command),
   stream_(stream),
   old_enabled_(stream->enabled()),

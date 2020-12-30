@@ -26,7 +26,6 @@
 namespace olive {
 
 Stream::Stream() :
-  footage_(nullptr),
   type_(kUnknown),
   enabled_(true)
 {
@@ -37,22 +36,22 @@ Stream::~Stream()
 {
 }
 
-StreamPtr Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
+Stream *Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
-  StreamPtr stream;
+  Stream* stream = nullptr;
 
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("type")) {
       Stream::Type type = static_cast<Stream::Type>(attr.value().toInt());
       switch (type) {
       case Stream::kVideo:
-        stream = std::make_shared<VideoStream>();
+        stream = new VideoStream();
         break;
       case Stream::kAudio:
-        stream = std::make_shared<AudioStream>();
+        stream = new AudioStream();
         break;
       default:
-        stream = std::make_shared<Stream>();
+        stream = new Stream();
         stream->set_type(type);
         break;
       }
@@ -60,6 +59,10 @@ StreamPtr Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, con
       // This is the only attribute we need
       break;
     }
+  }
+
+  if (!stream) {
+    return nullptr;
   }
 
   while (XMLReadNextStartElement(reader)) {
@@ -121,12 +124,7 @@ void Stream::set_type(const Stream::Type &type)
 
 Footage *Stream::footage() const
 {
-  return footage_;
-}
-
-void Stream::set_footage(Footage *f)
-{
-  footage_ = f;
+  return dynamic_cast<Footage*>(parent());
 }
 
 const rational &Stream::timebase() const

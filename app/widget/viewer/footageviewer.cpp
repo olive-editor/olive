@@ -75,20 +75,20 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     sequence_.set_parameters_from_footage({footage_});
 
     // Use first of each stream
-    VideoStreamPtr video_stream = nullptr;
-    AudioStreamPtr audio_stream = nullptr;
+    VideoStream* video_stream = nullptr;
+    AudioStream* audio_stream = nullptr;
 
-    foreach (StreamPtr s, footage_->streams()) {
+    foreach (Stream* s, footage_->streams()) {
       if (!s->enabled()) {
         continue;
       }
 
       if (!audio_stream && s->type() == Stream::kAudio) {
-        audio_stream = std::static_pointer_cast<AudioStream>(s);
+        audio_stream = static_cast<AudioStream*>(s);
       }
 
       if (!video_stream && s->type() == Stream::kVideo) {
-        video_stream = std::static_pointer_cast<VideoStream>(s);
+        video_stream = static_cast<VideoStream*>(s);
       }
 
       if (audio_stream && video_stream) {
@@ -142,7 +142,7 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   if (!enable_video || !enable_audio) {
     quint64 stream_disabler = 0x1;
 
-    foreach (StreamPtr s, GetFootage()->streams()) {
+    foreach (Stream* s, GetFootage()->streams()) {
       if ((s->type() == Stream::kVideo && !enable_video)
           || (s->type() == Stream::kAudio && !enable_audio)) {
         enabled_stream_flags &= ~stream_disabler;

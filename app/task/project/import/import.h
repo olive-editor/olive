@@ -59,11 +59,11 @@ protected:
 private:
   void Import(Folder* folder, QFileInfoList import, int& counter, QUndoCommand *parent_command);
 
-  void ValidateImageSequence(ItemPtr item, QFileInfoList &info_list, int index);
+  void ValidateImageSequence(Footage *footage, QFileInfoList &info_list, int index);
 
-  static bool ItemIsStillImageFootageOnly(ItemPtr item);
+  static bool ItemIsStillImageFootageOnly(Footage *footage);
 
-  static bool CompareStillImageSize(ItemPtr item, const QSize& sz);
+  static bool CompareStillImageSize(Footage *footage, const QSize& sz);
 
   static int64_t GetImageSequenceLimit(const QString &start_fn, int64_t start, bool up);
 

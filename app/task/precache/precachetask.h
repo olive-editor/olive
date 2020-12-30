@@ -32,7 +32,7 @@ class PreCacheTask : public RenderTask
 {
   Q_OBJECT
 public:
-  PreCacheTask(VideoStreamPtr footage, Sequence* sequence);
+  PreCacheTask(VideoStream* footage, Sequence* sequence);
 
   virtual ~PreCacheTask() override;
 
@@ -44,7 +44,7 @@ protected:
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) override;
 
 private:
-  VideoStreamPtr footage_;
+  VideoStream* footage_;
 
   MediaInput* video_node_;
 

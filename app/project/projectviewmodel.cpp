@@ -64,7 +64,7 @@ QModelIndex ProjectViewModel::index(int row, int column, const QModelIndex &pare
   Item* item_parent = GetItemObjectFromIndex(parent);
 
   // Return an index to this object
-  return createIndex(row, column, item_parent->child(row));
+  return createIndex(row, column, item_parent->item_child(row));
 }
 
 QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
@@ -73,7 +73,7 @@ QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
   Item* item = GetItemObjectFromIndex(child);
 
   // Get Item's parent object
-  Item* par = item->parent();
+  Item* par = item->item_parent();
 
   // If the parent is the root, return an empty index
   if (par == project_->root()) {
@@ -99,11 +99,11 @@ int ProjectViewModel::rowCount(const QModelIndex &parent) const
 
   // If the index is the root, return the root child count
   if (parent == QModelIndex()) {
-    return project_->root()->child_count();
+    return project_->root()->item_child_count();
   }
 
   // Otherwise, the index must contain a valid pointer, so we just return its child count
-  return GetItemObjectFromIndex(parent)->child_count();
+  return GetItemObjectFromIndex(parent)->item_child_count();
 }
 
 int ProjectViewModel::columnCount(const QModelIndex &parent) const
@@ -375,7 +375,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
     // If we didn't drop onto an item, find the nearest parent folder (should eventually terminate at root either way)
     while (!drop_item->CanHaveChildren()) {
-      drop_item = drop_item->parent();
+      drop_item = drop_item->item_parent();
     }
 
     // Trigger an import
@@ -385,7 +385,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   return false;
 }
 
-void ProjectViewModel::AddChild(Item *parent, ItemPtr child)
+void ProjectViewModel::AddChild(Item *parent, Item *child)
 {
   QModelIndex parent_index;
 
@@ -393,14 +393,14 @@ void ProjectViewModel::AddChild(Item *parent, ItemPtr child)
     parent_index = CreateIndexFromItem(parent);
   }
 
-  beginInsertRows(parent_index, parent->child_count(), parent->child_count());
+  beginInsertRows(parent_index, parent->item_child_count(), parent->item_child_count());
 
-  parent->add_child(child);
+  child->setParent(parent);
 
   endInsertRows();
 }
 
-void ProjectViewModel::RemoveChild(Item *parent, Item *child)
+void ProjectViewModel::RemoveChild(Item *parent, Item *child, QObject *new_parent)
 {
   QModelIndex parent_index;
 
@@ -412,7 +412,7 @@ void ProjectViewModel::RemoveChild(Item *parent, Item *child)
 
   beginRemoveRows(parent_index, child_row, child_row);
 
-  parent->remove_child(child);
+  child->setParent(new_parent);
 
   endRemoveRows();
 }
@@ -435,11 +435,11 @@ int ProjectViewModel::IndexOfChild(Item *item) const
     return -1;
   }
 
-  Item* parent = item->parent();
+  Item* parent = item->item_parent();
 
   if (parent != nullptr) {
-    for (int i=0;i<parent->child_count();i++) {
-      if (parent->child(i) == item) {
+    for (int i=0;i<parent->item_child_count();i++) {
+      if (parent->item_child(i) == item) {
         return i;
       }
     }
@@ -452,7 +452,7 @@ int ProjectViewModel::ChildCount(const QModelIndex &index)
 {
   Item* item = GetItemObjectFromIndex(index);
 
-  return item->child_count();
+  return item->item_child_count();
 }
 
 Item *ProjectViewModel::GetItemObjectFromIndex(const QModelIndex &index) const
@@ -468,7 +468,7 @@ bool ProjectViewModel::ItemIsParentOfChild(Item *parent, Item *child) const
 {
   // Loop through parent hierarchy checking if `parent` is one of its parents
   do {
-    child = child->parent();
+    child = child->item_parent();
 
     if (parent == child) {
       return true;
@@ -484,11 +484,10 @@ void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
 
   QModelIndex destination_index = CreateIndexFromItem(destination);
 
-  beginMoveRows(item_index.parent(), item_index.row(), item_index.row(), destination_index, destination->child_count());
+  beginMoveRows(item_index.parent(), item_index.row(), item_index.row(),
+                destination_index, destination->item_child_count());
 
-  ItemPtr item_ptr = item->get_shared_ptr();
-
-  destination->add_child(item_ptr);
+  item->setParent(destination);
 
   endMoveRows();
 }
@@ -553,13 +552,18 @@ void ProjectViewModel::RenameItemCommand::undo_internal()
   model_->RenameChild(item_, old_name_);
 }
 
-ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent) :
+ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent) :
   UndoCommand(parent),
   model_(model),
   parent_(folder),
-  child_(child),
-  done_(false)
+  child_(child)
 {
+  // Ensure all operations are done in folder's thread
+  if (memory_manager_.thread() != parent_->thread()) {
+    memory_manager_.moveToThread(parent_->thread());
+  }
+
+  child_->setParent(&memory_manager_);
 }
 
 Project *ProjectViewModel::AddItemCommand::GetRelevantProject() const
@@ -570,22 +574,24 @@ Project *ProjectViewModel::AddItemCommand::GetRelevantProject() const
 void ProjectViewModel::AddItemCommand::redo_internal()
 {
   model_->AddChild(parent_, child_);
-
-  done_ = true;
 }
 
 void ProjectViewModel::AddItemCommand::undo_internal()
 {
-  model_->RemoveChild(parent_, child_.get());
-
-  done_ = false;
+  model_->RemoveChild(parent_, child_, &memory_manager_);
 }
 
-ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, ItemPtr item, QUndoCommand *parent) :
+ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, Item *item, QUndoCommand *parent) :
   UndoCommand(parent),
   model_(model),
   item_(item)
 {
+  // Ensure all operations are done in folder's thread
+  parent_ = item_->item_parent();
+
+  if (memory_manager_.thread() != item_->thread()) {
+    memory_manager_.moveToThread(item_->thread());
+  }
 }
 
 Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
@@ -595,8 +601,7 @@ Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
 
 void ProjectViewModel::RemoveItemCommand::redo_internal()
 {
-  parent_ = item_->parent();
-  model_->RemoveChild(parent_, item_.get());
+  model_->RemoveChild(parent_, item_, &memory_manager_);
 }
 
 void ProjectViewModel::RemoveItemCommand::undo_internal()

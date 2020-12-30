@@ -29,10 +29,10 @@
 
 namespace olive {
 
-class NodeCopyPasteWidget
+class NodeCopyPasteService
 {
 public:
-  NodeCopyPasteWidget() = default;
+  NodeCopyPasteService() = default;
 
 protected:
   void CopyNodesToClipboard(const QVector<Node *> &nodes, void* userdata = nullptr);

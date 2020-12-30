@@ -23,72 +23,13 @@
 namespace olive {
 
 Item::Item() :
-  parent_(nullptr),
+  item_parent_(nullptr),
   project_(nullptr)
 {
 }
 
 Item::~Item()
 {
-}
-
-void Item::add_child(ItemPtr c)
-{
-  if (c->parent_ == this) {
-    return;
-  }
-
-  if (c->parent_ != nullptr) {
-    c->parent_->remove_child(c.get());
-  }
-
-  children_.append(c);
-  c->parent_ = this;
-}
-
-void Item::remove_child(Item *c)
-{
-  if (c->parent_ != this) {
-    return;
-  }
-
-  // Remove all instances of this child in the list
-  for (int i=0;i<children_.size();i++) {
-    if (children_.at(i).get() == c) {
-      children_.removeAt(i);
-      i--;
-    }
-  }
-
-  c->parent_ = nullptr;
-}
-
-int Item::child_count() const
-{
-  return children_.size();
-}
-
-Item *Item::child(int i) const
-{
-  return children_.at(i).get();
-}
-
-const QList<ItemPtr> &Item::children() const
-{
-  return children_;
-}
-
-ItemPtr Item::get_shared_ptr() const
-{
-  QList<ItemPtr> siblings = parent()->children();
-
-  foreach (ItemPtr s, siblings) {
-    if (s.get() == this) {
-      return s;
-    }
-  }
-
-  return nullptr;
 }
 
 const QString &Item::name() const
@@ -123,17 +64,12 @@ QString Item::rate()
   return QString();
 }
 
-Item *Item::parent() const
-{
-  return parent_;
-}
-
 const Item *Item::root() const
 {
   const Item* item = this;
 
-  while (item->parent()) {
-    item = item->parent();
+  while (item->item_parent()) {
+    item = item->item_parent();
   }
 
   return item;
@@ -151,11 +87,11 @@ void Item::set_project(Project *project)
   project_ = project;
 }
 
-QList<ItemPtr> Item::get_children_of_type(Type type, bool recursive) const
+QVector<Item *> Item::get_children_of_type(Type type, bool recursive) const
 {
-  QList<ItemPtr> list;
+  QVector<Item *> list;
 
-  foreach (ItemPtr item, children_) {
+  foreach (Item* item, item_children_) {
     if (item->type() == type) {
       list.append(item);
     }
@@ -182,12 +118,31 @@ void Item::NameChangedEvent(const QString &)
 {
 }
 
+void Item::childEvent(QChildEvent *event)
+{
+  QObject::childEvent(event);
+
+  Item* cast_test = dynamic_cast<Item*>(event->child());
+
+  if (cast_test) {
+    if (event->type() == QEvent::ChildAdded) {
+
+      item_children_.append(cast_test);
+      cast_test->item_parent_ = this;
+
+    } else if (event->type() == QEvent::ChildRemoved) {
+
+      item_children_.removeOne(cast_test);
+      cast_test->item_parent_ = nullptr;
+
+    }
+  }
+}
+
 bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
 {
   // Loop through all children
-  for (int i=0;i<folder->child_count();i++) {
-    Item* child = folder->child(i);
-
+  foreach (Item* child, folder->item_children_) {
     // If this child has the same name, return true
     if (child->name() == name) {
       return true;

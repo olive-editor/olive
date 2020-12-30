@@ -161,7 +161,7 @@ ColorManager *Project::color_manager()
   return &color_manager_;
 }
 
-QList<ItemPtr> Project::get_items_of_type(Item::Type type) const
+QVector<Item *> Project::get_items_of_type(Item::Type type) const
 {
   return root_.get_children_of_type(type, true);
 }
@@ -204,12 +204,12 @@ const QString &Project::cache_path(bool default_if_empty) const
 
 void Project::ColorConfigChanged()
 {
-  QList<ItemPtr> footage = this->get_items_of_type(Item::kFootage);
+  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
 
-  foreach (ItemPtr item, footage) {
-    foreach (StreamPtr s, std::static_pointer_cast<Footage>(item)->streams()) {
+  foreach (Item* item, footage) {
+    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
       if (s->type() == Stream::kVideo) {
-        std::static_pointer_cast<VideoStream>(s)->ColorConfigChanged();
+        static_cast<VideoStream*>(s)->ColorConfigChanged();
       }
     }
   }
@@ -217,12 +217,12 @@ void Project::ColorConfigChanged()
 
 void Project::DefaultColorSpaceChanged()
 {
-  QList<ItemPtr> footage = this->get_items_of_type(Item::kFootage);
+  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
 
-  foreach (ItemPtr item, footage) {
-    foreach (StreamPtr s, std::static_pointer_cast<Footage>(item)->streams()) {
+  foreach (Item* item, footage) {
+    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
       if (s->type() == Stream::kVideo) {
-        std::static_pointer_cast<VideoStream>(s)->DefaultColorSpaceChanged();
+        static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
       }
     }
   }

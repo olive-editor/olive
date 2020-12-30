@@ -24,17 +24,17 @@
 #include <QGraphicsView>
 
 #include "core.h"
-#include "handmovableview.h"
-#include "widget/timelinewidget/snapservice.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "timescaledobject.h"
+#include "widget/handmovableview/handmovableview.h"
+#include "widget/snapservice/snapservice.h"
 
 namespace olive {
 
-class TimelineViewBase : public HandMovableView, public TimelineScaledObject
+class TimeBasedView : public HandMovableView, public TimeScaledObject
 {
   Q_OBJECT
 public:
-  TimelineViewBase(QWidget* parent = nullptr);
+  TimeBasedView(QWidget* parent = nullptr);
 
   static const double kMaximumScale;
 

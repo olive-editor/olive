@@ -33,8 +33,6 @@
 namespace olive {
 
 class Footage;
-class Stream;
-using StreamPtr = std::shared_ptr<Stream>;
 struct XMLNodeData;
 
 /**
@@ -69,7 +67,7 @@ public:
    */
   virtual ~Stream() override;
 
-  static StreamPtr Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
+  static Stream* Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter *writer) const;
 
@@ -79,7 +77,6 @@ public:
   void set_type(const Type& type);
 
   Footage* footage() const;
-  void set_footage(Footage* f);
 
   const rational& timebase() const;
   void set_timebase(const rational& timebase);
@@ -109,8 +106,6 @@ signals:
   void ParametersChanged();
 
 private:
-  Footage* footage_;
-
   rational timebase_;
 
   int64_t duration_;
@@ -126,8 +121,5 @@ private:
 };
 
 }
-
-#include <QMetaType>
-Q_DECLARE_METATYPE(olive::StreamPtr)
 
 #endif // STREAM_H

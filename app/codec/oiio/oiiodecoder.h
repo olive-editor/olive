@@ -40,7 +40,7 @@ public:
 
   virtual bool SupportsVideo() override{return true;}
 
-  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  virtual Footage* Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;

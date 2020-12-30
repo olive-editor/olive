@@ -27,13 +27,13 @@
 
 #include "core.h"
 #include "node/block/transition/transition.h"
+#include "node/nodecopypaste.h"
 #include "node/output/viewer/viewer.h"
-#include "snapservice.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
-#include "widget/nodecopypaste/nodecopypaste.h"
 #include "widget/slider/timeslider.h"
-#include "widget/timebased/timebased.h"
+#include "widget/snapservice/snapservice.h"
+#include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 #include "widget/timelinewidget/tool/import.h"
 #include "widget/timelinewidget/tool/tool.h"
@@ -45,7 +45,7 @@ namespace olive {
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteWidget, public SnapService
+class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteService, public SnapService
 {
   Q_OBJECT
 public:

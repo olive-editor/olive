@@ -36,7 +36,7 @@ class VideoStreamProperties : public StreamProperties
 {
   Q_OBJECT
 public:
-  VideoStreamProperties(VideoStreamPtr stream);
+  VideoStreamProperties(VideoStream* stream);
 
   virtual void Accept(QUndoCommand* parent) override;
 
@@ -46,7 +46,7 @@ private:
   /**
    * @brief Attached video stream
    */
-  VideoStreamPtr stream_;
+  VideoStream* stream_;
 
   /**
    * @brief Setting for associated/premultiplied alpha
@@ -85,7 +85,7 @@ private:
 
   class VideoStreamChangeCommand : public UndoCommand {
   public:
-    VideoStreamChangeCommand(VideoStreamPtr stream,
+    VideoStreamChangeCommand(VideoStream* stream,
                              bool premultiplied,
                              QString colorspace,
                              VideoParams::Interlacing interlacing,
@@ -99,7 +99,7 @@ private:
     virtual void undo_internal() override;
 
   private:
-    VideoStreamPtr stream_;
+    VideoStream* stream_;
 
     bool new_premultiplied_;
     QString new_colorspace_;
@@ -115,7 +115,7 @@ private:
 
   class ImageSequenceChangeCommand : public UndoCommand {
   public:
-    ImageSequenceChangeCommand(VideoStreamPtr video_stream,
+    ImageSequenceChangeCommand(VideoStream* video_stream,
                                int64_t start_index,
                                int64_t duration,
                                const rational& frame_rate,
@@ -128,7 +128,7 @@ private:
     virtual void undo_internal() override;
 
   private:
-    VideoStreamPtr video_stream_;
+    VideoStream* video_stream_;
 
     int64_t new_start_index_;
     int64_t old_start_index_;

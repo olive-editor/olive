@@ -51,7 +51,7 @@ QString OIIODecoder::id()
   return QStringLiteral("oiio");
 }
 
-FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
   Q_UNUSED(cancelled)
 
@@ -75,9 +75,9 @@ FootagePtr OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancell
     return nullptr;
   }
 
-  FootagePtr footage = std::make_shared<Footage>();
+  Footage* footage = new Footage();
 
-  VideoStreamPtr image_stream = std::make_shared<VideoStream>();
+  VideoStream* image_stream = new VideoStream();
 
   image_stream->set_width(in->spec().width);
   image_stream->set_height(in->spec().height);
@@ -108,7 +108,7 @@ bool OIIODecoder::OpenInternal()
   // If we can open the filename provided, assume everything is working (even if this is an image
   // sequence with potentially missing frame)
   if (OpenImageHandler(stream()->footage()->filename())) {
-    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+    VideoStream* video_stream = static_cast<VideoStream*>(stream());
 
     if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
       last_sequence_index_ = 0;
@@ -123,7 +123,7 @@ bool OIIODecoder::OpenInternal()
 
 FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int& divider)
 {
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+  VideoStream* video_stream = static_cast<VideoStream*>(stream());
 
   int64_t sequence_index;
 

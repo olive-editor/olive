@@ -29,7 +29,7 @@
 
 namespace olive {
 
-void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
+void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
 {
   QString copy_str;
 
@@ -56,7 +56,7 @@ void NodeCopyPasteWidget::CopyNodesToClipboard(const QVector<Node *> &nodes, voi
   Core::CopyStringToClipboard(copy_str);
 }
 
-QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
+QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Sequence *graph, QUndoCommand* command, void *userdata)
 {
   QString clipboard = Core::PasteStringFromClipboard();
 
@@ -135,7 +135,7 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
   // Connect footage to existing footage if it exists
   if (!xml_node_data.footage_connections.isEmpty()) {
     // Get list of all footage from project
-    QList<ItemPtr> footage = graph->project()->get_items_of_type(Item::kFootage);
+    QVector<Item*> footage = graph->project()->get_items_of_type(Item::kFootage);
 
     if (!footage.isEmpty()) {
       foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
@@ -145,12 +145,10 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
 
           bool found = false;
 
-          foreach (ItemPtr item, footage) {
-            const QList<StreamPtr>& streams = std::static_pointer_cast<Footage>(item)->streams();
-
-            foreach (StreamPtr s, streams) {
-              if (s.get() == loaded_stream) {
-                con.input->set_standard_value(QVariant::fromValue(s));
+          foreach (Item* item, footage) {
+            foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
+              if (s == loaded_stream) {
+                con.input->set_standard_value(Node::PtrToValue(s));
                 found = true;
                 break;
               }
@@ -168,11 +166,11 @@ QVector<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QU
   return pasted_nodes;
 }
 
-void NodeCopyPasteWidget::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
+void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*)
 {
 }
 
-void NodeCopyPasteWidget::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
+void NodeCopyPasteService::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
   reader->skipCurrentElement();
 }

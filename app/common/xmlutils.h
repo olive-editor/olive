@@ -58,7 +58,7 @@ struct XMLNodeData {
   QHash<quintptr, Node*> node_ptrs;
   QHash<quintptr, NodeOutput*> output_ptrs;
   QList<SerializedConnection> desired_connections;
-  QHash<quintptr, StreamPtr> footage_ptrs;
+  QHash<quintptr, Stream*> footage_ptrs;
   QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
   QHash<quintptr, Item*> item_ptrs;

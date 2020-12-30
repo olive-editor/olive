@@ -215,7 +215,7 @@ void ProjectPanel::UpdateSubtitle()
       do {
         folder_path.prepend(QStringLiteral("/%1").arg(item->name()));
 
-        item = item->parent();
+        item = item->item_parent();
       } while (item != project()->root());
 
       project_title.append(folder_path);

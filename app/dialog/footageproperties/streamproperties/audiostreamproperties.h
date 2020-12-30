@@ -29,12 +29,12 @@ namespace olive {
 class AudioStreamProperties : public StreamProperties
 {
 public:
-  AudioStreamProperties(AudioStreamPtr stream);
+  AudioStreamProperties(AudioStream* stream);
 
   virtual void Accept(QUndoCommand* parent) override;
 
 private:
-  AudioStreamPtr stream_;
+  AudioStream* stream_;
 };
 
 }

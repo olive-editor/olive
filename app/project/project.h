@@ -61,7 +61,7 @@ public:
 
   ColorManager* color_manager();
 
-  QList<ItemPtr> get_items_of_type(Item::Type type) const;
+  QVector<Item*> get_items_of_type(Item::Type type) const;
 
   bool is_modified() const;
   void set_modified(bool e);

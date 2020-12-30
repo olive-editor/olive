@@ -18,7 +18,7 @@
 
 ***/
 
-#include "timebased.h"
+#include "timebasedwidget.h"
 
 #include <QInputDialog>
 #include <QUndoCommand>
@@ -132,7 +132,7 @@ void TimeBasedWidget::UpdateMaximumScroll()
     scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
   }
 
-  foreach (TimelineViewBase* base, timeline_views_) {
+  foreach (TimeBasedView* base, timeline_views_) {
     base->SetEndTime(length);
   }
 }
@@ -238,7 +238,7 @@ TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
   return points_;
 }
 
-void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
+void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base)
 {
   timeline_views_.append(base);
 }

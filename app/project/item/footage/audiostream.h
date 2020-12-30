@@ -63,8 +63,6 @@ private:
 
 };
 
-using AudioStreamPtr = std::shared_ptr<AudioStream>;
-
 }
 
 #endif // AUDIOSTREAM_H

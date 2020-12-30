@@ -78,7 +78,7 @@ void Footage::Save(QXmlStreamWriter *writer) const
     TimelinePoints::Save(writer);
   writer->writeEndElement(); // points
 
-  foreach (StreamPtr stream, streams_) {
+  foreach (Stream* stream, streams_) {
     writer->writeStartElement(QStringLiteral("stream"));
       stream->Save(writer);
     writer->writeEndElement(); // stream
@@ -119,23 +119,27 @@ void Footage::set_timestamp(const qint64 &t)
   timestamp_ = t;
 }
 
-void Footage::add_stream(StreamPtr s)
+void Footage::add_stream(Stream* s)
 {
   // Set its footage parent to this
-  s->set_footage(this);
+  s->setParent(this);
 
   // Add a copy of this stream to the list
   streams_.append(s);
 }
 
-StreamPtr Footage::stream(int index) const
+void Footage::add_streams(const QVector<Stream *> &streams)
 {
-  return streams_.at(index);
+  foreach (Stream* s, streams) {
+    s->setParent(this);
+  }
+
+  streams_.append(streams);
 }
 
-const QList<StreamPtr> &Footage::streams() const
+Stream* Footage::stream(int index) const
 {
-  return streams_;
+  return streams_.at(index);
 }
 
 int Footage::stream_count() const
@@ -161,16 +165,15 @@ void Footage::set_decoder(const QString &id)
 QIcon Footage::icon()
 {
   if (valid_ && !streams_.isEmpty()) {
-    StreamPtr first_stream = streams_.first();
+    // Prioritize video > audio > image
+    Stream* s = get_first_enabled_stream_of_type(Stream::kVideo);
 
-    if (first_stream->type() == Stream::kVideo) {
-      if (std::static_pointer_cast<VideoStream>(first_stream)->video_type() == VideoStream::kVideoTypeStill) {
-        return icon::Image;
-      } else {
-        return icon::Video;
-      }
-    } else if (first_stream->type() == Stream::kAudio) {
+    if (s && static_cast<VideoStream*>(s)->video_type() != VideoStream::kVideoTypeStill) {
+      return icon::Video;
+    } else if (HasEnabledStreamsOfType(Stream::kAudio)) {
       return icon::Audio;
+    } else if (s && static_cast<VideoStream*>(s)->video_type() == VideoStream::kVideoTypeStill) {
+      return icon::Image;
     }
   }
 
@@ -180,10 +183,10 @@ QIcon Footage::icon()
 QString Footage::duration()
 {
   // Find longest stream duration
-  StreamPtr longest_stream = nullptr;
+  Stream* longest_stream = nullptr;
   rational longest;
 
-  foreach (StreamPtr stream, streams_) {
+  foreach (Stream* stream, streams_) {
     if (stream->enabled() && (stream->type() == Stream::kVideo || stream->type() == Stream::kAudio)) {
       rational this_stream_dur = Timecode::timestamp_to_time(stream->duration(),
                                                              stream->timebase());
@@ -197,7 +200,7 @@ QString Footage::duration()
 
   if (longest_stream) {
     if (longest_stream->type() == Stream::kVideo) {
-      VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(longest_stream);
+      VideoStream* video_stream = static_cast<VideoStream*>(longest_stream);
 
       if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
         int64_t duration = video_stream->duration();
@@ -214,8 +217,6 @@ QString Footage::duration()
                                                Core::instance()->GetTimecodeDisplay());
       }
     } else if (longest_stream->type() == Stream::kAudio) {
-      AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(longest_stream);
-
       // If we're showing in a timecode, we prefer showing audio in seconds instead
       Timecode::Display display = Core::instance()->GetTimecodeDisplay();
       if (display == Timecode::kTimecodeDropFrame
@@ -238,16 +239,16 @@ QString Footage::rate()
     return QString();
   }
 
-  if (HasStreamsOfType(Stream::kVideo)) {
+  if (HasEnabledStreamsOfType(Stream::kVideo)) {
     // This is a video editor, prioritize video streams
-    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(get_first_stream_of_type(Stream::kVideo));
+    VideoStream* video_stream = static_cast<VideoStream*>(get_first_enabled_stream_of_type(Stream::kVideo));
 
     if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
       return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
     }
-  } else if (HasStreamsOfType(Stream::kAudio)) {
+  } else if (HasEnabledStreamsOfType(Stream::kAudio)) {
     // No video streams, return audio
-    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
+    AudioStream* audio_stream = static_cast<AudioStream*>(streams_.first());
     return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream->sample_rate());
   }
 
@@ -259,7 +260,7 @@ quint64 Footage::get_enabled_stream_flags() const
   quint64 enabled_streams = 0;
   quint64 stream_enabler = 1;
 
-  foreach (StreamPtr s, streams_) {
+  foreach (Stream* s, streams_) {
     if (s->enabled()) {
       enabled_streams |= stream_enabler;
     }
@@ -276,10 +277,10 @@ void Footage::ClearStreams()
   streams_.clear();
 }
 
-bool Footage::HasStreamsOfType(const Stream::Type &type) const
+bool Footage::HasEnabledStreamsOfType(const Stream::Type &type) const
 {
   // Return true if any streams are video streams
-  foreach (StreamPtr stream, streams_) {
+  foreach (Stream* stream, streams_) {
     if (stream->enabled() && stream->type() == type) {
       return true;
     }
@@ -288,9 +289,9 @@ bool Footage::HasStreamsOfType(const Stream::Type &type) const
   return false;
 }
 
-StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
+Stream *Footage::get_first_enabled_stream_of_type(const Stream::Type &type) const
 {
-  foreach (StreamPtr stream, streams_) {
+  foreach (Stream* stream, streams_) {
     if (stream->enabled() && stream->type() == type) {
       return stream;
     }
@@ -299,7 +300,7 @@ StreamPtr Footage::get_first_stream_of_type(const Stream::Type &type) const
   return nullptr;
 }
 
-bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
+bool Footage::CompareFootageToFile(Footage *footage, const QString &filename)
 {
   // Heuristic to determine if file has changed
   QFileInfo info(filename);
@@ -311,9 +312,9 @@ bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
     } else {
       // Footage may have changed and we'll have to re-probe it. It also may not have, in which
       // case nothing needs to change.
-      ItemPtr item = Decoder::Probe(footage->project(), filename, nullptr);
+      std::unique_ptr<Footage> item(Decoder::Probe(footage->project(), filename, nullptr));
 
-      if (item && item->type() == footage->type()) {
+      if (item) {
         // Item is the same type, that's a good sign. Let's look for any differences.
         // FIXME: Implement this
         return true;
@@ -325,7 +326,7 @@ bool Footage::CompareFootageToFile(FootagePtr footage, const QString &filename)
   return false;
 }
 
-bool Footage::CompareFootageToItsFilename(FootagePtr footage)
+bool Footage::CompareFootageToItsFilename(Footage *footage)
 {
   return CompareFootageToFile(footage, footage->filename());
 }
@@ -336,7 +337,7 @@ void Footage::UpdateTooltip()
     QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
 
     if (!streams_.isEmpty()) {
-      foreach (StreamPtr s, streams_) {
+      foreach (Stream* s, streams_) {
         if (s->enabled()) {
           tip.append("\n");
           tip.append(s->description());

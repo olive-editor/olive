@@ -31,14 +31,12 @@
 
 namespace olive {
 
-class Sequence;
-using SequencePtr = std::shared_ptr<Sequence>;
-
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
  */
-class Sequence : public Item, public NodeGraph, public TimelinePoints
+class Sequence : public NodeGraph, public TimelinePoints
 {
+  Q_OBJECT
 public:
   Sequence();
 

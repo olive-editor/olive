@@ -86,7 +86,7 @@ public:
    * already open and the stream == the stream provided. Returns FALSE if the stream couldn't
    * be opened OR if already open and the stream is NOT the same.
    */
-  bool Open(StreamPtr fs);
+  bool Open(Stream* fs);
 
   /**
    * @brief Retrieves a video frame from footage
@@ -129,7 +129,7 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static FootagePtr Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
+  static Footage *Probe(Project *project, const QString& filename, const QAtomicInt *cancelled);
 
   /**
    * @brief Generate a Footage object from a file
@@ -142,7 +142,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual FootagePtr Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual Footage *Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory
@@ -209,7 +209,7 @@ protected:
   QString GetIndexFilename();
 
   struct CurrentlyConforming {
-    StreamPtr stream;
+    Stream* stream;
     AudioParams params;
 
     bool operator==(const CurrentlyConforming& rhs) const
@@ -223,7 +223,7 @@ protected:
    *
    * This function is NOT thread safe and should therefore only be called by thread safe functions.
    */
-  StreamPtr stream() const
+  Stream* stream() const
   {
     return stream_;
   }
@@ -242,7 +242,7 @@ signals:
 private:
   SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range);
 
-  StreamPtr stream_;
+  Stream* stream_;
 
   QMutex mutex_;
 

@@ -31,7 +31,7 @@
 #include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/nodetreeview/nodetreeview.h"
-#include "widget/timebased/timebased.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 

@@ -23,8 +23,8 @@
 
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
-#include "widget/timelinewidget/snapservice.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/snapservice/snapservice.h"
+#include "widget/timebased/timescaledobject.h"
 
 namespace olive {
 

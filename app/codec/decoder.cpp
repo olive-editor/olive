@@ -48,7 +48,7 @@ Decoder::Decoder() :
 {
 }
 
-bool Decoder::Open(StreamPtr fs)
+bool Decoder::Open(Stream *fs)
 {
   QMutexLocker locker(&mutex_);
 
@@ -203,7 +203,7 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders()
   return decoders;
 }
 
-FootagePtr Decoder::Probe(Project* project, const QString &filename, const QAtomicInt* cancelled)
+Footage* Decoder::Probe(Project* project, const QString &filename, const QAtomicInt* cancelled)
 {
   // Check for a valid filename
   if (filename.isEmpty()) {
@@ -229,7 +229,7 @@ FootagePtr Decoder::Probe(Project* project, const QString &filename, const QAtom
 
     DecoderPtr decoder = decoder_list.at(i);
 
-    FootagePtr footage = decoder->Probe(filename, cancelled);
+    Footage* footage = decoder->Probe(filename, cancelled);
 
     if (footage) {
       QFileInfo file_info(filename);

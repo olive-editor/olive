@@ -76,12 +76,12 @@ bool LoadOTIOTask::Run()
   }
 
   // Keep track of imported footage
-  QMap<QString, FootagePtr> imported_footage;
+  QMap<QString, Footage*> imported_footage;
 
   foreach (auto timeline, timelines) {
-    SequencePtr sequence = std::make_shared<Sequence>();
+    Sequence* sequence = new Sequence();
     sequence->set_name(QString::fromStdString(timeline->name()));
-    project_->root()->add_child(sequence);
+    sequence->setParent(project_->root());
 
     ViewerOutput* seq_viewer = sequence->viewer_output();
 
@@ -160,22 +160,22 @@ bool LoadOTIOTask::Run()
             // Link footage
             QString footage_url = QString::fromStdString(static_cast<OTIO::ExternalReference*>(otio_clip->media_reference())->target_url());
 
-            FootagePtr probed_item;
+            Footage* probed_item;
 
             if (imported_footage.contains(footage_url)) {
               probed_item = imported_footage.value(footage_url);
             } else {
               probed_item = Decoder::Probe(project_, footage_url, &IsCancelled());
               imported_footage.insert(footage_url, probed_item);
-              project_->root()->add_child(probed_item);
+              probed_item->setParent(project_->root());
             }
 
             if (probed_item && probed_item->type() == Item::kFootage) {
               MediaInput* media = new MediaInput();
               if (track->track_type() == Timeline::kTrackTypeVideo) {
-                media->SetStream(probed_item->get_first_stream_of_type(Stream::kVideo));
+                media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kVideo));
               } else {
-                media->SetStream(probed_item->get_first_stream_of_type(Stream::kAudio));
+                media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kAudio));
               }
               sequence->AddNode(media);
 
@@ -188,18 +188,7 @@ bool LoadOTIOTask::Run()
 
       }
     }
-
-    sequence->moveToThread(qApp->thread());
   }
-
-  // Ugly hack to move footage streams to main thread
-  /*foreach (ItemPtr item, imported_footage) {
-    if (item && item->type() == Item::kFootage) {
-      foreach (StreamPtr stream, std::static_pointer_cast<Footage>(item)->streams()) {
-        stream->moveToThread(qApp->thread());
-      }
-    }
-  }*/
 
   project_->moveToThread(qApp->thread());
 

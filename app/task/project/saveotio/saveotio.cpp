@@ -39,7 +39,7 @@ SaveOTIOTask::SaveOTIOTask(Project *project) :
 
 bool SaveOTIOTask::Run()
 {
-  QList<ItemPtr> sequences = project_->get_items_of_type(Item::kSequence);
+  QVector<Item*> sequences = project_->get_items_of_type(Item::kSequence);
 
   if (sequences.isEmpty()) {
     SetError(tr("Project contains no sequences to export."));
@@ -48,8 +48,8 @@ bool SaveOTIOTask::Run()
 
   std::vector<opentimelineio::v1_0::SerializableObject*> serialized;
 
-  foreach (ItemPtr item, sequences) {
-    SequencePtr seq = std::static_pointer_cast<Sequence>(item);
+  foreach (Item* item, sequences) {
+    Sequence* seq = static_cast<Sequence*>(item);
 
     auto otio_timeline = SerializeTimeline(seq);
 
@@ -91,7 +91,7 @@ bool SaveOTIOTask::Run()
   return (es == opentimelineio::v1_0::ErrorStatus::OK);
 }
 
-opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(SequencePtr sequence)
+opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
 {
   auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->name().toStdString());
 

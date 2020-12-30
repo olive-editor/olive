@@ -33,7 +33,7 @@
 namespace olive {
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
-  TimelineViewBase(parent),
+  TimeBasedView(parent),
   dragging_bezier_point_(nullptr),
   currently_autoselecting_(false)
 {
@@ -275,7 +275,7 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
 
 void KeyframeViewBase::ScaleChangedEvent(const double &scale)
 {
-  TimelineViewBase::ScaleChangedEvent(scale);
+  TimeBasedView::ScaleChangedEvent(scale);
 
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
 

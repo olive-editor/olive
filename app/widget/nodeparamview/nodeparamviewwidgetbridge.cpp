@@ -517,7 +517,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   }
   case NodeParam::kFootage:
-    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(input_->get_value_at_time(node_time).value<StreamPtr>());
+    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(Node::ValueToPtr<Stream>(input_->get_value_at_time(node_time)));
     break;
   }
 }

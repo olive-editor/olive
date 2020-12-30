@@ -37,17 +37,15 @@ namespace olive {
 
 class Project;
 
-class Item;
-using ItemPtr = std::shared_ptr<Item>;
-
 /**
  * @brief A base-class representing any element in a Project
  *
  * Project objects implement a parent-child hierarchy of Items that can be used throughout the Project. The Item class
  * itself is abstract and will need to be subclassed to be used in a Project.
  */
-class Item
+class Item : public QObject
 {
+  Q_OBJECT
 public:
   enum Type {
     kFolder,
@@ -65,21 +63,26 @@ public:
    */
   virtual ~Item();
 
-  DISABLE_COPY_MOVE(Item)
-
   virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) = 0;
 
   virtual void Save(QXmlStreamWriter* writer) const = 0;
 
   virtual Type type() const = 0;
 
-  void add_child(ItemPtr c);
-  void remove_child(Item* c);
-  int child_count() const;
-  Item* child(int i) const;
-  const QList<ItemPtr>& children() const;
+  int item_child_count() const
+  {
+    return item_children_.size();
+  }
 
-  ItemPtr get_shared_ptr() const;
+  Item* item_child(int i) const
+  {
+    return item_children_.at(i);
+  }
+
+  const QVector<Item*>& children() const
+  {
+    return item_children_;
+  }
 
   const QString& name() const;
   void set_name(const QString& n);
@@ -93,13 +96,17 @@ public:
 
   virtual QString rate();
 
-  Item *parent() const;
+  Item *item_parent() const
+  {
+    return item_parent_;
+  }
+
   const Item* root() const;
 
   Project* project() const;
   void set_project(Project* project);
 
-  QList<ItemPtr> get_children_of_type(Type type, bool recursive) const;
+  QVector<Item*> get_children_of_type(Type type, bool recursive) const;
 
   virtual bool CanHaveChildren() const;
 
@@ -108,12 +115,14 @@ public:
 protected:
   virtual void NameChangedEvent(const QString& name);
 
+  virtual void childEvent(QChildEvent *event) override;
+
 private:
-  bool ChildExistsWithNameInternal(const QString& name, Item* folder);
+  static bool ChildExistsWithNameInternal(const QString& name, Item* folder);
 
-  QList<ItemPtr> children_;
+  QVector<Item*> item_children_;
 
-  Item* parent_;
+  Item* item_parent_;
 
   Project* project_;
 

@@ -307,7 +307,7 @@ void ProjectExplorer::ShowContextMenu()
     bool all_items_are_footage_or_sequence = true;
 
     foreach (Item* i, context_menu_items_) {
-      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasStreamsOfType(Stream::kVideo)) {
+      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasEnabledStreamsOfType(Stream::kVideo)) {
         all_items_have_video_streams = false;
       }
 
@@ -324,15 +324,15 @@ void ProjectExplorer::ShowContextMenu()
       Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
-      QList<ItemPtr> sequences = project()->get_items_of_type(Item::kSequence);
+      QVector<Item*> sequences = project()->get_items_of_type(Item::kSequence);
 
       if (sequences.isEmpty()) {
         QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
         a->setEnabled(false);
       } else {
-        foreach (ItemPtr i, sequences) {
+        foreach (Item* i, sequences) {
           QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->name()));
-          a->setData(Node::PtrToValue(i.get()));
+          a->setData(Node::PtrToValue(i));
         }
 
         connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
@@ -416,11 +416,12 @@ void ProjectExplorer::OpenContextMenuItemInNewWindow()
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  QList<VideoStreamPtr> video_streams;
+  QVector<VideoStream*> video_streams;
 
   // To get here, the `context_menu_items_` must be all kFootage
   foreach (Item* i, context_menu_items_) {
-    VideoStreamPtr s = std::static_pointer_cast<VideoStream>(static_cast<Footage*>(i)->get_first_stream_of_type(Stream::kVideo));
+    Footage* f = static_cast<Footage*>(i);
+    VideoStream* s = static_cast<VideoStream*>(f->get_first_enabled_stream_of_type(Stream::kVideo));
 
     if (s) {
       video_streams.append(s);
@@ -430,7 +431,7 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // Start a background task for proxying
-  foreach (VideoStreamPtr video_stream, video_streams) {
+  foreach (VideoStream* video_stream, video_streams) {
     PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
     TaskManager::instance()->AddTask(proxy_task);
   }
@@ -501,7 +502,7 @@ Folder *ProjectExplorer::GetSelectedFolder() const
 
     // If this item is not a folder, presumably it's parent is
     if (!sel_item->CanHaveChildren()) {
-      sel_item = sel_item->parent();
+      sel_item = sel_item->item_parent();
 
       Q_ASSERT(sel_item->CanHaveChildren());
     }
@@ -545,11 +546,11 @@ QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
   QList<MediaInput *> list;
 
   // Get all sequences.
-  QList<ItemPtr> sequences = model_.project()->get_items_of_type(Item::kSequence);
+  QVector<Item*> sequences = model_.project()->get_items_of_type(Item::kSequence);
 
   // Footage can contain multiple streams, all of which need to be dealt with
-  foreach (ItemPtr s, sequences) {
-    const QList<Node*>& nodes = static_cast<Sequence*>(s.get())->nodes();
+  foreach (Item* s, sequences) {
+    const QList<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
     foreach (Node* n, nodes) {
       if (n->IsMedia()) {
         MediaInput* media_node = static_cast<MediaInput*>(n);
@@ -677,7 +678,7 @@ void ProjectExplorer::DeleteSelected()
       break;
     }
 
-    new ProjectViewModel::RemoveItemCommand(&model_, item->get_shared_ptr(), command);
+    new ProjectViewModel::RemoveItemCommand(&model_, item, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

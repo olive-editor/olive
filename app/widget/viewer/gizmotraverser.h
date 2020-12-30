@@ -34,7 +34,7 @@ public:
   }
 
 protected:
-  virtual QVariant ProcessVideoFootage(StreamPtr stream, const rational &input_time) override;
+  virtual QVariant ProcessVideoFootage(VideoStream* stream, const rational &input_time) override;
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 

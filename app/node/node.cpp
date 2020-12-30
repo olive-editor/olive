@@ -430,7 +430,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
     // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
     if (input->data_type() == NodeParam::kFootage) {
-      StreamPtr stream = input->get_standard_value().value<StreamPtr>();
+      Stream* stream = Node::ValueToPtr<Stream>(input->get_standard_value());
 
       if (stream) {
         // Add footage details to hash
@@ -445,7 +445,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
         hash.addData(QString::number(stream->index()).toUtf8());
 
         if (stream->type() == Stream::kVideo) {
-          VideoStreamPtr image_stream = std::static_pointer_cast<VideoStream>(stream);
+          VideoStream* image_stream = static_cast<VideoStream*>(stream);
 
           // Current color config and space
           hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
@@ -460,7 +460,7 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
         // Footage timestamp
         if (stream->type() == Stream::kVideo) {
-          VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
+          VideoStream* video_stream = static_cast<VideoStream*>(stream);
 
           int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
 
