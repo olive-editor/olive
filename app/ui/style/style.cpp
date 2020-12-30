@@ -44,7 +44,7 @@ void StyleManager::UseOSNativeStyling(QWidget *widget)
 #if defined(Q_OS_WINDOWS)
   QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
   widget->setStyle(s);
-  widget->setPalette(standard_palette_);
+  widget->setPalette(platform_palette_);
 #elif defined(Q_OS_MAC)
   QStyle* s = QStyleFactory::create(QStringLiteral("macintosh"));
   widget->setStyle(s);
