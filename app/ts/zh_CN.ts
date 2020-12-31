@@ -192,7 +192,7 @@
     <message>
         <location filename="../common/ratiodialog.cpp" line="39"/>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation type="unfinished">输入自定义比率 (例如 &quot;4:3&quot;、&quot;16/9&quot;，等)：</translation>
+        <translation type="unfinished">输入自定义比率 (例如 “4:3”、“16/9”，等)：</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="84"/>
@@ -704,7 +704,7 @@ Length: %4</source>
     <message>
         <location filename="../core.cpp" line="500"/>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation type="unfinished">文件 &apos;%1&apos; 可能是图像序列的一部分。您要如此导入它吗？</translation>
+        <translation type="unfinished">文件“%1”可能是图像序列的一部分。您要如此导入它吗？</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="535"/>
@@ -841,7 +841,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1123"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
-        <translation type="unfinished">项目 &quot;%1&quot; 不存在。您要从最近列表中移除此文件吗？</translation>
+        <translation type="unfinished">项目“%1”不存在。您要从最近列表中移除此文件吗？</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1151"/>
@@ -851,7 +851,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1152"/>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
-        <translation type="unfinished">项目 &apos;%1&apos; 有未保存的更改。您要保存吗？</translation>
+        <translation type="unfinished">项目“%1”有未保存的更改。您要保存吗？</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1155"/>
@@ -1046,7 +1046,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="91"/>
         <source>Are you sure you want to clear the disk cache in &apos;%1&apos;?</source>
-        <translation type="unfinished">您确定要清除 &apos;%1&apos; 中的磁盘缓存？</translation>
+        <translation type="unfinished">您确定要清除“%1”中的磁盘缓存？</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="96"/>
@@ -1321,7 +1321,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="259"/>
         <source>The filename must contain the extension &quot;%1&quot;. Would you like to append it automatically?</source>
-        <translation type="unfinished">文件名必须包含扩展名 &quot;%1&quot;。您要自动附加扩展名吗？</translation>
+        <translation type="unfinished">文件名必须包含扩展名“%1”。您要自动附加扩展名吗？</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="280"/>
@@ -1341,7 +1341,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../dialog/export/export.cpp" line="294"/>
         <source>The file &quot;%1&quot; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished">文件 &quot;%1&quot; 已存在。您要覆盖它吗？</translation>
+        <translation type="unfinished">文件“%1”已存在。您要覆盖它吗？</translation>
     </message>
     <message>
         <location filename="../dialog/export/export.cpp" line="311"/>
