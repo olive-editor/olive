@@ -4534,7 +4534,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/standardcombos/videodividercombobox.h" line="43"/>
         <source>1/%1</source>
-        <translation type="unfinished">144p {1/%1?}</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
