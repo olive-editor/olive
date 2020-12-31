@@ -192,7 +192,7 @@
     <message>
         <location filename="../common/ratiodialog.cpp" line="39"/>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation type="unfinished">输入自定义比率 (例如 “4:3”、“16/9”，等)：</translation>
+        <translation type="unfinished">输入自定义比率 (例如“4:3”、“16/9”，等)：</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="84"/>
