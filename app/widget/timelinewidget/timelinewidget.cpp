@@ -469,7 +469,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
     new TrackReplaceBlockWithGapCommand(original_track, b, command);
 
     if (remove_from_graph) {
-      new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
+      Node::RemoveNodesAndExclusiveDependencies(b, command);
     }
   }
 }
@@ -509,9 +509,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
                                 transition,
                                 command);
 
-    new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(GetConnectedNode()->parent()),
-                                    transition,
-                                    command);
+    Node::RemoveNodesAndExclusiveDependencies(transition, command);
   }
 
   // Replace clips with gaps (effectively deleting them)
@@ -910,37 +908,28 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
   }
 }
 
-void TimelineWidget::RemoveBlock(const QList<Block *> &blocks)
+void TimelineWidget::RemoveBlock(Block *b)
 {
-  QVector<Block*> deselect_blocks;
+  // Disconnect all signals
+  disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
+  disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
-  foreach (Block* b, blocks) {
-    // Disconnect all signals
-    disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
-    disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-    disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
-    disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+  // Take item from map
+  TimelineViewBlockItem* item = block_items_.take(b);
 
-    // Take item from map
-    TimelineViewBlockItem* item = block_items_.take(b);
-
-    // If selected, deselect it
-    int select_index = selected_blocks_.indexOf(b);
-    if (select_index > -1) {
-      selected_blocks_.removeAt(select_index);
-      deselect_blocks.append(b);
-      RemoveSelection(item);
-    }
-
-    // Finally, delete item
-    delete item;
+  // If selected, deselect it
+  int select_index = selected_blocks_.indexOf(b);
+  if (select_index > -1) {
+    selected_blocks_.removeAt(select_index);
+    RemoveSelection(item);
   }
 
-  if (!deselect_blocks.isEmpty()) {
-    // We already removed the blocks from selected_blocks_, so we can signal directly rather than
-    // through
-    emit BlocksDeselected(deselect_blocks);
-  }
+  // Finally, delete item
+  delete item;
+
+  emit BlocksDeselected({b});
 }
 
 void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
@@ -958,7 +947,9 @@ void TimelineWidget::RemoveTrack(TrackOutput *track)
   disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   disconnect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 
-  RemoveBlock(track->Blocks());
+  foreach (Block* b, track->Blocks()) {
+    RemoveBlock(b);
+  }
 }
 
 void TimelineWidget::TrackIndexChanged()

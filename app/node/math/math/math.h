@@ -44,12 +44,12 @@ public:
 
   Operation GetOperation() const
   {
-    return static_cast<Operation>(method_in_->get_standard_value().toInt());
+    return static_cast<Operation>(method_in_->GetStandardValue().toInt());
   }
 
   void SetOperation(Operation o)
   {
-    method_in_->set_standard_value(o);
+    method_in_->SetStandardValue(o);
   }
 
   NodeInput* param_a_in() const

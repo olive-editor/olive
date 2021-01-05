@@ -55,9 +55,10 @@ NodeValueTable TimeInput::Value(NodeValueDatabase &value) const
 {
   NodeValueTable table = value.Merge();
 
-  table.Push(NodeParam::kFloat,
-             value[QStringLiteral("global")].Get(NodeParam::kFloat, QStringLiteral("time_in")),
+  table.Push(NodeValue::kFloat,
+             value[QStringLiteral("global")].Get(NodeValue::kFloat, QStringLiteral("time_in")),
              this,
+             false,
              QStringLiteral("time"));
 
   return table;
@@ -68,7 +69,7 @@ void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
   Node::Hash(hash, time);
 
   // Make sure time is hashed
-  hash.addData(NodeParam::ValueToBytes(NodeParam::kRational, QVariant::fromValue(time)));
+  hash.addData(NodeValue::ValueToBytes(NodeValue::kRational, QVariant::fromValue(time)));
 }
 
 }

@@ -29,24 +29,23 @@
 namespace olive {
 
 class Block;
-class Node;
-class NodeParam;
-class NodeInput;
-class NodeOutput;
 class Item;
+class Node;
+class NodeInput;
 
 #define XMLAttributeLoop(reader, item) \
-  QXmlStreamAttributes __attributes = reader->attributes(); \
-  foreach (const QXmlStreamAttribute& item, __attributes)
+  foreach (const QXmlStreamAttribute& item, reader->attributes())
 
 struct XMLNodeData {
   struct SerializedConnection {
     NodeInput* input;
+    int element;
     quintptr output;
   };
 
   struct FootageConnection {
     NodeInput* input;
+    int element;
     quintptr footage;
   };
 
@@ -56,7 +55,6 @@ struct XMLNodeData {
   };
 
   QHash<quintptr, Node*> node_ptrs;
-  QHash<quintptr, NodeOutput*> output_ptrs;
   QList<SerializedConnection> desired_connections;
   QHash<quintptr, Stream*> footage_ptrs;
   QList<FootageConnection> footage_connections;

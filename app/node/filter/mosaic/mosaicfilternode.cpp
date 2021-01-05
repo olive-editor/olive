@@ -24,16 +24,13 @@ namespace olive {
 
 MosaicFilterNode::MosaicFilterNode()
 {
-  tex_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
-  AddInput(tex_input_);
+  tex_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
 
-  horiz_input_ = new NodeInput(QStringLiteral("horiz_in"), NodeParam::kFloat, 32.0);
+  horiz_input_ = new NodeInput(this, QStringLiteral("horiz_in"), NodeValue::kFloat, 32.0);
   horiz_input_->setProperty("min", 1.0);
-  AddInput(horiz_input_);
 
-  vert_input_ = new NodeInput(QStringLiteral("vert_in"), NodeParam::kFloat, 18.0);
+  vert_input_ = new NodeInput(this, QStringLiteral("vert_in"), NodeValue::kFloat, 18.0);
   vert_input_->setProperty("min", 1.0);
-  AddInput(vert_input_);
 }
 
 void MosaicFilterNode::Retranslate()
@@ -56,15 +53,15 @@ NodeValueTable MosaicFilterNode::Value(NodeValueDatabase &value) const
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data.isNull()) {
-    TexturePtr texture = job.GetValue(tex_input_).data.value<TexturePtr>();
+  if (!job.GetValue(tex_input_).data().isNull()) {
+    TexturePtr texture = job.GetValue(tex_input_).data().value<TexturePtr>();
 
     if (texture
-        && job.GetValue(horiz_input_).data.toInt() != texture->width()
-        && job.GetValue(vert_input_).data.toInt() != texture->height()) {
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+        && job.GetValue(horiz_input_).data().toInt() != texture->width()
+        && job.GetValue(vert_input_).data().toInt() != texture->height()) {
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_), this);
+      table.Push(job.GetValue(tex_input_));
     }
   }
 

@@ -24,20 +24,17 @@ namespace olive {
 
 MathNode::MathNode()
 {
-  method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kCombo);
-  method_in_->set_connectable(false);
-  method_in_->set_is_keyframable(false);
-  AddInput(method_in_);
+  method_in_ = new NodeInput(this, QStringLiteral("method_in"), NodeValue::kCombo);
+  method_in_->SetConnectable(false);
+  method_in_->SetKeyframable(false);
 
-  param_a_in_ = new NodeInput(QStringLiteral("param_a_in"), NodeParam::kFloat, 0.0);
+  param_a_in_ = new NodeInput(this, QStringLiteral("param_a_in"), NodeValue::kFloat, 0.0);
   param_a_in_->setProperty("decimalplaces", 8);
   param_a_in_->setProperty("autotrim", true);
-  AddInput(param_a_in_);
 
-  param_b_in_ = new NodeInput(QStringLiteral("param_b_in"), NodeParam::kFloat, 0.0);
+  param_b_in_ = new NodeInput(this, QStringLiteral("param_b_in"), NodeValue::kFloat, 0.0);
   param_b_in_->setProperty("decimalplaces", 8);
   param_b_in_->setProperty("autotrim", true);
-  AddInput(param_b_in_);
 }
 
 Node *MathNode::copy() const

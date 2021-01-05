@@ -30,7 +30,7 @@
 
 namespace olive {
 
-KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
+KeyframeViewItem::KeyframeViewItem(NodeKeyframe* key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   key_(key),
   scale_(1.0),
@@ -39,8 +39,8 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 
-  connect(key.get(), &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdatePos);
-  connect(key.get(), &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
+  connect(key, &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdatePos);
+  connect(key, &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
 
   int keyframe_size = QtUtils::QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   int half_sz = keyframe_size/2;
@@ -69,7 +69,7 @@ void KeyframeViewItem::SetOverrideBrush(const QBrush &b)
   setBrush(b);
 }
 
-NodeKeyframePtr KeyframeViewItem::key() const
+NodeKeyframe* KeyframeViewItem::key() const
 {
   return key_;
 }
@@ -117,7 +117,7 @@ void KeyframeViewItem::TimeTargetChangedEvent(Node *)
 
 void KeyframeViewItem::UpdatePos()
 {
-  rational adjusted = GetAdjustedTime(key_->parent()->parentNode(), GetTimeTarget(), key_->time(), NodeParam::kOutput);
+  rational adjusted = GetAdjustedTime(key_->parent()->parent(), GetTimeTarget(), key_->time(), false);
 
   setPos(adjusted.toDouble() * scale_, vert_center_);
 }

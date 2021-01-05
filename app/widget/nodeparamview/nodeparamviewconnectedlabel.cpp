@@ -30,9 +30,10 @@
 
 namespace olive {
 
-NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidget *parent) :
+NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, int element, QWidget *parent) :
   QWidget(parent),
-  input_(input)
+  input_(input),
+  element_(element)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
@@ -55,18 +56,25 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(NodeInput *input, QWidg
   connected_to_lbl_->setForegroundRole(QPalette::Link);
   connected_to_lbl_->setFont(link_font);
 
-  UpdateConnected();
+  UpdateConnected(nullptr, element_);
 
-  connect(input_, &NodeInput::EdgeAdded, this, &NodeParamViewConnectedLabel::UpdateConnected);
-  connect(input_, &NodeInput::EdgeRemoved, this, &NodeParamViewConnectedLabel::UpdateConnected);
+  connect(input_, &NodeInput::InputConnected, this, &NodeParamViewConnectedLabel::UpdateConnected);
+  connect(input_, &NodeInput::InputDisconnected, this, &NodeParamViewConnectedLabel::UpdateConnected);
 }
 
-void NodeParamViewConnectedLabel::UpdateConnected()
+void NodeParamViewConnectedLabel::UpdateConnected(Node *src, int element)
 {
+  Q_UNUSED(src)
+
+  if (element_ != element) {
+    // Do nothing
+    return;
+  }
+
   QString connection_str;
 
-  if (input_->is_connected()) {
-    connection_str = input_->get_connected_node()->Name();
+  if (input_->IsConnected(element_)) {
+    connection_str = input_->GetConnectedNode(element_)->Name();
   } else {
     connection_str = tr("Nothing");
   }
@@ -80,7 +88,7 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 
   QAction* disconnect_action = m.addAction(tr("Disconnect"));
   connect(disconnect_action, &QAction::triggered, this, [this](){
-    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(input_->get_connected_output(), input_));
+    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(input_->GetConnectedNode(element_), input_, element_));
   });
 
   m.exec(QCursor::pos());

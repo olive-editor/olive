@@ -37,27 +37,16 @@ namespace olive {
 Node::Node() :
   can_be_deleted_(true)
 {
-  output_ = new NodeOutput("node_out");
-  AddParameter(output_);
 }
 
 Node::~Node()
 {
   DisconnectAll();
+}
 
-  // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
-  // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
-  foreach (NodeParam* param, params_) {
-
-    // We disconnect input signals because these will try to send invalidate cache signals that may involve the derived
-    // class (which is now destroyed). Any node that this is connected to will handle cache invalidation so it's a waste
-    // of time anyway.
-    if (param->type() == NodeParam::kInput) {
-      DisconnectInput(static_cast<NodeInput*>(param));
-    }
-
-    delete param;
-  }
+NodeGraph *Node::parent() const
+{
+  return static_cast<NodeGraph*>(QObject::parent());
 }
 
 void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled)
@@ -67,7 +56,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       return;
     }
 
-    if (reader->name() == QStringLiteral("input") || reader->name() == QStringLiteral("output")) {
+    if (reader->name() == QStringLiteral("input")) {
       QString param_id;
 
       XMLAttributeLoop(reader, attr) {
@@ -83,13 +72,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
         continue;
       }
 
-      NodeParam* param;
-
-      if (reader->name() == QStringLiteral("input")) {
-        param = GetInputWithID(param_id);
-      } else {
-        param = GetOutputWithID(param_id);
-      }
+      NodeInput* param = GetInputWithID(param_id);
 
       if (!param) {
         qDebug() << "No parameter in" << id() << "with parameter" << param_id;
@@ -135,19 +118,12 @@ void Node::Save(QXmlStreamWriter *writer) const
 
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
 
-  foreach (NodeParam* param, parameters()) {
-    switch (param->type()) {
-    case NodeParam::kInput:
-      writer->writeStartElement(QStringLiteral("input"));
-      break;
-    case NodeParam::kOutput:
-      writer->writeStartElement(QStringLiteral("output"));
-      break;
-    }
+  foreach (NodeInput* input, inputs_) {
+    writer->writeStartElement(QStringLiteral("input"));
 
-    param->Save(writer);
+    input->Save(writer);
 
-    writer->writeEndElement(); // input/output
+    writer->writeEndElement(); // input
   }
 
   writer->writeStartElement(QStringLiteral("custom"));
@@ -170,30 +146,33 @@ void Node::Retranslate()
 {
 }
 
-void Node::AddParameter(NodeParam *param)
+void Node::RemoveNodesAndExclusiveDependencies(Node *node, QUndoCommand *command)
 {
-  // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
-  Q_ASSERT(!HasParamWithID(param->id()));
+  // Remove main node
+  RemoveNodeAndDisconnect(node, command);
 
-  if (params_.contains(param)) {
-    return;
+  // Remove exclusive dependencies
+  QVector<Node*> deps = node->GetExclusiveDependencies();
+  foreach (Node* d, deps) {
+    RemoveNodeAndDisconnect(d, command);
+  }
+}
+
+void Node::RemoveNodeAndDisconnect(Node *node, QUndoCommand *command)
+{
+  // Disconnect everything
+  foreach (const InputConnection& conn, node->output_connections()) {
+    new NodeEdgeRemoveCommand(node, conn.input, conn.element, command);
   }
 
-  param->setParent(this);
-
-  // Keep main output as the last parameter, assume if there are no parameters that this is the output parameter
-  if (params_.isEmpty()) {
-    params_.append(param);
-  } else {
-    params_.insert(params_.size()-1, param);
+  foreach (NodeInput* input, node->inputs_) {
+    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+      new NodeEdgeRemoveCommand(it.value(), input, it.key(), command);
+    }
   }
 
-  connect(param, &NodeParam::EdgeAdded, this, &Node::EdgeAdded);
-  connect(param, &NodeParam::EdgeRemoved, this, &Node::EdgeRemoved);
-
-  if (param->type() == NodeParam::kInput) {
-    ConnectInput(static_cast<NodeInput*>(param));
-  }
+  // Remove node
+  new NodeRemoveCommand(node, command);
 }
 
 NodeValueTable Node::Value(NodeValueDatabase &value) const
@@ -201,32 +180,26 @@ NodeValueTable Node::Value(NodeValueDatabase &value) const
   return value.Merge();
 }
 
-void Node::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
+void Node::InvalidateCache(const TimeRange &range, const InputConnection &from)
 {
   Q_UNUSED(from)
 
-  SendInvalidateCache(range, source);
+  SendInvalidateCache(range);
 }
 
 void Node::BeginOperation()
 {
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->BeginOperation();
-      }
-    }
+  // Ripple through graph
+  foreach (const InputConnection& conn, output_connections()) {
+    conn.input->parent()->BeginOperation();
   }
 }
 
 void Node::EndOperation()
 {
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        edge->input()->parentNode()->EndOperation();
-      }
-    }
+  // Ripple through graph
+  foreach (const InputConnection& conn, output_connections()) {
+    conn.input->parent()->EndOperation();
   }
 }
 
@@ -260,7 +233,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
     if (command) {
       new NodeAddCommand(graph, c, command);
     } else {
-      graph->AddNode(c);
+      c->setParent(graph);
     }
 
     // Store in array at the same index as source
@@ -274,27 +247,20 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
 
 void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, QUndoCommand *command)
 {
-  int nb_nodes = src.size();
+  for (int i=0; i<src.size(); i++) {
+    foreach (NodeInput* input, src.at(i)->inputs()) {
+      for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+        int connection_index = src.indexOf(it.value());
 
-  for (int i=0; i<nb_nodes; i++) {
-    // Find any interconnections
-    QVector<NodeInput*> inputs = src.at(i)->GetInputsIncludingArrays();
-
-    for (int j=0; j<nb_nodes; j++) {
-      if (i == j) {
-        continue;
-      }
-
-      foreach (NodeInput* input, inputs) {
-        if (input->get_connected_node() == src.at(j)) {
+        if (connection_index > -1) {
           // Found a connection
-          NodeOutput* copy_output = dst.at(j)->GetOutputWithID(input->get_connected_output()->id());
-          NodeInput* copy_input = dst.at(i)->GetInputWithID(input->id());
+          Node* dst_output = dst.at(connection_index);
+          NodeInput* dst_input = dst.at(i)->GetInputWithID(input->id());
 
           if (command) {
-            new NodeEdgeAddCommand(copy_output, copy_input, command);
+            new NodeEdgeAddCommand(dst_output, dst_input, it.key(), command);
           } else {
-            NodeParam::ConnectEdge(copy_output, copy_input);
+            ConnectEdge(dst_output, dst_input, it.key());
           }
         }
       }
@@ -302,21 +268,17 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
   }
 }
 
-void Node::SendInvalidateCache(const TimeRange &range, NodeInput *source)
+void Node::SendInvalidateCache(const TimeRange &range)
 {
-  // Loop through all parameters (there should be no children that are not NodeParams)
-  foreach (NodeParam* param, params_) {
-    // If the Node is an output, relay the signal to any Nodes that are connected to it
-    if (param->type() == NodeParam::kOutput) {
-      foreach (NodeEdgePtr edge, param->edges()) {
-        NodeInput* connected_input = edge->input();
-        Node* connected_node = connected_input->parentNode();
-
-        // Send clear cache signal to the Node
-        connected_node->InvalidateCache(range, connected_input, source);
-      }
-    }
+  foreach (const InputConnection& conn, output_connections()) {
+    // Send clear cache signal to the Node
+    conn.input->parent()->InvalidateCache(range, conn);
   }
+}
+
+void Node::IgnoreConnectionSignalsFrom(NodeInput *input)
+{
+  ignore_connections_.append(input);
 }
 
 void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
@@ -330,43 +292,7 @@ void Node::SaveInternal(QXmlStreamWriter *) const
 
 QVector<NodeInput *> Node::GetInputsToHash() const
 {
-  return GetInputsIncludingArrays();
-}
-
-void GetInputsIncludingArraysInternal(NodeInputArray* array, QVector<NodeInput *>& list)
-{
-  foreach (NodeInput* input, array->sub_params()) {
-    list.append(input);
-
-    if (input->IsArray()) {
-      GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), list);
-    }
-  }
-}
-
-QVector<NodeInput *> Node::GetInputsIncludingArrays() const
-{
-  QVector<NodeInput *> inputs;
-
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      inputs.append(input);
-
-      if (input->IsArray()) {
-        GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), inputs);
-      }
-    }
-  }
-
-  return inputs;
-}
-
-QVector<NodeOutput *> Node::GetOutputs() const
-{
-  // The current design only uses one output per node. This function returns a list just in case that changes.
-  return {output_};
+  return inputs_;
 }
 
 bool Node::HasGizmos() const
@@ -414,63 +340,9 @@ void Node::Hash(QCryptographicHash &hash, const rational& time) const
 
   foreach (NodeInput* input, inputs) {
     // For each input, try to hash its value
-
-    // Get time adjustment
-    // For a single frame, we only care about one of the times
-    rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
-
-    if (input->is_connected()) {
-      // Traverse down this edge
-      input->get_connected_node()->Hash(hash, input_time);
-    } else {
-      // Grab the value at this time
-      QVariant value = input->get_value_at_time(input_time);
-      hash.addData(NodeParam::ValueToBytes(input->data_type(), value));
-    }
-
-    // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
-    if (input->data_type() == NodeParam::kFootage) {
-      Stream* stream = Node::ValueToPtr<Stream>(input->get_standard_value());
-
-      if (stream) {
-        // Add footage details to hash
-
-        // Footage filename
-        hash.addData(stream->footage()->filename().toUtf8());
-
-        // Footage last modified date
-        hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
-
-        // Footage stream
-        hash.addData(QString::number(stream->index()).toUtf8());
-
-        if (stream->type() == Stream::kVideo) {
-          VideoStream* image_stream = static_cast<VideoStream*>(stream);
-
-          // Current color config and space
-          hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
-          hash.addData(image_stream->colorspace().toUtf8());
-
-          // Alpha associated setting
-          hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
-
-          // Pixel aspect ratio
-          hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
-        }
-
-        // Footage timestamp
-        if (stream->type() == Stream::kVideo) {
-          VideoStream* video_stream = static_cast<VideoStream*>(stream);
-
-          int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
-
-          // Add timestamp in units of the video stream's timebase
-          hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
-
-          // Add start time - used for both image sequences and video streams
-          hash.addData(QString::number(video_stream->start_time()).toUtf8());
-        }
-      }
+    HashInputElement(hash, input, -1, time);
+    for (int i=0; i<input->ArraySize(); i++) {
+      HashInputElement(hash, input, i, time);
     }
   }
 }
@@ -479,19 +351,14 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
-  const QVector<NodeParam*>& src_param = source->params_;
-  const QVector<NodeParam*>& dst_param = destination->params_;
+  const QVector<NodeInput*>& src_param = source->inputs_;
+  const QVector<NodeInput*>& dst_param = destination->inputs_;
 
   for (int i=0;i<src_param.size();i++) {
-    NodeParam* p = src_param.at(i);
+    NodeInput* src = static_cast<NodeInput*>(src_param.at(i));
+    NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-    if (p->type() == NodeParam::kInput) {
-      NodeInput* src = static_cast<NodeInput*>(p);
-
-      NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
-
-      NodeInput::CopyValues(src, dst, include_connections);
-    }
+    NodeInput::CopyValues(src, dst, include_connections);
   }
 
   destination->SetPosition(source->GetPosition());
@@ -508,31 +375,6 @@ void Node::SetCanBeDeleted(bool s)
   can_be_deleted_ = s;
 }
 
-bool Node::IsBlock() const
-{
-  return false;
-}
-
-bool Node::IsTrack() const
-{
-  return false;
-}
-
-bool Node::IsMedia() const
-{
-    return false;
-}
-
-const QVector<NodeParam *>& Node::parameters() const
-{
-  return params_;
-}
-
-int Node::IndexOfParameter(NodeParam *param) const
-{
-  return params_.indexOf(param);
-}
-
 /**
  * @brief Recursively collects dependencies of Node `n` and appends them to QList `list`
  *
@@ -541,15 +383,89 @@ int Node::IndexOfParameter(NodeParam *param) const
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
+QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only) const
+{
   QVector<Node*> list;
 
-  foreach (NodeInput* i, inputs) {
+  foreach (NodeInput* i, inputs_) {
     i->GetDependencies(list, traverse, exclusive_only);
   }
 
   return list;
+}
+
+void Node::HashInputElement(QCryptographicHash &hash, NodeInput *input, int element, const rational &time) const
+{
+  // Get time adjustment
+  // For a single frame, we only care about one of the times
+  rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
+
+  if (input->IsConnected(element)) {
+    // Traverse down this edge
+    input->GetConnectedNode(element)->Hash(hash, input_time);
+  } else {
+    // Grab the value at this time
+    QVariant value = input->GetValueAtTime(input_time, element);
+    hash.addData(NodeValue::ValueToBytes(input->GetDataType(), value));
+  }
+
+  // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
+  if (input->GetDataType() == NodeValue::kFootage) {
+    Stream* stream = Node::ValueToPtr<Stream>(input->GetStandardValue(element));
+
+    if (stream) {
+      // Add footage details to hash
+
+      // Footage filename
+      hash.addData(stream->footage()->filename().toUtf8());
+
+      // Footage last modified date
+      hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
+
+      // Footage stream
+      hash.addData(QString::number(stream->index()).toUtf8());
+
+      if (stream->type() == Stream::kVideo) {
+        VideoStream* image_stream = static_cast<VideoStream*>(stream);
+
+        // Current color config and space
+        hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
+        hash.addData(image_stream->colorspace().toUtf8());
+
+        // Alpha associated setting
+        hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+
+        // Pixel aspect ratio
+        hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
+      }
+
+      // Footage timestamp
+      if (stream->type() == Stream::kVideo) {
+        VideoStream* video_stream = static_cast<VideoStream*>(stream);
+
+        int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
+
+        // Add timestamp in units of the video stream's timebase
+        hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
+
+        // Add start time - used for both image sequences and video streams
+        hash.addData(QString::number(video_stream->start_time()).toUtf8());
+      }
+    }
+  }
+}
+
+void Node::InputConnectionChanged(Node *source, int element)
+{
+  Q_UNUSED(source)
+
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  if (ignore_connections_.contains(input)) {
+    return;
+  }
+
+  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), {input, element});
 }
 
 QVector<Node *> Node::GetDependencies() const
@@ -586,9 +502,7 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
 
 NodeInput *Node::GetInputWithID(const QString &id) const
 {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
+  foreach (NodeInput* i, inputs_) {
     if (i->id() == id) {
       return i;
     }
@@ -597,31 +511,15 @@ NodeInput *Node::GetInputWithID(const QString &id) const
   return nullptr;
 }
 
-NodeOutput *Node::GetOutputWithID(const QString &id) const
-{
-  foreach (NodeParam* p, params_) {
-    if (p->type() == NodeParam::kOutput
-        && p->id() == id) {
-      return static_cast<NodeOutput*>(p);
-    }
-  }
-
-  return nullptr;
-}
-
 bool Node::OutputsTo(Node *n, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  foreach (const InputConnection& conn, output_connections()) {
+    Node* connected = conn.input->parent();
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      Node* connected = edge->input()->parentNode();
-
-      if (connected == n) {
-        return true;
-      } else if (recursively && connected->OutputsTo(n, recursively)) {
-        return true;
-      }
+    if (connected == n) {
+      return true;
+    } else if (recursively && connected->OutputsTo(n, recursively)) {
+      return true;
     }
   }
 
@@ -630,39 +528,28 @@ bool Node::OutputsTo(Node *n, bool recursively) const
 
 bool Node::OutputsTo(const QString &id, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  foreach (const InputConnection& conn, output_connections()) {
+    Node* connected = conn.input->parent();
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      Node* connected = edge->input()->parentNode();
-
-      if (connected->id() == id) {
-        return true;
-      } else if (recursively && connected->OutputsTo(id, recursively)) {
-        return true;
-      }
+    if (connected->id() == id) {
+      return true;
+    } else if (recursively && connected->OutputsTo(id, recursively)) {
+      return true;
     }
   }
 
   return false;
 }
 
-bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) const
+bool Node::OutputsTo(NodeInput *input, bool recursively) const
 {
-  QVector<NodeOutput*> outputs = GetOutputs();
+  foreach (const InputConnection& conn, output_connections()) {
+    NodeInput* connected = conn.input;
 
-  foreach (NodeOutput* output, outputs) {
-    foreach (NodeEdgePtr edge, output->edges()) {
-      NodeInput* connected = edge->input();
-
-      if (connected == input) {
-        return true;
-      } else if (include_arrays && input->IsArray()
-                 && static_cast<NodeInputArray*>(input)->sub_params().contains(connected)) {
-        return true;
-      } else if (recursively && connected->parentNode()->OutputsTo(input, recursively, include_arrays)) {
-        return true;
-      }
+    if (connected == input) {
+      return true;
+    } else if (recursively && connected->parent()->OutputsTo(input, recursively)) {
+      return true;
     }
   }
 
@@ -671,11 +558,9 @@ bool Node::OutputsTo(NodeInput *input, bool recursively, bool include_arrays) co
 
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
-
-  foreach (NodeInput* input, inputs) {
-    foreach (NodeEdgePtr edge, input->edges()) {
-      Node* connected = edge->output()->parentNode();
+  foreach (NodeInput* input, inputs_) {
+    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+      Node* connected = it.value();
 
       if (connected == n) {
         return true;
@@ -690,11 +575,9 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
-  QVector<NodeInput*> inputs = GetInputsIncludingArrays();
-
-  foreach (NodeInput* input, inputs) {
-    foreach (NodeEdgePtr edge, input->edges()) {
-      Node* connected = edge->output()->parentNode();
+  foreach (NodeInput* input, inputs_) {
+    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+      Node* connected = it.value();
 
       if (connected->id() == id) {
         return true;
@@ -712,17 +595,13 @@ int Node::GetRoutesTo(Node *n) const
   bool outputs_directly = false;
   int routes = 0;
 
-  QVector<NodeOutput*> outputs = GetOutputs();
+  foreach (const InputConnection& conn, edges()) {
+    Node* connected_node = conn.input->parent();
 
-  foreach (NodeOutput* o, outputs) {
-    foreach (NodeEdgePtr edge, o->edges()) {
-      Node* connected_node = edge->input()->parentNode();
-
-      if (connected_node == n) {
-        outputs_directly = true;
-      } else {
-        routes += connected_node->GetRoutesTo(n);
-      }
+    if (connected_node == n) {
+      outputs_directly = true;
+    } else {
+      routes += connected_node->GetRoutesTo(n);
     }
   }
 
@@ -733,30 +612,11 @@ int Node::GetRoutesTo(Node *n) const
   return routes;
 }
 
-bool Node::HasInputs() const
-{
-  return HasParamOfType(NodeParam::kInput, false);
-}
-
-bool Node::HasOutputs() const
-{
-  return HasParamOfType(NodeParam::kOutput, false);
-}
-
-bool Node::HasConnectedInputs() const
-{
-  return HasParamOfType(NodeParam::kInput, true);
-}
-
-bool Node::HasConnectedOutputs() const
-{
-  return HasParamOfType(NodeParam::kOutput, true);
-}
-
 void Node::DisconnectAll()
 {
-  foreach (NodeParam* param, params_) {
-    param->DisconnectAll();
+  // Disconnect outputs (inputs will be disconnected in their respective destructors)
+  while (!edges().isEmpty()) {
+    DisconnectEdge(this, edges().first().input, edges().first().element);
   }
 }
 
@@ -793,19 +653,16 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
+QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bool input_dir)
 {
   QVector<TimeRange> paths_found;
 
-  if (direction == NodeParam::kInput) {
-    // Get list of all inputs
-    QVector<NodeInput *> inputs = GetInputsIncludingArrays();
-
+  if (input_dir) {
     // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (NodeInput* input, inputs) {
-      if (input->is_connected()) {
+    foreach (NodeInput* input, inputs_) {
+      for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
         TimeRange input_adjustment = InputTimeAdjustment(input, time);
-        Node* connected = input->get_connected_node();
+        Node* connected = input->GetConnectedNode(it.key());
 
         if (connected == target) {
           // We found the target, no need to keep traversing
@@ -814,28 +671,21 @@ QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, No
           }
         } else {
           // We did NOT find the target, traverse this
-          paths_found.append(connected->TransformTimeTo(input_adjustment, target, direction));
+          paths_found.append(connected->TransformTimeTo(input_adjustment, target, input_dir));
         }
       }
     }
   } else {
-    // Get list of all outputs
-    QVector<NodeOutput*> outputs = GetOutputs();
-
     // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (NodeOutput* output, outputs) {
-      if (output->is_connected()) {
-        foreach (NodeEdgePtr edge, output->edges()) {
-          Node* input_node = edge->input()->parentNode();
+    foreach (const InputConnection& conn, edges()) {
+      Node* input_node = conn.input->parent();
 
-          TimeRange output_adjustment = input_node->OutputTimeAdjustment(edge->input(), time);
+      TimeRange output_adjustment = input_node->OutputTimeAdjustment(conn.input, time);
 
-          if (input_node == target) {
-            paths_found.append(output_adjustment);
-          } else {
-            paths_found.append(input_node->TransformTimeTo(output_adjustment, target, direction));
-          }
-        }
+      if (input_node == target) {
+        paths_found.append(output_adjustment);
+      } else {
+        paths_found.append(input_node->TransformTimeTo(output_adjustment, target, input_dir));
       }
     }
   }
@@ -850,20 +700,13 @@ QVariant Node::PtrToValue(void *ptr)
 
 bool Node::HasParamWithID(const QString &id) const
 {
-  foreach (NodeParam* p, params_)
-  {
-    if (p->id() == id)
-    {
+  foreach (NodeInput* i, inputs_) {
+    if (i->id() == id) {
       return true;
     }
   }
 
   return false;
-}
-
-NodeOutput *Node::output() const
-{
-  return output_;
 }
 
 const QPointF &Node::GetPosition() const
@@ -878,63 +721,9 @@ void Node::SetPosition(const QPointF &pos)
   emit PositionChanged(position_);
 }
 
-void Node::AddInput(NodeInput *input)
+void Node::InputChanged(const TimeRange& range, int element)
 {
-  AddParameter(input);
-}
-
-bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
-{
-  foreach (NodeParam* p, params_) {
-    if (p->type() == type
-        && (p->is_connected() || !must_be_connected)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void Node::ConnectInput(NodeInput *input)
-{
-  connect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-  connect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
-  connect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
-
-  if (input->IsArray()) {
-    NodeInputArray* array = static_cast<NodeInputArray*>(input);
-
-    connect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::InputConnectionChanged);
-    connect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::InputConnectionChanged);
-    connect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::EdgeAdded);
-    connect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::EdgeRemoved);
-  }
-}
-
-void Node::DisconnectInput(NodeInput *input)
-{
-  if (input->IsArray()) {
-    NodeInputArray* array = static_cast<NodeInputArray*>(input);
-
-    disconnect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::InputConnectionChanged);
-    disconnect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::InputConnectionChanged);
-    disconnect(array, &NodeInputArray::SubParamEdgeAdded, this, &Node::EdgeAdded);
-    disconnect(array, &NodeInputArray::SubParamEdgeRemoved, this, &Node::EdgeRemoved);
-  }
-
-  disconnect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-  disconnect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
-  disconnect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
-}
-
-void Node::InputChanged(const TimeRange& range)
-{
-  InvalidateCache(range, static_cast<NodeInput*>(sender()), static_cast<NodeInput*>(sender()));
-}
-
-void Node::InputConnectionChanged(NodeEdgePtr edge)
-{
-  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), edge->input(), edge->input());
+  InvalidateCache(range, InputConnection(static_cast<NodeInput*>(sender()), element));
 }
 
 QRectF Node::CreateGizmoHandleRect(const QPointF &pt, int radius)
@@ -964,6 +753,35 @@ void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rec
 
     // Extend rect so it's easier to drag with handle
     r.adjust(-handle_radius, -handle_radius, handle_radius, handle_radius);
+  }
+}
+
+void Node::childEvent(QChildEvent *event)
+{
+  NodeInput* input = dynamic_cast<NodeInput*>(event->child());
+
+  if (input) {
+    if (event->type() == QEvent::ChildAdded) {
+      // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
+      Q_ASSERT(!HasParamWithID(input->id()));
+
+      // Keep main output as the last parameter, assume if there are no parameters that this is the output parameter
+      inputs_.append(input);
+
+      connect(input, &NodeInput::InputConnected, this, &Node::InputConnected);
+      connect(input, &NodeInput::InputDisconnected, this, &Node::InputDisconnected);
+      connect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
+      connect(input, &NodeInput::InputConnected, this, &Node::InputConnectionChanged);
+      connect(input, &NodeInput::InputDisconnected, this, &Node::InputConnectionChanged);
+    } else if (event->type() == QEvent::ChildRemoved) {
+      disconnect(input, &NodeInput::InputConnected, this, &Node::InputConnected);
+      disconnect(input, &NodeInput::InputDisconnected, this, &Node::InputDisconnected);
+      disconnect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
+      disconnect(input, &NodeInput::InputConnected, this, &Node::InputConnectionChanged);
+      disconnect(input, &NodeInput::InputDisconnected, this, &Node::InputConnectionChanged);
+
+      inputs_.removeOne(input);
+    }
   }
 }
 

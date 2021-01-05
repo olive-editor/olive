@@ -47,31 +47,12 @@ public:
   void Clear();
 
   /**
-   * @brief Add a node to this graph
-   *
-   * The node will get added to this graph. It is not automatically connected to anything, any connections will need to
-   * be made manually after the node is added. The graph takes ownership of the Node.
-   */
-  void AddNode(Node* node);
-
-  /**
-   * @brief Removes a Node from the graph BUT doesn't destroy it. Ownership is passed to `new_parent`.
-   */
-  void TakeNode(Node* node, QObject* new_parent = nullptr);
-
-  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
-  const QList<Node*>& nodes() const;
-
-  /**
-   * @brief Returns whether a certain Node is in the graph or not
-   */
-  bool ContainsNode(Node* n) const;
-
-  void BeginOperation();
-
-  void EndOperation();
+  const QVector<Node*>& nodes() const
+  {
+    return node_children_;
+  }
 
 signals:
   /**
@@ -84,31 +65,11 @@ signals:
    */
   void NodeRemoved(Node* node);
 
-  /**
-   * @brief Signal emitted when a member node of this graph has been connected to another (creating an "edge")
-   */
-  void EdgeAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Signal emitted when a member node of this graph has been disconnected from another (removing an "edge")
-   */
-  void EdgeRemoved(NodeEdgePtr edge);
+protected:
+  virtual void childEvent(QChildEvent* event) override;
 
 private:
-  QList<Node*> node_children_;
-
-  int operation_stack_;
-
-  QList<Node*> cached_added_nodes_;
-  QList<Node*> cached_removed_nodes_;
-  QList<NodeEdgePtr> cached_added_edges_;
-  QList<NodeEdgePtr> cached_removed_edges_;
-
-private slots:
-  void SignalNodeAdded(Node *node);
-  void SignalNodeRemoved(Node* node);
-  void SignalEdgeAdded(NodeEdgePtr edge);
-  void SignalEdgeRemoved(NodeEdgePtr edge);
+  QVector<Node*> node_children_;
 
 };
 

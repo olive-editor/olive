@@ -150,9 +150,12 @@ public:
    */
   QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
-  const QList<Block *> &Blocks() const;
+  const QList<Block *> &Blocks() const
+  {
+    return block_cache_;
+  }
 
-  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput *source) override;
+  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -200,15 +203,13 @@ public:
 
   const rational& track_length() const;
 
-  virtual bool IsTrack() const override;
-
   static QString GetDefaultTrackName(Timeline::TrackType type, int index);
 
   bool IsMuted() const;
 
   bool IsLocked() const;
 
-  NodeInputArray* block_input() const;
+  NodeInput* block_input() const;
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
@@ -277,7 +278,7 @@ private:
 
   QList<Block*> block_cache_;
 
-  NodeInputArray* block_input_;
+  NodeInput* block_input_;
 
   NodeInput* muted_input_;
 
@@ -294,9 +295,9 @@ private:
   AudioVisualWaveform waveform_;
 
 private slots:
-  void BlockConnected(NodeEdgePtr edge);
+  void BlockConnected(Node* node, int element);
 
-  void BlockDisconnected(NodeEdgePtr edge);
+  void BlockDisconnected(Node* node, int element);
 
   void BlockLengthChanged();
 

@@ -41,7 +41,7 @@ class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
   Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(NodeInput* input, QObject* parent);
+  NodeParamViewWidgetBridge(NodeInput* input, int element, QObject* parent);
 
   void SetTime(const rational& time);
 
@@ -63,6 +63,8 @@ private:
   rational GetCurrentTimeAsNodeTime() const;
 
   NodeInput* input_;
+
+  int element_;
 
   QList<QWidget*> widgets_;
 

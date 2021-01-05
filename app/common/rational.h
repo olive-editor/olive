@@ -138,7 +138,7 @@ private:
 #define RATIONAL_MIN rational(INT64_MIN, 1)
 #define RATIONAL_MAX rational(INT64_MAX, 1)
 
-uint qHash(const rational& r, uint seed);
+uint qHash(const rational& r, uint seed = 0);
 
 }
 

@@ -64,27 +64,18 @@ QString Item::rate()
   return QString();
 }
 
-const Item *Item::root() const
-{
-  const Item* item = this;
-
-  while (item->item_parent()) {
-    item = item->item_parent();
-  }
-
-  return item;
-}
-
 Project *Item::project() const
 {
-  const Item* root_item = root();
-
-  return root_item->project_;
+  return project_;
 }
 
 void Item::set_project(Project *project)
 {
   project_ = project;
+
+  foreach (Item* i, item_children_) {
+    i->set_project(project_);
+  }
 }
 
 QVector<Item *> Item::get_children_of_type(Type type, bool recursive) const
@@ -129,11 +120,13 @@ void Item::childEvent(QChildEvent *event)
 
       item_children_.append(cast_test);
       cast_test->item_parent_ = this;
+      cast_test->set_project(project_);
 
     } else if (event->type() == QEvent::ChildRemoved) {
 
       item_children_.removeOne(cast_test);
       cast_test->item_parent_ = nullptr;
+      cast_test->set_project(nullptr);
 
     }
   }

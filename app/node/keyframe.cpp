@@ -20,32 +20,35 @@
 
 #include "keyframe.h"
 
+#include "input.h"
+
 namespace olive {
 
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
-NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track) :
-  parent_(nullptr),
+NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track, int element, QObject *parent) :
   time_(time),
   value_(value),
   type_(type),
   bezier_control_in_(QPointF(-1.0, 0.0)),
   bezier_control_out_(QPointF(1.0, 0.0)),
-  track_(track)
+  track_(track),
+  element_(element)
 {
+  setParent(parent);
 }
 
-NodeKeyframePtr NodeKeyframe::Create(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int& track)
+NodeKeyframe *NodeKeyframe::copy(QObject* parent) const
 {
-  return std::make_shared<NodeKeyframe>(time, value, type, track);
-}
-
-NodeKeyframePtr NodeKeyframe::copy() const
-{
-  NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(time_, value_, type_, track_);
+  NodeKeyframe* copy = new NodeKeyframe(time_, value_, type_, track_, element_, parent);
   copy->bezier_control_in_ = bezier_control_in_;
   copy->bezier_control_out_ = bezier_control_out_;
   return copy;
+}
+
+NodeInput *NodeKeyframe::parent() const
+{
+  return static_cast<NodeInput*>(QObject::parent());
 }
 
 const rational &NodeKeyframe::time() const
@@ -121,11 +124,6 @@ void NodeKeyframe::set_bezier_control(NodeKeyframe::BezierType type, const QPoin
   }
 }
 
-const int &NodeKeyframe::track() const
-{
-  return track_;
-}
-
 NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::BezierType type)
 {
   if (type == kInHandle) {
@@ -133,16 +131,6 @@ NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::Be
   } else {
     return kInHandle;
   }
-}
-
-NodeInput *NodeKeyframe::parent() const
-{
-  return parent_;
-}
-
-void NodeKeyframe::set_parent(NodeInput *parent)
-{
-  parent_ = parent;
 }
 
 }

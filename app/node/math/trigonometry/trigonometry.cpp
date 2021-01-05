@@ -24,13 +24,11 @@ namespace olive {
 
 TrigonometryNode::TrigonometryNode()
 {
-  method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kCombo);
-  method_in_->set_connectable(false);
-  method_in_->set_is_keyframable(false);
-  AddInput(method_in_);
+  method_in_ = new NodeInput(this, QStringLiteral("method_in"), NodeValue::kCombo);
+  method_in_->SetConnectable(false);
+  method_in_->SetKeyframable(false);
 
-  x_in_ = new NodeInput(QStringLiteral("x_in"), NodeParam::kFloat, 0.0);
-  AddInput(x_in_);
+  x_in_ = new NodeInput(this, QStringLiteral("x_in"), NodeValue::kFloat, 0.0);
 }
 
 olive::Node *olive::TrigonometryNode::copy() const
@@ -79,11 +77,11 @@ void TrigonometryNode::Retranslate()
 
 NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
 {
-  float x = value[x_in_].Take(NodeParam::kFloat).toFloat();
+  float x = value[x_in_].Take(NodeValue::kFloat).toFloat();
 
   NodeValueTable table = value.Merge();
 
-  switch (static_cast<Operation>(method_in_->get_standard_value().toInt())) {
+  switch (static_cast<Operation>(method_in_->GetStandardValue().toInt())) {
   case kOpSine:
     x = qSin(x);
     break;
@@ -113,7 +111,7 @@ NodeValueTable TrigonometryNode::Value(NodeValueDatabase &value) const
     break;
   }
 
-  table.Push(NodeParam::kFloat, x, this);
+  table.Push(NodeValue::kFloat, x, this);
 
   return table;
 }

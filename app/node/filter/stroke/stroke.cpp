@@ -26,26 +26,22 @@ namespace olive {
 
 StrokeFilterNode::StrokeFilterNode()
 {
-  tex_input_ = new NodeInput("tex_in", NodeParam::kTexture);
-  AddInput(tex_input_);
+  tex_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
 
-  color_input_ = new NodeInput("color_in",
-                               NodeParam::kColor,
+  color_input_ = new NodeInput(this,
+                               QStringLiteral("color_in"),
+                               NodeValue::kColor,
                                QVariant::fromValue(Color(1.0f, 1.0f, 1.0f, 1.0f)));
-  AddInput(color_input_);
 
-  radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
+  radius_input_ = new NodeInput(this, QStringLiteral("radius_in"), NodeValue::kFloat, 10.0f);
   radius_input_->setProperty("min", 0.0f);
-  AddInput(radius_input_);
 
-  opacity_input_ = new NodeInput("opacity_in", NodeParam::kFloat, 1.0f);
+  opacity_input_ = new NodeInput(this, QStringLiteral("opacity_in"), NodeValue::kFloat, 1.0f);
   opacity_input_->setProperty("view", QStringLiteral("percent"));
   opacity_input_->setProperty("min", 0.0f);
   opacity_input_->setProperty("max", 1.0f);
-  AddInput(opacity_input_);
 
-  inner_input_ = new NodeInput("inner_in", NodeParam::kBoolean, false);
-  AddInput(inner_input_);
+  inner_input_ = new NodeInput(this, QStringLiteral("inner_in"), NodeValue::kBoolean, false);
 }
 
 Node *StrokeFilterNode::copy() const
@@ -92,16 +88,16 @@ NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(opacity_input_, value);
   job.InsertValue(inner_input_, value);
   job.InsertValue(QStringLiteral("resolution_in"),
-                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
+                  NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data.isNull()) {
-    if (job.GetValue(radius_input_).data.toDouble() > 0.0
-        && job.GetValue(opacity_input_).data.toDouble() > 0.0) {
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  if (!job.GetValue(tex_input_).data().isNull()) {
+    if (job.GetValue(radius_input_).data().toDouble() > 0.0
+        && job.GetValue(opacity_input_).data().toDouble() > 0.0) {
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_), this);
+      table.Push(job.GetValue(tex_input_));
     }
   }
 

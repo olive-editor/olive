@@ -28,14 +28,11 @@ namespace olive {
 
 TransformDistortNode::TransformDistortNode()
 {
-  autoscale_input_ = new NodeInput(QStringLiteral("autoscale_in"), NodeParam::kCombo, 0);
-  AddInput(autoscale_input_);
+  autoscale_input_ = new NodeInput(this, QStringLiteral("autoscale_in"), NodeValue::kCombo, 0);
 
-  interpolation_input_ = new NodeInput(QStringLiteral("interpolation_in"), NodeParam::kCombo, 2);
-  AddInput(interpolation_input_);
+  interpolation_input_ = new NodeInput(this, QStringLiteral("interpolation_in"), NodeValue::kCombo, 2);
 
-  texture_input_ = new NodeInput(QStringLiteral("tex_in"), NodeParam::kTexture);
-  AddInput(texture_input_);
+  texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
 }
 
 void TransformDistortNode::Retranslate()
@@ -56,7 +53,7 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
   QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
 
   // Pop texture
-  TexturePtr texture = value[texture_input_].Take(NodeParam::kTexture).value<TexturePtr>();
+  TexturePtr texture = value[texture_input_].Take(NodeValue::kTexture).value<TexturePtr>();
 
   // Merge table
   NodeValueTable table = value.Merge();
@@ -64,9 +61,9 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
   // If we have a texture, generate a matrix and make it happen
   if (texture) {
     // Adjust our matrix by the resolutions involved
-    QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+    QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
     QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
-    AutoScaleType autoscale = static_cast<AutoScaleType>(value[autoscale_input_].Get(NodeParam::kCombo).toInt());
+    AutoScaleType autoscale = static_cast<AutoScaleType>(value[autoscale_input_].Get(NodeValue::kCombo).toInt());
 
     QMatrix4x4 real_matrix = AdjustMatrixByResolutions(generated_matrix,
                                                        sequence_res,
@@ -75,19 +72,19 @@ NodeValueTable TransformDistortNode::Value(NodeValueDatabase &value) const
 
     if (real_matrix.isIdentity()) {
       // We don't expect any changes, just push as normal
-      table.Push(NodeParam::kTexture, QVariant::fromValue(texture), this);
+      table.Push(NodeValue::kTexture, QVariant::fromValue(texture), this);
     } else {
       // The matrix will transform things
       ShaderJob job;
-      job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(texture), NodeParam::kTexture));
-      job.InsertValue(QStringLiteral("ove_mvpmat"), ShaderValue(real_matrix, NodeParam::kMatrix));
-      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[interpolation_input_].Get(NodeParam::kCombo).toInt()));
+      job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture), this));
+      job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, real_matrix, this));
+      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[interpolation_input_].Get(NodeValue::kCombo).toInt()));
 
       // FIXME: This should be optimized, we can use matrix math to determine if this operation will
       //        end up with gaps in the screen that will require an alpha channel.
       job.SetAlphaChannelRequired(true);
 
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     }
   }
 
@@ -123,10 +120,10 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
   if (scaling) {
 
     // Dragging scale handle
-    gizmo_start_ = {db[scale_input()].Get(NodeParam::kVec2)};
+    gizmo_start_ = {db[scale_input()].Get(NodeValue::kVec2)};
     gizmo_drag_ = scale_input();
 
-    gizmo_scale_uniform_ = db[uniform_scale_input()].Get(NodeParam::kBoolean).toBool();
+    gizmo_scale_uniform_ = db[uniform_scale_input()].Get(NodeValue::kBoolean).toBool();
 
     if (gizmo_scale_active[kGizmoScaleTopLeft] || gizmo_scale_active[kGizmoScaleTopRight]
         || gizmo_scale_active[kGizmoScaleBottomLeft] || gizmo_scale_active[kGizmoScaleBottomRight]) {
@@ -138,8 +135,8 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
     }
 
     // Store texture size
-    QVector2D texture_sz = db[texture_input()].Get(NodeParam::kTexture).value<QVector2D>();
-    gizmo_scale_anchor_ = db[anchor_input()].Get(NodeParam::kVec2).value<QVector2D>() + texture_sz/2;
+    QVector2D texture_sz = db[texture_input()].Get(NodeValue::kTexture).value<QVector2D>();
+    gizmo_scale_anchor_ = db[anchor_input()].Get(NodeValue::kVec2).value<QVector2D>() + texture_sz/2;
 
     if (gizmo_scale_active[kGizmoScaleTopRight]
         || gizmo_scale_active[kGizmoScaleBottomRight]
@@ -163,8 +160,8 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
   } else if (gizmo_anchor_pt_.contains(p)) {
 
     // Dragging the anchor point specifically
-    gizmo_start_ = {db[anchor_input()].Get(NodeParam::kVec2),
-                    db[position_input()].Get(NodeParam::kVec2)};
+    gizmo_start_ = {db[anchor_input()].Get(NodeValue::kVec2),
+                    db[position_input()].Get(NodeValue::kVec2)};
     gizmo_drag_ = anchor_input();
 
     // Store current matrix
@@ -175,7 +172,7 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
   } else if (gizmo_rect_.containsPoint(p, Qt::OddEvenFill)) {
 
     // Dragging the main rectangle
-    gizmo_start_ = {db[position_input()].Get(NodeParam::kVec2)};
+    gizmo_start_ = {db[position_input()].Get(NodeValue::kVec2)};
     gizmo_drag_ = position_input();
 
     return true;
@@ -183,7 +180,7 @@ bool TransformDistortNode::GizmoPress(NodeValueDatabase &db, const QPointF &p)
   } else {
 
     // Dragging rotation
-    gizmo_start_ = {db[rotation_input()].Get(NodeParam::kFloat)};
+    gizmo_start_ = {db[rotation_input()].Get(NodeValue::kFloat)};
     gizmo_drag_ = rotation_input();
     gizmo_start_angle_ = qAtan2(gizmo_drag_pos_.y() - gizmo_anchor_pt_.center().y(),
                                 gizmo_drag_pos_.x() - gizmo_anchor_pt_.center().x());
@@ -364,15 +361,15 @@ void TransformDistortNode::DrawGizmos(NodeValueDatabase &db, QPainter *p)
   p->setPen(QPen(Qt::white, 0));
 
   // Get the sequence resolution
-  QVector2D sequence_res = db[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+  QVector2D sequence_res = db[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
   QVector2D sequence_half_res = sequence_res/2;
   QPointF sequence_half_res_pt = sequence_half_res.toPointF();
 
   // GizmoTraverser just returns the sizes of the textures and no other data
-  QVector2D tex_sz = db[texture_input_].Get(NodeParam::kTexture).value<QVector2D>();
+  QVector2D tex_sz = db[texture_input_].Get(NodeValue::kTexture).value<QVector2D>();
 
   // Retrieve autoscale value
-  AutoScaleType autoscale = static_cast<AutoScaleType>(db[autoscale_input_].Get(NodeParam::kCombo).toInt());
+  AutoScaleType autoscale = static_cast<AutoScaleType>(db[autoscale_input_].Get(NodeValue::kCombo).toInt());
 
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;

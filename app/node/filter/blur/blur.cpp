@@ -24,24 +24,18 @@ namespace olive {
 
 BlurFilterNode::BlurFilterNode()
 {
-  texture_input_ = new NodeInput("tex_in", NodeParam::kTexture);
-  AddInput(texture_input_);
+  texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
 
-  method_input_ = new NodeInput("method_in", NodeParam::kCombo, 0);
-  AddInput(method_input_);
+  method_input_ = new NodeInput(this, QStringLiteral("method_in"), NodeValue::kCombo, 0);
 
-  radius_input_ = new NodeInput("radius_in", NodeParam::kFloat, 10.0f);
+  radius_input_ = new NodeInput(this, QStringLiteral("radius_in"), NodeValue::kFloat, 10.0f);
   radius_input_->setProperty("min", 0.0f);
-  AddInput(radius_input_);
 
-  horiz_input_ = new NodeInput("horiz_in", NodeParam::kBoolean, true);
-  AddInput(horiz_input_);
+  horiz_input_ = new NodeInput(this, QStringLiteral("horiz_in"), NodeValue::kBoolean, true);
 
-  vert_input_ = new NodeInput("vert_in", NodeParam::kBoolean, true);
-  AddInput(vert_input_);
+  vert_input_ = new NodeInput(this, QStringLiteral("vert_in"), NodeValue::kBoolean, true);
 
-  repeat_edge_pixels_input_ = new NodeInput("repeat_edge_pixels_in", NodeParam::kBoolean, false);
-  AddInput(repeat_edge_pixels_input_);
+  repeat_edge_pixels_input_ = new NodeInput(this, QStringLiteral("repeat_edge_pixels_in"), NodeValue::kBoolean, false);
 }
 
 Node *BlurFilterNode::copy() const
@@ -97,32 +91,32 @@ NodeValueTable BlurFilterNode::Value(NodeValueDatabase &value) const
   job.InsertValue(vert_input_, value);
   job.InsertValue(repeat_edge_pixels_input_, value);
   job.InsertValue(QStringLiteral("resolution_in"),
-                  ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
+                  NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
 
   NodeValueTable table = value.Merge();
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(texture_input_).data.isNull()) {
+  if (!job.GetValue(texture_input_).data().isNull()) {
 
     // Check if radius > 0, and both "horiz" and/or "vert" are enabled
-    if ((job.GetValue(horiz_input_).data.toBool() || job.GetValue(vert_input_).data.toBool())
-        && job.GetValue(radius_input_).data.toDouble() > 0.0) {
+    if ((job.GetValue(horiz_input_).data().toBool() || job.GetValue(vert_input_).data().toBool())
+        && job.GetValue(radius_input_).data().toDouble() > 0.0) {
 
       // Set iteration count to 2 if we're blurring both horizontally and vertically
-      if (job.GetValue(horiz_input_).data.toBool() && job.GetValue(vert_input_).data.toBool()) {
+      if (job.GetValue(horiz_input_).data().toBool() && job.GetValue(vert_input_).data().toBool()) {
         job.SetIterations(2, texture_input_);
       }
 
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(repeat_edge_pixels_input_).data.toBool()) {
+      if (!job.GetValue(repeat_edge_pixels_input_).data().toBool()) {
         job.SetAlphaChannelRequired(true);
       }
 
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 
     } else {
       // If we're not performing the blur job, just push the texture
-      table.Push(job.GetValue(texture_input_), this);
+      table.Push(job.GetValue(texture_input_));
     }
 
   }

@@ -27,26 +27,21 @@ namespace olive {
 
 MatrixGenerator::MatrixGenerator()
 {
-  position_input_ = new NodeInput("pos_in", NodeParam::kVec2, QVector2D());
-  AddInput(position_input_);
+  position_input_ = new NodeInput(this, QStringLiteral("pos_in"), NodeValue::kVec2, QVector2D());
 
-  rotation_input_ = new NodeInput("rot_in", NodeParam::kFloat, 0.0f);
-  AddInput(rotation_input_);
+  rotation_input_ = new NodeInput(this, QStringLiteral("rot_in"), NodeValue::kFloat, 0.0f);
 
-  scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(1.0f, 1.0f));
+  scale_input_ = new NodeInput(this, QStringLiteral("scale_in"), NodeValue::kVec2, QVector2D(1.0f, 1.0f));
   scale_input_->setProperty("min", QVector2D(0, 0));
   scale_input_->setProperty("view", QStringLiteral("percent"));
   scale_input_->setProperty("disabley", true);
-  AddInput(scale_input_);
 
-  uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
-  uniform_scale_input_->set_is_keyframable(false);
-  uniform_scale_input_->set_connectable(false);
+  uniform_scale_input_ = new NodeInput(this, QStringLiteral("uniform_scale_in"), NodeValue::kBoolean, true);
+  uniform_scale_input_->SetKeyframable(false);
+  uniform_scale_input_->SetConnectable(false);
   connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &MatrixGenerator::UniformScaleChanged);
-  AddInput(uniform_scale_input_);
 
-  anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2, QVector2D());
-  AddInput(anchor_input_);
+  anchor_input_ = new NodeInput(this, QStringLiteral("anchor_in"), NodeValue::kVec2, QVector2D());
 }
 
 Node *MatrixGenerator::copy() const
@@ -93,7 +88,7 @@ NodeValueTable MatrixGenerator::Value(NodeValueDatabase &value) const
   // Push matrix output
   QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
   NodeValueTable output = value.Merge();
-  output.Push(NodeParam::kMatrix, mat, this);
+  output.Push(NodeValue::kMatrix, mat, this);
   return output;
 }
 
@@ -106,47 +101,47 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(NodeValueDatabase &value, bool take, 
   if (!ignore_anchor) {
     if (take) {
       // Take and store
-      anchor = value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>();
+      anchor = value[anchor_input_].Take(NodeValue::kVec2).value<QVector2D>();
     } else {
       // Get and store
-      anchor = value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>();
+      anchor = value[anchor_input_].Get(NodeValue::kVec2).value<QVector2D>();
     }
   } else if (take) {
     // Just take
-    value[anchor_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    value[anchor_input_].Take(NodeValue::kVec2).value<QVector2D>();
   }
 
   if (!ignore_scale) {
     if (take) {
-      scale = value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+      scale = value[scale_input_].Take(NodeValue::kVec2).value<QVector2D>();
     } else {
-      scale = value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>();
+      scale = value[scale_input_].Get(NodeValue::kVec2).value<QVector2D>();
     }
   } else if (take) {
-    value[scale_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    value[scale_input_].Take(NodeValue::kVec2).value<QVector2D>();
   }
 
   if (!ignore_position) {
     if (take) {
-      position = value[position_input_].Take(NodeParam::kVec2).value<QVector2D>();
+      position = value[position_input_].Take(NodeValue::kVec2).value<QVector2D>();
     } else {
-      position = value[position_input_].Get(NodeParam::kVec2).value<QVector2D>();
+      position = value[position_input_].Get(NodeValue::kVec2).value<QVector2D>();
     }
   } else if (take) {
-    value[position_input_].Take(NodeParam::kVec2).value<QVector2D>();
+    value[position_input_].Take(NodeValue::kVec2).value<QVector2D>();
   }
 
   if (take) {
     return GenerateMatrix(position,
-                          value[rotation_input_].Take(NodeParam::kFloat).toFloat(),
+                          value[rotation_input_].Take(NodeValue::kFloat).toFloat(),
                           scale,
-                          value[uniform_scale_input_].Take(NodeParam::kBoolean).toBool(),
+                          value[uniform_scale_input_].Take(NodeValue::kBoolean).toBool(),
                           anchor);
   } else {
     return GenerateMatrix(position,
-                          value[rotation_input_].Get(NodeParam::kFloat).toFloat(),
+                          value[rotation_input_].Get(NodeValue::kFloat).toFloat(),
                           scale,
-                          value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool(),
+                          value[uniform_scale_input_].Get(NodeValue::kBoolean).toBool(),
                           anchor);
 
   }
@@ -183,7 +178,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
 
 void MatrixGenerator::UniformScaleChanged()
 {
-  scale_input_->setProperty("disabley", uniform_scale_input_->get_standard_value().toBool());
+  scale_input_->setProperty("disabley", uniform_scale_input_->GetStandardValue().toBool());
 }
 
 }

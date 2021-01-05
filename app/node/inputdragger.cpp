@@ -37,7 +37,7 @@ bool NodeInputDragger::IsStarted() const
   return input_;
 }
 
-void NodeInputDragger::Start(NodeInput *input, const rational &time, int track)
+void NodeInputDragger::Start(NodeInput *input, const rational &time, int track, int element)
 {
   Q_ASSERT(!input_);
 
@@ -45,27 +45,23 @@ void NodeInputDragger::Start(NodeInput *input, const rational &time, int track)
   input_ = input;
   time_ = time;
   track_ = track;
+  element_ = element;
 
   // Cache current value
-  start_value_ = input_->get_value_at_time_for_track(time, track);
+  start_value_ = input_->GetValueAtTimeForTrack(time, track, element_);
 
   // Determine whether we are creating a keyframe or not
-  if (input_->is_keyframing()) {
-    dragging_key_ = input_->get_keyframe_at_time_on_track(time, track);
+  if (input_->IsKeyframing(element_)) {
+    dragging_key_ = input_->GetKeyframeAtTimeOnTrack(time, track, element_);
     drag_created_key_ = !dragging_key_;
 
     if (drag_created_key_) {
-      dragging_key_ = NodeKeyframe::Create(time,
-                                           start_value_,
-                                           input_->get_best_keyframe_type_for_time(time, track),
-                                           track);
-
-      // We disable default signal emitting during the drag
-      //input_->blockSignals(true);
-      input_->insert_keyframe(dragging_key_);
-      //input_->blockSignals(false);
-
-      emit input_->KeyframeAdded(dragging_key_);
+      dragging_key_ = new NodeKeyframe(time,
+                                       start_value_,
+                                       input_->GetBestKeyframeTypeForTime(time, track, element_),
+                                       track,
+                                       element_,
+                                       input_);
     }
   }
 }
@@ -95,10 +91,10 @@ void NodeInputDragger::Drag(QVariant value)
 
   //input_->blockSignals(true);
 
-  if (input_->is_keyframing()) {
+  if (input_->IsKeyframing(element_)) {
     dragging_key_->set_value(value);
   } else {
-    input_->set_standard_value(value, track_);
+    input_->SetStandardValueOnTrack(value, track_, element_);
   }
 
   //input_->blockSignals(false);
@@ -112,10 +108,10 @@ void NodeInputDragger::End()
 
   QUndoCommand* command = new QUndoCommand();
 
-  if (input_->is_keyframing()) {
+  if (input_->IsKeyframing(element_)) {
     if (drag_created_key_) {
       // We created a keyframe in this process
-      new NodeParamInsertKeyframeCommand(input_, dragging_key_, true, command);
+      new NodeParamInsertKeyframeCommand(input_, dragging_key_, command);
     }
 
     // We just set a keyframe's value
@@ -124,7 +120,7 @@ void NodeInputDragger::End()
     new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_, command);
   } else {
     // We just set the standard value
-    new NodeParamSetStandardValueCommand(input_, track_, end_value_, start_value_, command);
+    new NodeParamSetStandardValueCommand(input_, track_, element_, end_value_, start_value_, command);
   }
 
   Core::instance()->undo_stack()->push(command);

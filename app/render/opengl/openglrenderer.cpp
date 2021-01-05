@@ -367,51 +367,50 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     }
 
     // This variable is used in the shader, let's set it
-    const ShaderValue& value = it.value();
+    const NodeValue& value = it.value();
 
-    if (value.array) {
+    if (value.array()) {
       qWarning() << "FIXME: Array support is currently a stub";
     }
 
-    switch (value.type) {
-    case NodeInput::kInt:
+    switch (value.type()) {
+    case NodeValue::kInt:
       // kInt technically specifies a LongLong, but OpenGL doesn't support those. This may lead to
       // over/underflows if the number is large enough, but the likelihood of that is quite low.
-      shader->setUniformValue(variable_location, value.data.toInt());
+      shader->setUniformValue(variable_location, value.data().toInt());
       break;
-    case NodeInput::kFloat:
+    case NodeValue::kFloat:
       // kFloat technically specifies a double but as above, OpenGL doesn't support those.
-      shader->setUniformValue(variable_location, value.data.toFloat());
+      shader->setUniformValue(variable_location, value.data().toFloat());
       break;
-    case NodeInput::kVec2:
-      shader->setUniformValue(variable_location, value.data.value<QVector2D>());
+    case NodeValue::kVec2:
+      shader->setUniformValue(variable_location, value.data().value<QVector2D>());
       break;
-    case NodeInput::kVec3:
-      shader->setUniformValue(variable_location, value.data.value<QVector3D>());
+    case NodeValue::kVec3:
+      shader->setUniformValue(variable_location, value.data().value<QVector3D>());
       break;
-    case NodeInput::kVec4:
-      shader->setUniformValue(variable_location, value.data.value<QVector4D>());
+    case NodeValue::kVec4:
+      shader->setUniformValue(variable_location, value.data().value<QVector4D>());
       break;
-    case NodeInput::kMatrix:
-      shader->setUniformValue(variable_location, value.data.value<QMatrix4x4>());
+    case NodeValue::kMatrix:
+      shader->setUniformValue(variable_location, value.data().value<QMatrix4x4>());
       break;
-    case NodeInput::kCombo:
-      shader->setUniformValue(variable_location, value.data.value<int>());
+    case NodeValue::kCombo:
+      shader->setUniformValue(variable_location, value.data().value<int>());
       break;
-    case NodeInput::kColor:
+    case NodeValue::kColor:
     {
-      Color color = value.data.value<Color>();
+      Color color = value.data().value<Color>();
       shader->setUniformValue(variable_location,
                               color.red(), color.green(), color.blue(), color.alpha());
       break;
     }
-    case NodeInput::kBoolean:
-      shader->setUniformValue(variable_location, value.data.toBool());
+    case NodeValue::kBoolean:
+      shader->setUniformValue(variable_location, value.data().toBool());
       break;
-    case NodeInput::kBuffer:
-    case NodeInput::kTexture:
+    case NodeValue::kTexture:
     {
-      TexturePtr texture = value.data.value<TexturePtr>();
+      TexturePtr texture = value.data().value<TexturePtr>();
 
       // Set value to bound texture
       shader->setUniformValue(variable_location, textures_to_bind.size());
@@ -433,21 +432,16 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       }
       break;
     }
-    case NodeInput::kSamples:
-    case NodeInput::kText:
-    case NodeInput::kRational:
-    case NodeInput::kFont:
-    case NodeInput::kFile:
-    case NodeInput::kDecimal:
-    case NodeInput::kNumber:
-    case NodeInput::kString:
-    case NodeInput::kVector:
-    case NodeInput::kShaderJob:
-    case NodeInput::kSampleJob:
-    case NodeInput::kGenerateJob:
-    case NodeInput::kFootage:
-    case NodeInput::kNone:
-    case NodeInput::kAny:
+    case NodeValue::kSamples:
+    case NodeValue::kText:
+    case NodeValue::kRational:
+    case NodeValue::kFont:
+    case NodeValue::kFile:
+    case NodeValue::kShaderJob:
+    case NodeValue::kSampleJob:
+    case NodeValue::kGenerateJob:
+    case NodeValue::kFootage:
+    case NodeValue::kNone:
       break;
     }
   }
@@ -469,7 +463,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
   // Ensure matrix is set, at least to identity
   shader->setUniformValue("ove_mvpmat",
-                          job.GetValue(QStringLiteral("ove_mvpmat")).data.value<QMatrix4x4>());
+                          job.GetValue(QStringLiteral("ove_mvpmat")).data().value<QMatrix4x4>());
 
   // Set the viewport to the "physical" resolution of the destination
   functions_->glViewport(0, 0,

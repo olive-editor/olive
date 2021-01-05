@@ -572,8 +572,6 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
   QUndoCommand* command = new QUndoCommand();
 
-  new NodeGraphBeginOperationCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), command);
-
   if (!blocks_trimming.isEmpty()) {
     foreach (const GhostBlockPair& p, blocks_trimming) {
       TimelineViewGhostItem* ghost = p.ghost;
@@ -729,8 +727,6 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
   }
-
-  new NodeGraphEndOperationCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }

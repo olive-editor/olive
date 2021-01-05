@@ -49,7 +49,7 @@ private:
 
 };
 
-uint qHash(const TrackReference& r, uint seed);
+uint qHash(const TrackReference& r, uint seed = 0);
 
 }
 

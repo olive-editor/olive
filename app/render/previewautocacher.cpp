@@ -61,66 +61,13 @@ void PreviewAutoCacher::SetPaused(bool paused)
   }
 }
 
-void PreviewAutoCacher::NodeGraphChanged(NodeInput *source)
-{
-  // We need to determine:
-  // - If we don't have this input, assume that it's coming soon and ignore it
-  // - If we do, is this input a child of another input we're already copying?
-  // - Or are any of the queued inputs children of this one?
-
-  // First we need to find our copy of the input being queued
-  Node* our_copy_node = copy_map_.value(source->parentNode());
-
-  // If we don't have this node yet, assume it's coming in a later copy in which case it'll be
-  // copied then
-  if (!our_copy_node) {
-    // Assert that there are updates coming
-    Q_ASSERT(!graph_update_queue_.isEmpty());
-    return;
-  }
-
-  // If we're here, we must have this node. Determine if we're already copying a "parent" of this
-  for (int i=0; i<graph_update_queue_.size(); i++) {
-    NodeInput* queued_input = graph_update_queue_.at(i);
-
-    // If this input is already queued, nothing to be done
-    if (source == queued_input) {
-      return;
-    }
-
-    // Check if this input supersedes an already queued input
-    if ((source->IsArray() && static_cast<NodeInputArray*>(source)->sub_params().contains(queued_input))
-        || queued_input->parentNode()->OutputsTo(source, true, true)) {
-      // In which case, we don't need to queue it and can queue our own
-      graph_update_queue_.removeAt(i);
-      disconnect(queued_input, &NodeInput::destroyed, this, &PreviewAutoCacher::QueuedInputRemoved);
-      i--;
-    }
-
-    // Check if the source is a member of this array, in which case it'll be copied eventually anyway
-    if (queued_input->IsArray()
-        && static_cast<NodeInputArray*>(queued_input)->sub_params().contains(source)) {
-      return;
-    }
-
-    // Check if this dependency graph is already queued
-    if (source->parentNode()->OutputsTo(queued_input, true, true)) {
-      // In which case, no further copy is necessary
-      return;
-    }
-  }
-
-  graph_update_queue_.append(source);
-  connect(source, &NodeInput::destroyed, this, &PreviewAutoCacher::QueuedInputRemoved);
-}
-
 void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->texture_input()->get_connected_node(), viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->texture_input()->GetConnectedNode(), viewer->video_params(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -292,13 +239,6 @@ void PreviewAutoCacher::VideoDownloaded()
   delete watcher;
 }
 
-void PreviewAutoCacher::QueuedInputRemoved()
-{
-  NodeInput* i = static_cast<NodeInput*>(sender());
-  disconnect(i, &NodeInput::destroyed, this, &PreviewAutoCacher::QueuedInputRemoved);
-  graph_update_queue_.removeOne(i);
-}
-
 void PreviewAutoCacher::VideoParamsChanged()
 {
   // In case the user is pressing the mouse at this exact moment
@@ -324,27 +264,28 @@ void PreviewAutoCacher::SingleFrameFinished()
   delete watcher;
 }
 
-//#define PRINT_UPDATE_QUEUE_INFO
 void PreviewAutoCacher::ProcessUpdateQueue()
 {
-#ifdef PRINT_UPDATE_QUEUE_INFO
-  qint64 t = QDateTime::currentMSecsSinceEpoch();
-  qDebug() << "Processing update queue of" << graph_update_queue_.size() << "elements:";
-#endif
-
-  while (!graph_update_queue_.isEmpty()) {
-    NodeInput* i = graph_update_queue_.takeFirst();
-#ifdef PRINT_UPDATE_QUEUE_INFO
-    qDebug() << " " << i->parentNode()->id() << i->id();
-#endif
-    disconnect(i, &NodeInput::destroyed, this, &PreviewAutoCacher::QueuedInputRemoved);
-
-    CopyNodeInputValue(i);
+  foreach (const QueuedJob& job, graph_update_queue_) {
+    switch (job.type) {
+    case QueuedJob::kNodeAdded:
+      AddNode(job.node);
+      break;
+    case QueuedJob::kNodeRemoved:
+      RemoveNode(job.node);
+      break;
+    case QueuedJob::kEdgeAdded:
+      AddEdge(job.node, job.input, job.element);
+      break;
+    case QueuedJob::kEdgeRemoved:
+      RemoveEdge(job.node, job.input, job.element);
+      break;
+    case QueuedJob::kValueChanged:
+      CopyValue(job.input, job.element);
+      break;
+    }
   }
-
-#ifdef PRINT_UPDATE_QUEUE_INFO
-  qDebug() << "Update queue took:" << (QDateTime::currentMSecsSinceEpoch() - t);
-#endif
+  graph_update_queue_.clear();
 
   last_update_time_ = QDateTime::currentMSecsSinceEpoch();
 }
@@ -354,6 +295,63 @@ bool PreviewAutoCacher::HasActiveJobs() const
   return !hash_tasks_.isEmpty()
       || !audio_tasks_.isEmpty()
       || !video_tasks_.isEmpty();
+}
+
+void PreviewAutoCacher::AddNode(Node *node)
+{
+  // Copy node
+  Node* copy = node->copy();
+
+  // Insert into map
+  copy_map_.insert(node, copy);
+
+  // Copy parameters
+  Node::CopyInputs(node, copy, false);
+
+  // Connect to each input
+  foreach (NodeInput* input, node->parameters()) {
+    connect(input, &NodeInput::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
+    connect(input, &NodeInput::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
+    connect(input, &NodeInput::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
+  }
+}
+
+void PreviewAutoCacher::RemoveNode(Node *node)
+{
+  // Find our copy and remove it
+  Node* copy = copy_map_.take(node);
+
+  // Delete it
+  delete copy;
+
+  // Disconnect from inputs
+  foreach (NodeInput* input, node->parameters()) {
+    disconnect(input, &NodeInput::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
+    disconnect(input, &NodeInput::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
+    disconnect(input, &NodeInput::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
+  }
+}
+
+void PreviewAutoCacher::AddEdge(Node *output, NodeInput *input, int element)
+{
+  Node* our_output = copy_map_.value(output);
+  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
+
+  Node::ConnectEdge(our_output, our_input, element);
+}
+
+void PreviewAutoCacher::RemoveEdge(Node *output, NodeInput *input, int element)
+{
+  Node* our_output = copy_map_.value(output);
+  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
+
+  Node::DisconnectEdge(our_output, our_input, element);
+}
+
+void PreviewAutoCacher::CopyValue(NodeInput *input, int element)
+{
+  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
+  NodeInput::CopyValuesOfElement(input, our_input, element);
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -440,90 +438,31 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
   }
 }
 
-void PreviewAutoCacher::CopyNodeInputValue(NodeInput *input)
+void PreviewAutoCacher::NodeAdded(Node *node)
 {
-  // Find our copy of this parameter
-  Node* our_copy_node = copy_map_.value(input->parentNode());
-  Q_ASSERT(our_copy_node);
-  NodeInput* our_copy = our_copy_node->GetInputWithID(input->id());
-
-  // Copy the standard/keyframe values between these two inputs
-  NodeInput::CopyValues(input,
-                        our_copy,
-                        false,
-                        false);
-
-  // Handle connections
-  if (input->is_connected() || our_copy->is_connected()) {
-    // If one of the inputs is connected, it's likely this change came from connecting or
-    // disconnecting whatever was connected to it
-
-    // We start by removing all old dependencies from the map
-    QVector<Node*> old_deps = our_copy->GetExclusiveDependencies();
-    foreach (Node* i, old_deps) {
-      copy_map_.take(copy_map_.key(i))->deleteLater();
-    }
-
-    // And clear any other edges
-    while (!our_copy->edges().isEmpty()) {
-      NodeParam::DisconnectEdge(our_copy->edges().first());
-    }
-
-    // Then we copy all node dependencies and connections (if there are any)
-    CopyNodeMakeConnection(input, our_copy);
-  }
-
-  // Call on sub-elements too
-  if (input->IsArray()) {
-    foreach (NodeInput* i, static_cast<NodeInputArray*>(input)->sub_params()) {
-      CopyNodeInputValue(i);
-    }
-  }
+  graph_update_queue_.append({QueuedJob::kNodeAdded, node, nullptr, -1});
 }
 
-Node* PreviewAutoCacher::CopyNodeConnections(Node* src_node)
+void PreviewAutoCacher::NodeRemoved(Node *node)
 {
-  // Check if this node is already in the map
-  Node* dst_node = copy_map_.value(src_node);
-
-  // If not, create it now
-  if (!dst_node) {
-    dst_node = src_node->copy();
-
-    if (dst_node->IsTrack()) {
-      // Hack that ensures the track type is set since we don't bother copying the whole timeline
-      static_cast<TrackOutput*>(dst_node)->set_track_type(static_cast<TrackOutput*>(src_node)->track_type());
-    }
-
-    copy_map_.insert(src_node, dst_node);
-  }
-
-  // Make sure its values are copied
-  Node::CopyInputs(src_node, dst_node, false);
-
-  // Copy all connections
-  QVector<NodeInput*> src_node_inputs = src_node->GetInputsIncludingArrays();
-  QVector<NodeInput*> dst_node_inputs = dst_node->GetInputsIncludingArrays();
-
-  for (int i=0;i<src_node_inputs.size();i++) {
-    NodeInput* src_input = src_node_inputs.at(i);
-
-    CopyNodeMakeConnection(src_input, dst_node_inputs.at(i));
-  }
-
-  return dst_node;
+  graph_update_queue_.append({QueuedJob::kNodeRemoved, node, nullptr, -1});
 }
 
-void PreviewAutoCacher::CopyNodeMakeConnection(NodeInput* src_input, NodeInput* dst_input)
+void PreviewAutoCacher::EdgeAdded(Node *output, int element)
 {
-  if (src_input->is_connected()) {
-    Node* dst_node = CopyNodeConnections(src_input->get_connected_node());
+  graph_update_queue_.append({QueuedJob::kEdgeAdded, output, static_cast<NodeInput*>(sender()), element});
+}
 
-    NodeOutput* corresponding_output = dst_node->GetOutputWithID(src_input->get_connected_output()->id());
+void PreviewAutoCacher::EdgeRemoved(Node *output, int element)
+{
+  graph_update_queue_.append({QueuedJob::kEdgeRemoved, output, static_cast<NodeInput*>(sender()), element});
+}
 
-    NodeParam::ConnectEdge(corresponding_output,
-                           dst_input);
-  }
+void PreviewAutoCacher::ValueChanged(const TimeRange &range, int element)
+{
+  Q_UNUSED(range)
+
+  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, static_cast<NodeInput*>(sender()), element});
 }
 
 void PreviewAutoCacher::TryRender()
@@ -701,12 +640,13 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     video_params_changed_ = false;
     audio_params_changed_ = false;
 
-    // Disconnect signal (will be a no-op if the signal was never connected)
-    disconnect(viewer_node_,
-               &ViewerOutput::GraphChangedFrom,
-               this,
-               &PreviewAutoCacher::NodeGraphChanged);
+    // Disconnect signals for future node additions/deletions
+    NodeGraph* graph = viewer_node_->parent();
 
+    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
+    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
+
+    // Disconnect signal (will be a no-op if the signal was never connected)
     disconnect(viewer_node_,
                &ViewerOutput::VideoParamsChanged,
                this,
@@ -732,28 +672,40 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
   if (viewer_node_) {
     // Copy graph
-    copied_viewer_node_ = static_cast<ViewerOutput*>(viewer_node_->copy());
-    copy_map_.insert(viewer_node_, copied_viewer_node_);
+    NodeGraph* graph = viewer_node_->parent();
+
+    // Add all nodes
+    foreach (Node* node, graph->nodes()) {
+      AddNode(node);
+    }
+
+    // Find copied viewer node
+    copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
 
     // Copy parameters
     copied_viewer_node_->set_video_params(viewer_node_->video_params());
     copied_viewer_node_->set_audio_params(viewer_node_->audio_params());
 
-    // We begin an operation and never end it which prevents the copy from unnecessarily
-    // invalidating its own cache
-    copied_viewer_node_->BeginOperation();
+    // Add all connections
+    foreach (Node* node, graph->nodes()) {
+      foreach (NodeInput* input, node->inputs()) {
+        for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+          AddEdge(it.value(), input, it.key());
+        }
+      }
+    }
 
-    NodeGraphChanged(viewer_node_->texture_input());
-    NodeGraphChanged(viewer_node_->samples_input());
-    ProcessUpdateQueue();
+    // Connect signals for future node additions/deletions
+    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
+    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
 
+    // Copy invalidated ranges - used to determine which frames need hashing
     invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges();
     invalidated_audio_ = viewer_node_->audio_playback_cache()->GetInvalidatedRanges();
 
-    connect(viewer_node_,
-            &ViewerOutput::GraphChangedFrom,
-            this,
-            &PreviewAutoCacher::NodeGraphChanged);
+    // We begin an operation and never end it which prevents the copy from unnecessarily
+    // invalidating its own cache
+    copied_viewer_node_->BeginOperation();
 
     connect(viewer_node_,
             &ViewerOutput::VideoParamsChanged,

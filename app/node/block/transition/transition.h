@@ -85,9 +85,13 @@ private:
   Block* connected_in_block_;
 
 private slots:
-  void BlockConnected(NodeEdgePtr edge);
+  void OutBlockConnected(Node* node);
 
-  void BlockDisconnected(NodeEdgePtr edge);
+  void OutBlockDisconnected();
+
+  void InBlockConnected(Node* node);
+
+  void InBlockDisconnected();
 
 };
 

@@ -31,10 +31,11 @@ namespace olive {
 
 class ViewerOutput;
 
-class TrackList : public QObject {
+class TrackList : public QObject
+{
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const Timeline::TrackType& type, NodeInputArray* track_input);
+  TrackList(ViewerOutput *parent, const Timeline::TrackType& type, NodeInput* track_input);
 
   const Timeline::TrackType& type() const;
 
@@ -42,15 +43,16 @@ public:
 
   TrackOutput* GetTrackAt(int index) const;
 
-  TrackOutput *AddTrack();
-
-  void RemoveTrack(QObject *new_parent);
-
   const rational& GetTotalLength() const;
 
   int GetTrackCount() const;
 
   NodeGraph* GetParentGraph() const;
+
+  NodeInput* track_input() const
+  {
+    return track_input_;
+  }
 
 signals:
   void BlockAdded(Block* block, int index);
@@ -75,7 +77,7 @@ private:
    */
   QVector<TrackOutput*> track_cache_;
 
-  NodeInputArray* track_input_;
+  NodeInput* track_input_;
 
   rational total_length_;
 
@@ -85,12 +87,12 @@ private slots:
   /**
    * @brief Slot for when the track connection is added
    */
-  void TrackConnected(NodeEdgePtr edge);
+  void TrackConnected(Node* node, int element);
 
   /**
    * @brief Slot for when the track connection is removed
    */
-  void TrackDisconnected(NodeEdgePtr edge);
+  void TrackDisconnected(Node* node, int element);
 
   /**
    * @brief Slot for when a connected Track has added a Block so we can update the UI

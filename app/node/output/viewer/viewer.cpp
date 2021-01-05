@@ -29,11 +29,9 @@ ViewerOutput::ViewerOutput() :
   audio_playback_cache_(this),
   operation_stack_(0)
 {
-  texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
-  AddInput(texture_input_);
+  texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
 
-  samples_input_ = new NodeInput("samples_in", NodeInput::kSamples);
-  AddInput(samples_input_);
+  samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
 
   // Create TrackList instances
   track_inputs_.resize(Timeline::kTrackTypeCount);
@@ -41,10 +39,8 @@ ViewerOutput::ViewerOutput() :
 
   for (int i=0;i<Timeline::kTrackTypeCount;i++) {
     // Create track input
-    NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
-    AddInput(track_input);
-    disconnect(track_input, &NodeInputArray::SubParamEdgeAdded, this, &ViewerOutput::InputConnectionChanged);
-    disconnect(track_input, &NodeInputArray::SubParamEdgeRemoved, this, &ViewerOutput::InputConnectionChanged);
+    NodeInput* track_input = new NodeInput(this, QStringLiteral("track_in_%1").arg(i), NodeValue::kNone);
+    IgnoreConnectionSignalsFrom(track_input);
     track_inputs_.replace(i, track_input);
 
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
@@ -52,7 +48,7 @@ ViewerOutput::ViewerOutput() :
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
     connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
-    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::SignalBlockRemoved);
+    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
     connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
     connect(list, &TrackList::TrackRemoved, this, &ViewerOutput::TrackRemoved);
     connect(list, &TrackList::TrackHeightChanged, this, &ViewerOutput::TrackHeightChangedSlot);
@@ -112,17 +108,15 @@ void ViewerOutput::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
+void ViewerOutput::InvalidateCache(const TimeRange& range, const InputConnection& from)
 {
-  emit GraphChangedFrom(source);
-
   if (operation_stack_ == 0) {
-    if (from == texture_input_ || from == samples_input_) {
+    if (from.input == texture_input_ || from.input == samples_input_) {
       TimeRange invalidated_range(qMax(rational(), range.in()),
                                   qMin(GetLength(), range.out()));
 
       if (invalidated_range.in() != invalidated_range.out()) {
-        if (from == texture_input_) {
+        if (from.input == texture_input_) {
           video_frame_cache_.Invalidate(invalidated_range);
         } else {
           audio_playback_cache_.Invalidate(invalidated_range);
@@ -133,7 +127,7 @@ void ViewerOutput::InvalidateCache(const TimeRange &range, NodeInput *from, Node
     VerifyLength();
   }
 
-  Node::InvalidateCache(range, from, source);
+  Node::InvalidateCache(range, from);
 }
 
 void ViewerOutput::set_video_params(const VideoParams &video)
@@ -215,26 +209,33 @@ void ViewerOutput::VerifyLength()
 
   NodeTraverser traverser;
 
-  rational video_length;
+  rational video_length, audio_length, subtitle_length;
 
-  if (texture_input_->is_connected()) {
-    NodeValueTable t = traverser.GenerateTable(texture_input_->get_connected_node(), 0, 0);
-    video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
+  {
+    video_length = track_lists_.at(Timeline::kTrackTypeVideo)->GetTotalLength();
+
+    if (video_length.isNull() && texture_input_->IsConnected()) {
+      NodeValueTable t = traverser.GenerateTable(texture_input_->GetConnectedNode(), 0, 0);
+      video_length = t.Get(NodeValue::kRational, "length").value<rational>();
+    }
+
+    video_frame_cache_.SetLength(video_length);
   }
 
-  rational audio_length;
+  {
+    audio_length = track_lists_.at(Timeline::kTrackTypeAudio)->GetTotalLength();
 
-  if (samples_input_->is_connected()) {
-    NodeValueTable t = traverser.GenerateTable(samples_input_->get_connected_node(), 0, 0);
-    audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
+    if (audio_length.isNull() && samples_input_->IsConnected()) {
+      NodeValueTable t = traverser.GenerateTable(samples_input_->GetConnectedNode(), 0, 0);
+      audio_length = t.Get(NodeValue::kRational, "length").value<rational>();
+    }
+
+    audio_playback_cache_.SetLength(audio_length);
   }
 
-  video_length = qMax(video_length, track_lists_.at(Timeline::kTrackTypeVideo)->GetTotalLength());
-  audio_length = qMax(audio_length, track_lists_.at(Timeline::kTrackTypeAudio)->GetTotalLength());
-  rational subtitle_length = track_lists_.at(Timeline::kTrackTypeSubtitle)->GetTotalLength();
-
-  video_frame_cache_.SetLength(video_length);
-  audio_playback_cache_.SetLength(audio_length);
+  {
+    subtitle_length = track_lists_.at(Timeline::kTrackTypeSubtitle)->GetTotalLength();
+  }
 
   rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
 
@@ -283,27 +284,6 @@ void ViewerOutput::set_media_name(const QString &name)
   emit MediaNameChanged(media_name_);
 }
 
-void ViewerOutput::SignalBlockAdded(Block *block, const TrackReference& track)
-{
-  if (!operation_stack_) {
-    emit BlockAdded(block, track);
-  } else {
-    cached_block_removed_.removeOne(block);
-    cached_block_added_.insert(block, track);
-  }
-}
-
-void ViewerOutput::SignalBlockRemoved(Block *block)
-{
-  if (!operation_stack_) {
-    emit BlockRemoved({block});
-  } else {
-    // We keep track of all blocks that are removed, even if we don't end up signalling them
-    cached_block_added_.remove(block);
-    cached_block_removed_.append(block);
-  }
-}
-
 void ViewerOutput::BeginOperation()
 {
   operation_stack_++;
@@ -315,23 +295,13 @@ void ViewerOutput::EndOperation()
 {
   operation_stack_--;
 
-  if (!operation_stack_) {
-    for (auto it=cached_block_added_.cbegin(); it!=cached_block_added_.cend(); it++) {
-      emit BlockAdded(it.key(), it.value());
-    }
-    cached_block_added_.clear();
-
-    emit BlockRemoved(cached_block_removed_);
-    cached_block_removed_.clear();
-  }
-
   Node::EndOperation();
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)
 {
   Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
-  SignalBlockAdded(block, TrackReference(type, index));
+  emit BlockAdded(block, TrackReference(type, index));
 }
 
 void ViewerOutput::TrackListAddedTrack(TrackOutput *track)

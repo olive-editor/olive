@@ -123,7 +123,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                            solid,
                            command);
 
-        new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
+        new NodeEdgeAddCommand(solid, clip->texture_input(), -1, command);
         break;
       }
       case olive::Tool::kAddableTitle:
@@ -134,7 +134,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
                            text,
                            command);
 
-        new NodeEdgeAddCommand(text->output(), clip->texture_input(), command);
+        new NodeEdgeAddCommand(text, clip->texture_input(), -1, command);
         break;
       }
       case olive::Tool::kAddableBars:

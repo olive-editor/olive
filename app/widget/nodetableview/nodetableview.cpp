@@ -23,7 +23,6 @@
 #include <QCheckBox>
 #include <QHeaderView>
 
-#include "node/param.h"
 #include "nodetabletraverser.h"
 
 namespace olive {
@@ -130,7 +129,7 @@ void NodeTableView::SetTime(const rational &time)
         QTreeWidgetItem* sub_item = input_item->child(j);
 
         // Set data type name
-        sub_item->setText(0, NodeParam::GetPrettyDataTypeName(value.type()));
+        sub_item->setText(0, NodeValue::GetPrettyDataTypeName(value.type()));
 
         // Determine source
         QString source_name;
@@ -142,7 +141,7 @@ void NodeTableView::SetTime(const rational &time)
         sub_item->setText(1, source_name);
 
         switch (value.type()) {
-        case NodeParam::kTexture:
+        case NodeValue::kTexture:
         {
           // NodeTableTraverser puts video params in here
           for (int k=0;k<VideoParams::kRGBAChannelCount;k++) {
@@ -152,9 +151,9 @@ void NodeTableView::SetTime(const rational &time)
         }
         default:
         {
-          QVector<QVariant> split_values = input->split_normal_value_into_track_values(value.data());
+          QVector<QVariant> split_values = NodeValue::split_normal_value_into_track_values(input->GetDataType(), value.data());
           for (int k=0;k<split_values.size();k++) {
-            sub_item->setText(2 + k, NodeInput::ValueToString(value.type(), split_values.at(k), true));
+            sub_item->setText(2 + k, NodeValue::ValueToString(value.type(), split_values.at(k), true));
           }
         }
         }

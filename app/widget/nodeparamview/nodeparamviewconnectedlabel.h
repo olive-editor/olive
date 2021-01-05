@@ -29,13 +29,13 @@ namespace olive {
 class NodeParamViewConnectedLabel : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewConnectedLabel(NodeInput* input, QWidget* parent = nullptr);
+  NodeParamViewConnectedLabel(NodeInput* input, int element, QWidget* parent = nullptr);
 
 signals:
   void ConnectionClicked();
 
 private slots:
-  void UpdateConnected();
+  void UpdateConnected(Node* src, int element);
 
   void ShowLabelContextMenu();
 
@@ -43,6 +43,8 @@ private:
   ClickableLabel* connected_to_lbl_;
 
   NodeInput* input_;
+
+  int element_;
 
 };
 

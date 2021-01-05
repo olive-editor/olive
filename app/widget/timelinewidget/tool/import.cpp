@@ -435,8 +435,8 @@ void ImportTool::DropGhosts(bool insert)
         TransformDistortNode* transform = new TransformDistortNode();
         new NodeAddCommand(dst_graph, transform, command);
 
-        new NodeEdgeAddCommand(video_input->output(), transform->texture_input(), command);
-        new NodeEdgeAddCommand(transform->output(), clip->texture_input(), command);
+        new NodeEdgeAddCommand(video_input, transform->texture_input(), -1, command);
+        new NodeEdgeAddCommand(transform, clip->texture_input(), -1, command);
 
         /*
         MatrixGenerator* matrix = new MatrixGenerator();
@@ -461,8 +461,8 @@ void ImportTool::DropGhosts(bool insert)
         VolumeNode* volume_node = new VolumeNode();
         new NodeAddCommand(dst_graph, volume_node, command);
 
-        new NodeEdgeAddCommand(audio_input->output(), volume_node->samples_input(), command);
-        new NodeEdgeAddCommand(volume_node->output(), clip->texture_input(), command);
+        new NodeEdgeAddCommand(audio_input, volume_node->samples_input(), -1, command);
+        new NodeEdgeAddCommand(volume_node, clip->texture_input(), -1, command);
         break;
       }
       default:

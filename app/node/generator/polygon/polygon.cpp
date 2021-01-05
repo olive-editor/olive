@@ -27,31 +27,23 @@ namespace olive {
 
 PolygonGenerator::PolygonGenerator()
 {
-  points_input_ = new NodeInputArray("points_in", NodeParam::kVec2);
-  AddInput(points_input_);
+  points_input_ = new NodeInput(this, QStringLiteral("points_in"), NodeValue::kVec2);
+  points_input_->SetIsArray(true);
 
-  color_input_ = new NodeInput("color_in", NodeParam::kColor);
-  AddInput(color_input_);
+  color_input_ = new NodeInput(this, QStringLiteral("color_in"), NodeValue::kColor, QVariant::fromValue(Color(1.0, 1.0, 1.0)));
 
-  // Default to "a color" that isn't
-  color_input_->set_standard_value(1.0, 0);
-  color_input_->set_standard_value(1.0, 1);
-  color_input_->set_standard_value(1.0, 2);
-  color_input_->set_standard_value(1.0, 3);
-
-  // FIXME: Test code
-  points_input_->SetSize(5);
-  points_input_->At(0)->set_standard_value(960, 0);
-  points_input_->At(0)->set_standard_value(240, 1);
-  points_input_->At(1)->set_standard_value(640, 0);
-  points_input_->At(1)->set_standard_value(480, 1);
-  points_input_->At(2)->set_standard_value(760, 0);
-  points_input_->At(2)->set_standard_value(800, 1);
-  points_input_->At(3)->set_standard_value(1100, 0);
-  points_input_->At(3)->set_standard_value(800, 1);
-  points_input_->At(4)->set_standard_value(1280, 0);
-  points_input_->At(4)->set_standard_value(480, 1);
-  // End test
+  // The Default Pentagon(tm)
+  points_input_->ArrayResize(5);
+  points_input_->SetStandardValueOnTrack(960, 0, 0);
+  points_input_->SetStandardValueOnTrack(240, 1, 0);
+  points_input_->SetStandardValueOnTrack(640, 0, 1);
+  points_input_->SetStandardValueOnTrack(480, 1, 1);
+  points_input_->SetStandardValueOnTrack(760, 0, 2);
+  points_input_->SetStandardValueOnTrack(800, 1, 2);
+  points_input_->SetStandardValueOnTrack(1100, 0, 3);
+  points_input_->SetStandardValueOnTrack(800, 1, 3);
+  points_input_->SetStandardValueOnTrack(1280, 0, 4);
+  points_input_->SetStandardValueOnTrack(480, 1, 4);
 }
 
 Node *PolygonGenerator::copy() const
@@ -98,11 +90,11 @@ NodeValueTable PolygonGenerator::Value(NodeValueDatabase &value) const
 
   job.InsertValue(points_input_, value);
   job.InsertValue(color_input_, value);
-  job.InsertValue(QStringLiteral("resolution_in"), ShaderValue(value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")), NodeParam::kVec2));
+  job.InsertValue(QStringLiteral("resolution_in"), value[QStringLiteral("global")].GetWithMeta(NodeValue::kVec2, QStringLiteral("resolution")));
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
-  table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+  table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
   return table;
 }
 
@@ -175,10 +167,12 @@ void PolygonGenerator::GizmoRelease()
 
 QVector<QPointF> PolygonGenerator::GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D& scale) const
 {
-  QVector<QPointF> points(points_input_->GetSize());
+  // FIXME: Should Get() use a `kArray` type instead of a `kVec2` type?
+  QVector<NodeValueTable> array_tbl = db[points_input_].Get(NodeValue::kVec2).value< QVector<NodeValueTable> >();
+  QVector<QPointF> points(array_tbl.size());
 
-  for (int i=0;i<points_input_->GetSize();i++) {
-    QVector2D v = db[points_input_->At(i)].Get(NodeParam::kVec2).value<QVector2D>();
+  for (int i=0;i<points_input_->ArraySize();i++) {
+    QVector2D v = array_tbl.at(i).Get(NodeValue::kVec2).value<QVector2D>();
 
     v *= scale;
 

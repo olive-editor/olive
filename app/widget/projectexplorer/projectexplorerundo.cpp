@@ -22,7 +22,7 @@
 
 namespace olive {
 
-OfflineFootageCommand::OfflineFootageCommand(const QList<MediaInput *> &media, QUndoCommand* parent) :
+OfflineFootageCommand::OfflineFootageCommand(const QVector<MediaInput *> &media, QUndoCommand* parent) :
   UndoCommand(parent)
 {
   foreach (MediaInput* i, media) {

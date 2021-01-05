@@ -56,7 +56,7 @@ private:
 
   QVector<QRectF> GetGizmoRects(const QVector<QPointF>& points) const;
 
-  NodeInputArray* points_input_;
+  NodeInput* points_input_;
 
   NodeInput* color_input_;
 

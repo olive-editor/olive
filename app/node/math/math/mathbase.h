@@ -99,9 +99,9 @@ protected:
   template<typename T, typename U>
   static T PerformAddSubMultDiv(Operation operation, T a, U b);
 
-  static QString GetShaderUniformType(const NodeParam::DataType& type);
+  static QString GetShaderUniformType(const NodeValue::Type& type);
 
-  static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type, const QString &coord_op = QString());
+  static QString GetShaderVariableCall(const QString& input_id, const NodeValue::Type& type, const QString &coord_op = QString());
 
   static QVector4D RetrieveVector(const NodeValue& val);
 
@@ -111,7 +111,7 @@ protected:
 
   ShaderCode GetShaderCodeInternal(const QString &shader_id, NodeInput* param_a_in, NodeInput* param_b_in) const;
 
-  void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec) const;
+  void PushVector(NodeValueTable* output, NodeValue::Type type, const QVector4D& vec) const;
 
   NodeValueTable ValueInternal(NodeValueDatabase &value, Operation operation, Pairing pairing, NodeInput* param_a_in, const NodeValue &val_a, NodeInput* param_b_in, const NodeValue& val_b) const;
 

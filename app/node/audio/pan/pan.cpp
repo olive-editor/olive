@@ -24,14 +24,12 @@ namespace olive {
 
 PanNode::PanNode()
 {
-  samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
-  AddInput(samples_input_);
+  samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
 
-  panning_input_ = new NodeInput("panning_in", NodeParam::kFloat, 0.0);
+  panning_input_ = new NodeInput(this, QStringLiteral("panning_in"), NodeValue::kFloat, 0.0);
   panning_input_->setProperty("min", -1.0);
   panning_input_->setProperty("max", 1.0);
   panning_input_->setProperty("view", QStringLiteral("percent"));
-  AddInput(panning_input_);
 }
 
 Node *PanNode::copy() const
@@ -69,8 +67,8 @@ NodeValueTable PanNode::Value(NodeValueDatabase &value) const
   NodeValueTable table = value.Merge();
 
   if (job.HasSamples()) {
-    float pan_volume = job.GetValue(panning_input_).data.toFloat();
-    if (panning_input_->is_static()) {
+    float pan_volume = job.GetValue(panning_input_).data().toFloat();
+    if (panning_input_->IsStatic()) {
       if (!qIsNull(pan_volume) && job.samples()->audio_params().channel_count() == 2) {
         if (pan_volume > 0) {
           job.samples()->transform_volume_for_channel(0, 1.0f - pan_volume);
@@ -79,9 +77,9 @@ NodeValueTable PanNode::Value(NodeValueDatabase &value) const
         }
       }
 
-      table.Push(NodeParam::kSamples, QVariant::fromValue(job.samples()), this);
+      table.Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
     } else {
-      table.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+      table.Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
     }
   }
 
@@ -95,7 +93,7 @@ void PanNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr in
     return;
   }
 
-  float pan_val = values[panning_input_].Get(NodeParam::kFloat).toFloat();
+  float pan_val = values[panning_input_].Get(NodeValue::kFloat).toFloat();
 
   for (int i=0;i<input->audio_params().channel_count();i++) {
     output->data()[i][index] = input->data()[i][index];

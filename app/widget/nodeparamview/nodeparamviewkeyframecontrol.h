@@ -35,9 +35,17 @@ class NodeParamViewKeyframeControl : public QWidget, public TimeTargetObject
 public:
   NodeParamViewKeyframeControl(bool right_align = true, QWidget* parent = nullptr);
 
-  NodeInput* GetConnectedInput() const;
+  NodeInput* GetConnectedInput() const
+  {
+    return input_;
+  }
 
-  void SetInput(NodeInput* input);
+  int GetConnectedElement() const
+  {
+    return element_;
+  }
+
+  void SetInput(NodeInput* input, int element);
 
   void SetTime(const rational& time);
 
@@ -59,6 +67,7 @@ private:
   QPushButton* enable_key_btn_;
 
   NodeInput* input_;
+  int element_;
 
   rational time_;
 

@@ -21,8 +21,6 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
-#include "node/param.h"
-#include "project/item/footage/footage.h"
 #include "project/item/item.h"
 
 namespace olive {

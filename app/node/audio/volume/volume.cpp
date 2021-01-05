@@ -24,14 +24,12 @@ namespace olive {
 
 VolumeNode::VolumeNode()
 {
-  samples_input_ = new NodeInput(QStringLiteral("samples_in"), NodeParam::kSamples);
-  samples_input_->set_is_keyframable(false);
-  AddInput(samples_input_);
+  samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
+  samples_input_->SetKeyframable(false);
 
-  volume_input_ = new NodeInput(QStringLiteral("volume_in"), NodeParam::kFloat, 1.0);
+  volume_input_ = new NodeInput(this, QStringLiteral("volume_in"), NodeValue::kFloat, 1.0);
   volume_input_->setProperty("min", 0.0);
   volume_input_->setProperty("view", QStringLiteral("db"));
-  AddInput(volume_input_);
 }
 
 Node *VolumeNode::copy() const
@@ -65,9 +63,9 @@ NodeValueTable VolumeNode::Value(NodeValueDatabase &value) const
                        kOpMultiply,
                        kPairSampleNumber,
                        samples_input_,
-                       value[samples_input_].TakeWithMeta(NodeParam::kSamples),
+                       value[samples_input_].TakeWithMeta(NodeValue::kSamples),
                        volume_input_,
-                       value[volume_input_].TakeWithMeta(NodeParam::kFloat));
+                       value[volume_input_].TakeWithMeta(NodeValue::kFloat));
 }
 
 void VolumeNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const

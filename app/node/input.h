@@ -23,19 +23,21 @@
 
 #include "common/timerange.h"
 #include "keyframe.h"
-#include "param.h"
+#include "node/connectable.h"
+#include "node/inputimmediate.h"
+#include "node/value.h"
 
 namespace olive {
+
+class Node;
 
 /**
  * @brief A node parameter designed to take either user input or data from another node
  */
-class NodeInput : public NodeParam
+class NodeInput : public NodeConnectable
 {
   Q_OBJECT
 public:
-  using KeyframeTrack = QList<NodeKeyframePtr>;
-
   /**
    * @brief NodeInput Constructor
    *
@@ -45,22 +47,46 @@ public:
    * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
    * older version. This of course assumes that parameters don't change their ID.
    */
-  NodeInput(const QString &id, const DataType& type, const QVector<QVariant>& default_value);
-  NodeInput(const QString &id, const DataType& type, const QVariant& default_value);
-  NodeInput(const QString &id, const DataType& type);
+  NodeInput(Node* parent, const QString &id, NodeValue::Type type, const QVector<QVariant>& default_value);
+  NodeInput(Node* parent, const QString &id, NodeValue::Type type, const QVariant& default_value);
+  NodeInput(Node* parent, const QString &id, NodeValue::Type type);
 
-  virtual bool IsArray() const;
+  virtual ~NodeInput() override;
+
+  const QString& id() const
+  {
+    return id_;
+  }
+
+  QString name() const;
+
+  void set_name(const QString& name)
+  {
+    name_ = name;
+
+    emit NameChanged(name_);
+  }
+
+  bool IsArray() const
+  {
+    return is_array_;
+  }
+
+  void SetIsArray(bool e)
+  {
+    is_array_ = e;
+  }
+
+  void DisconnectAll();
+
+  void Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
+
+  void Save(QXmlStreamWriter* writer) const;
 
   /**
-   * @brief Returns kInput
+   * @brief Deliberately shadow QObject parent, since we only expect NodeInput to have Node as a parent
    */
-  virtual Type type() override;
-
-  virtual QString name() override;
-
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled) override;
-
-  virtual void Save(QXmlStreamWriter* writer) const override;
+  Node* parent() const;
 
   /**
    * @brief The data type this parameter outputs
@@ -68,190 +94,160 @@ public:
    * This can be used in conjunction with NodeInput::can_accept_type() to determine whether this parameter can be
    * connected to it.
    */
-  const DataType& data_type() const;
+  NodeValue::Type GetDataType() const
+  {
+    return data_type_;
+  }
+
+  void SetDataType(NodeValue::Type type)
+  {
+    data_type_ = type;
+
+    emit DataTypeChanged(type);
+  }
+
+  const QHash<int, Node*>& edges() const
+  {
+    return input_connections();
+  }
+
+  bool IsConnected(int element = -1) const
+  {
+    return input_connections().contains(element);
+  }
 
   /**
-   * @brief If this input is connected to an output, retrieve the output parameter
-   *
-   * @return
-   *
-   * The output parameter if connected or nullptr if not
+   * @brief Returns TRUE if the value is expected to always be the same (i.e. no keyframes and
+   * not connected to anything)
    */
-  NodeOutput* get_connected_output() const;
+  bool IsStatic(int element = -1) const
+  {
+    return !IsConnected(element) && !GetImmediate(element)->is_keyframing();
+  }
 
-  /**
-   * @brief If this input is connected to an output, retrieve the Node whose output is connected
-   *
-   * @return
-   *
-   * The connected Node if connected or nullptr if not
-   */
-  Node* get_connected_node() const;
+  Node* GetConnectedNode(int element = -1) const
+  {
+    return input_connections().value(element);
+  }
 
-  /**
-   * @brief Calculate what the stored value should be at a certain time
-   *
-   * If this is a multi-track data type (e.g. kVec2), this will automatically combine the result into a QVector2D.
-   */
-  QVariant get_value_at_time(const rational& time) const;
+  bool IsConnectable() const
+  {
+    return connectable_;
+  }
 
-  QVector<QVariant> get_split_values_at_time(const rational& time) const;
+  void SetConnectable(bool e)
+  {
+    connectable_ = e;
+  }
 
-  /**
-   * @brief Calculate the stored value for a specific track
-   *
-   * For most data types, there is only one track (e.g. `track == 0`), but multi-track data types like kVec2 will
-   * produce the X value on track 0 and the Y value on track 1.
-   */
-  QVariant get_value_at_time_for_track(const rational& time, int track) const;
+  const QVector<NodeKeyframeTrack> &GetKeyframeTracks(int element = -1) const
+  {
+    return GetImmediate(element)->keyframe_tracks();
+  }
 
-  /**
-   * @brief Retrieve a list of keyframe objects for all tracks at a given time
-   *
-   * List may be empty if this input is not keyframing or has no keyframes at this time.
-   */
-  QList<NodeKeyframePtr> get_keyframe_at_time(const rational& time) const;
+  NodeKeyframe* GetKeyframeAtTimeOnTrack(const rational& time, int track, int element) const
+  {
+    return GetImmediate(element)->get_keyframe_at_time_on_track(time, track);
+  }
 
-  /**
-   * @brief Retrieve the keyframe object at a given time for a given track
-   *
-   * @return
-   *
-   * The keyframe object at this time or nullptr if there isn't one or if is_keyframing() is false.
-   */
-  NodeKeyframePtr get_keyframe_at_time_on_track(const rational& time, int track) const;
-
-  /**
-   * @brief Gets the closest keyframe to a time
-   *
-   * If is_keyframing() is false or keyframes_ is empty, this will return nullptr.
-   */
-  NodeKeyframePtr get_closest_keyframe_to_time_on_track(const rational& time, int track) const;
-
-  /**
-   * @brief Get closest keyframe that's before the time on any track
-   *
-   * If no keyframe is before this time, returns nullptr.
-   */
-  NodeKeyframePtr get_closest_keyframe_before_time(const rational& time) const;
-
-  /**
-   * @brief Get closest keyframe that's before the time on any track
-   *
-   * If no keyframe is before this time, returns nullptr.
-   */
-  NodeKeyframePtr get_closest_keyframe_after_time(const rational& time) const;
-
-  /**
-   * @brief A heuristic to determine what type a keyframe should be if it's inserted at a certain time (between keyframes)
-   */
-  NodeKeyframe::Type get_best_keyframe_type_for_time(const rational& time, int track) const;
-
-  /**
-   * @brief Retrieve the number of
-   */
-  int get_number_of_keyframe_tracks() const;
-
-  /**
-   * @brief Gets the earliest keyframe on any track
-   */
-  NodeKeyframePtr get_earliest_keyframe() const;
-
-  /**
-   * @brief Gets the latest keyframe on any track
-   */
-  NodeKeyframePtr get_latest_keyframe() const;
-
-  /**
-   * @brief Inserts a keyframe at the given time and returns a reference to it
-   */
-  void insert_keyframe(NodeKeyframePtr key);
-
-  /**
-   * @brief Removes the keyframe
-   */
-  void remove_keyframe(NodeKeyframePtr key);
-
-  /**
-   * @brief Hacky convenience function to turn a raw pointer into a shared pointer
-   */
-  NodeKeyframePtr get_keyframe_shared_ptr_from_raw(NodeKeyframe *raw) const;
-
-  /**
-   * @brief Return whether a keyframe exists at this time
-   *
-   * If is_keyframing() is false, this will always return false. This checks all tracks and will return true if *any*
-   * track has a keyframe.
-   */
-  bool has_keyframe_at_time(const rational &time) const;
-
-  /**
-   * @brief Return whether keyframing is enabled on this input or not
-   */
-  bool is_keyframing() const;
-
-  /**
-   * @brief Set whether keyframing is enabled on this input or not
-   */
-  void set_is_keyframing(bool k);
+  NodeKeyframe::Type GetBestKeyframeTypeForTime(const rational& time, int track, int element) const
+  {
+    return GetImmediate(element)->get_best_keyframe_type_for_time(time, track);
+  }
 
   /**
    * @brief Return whether this input can be keyframed or not
    */
-  bool is_keyframable() const;
+  bool IsKeyframable() const;
 
-  /**
-   * @brief Returns whether the value that this input returns is always the same or is expected to change
-   *
-   * Equivalent to `!(is_connected() || is_keyframing())`
-   */
-  bool is_static() const;
+  bool IsKeyframing(int element = -1) const
+  {
+    return GetImmediate(element)->is_keyframing();
+  }
 
   /**
    * @brief Get non-keyframed value
    */
-  QVariant get_standard_value() const;
+  QVariant GetStandardValue(int element = -1) const
+  {
+    return NodeValue::combine_track_values_into_normal_value(data_type_, GetSplitStandardValue(element));
+  }
 
   /**
    * @brief Get non-keyframed value split into components (the way it's stored)
    */
-  const QVector<QVariant>& get_split_standard_value() const;
+  const QVector<QVariant>& GetSplitStandardValue(int element = -1) const
+  {
+    return GetImmediate(element)->get_split_standard_value();
+  }
+
+  QVariant GetStandardValueOnTrack(int track, int element = -1) const
+  {
+    return GetImmediate(element)->get_split_standard_value().at(track);
+  }
 
   /**
    * @brief Set non-keyframed value
+   *
+   * This is the value used if keyframing is not enabled. If keyframing is enabled, it is
+   * overwritten.
    */
-  void set_standard_value(const QVariant& value, int track = 0);
+  void SetStandardValue(const QVariant& value, int element = -1)
+  {
+    SetSplitStandardValue(NodeValue::split_normal_value_into_track_values(data_type_, value), element);
+  }
 
-  /**
-   * @brief Return list of keyframes in this parameter
-   */
-  const QVector<KeyframeTrack> &keyframe_tracks() const;
+  void SetSplitStandardValue(const QVector<QVariant>& value, int element = -1)
+  {
+    GetImmediate(element)->set_split_standard_value(value);
+
+    for (int i=0; i<value.size(); i++) {
+      if (IsUsingStandardValue(i, element)) {
+        // If this standard value is being used, we need to send a value changed signal
+        emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), element);
+
+        break;
+      }
+    }
+  }
+
+  void SetStandardValueOnTrack(const QVariant& value, int track = 0, int element = -1)
+  {
+    GetImmediate(element)->set_standard_value_on_track(value, track);
+
+    if (IsUsingStandardValue(track, element)) {
+      // If this standard value is being used, we need to send a value changed signal
+      emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), element);
+    }
+  }
 
   /**
    * @brief Set whether this input can be keyframed or not
    */
-  void set_is_keyframable(bool k);
+  void SetKeyframable(bool k);
 
   /**
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
   static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true, bool traverse_arrays = true);
 
-  QVector<QVariant> split_normal_value_into_track_values(const QVariant &value) const;
-
-  QVariant combine_track_values_into_normal_value(const QVector<QVariant>& split) const;
+  static void CopyValuesOfElement(NodeInput* source, NodeInput* dst, int element);
 
   QStringList get_combobox_strings() const;
 
   void set_combobox_strings(const QStringList& strings);
 
-  static QString ValueToString(const DataType& data_type, const QVariant& value, bool value_is_a_key_track);
-
-  static QVariant StringToValue(const DataType &data_type, const QString &string, bool value_is_a_key_track);
-
   void GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const;
 
-  QVariant GetDefaultValue() const;
+  QVariant GetDefaultValue() const
+  {
+    return NodeValue::combine_track_values_into_normal_value(data_type_, default_value_);
+  }
+
+  const QVector<QVariant>& GetSplitDefaultValue() const
+  {
+    return default_value_;
+  }
 
   QVariant GetDefaultValueForTrack(int track) const;
 
@@ -261,57 +257,139 @@ public:
 
   QVector<Node*> GetImmediateDependencies() const;
 
+  NodeKeyframe* GetEarliestKeyframe(int element = -1)
+  {
+    return GetImmediate(element)->get_earliest_keyframe();
+  }
+
+  NodeKeyframe* GetLatestKeyframe(int element = -1)
+  {
+    return GetImmediate(element)->get_latest_keyframe();
+  }
+
+  bool HasKeyframeAtTime(const rational& time, int element = -1)
+  {
+    return GetImmediate(element)->has_keyframe_at_time(time);
+  }
+
+  QVector<NodeKeyframe*> GetKeyframesAtTime(const rational& time, int element = -1)
+  {
+    return GetImmediate(element)->get_keyframe_at_time(time);
+  }
+
+  void SetIsKeyframing(bool keyframing, int element)
+  {
+    Q_ASSERT(IsKeyframable());
+
+    GetImmediate(element)->set_is_keyframing(keyframing);
+
+    emit KeyframeEnableChanged(keyframing, element);
+  }
+
+  void ArrayAppend()
+  {
+    ArrayResize(ArraySize() + 1);
+  }
+
+  void ArrayInsert(int index);
+
+  void ArrayRemove(int index);
+
+  void ArrayPrepend();
+
+  void ArrayResize(int size);
+
+  int ArraySize() const
+  {
+    return array_size_;
+  }
+
+  void ArrayRemoveLast();
+
+  int GetNumberOfKeyframeTracks() const
+  {
+    return NodeValue::get_number_of_keyframe_tracks(data_type_);
+  }
+
+  /**
+   * @brief Calculate what the stored value should be at a certain time
+   *
+   * If this is a multi-track data type (e.g. kVec2), this will automatically combine the result into a QVector2D.
+   */
+  QVariant GetValueAtTime(const rational& time, int element = -1) const;
+
+  QVector<QVariant> GetSplitValuesAtTime(const rational& time, int element = -1) const;
+
+  /**
+   * @brief Calculate the stored value for a specific track
+   *
+   * For most data types, there is only one track (e.g. `track == 0`), but multi-track data types like kVec2 will
+   * produce the X value on track 0 and the Y value on track 1.
+   */
+  QVariant GetValueAtTimeForTrack(const rational& time, int track, int element = -1) const;
+
+  NodeKeyframe* GetClosestKeyframeBeforeTime(const rational& time, int element = -1) const
+  {
+    return GetImmediate(element)->get_closest_keyframe_before_time(time);
+  }
+
+  NodeKeyframe* GetClosestKeyframeAfterTime(const rational& time, int element = -1) const
+  {
+    return GetImmediate(element)->get_closest_keyframe_after_time(time);
+  }
+
 signals:
-  void ValueChanged(const olive::TimeRange& range);
+  void NameChanged(const QString& name);
 
-  void KeyframeEnableChanged(bool);
+  void ValueChanged(const olive::TimeRange& range, int element);
 
-  void KeyframeAdded(NodeKeyframePtr key);
+  void KeyframeAdded(NodeKeyframe* key);
 
-  void KeyframeRemoved(NodeKeyframePtr key);
+  void KeyframeRemoved(NodeKeyframe* key);
 
   void PropertyChanged(const QString& s, const QVariant& v);
 
+  void ArraySizeChanged(int size);
+
+  void KeyframeEnableChanged(bool enabled, int element);
+
+  void DataTypeChanged(NodeValue::Type type);
+
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
-
-  virtual void SaveInternal(QXmlStreamWriter* writer) const;
-
   virtual bool event(QEvent* e) override;
 
-private:
-  void Init(NodeParam::DataType type);
+  virtual void childEvent(QChildEvent* e) override;
 
-  void SetDefaultValue(const QVector<QVariant> &default_value);
+private:
+  void Init(Node *parent, const QString& id, NodeValue::Type type, const QVector<QVariant> &default_val);
+
+  void LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
+
+  void SaveImmediate(QXmlStreamWriter *writer, int element) const;
+
+  const NodeInputImmediate* GetImmediate(int element = -1) const
+  {
+    return element > -1 ? subinputs_.at(element) : primary_;
+  }
+
+  NodeInputImmediate* GetImmediate(int element = -1)
+  {
+    return element > -1 ? subinputs_[element] : primary_;
+  }
+
+  const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const
+  {
+    return GetImmediate(key->element())->keyframe_tracks().at(key->track());
+  }
+
+  bool IsUsingStandardValue(int track = 0, int element = -1) const
+  {
+    return GetImmediate(element)->is_using_standard_value(track);
+  }
 
   QString ValueToString(const QVariant& value) const;
 
-  QVariant StringToValue(const QString &string, QList<XMLNodeData::FootageConnection> &footage_connections);
-
-  void SaveConnections(QXmlStreamWriter* writer) const;
-
-  static void ValidateVectorString(QStringList* list, int count);
-
-  /**
-   * @brief Returns whether a data type can be interpolated or not
-   */
-  static bool type_can_be_interpolated(DataType type);
-
-  /**
-   * @brief We use Qt signals/slots for keyframe communication but store them as shared ptrs. This function converts
-   * a raw ptr to a list index
-   */
-  int FindIndexOfKeyframeFromRawPtr(NodeKeyframe* raw_ptr) const;
-
-  /**
-   * @brief Internal insert function, automatically does an insertion sort based on the keyframe's time
-   */
-  void insert_keyframe_internal(NodeKeyframePtr key);
-
-  /**
-   * @brief Return whether the standard value should be used over keyframe data
-   */
-  bool is_using_standard_value(int track) const;
+  QVariant StringToValue(const QString &string, QList<XMLNodeData::FootageConnection> &footage_connections, int element);
 
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe
@@ -321,51 +399,39 @@ private:
   /**
    * @brief Gets a time range between the previous and next keyframes of index
    */
-  TimeRange get_range_around_index(int index, int track) const;
+  TimeRange get_range_around_index(int index, int track, int element) const;
+
+  NodeInputImmediate* primary_;
+
+  QVector<NodeInputImmediate*> subinputs_;
+
+  QVector<QVariant> default_value_;
 
   /**
-   * @brief Convenience function - equivalent to calling `emit ValueChanged(range.in(), range.out())`
+   * @brief Unique identifier of this input within this node
    */
-  void emit_time_range(const TimeRange& range);
+  QString id_;
 
   /**
-   * @brief Convenience function - equivalent to calling `emit_time_range(get_range_affected_by_keyframe(key))`
+   * @brief User displayable name of input
    */
-  void emit_range_affected_by_keyframe(NodeKeyframe* key);
-
-  /**
-   * @brief Internal list of accepted data types
-   *
-   * Use can_accept_type() to check if a type is in this list
-   */
-  DataType data_type_;
+  QString name_;
 
   /**
    * @brief Internal keyframable value
    */
   bool keyframable_;
 
-  /**
-   * @brief Non-keyframed value
-   */
-  QVector<QVariant> standard_value_;
+  bool connectable_;
+
+  bool is_array_;
+
+  int array_size_;
 
   /**
-   * @brief Default value that can be reset if the user requests
+   * @brief Default data type
    */
-  QVector<QVariant> default_value_;
-
-  /**
-   * @brief Internal keyframe array
-   *
-   * If keyframing is enabled, this data is used instead of standard_value.
-   */
-  QVector< QList<NodeKeyframePtr> > keyframe_tracks_;
-
-  /**
-   * @brief Internal keyframing enabled setting
-   */
-  bool keyframing_;
+  NodeValue::Type data_type_;
 
 private slots:
   /**

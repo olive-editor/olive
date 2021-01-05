@@ -68,7 +68,7 @@ public:
     return samples_input_;
   }
 
-  virtual void InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput* source) override;
+  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
 
   const VideoParams& video_params() const {
     return video_params_;
@@ -127,8 +127,6 @@ public:
 signals:
   void TimebaseChanged(const rational&);
 
-  void GraphChangedFrom(NodeInput* source);
-
   void LengthChanged(const rational& length);
 
   void SizeChanged(int width, int height);
@@ -141,7 +139,7 @@ signals:
   void AudioParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(const QList<Block*>& blocks);
+  void BlockRemoved(Block* block);
 
   void TrackAdded(TrackOutput* track, Timeline::TrackType type);
   void TrackRemoved(TrackOutput* track);
@@ -151,9 +149,6 @@ signals:
   void MediaNameChanged(const QString& name);
 
 private:
-  QMap<Block*, TrackReference> cached_block_added_;
-  QList<Block*> cached_block_removed_;
-
   QUuid uuid_;
 
   NodeInput* texture_input_;
@@ -190,9 +185,6 @@ private slots:
   void TrackListAddedTrack(TrackOutput* track);
 
   void TrackHeightChangedSlot(int index, int height);
-
-  void SignalBlockAdded(Block *block, const TrackReference &track);
-  void SignalBlockRemoved(Block *block);
 
 };
 

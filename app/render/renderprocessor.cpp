@@ -61,7 +61,7 @@ void RenderProcessor::Run()
     NodeValueTable table = ProcessInput(viewer->texture_input(),
                                         TimeRange(time, time + video_params.time_base()));
 
-    TexturePtr texture = table.Get(NodeParam::kTexture).value<TexturePtr>();
+    TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
 
     // Set up output frame parameters
     VideoParams frame_params = ticket_->property("vparam").value<VideoParams>();
@@ -112,8 +112,8 @@ void RenderProcessor::Run()
         } else {
           // No color transform, just blit
           ShaderJob job;
-          job.InsertValue(QStringLiteral("ove_maintex"), {QVariant::fromValue(texture), NodeParam::kTexture});
-          job.InsertValue(QStringLiteral("ove_mvpmat"), {matrix, NodeParam::kMatrix});
+          job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
+          job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
           render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
         }
@@ -135,7 +135,7 @@ void RenderProcessor::Run()
 
     NodeValueTable table = ProcessInput(viewer->samples_input(), time);
 
-    ticket_->Finish(table.Get(NodeParam::kSamples), IsCancelled());
+    ticket_->Finish(table.Get(NodeValue::kSamples), IsCancelled());
     break;
   }
   case RenderManager::kTypeVideoDownload:
@@ -211,7 +211,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
 
       // Destination buffer
       NodeValueTable table = GenerateTable(b, range_for_block);
-      SampleBufferPtr samples_from_this_block = table.Take(NodeParam::kSamples).value<SampleBufferPtr>();
+      SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
 
       if (!samples_from_this_block) {
         // If we retrieved no samples from this block, do nothing
@@ -219,10 +219,10 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
       }
 
       // FIXME: Doesn't handle reversing
-      if (b->speed_input()->is_keyframing() || b->speed_input()->is_connected()) {
+      if (b->speed_input()->IsKeyframing() || b->speed_input()->IsConnected()) {
         // FIXME: We'll need to calculate the speed hoo boy
       } else {
-        double speed_value = b->speed_input()->get_standard_value().toDouble();
+        double speed_value = b->speed_input()->GetStandardValue().toDouble();
 
         if (qIsNull(speed_value)) {
           // Just silence, don't think there's any other practical application of 0 speed audio
@@ -253,7 +253,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
       ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
     }
 
-    merged_table.Push(NodeParam::kSamples, QVariant::fromValue(block_range_buffer), track);
+    merged_table.Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), track);
 
     return merged_table;
 
@@ -409,8 +409,8 @@ QVariant RenderProcessor::ProcessShader(const Node *node, const TimeRange &range
 
   bool input_textures_have_alpha = false;
   for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
-    if (it.value().type == NodeParam::kTexture) {
-      TexturePtr tex = it.value().data.value<TexturePtr>();
+    if (it.value().type() == NodeValue::kTexture) {
+      TexturePtr tex = it.value().data().value<TexturePtr>();
       if (tex && tex->channel_count() == VideoParams::kRGBAChannelCount) {
         input_textures_have_alpha = true;
         break;
@@ -458,7 +458,7 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
       if (corresponding_input) {
         value = ProcessInput(corresponding_input, TimeRange(this_sample_time, this_sample_time));
       } else {
-        value.Push(j.value(), node);
+        value.Push(j.value());
       }
 
       value_db.Insert(j.key(), value);

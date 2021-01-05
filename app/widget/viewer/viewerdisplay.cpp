@@ -280,8 +280,8 @@ void ViewerDisplayWidget::OnPaint()
       }
 
       ShaderJob job;
-      job.InsertValue(QStringLiteral("resolution_in"), ShaderValue(QVector2D(texture_to_draw->width(), texture_to_draw->height()), NodeParam::kVec2));
-      job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(texture_to_draw), NodeParam::kTexture));
+      job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+      job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
 
       renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
 
@@ -375,7 +375,7 @@ QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y
 
 rational ViewerDisplayWidget::GetGizmoTime()
 {
-  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, NodeParam::kInput);
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, true);
 }
 
 bool ViewerDisplayWidget::IsHandDrag(QMouseEvent *event) const

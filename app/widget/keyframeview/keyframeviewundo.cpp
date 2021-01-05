@@ -26,7 +26,7 @@
 
 namespace olive {
 
-KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand *parent) :
+KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframe* key, NodeKeyframe::Type type, QUndoCommand *parent) :
   UndoCommand(parent),
   key_(key),
   old_type_(key->type()),
@@ -36,7 +36,7 @@ KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe
 
 Project *KeyframeSetTypeCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
+  return key_->parent()->parent()->parent()->project();
 }
 
 void KeyframeSetTypeCommand::redo_internal()
@@ -49,7 +49,7 @@ void KeyframeSetTypeCommand::undo_internal()
   key_->set_type(old_type_);
 }
 
-KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand *parent) :
+KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand *parent) :
   UndoCommand(parent),
   key_(key),
   mode_(mode),
@@ -58,7 +58,7 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key
 {
 }
 
-KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF &new_point, const QPointF &old_point, QUndoCommand *parent) :
+KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF &new_point, const QPointF &old_point, QUndoCommand *parent) :
   UndoCommand(parent),
   key_(key),
   mode_(mode),
@@ -69,7 +69,7 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key
 
 Project *KeyframeSetBezierControlPoint::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(key_->parent()->parentNode()->parent())->project();
+  return key_->parent()->parent()->parent()->project();
 }
 
 void KeyframeSetBezierControlPoint::redo_internal()

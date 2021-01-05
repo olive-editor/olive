@@ -75,8 +75,6 @@ public:
   const QVector<Block*>& linked_clips();
   bool HasLinks();
 
-  virtual bool IsBlock() const override;
-
   virtual void Retranslate() override;
 
   NodeInput* length_input() const;

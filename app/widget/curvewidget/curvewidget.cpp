@@ -215,9 +215,7 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 
 void CurveWidget::ConnectNode(Node *n)
 {
-  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
+  foreach (NodeInput* i, n->parameters()) {
     if (tree_view_->IsInputEnabled(i)) {
       view_->ConnectInput(i);
     }

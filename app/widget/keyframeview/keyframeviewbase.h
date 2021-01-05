@@ -42,13 +42,13 @@ public:
 
   void RemoveKeyframesOfNode(Node* n);
 
-  void RemoveKeyframesOfInput(NodeInput* i);
+  void RemoveKeyframesOfInput(NodeInput* input);
 
 public slots:
-  void RemoveKeyframe(NodeKeyframePtr key);
+  void RemoveKeyframe(NodeKeyframe* key);
 
 protected:
-  virtual KeyframeViewItem* AddKeyframeInternal(NodeKeyframePtr key);
+  virtual KeyframeViewItem* AddKeyframeInternal(NodeKeyframe* key);
 
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

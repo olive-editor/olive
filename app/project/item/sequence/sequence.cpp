@@ -42,7 +42,7 @@ Sequence::Sequence()
 {
   viewer_output_ = new ViewerOutput();
   viewer_output_->SetCanBeDeleted(false);
-  AddNode(viewer_output_);
+  viewer_output_->setParent(this);
 }
 
 void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
@@ -158,8 +158,7 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint v
 
       if (node) {
         node->Load(reader, xml_node_data, cancelled);
-
-        AddNode(node);
+        node->setParent(this);
       }
     } else {
       reader->skipCurrentElement();
@@ -222,10 +221,17 @@ void Sequence::Save(QXmlStreamWriter *writer) const
 void Sequence::add_default_nodes()
 {
   // Create tracks and connect them to the viewer
-  Node* video_track_output = viewer_output_->track_list(Timeline::kTrackTypeVideo)->AddTrack();
-  Node* audio_track_output = viewer_output_->track_list(Timeline::kTrackTypeAudio)->AddTrack();
-  NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
-  NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
+  TrackOutput* video_track = new TrackOutput();
+  video_track->setParent(this);
+  viewer_output_->track_input(Timeline::kTrackTypeVideo)->ArrayAppend();
+  Node::ConnectEdge(video_track, viewer_output_->track_input(Timeline::kTrackTypeVideo), 0);
+  Node::ConnectEdge(video_track, viewer_output_->texture_input());
+
+  TrackOutput* audio_track = new TrackOutput();
+  audio_track->setParent(this);
+  viewer_output_->track_input(Timeline::kTrackTypeAudio)->ArrayAppend();
+  Node::ConnectEdge(audio_track, viewer_output_->track_input(Timeline::kTrackTypeAudio), 0);
+  Node::ConnectEdge(audio_track, viewer_output_->samples_input());
 }
 
 Item::Type Sequence::type() const

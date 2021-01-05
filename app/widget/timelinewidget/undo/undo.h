@@ -208,7 +208,7 @@ protected:
 
   QObject memory_manager_;
 
-  QList<UndoCommand*> remove_block_commands_;
+  QVector<QUndoCommand*> remove_block_commands_;
 
 };
 
@@ -312,7 +312,8 @@ private:
   int track_index_;
   bool append_;
   GapBlock* gap_;
-  int added_track_count_;
+  QVector<TrackOutput*> added_tracks_;
+
 };
 
 class BlockSplitCommand : public UndoCommand {

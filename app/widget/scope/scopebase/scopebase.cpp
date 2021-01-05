@@ -54,7 +54,7 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   ShaderJob job;
 
-  job.InsertValue(QStringLiteral("ove_maintex"), ShaderValue(QVariant::fromValue(managed_tex), NodeParam::kTexture));
+  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
                                               static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),

@@ -61,8 +61,6 @@ public:
   Stream* stream() const;
   void SetStream(Stream *s);
 
-  virtual bool IsMedia() const override;
-
   virtual void Retranslate() override;
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;

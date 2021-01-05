@@ -24,7 +24,7 @@
 
 namespace olive {
 
-NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidget* parent) :
+NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInput *array, QWidget* parent) :
   QWidget(parent),
   array_(array)
 {
@@ -40,19 +40,19 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInputArray* array, QWidge
   layout->addWidget(plus_btn_);
 
   connect(plus_btn_, &QPushButton::clicked, this, &NodeParamViewArrayWidget::AddElement);
-  connect(array_, &NodeInputArray::SizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
+  connect(array_, &NodeInput::ArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
 
   UpdateCounter();
 }
 
 void NodeParamViewArrayWidget::UpdateCounter()
 {
-  count_lbl_->setText(tr("%1 element(s)").arg(array_->GetSize()));
+  count_lbl_->setText(tr("%1 element(s)").arg(array_->ArraySize()));
 }
 
 void NodeParamViewArrayWidget::AddElement()
 {
-  array_->Append();
+  array_->ArrayResize(array_->ArraySize() + 1);
 }
 
 }

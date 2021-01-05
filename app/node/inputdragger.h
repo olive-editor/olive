@@ -32,7 +32,7 @@ public:
 
   bool IsStarted() const;
 
-  void Start(NodeInput* input, const rational& time, int track);
+  void Start(NodeInput* input, const rational& time, int track, int element = -1);
 
   void Drag(QVariant value);
 
@@ -45,11 +45,13 @@ private:
 
   rational time_;
 
+  int element_;
+
   QVariant start_value_;
 
   QVariant end_value_;
 
-  NodeKeyframePtr dragging_key_;
+  NodeKeyframe* dragging_key_;
 
   bool drag_created_key_;
 

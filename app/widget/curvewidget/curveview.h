@@ -45,7 +45,7 @@ public:
   void DisconnectInput(NodeInput* input);
 
 public slots:
-  void AddKeyframe(NodeKeyframePtr key);
+  void AddKeyframe(NodeKeyframe* key);
 
   void ZoomToFit();
 
@@ -63,6 +63,8 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
+  void ConnectInputElement(NodeInput* input, int element);
+
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 
@@ -74,7 +76,9 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  QMap<const NodeInput::KeyframeTrack*, QColor> keyframe_colors_;
+  uint GetKeyframeTrackUniqueID(NodeInput* input, int element, int track);
+
+  QMap<uint, QColor> keyframe_colors_;
 
   int text_padding_;
 

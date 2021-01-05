@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "config/config.h"
+#include "node/graph.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "render/colormanager.h"
@@ -93,14 +94,18 @@ public slots:
   /**
    * @brief Main handler for when the NodeGraph changes
    */
-  void NodeGraphChanged(NodeInput *source);
+  void NodeAdded(Node* node);
+
+  void NodeRemoved(Node* node);
+
+  void EdgeAdded(Node* output, int element);
+
+  void EdgeRemoved(Node* output, int element);
+
+  void ValueChanged(const TimeRange& range, int element);
 
 private:
   static void GenerateHashes(ViewerOutput* viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
-
-  void CopyNodeInputValue(NodeInput* input);
-  Node *CopyNodeConnections(Node *src_node);
-  void CopyNodeMakeConnection(NodeInput *src_input, NodeInput *dst_input);
 
   void TryRender();
 
@@ -114,11 +119,33 @@ private:
 
   bool HasActiveJobs() const;
 
-  QList<NodeInput*> graph_update_queue_;
-  QHash<Node*, Node*> copy_map_;
-  ViewerOutput* copied_viewer_node_;
+  void AddNode(Node* node);
+  void RemoveNode(Node* node);
+  void AddEdge(Node* output, NodeInput* input, int element);
+  void RemoveEdge(Node* output, NodeInput* input, int element);
+  void CopyValue(NodeInput* input, int element);
+
+  class QueuedJob {
+  public:
+    enum Type {
+      kNodeAdded,
+      kNodeRemoved,
+      kEdgeAdded,
+      kEdgeRemoved,
+      kValueChanged
+    };
+
+    Type type;
+    Node* node;
+    NodeInput* input;
+    int element;
+  };
 
   ViewerOutput* viewer_node_;
+
+  QVector<QueuedJob> graph_update_queue_;
+  QHash<Node*, Node*> copy_map_;
+  ViewerOutput* copied_viewer_node_;
 
   bool paused_;
 
@@ -183,15 +210,6 @@ private slots:
    * @brief Handler for when we've saved a video frame to the cache
    */
   void VideoDownloaded();
-
-  /**
-   * @brief Handler for when a NodeInput has been deleted so we clear it from the queue
-   *
-   * FIXME: This is hacky. It also might not be necessary anymore with recent changes to the
-   *        node system, but I haven't tested yet. Either way, PreviewAutoCacher should probably
-   *        be able to pick up on these sorts of things without such a slot.
-   */
-  void QueuedInputRemoved();
 
   void VideoParamsChanged();
 

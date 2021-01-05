@@ -52,7 +52,6 @@ set(OLIVE_SOURCES
   render/renderprocessor.cpp
   render/renderprocessor.h
   render/shadercode.h
-  render/shadervalue.h
   render/stillimagecache.h
   render/texture.cpp
   render/texture.h

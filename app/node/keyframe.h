@@ -30,9 +30,7 @@
 namespace olive {
 
 class NodeInput;
-
-class NodeKeyframe;
-using NodeKeyframePtr = std::shared_ptr<NodeKeyframe>;
+class NodeInputImmediate;
 
 /**
  * @brief A point of data to be used at a certain time and interpolated with other data
@@ -63,11 +61,11 @@ public:
   /**
    * @brief NodeKeyframe Constructor
    */
-  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track);
+  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track, int element, QObject* parent = nullptr);
 
-  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type, const int &track);
+  NodeKeyframe* copy(QObject* parent = nullptr) const;
 
-  NodeKeyframePtr copy() const;
+  NodeInput* parent() const;
 
   /**
    * @brief The time this keyframe is set at
@@ -111,15 +109,20 @@ public:
    * For the majority of keyfreames, this will be 0, but for some types, such as kVec2, this will be 0 for X keyframes
    * and 1 for Y keyframes, etc.
    */
-  const int& track() const;
+  int track() const
+  {
+    return track_;
+  }
+
+  int element() const
+  {
+    return element_;
+  }
 
   /**
    * @brief Convenience function for getting the opposite handle type (e.g. kInHandle <-> kOutHandle)
    */
   static BezierType get_opposing_bezier_type(BezierType type);
-
-  NodeInput* parent() const;
-  void set_parent(NodeInput* parent);
 
 signals:
   /**
@@ -148,8 +151,6 @@ signals:
   void BezierControlOutChanged(const QPointF& d);
 
 private:
-  NodeInput* parent_;
-
   rational time_;
 
   QVariant value_;
@@ -162,7 +163,11 @@ private:
 
   int track_;
 
+  int element_;
+
 };
+
+using NodeKeyframeTrack = QVector<NodeKeyframe*>;
 
 }
 

@@ -30,7 +30,6 @@
 
 #include "common/threadedobject.h"
 #include "common/xmlutils.h"
-#include "node/param.h"
 #include "project/item/footage/stream.h"
 
 namespace olive {
@@ -101,9 +100,8 @@ public:
     return item_parent_;
   }
 
-  const Item* root() const;
-
   Project* project() const;
+
   void set_project(Project* project);
 
   QVector<Item*> get_children_of_type(Type type, bool recursive) const;

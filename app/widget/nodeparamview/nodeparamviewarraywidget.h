@@ -25,7 +25,7 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "node/inputarray.h"
+#include "node/input.h"
 
 namespace olive {
 
@@ -33,10 +33,10 @@ class NodeParamViewArrayWidget : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewArrayWidget(NodeInputArray* array, QWidget* parent = nullptr);
+  NodeParamViewArrayWidget(NodeInput* array, QWidget* parent = nullptr);
 
 private:
-  NodeInputArray* array_;
+  NodeInput* array_;
 
   QLabel* count_lbl_;
 

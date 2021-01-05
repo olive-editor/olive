@@ -541,9 +541,9 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
-QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
+QVector<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
 {
-  QList<MediaInput *> list;
+  QVector<MediaInput *> list;
 
   // Get all sequences.
   QVector<Item*> sequences = model_.project()->get_items_of_type(Item::kSequence);
@@ -552,12 +552,10 @@ QList<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
   foreach (Item* s, sequences) {
     const QList<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
     foreach (Node* n, nodes) {
-      if (n->IsMedia()) {
-        MediaInput* media_node = static_cast<MediaInput*>(n);
+      MediaInput* media_node = dynamic_cast<MediaInput*>(n);
 
-        if (media_node->stream()->footage() == item) {
-          list.append(media_node);
-        }
+      if (media_node && media_node->stream()->footage() == item) {
+        list.append(media_node);
       }
     }
   }
@@ -593,7 +591,7 @@ void ProjectExplorer::DeleteSelected()
       // If this is footage, check if it's used anywhere in any sequence
       Footage* footage = static_cast<Footage*>(item);
 
-      QList<MediaInput*> footage_nodes = GetMediaNodesUsingFootage(footage);
+      QVector<MediaInput*> footage_nodes = GetMediaNodesUsingFootage(footage);
 
       if (!footage_nodes.isEmpty()) {
         // Footage is in use, show messagebox asking what to do about it

@@ -43,17 +43,14 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   this->setTitleBarWidget(title_bar_);
 
   // Create and add contents widget
-  QVector<NodeInput*> inputs;
+  QVector<Node::InputConnection> inputs;
 
   // Filter out inputs
-  foreach (NodeParam* p, node->parameters()) {
-    if (p->type() == NodeParam::kInput) {
-      inputs.append(static_cast<NodeInput*>(p));
-    }
+  foreach (NodeInput* p, node->parameters()) {
+    inputs.append({p, -1});
   }
 
   body_ = new NodeParamViewItemBody(inputs);
-  connect(body_, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItem::InputDoubleClicked);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
@@ -206,7 +203,7 @@ void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
   collapse_btn_->click();
 }
 
-NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs, QWidget *parent) :
+NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeConnectable::InputConnection> &inputs, QWidget *parent) :
   QWidget(parent)
 {
   int row_count = 0;
@@ -215,14 +212,13 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
 
   QGridLayout* content_layout = new QGridLayout(this);
 
-  foreach (NodeInput* input, inputs) {
+  foreach (const NodeConnectable::InputConnection& conn, inputs) {
     InputUI ui_objects;
 
     // Add descriptor label
     ui_objects.main_label = new ClickableLabel();
-    connect(ui_objects.main_label, &ClickableLabel::MouseDoubleClicked, this, &NodeParamViewItemBody::LabelDoubleClicked);
 
-    if (input->IsArray()) {
+    if (conn.input->IsArray()) {
       QHBoxLayout* array_label_layout = new QHBoxLayout();
       array_label_layout->setMargin(0);
 
@@ -233,7 +229,13 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
 
       content_layout->addLayout(array_label_layout, row_count, 0);
 
-      NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(static_cast<NodeInputArray*>(input)->sub_params());
+      QVector<NodeConnectable::InputConnection> subelements(conn.input->ArraySize());
+
+      for (int i=0; i<conn.input->ArraySize(); i++) {
+        subelements[i] = {conn.input, i};
+      }
+
+      NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(subelements);
       sub_bodies_.append(sub_body);
       sub_body->layout()->setMargin(0);
       content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col + 1);
@@ -243,14 +245,13 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
       connect(sub_body, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItemBody::KeyframeAdded);
       connect(sub_body, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
       connect(sub_body, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
-      connect(sub_body, &NodeParamViewItemBody::InputDoubleClicked, this, &NodeParamViewItemBody::InputDoubleClicked);
       connect(sub_body, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     } else {
       content_layout->addWidget(ui_objects.main_label, row_count, 0);
     }
 
     // Create a widget/input bridge for this input
-    ui_objects.widget_bridge = new NodeParamViewWidgetBridge(input, this);
+    ui_objects.widget_bridge = new NodeParamViewWidgetBridge(conn.input, conn.element, this);
 
     // Add widgets for this parameter to the layout
     {
@@ -261,42 +262,44 @@ NodeParamViewItemBody::NodeParamViewItemBody(const QVector<NodeInput *> &inputs,
       }
     }
 
-    if (input->is_connectable()) {
+    if (conn.input->IsConnectable()) {
       // Create clickable label used when an input is connected
-      ui_objects.connected_label = new NodeParamViewConnectedLabel(input);
+      ui_objects.connected_label = new NodeParamViewConnectedLabel(conn.input, conn.element);
       connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::ConnectionClicked, this, &NodeParamViewItemBody::ConnectionClicked);
       content_layout->addWidget(ui_objects.connected_label, row_count, 1);
 
-      connect(input, &NodeInput::EdgeAdded, this, &NodeParamViewItemBody::EdgeChanged);
-      connect(input, &NodeInput::EdgeRemoved, this, &NodeParamViewItemBody::EdgeChanged);
+      connect(conn.input, &NodeInput::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
+      connect(conn.input, &NodeInput::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
     }
 
     // Add keyframe control to this layout if parameter is keyframable
-    if (input->is_keyframable()) {
+    if (conn.input->IsKeyframable()) {
       // Hacky but effective way to make sure this widget is always as far right as possible
       int control_column = max_col;
 
       ui_objects.key_control = new NodeParamViewKeyframeControl();
-      ui_objects.key_control->SetInput(input);
+      ui_objects.key_control->SetInput(conn.input, conn.element);
       content_layout->addWidget(ui_objects.key_control, row_count, control_column);
       connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
 
-      connect(input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItemBody::InputKeyframeEnableChanged);
-      connect(input, &NodeInput::KeyframeAdded, this, &NodeParamViewItemBody::InputAddedKeyframe);
-      connect(input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
+      connect(conn.input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItemBody::InputKeyframeEnableChanged);
+      connect(conn.input, &NodeInput::KeyframeAdded, this, &NodeParamViewItemBody::InputAddedKeyframe);
+      connect(conn.input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
     }
 
-    input_ui_map_.insert(input, ui_objects);
+    input_ui_map_.insert(conn, ui_objects);
 
     // Update "connected" label
-    if (input->is_connectable()) {
-      UpdateUIForEdgeConnection(input);
+    if (conn.input->IsConnectable()) {
+      for (int i=-1; i<conn.input->ArraySize(); i++) {
+        UpdateUIForEdgeConnection(conn.input, i);
+      }
     }
 
     row_count++;
 
     // If the row count is an array, we put an extra body widget in the next row so we skip over it here
-    if (input->IsArray()) {
+    if (conn.input->IsArray()) {
       row_count++;
     }
   }
@@ -336,10 +339,8 @@ void NodeParamViewItemBody::SetTime(const rational &time)
 
 void NodeParamViewItemBody::Retranslate()
 {
-  QMap<NodeInput*, InputUI>::const_iterator i;
-
-  for (i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    i.value().main_label->setText(tr("%1:").arg(i.key()->name()));
+  for (auto i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
+    i.value().main_label->setText(tr("%1:").arg(i.key().input->name()));
   }
 
   foreach (NodeParamViewItemBody* sb, sub_bodies_) {
@@ -349,13 +350,11 @@ void NodeParamViewItemBody::Retranslate()
 
 void NodeParamViewItemBody::SignalAllKeyframes()
 {
-  QMap<NodeInput*, InputUI>::const_iterator i;
+  for (auto i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
+    NodeInput* input = i.key().input;
 
-  for (i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    NodeInput* input = i.key();
-
-    foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
-      foreach (NodeKeyframePtr key, track) {
+    foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(i.key().element)) {
+      foreach (NodeKeyframe* key, track) {
         InputAddedKeyframeInternal(input, key);
       }
     }
@@ -366,30 +365,32 @@ void NodeParamViewItemBody::SignalAllKeyframes()
   }
 }
 
-void NodeParamViewItemBody::EdgeChanged()
+void NodeParamViewItemBody::EdgeChanged(Node* src, int element)
 {
-  UpdateUIForEdgeConnection(static_cast<NodeInput*>(sender()));
+  Q_UNUSED(src)
+
+  UpdateUIForEdgeConnection(static_cast<NodeInput*>(sender()), element);
 }
 
-void NodeParamViewItemBody::UpdateUIForEdgeConnection(NodeInput *input)
+void NodeParamViewItemBody::UpdateUIForEdgeConnection(NodeInput *input, int element)
 {
   // Show/hide bridge widgets
-  const InputUI& ui_objects = input_ui_map_[input];
+  const InputUI& ui_objects = input_ui_map_[{input, element}];
 
   foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-    w->setVisible(!input->is_connected());
+    w->setVisible(!input->IsConnected(element));
   }
 
   // Show/hide connection label
-  ui_objects.connected_label->setVisible(input->is_connected());
+  ui_objects.connected_label->setVisible(input->IsConnected(element));
 }
 
-void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e)
+void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e, int element)
 {
   NodeInput* input = static_cast<NodeInput*>(sender());
 
-  foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
-    foreach (NodeKeyframePtr key, track) {
+  foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(element)) {
+    foreach (NodeKeyframe* key, track) {
       if (e) {
         // Add a keyframe item for each keyframe
         InputAddedKeyframeInternal(input, key);
@@ -401,7 +402,7 @@ void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e)
   }
 }
 
-void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframePtr key)
+void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframe* key)
 {
   // Get NodeInput that emitted this signal
   NodeInput* input = static_cast<NodeInput*>(sender());
@@ -409,24 +410,11 @@ void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframePtr key)
   InputAddedKeyframeInternal(input, key);
 }
 
-void NodeParamViewItemBody::LabelDoubleClicked()
-{
-  QMap<NodeInput*, InputUI>::const_iterator iterator;
-
-  for (iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
-    if (iterator.value().main_label == sender()) {
-      emit InputDoubleClicked(iterator.key());
-      return;
-    }
-  }
-}
-
 void NodeParamViewItemBody::ConnectionClicked()
 {
-  QMap<NodeInput*, InputUI>::const_iterator iterator;
-  for (iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
+  for (auto iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
     if (iterator.value().connected_label == sender()) {
-      Node* connected = iterator.key()->get_connected_node();
+      Node* connected = iterator.key().input->parent();
 
       if (connected) {
         emit RequestSelectNode({connected});
@@ -437,7 +425,7 @@ void NodeParamViewItemBody::ConnectionClicked()
   }
 }
 
-void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframePtr keyframe)
+void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframe* keyframe)
 {
   // Find its row in the parameters
   QLabel* lbl = input_ui_map_.value(input).main_label;

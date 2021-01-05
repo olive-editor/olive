@@ -147,12 +147,14 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
-        new NodeEdgeAddCommand(out_block->output(),
+        new NodeEdgeAddCommand(out_block,
                                transition->out_block_input(),
+                               -1,
                                command);
 
-        new NodeEdgeAddCommand(in_block->output(),
+        new NodeEdgeAddCommand(in_block,
                                transition->in_block_input(),
+                               -1,
                                command);
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
@@ -167,8 +169,9 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         }
 
         // Connect block to transition
-        new NodeEdgeAddCommand(block_to_transition->output(),
+        new NodeEdgeAddCommand(block_to_transition,
                                transition_input_to_connect,
+                               -1,
                                command);
       }
 

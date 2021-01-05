@@ -45,22 +45,22 @@ void TimeTargetObject::SetPathIndex(int index)
   path_index_ = index;
 }
 
-rational TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const rational &r, NodeParam::Type direction) const
+rational TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const rational &r, bool input_direction) const
 {
   if (!from || !to) {
     return r;
   }
 
-  return GetAdjustedTime(from, to, TimeRange(r, r), direction).in();
+  return GetAdjustedTime(from, to, TimeRange(r, r), input_direction).in();
 }
 
-TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRange &r, NodeParam::Type direction) const
+TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRange &r, bool input_direction) const
 {
   if (!from || !to) {
     return r;
   }
 
-  QVector<TimeRange> adjusted = from->TransformTimeTo(r, to, direction);
+  QVector<TimeRange> adjusted = from->TransformTimeTo(r, to, input_direction);
 
   if (adjusted.isEmpty()) {
     return r;

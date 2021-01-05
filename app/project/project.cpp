@@ -88,7 +88,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
   foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
     if (con.footage) {
-      con.input->set_standard_value(QVariant::fromValue(xml_node_data.footage_ptrs.value(con.footage)));
+      con.input->SetStandardValue(QVariant::fromValue(xml_node_data.footage_ptrs.value(con.footage)), con.element);
     }
   }
 }

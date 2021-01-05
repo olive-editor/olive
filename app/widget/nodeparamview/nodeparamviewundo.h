@@ -28,7 +28,7 @@ namespace olive {
 
 class NodeParamSetKeyframingCommand : public UndoCommand {
 public:
-  NodeParamSetKeyframingCommand(NodeInput* input, bool setting, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframingCommand(NodeInput* input, int element, bool setting, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -39,12 +39,13 @@ protected:
 private:
   NodeInput* input_;
   bool setting_;
+  int element_;
+
 };
 
 class NodeParamInsertKeyframeCommand : public UndoCommand {
 public:
-  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
-  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, bool already_done, QUndoCommand *parent = nullptr);
+  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframe* keyframe, QUndoCommand *parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -55,15 +56,15 @@ protected:
 private:
   NodeInput* input_;
 
-  NodeKeyframePtr keyframe_;
+  NodeKeyframe* keyframe_;
 
-  bool done_;
+  QObject memory_manager_;
 
 };
 
 class NodeParamRemoveKeyframeCommand : public UndoCommand {
 public:
-  NodeParamRemoveKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
+  NodeParamRemoveKeyframeCommand(NodeKeyframe* keyframe, QUndoCommand *parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -74,14 +75,16 @@ protected:
 private:
   NodeInput* input_;
 
-  NodeKeyframePtr keyframe_;
+  NodeKeyframe* keyframe_;
+
+  QObject memory_manager_;
 
 };
 
 class NodeParamSetKeyframeTimeCommand : public UndoCommand {
 public:
-  NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& time, QUndoCommand* parent = nullptr);
-  NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& new_time, const rational& old_time, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational& time, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational& new_time, const rational& old_time, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -90,7 +93,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   rational old_time_;
   rational new_time_;
@@ -99,8 +102,8 @@ private:
 
 class NodeParamSetKeyframeValueCommand : public UndoCommand {
 public:
-  NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& value, QUndoCommand* parent = nullptr);
-  NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -109,7 +112,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   QVariant old_value_;
   QVariant new_value_;
@@ -118,8 +121,8 @@ private:
 
 class NodeParamSetStandardValueCommand : public UndoCommand {
 public:
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& value, QUndoCommand* parent = nullptr);
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(NodeInput* input, int track, int element, const QVariant& value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(NodeInput* input, int track, int element, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -129,6 +132,7 @@ protected:
 
 private:
   NodeInput* input_;
+  int element_;
   int track_;
 
   QVariant old_value_;

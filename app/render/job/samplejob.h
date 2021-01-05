@@ -40,7 +40,7 @@ public:
 
   SampleJob(NodeInput* from, NodeValueDatabase& db)
   {
-    samples_ = db[from].Take(NodeParam::kSamples).value<SampleBufferPtr>();
+    samples_ = db[from].Take(NodeValue::kSamples).value<SampleBufferPtr>();
   }
 
   SampleBufferPtr samples() const

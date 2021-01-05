@@ -20,187 +20,105 @@
 
 #include "input.h"
 
-#include <QMatrix4x4>
-#include <QVector2D>
-#include <QVector3D>
-#include <QVector4D>
-
 #include "common/bezier.h"
 #include "common/lerp.h"
-#include "common/tohex.h"
 #include "common/xmlutils.h"
 #include "node.h"
-#include "output.h"
-#include "inputarray.h"
 #include "project/item/footage/stream.h"
-#include "render/color.h"
+
+#define super NodeConnectable
 
 namespace olive {
 
-NodeInput::NodeInput(const QString& id, const DataType &type, const QVector<QVariant> &default_value) :
-  NodeParam(id)
+NodeInput::NodeInput(Node* parent, const QString& id, NodeValue::Type type, const QVector<QVariant> &default_value)
 {
-  Init(type);
-
-  if (!default_value.isEmpty()) {
-    SetDefaultValue(default_value);
-  }
+  Init(parent, id, type, default_value);
 }
 
-NodeInput::NodeInput(const QString &id, const NodeParam::DataType &type, const QVariant &default_value) :
-  NodeParam(id)
+NodeInput::NodeInput(Node *parent, const QString &id, NodeValue::Type type, const QVariant &default_value)
 {
-  Init(type);
-  SetDefaultValue(split_normal_value_into_track_values(default_value));
+  Init(parent, id, type, NodeValue::split_normal_value_into_track_values(type, default_value));
 }
 
-NodeInput::NodeInput(const QString &id, const NodeParam::DataType &type) :
-  NodeParam(id)
+NodeInput::NodeInput(Node* parent, const QString &id, NodeValue::Type type)
 {
-  Init(type);
+  Init(parent, id, type, QVector<QVariant>());
 }
 
-bool NodeInput::IsArray() const
+NodeInput::~NodeInput()
 {
-  return false;
+  // Disconnect everything
+  DisconnectAll();
+
+  // Delete instances
+  delete primary_;
+  qDeleteAll(subinputs_);
 }
 
-NodeParam::Type NodeInput::type()
-{
-  return kInput;
-}
-
-QString NodeInput::name()
+QString NodeInput::name() const
 {
   if (name_.isEmpty()) {
     return tr("Input");
   }
 
-  return NodeParam::name();
+  return name_;
+}
+
+void NodeInput::DisconnectAll()
+{
+  auto copied_edges = edges();
+
+  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+    DisconnectEdge(it.value(), this, it.key());
+  }
 }
 
 void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
-  {
-    XMLAttributeLoop(reader, attr) {
-      if (cancelled && *cancelled) {
-        return;
-      }
-
-      if (attr.name() == QStringLiteral("keyframing")) {
-        set_is_keyframing(attr.value().toInt());
-      }
-    }
-  }
-
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("standard")) {
-      // Load standard value
-      int val_index = 0;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (reader->name() == QStringLiteral("value")) {
-          QString value_text = reader->readElementText();
-
-          if (value_text.isEmpty()) {
-            standard_value_.replace(val_index, QVariant());
-          } else {
-            standard_value_.replace(val_index, StringToValue(value_text, xml_node_data.footage_connections));
-          }
-
-          val_index++;
-        } else {
-          reader->skipCurrentElement();
+    if (reader->name() == QStringLiteral("primary")) {
+      // Load primary immediate
+      LoadImmediate(reader, -1, xml_node_data, cancelled);
+    } else if (reader->name() == QStringLiteral("subelements")) {
+      // Load subelements
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("count")) {
+          ArrayResize(attr.value().toInt());
         }
       }
-    } else if (reader->name() == QStringLiteral("keyframes")) {
-      int track = 0;
+
+      int element_counter = 0;
 
       while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
+        if (reader->name() == QStringLiteral("element")) {
+          LoadImmediate(reader, element_counter, xml_node_data, cancelled);
 
-        if (reader->name() == QStringLiteral("track")) {
-          while (XMLReadNextStartElement(reader)) {
-            if (cancelled && *cancelled) {
-              return;
-            }
-
-            if (reader->name() == QStringLiteral("key")) {
-              rational key_time;
-              NodeKeyframe::Type key_type;
-              QVariant key_value;
-              QPointF key_in_handle;
-              QPointF key_out_handle;
-
-              XMLAttributeLoop(reader, attr) {
-                if (cancelled && *cancelled) {
-                  return;
-                }
-
-                if (attr.name() == QStringLiteral("time")) {
-                  key_time = rational::fromString(attr.value().toString());
-                } else if (attr.name() == QStringLiteral("type")) {
-                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-                } else if (attr.name() == QStringLiteral("inhandlex")) {
-                  key_in_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("inhandley")) {
-                  key_in_handle.setY(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandlex")) {
-                  key_out_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandley")) {
-                  key_out_handle.setY(attr.value().toDouble());
-                }
-              }
-
-              key_value = StringToValue(reader->readElementText(), xml_node_data.footage_connections);
-
-              NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
-              key->set_bezier_control_in(key_in_handle);
-              key->set_bezier_control_out(key_out_handle);
-              key->set_parent(this);
-              keyframe_tracks_[track].append(key);
-            } else {
-              reader->skipCurrentElement();
-            }
-          }
-
-          track++;
+          element_counter++;
         } else {
           reader->skipCurrentElement();
         }
       }
     } else if (reader->name() == QStringLiteral("connections")) {
+      // Load connections
       while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
         if (reader->name() == QStringLiteral("connection")) {
-          xml_node_data.desired_connections.append({this, reader->readElementText().toULongLong()});
+          int ele = -1;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("element")) {
+              ele = attr.value().toInt();
+            }
+          }
+
+          xml_node_data.desired_connections.append({this, ele, reader->readElementText().toULongLong()});
         } else {
           reader->skipCurrentElement();
         }
       }
-    } else if (reader->name() == QStringLiteral("csinput")) {
-      setProperty("col_input", reader->readElementText());
-    } else if (reader->name() == QStringLiteral("csdisplay")) {
-      setProperty("col_display", reader->readElementText());
-    } else if (reader->name() == QStringLiteral("csview")) {
-      setProperty("col_view", reader->readElementText());
-    } else if (reader->name() == QStringLiteral("cslook")) {
-      setProperty("col_look", reader->readElementText());
-    } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data, cancelled);
     } else {
       reader->skipCurrentElement();
     }
@@ -209,14 +127,213 @@ void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
 
 void NodeInput::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeAttribute("id", id());
+  writer->writeAttribute(QStringLiteral("id"), id());
 
-  writer->writeAttribute("keyframing", QString::number(keyframing_));
+  writer->writeStartElement(QStringLiteral("primary"));
+
+  SaveImmediate(writer, -1);
+
+  writer->writeEndElement(); // primary
+
+  writer->writeStartElement(QStringLiteral("subelements"));
+
+  writer->writeAttribute(QStringLiteral("count"), QString::number(array_size_));
+
+  for (int i=0; i<array_size_; i++) {
+    writer->writeStartElement(QStringLiteral("element"));
+
+    SaveImmediate(writer, i);
+
+    writer->writeEndElement(); // element
+  }
+
+  writer->writeEndElement(); // subelements
+
+  writer->writeStartElement(QStringLiteral("connections"));
+
+  for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
+    writer->writeStartElement(QStringLiteral("connection"));
+
+    writer->writeAttribute(QStringLiteral("element"), QString::number(it.key()));
+
+    writer->writeCharacters(QString::number(reinterpret_cast<quintptr>(it.value())));
+
+    writer->writeEndElement(); // connection
+  }
+
+  writer->writeEndElement(); // connections
+}
+
+Node *NodeInput::parent() const
+{
+  return static_cast<Node*>(QObject::parent());
+}
+
+bool NodeInput::event(QEvent *e)
+{
+  if (e->type() == QEvent::DynamicPropertyChange) {
+    QByteArray key = static_cast<QDynamicPropertyChangeEvent*>(e)->propertyName();
+    emit PropertyChanged(key, property(key));
+    return true;
+  }
+
+  return QObject::event(e);
+}
+
+void NodeInput::childEvent(QChildEvent *event)
+{
+  super::childEvent(event);
+
+  NodeKeyframe* key = dynamic_cast<NodeKeyframe*>(event->child());
+
+  if (key) {
+    if (event->type() == QEvent::ChildAdded) {
+      GetImmediate(key->element())->insert_keyframe(key);
+
+      connect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
+      connect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
+      connect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
+      connect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
+      connect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
+
+      emit KeyframeAdded(key);
+      emit ValueChanged(get_range_affected_by_keyframe(key), key->element());
+    } else if (event->type() == QEvent::ChildRemoved) {
+      TimeRange time_affected = get_range_affected_by_keyframe(key);
+
+      disconnect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
+      disconnect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
+      disconnect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
+      disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
+      disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
+
+      GetImmediate(key->element())->remove_keyframe(key);
+
+      emit KeyframeRemoved(key);
+      emit ValueChanged(time_affected, key->element());
+    }
+  }
+}
+
+void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, const QVector<QVariant>& default_val)
+{
+  setParent(parent);
+
+  id_ = id;
+  keyframable_ = true;
+  connectable_ = true;
+  default_value_ = default_val;
+  array_size_ = 0;
+  data_type_ = type;
+
+  primary_ = new NodeInputImmediate(type, default_value_);
+}
+
+void NodeInput::LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
+{
+  if (reader->name() == QStringLiteral("standard")) {
+    // Load standard value
+    int val_index = 0;
+
+    while (XMLReadNextStartElement(reader)) {
+      if (cancelled && *cancelled) {
+        return;
+      }
+
+      if (reader->name() == QStringLiteral("value")) {
+        QString value_text = reader->readElementText();
+        QVariant value_on_track;
+
+        if (!value_text.isEmpty()) {
+          value_on_track = StringToValue(value_text, xml_node_data.footage_connections, element);
+        }
+
+        SetStandardValueOnTrack(value_on_track, val_index, element);
+
+        val_index++;
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+  } else if (reader->name() == QStringLiteral("keyframing")) {
+    SetIsKeyframing(reader->readElementText().toInt(), element);
+  } else if (reader->name() == QStringLiteral("keyframes")) {
+    int track = 0;
+
+    while (XMLReadNextStartElement(reader)) {
+      if (cancelled && *cancelled) {
+        return;
+      }
+
+      if (reader->name() == QStringLiteral("track")) {
+        while (XMLReadNextStartElement(reader)) {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
+          if (reader->name() == QStringLiteral("key")) {
+            rational key_time;
+            NodeKeyframe::Type key_type;
+            QVariant key_value;
+            QPointF key_in_handle;
+            QPointF key_out_handle;
+
+            XMLAttributeLoop(reader, attr) {
+              if (cancelled && *cancelled) {
+                return;
+              }
+
+              if (attr.name() == QStringLiteral("time")) {
+                key_time = rational::fromString(attr.value().toString());
+              } else if (attr.name() == QStringLiteral("type")) {
+                key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+              } else if (attr.name() == QStringLiteral("inhandlex")) {
+                key_in_handle.setX(attr.value().toDouble());
+              } else if (attr.name() == QStringLiteral("inhandley")) {
+                key_in_handle.setY(attr.value().toDouble());
+              } else if (attr.name() == QStringLiteral("outhandlex")) {
+                key_out_handle.setX(attr.value().toDouble());
+              } else if (attr.name() == QStringLiteral("outhandley")) {
+                key_out_handle.setY(attr.value().toDouble());
+              }
+            }
+
+            key_value = StringToValue(reader->readElementText(), xml_node_data.footage_connections, element);
+
+            NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, this);
+            key->set_bezier_control_in(key_in_handle);
+            key->set_bezier_control_out(key_out_handle);
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        track++;
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+  } else if (reader->name() == QStringLiteral("csinput")) {
+    setProperty("col_input", reader->readElementText());
+  } else if (reader->name() == QStringLiteral("csdisplay")) {
+    setProperty("col_display", reader->readElementText());
+  } else if (reader->name() == QStringLiteral("csview")) {
+    setProperty("col_view", reader->readElementText());
+  } else if (reader->name() == QStringLiteral("cslook")) {
+    setProperty("col_look", reader->readElementText());
+  } else {
+    reader->skipCurrentElement();
+  }
+}
+
+void NodeInput::SaveImmediate(QXmlStreamWriter* writer, int element) const
+{
+  writer->writeTextElement(QStringLiteral("keyframing"), QString::number(IsKeyframing(element)));
 
   // Write standard value
   writer->writeStartElement("standard");
 
-  foreach (const QVariant& v, standard_value_) {
+  foreach (const QVariant& v, GetSplitStandardValue(element)) {
     writer->writeTextElement("value", ValueToString(v));
   }
 
@@ -225,10 +342,10 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   // Write keyframes
   writer->writeStartElement("keyframes");
 
-  foreach (const KeyframeTrack& track, keyframe_tracks()) {
+  foreach (const NodeKeyframeTrack& track, GetKeyframeTracks(element)) {
     writer->writeStartElement("track");
 
-    foreach (NodeKeyframePtr key, track) {
+    foreach (NodeKeyframe* key, track) {
       writer->writeStartElement("key");
 
       writer->writeAttribute("time", key->time().toString());
@@ -248,219 +365,32 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
   writer->writeEndElement(); // keyframes
 
-  if (data_type_ == NodeParam::kColor) {
+  if (data_type_ == NodeValue::kColor) {
     // Save color management information
     writer->writeTextElement(QStringLiteral("csinput"), property("col_input").toString());
     writer->writeTextElement(QStringLiteral("csdisplay"), property("col_display").toString());
     writer->writeTextElement(QStringLiteral("csview"), property("col_view").toString());
     writer->writeTextElement(QStringLiteral("cslook"), property("col_look").toString());
   }
-
-  SaveConnections(writer);
-
-  writer->writeStartElement(QStringLiteral("custom"));
-  SaveInternal(writer);
-  writer->writeEndElement(); // custom
-}
-
-void NodeInput::SaveConnections(QXmlStreamWriter *writer) const
-{
-  writer->writeStartElement("connections");
-
-  foreach (NodeEdgePtr edge, edges_) {
-    writer->writeTextElement("connection",
-                             QString::number(reinterpret_cast<quintptr>(edge->output())));
-  }
-
-  writer->writeEndElement(); // connections
-}
-
-const NodeParam::DataType &NodeInput::data_type() const
-{
-  return data_type_;
-}
-
-void NodeInput::LoadInternal(QXmlStreamReader* reader, XMLNodeData &, const QAtomicInt*)
-{
-  reader->skipCurrentElement();
-}
-
-void NodeInput::SaveInternal(QXmlStreamWriter*) const
-{
-}
-
-bool NodeInput::event(QEvent *e)
-{
-  if (e->type() == QEvent::DynamicPropertyChange) {
-    QByteArray key = static_cast<QDynamicPropertyChangeEvent*>(e)->propertyName();
-    emit PropertyChanged(key, property(key));
-    return true;
-  }
-
-  return QObject::event(e);
-}
-
-void NodeInput::Init(DataType type)
-{
-  keyframable_ = true;
-  keyframing_ = false;
-  data_type_ = type;
-
-  int track_size;
-
-  switch (data_type_) {
-  case kVec2:
-    track_size = 2;
-    break;
-  case kVec3:
-    track_size = 3;
-    break;
-  case kVec4:
-  case kColor:
-    track_size = 4;
-    break;
-  default:
-    track_size = 1;
-  }
-
-  keyframe_tracks_.resize(track_size);
-  standard_value_.resize(track_size);
-}
-
-void NodeInput::SetDefaultValue(const QVector<QVariant> &default_value)
-{
-  default_value_ = default_value;
-
-  for (int i=0;i<standard_value_.size();i++) {
-    standard_value_.replace(i, default_value.at(i));
-  }
-}
-
-QString NodeInput::ValueToString(const QVariant &value) const
-{
-  return ValueToString(data_type_, value, true);
-}
-
-QString NodeInput::ValueToString(const DataType& data_type, const QVariant &value, bool value_is_a_key_track)
-{
-  if (!value_is_a_key_track && data_type == kVec2) {
-    QVector2D vec = value.value<QVector2D>();
-
-    return QStringLiteral("%1:%2").arg(QString::number(vec.x()),
-                                       QString::number(vec.y()));
-  } else if (!value_is_a_key_track && data_type == kVec3) {
-    QVector3D vec = value.value<QVector3D>();
-
-    return QStringLiteral("%1:%2:%3").arg(QString::number(vec.x()),
-                                          QString::number(vec.y()),
-                                          QString::number(vec.z()));
-  } else if (!value_is_a_key_track && data_type == kVec4) {
-    QVector4D vec = value.value<QVector4D>();
-
-    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(vec.x()),
-                                             QString::number(vec.y()),
-                                             QString::number(vec.z()),
-                                             QString::number(vec.w()));
-  } else if (!value_is_a_key_track && data_type == kColor) {
-    Color c = value.value<Color>();
-
-    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(c.red()),
-                                             QString::number(c.green()),
-                                             QString::number(c.blue()),
-                                             QString::number(c.alpha()));
-  } else if (data_type == kRational) {
-    return value.value<rational>().toString();
-  } else if (data_type == kFootage) {
-    return QString::number(value.value<quintptr>());
-  } else if (data_type == kTexture
-             || data_type == kSamples
-             || data_type == kBuffer) {
-    // These data types need no XML representation
-    return QString();
-  } else if (data_type == kInt) {
-    return QString::number(value.value<int64_t>());
-  } else {
-    if (value.canConvert<QString>()) {
-      return value.toString();
-    }
-
-    if (!value.isNull()) {
-      qWarning() << "Failed to convert type" << ToHex(data_type) << "to string";
-    }
-
-    return QString();
-  }
-}
-
-void NodeInput::ValidateVectorString(QStringList* list, int count)
-{
-  while (list->size() < count) {
-    list->append(QStringLiteral("0"));
-  }
-}
-
-QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string, bool value_is_a_key_track)
-{
-  if (!value_is_a_key_track && data_type == kVec2) {
-    QStringList vals = string.split(':');
-
-    ValidateVectorString(&vals, 2);
-
-    return QVector2D(vals.at(0).toFloat(), vals.at(1).toFloat());
-  } else if (!value_is_a_key_track && data_type == kVec3) {
-    QStringList vals = string.split(':');
-
-    ValidateVectorString(&vals, 3);
-
-    return QVector3D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat());
-  } else if (!value_is_a_key_track && data_type == kVec4) {
-    QStringList vals = string.split(':');
-
-    ValidateVectorString(&vals, 4);
-
-    return QVector4D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat());
-  } else if (!value_is_a_key_track && data_type == kColor) {
-    QStringList vals = string.split(':');
-
-    ValidateVectorString(&vals, 4);
-
-    return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
-  } else if (data_type == kInt) {
-    return QVariant::fromValue(string.toLongLong());
-  } else if (data_type == kRational) {
-    return QVariant::fromValue(rational::fromString(string));
-  } else {
-    return string;
-  }
 }
 
 void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
-  if (is_connected()
-      && (get_connected_output()->edges().size() == 1 || !exclusive_only)) {
-    Node* connected = get_connected_node();
+  for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
+    if (it.value()->edges().size() == 1 || !exclusive_only) {
+      Node* connected = it.value();
 
-    if (!list.contains(connected)) {
-      list.append(connected);
+      if (!list.contains(connected)) {
+        list.append(connected);
 
-      if (traverse) {
-        QVector<NodeInput*> connected_inputs = connected->GetInputsIncludingArrays();
-
-        foreach (NodeInput* i, connected_inputs) {
-          i->GetDependencies(list, traverse, exclusive_only);
+        if (traverse) {
+          foreach (NodeInput* i, connected->parameters()) {
+            i->GetDependencies(list, traverse, exclusive_only);
+          }
         }
       }
     }
   }
-}
-
-QVariant NodeInput::GetDefaultValue() const
-{
-  if (default_value_.isEmpty()) {
-    return QVariant();
-  }
-
-  return combine_track_values_into_normal_value(default_value_);
 }
 
 QVariant NodeInput::GetDefaultValueForTrack(int track) const
@@ -491,68 +421,105 @@ QVector<Node *> NodeInput::GetImmediateDependencies() const
   return GetDependencies(false, false);
 }
 
-QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections)
+void NodeInput::ArrayInsert(int index)
 {
-  if (data_type_ == NodeParam::kFootage) {
-    footage_connections.append({this, string.toULongLong()});
+  // Prepend new input
+  subinputs_.insert(index, new NodeInputImmediate(GetDataType(), default_value_));
+
+  // Move connections down
+  QHash<int, Node*> copied_edges = edges();
+  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+    if (it.key() >= index) {
+      // Disconnect this and reconnect it one element down
+      DisconnectEdge(it.value(), this, it.key());
+      ConnectEdge(it.value(), this, it.key() + 1);
+    }
   }
-
-  return StringToValue(data_type_, string, true);
 }
 
-NodeOutput *NodeInput::get_connected_output() const
+void NodeInput::ArrayRemove(int index)
 {
-  if (!edges_.isEmpty()) {
-    return edges_.first()->output();
+  // Remove subinput here
+  delete subinputs_.at(index);
+  subinputs_.removeAt(index);
+
+  // Move connections up
+  QHash<int, Node*> copied_edges = edges();
+  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+    if (it.key() >= index) {
+      // Disconnect this and reconnect it one element up if it's not the element being removed
+      DisconnectEdge(it.value(), this, it.key());
+
+      if (it.key() > index) {
+        ConnectEdge(it.value(), this, it.key() - 1);
+      }
+    }
   }
-
-  return nullptr;
 }
 
-Node *NodeInput::get_connected_node() const
+void NodeInput::ArrayPrepend()
 {
-  NodeOutput* output = get_connected_output();
+  ArrayInsert(0);
+}
 
-  if (output) {
-    return output->parentNode();
+void NodeInput::ArrayResize(int size)
+{
+  if (array_size_ != size) {
+    if (array_size_ > size) {
+      // Decreasing in size, disconnect any extraneous edges
+      for (int i=size; i<array_size_; i++) {
+        Node* connection = edges().value(i);
+        if (connection) {
+          DisconnectEdge(connection, this, i);
+        }
+      }
+
+      // Note that we do not delete any immediates since the user might still want that data.
+      // Therefore it's important to note that array_size_ does NOT necessarily equal subinputs_.size()
+    } else {
+      // Size is larger, create any immediates that don't exist
+      for (int i=subinputs_.size(); i<size; i++) {
+        subinputs_.append(new NodeInputImmediate(GetDataType(), default_value_));
+      }
+    }
+
+    // Update array size
+    array_size_ = size;
+    emit ArraySizeChanged(array_size_);
   }
-
-  return nullptr;
 }
 
-bool NodeInput::type_can_be_interpolated(NodeParam::DataType type)
+void NodeInput::ArrayRemoveLast()
 {
-  return type == kFloat
-      || type == kVec2
-      || type == kVec3
-      || type == kVec4
-      || type == kColor;
+  ArrayResize(ArraySize() - 1);
 }
 
-QVariant NodeInput::get_value_at_time(const rational &time) const
+QVariant NodeInput::GetValueAtTime(const rational &time, int element) const
 {
-  return combine_track_values_into_normal_value(get_split_values_at_time(time));
+  return NodeValue::combine_track_values_into_normal_value(data_type_, GetSplitValuesAtTime(time, element));
 }
 
-QVector<QVariant> NodeInput::get_split_values_at_time(const rational &time) const
+QVector<QVariant> NodeInput::GetSplitValuesAtTime(const rational &time, int element) const
 {
   QVector<QVariant> vals;
 
-  for (int i=0;i<get_number_of_keyframe_tracks();i++) {
-    if (is_using_standard_value(i)) {
-      vals.append(standard_value_.at(i));
+  int nb_tracks = GetNumberOfKeyframeTracks();
+
+  for (int i=0;i<nb_tracks;i++) {
+    if (IsUsingStandardValue(i, element)) {
+      vals.append(GetStandardValueOnTrack(i, element));
     } else {
-      vals.append(get_value_at_time_for_track(time, i));
+      vals.append(GetValueAtTimeForTrack(time, i, element));
     }
   }
 
   return vals;
 }
 
-QVariant NodeInput::get_value_at_time_for_track(const rational& time, int track) const
+QVariant NodeInput::GetValueAtTimeForTrack(const rational &time, int track, int element) const
 {
-  if (!is_using_standard_value(track)) {
-    const KeyframeTrack& key_track = keyframe_tracks_.at(track);
+  if (!IsUsingStandardValue(track, element)) {
+    const NodeKeyframeTrack& key_track = GetKeyframeTracks(element).at(track);
 
     if (key_track.first()->time() >= time) {
       // This time precedes any keyframe, so we just return the first value
@@ -566,11 +533,11 @@ QVariant NodeInput::get_value_at_time_for_track(const rational& time, int track)
 
     // If we're here, the time must be somewhere in between the keyframes
     for (int i=0;i<key_track.size()-1;i++) {
-      NodeKeyframePtr before = key_track.at(i);
-      NodeKeyframePtr after = key_track.at(i+1);
+      NodeKeyframe* before = key_track.at(i);
+      NodeKeyframe* after = key_track.at(i+1);
 
       if (before->time() == time
-          || !type_can_be_interpolated(data_type())
+          || !NodeValue::type_can_be_interpolated(data_type_)
           || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
 
         // Time == keyframe time, so value is precise
@@ -636,332 +603,166 @@ QVariant NodeInput::get_value_at_time_for_track(const rational& time, int track)
     }
   }
 
-  return standard_value_.at(track);
+  return GetStandardValueOnTrack(track, element);
 }
 
-QList<NodeKeyframePtr> NodeInput::get_keyframe_at_time(const rational &time) const
+bool NodeInput::IsKeyframable() const
 {
-  QList<NodeKeyframePtr> keys;
+  return keyframable_;
+}
 
-  for (int i=0;i<keyframe_tracks_.size();i++) {
-    NodeKeyframePtr key_at_time = get_keyframe_at_time_on_track(time, i);
+void NodeInput::SetKeyframable(bool k)
+{
+  keyframable_ = k;
+}
 
-    if (key_at_time) {
-      keys.append(key_at_time);
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections, bool traverse_arrays)
+{
+  Q_ASSERT(source->id() == dest->id());
+
+  CopyValuesOfElement(source, dest, -1);
+
+  // Copy array size
+  dest->ArrayResize(source->ArraySize());
+
+  // If enabled, copy arrays too
+  if (traverse_arrays) {
+    for (int i=0; i<source->ArraySize(); i++) {
+      CopyValuesOfElement(source, dest, i);
     }
   }
 
-  return keys;
-}
-
-NodeKeyframePtr NodeInput::get_keyframe_at_time_on_track(const rational &time, int track) const
-{
-  if (!is_using_standard_value(track)) {
-    foreach (NodeKeyframePtr key, keyframe_tracks_.at(track)) {
-      if (key->time() == time) {
-        return key;
+  // Copy connections
+  if (include_connections) {
+    if (traverse_arrays) {
+      // Copy all connections
+      for (auto it=source->input_connections().cbegin(); it!=source->input_connections().cend(); it++) {
+        ConnectEdge(it.value(), dest, it.key());
+      }
+    } else {
+      // Just copy the primary connection (at -1)
+      if (source->IsConnected()) {
+        ConnectEdge(source->GetConnectedNode(), dest);
       }
     }
   }
-
-  return nullptr;
 }
 
-NodeKeyframePtr NodeInput::get_closest_keyframe_to_time_on_track(const rational &time, int track) const
+void NodeInput::CopyValuesOfElement(NodeInput *src, NodeInput *dst, int element)
 {
-  if (is_using_standard_value(track)) {
-    return nullptr;
-  }
+  // Copy standard value
+  dst->SetSplitStandardValue(src->GetSplitStandardValue(element), element);
 
-  const KeyframeTrack& key_track = keyframe_tracks_.at(track);
-
-  if (time <= key_track.first()->time()) {
-    return key_track.first();
-  }
-
-  if (time >= key_track.last()->time()) {
-    return key_track.last();
-  }
-
-  for (int i=1;i<key_track.size();i++) {
-    NodeKeyframePtr prev_key = key_track.at(i-1);
-    NodeKeyframePtr next_key = key_track.at(i);
-
-    if (prev_key->time() <= time && next_key->time() >= time) {
-      // Return whichever is closer
-      rational prev_diff = time - prev_key->time();
-      rational next_diff = next_key->time() - time;
-
-      if (next_diff < prev_diff) {
-        return next_key;
-      } else {
-        return prev_key;
-      }
+  // Copy keyframes
+  foreach (const NodeKeyframeTrack& track, src->GetImmediate(element)->keyframe_tracks()) {
+    foreach (NodeKeyframe* key, track) {
+      key->copy(dst);
     }
   }
 
-  return nullptr;
-}
-
-NodeKeyframePtr NodeInput::get_closest_keyframe_before_time(const rational &time) const
-{
-  NodeKeyframePtr key = nullptr;
-
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    foreach (NodeKeyframePtr k, track) {
-      if (k->time() >= time) {
-        break;
-      } else if (!key || k->time() > key->time()) {
-        key = k;
-      }
-    }
+  // Copy keyframing state
+  if (src->IsKeyframable()) {
+    dst->SetIsKeyframing(src->IsKeyframing(element), element);
   }
 
-  return key;
+  emit dst->ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), element);
 }
 
-NodeKeyframePtr NodeInput::get_closest_keyframe_after_time(const rational &time) const
+QStringList NodeInput::get_combobox_strings() const
 {
-  NodeKeyframePtr key = nullptr;
-
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    for (int i=track.size()-1;i>=0;i--) {
-      NodeKeyframePtr k = track.at(i);
-
-      if (k->time() <= time) {
-        break;
-      } else if (!key || k->time() < key->time()) {
-        key = k;
-      }
-    }
-  }
-
-  return key;
+  return property("combo_str").toStringList();
 }
 
-NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &time, int track) const
+void NodeInput::set_combobox_strings(const QStringList &strings)
 {
-  NodeKeyframePtr closest_key = get_closest_keyframe_to_time_on_track(time, track);
-
-  if (closest_key) {
-    return closest_key->type();
-  }
-
-  return NodeKeyframe::kDefaultType;
-}
-
-int NodeInput::get_number_of_keyframe_tracks() const
-{
-  return keyframe_tracks_.size();
-}
-
-NodeKeyframePtr NodeInput::get_earliest_keyframe() const
-{
-  NodeKeyframePtr earliest = nullptr;
-
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    if (!track.isEmpty()) {
-      NodeKeyframePtr earliest_in_track = track.first();
-
-      if (!earliest
-          || earliest_in_track->time() < earliest->time()) {
-        earliest = earliest_in_track;
-      }
-    }
-  }
-
-  return earliest;
-}
-
-NodeKeyframePtr NodeInput::get_latest_keyframe() const
-{
-  NodeKeyframePtr latest = nullptr;
-
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    if (!track.isEmpty()) {
-      NodeKeyframePtr latest_in_track = track.last();
-
-      if (!latest
-          || latest_in_track->time() > latest->time()) {
-        latest = latest_in_track;
-      }
-    }
-  }
-
-  return latest;
-}
-
-void NodeInput::insert_keyframe(NodeKeyframePtr key)
-{
-  Q_ASSERT(is_keyframable());
-
-  insert_keyframe_internal(key);
-
-  connect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
-  connect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
-  connect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
-  connect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
-  connect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
-
-  emit KeyframeAdded(key);
-
-  emit_range_affected_by_keyframe(key.get());
-}
-
-void NodeInput::remove_keyframe(NodeKeyframePtr key)
-{
-  Q_ASSERT(is_keyframable());
-
-  TimeRange time_affected = get_range_affected_by_keyframe(key.get());
-
-  disconnect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
-  disconnect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
-  disconnect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
-  disconnect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
-  disconnect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
-
-  keyframe_tracks_[key->track()].removeOne(key);
-  key->set_parent(nullptr);
-
-  emit KeyframeRemoved(key);
-  emit_time_range(time_affected);
-}
-
-NodeKeyframePtr NodeInput::get_keyframe_shared_ptr_from_raw(NodeKeyframe* raw) const
-{
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    foreach (NodeKeyframePtr key, track) {
-      if (key.get() == raw) {
-        return key;
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-void NodeInput::KeyframeTimeChanged()
-{
-  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
-
-  Q_ASSERT(keyframe_index > -1);
-
-  TimeRange original_range = get_range_around_index(keyframe_index, key->track());
-
-  if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
-    // This keyframe needs resorting, store it and remove it from the list
-    NodeKeyframePtr key_shared_ptr = keyframe_tracks_.at(key->track()).at(keyframe_index);
-
-    keyframe_tracks_[key->track()].removeAt(keyframe_index);
-
-    // Automatically insertion sort
-    insert_keyframe_internal(key_shared_ptr);
-
-    // Invalidate new area that the keyframe has been moved to
-    emit_time_range(get_range_around_index(FindIndexOfKeyframeFromRawPtr(key), key->track()));
-  }
-
-  // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
-  // was resorted in the if block above)
-  emit_time_range(original_range);
-}
-
-void NodeInput::KeyframeValueChanged()
-{
-  emit_range_affected_by_keyframe(static_cast<NodeKeyframe*>(sender()));
-}
-
-void NodeInput::KeyframeTypeChanged()
-{
-  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
-
-  if (keyframe_tracks_.at(key->track()).size() == 1) {
-    // If there are no other frames, the interpolation won't do anything
-    return;
-  }
-
-  // Invalidate entire range
-  emit_time_range(get_range_around_index(keyframe_index, key->track()));
+  setProperty("combo_str", strings);
 }
 
 void NodeInput::KeyframeBezierInChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
+  int keyframe_index = track.indexOf(key);
 
   rational start = RATIONAL_MIN;
   rational end = key->time();
 
   if (keyframe_index > 0) {
-    start = keyframe_tracks_.at(key->track()).at(keyframe_index - 1)->time();
+    start = track.at(keyframe_index - 1)->time();
   }
 
-  emit ValueChanged(TimeRange(start, end));
+  emit ValueChanged(TimeRange(start, end), key->element());
 }
 
 void NodeInput::KeyframeBezierOutChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
+  int keyframe_index = track.indexOf(key);
 
   rational start = key->time();
   rational end = RATIONAL_MAX;
 
-  if (keyframe_index < keyframe_tracks_.at(key->track()).size() - 1) {
-    end = keyframe_tracks_.at(key->track()).at(keyframe_index + 1)->time();
+  if (keyframe_index < track.size() - 1) {
+    end = track.at(keyframe_index + 1)->time();
   }
 
-  emit ValueChanged(TimeRange(start, end));
+  emit ValueChanged(TimeRange(start, end), key->element());
 }
 
-int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
+void NodeInput::KeyframeTimeChanged()
 {
-  const KeyframeTrack& track = keyframe_tracks_.at(raw_ptr->track());
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  NodeInputImmediate* immediate = GetImmediate(key->element());
+  TimeRange original_range = get_range_affected_by_keyframe(key);
 
-  for (int i=0;i<track.size();i++) {
-    if (track.at(i).get() == raw_ptr) {
-      return i;
-    }
+  TimeRangeList invalidate_range;
+  invalidate_range.insert(original_range);
+
+  if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
+    // This keyframe needs resorting, store it and remove it from the list
+    immediate->remove_keyframe(key);
+
+    // Automatically insertion sort
+    immediate->insert_keyframe(key);
+
+    // Invalidate new area that the keyframe has been moved to
+    invalidate_range.insert(get_range_affected_by_keyframe(key));
   }
 
-  return -1;
+  // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
+  // was resorted in the if block above)
+  foreach (const TimeRange& r, invalidate_range) {
+    emit ValueChanged(r, key->element());
+  }
 }
 
-void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
+void NodeInput::KeyframeValueChanged()
 {
-  KeyframeTrack& key_track = keyframe_tracks_[key->track()];
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  emit ValueChanged(get_range_affected_by_keyframe(key), key->element());
+}
 
-  key->set_parent(this);
+void NodeInput::KeyframeTypeChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
 
-  for (int i=0;i<key_track.size();i++) {
-    NodeKeyframePtr compare = key_track.at(i);
-
-    // Ensure we aren't trying to insert two keyframes at the same time
-    Q_ASSERT(compare->time() != key->time());
-
-    if (compare->time() > key->time()) {
-      key_track.insert(i, key);
-      return;
-    }
+  if (track.size() == 1) {
+    // If there are no other frames, the interpolation won't do anything
+    return;
   }
 
-  key_track.append(key);
-}
-
-bool NodeInput::is_using_standard_value(int track) const
-{
-  return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
+  // Invalidate entire range
+  emit ValueChanged(get_range_around_index(track.indexOf(key), key->track(), key->element()), key->element());
 }
 
 TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
 {
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+  const NodeKeyframeTrack& key_track = GetTrackFromKeyframe(key);
+  int keyframe_index = key_track.indexOf(key);
 
-  TimeRange range = get_range_around_index(keyframe_index, key->track());
-
-  const KeyframeTrack& key_track = keyframe_tracks_.at(key->track());
+  TimeRange range = get_range_around_index(keyframe_index, key->track(), key->element());
 
   // If a previous key exists and it's a hold, we don't need to invalidate those frames
   if (key_track.size() > 1
@@ -973,12 +774,12 @@ TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
   return range;
 }
 
-TimeRange NodeInput::get_range_around_index(int index, int track) const
+TimeRange NodeInput::get_range_around_index(int index, int track, int element) const
 {
   rational range_begin = RATIONAL_MIN;
   rational range_end = RATIONAL_MAX;
 
-  const KeyframeTrack& key_track = keyframe_tracks_.at(track);
+  const NodeKeyframeTrack& key_track = GetImmediate(element)->keyframe_tracks().at(track);
 
   if (key_track.size() > 1) {
     if (index > 0) {
@@ -994,215 +795,18 @@ TimeRange NodeInput::get_range_around_index(int index, int track) const
   return TimeRange(range_begin, range_end);
 }
 
-void NodeInput::emit_time_range(const TimeRange &range)
+QString NodeInput::ValueToString(const QVariant &value) const
 {
-  emit ValueChanged(range);
+  return NodeValue::ValueToString(data_type_, value, true);
 }
 
-void NodeInput::emit_range_affected_by_keyframe(NodeKeyframe *key)
+QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections, int element)
 {
-  emit_time_range(get_range_affected_by_keyframe(key));
-}
-
-bool NodeInput::has_keyframe_at_time(const rational &time) const
-{
-  if (!is_keyframing()) {
-    return false;
+  if (data_type_ == NodeValue::kFootage) {
+    footage_connections.append({this, element, string.toULongLong()});
   }
 
-  // Loop through keyframes to see if any match
-  foreach (const KeyframeTrack& track, keyframe_tracks_) {
-    foreach (NodeKeyframePtr key, track) {
-      if (key->time() == time) {
-        return true;
-      }
-    }
-  }
-
-  // None match
-  return false;
-}
-
-bool NodeInput::is_keyframing() const
-{
-  return keyframing_;
-}
-
-void NodeInput::set_is_keyframing(bool k)
-{
-  keyframing_ = k;
-
-  emit KeyframeEnableChanged(keyframing_);
-}
-
-bool NodeInput::is_keyframable() const
-{
-  return keyframable_;
-}
-
-bool NodeInput::is_static() const
-{
-  return !(this->is_connected() || this->is_keyframing());
-}
-
-QVariant NodeInput::get_standard_value() const
-{
-  return combine_track_values_into_normal_value(standard_value_);
-}
-
-const QVector<QVariant> &NodeInput::get_split_standard_value() const
-{
-  return standard_value_;
-}
-
-void NodeInput::set_standard_value(const QVariant &value, int track)
-{
-  standard_value_.replace(track, value);
-
-  if (is_using_standard_value(track)) {
-    // If this standard value is being used, we need to send a value changed signal
-    emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
-  }
-}
-
-const QVector<NodeInput::KeyframeTrack> &NodeInput::keyframe_tracks() const
-{
-  return keyframe_tracks_;
-}
-
-void NodeInput::set_is_keyframable(bool k)
-{
-  keyframable_ = k;
-}
-
-void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections, bool traverse_arrays)
-{
-  Q_ASSERT(source->id() == dest->id());
-
-  // Copy standard value
-  dest->standard_value_ = source->standard_value_;
-
-  // Copy keyframes
-  for (int i=0;i<source->keyframe_tracks_.size();i++) {
-    dest->keyframe_tracks_[i].clear();
-    foreach (NodeKeyframePtr key, source->keyframe_tracks_.at(i)) {
-      NodeKeyframePtr key_copy = key->copy();
-      key_copy->set_parent(dest);
-      dest->keyframe_tracks_[i].append(key_copy);
-    }
-  }
-
-  // Copy keyframing state
-  dest->set_is_keyframing(source->is_keyframing());
-
-  // Copy connections
-  if (include_connections && source->get_connected_output() != nullptr) {
-    ConnectEdge(source->get_connected_output(), dest);
-  }
-
-  // If these inputs are an array, copy the subparams too
-  if (dest->IsArray()) {
-    NodeInputArray* src_array = static_cast<NodeInputArray*>(source);
-    NodeInputArray* dst_array = static_cast<NodeInputArray*>(dest);
-
-    dst_array->SetSize(src_array->GetSize());
-
-    if (traverse_arrays) {
-      for (int i=0;i<dst_array->GetSize();i++) {
-        CopyValues(src_array->At(i), dst_array->At(i), include_connections);
-      }
-    }
-  }
-
-  emit dest->ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
-}
-
-QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant &value) const
-{
-  QVector<QVariant> vals(get_number_of_keyframe_tracks());
-
-  switch (data_type_) {
-  case kVec2:
-  {
-    QVector2D vec = value.value<QVector2D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    break;
-  }
-  case kVec3:
-  {
-    QVector3D vec = value.value<QVector3D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    vals.replace(2, vec.z());
-    break;
-  }
-  case kVec4:
-  {
-    QVector4D vec = value.value<QVector4D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    vals.replace(2, vec.z());
-    vals.replace(3, vec.w());
-    break;
-  }
-  case kColor:
-  {
-    Color c = value.value<Color>();
-    vals.replace(0, c.red());
-    vals.replace(1, c.green());
-    vals.replace(2, c.blue());
-    vals.replace(3, c.alpha());
-    break;
-  }
-  default:
-    vals.replace(0, value);
-  }
-
-  return vals;
-}
-
-QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVariant> &split) const
-{
-  switch (data_type_) {
-  case kVec2:
-  {
-    return QVector2D(split.at(0).toFloat(),
-                     split.at(1).toFloat());
-  }
-  case kVec3:
-  {
-    return QVector3D(split.at(0).toFloat(),
-                     split.at(1).toFloat(),
-                     split.at(2).toFloat());
-  }
-  case kVec4:
-  {
-    return QVector4D(split.at(0).toFloat(),
-                     split.at(1).toFloat(),
-                     split.at(2).toFloat(),
-                     split.at(3).toFloat());
-  }
-  case kColor:
-  {
-    return QVariant::fromValue(Color(split.at(0).toFloat(),
-                                     split.at(1).toFloat(),
-                                     split.at(2).toFloat(),
-                                     split.at(3).toFloat()));
-  }
-  default:
-    return split.first();
-  }
-}
-
-QStringList NodeInput::get_combobox_strings() const
-{
-  return property("combo_str").toStringList();
-}
-
-void NodeInput::set_combobox_strings(const QStringList &strings)
-{
-  setProperty("combo_str", strings);
+  return NodeValue::StringToValue(data_type_, string, true);
 }
 
 }

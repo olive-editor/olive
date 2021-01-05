@@ -72,7 +72,7 @@ private:
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItemBody(const QVector<NodeInput*>& inputs, QWidget* parent = nullptr);
+  NodeParamViewItemBody(const QVector<Node::InputConnection>& inputs, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -83,20 +83,18 @@ public:
   void SignalAllKeyframes();
 
 signals:
-  void KeyframeAdded(NodeKeyframePtr key, int y);
+  void KeyframeAdded(NodeKeyframe* key, int y);
 
-  void KeyframeRemoved(NodeKeyframePtr key);
+  void KeyframeRemoved(NodeKeyframe* key);
 
   void RequestSetTime(const rational& time);
-
-  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QVector<Node*>& node);
 
 private:
-  void UpdateUIForEdgeConnection(NodeInput* input);
+  void UpdateUIForEdgeConnection(NodeInput* input, int element);
 
-  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframePtr keyframe);
+  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframe* keyframe);
 
   struct InputUI {
     InputUI();
@@ -107,18 +105,16 @@ private:
     NodeParamViewKeyframeControl* key_control;
   };
 
-  QMap<NodeInput*, InputUI> input_ui_map_;
+  QHash<Node::InputConnection, InputUI> input_ui_map_;
 
   QVector<NodeParamViewItemBody*> sub_bodies_;
 
 private slots:
-  void EdgeChanged();
+  void EdgeChanged(Node *src, int element);
 
-  void InputKeyframeEnableChanged(bool e);
+  void InputKeyframeEnableChanged(bool e, int element);
 
-  void InputAddedKeyframe(NodeKeyframePtr key);
-
-  void LabelDoubleClicked();
+  void InputAddedKeyframe(NodeKeyframe* key);
 
   void ConnectionClicked();
 
@@ -153,13 +149,11 @@ public slots:
   void ToggleExpanded();
 
 signals:
-  void KeyframeAdded(NodeKeyframePtr key, int y);
+  void KeyframeAdded(NodeKeyframe* key, int y);
 
-  void KeyframeRemoved(NodeKeyframePtr key);
+  void KeyframeRemoved(NodeKeyframe* key);
 
   void RequestSetTime(const rational& time);
-
-  void InputDoubleClicked(NodeInput* input);
 
   void RequestSelectNode(const QVector<Node*>& node);
 

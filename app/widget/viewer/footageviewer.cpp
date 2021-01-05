@@ -33,10 +33,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   footage_(nullptr)
 {
   video_node_ = new MediaInput();
-  sequence_.AddNode(video_node_);
+  video_node_->setParent(&sequence_);
 
   audio_node_ = new MediaInput();
-  sequence_.AddNode(audio_node_);
+  audio_node_->setParent(&sequence_);
 
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
@@ -60,8 +60,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     video_node_->SetStream(nullptr);
     audio_node_->SetStream(nullptr);
 
-    NodeParam::DisconnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
-    NodeParam::DisconnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
+    Node::DisconnectEdge(video_node_, sequence_.viewer_output()->texture_input());
+    Node::DisconnectEdge(audio_node_, sequence_.viewer_output()->samples_input());
   }
 
   footage_ = footage;
@@ -98,12 +98,12 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     if (video_stream) {
       video_node_->SetStream(video_stream);
-      NodeParam::ConnectEdge(video_node_->output(), sequence_.viewer_output()->texture_input());
+      Node::ConnectEdge(video_node_, sequence_.viewer_output()->texture_input());
     }
 
     if (audio_stream) {
       audio_node_->SetStream(audio_stream);
-      NodeParam::ConnectEdge(audio_node_->output(), sequence_.viewer_output()->samples_input());
+      Node::ConnectEdge(audio_node_, sequence_.viewer_output()->samples_input());
     }
 
     ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());

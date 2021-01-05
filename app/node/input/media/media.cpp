@@ -28,11 +28,10 @@ namespace olive {
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
-  footage_input_ = new NodeInput("footage_in", NodeInput::kFootage);
-  footage_input_->set_connectable(false);
-  footage_input_->set_is_keyframable(false);
+  footage_input_ = new NodeInput(this, QStringLiteral("footage_in"), NodeValue::kFootage);
+  footage_input_->SetConnectable(false);
+  footage_input_->SetKeyframable(false);
   connect(footage_input_, &NodeInput::ValueChanged, this, &MediaInput::FootageChanged);
-  AddInput(footage_input_);
 }
 
 QVector<Node::CategoryID> MediaInput::Category() const
@@ -42,17 +41,12 @@ QVector<Node::CategoryID> MediaInput::Category() const
 
 Stream *MediaInput::stream() const
 {
-  return Node::ValueToPtr<Stream>(footage_input_->get_standard_value());
+  return Node::ValueToPtr<Stream>(footage_input_->GetStandardValue());
 }
 
 void MediaInput::SetStream(Stream* s)
 {
-  footage_input_->set_standard_value(Node::PtrToValue(s));
-}
-
-bool MediaInput::IsMedia() const
-{
-  return true;
+  footage_input_->SetStandardValue(Node::PtrToValue(s));
 }
 
 void MediaInput::Retranslate()
@@ -68,7 +62,7 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
     rational media_duration = Timecode::timestamp_to_time(connected_footage_->duration(),
                                                           connected_footage_->timebase());
 
-    table.Push(NodeInput::kRational, QVariant::fromValue(media_duration), this, "length");
+    table.Push(NodeValue::kRational, QVariant::fromValue(media_duration), this, false, QStringLiteral("length"));
   }
 
   return table;
@@ -76,7 +70,7 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
 
 void MediaInput::FootageChanged()
 {
-  Stream* new_footage = footage_input_->get_standard_value().value<Stream*>();
+  Stream* new_footage = footage_input_->GetStandardValue().value<Stream*>();
 
   if (new_footage == connected_footage_) {
     return;
@@ -95,7 +89,7 @@ void MediaInput::FootageChanged()
 
 void MediaInput::FootageParametersChanged()
 {
-  InvalidateCache(TimeRange(0, RATIONAL_MAX), footage_input_, footage_input_);
+  InvalidateCache(TimeRange(0, RATIONAL_MAX), InputConnection(footage_input_));
 }
 
 }

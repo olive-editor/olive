@@ -73,8 +73,6 @@ public:
   void DeleteSelected();
 
 signals:
-  void InputDoubleClicked(NodeInput* input);
-
   void RequestSelectNode(const QVector<Node*>& target);
 
   void NodeOrderChanged(const QVector<Node*>& nodes);

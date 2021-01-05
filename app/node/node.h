@@ -31,9 +31,8 @@
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "common/xmlutils.h"
+#include "node/connectable.h"
 #include "node/input.h"
-#include "node/inputarray.h"
-#include "node/output.h"
 #include "node/value.h"
 #include "render/audioparams.h"
 #include "render/job/generatejob.h"
@@ -42,6 +41,8 @@
 #include "render/shadercode.h"
 
 namespace olive {
+
+class NodeGraph;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -57,7 +58,7 @@ namespace olive {
  * This is a simple base class designed to contain all the functionality for this kind of processing connective unit.
  * It is an abstract class intended to be subclassed to create nodes with actual functionality.
  */
-class Node : public QObject
+class Node : public NodeConnectable
 {
   Q_OBJECT
 public:
@@ -90,6 +91,11 @@ public:
    * copying that data with functions like CopyInputs() as copies may be done for different reasons.
    */
   virtual Node* copy() const = 0;
+
+  /**
+   * @brief Convenience function - assumes parent is a NodeGraph
+   */
+  NodeGraph* parent() const;
 
   /**
    * @brief Clear current node variables and replace them with
@@ -151,13 +157,28 @@ public:
   /**
    * @brief Return a list of NodeParams
    */
-  const QVector<NodeParam*>& parameters() const;
+  const QVector<NodeInput*>& parameters() const
+  {
+    return inputs_;
+  }
+
+  const QVector<NodeInput*>& inputs() const
+  {
+    return inputs_;
+  }
+
+  static void RemoveNodesAndExclusiveDependencies(Node* node, QUndoCommand* command);
+
+  static void RemoveNodeAndDisconnect(Node* node, QUndoCommand* command);
 
   /**
    * @brief Return the index of a parameter
    * @return Parameter index or -1 if this parameter is not part of this Node
    */
-  int IndexOfParameter(NodeParam* param) const;
+  int IndexOfParameter(NodeInput* param) const
+  {
+    return inputs_.indexOf(param);
+  }
 
   /**
    * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
@@ -202,11 +223,6 @@ public:
   NodeInput* GetInputWithID(const QString& id) const;
 
   /**
-   * @brief Returns the output with the specified ID (or nullptr if it doesn't exist)
-   */
-  NodeOutput* GetOutputWithID(const QString& id) const;
-
-  /**
    * @brief Returns whether this Node outputs to `n`
    *
    * @param n
@@ -228,7 +244,7 @@ public:
   /**
    * @brief Same as OutputsTo(Node*), but for a specific node input rather than just a node.
    */
-  bool OutputsTo(NodeInput* input, bool recursively, bool include_arrays) const;
+  bool OutputsTo(NodeInput* input, bool recursively) const;
 
   /**
    * @brief Returns whether this node ever receives an input from a particular node instance
@@ -246,26 +262,6 @@ public:
   int GetRoutesTo(Node* n) const;
 
   /**
-   * @brief Return whether this Node has input parameters
-   */
-  bool HasInputs() const;
-
-  /**
-   * @brief Return whether this Node has output parameters
-   */
-  bool HasOutputs() const;
-
-  /**
-   * @brief Return whether this Node has input parameters and at least one of them is connected
-   */
-  bool HasConnectedInputs() const;
-
-  /**
-   * @brief Return whether this Node has output parameters and at least one of them is connected
-   */
-  bool HasConnectedOutputs() const;
-
-  /**
    * @brief Severs all input and output connections
    */
   void DisconnectAll();
@@ -278,7 +274,7 @@ public:
   /**
    * @brief Transforms time from this node through the connections it takes to get to the specified node
    */
-  QVector<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
+  QVector<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, bool input_dir);
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
@@ -312,7 +308,7 @@ public:
    * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
    * call this function with transformed time and relay the signal that way.
    */
-  virtual void InvalidateCache(const TimeRange& range, NodeInput* from, NodeInput* source);
+  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from = InputConnection());
 
   /**
    * @brief Limits cache invalidation temporarily
@@ -364,31 +360,6 @@ public:
   void SetCanBeDeleted(bool s);
 
   /**
-   * @brief Returns whether this Node is a "Block" type or not
-   *
-   * You shouldn't ever need to override this since all derivatives of Block will automatically have this set to true.
-   * It's just a more convenient way of checking than dynamic_casting.
-   */
-  virtual bool IsBlock() const;
-
-  /**
-   * @brief Returns whether this Node is a "Track" type or not
-   *
-   * You shouldn't ever need to override this since all derivatives of Track will automatically have this set to true.
-   * It's just a more convenient way of checking than dynamic_casting.
-   */
-  virtual bool IsTrack() const;
-
-
-  /**
-   * @brief Returns whether this Node is a "Media" type or not
-   *
-   * You shouldn't ever need to override this since all derivatives of Media will automatically have this set to true.
-   * It's just a more convenient way of checking than dynamic_casting.
-   */
-  virtual bool IsMedia() const;
-
-  /**
    * @brief The main processing function
    *
    * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
@@ -408,15 +379,9 @@ public:
    */
   bool HasParamWithID(const QString& id) const;
 
-  NodeOutput* output() const;
-
   const QPointF& GetPosition() const;
 
   void SetPosition(const QPointF& pos);
-
-  QVector<NodeInput*> GetInputsIncludingArrays() const;
-
-  QVector<NodeOutput*> GetOutputs() const;
 
   virtual bool HasGizmos() const;
 
@@ -431,12 +396,22 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const;
 
+  const QVector<InputConnection>& edges() const
+  {
+    return output_connections();
+  }
+
 protected:
-  void AddInput(NodeInput* input);
+  void SendInvalidateCache(const TimeRange &range);
 
-  void ClearCachedValuesInParameters(const rational& start_range, const rational& end_range);
-
-  void SendInvalidateCache(const TimeRange &range, NodeInput *source);
+  /**
+   * @brief Don't send cache invalidation signals if `input` is connected or disconnected
+   *
+   * By default, when a node is connected or disconnected from input, the Node assumes that the
+   * parameters has changed throughout the duration of the clip (essential from 0 to infinity).
+   * In some scenarios, it may be preferable to handle this signal separately in order to
+   */
+  void IgnoreConnectionSignalsFrom(NodeInput* input);
 
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
 
@@ -462,30 +437,14 @@ protected:
 
   static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
 
-protected slots:
-  void InputChanged(const olive::TimeRange &range);
+  virtual void childEvent(QChildEvent* event) override;
 
-  void InputConnectionChanged(NodeEdgePtr edge);
+protected slots:
+  void InputChanged(const olive::TimeRange &range, int element);
+
+  void InputConnectionChanged(Node* source, int element);
 
 signals:
-  /**
-   * @brief Signal emitted when a node is connected to another node (creating an "edge")
-   *
-   * @param edge
-   *
-   * The edge that was added
-   */
-  void EdgeAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Signal emitted when a node is disconnected from another node (removing an "edge")
-   *
-   * @param edge
-   *
-   * The edge that was removed
-   */
-  void EdgeRemoved(NodeEdgePtr edge);
-
   /**
    * @brief Signal emitted whenever the position is set through SetPosition()
    */
@@ -497,40 +456,24 @@ signals:
   void LabelChanged(const QString& s);
 
 private:
-  /**
-   * @brief Add a parameter to this node
-   *
-   * The Node takes ownership of this parameter.
-   *
-   * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
-   */
-  void AddParameter(NodeParam* param);
-
-  bool HasParamOfType(NodeParam::Type type, bool must_be_connected) const;
-
-  void ConnectInput(NodeInput* input);
-
-  void DisconnectInput(NodeInput* input);
-
   template<class T>
   static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
 
   template<class T>
   static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
 
-  QVector<Node *> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
+  QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  QVector<NodeParam *> params_;
+  void HashInputElement(QCryptographicHash& hash, NodeInput* input, int element, const rational& time) const;
+
+  QVector<NodeInput*> inputs_;
+
+  QVector<NodeInput*> ignore_connections_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not
    */
   bool can_be_deleted_;
-
-  /**
-   * @brief Primary node output
-   */
-  NodeOutput* output_;
 
   /**
    * @brief UI position for NodeViews
@@ -542,23 +485,22 @@ private:
    */
   QString label_;
 
+private slots:
+
 };
 
 template<class T>
 void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
-  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* input, inputs) {
-    if (input->is_connected()) {
-      Node* connected = input->get_connected_node();
-      T* cast_test = dynamic_cast<T*>(connected);
+  foreach (NodeInput* input, n->inputs_) {
+    foreach (Node* edge, input->edges()) {
+      T* cast_test = dynamic_cast<T*>(edge);
 
       if (cast_test) {
         list.append(cast_test);
       }
 
-      FindInputNodeInternal<T>(connected, list);
+      FindInputNodeInternal<T>(edge, list);
     }
   }
 }
@@ -580,9 +522,10 @@ T* Node::ValueToPtr(const QVariant &ptr)
 }
 
 template<class T>
-void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list) {
-  foreach (NodeEdgePtr edge, n->output()->edges()) {
-    Node* connected = edge->input()->parentNode();
+void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list)
+{
+  foreach (const InputConnection& edge, n->edges()) {
+    Node* connected = static_cast<Node*>(edge.input->parent());
     T* cast_test = dynamic_cast<T*>(connected);
 
     if (cast_test) {

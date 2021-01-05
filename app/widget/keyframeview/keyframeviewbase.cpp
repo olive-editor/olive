@@ -63,11 +63,7 @@ void KeyframeViewBase::DeleteSelected()
 
   for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
     if (i.value()->isSelected()) {
-      NodeInput* input_parent = i.key()->parent();
-
-      new NodeParamRemoveKeyframeCommand(input_parent,
-                                         input_parent->get_keyframe_shared_ptr_from_raw(i.key()),
-                                         command);
+      new NodeParamRemoveKeyframeCommand(i.key(), command);
     }
   }
 
@@ -76,38 +72,38 @@ void KeyframeViewBase::DeleteSelected()
 
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
-  QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-
-  foreach (NodeInput* i, inputs) {
+  foreach (NodeInput* i, n->inputs()) {
     RemoveKeyframesOfInput(i);
   }
 }
 
-void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *i)
+void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *input)
 {
-  foreach (const NodeInput::KeyframeTrack& track, i->keyframe_tracks()) {
-    foreach (NodeKeyframePtr key, track) {
-      RemoveKeyframe(key);
+  for (int i=-1; i<input->ArraySize(); i++) {
+    foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(i)) {
+      foreach (NodeKeyframe* key, track) {
+        RemoveKeyframe(key);
+      }
     }
   }
 }
 
-void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
+void KeyframeViewBase::RemoveKeyframe(NodeKeyframe* key)
 {
-  KeyframeAboutToBeRemoved(key.get());
+  KeyframeAboutToBeRemoved(key);
 
-  delete item_map_.take(key.get());
+  delete item_map_.take(key);
 }
 
-KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
+KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframe* key)
 {
-  KeyframeViewItem* item = item_map_.value(key.get());
+  KeyframeViewItem* item = item_map_.value(key);
 
   if (!item) {
     item = new KeyframeViewItem(key);
     item->SetTimeTarget(GetTimeTarget());
     item->SetScale(GetScale());
-    item_map_.insert(key.get(), item);
+    item_map_.insert(key, item);
     scene()->addItem(item);
   }
 
@@ -151,7 +147,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
             selected_keys_.replace(i, {key,
                                        key->x(),
-                                       GetAdjustedTime(key->key()->parent()->parentNode(), GetTimeTarget(), key->key()->time(), NodeParam::kOutput),
+                                       GetAdjustedTime(key->key()->parent()->parent(), GetTimeTarget(), key->key()->time(), false),
                                        key->key()->value().toDouble()});
           }
         }
@@ -184,9 +180,9 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
           //input_parent->blockSignals(true);
 
           rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                               keypair.key->key()->parent()->parentNode(),
+                                               keypair.key->key()->parent()->parent(),
                                                CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
-                                               NodeParam::kInput);
+                                               true);
 
           keypair.key->key()->set_time(node_time);
 
@@ -235,9 +231,9 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
 
             // Calculate the new time for this keyframe
             rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                                 keypair.key->key()->parent()->parentNode(),
+                                                 keypair.key->key()->parent()->parent(),
                                                  CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
-                                                 NodeParam::kInput);
+                                                 true);
 
 
 
@@ -493,7 +489,7 @@ void KeyframeViewBase::ShowContextMenu()
 void KeyframeViewBase::ShowKeyframePropertiesDialog()
 {
   QList<QGraphicsItem*> items = scene()->selectedItems();
-  QList<NodeKeyframePtr> keys;
+  QVector<NodeKeyframe*> keys;
 
   foreach (QGraphicsItem* item, items) {
     keys.append(static_cast<KeyframeViewItem*>(item)->key());
@@ -521,15 +517,15 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
 
     rational key_time = key_item->key()->time();
 
-    QList<NodeKeyframePtr> keys = key_item->key()->parent()->get_keyframe_at_time(key_time);
+    QVector<NodeKeyframe*> keys = key_item->key()->parent()->GetKeyframesAtTime(key_time, key_item->key()->element());
 
-    foreach (NodeKeyframePtr k, keys) {
+    foreach (NodeKeyframe* k, keys) {
       if (k == key_item->key()) {
         continue;
       }
 
       // Ensure this key is not already selected
-      KeyframeViewItem* item = item_map_.value(k.get());
+      KeyframeViewItem* item = item_map_.value(k);
 
       item->setSelected(true);
     }

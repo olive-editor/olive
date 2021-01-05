@@ -28,7 +28,7 @@ namespace olive {
 
 class KeyframeSetTypeCommand : public UndoCommand {
 public:
-  KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand* parent = nullptr);
+  KeyframeSetTypeCommand(NodeKeyframe* key, NodeKeyframe::Type type, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -37,7 +37,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   NodeKeyframe::Type old_type_;
 
@@ -47,8 +47,8 @@ private:
 
 class KeyframeSetBezierControlPoint : public UndoCommand {
 public:
-  KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand* parent = nullptr);
-  KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& new_point, const QPointF& old_point, QUndoCommand* parent = nullptr);
+  KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand* parent = nullptr);
+  KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF& new_point, const QPointF& old_point, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -57,7 +57,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  NodeKeyframePtr key_;
+  NodeKeyframe* key_;
 
   NodeKeyframe::BezierType mode_;
 

@@ -34,9 +34,8 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
     node_item->setData(0, kItemType, kItemTypeNode);
     node_item->setData(0, kItemPointer, reinterpret_cast<quintptr>(n));
 
-    QVector<NodeInput*> inputs = n->GetInputsIncludingArrays();
-    foreach (NodeInput* i, inputs) {
-      if (only_show_keyframable_ && !i->is_keyframable()) {
+    foreach (NodeInput* i, n->inputs()) {
+      if (only_show_keyframable_ && !i->IsKeyframable()) {
         continue;
       }
 

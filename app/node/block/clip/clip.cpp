@@ -24,9 +24,8 @@ namespace olive {
 
 ClipBlock::ClipBlock()
 {
-  texture_input_ = new NodeInput("buffer_in", NodeInput::kBuffer);
-  texture_input_->set_is_keyframable(false);
-  AddInput(texture_input_);
+  texture_input_ = new NodeInput(this, QStringLiteral("buffer_in"), NodeValue::kNone);
+  texture_input_->SetKeyframable(false);
 }
 
 Node *ClipBlock::copy() const
@@ -59,18 +58,18 @@ NodeInput *ClipBlock::texture_input() const
   return texture_input_;
 }
 
-void ClipBlock::InvalidateCache(const TimeRange &range, NodeInput *from, NodeInput *source)
+void ClipBlock::InvalidateCache(const TimeRange& range, const InputConnection& from)
 {
   // If signal is from texture input, transform all times from media time to sequence time
-  if (from == texture_input_) {
+  if (from.input == texture_input_) {
     // Adjust range from media time to sequence time
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
 
-    Block::InvalidateCache(TimeRange(start, end), from, source);
+    Block::InvalidateCache(TimeRange(start, end), from);
   } else {
     // Otherwise, pass signal along normally
-    Block::InvalidateCache(range, from, source);
+    Block::InvalidateCache(range, from);
   }
 }
 
@@ -95,10 +94,10 @@ TimeRange ClipBlock::OutputTimeAdjustment(NodeInput *input, const TimeRange &inp
 NodeValueTable ClipBlock::Value(NodeValueDatabase &value) const
 {
   // We discard most values here except for the buffer we received
-  NodeValue data = value[texture_input()].GetWithMeta(NodeParam::kBuffer);
+  NodeValue data = value[texture_input()].GetWithMeta(NodeValue::kBuffer);
 
   NodeValueTable table;
-  if (data.type() != NodeParam::kNone) {
+  if (data.type() != NodeValue::kNone) {
     table.Push(data);
   }
   return table;
@@ -113,10 +112,10 @@ void ClipBlock::Retranslate()
 
 void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  if (texture_input_->is_connected()) {
+  if (texture_input_->IsConnected()) {
     rational t = InputTimeAdjustment(texture_input_, TimeRange(time, time)).in();
 
-    texture_input_->get_connected_node()->Hash(hash, t);
+    texture_input_->GetConnectedNode()->Hash(hash, t);
   }
 }
 

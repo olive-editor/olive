@@ -24,11 +24,9 @@ namespace olive {
 
 MergeNode::MergeNode()
 {
-  base_in_ = new NodeInput("base_in", NodeParam::kTexture);
-  AddInput(base_in_);
+  base_in_ = new NodeInput(this, QStringLiteral("base_in"), NodeValue::kTexture);
 
-  blend_in_ = new NodeInput("blend_in", NodeParam::kTexture);
-  AddInput(blend_in_);
+  blend_in_ = new NodeInput(this, QStringLiteral("blend_in"), NodeValue::kTexture);
 }
 
 Node *MergeNode::copy() const
@@ -77,19 +75,19 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
 
   NodeValueTable table = value.Merge();
 
-  TexturePtr base_tex = job.GetValue(base_in_).data.value<TexturePtr>();
-  TexturePtr blend_tex = job.GetValue(blend_in_).data.value<TexturePtr>();
+  TexturePtr base_tex = job.GetValue(base_in_).data().value<TexturePtr>();
+  TexturePtr blend_tex = job.GetValue(blend_in_).data().value<TexturePtr>();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      table.Push(job.GetValue(blend_in_), this);
+      table.Push(job.GetValue(blend_in_));
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table.Push(job.GetValue(base_in_), this);
+      table.Push(job.GetValue(base_in_));
     } else {
       // We have both textures, push the job
-      table.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+      table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     }
   }
 
@@ -108,12 +106,19 @@ NodeInput *MergeNode::blend_in() const
 
 void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  if (base_in_->is_connected()) {
-    base_in_->get_connected_node()->Hash(hash, time);
+  // If only one of these is connected, the merge is a no-op, so we only leave a fingerprint if
+  // both are connected
+  if (base_in_->IsConnected() && blend_in_->IsConnected()) {
+    // Leave fingerprint of merge node
+    hash.addData(id().toUtf8());
   }
 
-  if (blend_in_->is_connected()) {
-    blend_in_->get_connected_node()->Hash(hash, time);
+  if (base_in_->IsConnected()) {
+    base_in_->GetConnectedNode()->Hash(hash, time);
+  }
+
+  if (blend_in_->IsConnected()) {
+    blend_in_->GetConnectedNode()->Hash(hash, time);
   }
 }
 

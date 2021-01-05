@@ -35,16 +35,16 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
 
   Operation op = static_cast<Operation>(code_id.at(0).toInt());
   Pairing pairing = static_cast<Pairing>(code_id.at(1).toInt());
-  NodeParam::DataType type_a = static_cast<NodeParam::DataType>(code_id.at(2).toInt());
-  NodeParam::DataType type_b = static_cast<NodeParam::DataType>(code_id.at(3).toInt());
+  NodeValue::Type type_a = static_cast<NodeValue::Type>(code_id.at(2).toInt());
+  NodeValue::Type type_b = static_cast<NodeValue::Type>(code_id.at(3).toInt());
 
   QString operation, frag, vert;
 
   if (pairing == kPairTextureMatrix && op == kOpMultiply) {
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
-    NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in : param_b_in;
-    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in : param_a_in;
+    NodeInput* tex_in = (type_a == NodeValue::kTexture) ? param_a_in : param_b_in;
+    NodeInput* mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
 
     // No-op frag shader (can we return QString() instead?)
     operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
@@ -78,7 +78,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
     case kOpPower:
       if (pairing == kPairTextureNumber) {
         // The "number" in this operation has to be declared a vec4
-        if (type_a & NodeParam::kNumber) {
+        if (NodeValue::type_is_numeric(type_a)) {
           operation = QStringLiteral("pow(%2, vec4(%1))");
         } else {
           operation = QStringLiteral("pow(%1, vec4(%2))");
@@ -111,23 +111,23 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
   return ShaderCode(frag, vert);
 }
 
-QString MathNodeBase::GetShaderUniformType(const NodeParam::DataType &type)
+QString MathNodeBase::GetShaderUniformType(const olive::NodeValue::Type &type)
 {
   switch (type) {
-  case NodeParam::kTexture:
+  case NodeValue::kTexture:
     return QStringLiteral("sampler2D");
-  case NodeParam::kColor:
+  case NodeValue::kColor:
     return QStringLiteral("vec4");
-  case NodeParam::kMatrix:
+  case NodeValue::kMatrix:
     return QStringLiteral("mat4");
   default:
     return QStringLiteral("float");
   }
 }
 
-QString MathNodeBase::GetShaderVariableCall(const QString &input_id, const NodeParam::DataType &type, const QString& coord_op)
+QString MathNodeBase::GetShaderVariableCall(const QString &input_id, const NodeValue::Type &type, const QString& coord_op)
 {
-  if (type == NodeParam::kTexture) {
+  if (type == NodeValue::kTexture) {
     return QStringLiteral("texture(%1, ove_texcoord%2)").arg(input_id, coord_op);
   }
 
@@ -138,26 +138,26 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
 {
   // QVariant doesn't know that QVector*D can convert themselves so we do it here
   switch (val.type()) {
-  case NodeParam::kVec2:
+  case NodeValue::kVec2:
     return val.data().value<QVector2D>();
-  case NodeParam::kVec3:
+  case NodeValue::kVec3:
     return val.data().value<QVector3D>();
-  case NodeParam::kVec4:
+  case NodeValue::kVec4:
   default:
     return val.data().value<QVector4D>();
   }
 }
 
-void MathNodeBase::PushVector(NodeValueTable *output, NodeParam::DataType type, const QVector4D &vec) const
+void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type type, const QVector4D &vec) const
 {
   switch (type) {
-  case NodeParam::kVec2:
+  case NodeValue::kVec2:
     output->Push(type, QVector2D(vec), this);
     break;
-  case NodeParam::kVec3:
+  case NodeValue::kVec3:
     output->Push(type, QVector3D(vec), this);
     break;
-  case NodeParam::kVec4:
+  case NodeValue::kVec4:
     output->Push(type, vec, this);
     break;
   default:
@@ -173,13 +173,13 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 
   case kPairNumberNumber:
   {
-    if (val_a.type() == NodeParam::kRational && val_b.type() == NodeParam::kRational && operation != kOpPower) {
+    if (val_a.type() == NodeValue::kRational && val_b.type() == NodeValue::kRational && operation != kOpPower) {
       // Preserve rationals
-      output.Push(NodeParam::kRational,
+      output.Push(NodeValue::kRational,
                   QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(operation, val_a.data().value<rational>(), val_b.data().value<rational>())),
                   this);
     } else {
-      output.Push(NodeParam::kFloat,
+      output.Push(NodeValue::kFloat,
                   PerformAll<float, float>(operation, RetrieveNumber(val_a), RetrieveNumber(val_b)),
                   this);
     }
@@ -198,8 +198,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 
   case kPairMatrixVec:
   {
-    QMatrix4x4 matrix = (val_a.type() == NodeParam::kMatrix) ? val_a.data().value<QMatrix4x4>() : val_b.data().value<QMatrix4x4>();
-    QVector4D vec = (val_a.type() == NodeParam::kMatrix) ? RetrieveVector(val_b) : RetrieveVector(val_a);
+    QMatrix4x4 matrix = (val_a.type() == NodeValue::kMatrix) ? val_a.data().value<QMatrix4x4>() : val_b.data().value<QMatrix4x4>();
+    QVector4D vec = (val_a.type() == NodeValue::kMatrix) ? RetrieveVector(val_b) : RetrieveVector(val_a);
 
     // Only valid operation is multiply
     PushVector(&output,
@@ -210,8 +210,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 
   case kPairVecNumber:
   {
-    QVector4D vec = (val_a.type() & NodeParam::kVector) ? RetrieveVector(val_a) : RetrieveVector(val_b);
-    float number = RetrieveNumber((val_a.type() & NodeParam::kMatrix) ? val_b : val_a);
+    QVector4D vec = (NodeValue::type_is_vector(val_a.type()) ? RetrieveVector(val_a) : RetrieveVector(val_b));
+    float number = RetrieveNumber((val_a.type() & NodeValue::kMatrix) ? val_b : val_a);
 
     // Only multiply and divide are valid operations
     PushVector(&output, val_a.type(), PerformMultDiv<QVector4D, float>(operation, vec, number));
@@ -222,7 +222,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
   {
     QMatrix4x4 mat_a = val_a.data().value<QMatrix4x4>();
     QMatrix4x4 mat_b = val_b.data().value<QMatrix4x4>();
-    output.Push(NodeParam::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
+    output.Push(NodeValue::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
     break;
   }
 
@@ -232,18 +232,18 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
     Color col_b = val_b.data().value<Color>();
 
     // Only add and subtract are valid operations
-    output.Push(NodeParam::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
+    output.Push(NodeValue::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
     break;
   }
 
 
   case kPairNumberColor:
   {
-    Color col = (val_a.type() == NodeParam::kColor) ? val_a.data().value<Color>() : val_b.data().value<Color>();
-    float num = (val_a.type() == NodeParam::kColor) ? val_b.data().toFloat() : val_a.data().toFloat();
+    Color col = (val_a.type() == NodeValue::kColor) ? val_a.data().value<Color>() : val_b.data().value<Color>();
+    float num = (val_a.type() == NodeValue::kColor) ? val_b.data().toFloat() : val_a.data().toFloat();
 
     // Only multiply and divide are valid operations
-    output.Push(NodeParam::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
+    output.Push(NodeValue::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
     break;
   }
 
@@ -277,7 +277,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       }
     }
 
-    output.Push(NodeParam::kSamples, QVariant::fromValue(mixed_samples), this);
+    output.Push(NodeValue::kSamples, QVariant::fromValue(mixed_samples), this);
     break;
   }
 
@@ -297,8 +297,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 
     bool operation_is_noop = false;
 
-    const NodeValue& number_val = val_a.type() == NodeParam::kTexture ? val_b : val_a;
-    const NodeValue& texture_val = val_a.type() == NodeParam::kTexture ? val_a : val_b;
+    const NodeValue& number_val = val_a.type() == NodeValue::kTexture ? val_b : val_a;
+    const NodeValue& texture_val = val_a.type() == NodeValue::kTexture ? val_a : val_b;
     TexturePtr texture = texture_val.data().value<TexturePtr>();
 
     if (!texture) {
@@ -309,7 +309,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeParam::kVec2, QStringLiteral("resolution")).value<QVector2D>();
+      QVector2D sequence_res = value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")).value<QVector2D>();
       QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.data().value<QMatrix4x4>(),
@@ -320,8 +320,8 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
         operation_is_noop = true;
       } else {
         // Replace with adjusted matrix
-        job.InsertValue(val_a.type() == NodeParam::kTexture ? param_b_in : param_a_in,
-                        ShaderValue(adjusted_matrix, NodeParam::kMatrix));
+        job.InsertValue(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
+                        NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
 
         // It's likely an alpha channel will result from this operation
         job.SetAlphaChannelRequired(true);
@@ -333,7 +333,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
       output.Push(texture_val);
     } else {
       // Push shader job
-      output.Push(NodeParam::kShaderJob, QVariant::fromValue(job), this);
+      output.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -341,16 +341,16 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
   case kPairSampleNumber:
   {
     // Queue a sample job
-    const NodeValue& number_val = val_a.type() == NodeParam::kSamples ? val_b : val_a;
-    NodeInput* number_param = val_a.type() == NodeParam::kSamples ? param_b_in : param_a_in;
+    const NodeValue& number_val = val_a.type() == NodeValue::kSamples ? val_b : val_a;
+    NodeInput* number_param = val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in;
 
     float number = RetrieveNumber(number_val);
 
-    SampleJob job(val_a.type() == NodeParam::kSamples ? val_a : val_b);
-    job.InsertValue(number_param, ShaderValue(number, NodeParam::kFloat));
+    SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
+    job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
 
     if (job.HasSamples()) {
-      if (number_param->is_static()) {
+      if (number_param->IsStatic()) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
             for (int j=0;j<job.samples()->sample_count();j++) {
@@ -359,9 +359,9 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
           }
         }
 
-        output.Push(NodeParam::kSamples, QVariant::fromValue(job.samples()), this);
+        output.Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
       } else {
-        output.Push(NodeParam::kSampleJob, QVariant::fromValue(job), this);
+        output.Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
       }
     }
     break;
@@ -378,12 +378,12 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
 void MathNodeBase::ProcessSamplesInternal(NodeValueDatabase &values, MathNodeBase::Operation operation, NodeInput *param_a_in, NodeInput *param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   // This function is only used for sample+number pairing
-  NodeValue number_val = values[param_a_in].GetWithMeta(NodeParam::kNumber);
+  NodeValue number_val = values[param_a_in].GetWithMeta(NodeValue::kNumber);
 
-  if (number_val.type() == NodeParam::kNone) {
-    number_val = values[param_b_in].GetWithMeta(NodeParam::kNumber);
+  if (number_val.type() == NodeValue::kNone) {
+    number_val = values[param_b_in].GetWithMeta(NodeValue::kNumber);
 
-    if (number_val.type() == NodeParam::kNone) {
+    if (number_val.type() == NodeValue::kNone) {
       return;
     }
   }
@@ -397,7 +397,7 @@ void MathNodeBase::ProcessSamplesInternal(NodeValueDatabase &values, MathNodeBas
 
 float MathNodeBase::RetrieveNumber(const NodeValue &val)
 {
-  if (val.type() == NodeParam::kRational) {
+  if (val.type() == NodeValue::kRational) {
     return val.data().value<rational>().toDouble();
   } else {
     return val.data().toFloat();
@@ -467,32 +467,32 @@ QVector<int> MathNodeBase::PairingCalculator::GetPairLikelihood(const NodeValueT
   QVector<int> likelihood(kPairCount, -1);
 
   for (int i=0;i<table.Count();i++) {
-    NodeParam::DataType type = table.at(i).type();
+    NodeValue::Type type = table.at(i).type();
 
     int weight = i;
 
-    if (type & NodeParam::kVector) {
+    if (NodeValue::type_is_vector(type)) {
       likelihood.replace(kPairVecVec, weight);
       likelihood.replace(kPairVecNumber, weight);
       likelihood.replace(kPairMatrixVec, weight);
-    } else if (type & NodeParam::kMatrix) {
+    } else if (type == NodeValue::kMatrix) {
       likelihood.replace(kPairMatrixMatrix, weight);
       likelihood.replace(kPairMatrixVec, weight);
       likelihood.replace(kPairTextureMatrix, weight);
-    } else if (type & NodeParam::kColor) {
+    } else if (type == NodeValue::kColor) {
       likelihood.replace(kPairColorColor, weight);
       likelihood.replace(kPairNumberColor, weight);
       likelihood.replace(kPairTextureColor, weight);
-    } else if (type & NodeParam::kNumber) {
+    } else if (NodeValue::type_is_numeric(type)) {
       likelihood.replace(kPairNumberNumber, weight);
       likelihood.replace(kPairVecNumber, weight);
       likelihood.replace(kPairNumberColor, weight);
       likelihood.replace(kPairTextureNumber, weight);
       likelihood.replace(kPairSampleNumber, weight);
-    } else if (type & NodeParam::kSamples) {
+    } else if (type == NodeValue::kSamples) {
       likelihood.replace(kPairSampleSample, weight);
       likelihood.replace(kPairSampleNumber, weight);
-    } else if (type & NodeParam::kTexture) {
+    } else if (type == NodeValue::kTexture) {
       likelihood.replace(kPairTextureTexture, weight);
       likelihood.replace(kPairTextureNumber, weight);
       likelihood.replace(kPairTextureColor, weight);

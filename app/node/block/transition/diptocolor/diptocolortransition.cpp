@@ -24,8 +24,7 @@ namespace olive {
 
 DipToColorTransition::DipToColorTransition()
 {
-  color_input_ = new NodeInput(QStringLiteral("color_in"), NodeParam::kColor, QVariant::fromValue(Color(0, 0, 0)));
-  AddInput(color_input_);
+  color_input_ = new NodeInput(this, QStringLiteral("color_in"), NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
 }
 
 Node *DipToColorTransition::copy() const

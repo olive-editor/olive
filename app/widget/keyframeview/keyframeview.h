@@ -42,7 +42,7 @@ protected:
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
 public slots:
-  void AddKeyframe(NodeKeyframePtr key, int y);
+  void AddKeyframe(NodeKeyframe* key, int y);
 
 private:
   int max_scroll_;

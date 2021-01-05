@@ -30,7 +30,7 @@
 
 namespace olive {
 
-KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> &keys, const rational &timebase, QWidget *parent) :
+KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> &keys, const rational &timebase, QWidget *parent) :
   QDialog(parent),
   keys_(keys),
   timebase_(timebase)
@@ -92,8 +92,8 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> 
 
   for (int i=0;i<keys_.size();i++) {
     if (i > 0) {
-      NodeKeyframePtr prev_key = keys_.at(i-1);
-      NodeKeyframePtr this_key = keys_.at(i);
+      NodeKeyframe* prev_key = keys_.at(i-1);
+      NodeKeyframe* this_key = keys_.at(i);
 
       // Determine if the keyframes are all the same time or not
       if (all_same_time) {
@@ -199,7 +199,7 @@ void KeyframePropertiesDialog::accept()
   rational new_time = Timecode::timestamp_to_time(time_slider_->GetValue(), timebase_);
   int new_type = type_select_->currentData().toInt();
 
-  foreach (NodeKeyframePtr key, keys_) {
+  foreach (NodeKeyframe* key, keys_) {
     if (time_slider_->isEnabled() && !time_slider_->IsTristate()) {
       new NodeParamSetKeyframeTimeCommand(key, new_time, command);
     }

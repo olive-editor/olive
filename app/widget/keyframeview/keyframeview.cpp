@@ -42,7 +42,7 @@ void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
   rect.setHeight(max_scroll_);
 }
 
-void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
+void KeyframeView::AddKeyframe(NodeKeyframe* key, int y)
 {
   QPoint global_pt(0, y);
   QPoint local_pt = mapFromGlobal(global_pt);

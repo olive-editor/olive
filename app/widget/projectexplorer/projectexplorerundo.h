@@ -31,7 +31,7 @@ namespace olive {
  */
 class OfflineFootageCommand : public UndoCommand {
 public:
-  OfflineFootageCommand(const QList<MediaInput*>& media,  QUndoCommand* parent = nullptr);
+  OfflineFootageCommand(const QVector<MediaInput*>& media,  QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 

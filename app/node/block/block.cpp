@@ -31,28 +31,24 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
-  length_input_ = new NodeInput("length_in", NodeParam::kRational);
-  length_input_->set_connectable(false);
-  length_input_->set_is_keyframable(false);
-  AddInput(length_input_);
+  length_input_ = new NodeInput(this, QStringLiteral("length_in"), NodeValue::kRational);
+  length_input_->SetConnectable(false);
+  length_input_->SetKeyframable(false);
   disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
   connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
 
-  media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
-  media_in_input_->set_connectable(false);
-  media_in_input_->set_is_keyframable(false);
-  AddInput(media_in_input_);
+  media_in_input_ = new NodeInput(this, QStringLiteral("media_in_in"), NodeValue::kRational);
+  media_in_input_->SetConnectable(false);
+  media_in_input_->SetKeyframable(false);
 
-  enabled_input_ = new NodeInput("enabled_in", NodeParam::kBoolean);
-  enabled_input_->set_connectable(false);
-  enabled_input_->set_is_keyframable(false);
-  enabled_input_->set_standard_value(true);
-  AddInput(enabled_input_);
+  enabled_input_ = new NodeInput(this, QStringLiteral("enabled_in"), NodeValue::kBoolean);
+  enabled_input_->SetConnectable(false);
+  enabled_input_->SetKeyframable(false);
+  enabled_input_->SetStandardValue(true);
 
-  speed_input_ = new NodeInput("speed_in", NodeParam::kFloat);
-  speed_input_->set_standard_value(1.0);
+  speed_input_ = new NodeInput(this, QStringLiteral("speed_in"), NodeValue::kFloat);
+  speed_input_->SetStandardValue(1.0);
   speed_input_->setProperty("view", QStringLiteral("percent"));
-  AddInput(speed_input_);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
@@ -85,7 +81,7 @@ void Block::set_out(const rational &out)
 
 rational Block::length() const
 {
-  return length_input_->get_standard_value().value<rational>();
+  return length_input_->GetStandardValue().value<rational>();
 }
 
 void Block::set_length_and_media_out(const rational &length)
@@ -149,22 +145,22 @@ void Block::set_next(Block *next)
 
 rational Block::media_in() const
 {
-  return media_in_input_->get_standard_value().value<rational>();
+  return media_in_input_->GetStandardValue().value<rational>();
 }
 
 void Block::set_media_in(const rational &media_in)
 {
-  media_in_input_->set_standard_value(QVariant::fromValue(media_in));
+  media_in_input_->SetStandardValue(QVariant::fromValue(media_in));
 }
 
 bool Block::is_enabled() const
 {
-  return enabled_input_->get_standard_value().toBool();
+  return enabled_input_->GetStandardValue().toBool();
 }
 
 void Block::set_enabled(bool e)
 {
-  enabled_input_->set_standard_value(e);
+  enabled_input_->SetStandardValue(e);
 
   emit EnabledChanged();
 }
@@ -179,10 +175,10 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
   rational local_time = sequence_time - in();
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
+  if (speed_input_->IsKeyframing() || speed_input_->IsConnected()) {
     // FIXME: We'll need to calculate the speed hoo boy
   } else {
-    double speed_value = speed_input_->get_standard_value().toDouble();
+    double speed_value = speed_input_->GetStandardValue().toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point
@@ -206,10 +202,10 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   rational sequence_time = media_time - media_in();
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->is_keyframing() || speed_input_->is_connected()) {
+  if (speed_input_->IsKeyframing() || speed_input_->IsConnected()) {
     // FIXME: We'll need to calculate the speed hoo boy
   } else {
-    double speed_value = speed_input_->get_standard_value().toDouble();
+    double speed_value = speed_input_->GetStandardValue().toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point, also prevents divide by zero
@@ -259,7 +255,7 @@ void Block::LengthChangedEvent(const rational &, const rational &, const Timelin
 
 void Block::set_length_internal(const rational &length)
 {
-  length_input_->set_standard_value(QVariant::fromValue(length));
+  length_input_->SetStandardValue (QVariant::fromValue(length));
 }
 
 void Block::LengthInputChanged()
@@ -338,11 +334,6 @@ const QVector<Block*> &Block::linked_clips()
 bool Block::HasLinks()
 {
   return !linked_clips_.isEmpty();
-}
-
-bool Block::IsBlock() const
-{
-  return true;
 }
 
 void Block::Retranslate()
