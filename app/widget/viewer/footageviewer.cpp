@@ -68,7 +68,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
   if (footage_) {
     // Update sequence media name
-    sequence_.viewer_output()->set_media_name(footage_->name());
+    sequence_.viewer_output()->SetLabel(footage_->name());
 
     // Reset parameters and then attempt to set from footage
     sequence_.set_default_parameters();

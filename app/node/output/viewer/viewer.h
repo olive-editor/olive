@@ -60,21 +60,25 @@ public:
   void ShiftAudioCache(const rational& from, const rational& to);
   void ShiftCache(const rational& from, const rational& to);
 
-  NodeInput* texture_input() const {
+  NodeInput* texture_input() const
+  {
     return texture_input_;
   }
 
-  NodeInput* samples_input() const {
+  NodeInput* samples_input() const
+  {
     return samples_input_;
   }
 
   virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
 
-  const VideoParams& video_params() const {
+  const VideoParams& video_params() const
+  {
     return video_params_;
   }
 
-  const AudioParams& audio_params() const {
+  const AudioParams& audio_params() const
+  {
     return audio_params_;
   }
 
@@ -83,11 +87,13 @@ public:
 
   rational GetLength();
 
-  const QUuid& uuid() const {
+  const QUuid& uuid() const
+  {
     return uuid_;
   }
 
-  const QVector<TrackOutput *> &GetTracks() const {
+  const QVector<TrackOutput *> &GetTracks() const
+  {
     return track_cache_;
   }
 
@@ -96,27 +102,25 @@ public:
    */
   QVector<TrackOutput *> GetUnlockedTracks() const;
 
-  NodeInput* track_input(Timeline::TrackType type) const {
+  NodeInput* track_input(Timeline::TrackType type) const
+  {
     return track_inputs_.at(type);
   }
 
-  TrackList* track_list(Timeline::TrackType type) const {
+  TrackList* track_list(Timeline::TrackType type) const
+  {
     return track_lists_.at(type);
   }
 
   virtual void Retranslate() override;
 
-  const QString& media_name() const {
-    return media_name_;
-  }
-
-  void set_media_name(const QString& name);
-
-  FrameHashCache* video_frame_cache() {
+  FrameHashCache* video_frame_cache()
+  {
     return &video_frame_cache_;
   }
 
-  AudioPlaybackCache* audio_playback_cache() {
+  AudioPlaybackCache* audio_playback_cache()
+  {
     return &audio_playback_cache_;
   }
 
@@ -146,8 +150,6 @@ signals:
 
   void TrackHeightChanged(Timeline::TrackType type, int index, int height);
 
-  void MediaNameChanged(const QString& name);
-
 private:
   QUuid uuid_;
 
@@ -166,8 +168,6 @@ private:
   QVector<TrackOutput*> track_cache_;
 
   rational last_length_;
-
-  QString media_name_;
 
   FrameHashCache video_frame_cache_;
 

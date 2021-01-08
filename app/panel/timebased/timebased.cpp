@@ -130,13 +130,13 @@ void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
   }
 
   if (widget_->GetConnectedNode()) {
-    disconnect(widget_->GetConnectedNode(), &ViewerOutput::MediaNameChanged, this, &TimeBasedPanel::SetSubtitle);
+    disconnect(widget_->GetConnectedNode(), &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
   }
 
   widget_->ConnectViewerNode(node);
 
   if (node) {
-    connect(node, &ViewerOutput::MediaNameChanged, this, &TimeBasedPanel::SetSubtitle);
+    connect(node, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
   }
 
   // Update strings
@@ -163,7 +163,7 @@ void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
 void TimeBasedPanel::Retranslate()
 {
   if (GetTimeBasedWidget()->GetConnectedNode()) {
-    SetSubtitle(GetTimeBasedWidget()->GetConnectedNode()->media_name());
+    SetSubtitle(GetTimeBasedWidget()->GetConnectedNode()->GetLabel());
   } else {
     SetSubtitle(tr("(none)"));
   }

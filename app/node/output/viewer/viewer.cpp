@@ -216,7 +216,7 @@ void ViewerOutput::VerifyLength()
 
     if (video_length.isNull() && texture_input_->IsConnected()) {
       NodeValueTable t = traverser.GenerateTable(texture_input_->GetConnectedNode(), 0, 0);
-      video_length = t.Get(NodeValue::kRational, "length").value<rational>();
+      video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
     }
 
     video_frame_cache_.SetLength(video_length);
@@ -227,7 +227,7 @@ void ViewerOutput::VerifyLength()
 
     if (audio_length.isNull() && samples_input_->IsConnected()) {
       NodeValueTable t = traverser.GenerateTable(samples_input_->GetConnectedNode(), 0, 0);
-      audio_length = t.Get(NodeValue::kRational, "length").value<rational>();
+      audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
     }
 
     audio_playback_cache_.SetLength(audio_length);
@@ -275,13 +275,6 @@ void ViewerOutput::Retranslate()
       track_inputs_.at(i)->set_name(input_name);
     }
   }
-}
-
-void ViewerOutput::set_media_name(const QString &name)
-{
-  media_name_ = name;
-
-  emit MediaNameChanged(media_name_);
 }
 
 void ViewerOutput::BeginOperation()

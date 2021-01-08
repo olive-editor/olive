@@ -32,7 +32,7 @@ ExportTask::ExportTask(ViewerOutput* viewer_node,
   color_manager_(color_manager),
   params_(params)
 {
-  SetTitle(tr("Exporting \"%1\"").arg(viewer_node->media_name()));
+  SetTitle(tr("Exporting \"%1\"").arg(viewer_node->GetLabel()));
 }
 
 bool ExportTask::Run()

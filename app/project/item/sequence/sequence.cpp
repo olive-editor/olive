@@ -43,6 +43,7 @@ Sequence::Sequence()
   viewer_output_ = new ViewerOutput();
   viewer_output_->SetCanBeDeleted(false);
   viewer_output_->setParent(this);
+  connect(viewer_output_, &ViewerOutput::LabelChanged, this, &Sequence::set_name);
 }
 
 void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
@@ -366,7 +367,7 @@ ViewerOutput *Sequence::viewer_output() const
 
 void Sequence::NameChangedEvent(const QString &name)
 {
-  viewer_output_->set_media_name(name);
+  viewer_output_->SetLabel(name);
 }
 
 }
