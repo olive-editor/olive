@@ -550,7 +550,7 @@ QVector<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
 
   // Footage can contain multiple streams, all of which need to be dealt with
   foreach (Item* s, sequences) {
-    const QList<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
+    const QVector<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
     foreach (Node* n, nodes) {
       MediaInput* media_node = dynamic_cast<MediaInput*>(n);
 

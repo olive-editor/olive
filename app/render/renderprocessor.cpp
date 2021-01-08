@@ -192,7 +192,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const TrackOutput *track, con
 
     const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
-    QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
+    QVector<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
     // All these blocks will need to output to a buffer so we create one here
     SampleBufferPtr block_range_buffer = SampleBuffer::CreateAllocated(audio_params,

@@ -148,9 +148,9 @@ public:
    * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
    * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
    */
-  QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
+  QVector<Block*> BlocksAtTimeRange(const TimeRange& range) const;
 
-  const QList<Block *> &Blocks() const
+  const QVector<Block *> &Blocks() const
   {
     return block_cache_;
   }
@@ -276,7 +276,7 @@ private:
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
-  QList<Block*> block_cache_;
+  QVector<Block*> block_cache_;
 
   NodeInput* block_input_;
 

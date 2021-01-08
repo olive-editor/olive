@@ -225,9 +225,9 @@ Block *TrackOutput::BlockAtTime(const rational &time) const
   return nullptr;
 }
 
-QList<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
+QVector<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
 {
-  QList<Block*> list;
+  QVector<Block*> list;
 
   if (IsMuted()) {
     return list;
