@@ -21,6 +21,7 @@
 #ifndef TRACKREFERENCE_H
 #define TRACKREFERENCE_H
 
+#include "node/output/track/track.h"
 #include "timeline/timelinecommon.h"
 
 namespace olive {
@@ -30,9 +31,9 @@ class TrackReference
 public:
   TrackReference();
 
-  TrackReference(const Timeline::TrackType& type, const int& index);
+  TrackReference(const Track::Type& type, const int& index);
 
-  const Timeline::TrackType& type() const;
+  const Track::Type& type() const;
 
   const int& index() const;
 
@@ -43,7 +44,7 @@ public:
   bool operator!=(const TrackReference& ref) const;
 
 private:
-  Timeline::TrackType type_;
+  Track::Type type_;
 
   int index_;
 

@@ -30,16 +30,24 @@ namespace olive {
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
-class TrackOutput : public Node
+class Track : public Node
 {
   Q_OBJECT
 public:
-  TrackOutput();
+  enum Type {
+    kNone = -1,
+    kVideo,
+    kAudio,
+    kSubtitle,
+    kCount
+  };
 
-  virtual ~TrackOutput() override;
+  Track();
 
-  const Timeline::TrackType& track_type() const;
-  void set_track_type(const Timeline::TrackType& track_type);
+  virtual ~Track() override;
+
+  const Track::Type& track_type() const;
+  void set_track_type(const Track::Type& track_type);
 
   virtual Node* copy() const override;
 
@@ -199,11 +207,9 @@ public:
    */
   void ReplaceBlock(Block* old, Block* replace);
 
-  static TrackOutput* TrackFromBlock(const Block *block);
-
   const rational& track_length() const;
 
-  static QString GetDefaultTrackName(Timeline::TrackType type, int index);
+  static QString GetDefaultTrackName(Track::Type type, int index);
 
   bool IsMuted() const;
 
@@ -282,7 +288,7 @@ private:
 
   NodeInput* muted_input_;
 
-  Timeline::TrackType track_type_;
+  Track::Type track_type_;
 
   rational track_length_;
 

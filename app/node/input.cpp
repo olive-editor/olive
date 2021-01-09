@@ -226,7 +226,7 @@ void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, cons
   array_size_ = 0;
   data_type_ = type;
 
-  primary_ = new NodeInputImmediate(type, default_value_);
+  primary_ = CreateImmediate();
 }
 
 void NodeInput::LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
@@ -374,6 +374,18 @@ void NodeInput::SaveImmediate(QXmlStreamWriter* writer, int element) const
   }
 }
 
+void NodeInput::ChangeArraySizeInternal(int size)
+{
+  array_size_ = size;
+  emit ArraySizeChanged(array_size_);
+  emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), -1);
+}
+
+NodeInputImmediate *NodeInput::CreateImmediate()
+{
+  return new NodeInputImmediate(data_type_, default_value_);
+}
+
 void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
   for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
@@ -423,28 +435,26 @@ QVector<Node *> NodeInput::GetImmediateDependencies() const
 
 void NodeInput::ArrayInsert(int index)
 {
-  // Prepend new input
-  subinputs_.insert(index, new NodeInputImmediate(GetDataType(), default_value_));
+  // Add new input
+  subinputs_.insert(index, CreateImmediate());
 
   // Move connections down
-  QHash<int, Node*> copied_edges = edges();
-  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+  auto copied_edges = edges();
+  for (auto it=copied_edges.cend(); it!=copied_edges.cbegin(); it--) {
     if (it.key() >= index) {
       // Disconnect this and reconnect it one element down
       DisconnectEdge(it.value(), this, it.key());
       ConnectEdge(it.value(), this, it.key() + 1);
     }
   }
+
+  ChangeArraySizeInternal(array_size_ + 1);
 }
 
 void NodeInput::ArrayRemove(int index)
 {
-  // Remove subinput here
-  delete subinputs_.at(index);
-  subinputs_.removeAt(index);
-
   // Move connections up
-  QHash<int, Node*> copied_edges = edges();
+  auto copied_edges = edges();
   for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
     if (it.key() >= index) {
       // Disconnect this and reconnect it one element up if it's not the element being removed
@@ -455,6 +465,10 @@ void NodeInput::ArrayRemove(int index)
       }
     }
   }
+
+  // Remove input
+  delete subinputs_.takeAt(index);
+  ChangeArraySizeInternal(array_size_ - 1);
 }
 
 void NodeInput::ArrayPrepend()
@@ -479,13 +493,12 @@ void NodeInput::ArrayResize(int size)
     } else {
       // Size is larger, create any immediates that don't exist
       for (int i=subinputs_.size(); i<size; i++) {
-        subinputs_.append(new NodeInputImmediate(GetDataType(), default_value_));
+        subinputs_.append(CreateImmediate());
       }
     }
 
     // Update array size
-    array_size_ = size;
-    emit ArraySizeChanged(array_size_);
+    ChangeArraySizeInternal(size);
   }
 }
 
@@ -665,7 +678,10 @@ void NodeInput::CopyValuesOfElement(NodeInput *src, NodeInput *dst, int element)
     dst->SetIsKeyframing(src->IsKeyframing(element), element);
   }
 
-  emit dst->ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), element);
+  // If this is the root of an array, copy the array size
+  if (element == -1) {
+    dst->ArrayResize(src->ArraySize());
+  }
 }
 
 QStringList NodeInput::get_combobox_strings() const

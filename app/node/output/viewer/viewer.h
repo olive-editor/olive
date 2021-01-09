@@ -92,7 +92,7 @@ public:
     return uuid_;
   }
 
-  const QVector<TrackOutput *> &GetTracks() const
+  const QVector<Track *> &GetTracks() const
   {
     return track_cache_;
   }
@@ -100,14 +100,14 @@ public:
   /**
    * @brief Same as GetTracks() but omits tracks that are locked.
    */
-  QVector<TrackOutput *> GetUnlockedTracks() const;
+  QVector<Track *> GetUnlockedTracks() const;
 
-  NodeInput* track_input(Timeline::TrackType type) const
+  NodeInput* track_input(Track::Type type) const
   {
     return track_inputs_.at(type);
   }
 
-  TrackList* track_list(Timeline::TrackType type) const
+  TrackList* track_list(Track::Type type) const
   {
     return track_lists_.at(type);
   }
@@ -145,10 +145,10 @@ signals:
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
 
-  void TrackAdded(TrackOutput* track, Timeline::TrackType type);
-  void TrackRemoved(TrackOutput* track);
+  void TrackAdded(Track* track, Track::Type type);
+  void TrackRemoved(Track* track);
 
-  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
+  void TrackHeightChanged(Track::Type type, int index, int height);
 
 private:
   QUuid uuid_;
@@ -165,7 +165,7 @@ private:
 
   QVector<TrackList*> track_lists_;
 
-  QVector<TrackOutput*> track_cache_;
+  QVector<Track*> track_cache_;
 
   rational last_length_;
 
@@ -182,7 +182,7 @@ private slots:
 
   void TrackListAddedBlock(Block* block, int index);
 
-  void TrackListAddedTrack(TrackOutput* track);
+  void TrackListAddedTrack(Track* track);
 
   void TrackHeightChangedSlot(int index, int height);
 

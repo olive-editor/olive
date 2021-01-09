@@ -99,7 +99,7 @@ void BlockSetMediaInCommand::undo_internal()
   block_->set_media_in(old_media_in_);
 }
 
-TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
+TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(Track *track, Block *block, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   block_(block)
@@ -126,7 +126,7 @@ void TrackRippleRemoveBlockCommand::undo_internal()
   }
 }
 
-TrackInsertBlockAfterCommand::TrackInsertBlockAfterCommand(TrackOutput *track,
+TrackInsertBlockAfterCommand::TrackInsertBlockAfterCommand(Track *track,
                                                            Block *block,
                                                            Block *before,
                                                            QUndoCommand *parent) :
@@ -152,7 +152,7 @@ void TrackInsertBlockAfterCommand::undo_internal()
   track_->RippleRemoveBlock(block_);
 }
 
-TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, rational in, rational out, QUndoCommand *parent) :
+TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(Track *track, rational in, rational out, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   in_(in),
@@ -385,12 +385,12 @@ void TrackPlaceBlockCommand::redo_internal()
       added_tracks_.resize(track_index_ - timeline_->GetTracks().size() + 1);
 
       for (int i=0; i<added_tracks_.size(); i++) {
-        added_tracks_[i] = new TrackOutput();
+        added_tracks_[i] = new Track();
       }
     }
 
     for (int i=0; i<added_tracks_.size(); i++) {
-      TrackOutput* track = added_tracks_.at(i);
+      Track* track = added_tracks_.at(i);
       track->setParent(timeline_->GetParentGraph());
 
       timeline_->track_input()->ArrayAppend();
@@ -435,14 +435,14 @@ void TrackPlaceBlockCommand::undo_internal()
   }
 
   for (int i=added_tracks_.size()-1; i>=0; i--) {
-    TrackOutput* track = added_tracks_.at(i);
+    Track* track = added_tracks_.at(i);
     Node::DisconnectEdge(track, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
     track->setParent(&memory_manager_);
     timeline_->track_input()->ArrayRemoveLast();
   }
 }
 
-BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational point, QUndoCommand *parent) :
+BlockSplitCommand::BlockSplitCommand(Track* track, Block *block, rational point, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   block_(block),
@@ -543,7 +543,7 @@ Block *BlockSplitCommand::new_block()
   return new_block_;
 }
 
-TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational point, QUndoCommand *parent) :
+TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(Track *track, rational point, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track)
 {
@@ -565,7 +565,7 @@ Project *TrackSplitAtTimeCommand::GetRelevantProject() const
   return static_cast<Sequence*>(track_->parent())->project();
 }
 
-TrackReplaceBlockCommand::TrackReplaceBlockCommand(TrackOutput* track, Block *old, Block *replace, QUndoCommand *parent) :
+TrackReplaceBlockCommand::TrackReplaceBlockCommand(Track* track, Block *old, Block *replace, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   old_(old),
@@ -588,7 +588,7 @@ void TrackReplaceBlockCommand::undo_internal()
   track_->ReplaceBlock(replace_, old_);
 }
 
-TrackPrependBlockCommand::TrackPrependBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
+TrackPrependBlockCommand::TrackPrependBlockCommand(Track *track, Block *block, QUndoCommand *parent) :
   UndoCommand(parent),
   track_(track),
   block_(block)
@@ -626,7 +626,7 @@ BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector
       Block* b = blocks.at(j);
 
       if (b->in() < time && b->out() > time) {
-        TrackOutput* track = TrackOutput::TrackFromBlock(b);
+        Track* track = Track::TrackFromBlock(b);
 
         Q_ASSERT(track);
 
@@ -686,7 +686,7 @@ void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal()
 
     QList<Block*> blocks_around_range;
 
-    foreach (TrackOutput* track, timeline_->GetTracks()) {
+    foreach (Track* track, timeline_->GetTracks()) {
       // Get the block from every other track that is either at or just before our block's in point
       Block* block_at_time = track->NearestBlockBeforeOrAt(range.in());
 
@@ -706,7 +706,7 @@ void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal()
       foreach (Block* resize, blocks_around_range) {
         if (resize->length() == max_ripple_length) {
           // Remove block entirely
-          TrackRippleRemoveBlockCommand* remove_command = new TrackRippleRemoveBlockCommand(TrackOutput::TrackFromBlock(resize), resize);
+          TrackRippleRemoveBlockCommand* remove_command = new TrackRippleRemoveBlockCommand(Track::TrackFromBlock(resize), resize);
           remove_command->redo();
           commands_.append(remove_command);
         } else {
@@ -880,7 +880,7 @@ void BlockEnableDisableCommand::undo_internal()
   block_->set_enabled(old_enabled_);
 }
 
-BlockTrimCommand::BlockTrimCommand(TrackOutput* track, Block *block, rational new_length, Timeline::MovementMode mode, QUndoCommand *command) :
+BlockTrimCommand::BlockTrimCommand(Track* track, Block *block, rational new_length, Timeline::MovementMode mode, QUndoCommand *command) :
   UndoCommand(command),
   track_(track),
   block_(block),
@@ -1045,7 +1045,7 @@ void BlockTrimCommand::undo_internal()
   track_->Node::InvalidateCache(invalidate_range, track_->block_input());
 }
 
-TrackReplaceBlockWithGapCommand::TrackReplaceBlockWithGapCommand(TrackOutput *track, Block *block, QUndoCommand *command) :
+TrackReplaceBlockWithGapCommand::TrackReplaceBlockWithGapCommand(Track *track, Block *block, QUndoCommand *command) :
   UndoCommand(command),
   track_(track),
   block_(block),
@@ -1187,7 +1187,7 @@ void TrackReplaceBlockWithGapCommand::undo_internal()
   track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input());
 }
 
-TrackSlideCommand::TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :
+TrackSlideCommand::TrackSlideCommand(Track* track, const QList<Block*>& moving_blocks, Block *in_adjacent, Block *out_adjacent, const rational& movement, QUndoCommand* parent) :
   UndoCommand(parent),
   track_(track),
   blocks_(moving_blocks),
@@ -1319,7 +1319,7 @@ TrackListRippleRemoveAreaCommand::TrackListRippleRemoveAreaCommand(TrackList *li
 {
   all_tracks_unlocked_ = true;
 
-  foreach (TrackOutput* track, list_->GetTracks()) {
+  foreach (Track* track, list_->GetTracks()) {
     if (track->IsLocked()) {
       all_tracks_unlocked_ = false;
       continue;
@@ -1346,13 +1346,13 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
   if (all_tracks_unlocked_) {
     // We can optimize here by simply shifting the whole cache forward instead of re-caching
     // everything following this time
-    if (list_->type() == Timeline::kTrackTypeVideo) {
+    if (list_->type() == Track::kVideo) {
       static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(out_, in_);
-    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+    } else if (list_->type() == Track::kAudio) {
       static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(out_, in_);
     }
 
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->BeginOperation();
     }
   }
@@ -1362,7 +1362,7 @@ void TrackListRippleRemoveAreaCommand::redo_internal()
   }
 
   if (all_tracks_unlocked_) {
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->EndOperation();
     }
   }
@@ -1373,13 +1373,13 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
   if (all_tracks_unlocked_) {
     // We can optimize here by simply shifting the whole cache forward instead of re-caching
     // everything following this time
-    if (list_->type() == Timeline::kTrackTypeVideo) {
+    if (list_->type() == Track::kVideo) {
       static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(in_, out_);
-    } else if (list_->type() == Timeline::kTrackTypeAudio) {
+    } else if (list_->type() == Track::kAudio) {
       static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(in_, out_);
     }
 
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->BeginOperation();
     }
   }
@@ -1389,7 +1389,7 @@ void TrackListRippleRemoveAreaCommand::undo_internal()
   }
 
   if (all_tracks_unlocked_) {
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->EndOperation();
     }
   }
@@ -1399,8 +1399,8 @@ TimelineRippleRemoveAreaCommand::TimelineRippleRemoveAreaCommand(ViewerOutput *t
   UndoCommand(parent),
   timeline_(timeline)
 {
-  for (int i=0; i<Timeline::kTrackTypeCount; i++) {
-    new TrackListRippleRemoveAreaCommand(timeline->track_list(static_cast<Timeline::TrackType>(i)),
+  for (int i=0; i<Track::kCount; i++) {
+    new TrackListRippleRemoveAreaCommand(timeline->track_list(static_cast<Track::Type>(i)),
                                          in,
                                          out,
                                          this);
@@ -1506,9 +1506,9 @@ void TrackListRippleToolCommand::redo_internal()
       }
     }
 
-    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+    if (track_list_->type() == Track::kVideo) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(old_latest_pt, new_latest_pt);
-    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+    } else if (track_list_->type() == Track::kAudio) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(old_latest_pt, new_latest_pt);
     }
 
@@ -1574,7 +1574,7 @@ TrackListInsertGaps::TrackListInsertGaps(TrackList *track_list, const rational &
 {
   all_tracks_unlocked_ = true;
 
-  foreach (TrackOutput* track, track_list_->GetTracks()) {
+  foreach (Track* track, track_list_->GetTracks()) {
     if (track->IsLocked()) {
       all_tracks_unlocked_ = false;
       continue;
@@ -1593,13 +1593,13 @@ void TrackListInsertGaps::redo_internal()
 {
   if (all_tracks_unlocked_) {
     // Optimize by shifting over since we have a constant amount of time being inserted
-    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+    if (track_list_->type() == Track::kVideo) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_, point_ + length_);
-    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+    } else if (track_list_->type() == Track::kAudio) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_, point_ + length_);
     }
 
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->BeginOperation();
     }
   }
@@ -1607,7 +1607,7 @@ void TrackListInsertGaps::redo_internal()
   QVector<Block*> blocks_to_split;
   QVector<Block*> blocks_to_append_gap_to;
 
-  foreach (TrackOutput* track, working_tracks_) {
+  foreach (Track* track, working_tracks_) {
     foreach (Block* b, track->Blocks()) {
       if (b->type() == Block::kGap && b->in() <= point_ && b->out() >= point_) {
         // Found a gap at the location
@@ -1637,12 +1637,12 @@ void TrackListInsertGaps::redo_internal()
     GapBlock* gap = new GapBlock();
     gap->set_length_and_media_out(length_);
     gap->setParent(block->parent());
-    TrackOutput::TrackFromBlock(block)->InsertBlockAfter(gap, block);
+    Track::TrackFromBlock(block)->InsertBlockAfter(gap, block);
     gaps_added_.append(gap);
   }
 
   if (all_tracks_unlocked_) {
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->EndOperation();
     }
   }
@@ -1652,20 +1652,20 @@ void TrackListInsertGaps::undo_internal()
 {
   if (all_tracks_unlocked_) {
     // Optimize by shifting over since we have a constant amount of time being inserted
-    if (track_list_->type() == Timeline::kTrackTypeVideo) {
+    if (track_list_->type() == Track::kVideo) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_ + length_, point_);
-    } else if (track_list_->type() == Timeline::kTrackTypeAudio) {
+    } else if (track_list_->type() == Track::kAudio) {
       static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_ + length_, point_);
     }
 
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->BeginOperation();
     }
   }
 
   // Remove added gaps
   foreach (GapBlock* gap, gaps_added_) {
-    TrackOutput::TrackFromBlock(gap)->RippleRemoveBlock(gap);
+    Track::TrackFromBlock(gap)->RippleRemoveBlock(gap);
     gap->setParent(&memory_manager_);
   }
   gaps_added_.clear();
@@ -1684,13 +1684,13 @@ void TrackListInsertGaps::undo_internal()
   gaps_to_extend_.clear();
 
   if (all_tracks_unlocked_) {
-    foreach (TrackOutput* track, working_tracks_) {
+    foreach (Track* track, working_tracks_) {
       track->EndOperation();
     }
   }
 }
 
-TransitionRemoveCommand::TransitionRemoveCommand(TrackOutput* track, TransitionBlock *block, QUndoCommand* parent) :
+TransitionRemoveCommand::TransitionRemoveCommand(Track* track, TransitionBlock *block, QUndoCommand* parent) :
   UndoCommand(parent),
   track_(track),
   block_(block),

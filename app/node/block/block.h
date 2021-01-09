@@ -86,18 +86,11 @@ public:
 public slots:
 
 signals:
-  /**
-   * @brief Signal emitted when this Block is refreshed
-   *
-   * Can be used as essentially a "changed" signal for UI widgets to know when to update their views
-   */
-  void Refreshed();
-
-  void LengthChanged(const rational& length);
-
   void LinksChanged();
 
   void EnabledChanged();
+
+  void LengthChanged();
 
 protected:
   rational SequenceToMediaTime(const rational& sequence_time) const;
@@ -109,10 +102,6 @@ protected:
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
   virtual QVector<NodeInput*> GetInputsToHash() const override;
-
-  virtual void LengthChangedEvent(const rational& old_length,
-                                  const rational& new_length,
-                                  const Timeline::MovementMode& mode);
 
   Block* previous_;
   Block* next_;
@@ -129,9 +118,6 @@ private:
   rational out_point_;
 
   QVector<Block*> linked_clips_;
-
-private slots:
-  void LengthInputChanged();
 
 };
 

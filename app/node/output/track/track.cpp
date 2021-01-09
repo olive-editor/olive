@@ -29,85 +29,85 @@
 
 namespace olive {
 
-const double TrackOutput::kTrackHeightDefault = 3.0;
-const double TrackOutput::kTrackHeightMinimum = 1.5;
-const double TrackOutput::kTrackHeightInterval = 0.5;
+const double Track::kTrackHeightDefault = 3.0;
+const double Track::kTrackHeightMinimum = 1.5;
+const double Track::kTrackHeightInterval = 0.5;
 
-TrackOutput::TrackOutput() :
-  track_type_(Timeline::kTrackTypeNone),
+Track::Track() :
+  track_type_(Track::kNone),
   index_(-1),
   locked_(false)
 {
   block_input_ = new NodeInput(this, QStringLiteral("block_in"), NodeValue::kNone);
   block_input_->SetKeyframable(false);
-  connect(block_input_, &NodeInput::InputConnected, this, &TrackOutput::BlockConnected);
-  connect(block_input_, &NodeInput::InputDisconnected, this, &TrackOutput::BlockDisconnected);
+  connect(block_input_, &NodeInput::InputConnected, this, &Track::BlockConnected);
+  connect(block_input_, &NodeInput::InputDisconnected, this, &Track::BlockDisconnected);
 
   // Since blocks are time based, we can handle the invalidate timing a little more intelligently
   // on our end
-  IgnoreConnectionSignalsFrom(block_input_);
+  IgnoreInvalidationsFrom(block_input_);
 
   muted_input_ = new NodeInput(this, QStringLiteral("muted_in"), NodeValue::kBoolean);
   muted_input_->SetKeyframable(false);
-  connect(muted_input_, &NodeInput::ValueChanged, this, &TrackOutput::MutedInputValueChanged);
+  connect(muted_input_, &NodeInput::ValueChanged, this, &Track::MutedInputValueChanged);
 
   // Set default height
   track_height_ = kTrackHeightDefault;
 }
 
-TrackOutput::~TrackOutput()
+Track::~Track()
 {
   DisconnectAll();
 }
 
-void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
+void Track::set_track_type(const Type &track_type)
 {
   track_type_ = track_type;
 }
 
-const Timeline::TrackType& TrackOutput::track_type() const
+const Track::Type& Track::track_type() const
 {
   return track_type_;
 }
 
-Node *TrackOutput::copy() const
+Node *Track::copy() const
 {
-  return new TrackOutput();
+  return new Track();
 }
 
-QString TrackOutput::Name() const
+QString Track::Name() const
 {
   return tr("Track");
 }
 
-QString TrackOutput::id() const
+QString Track::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.track");
 }
 
-QVector<Node::CategoryID> TrackOutput::Category() const
+QVector<Node::CategoryID> Track::Category() const
 {
   return {kCategoryTimeline};
 }
 
-QString TrackOutput::Description() const
+QString Track::Description() const
 {
   return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
             "a Sequence.");
 }
 
-const double &TrackOutput::GetTrackHeight() const
+const double &Track::GetTrackHeight() const
 {
   return track_height_;
 }
 
-void TrackOutput::SetTrackHeight(const double &height)
+void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("height")) {
@@ -118,12 +118,12 @@ void TrackOutput::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
   }
 }
 
-void TrackOutput::SaveInternal(QXmlStreamWriter *writer) const
+void Track::SaveInternal(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
-void TrackOutput::Retranslate()
+void Track::Retranslate()
 {
   Node::Retranslate();
 
@@ -131,19 +131,19 @@ void TrackOutput::Retranslate()
   muted_input_->set_name(tr("Muted"));
 }
 
-const int &TrackOutput::Index()
+const int &Track::Index()
 {
   return index_;
 }
 
-void TrackOutput::SetIndex(const int &index)
+void Track::SetIndex(const int &index)
 {
   index_ = index;
 
   emit IndexChanged(index);
 }
 
-Block *TrackOutput::BlockContainingTime(const rational &time) const
+Block *Track::BlockContainingTime(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     if (block->in() < time && block->out() > time) {
@@ -156,7 +156,7 @@ Block *TrackOutput::BlockContainingTime(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockBefore(const rational &time) const
+Block *Track::NearestBlockBefore(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
@@ -168,7 +168,7 @@ Block *TrackOutput::NearestBlockBefore(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockBeforeOrAt(const rational &time) const
+Block *Track::NearestBlockBeforeOrAt(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
@@ -180,7 +180,7 @@ Block *TrackOutput::NearestBlockBeforeOrAt(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockAfterOrAt(const rational &time) const
+Block *Track::NearestBlockAfterOrAt(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
@@ -192,7 +192,7 @@ Block *TrackOutput::NearestBlockAfterOrAt(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockAfter(const rational &time) const
+Block *Track::NearestBlockAfter(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
@@ -204,7 +204,7 @@ Block *TrackOutput::NearestBlockAfter(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::BlockAtTime(const rational &time) const
+Block *Track::BlockAtTime(const rational &time) const
 {
   if (IsMuted()) {
     return nullptr;
@@ -225,7 +225,7 @@ Block *TrackOutput::BlockAtTime(const rational &time) const
   return nullptr;
 }
 
-QVector<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
+QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
 {
   QVector<Block*> list;
 
@@ -245,7 +245,7 @@ QVector<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
-void TrackOutput::InvalidateCache(const TimeRange& range, const InputConnection& from)
+void Track::InvalidateCache(const TimeRange& range, const InputConnection& from)
 {
   TimeRange limited;
 
@@ -267,12 +267,12 @@ void TrackOutput::InvalidateCache(const TimeRange& range, const InputConnection&
   Node::InvalidateCache(limited, from);
 }
 
-void TrackOutput::InsertBlockBefore(Block* block, Block* after)
+void Track::InsertBlockBefore(Block* block, Block* after)
 {
   InsertBlockAtIndex(block, block_cache_.indexOf(after));
 }
 
-void TrackOutput::InsertBlockAfter(Block *block, Block *before)
+void Track::InsertBlockAfter(Block *block, Block *before)
 {
   int before_index = block_cache_.indexOf(before);
 
@@ -285,7 +285,7 @@ void TrackOutput::InsertBlockAfter(Block *block, Block *before)
   }
 }
 
-void TrackOutput::PrependBlock(Block *block)
+void Track::PrependBlock(Block *block)
 {
   BeginOperation();
 
@@ -298,7 +298,7 @@ void TrackOutput::PrependBlock(Block *block)
   Node::InvalidateCache(TimeRange(0, track_length()), InputConnection());
 }
 
-void TrackOutput::InsertBlockAtIndex(Block *block, int index)
+void Track::InsertBlockAtIndex(Block *block, int index)
 {
   BeginOperation();
 
@@ -311,7 +311,7 @@ void TrackOutput::InsertBlockAtIndex(Block *block, int index)
   Node::InvalidateCache(TimeRange(block->in(), track_length()));
 }
 
-void TrackOutput::AppendBlock(Block *block)
+void Track::AppendBlock(Block *block)
 {
   BeginOperation();
 
@@ -324,7 +324,7 @@ void TrackOutput::AppendBlock(Block *block)
   Node::InvalidateCache(TimeRange(block->in(), track_length()));
 }
 
-void TrackOutput::RippleRemoveBlock(Block *block)
+void Track::RippleRemoveBlock(Block *block)
 {
   BeginOperation();
 
@@ -338,7 +338,7 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)));
 }
 
-void TrackOutput::ReplaceBlock(Block *old, Block *replace)
+void Track::ReplaceBlock(Block *old, Block *replace)
 {
   BeginOperation();
 
@@ -357,57 +357,44 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   }
 }
 
-TrackOutput *TrackOutput::TrackFromBlock(const Block *block)
-{
-  foreach (const InputConnection& conn, block->edges()) {
-    TrackOutput* track = dynamic_cast<TrackOutput*>(conn.input->parent());
-
-    if (track) {
-      return track;
-    }
-  }
-
-  return nullptr;
-}
-
-const rational &TrackOutput::track_length() const
+const rational &Track::track_length() const
 {
   return track_length_;
 }
 
-QString TrackOutput::GetDefaultTrackName(Timeline::TrackType type, int index)
+QString Track::GetDefaultTrackName(Track::Type type, int index)
 {
   // Starts tracks at 1 rather than 0
   int user_friendly_index = index+1;
 
   switch (type) {
-  case Timeline::kTrackTypeVideo: return tr("Video %1").arg(user_friendly_index);
-  case Timeline::kTrackTypeAudio: return tr("Audio %1").arg(user_friendly_index);
-  case Timeline::kTrackTypeSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
-  case Timeline::kTrackTypeNone:
-  case Timeline::kTrackTypeCount:
+  case Track::kVideo: return tr("Video %1").arg(user_friendly_index);
+  case Track::kAudio: return tr("Audio %1").arg(user_friendly_index);
+  case Track::kSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
+  case Track::kNone:
+  case Track::kCount:
     break;
   }
 
   return tr("Track %1").arg(user_friendly_index);
 }
 
-bool TrackOutput::IsMuted() const
+bool Track::IsMuted() const
 {
   return muted_input_->GetStandardValue().toBool();
 }
 
-bool TrackOutput::IsLocked() const
+bool Track::IsLocked() const
 {
   return locked_;
 }
 
-NodeInput *TrackOutput::block_input() const
+NodeInput *Track::block_input() const
 {
   return block_input_;
 }
 
-void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
+void Track::Hash(QCryptographicHash &hash, const rational &time) const
 {
   Block* b = BlockAtTime(time);
 
@@ -417,18 +404,18 @@ void TrackOutput::Hash(QCryptographicHash &hash, const rational &time) const
   }
 }
 
-void TrackOutput::SetMuted(bool e)
+void Track::SetMuted(bool e)
 {
   muted_input_->SetStandardValue(e);
   Node::InvalidateCache(TimeRange(0, track_length()));
 }
 
-void TrackOutput::SetLocked(bool e)
+void Track::SetLocked(bool e)
 {
   locked_ = e;
 }
 
-void TrackOutput::UpdateInOutFrom(int index)
+void Track::UpdateInOutFrom(int index)
 {
   // Find block just before this one to find the last out point
   rational last_out = (index == 0) ? 0 : block_cache_.at(index - 1)->out();
@@ -442,20 +429,18 @@ void TrackOutput::UpdateInOutFrom(int index)
     last_out += b->length();
 
     b->set_out(last_out);
-
-    emit b->Refreshed();
   }
 
   // Update track length
   SetLengthInternal(last_out);
 }
 
-int TrackOutput::GetInputIndexFromCacheIndex(int cache_index)
+int Track::GetInputIndexFromCacheIndex(int cache_index)
 {
   return GetInputIndexFromCacheIndex(block_cache_.at(cache_index));
 }
 
-int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
+int Track::GetInputIndexFromCacheIndex(Block *block)
 {
   for (int i=0; i<block_input_->ArraySize(); i++) {
     if (block_input_->GetConnectedNode(i) == block) {
@@ -466,7 +451,7 @@ int TrackOutput::GetInputIndexFromCacheIndex(Block *block)
   return -1;
 }
 
-void TrackOutput::SetLengthInternal(const rational &r, bool invalidate)
+void Track::SetLengthInternal(const rational &r, bool invalidate)
 {
   if (r != track_length_) {
     TimeRange invalidate_range(track_length_, r);
@@ -480,7 +465,7 @@ void TrackOutput::SetLengthInternal(const rational &r, bool invalidate)
   }
 }
 
-void TrackOutput::BlockConnected(Node *node, int element)
+void Track::BlockConnected(Node *node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
@@ -541,7 +526,7 @@ void TrackOutput::BlockConnected(Node *node, int element)
   UpdateInOutFrom(cache_index);
 
   // Connect to the block
-  connect(block, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
+  connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
   // Invalidate cache now that block should have an in point
   Node::InvalidateCache(TimeRange(block->in(), track_length()));
@@ -550,7 +535,7 @@ void TrackOutput::BlockConnected(Node *node, int element)
   emit BlockAdded(block);
 }
 
-void TrackOutput::BlockDisconnected(Node* node, int element)
+void Track::BlockDisconnected(Node* node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
@@ -592,14 +577,14 @@ void TrackOutput::BlockDisconnected(Node* node, int element)
     SetLengthInternal(block_cache_.last()->out());
   }
 
-  disconnect(b, &Block::LengthChanged, this, &TrackOutput::BlockLengthChanged);
+  disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
   emit BlockRemoved(b);
 
   Node::InvalidateCache(invalidate_range);
 }
 
-void TrackOutput::BlockLengthChanged()
+void Track::BlockLengthChanged()
 {
   // Assumes sender is a Block
   Block* b = static_cast<Block*>(sender());
@@ -615,7 +600,7 @@ void TrackOutput::BlockLengthChanged()
   Node::InvalidateCache(invalidate_region);
 }
 
-void TrackOutput::MutedInputValueChanged()
+void Track::MutedInputValueChanged()
 {
   emit MutedChanged(IsMuted());
 }

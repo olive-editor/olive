@@ -301,7 +301,7 @@ void TimeBasedWidget::GoToPrevCut()
 
   int64_t closest_cut = 0;
 
-  foreach (TrackOutput* track, viewer_node_->GetTracks()) {
+  foreach (Track* track, viewer_node_->GetTracks()) {
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
@@ -328,7 +328,7 @@ void TimeBasedWidget::GoToNextCut()
 
   int64_t closest_cut = INT64_MAX;
 
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, GetConnectedNode()->GetTracks()) {
     int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= GetTimestamp()) {

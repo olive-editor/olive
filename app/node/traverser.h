@@ -44,7 +44,7 @@ public:
 protected:
   NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange& range);
+  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
   virtual QVariant ProcessVideoFootage(VideoStream* stream, const rational &input_time);
 

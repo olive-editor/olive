@@ -40,21 +40,21 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
   const TrackReference& track = event->GetTrack();
 
   // Check if track is locked
-  TrackOutput* t = parent()->GetTrackFromReference(track);
+  Track* t = parent()->GetTrackFromReference(track);
   if (t && t->IsLocked()) {
     return;
   }
 
-  Timeline::TrackType add_type = Timeline::kTrackTypeNone;
+  Track::Type add_type = Track::kNone;
 
   switch (Core::instance()->GetSelectedAddableObject()) {
   case olive::Tool::kAddableBars:
   case olive::Tool::kAddableSolid:
   case olive::Tool::kAddableTitle:
-    add_type = Timeline::kTrackTypeVideo;
+    add_type = Track::kVideo;
     break;
   case olive::Tool::kAddableTone:
-    add_type = Timeline::kTrackTypeAudio;
+    add_type = Track::kAudio;
     break;
   case olive::Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
@@ -64,7 +64,7 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
     return;
   }
 
-  if (add_type == Timeline::kTrackTypeNone
+  if (add_type == Track::kNone
       || add_type == track.type()) {
     drag_start_point_ = ValidatedCoordinate(event->GetCoordinates(true)).GetFrame();
 

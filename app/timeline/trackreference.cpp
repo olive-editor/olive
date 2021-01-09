@@ -23,18 +23,18 @@
 namespace olive {
 
 TrackReference::TrackReference() :
-  type_(Timeline::kTrackTypeNone),
+  type_(Track::kNone),
   index_(0)
 {
 }
 
-TrackReference::TrackReference(const Timeline::TrackType &type, const int &index) :
+TrackReference::TrackReference(const Track::Type &type, const int &index) :
   type_(type),
   index_(index)
 {
 }
 
-const Timeline::TrackType &TrackReference::type() const
+const Track::Type &TrackReference::type() const
 {
   return type_;
 }

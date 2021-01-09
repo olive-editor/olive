@@ -68,7 +68,7 @@ private:
 
 class BlockTrimCommand : public UndoCommand {
 public:
-  BlockTrimCommand(TrackOutput *track, Block* block, rational new_length, Timeline::MovementMode mode, QUndoCommand* command = nullptr);
+  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode, QUndoCommand* command = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -82,7 +82,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
   Block* block_;
   rational old_length_;
   rational new_length_;
@@ -116,7 +116,7 @@ private:
 
 class TrackRippleRemoveBlockCommand : public UndoCommand {
 public:
-  TrackRippleRemoveBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);
+  TrackRippleRemoveBlockCommand(Track* track, Block* block, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -125,7 +125,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
 
   Block* block_;
 
@@ -134,7 +134,7 @@ private:
 
 class TrackPrependBlockCommand : public UndoCommand {
 public:
-  TrackPrependBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);
+  TrackPrependBlockCommand(Track* track, Block* block, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -143,13 +143,13 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
   Block* block_;
 };
 
 class TrackInsertBlockAfterCommand : public UndoCommand {
 public:
-  TrackInsertBlockAfterCommand(TrackOutput* track, Block* block, Block* before, QUndoCommand* parent = nullptr);
+  TrackInsertBlockAfterCommand(Track* track, Block* block, Block* before, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -158,7 +158,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
 
   Block* block_;
 
@@ -174,7 +174,7 @@ private:
  */
 class TrackRippleRemoveAreaCommand : public UndoCommand {
 public:
-  TrackRippleRemoveAreaCommand(TrackOutput* track, rational in, rational out, QUndoCommand* parent = nullptr);
+  TrackRippleRemoveAreaCommand(Track* track, rational in, rational out, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -187,7 +187,7 @@ protected:
 protected:
   Project* project_;
 
-  TrackOutput* track_;
+  Track* track_;
   rational in_;
   rational out_;
 
@@ -227,7 +227,7 @@ protected:
 private:
   TrackList* list_;
 
-  QList<TrackOutput*> working_tracks_;
+  QList<Track*> working_tracks_;
 
   rational in_;
 
@@ -255,7 +255,7 @@ public:
   struct RippleInfo {
     Block* block;
     Block* ref_block;
-    TrackOutput* track;
+    Track* track;
     rational new_length;
     rational old_length;
   };
@@ -312,13 +312,13 @@ private:
   int track_index_;
   bool append_;
   GapBlock* gap_;
-  QVector<TrackOutput*> added_tracks_;
+  QVector<Track*> added_tracks_;
 
 };
 
 class BlockSplitCommand : public UndoCommand {
 public:
-  BlockSplitCommand(TrackOutput* track, Block* block, rational point, QUndoCommand* parent = nullptr);
+  BlockSplitCommand(Track* track, Block* block, rational point, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -329,7 +329,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
   Block* block_;
   Block* new_block_;
 
@@ -347,12 +347,12 @@ private:
 
 class TrackSplitAtTimeCommand : public UndoCommand {
 public:
-  TrackSplitAtTimeCommand(TrackOutput* track, rational point, QUndoCommand* parent = nullptr);
+  TrackSplitAtTimeCommand(Track* track, rational point, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
 
 };
 
@@ -375,7 +375,7 @@ private:
  */
 class TrackReplaceBlockCommand : public UndoCommand {
 public:
-  TrackReplaceBlockCommand(TrackOutput* track, Block* old, Block* replace, QUndoCommand* parent = nullptr);
+  TrackReplaceBlockCommand(Track* track, Block* old, Block* replace, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -384,14 +384,14 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
   Block* old_;
   Block* replace_;
 };
 
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackReplaceBlockWithGapCommand(TrackOutput* track, Block* block, QUndoCommand* command = nullptr);
+  TrackReplaceBlockWithGapCommand(Track* track, Block* block, QUndoCommand* command = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -400,7 +400,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
   Block* block_;
 
   GapBlock* existing_gap_;
@@ -542,7 +542,7 @@ private:
 
 class TrackSlideCommand : public UndoCommand {
 public:
-  TrackSlideCommand(TrackOutput* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement, QUndoCommand* parent = nullptr);
+  TrackSlideCommand(Track* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement, QUndoCommand* parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -553,7 +553,7 @@ protected:
 private:
   void slide_internal(bool undo);
 
-  TrackOutput* track_;
+  Track* track_;
   QList<Block*> blocks_;
   rational movement_;
 
@@ -583,7 +583,7 @@ private:
 
   rational length_;
 
-  QList<TrackOutput*> working_tracks_;
+  QList<Track*> working_tracks_;
 
   bool all_tracks_unlocked_;
 
@@ -599,7 +599,7 @@ private:
 
 class TransitionRemoveCommand : public UndoCommand {
 public:
-  TransitionRemoveCommand(TrackOutput *track, TransitionBlock* block, QUndoCommand *parent = nullptr);
+  TransitionRemoveCommand(Track *track, TransitionBlock* block, QUndoCommand *parent = nullptr);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -608,7 +608,7 @@ protected:
   virtual void undo_internal() override;
 
 private:
-  TrackOutput* track_;
+  Track* track_;
 
   TransitionBlock* block_;
 

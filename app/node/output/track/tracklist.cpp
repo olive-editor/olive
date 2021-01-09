@@ -27,7 +27,7 @@
 
 namespace olive {
 
-TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInput *track_input) :
+TrackList::TrackList(ViewerOutput *parent, const Track::Type &type, NodeInput *track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
@@ -36,14 +36,14 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
   connect(track_input_, &NodeInput::InputDisconnected, this, &TrackList::TrackDisconnected);
 }
 
-const Timeline::TrackType &TrackList::type() const
+const Track::Type &TrackList::type() const
 {
   return type_;
 }
 
 void TrackList::TrackAddedBlock(Block *block)
 {
-  emit BlockAdded(block, static_cast<TrackOutput*>(sender())->Index());
+  emit BlockAdded(block, static_cast<Track*>(sender())->Index());
 }
 
 void TrackList::TrackRemovedBlock(Block *block)
@@ -51,12 +51,12 @@ void TrackList::TrackRemovedBlock(Block *block)
   emit BlockRemoved(block);
 }
 
-const QVector<TrackOutput *> &TrackList::GetTracks() const
+const QVector<Track *> &TrackList::GetTracks() const
 {
   return track_cache_;
 }
 
-TrackOutput *TrackList::GetTrackAt(int index) const
+Track *TrackList::GetTrackAt(int index) const
 {
   if (index < track_cache_.size()) {
     return track_cache_.at(index);
@@ -83,16 +83,16 @@ void TrackList::TrackConnected(Node *node, int element)
     return;
   }
 
-  TrackOutput* track = dynamic_cast<TrackOutput*>(node);
+  Track* track = dynamic_cast<Track*>(node);
 
   if (!track) {
     return;
   }
 
   // Find "real" index
-  TrackOutput* next = nullptr;
+  Track* next = nullptr;
   for (int i=element+1; i<track_input_->ArraySize(); i++) {
-    next = dynamic_cast<TrackOutput*>(track_input_->GetConnectedNode(i));
+    next = dynamic_cast<Track*>(track_input_->GetConnectedNode(i));
 
     if (next) {
       break;
@@ -114,10 +114,10 @@ void TrackList::TrackConnected(Node *node, int element)
   // Update track indexes in the list (including this track)
   UpdateTrackIndexesFrom(track_index);
 
-  connect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
-  connect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
-  connect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-  connect(track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
+  connect(track, &Track::BlockAdded, this, &TrackList::TrackAddedBlock);
+  connect(track, &Track::BlockRemoved, this, &TrackList::TrackRemovedBlock);
+  connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+  connect(track, &Track::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
   track->set_track_type(type_);
 
@@ -134,7 +134,7 @@ void TrackList::TrackDisconnected(Node *node, int element)
 {
   Q_UNUSED(element)
 
-  TrackOutput* track = dynamic_cast<TrackOutput*>(node);
+  Track* track = dynamic_cast<Track*>(node);
 
   if (!track) {
     return;
@@ -150,12 +150,12 @@ void TrackList::TrackDisconnected(Node *node, int element)
   emit TrackRemoved(track);
 
   track->SetIndex(-1);
-  track->set_track_type(Timeline::kTrackTypeNone);
+  track->set_track_type(Track::kNone);
 
-  disconnect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
-  disconnect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
-  disconnect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-  disconnect(track, &TrackOutput::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
+  disconnect(track, &Track::BlockAdded, this, &TrackList::TrackAddedBlock);
+  disconnect(track, &Track::BlockRemoved, this, &TrackList::TrackRemovedBlock);
+  disconnect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+  disconnect(track, &Track::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
   emit TrackListChanged();
 
@@ -178,7 +178,7 @@ void TrackList::UpdateTotalLength()
 {
   total_length_ = 0;
 
-  foreach (TrackOutput* track, track_cache_) {
+  foreach (Track* track, track_cache_) {
     if (track) {
       total_length_ = qMax(total_length_, track->track_length());
     }
@@ -189,7 +189,7 @@ void TrackList::UpdateTotalLength()
 
 void TrackList::TrackHeightChangedSlot(int height)
 {
-  emit TrackHeightChanged(static_cast<TrackOutput*>(sender())->Index(), height);
+  emit TrackHeightChanged(static_cast<Track*>(sender())->Index(), height);
 }
 
 }

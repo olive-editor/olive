@@ -190,7 +190,7 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
   case kFootageInput:
     return new MediaInput();
   case kTrackOutput:
-    return new TrackOutput();
+    return new Track();
   case kViewerOutput:
     return new ViewerOutput();
   case kAudioVolume:

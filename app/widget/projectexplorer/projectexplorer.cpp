@@ -639,7 +639,7 @@ void ProjectExplorer::DeleteSelected()
           QVector<Block*> blocks_to_remove;
 
           foreach (Sequence* s, used_in_sequences) {
-            foreach (TrackOutput* track, s->viewer_output()->GetTracks()) {
+            foreach (Track* track, s->viewer_output()->GetTracks()) {
               foreach (Block* b, track->Blocks()) {
                 QVector<Node*> deps = b->GetDependencies();
 

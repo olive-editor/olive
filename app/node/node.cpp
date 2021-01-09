@@ -276,7 +276,7 @@ void Node::SendInvalidateCache(const TimeRange &range)
   }
 }
 
-void Node::IgnoreConnectionSignalsFrom(NodeInput *input)
+void Node::IgnoreInvalidationsFrom(NodeInput *input)
 {
   ignore_connections_.append(input);
 }
@@ -723,6 +723,12 @@ void Node::SetPosition(const QPointF &pos)
 
 void Node::InputChanged(const TimeRange& range, int element)
 {
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  if (ignore_connections_.contains(input)) {
+    return;
+  }
+
   InvalidateCache(range, InputConnection(static_cast<NodeInput*>(sender()), element));
 }
 

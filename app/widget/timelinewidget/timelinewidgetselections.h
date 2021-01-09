@@ -35,7 +35,7 @@ public:
 
   void ShiftTime(const rational& diff);
 
-  void ShiftTracks(Timeline::TrackType type, int diff);
+  void ShiftTracks(Track::Type type, int diff);
 
   void TrimIn(const rational& diff);
 

@@ -176,12 +176,6 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::Clear()
 {
-  // Delete all items
-  for (auto iterator=block_items_.begin(); iterator!=block_items_.end(); iterator++) {
-    delete iterator.value();
-  }
-  block_items_.clear();
-
   // Emit that we've deselected any selected blocks
   SignalDeselectedAllBlocks();
 
@@ -196,14 +190,6 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
   timecode_label_->SetTimebase(timebase);
 
   timecode_label_->setVisible(!timebase.isNull());
-
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-
-  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
-    if (iterator.value()) {
-      iterator.value()->SetTimebase(timebase);
-    }
-  }
 
   UpdateViewTimebases();
 }
@@ -227,14 +213,6 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
   TimeBasedWidget::ScaleChangedEvent(scale);
 
-  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
-
-  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
-    if (iterator.value()) {
-      iterator.value()->SetScale(scale);
-    }
-  }
-
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetScale(scale);
   }
@@ -254,7 +232,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   SetTimebase(n->video_params().time_base());
 
   for (int i=0;i<views_.size();i++) {
-    Timeline::TrackType track_type = static_cast<Timeline::TrackType>(i);
+    Track::Type track_type = static_cast<Track::Type>(i);
     TimelineView* view = views_.at(i)->view();
     TrackList* track_list = n->track_list(track_type);
     TrackView* track_view = views_.at(i)->track_view();
@@ -263,7 +241,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
     view->ConnectTrackList(track_list);
 
     // Defer to the track to make all the block UI items necessary
-    foreach (TrackOutput* track, n->track_list(track_type)->GetTracks()) {
+    foreach (Track* track, n->track_list(track_type)->GetTracks()) {
       AddTrack(track, track_type);
     }
   }
@@ -280,7 +258,7 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 
   DeselectAll();
 
-  foreach (TrackOutput* track, n->GetTracks()) {
+  foreach (Track* track, n->GetTracks()) {
     RemoveTrack(track);
   }
 
@@ -299,24 +277,22 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
-  QVector<TimelineViewBlockItem*>& selected = *static_cast<QVector<TimelineViewBlockItem*>*>(userdata);
+  QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
 
-  foreach (TimelineViewBlockItem* item, selected) {
+  foreach (Block* item, selected) {
     Block* block = item->block();
 
     earliest_in = qMin(earliest_in, block->in());
   }
 
-  foreach (TimelineViewBlockItem* item, selected) {
-    Block* block = item->block();
-
+  foreach (Block* block, selected) {
     writer->writeStartElement(QStringLiteral("block"));
 
     writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(block)));
     writer->writeAttribute(QStringLiteral("in"), (block->in() - earliest_in).toString());
 
-    TrackOutput* track = TrackOutput::TrackFromBlock(block);
+    Track* track = GetTrackFromBlock(block);
 
     if (track) {
       writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->track_type()));
@@ -341,7 +317,7 @@ void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, X
         } else if (attr.name() == QStringLiteral("in")) {
           bpd.in = rational::fromString(attr.value().toString());
         } else if (attr.name() == QStringLiteral("tracktype")) {
-          bpd.track_type = static_cast<Timeline::TrackType>(attr.value().toInt());
+          bpd.track_type = static_cast<Track::Type>(attr.value().toInt());
         } else if (attr.name() == QStringLiteral("trackindex")) {
           bpd.track_index = attr.value().toInt();
         }
@@ -417,7 +393,7 @@ void TimelineWidget::SplitAtPlayhead()
   bool some_blocks_are_selected = false;
 
   // Get all blocks at the playhead
-  foreach (TrackOutput* track, GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, GetConnectedNode()->GetTracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
     if (b && b->type() == Block::kClip) {
@@ -464,7 +440,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
       continue;
     }
 
-    TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
+    Track* original_track = Track::TrackFromBlock(b);
 
     new TrackReplaceBlockWithGapCommand(original_track, b, command);
 
@@ -505,7 +481,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    new TransitionRemoveCommand(TrackOutput::TrackFromBlock(transition),
+    new TransitionRemoveCommand(Track::TrackFromBlock(transition),
                                 transition,
                                 command);
 
@@ -538,11 +514,11 @@ void TimelineWidget::IncreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
+  QVector<Track*> all_tracks = GetConnectedNode()->GetTracks();
 
   // Increase the height of each track by one "unit"
-  foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(t->GetTrackHeight() + TrackOutput::kTrackHeightInterval);
+  foreach (Track* t, all_tracks) {
+    t->SetTrackHeight(t->GetTrackHeight() + Track::kTrackHeightInterval);
   }
 }
 
@@ -552,11 +528,11 @@ void TimelineWidget::DecreaseTrackHeight()
     return;
   }
 
-  QVector<TrackOutput*> all_tracks = GetConnectedNode()->GetTracks();
+  QVector<Track*> all_tracks = GetConnectedNode()->GetTracks();
 
   // Decrease the height of each track by one "unit"
-  foreach (TrackOutput* t, all_tracks) {
-    t->SetTrackHeight(qMax(t->GetTrackHeight() - TrackOutput::kTrackHeightInterval, TrackOutput::kTrackHeightMinimum));
+  foreach (Track* t, all_tracks) {
+    t->SetTrackHeight(qMax(t->GetTrackHeight() - Track::kTrackHeightInterval, Track::kTrackHeightMinimum));
   }
 }
 
@@ -688,9 +664,9 @@ void TimelineWidget::DeleteInToOut(bool ripple)
                                         command);
 
   } else {
-    QVector<TrackOutput*> unlocked_tracks = GetConnectedNode()->GetUnlockedTracks();
+    QVector<Track*> unlocked_tracks = GetConnectedNode()->GetUnlockedTracks();
 
-    foreach (TrackOutput* track, unlocked_tracks) {
+    foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
       gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
@@ -740,9 +716,9 @@ void TimelineWidget::ToggleSelectedEnabled()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-QVector<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
+QVector<Block *> TimelineWidget::GetSelectedBlocks()
 {
-  QVector<TimelineViewBlockItem *> list(selected_blocks_.size());
+  QVector<Block*> list(selected_blocks_.size());
 
   for (int i=0; i<selected_blocks_.size(); i++) {
     list[i] = block_items_.value(selected_blocks_.at(i));
@@ -754,14 +730,14 @@ QVector<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
 {
   for (int i=0;i<Timeline::kTrackTypeCount;i++) {
-    new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+    new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
                             earliest_point,
                             insert_length,
                             command);
   }
 }
 
-TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
+Track *TimelineWidget::GetTrackFromReference(const TrackReference &ref) const
 {
   return GetConnectedNode()->track_list(ref.type())->GetTrackAt(ref.index());
 }
@@ -895,7 +871,6 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     // Add item to graphics scene
     views_.at(track.type())->view()->scene()->addItem(item);
 
-    connect(block, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
     connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
@@ -911,7 +886,6 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 void TimelineWidget::RemoveBlock(Block *b)
 {
   // Disconnect all signals
-  disconnect(b, &Block::Refreshed, this, &TimelineWidget::BlockRefreshed);
   disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
   disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
@@ -932,20 +906,20 @@ void TimelineWidget::RemoveBlock(Block *b)
   emit BlocksDeselected({b});
 }
 
-void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
+void TimelineWidget::AddTrack(Track *track, Track::Type type)
 {
   foreach (Block* b, track->Blocks()) {
     AddBlock(b, TrackReference(type, track->Index()));
   }
 
-  connect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  connect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
+  connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
+  connect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 }
 
-void TimelineWidget::RemoveTrack(TrackOutput *track)
+void TimelineWidget::RemoveTrack(Track *track)
 {
-  disconnect(track, &TrackOutput::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
-  disconnect(track, &TrackOutput::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
+  disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
+  disconnect(track, &Track::PreviewChanged, this, &TimelineWidget::TrackPreviewUpdated);
 
   foreach (Block* b, track->Blocks()) {
     RemoveBlock(b);
@@ -954,7 +928,7 @@ void TimelineWidget::RemoveTrack(TrackOutput *track)
 
 void TimelineWidget::TrackIndexChanged()
 {
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
+  Track* track = static_cast<Track*>(sender());
   TrackReference ref(track->track_type(), track->Index());
 
   foreach (Block* b, track->Blocks()) {
@@ -987,7 +961,7 @@ void TimelineWidget::TrackPreviewUpdated()
 {
   QMap<Block*, TimelineViewBlockItem*>::const_iterator i;
 
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
+  Track* track = static_cast<Track*>(sender());
   TrackReference track_ref(track->track_type(), track->Index());
 
   for (i=block_items_.constBegin(); i!=block_items_.constEnd(); i++) {
@@ -1019,7 +993,7 @@ void TimelineWidget::UpdateTimecodeWidthFromSplitters(QSplitter* s)
   timecode_label_->setFixedWidth(s->sizes().first() + s->handleWidth());
 }
 
-void TimelineWidget::TrackHeightChanged(Timeline::TrackType type, int index, int height)
+void TimelineWidget::TrackHeightChanged(Track::Type type, int index, int height)
 {
   Q_UNUSED(index)
   Q_UNUSED(height)
@@ -1195,7 +1169,7 @@ TimelineView *TimelineWidget::GetFirstTimelineView()
   return views_.first()->view();
 }
 
-rational TimelineWidget::GetTimebaseForTrackType(Timeline::TrackType type)
+rational TimelineWidget::GetTimebaseForTrackType(Track::Type type)
 {
   return views_.at(type)->view()->timebase();
 }
@@ -1253,7 +1227,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
                                                             Timeline::MovementMode mode)
 {
   // Get list of unlocked tracks
-  QVector<TrackOutput*> tracks = GetConnectedNode()->GetUnlockedTracks();
+  QVector<Track*> tracks = GetConnectedNode()->GetUnlockedTracks();
 
   // Create list to cache nearest times and the blocks at this point
   QVector<Timeline::EditToInfo> info_list(tracks.size());
@@ -1261,7 +1235,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
   for (int i=0;i<tracks.size();i++) {
     Timeline::EditToInfo info;
 
-    TrackOutput* track = tracks.at(i);
+    Track* track = tracks.at(i);
     info.track = track;
 
     Block* b;
@@ -1390,7 +1364,7 @@ void TimelineWidget::ShowSnap(const QList<rational> &times)
   }
 }
 
-void TimelineWidget::UpdateViewports(const Timeline::TrackType &type)
+void TimelineWidget::UpdateViewports(const Track::Type &type)
 {
   if (type == Timeline::kTrackTypeNone) {
     foreach (TimelineAndTrackView* tview, views_) {
@@ -1475,7 +1449,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
         continue;
       }
 
-      TrackOutput* t = GetTrackFromReference(block_item->Track());
+      Track* t = GetTrackFromReference(block_item->Track());
       if (t && t->IsLocked()) {
         continue;
       }
@@ -1515,7 +1489,7 @@ void TimelineWidget::AddSelection(const TimeRange &time, const TrackReference &t
   UpdateViewports(track.type());
 }
 
-void TimelineWidget::AddSelection(TimelineViewBlockItem *item)
+void TimelineWidget::AddSelection(Block *item)
 {
   AddSelection(item->block()->range(), item->Track());
 }
@@ -1527,7 +1501,7 @@ void TimelineWidget::RemoveSelection(const TimeRange &time, const TrackReference
   UpdateViewports(track.type());
 }
 
-void TimelineWidget::RemoveSelection(TimelineViewBlockItem *item)
+void TimelineWidget::RemoveSelection(Block *item)
 {
   RemoveSelection(item->block()->range(), item->Track());
 }
@@ -1539,7 +1513,7 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
   UpdateViewports();
 }
 
-TimelineViewBlockItem *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
+Block *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
 {
   for (auto it=block_items_.cbegin(); it!=block_items_.cend(); it++) {
     Block* b = it.key();

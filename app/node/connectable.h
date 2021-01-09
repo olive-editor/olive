@@ -21,7 +21,7 @@
 #ifndef CONNECTABLE_H
 #define CONNECTABLE_H
 
-#include <QHash>
+#include <QMap>
 #include <QObject>
 #include <QVector>
 
@@ -77,7 +77,7 @@ protected:
     return output_connections_;
   }
 
-  const QHash<int, Node*>& input_connections() const
+  const QMap<int, Node*>& input_connections() const
   {
     return input_connections_;
   }
@@ -85,7 +85,7 @@ protected:
 private:
   QVector<InputConnection> output_connections_;
 
-  QHash<int, Node*> input_connections_;
+  QMap<int, Node*> input_connections_;
 
 };
 

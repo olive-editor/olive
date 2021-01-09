@@ -33,8 +33,8 @@ RippleTool::RippleTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
-                                              Timeline::MovementMode trim_mode)
+void RippleTool::InitiateDrag(Block *clicked_item,
+                              Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, true, true, false);
 
@@ -58,7 +58,7 @@ void RippleTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (TrackOutput* track, parent()->GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, parent()->GetConnectedNode()->GetTracks()) {
     if (track->IsLocked()) {
       continue;
     }
@@ -109,10 +109,10 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
   Q_UNUSED(event)
 
   if (parent()->HasGhosts()) {
-    QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Timeline::kTrackTypeCount);
+    QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Track::kCount);
 
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-      TrackOutput* track = parent()->GetTrackFromReference(ghost->GetTrack());
+      Track* track = parent()->GetTrackFromReference(ghost->GetTrack());
 
       TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)),
                                                   Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock)),
@@ -127,7 +127,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 
     if (!info_list.isEmpty()) {
       for (int i=0;i<info_list.size();i++) {
-        new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Timeline::TrackType>(i)),
+        new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
                                        info_list.at(i),
                                        drag_movement_mode(),
                                        command);

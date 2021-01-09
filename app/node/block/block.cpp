@@ -34,8 +34,8 @@ Block::Block() :
   length_input_ = new NodeInput(this, QStringLiteral("length_in"), NodeValue::kRational);
   length_input_->SetConnectable(false);
   length_input_->SetKeyframable(false);
-  disconnect(length_input_, &NodeInput::ValueChanged, this, &Block::InputChanged);
-  connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthInputChanged);
+  IgnoreInvalidationsFrom(length_input_);
+  connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthChanged);
 
   media_in_input_ = new NodeInput(this, QStringLiteral("media_in_in"), NodeValue::kRational);
   media_in_input_->SetConnectable(false);
@@ -92,11 +92,7 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
-  rational old_length = this->length();
-
   set_length_internal(length);
-
-  LengthChangedEvent(old_length, length, Timeline::kTrimOut);
 }
 
 void Block::set_length_and_media_in(const rational &length)
@@ -110,12 +106,8 @@ void Block::set_length_and_media_in(const rational &length)
   // Calculate media_in adjustment
   set_media_in(SequenceToMediaTime(in() + (this->length() - length)));
 
-  rational old_length = this->length();
-
   // Set the length without setting media out
   set_length_internal(length);
-
-  LengthChangedEvent(old_length, length, Timeline::kTrimIn);
 }
 
 TimeRange Block::range() const
@@ -249,18 +241,9 @@ QVector<NodeInput *> Block::GetInputsToHash() const
   return inputs;
 }
 
-void Block::LengthChangedEvent(const rational &, const rational &, const Timeline::MovementMode &)
-{
-}
-
 void Block::set_length_internal(const rational &length)
 {
-  length_input_->SetStandardValue (QVariant::fromValue(length));
-}
-
-void Block::LengthInputChanged()
-{
-  emit LengthChanged(length());
+  length_input_->SetStandardValue(QVariant::fromValue(length));
 }
 
 bool Block::Link(Block *a, Block *b)

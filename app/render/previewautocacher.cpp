@@ -147,11 +147,11 @@ void PreviewAutoCacher::AudioRendered()
       QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
       foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
         // Find original track
-        TrackOutput* track = nullptr;
+        Track* track = nullptr;
 
         for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
           if (it.value() == waveform_info.track) {
-            track = static_cast<TrackOutput*>(it.key());
+            track = static_cast<Track*>(it.key());
             break;
           }
         }

@@ -29,7 +29,7 @@ void TimelineWidgetSelections::ShiftTime(const rational &diff)
   }
 }
 
-void TimelineWidgetSelections::ShiftTracks(Timeline::TrackType type, int diff)
+void TimelineWidgetSelections::ShiftTracks(Track::Type type, int diff)
 {
   TimelineWidgetSelections cached_selections;
 

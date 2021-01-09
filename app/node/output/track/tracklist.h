@@ -35,13 +35,13 @@ class TrackList : public QObject
 {
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const Timeline::TrackType& type, NodeInput* track_input);
+  TrackList(ViewerOutput *parent, const Track::Type& type, NodeInput* track_input);
 
-  const Timeline::TrackType& type() const;
+  const Track::Type& type() const;
 
-  const QVector<TrackOutput*>& GetTracks() const;
+  const QVector<Track*>& GetTracks() const;
 
-  TrackOutput* GetTrackAt(int index) const;
+  Track* GetTrackAt(int index) const;
 
   const rational& GetTotalLength() const;
 
@@ -59,9 +59,9 @@ signals:
 
   void BlockRemoved(Block* block);
 
-  void TrackAdded(TrackOutput* track);
+  void TrackAdded(Track* track);
 
-  void TrackRemoved(TrackOutput* track);
+  void TrackRemoved(Track* track);
 
   void TrackListChanged();
 
@@ -75,13 +75,13 @@ private:
   /**
    * @brief A cache of connected Tracks
    */
-  QVector<TrackOutput*> track_cache_;
+  QVector<Track*> track_cache_;
 
   NodeInput* track_input_;
 
   rational total_length_;
 
-  enum Timeline::TrackType type_;
+  enum Track::Type type_;
 
 private slots:
   /**

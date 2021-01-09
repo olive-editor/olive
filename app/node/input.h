@@ -106,7 +106,7 @@ public:
     emit DataTypeChanged(type);
   }
 
-  const QHash<int, Node*>& edges() const
+  const QMap<int, Node*>& edges() const
   {
     return input_connections();
   }
@@ -366,6 +366,10 @@ private:
   void LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void SaveImmediate(QXmlStreamWriter *writer, int element) const;
+
+  void ChangeArraySizeInternal(int size);
+
+  NodeInputImmediate* CreateImmediate();
 
   const NodeInputImmediate* GetImmediate(int element = -1) const
   {

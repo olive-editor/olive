@@ -32,7 +32,7 @@ public:
 protected:
   virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
-  virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+  virtual void InitiateDrag(Block* clicked_item,
                             Timeline::MovementMode trim_mode) override;
 };
 

@@ -35,13 +35,13 @@ public:
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, StillImageCache* still_image_cache, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 
   struct RenderedWaveform {
-    const TrackOutput* track;
+    const Track* track;
     AudioVisualWaveform waveform;
     TimeRange range;
   };
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const TrackOutput *track, const TimeRange &range) override;
+  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
   virtual QVariant ProcessVideoFootage(VideoStream* video_stream, const rational &input_time) override;
 

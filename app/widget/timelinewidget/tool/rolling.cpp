@@ -33,7 +33,7 @@ RollingTool::RollingTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void RollingTool::InitiateDrag(TimelineViewBlockItem *clicked_item,
+void RollingTool::InitiateDrag(Block *clicked_item,
                                                Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, true, false);

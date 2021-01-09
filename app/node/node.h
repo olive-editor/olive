@@ -411,7 +411,7 @@ protected:
    * parameters has changed throughout the duration of the clip (essential from 0 to infinity).
    * In some scenarios, it may be preferable to handle this signal separately in order to
    */
-  void IgnoreConnectionSignalsFrom(NodeInput* input);
+  void IgnoreInvalidationsFrom(NodeInput* input);
 
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
 
@@ -439,11 +439,6 @@ protected:
 
   virtual void childEvent(QChildEvent* event) override;
 
-protected slots:
-  void InputChanged(const olive::TimeRange &range, int element);
-
-  void InputConnectionChanged(Node* source, int element);
-
 signals:
   /**
    * @brief Signal emitted whenever the position is set through SetPosition()
@@ -454,6 +449,11 @@ signals:
    * @brief Signal emitted when SetLabel() is called
    */
   void LabelChanged(const QString& s);
+
+protected slots:
+  void InputChanged(const olive::TimeRange &range, int element);
+
+  void InputConnectionChanged(Node* source, int element);
 
 private:
   template<class T>
@@ -484,8 +484,6 @@ private:
    * @brief Custom user label for node
    */
   QString label_;
-
-private slots:
 
 };
 

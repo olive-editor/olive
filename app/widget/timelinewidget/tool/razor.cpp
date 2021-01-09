@@ -60,7 +60,7 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
   QVector<Block*> blocks_to_split;
 
   foreach (const TrackReference& track_ref, split_tracks_) {
-    TrackOutput* track = parent()->GetTrackFromReference(track_ref);
+    Track* track = parent()->GetTrackFromReference(track_ref);
 
     if (track == nullptr || track->IsLocked()) {
       continue;

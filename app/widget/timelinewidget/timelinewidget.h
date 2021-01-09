@@ -89,7 +89,20 @@ public:
 
   void ToggleSelectedEnabled();
 
-  QVector<TimelineViewBlockItem*> GetSelectedBlocks();
+  const QVector<Block*>& GetSelectedBlocks() const
+  {
+    return selected_blocks_;
+  }
+
+  Track* GetTrackFromBlock(Block* block) const
+  {
+    return GetTrackFromReference(GetTrackReferenceFromBlock(block));
+  }
+
+  TrackReference GetTrackReferenceFromBlock(Block* block) const
+  {
+    return track_lookup_.value(block);
+  }
 
   virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
 
@@ -107,18 +120,13 @@ public:
    * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
    * scene position
    */
-  TimelineViewBlockItem* GetItemAtScenePos(const TimelineCoordinate &coord);
-
-  const QMap<Block*, TimelineViewBlockItem*>& GetBlockItems() const
-  {
-    return block_items_;
-  }
+  Block* GetItemAtScenePos(const TimelineCoordinate &coord);
 
   void AddSelection(const TimeRange& time, const TrackReference& track);
-  void AddSelection(TimelineViewBlockItem* item);
+  void AddSelection(Block* item);
 
   void RemoveSelection(const TimeRange& time, const TrackReference& track);
-  void RemoveSelection(TimelineViewBlockItem* item);
+  void RemoveSelection(Block* item);
 
   const TimelineWidgetSelections& GetSelections() const
   {
@@ -127,7 +135,7 @@ public:
 
   void SetSelections(const TimelineWidgetSelections &s);
 
-  TrackOutput* GetTrackFromReference(const TrackReference& ref);
+  Track* GetTrackFromReference(const TrackReference& ref) const;
 
   void SetViewBeamCursor(const TimelineCoordinate& coord);
 
@@ -165,7 +173,7 @@ public:
 
   TimelineView* GetFirstTimelineView();
 
-  rational GetTimebaseForTrackType(Timeline::TrackType type);
+  rational GetTimebaseForTrackType(Track::Type type);
 
   const QRect &GetRubberBandGeometry() const;
 
@@ -218,7 +226,7 @@ protected:
   struct BlockPasteData {
     Block* block;
     rational in;
-    Timeline::TrackType track_type;
+    Track::Type track_type;
     int track_index;
   };
 
@@ -231,7 +239,7 @@ private:
 
   void ShowSnap(const QList<rational>& times);
 
-  void UpdateViewports(const Timeline::TrackType& type = Timeline::kTrackTypeNone);
+  void UpdateViewports(const Track::Type& type = Track::kNone);
 
   QPoint drag_origin_;
 
@@ -251,7 +259,7 @@ private:
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
-  QMap<Block*, TimelineViewBlockItem*> block_items_;
+  QHash<Block*, TrackReference> track_lookup_;
 
   QList<TimelineAndTrackView*> views_;
 
@@ -283,8 +291,8 @@ private slots:
   void AddBlock(Block* block, TrackReference track);
   void RemoveBlock(Block *blocks);
 
-  void AddTrack(TrackOutput* track, Timeline::TrackType type);
-  void RemoveTrack(TrackOutput* track);
+  void AddTrack(Track* track, Track::Type type);
+  void RemoveTrack(Track* track);
   void TrackIndexChanged();
 
   /**
@@ -303,7 +311,7 @@ private slots:
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
 
-  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
+  void TrackHeightChanged(Track::Type type, int index, int height);
 
   void ShowContextMenu();
 

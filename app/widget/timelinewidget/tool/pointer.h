@@ -39,7 +39,7 @@ public:
 protected:
   virtual void FinishDrag(TimelineViewMouseEvent *event);
 
-  virtual void InitiateDrag(TimelineViewBlockItem* clicked_item,
+  virtual void InitiateDrag(Block* clicked_item,
                             Timeline::MovementMode trim_mode);
 
   TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists = false);
@@ -64,7 +64,7 @@ protected:
 
   virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
 
-  void InitiateDragInternal(TimelineViewBlockItem* clicked_item,
+  void InitiateDragInternal(Block* clicked_item,
                             Timeline::MovementMode trim_mode,
                             bool dont_roll_trims,
                             bool allow_nongap_rolling, bool slide_instead_of_moving);
@@ -95,19 +95,19 @@ protected:
   }
 
 private:
-  Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
+  Timeline::MovementMode IsCursorInTrimHandle(Block* block, qreal cursor_x);
 
   void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
-  bool IsClipTrimmable(TimelineViewBlockItem* clip,
-                       const QVector<TimelineViewBlockItem *> &items,
+  bool IsClipTrimmable(Block* clip,
+                       const QVector<Block*> &items,
                        const Timeline::MovementMode& mode);
 
   void ProcessGhostsForSliding();
 
   void ProcessGhostsForRolling();
 
-  bool AddMovingTransitionsToClipGhost(Block *block, const TrackReference &track, Timeline::MovementMode movement, const QList<TimelineViewBlockItem *> &selected_items);
+  bool AddMovingTransitionsToClipGhost(Block *block, const TrackReference &track, Timeline::MovementMode movement, const QVector<Block*> &selected_items);
 
   bool movement_allowed_;
   bool trimming_allowed_;
@@ -116,10 +116,10 @@ private:
   bool can_rubberband_select_;
   bool rubberband_selecting_;
 
-  Timeline::TrackType drag_track_type_;
+  Track::Type drag_track_type_;
   Timeline::MovementMode drag_movement_mode_;
 
-  TimelineViewBlockItem* clicked_item_;
+  Block* clicked_item_;
 
   QPoint drag_global_start_;
 

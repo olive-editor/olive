@@ -93,7 +93,7 @@ NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& ra
 
 NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
 {
-  const TrackOutput* track = dynamic_cast<const TrackOutput*>(n);
+  const Track* track = dynamic_cast<const Track*>(n);
   if (track) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
     return GenerateBlockTable(track, range);
@@ -117,7 +117,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, c
   return GenerateTable(n, TimeRange(in, out));
 }
 
-NodeValueTable NodeTraverser::GenerateBlockTable(const TrackOutput *track, const TimeRange &range)
+NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
 {
   // By default, just follow the in point
   Block* active_block = track->BlockAtTime(range.in());

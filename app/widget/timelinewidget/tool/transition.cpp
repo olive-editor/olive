@@ -36,7 +36,7 @@ TransitionTool::TransitionTool(TimelineWidget *parent) :
 void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
   const TrackReference& track = event->GetTrack();
-  TrackOutput* t = parent()->GetTrackFromReference(track);
+  Track* t = parent()->GetTrackFromReference(track);
   rational cursor_frame = event->GetFrame();
 
   if (!t || t->IsLocked()) {

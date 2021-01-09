@@ -28,7 +28,6 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
-#include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
 #include "timelineviewghostitem.h"
 #include "widget/timebased/timebasedview.h"
@@ -101,8 +100,8 @@ protected:
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
 private:
-  Timeline::TrackType ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(Timeline::TrackType track_type);
+  Track::Type ConnectedTrackType();
+  Stream::Type TrackTypeToStreamType(Track::Type track_type);
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);

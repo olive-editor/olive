@@ -34,16 +34,16 @@ ViewerOutput::ViewerOutput() :
   samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
 
   // Create TrackList instances
-  track_inputs_.resize(Timeline::kTrackTypeCount);
-  track_lists_.resize(Timeline::kTrackTypeCount);
+  track_inputs_.resize(Track::kCount);
+  track_lists_.resize(Track::kCount);
 
-  for (int i=0;i<Timeline::kTrackTypeCount;i++) {
+  for (int i=0;i<Track::kCount;i++) {
     // Create track input
     NodeInput* track_input = new NodeInput(this, QStringLiteral("track_in_%1").arg(i), NodeValue::kNone);
-    IgnoreConnectionSignalsFrom(track_input);
+    IgnoreInvalidationsFrom(track_input);
     track_inputs_.replace(i, track_input);
 
-    TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
+    TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
@@ -97,7 +97,7 @@ void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
 {
   audio_playback_cache_.Shift(from, to);
 
-  foreach (TrackOutput* track, track_lists_.at(Timeline::kTrackTypeAudio)->GetTracks()) {
+  foreach (Track* track, track_lists_.at(Track::kAudio)->GetTracks()) {
     track->waveform().Shift(from, to);
   }
 }
@@ -176,9 +176,9 @@ rational ViewerOutput::GetLength()
   return last_length_;
 }
 
-QVector<TrackOutput *> ViewerOutput::GetUnlockedTracks() const
+QVector<Track *> ViewerOutput::GetUnlockedTracks() const
 {
-  QVector<TrackOutput*> tracks = GetTracks();
+  QVector<Track*> tracks = GetTracks();
 
   for (int i=0;i<tracks.size();i++) {
     if (tracks.at(i)->IsLocked()) {
@@ -195,7 +195,7 @@ void ViewerOutput::UpdateTrackCache()
   track_cache_.clear();
 
   foreach (TrackList* list, track_lists_) {
-    foreach (TrackOutput* track, list->GetTracks()) {
+    foreach (Track* track, list->GetTracks()) {
       track_cache_.append(track);
     }
   }
@@ -212,7 +212,7 @@ void ViewerOutput::VerifyLength()
   rational video_length, audio_length, subtitle_length;
 
   {
-    video_length = track_lists_.at(Timeline::kTrackTypeVideo)->GetTotalLength();
+    video_length = track_lists_.at(Track::kVideo)->GetTotalLength();
 
     if (video_length.isNull() && texture_input_->IsConnected()) {
       NodeValueTable t = traverser.GenerateTable(texture_input_->GetConnectedNode(), 0, 0);
@@ -223,7 +223,7 @@ void ViewerOutput::VerifyLength()
   }
 
   {
-    audio_length = track_lists_.at(Timeline::kTrackTypeAudio)->GetTotalLength();
+    audio_length = track_lists_.at(Track::kAudio)->GetTotalLength();
 
     if (audio_length.isNull() && samples_input_->IsConnected()) {
       NodeValueTable t = traverser.GenerateTable(samples_input_->GetConnectedNode(), 0, 0);
@@ -234,7 +234,7 @@ void ViewerOutput::VerifyLength()
   }
 
   {
-    subtitle_length = track_lists_.at(Timeline::kTrackTypeSubtitle)->GetTotalLength();
+    subtitle_length = track_lists_.at(Track::kSubtitle)->GetTotalLength();
   }
 
   rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
@@ -256,18 +256,18 @@ void ViewerOutput::Retranslate()
   for (int i=0;i<track_inputs_.size();i++) {
     QString input_name;
 
-    switch (static_cast<Timeline::TrackType>(i)) {
-    case Timeline::kTrackTypeVideo:
+    switch (static_cast<Track::Type>(i)) {
+    case Track::kVideo:
       input_name = tr("Video Tracks");
       break;
-    case Timeline::kTrackTypeAudio:
+    case Track::kAudio:
       input_name = tr("Audio Tracks");
       break;
-    case Timeline::kTrackTypeSubtitle:
+    case Track::kSubtitle:
       input_name = tr("Subtitle Tracks");
       break;
-    case Timeline::kTrackTypeNone:
-    case Timeline::kTrackTypeCount:
+    case Track::kNone:
+    case Track::kCount:
       break;
     }
 
@@ -293,13 +293,13 @@ void ViewerOutput::EndOperation()
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)
 {
-  Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
+  Track::Type type = static_cast<TrackList*>(sender())->type();
   emit BlockAdded(block, TrackReference(type, index));
 }
 
-void ViewerOutput::TrackListAddedTrack(TrackOutput *track)
+void ViewerOutput::TrackListAddedTrack(Track *track)
 {
-  Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
+  Track::Type type = static_cast<TrackList*>(sender())->type();
   emit TrackAdded(track, type);
 }
 

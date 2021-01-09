@@ -40,23 +40,23 @@
 
 namespace olive {
 
-Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
+Track::Type TrackTypeFromStreamType(Stream::Type stream_type)
 {
   switch (stream_type) {
   case Stream::kVideo:
-    return Timeline::kTrackTypeVideo;
+    return Track::kVideo;
   case Stream::kAudio:
-    return Timeline::kTrackTypeAudio;
+    return Track::kAudio;
   case Stream::kSubtitle:
     // Temporarily disabled until we figure out a better thing to do with this
-    //return Timeline::kTrackTypeSubtitle;
+    //return Track::kSubtitle;
   case Stream::kUnknown:
   case Stream::kData:
   case Stream::kAttachment:
     break;
   }
 
-  return Timeline::kTrackTypeNone;
+  return Track::kNone;
 }
 
 ImportTool::ImportTool(TimelineWidget *parent) :
@@ -214,7 +214,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
   foreach (const DraggedFootage& footage, footage_list) {
 
     // Each stream is offset by one track per track "type", we keep track of them in this vector
-    QVector<int> track_offsets(Timeline::kTrackTypeCount);
+    QVector<int> track_offsets(Track::kCount);
     track_offsets.fill(track_start);
 
     QVector<TimelineViewGhostItem*> footage_ghosts;
@@ -225,13 +225,13 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
 
     // Loop through all streams in footage
     foreach (Stream* stream, footage.footage()->streams()) {
-      Timeline::TrackType track_type = TrackTypeFromStreamType(stream->type());
+      Track::Type track_type = TrackTypeFromStreamType(stream->type());
 
       quint64 cached_enabled_streams = enabled_streams;
       enabled_streams >>= 1;
 
       // Check if this stream has a compatible TrackList
-      if (track_type == Timeline::kTrackTypeNone
+      if (track_type == Track::kNone
           || !(cached_enabled_streams & 0x1)) {
         continue;
       }
