@@ -210,7 +210,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
       int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
 
       // Destination buffer
-      NodeValueTable table = GenerateTable(b, range_for_block);
+      NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
       SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
 
       if (!samples_from_this_block) {

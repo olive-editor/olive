@@ -100,9 +100,8 @@ TimeRange Track::InputTimeAdjustment(NodeInput *input, int element, const TimeRa
 {
   if (input == block_input_ && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
-    const rational& block_in = blocks_.at(cache_index)->in();
 
-    return input_time - block_in;
+    return TransformRangeForBlock(blocks_.at(cache_index), input_time);
   }
 
   return Node::InputTimeAdjustment(input, element, input_time);
@@ -118,6 +117,11 @@ TimeRange Track::OutputTimeAdjustment(NodeInput *input, int element, const TimeR
   }
 
   return Node::OutputTimeAdjustment(input, element, input_time);
+}
+
+TimeRange Track::TransformRangeForBlock(Block *block, const TimeRange &range)
+{
+  return range - block->in();
 }
 
 const double &Track::GetTrackHeight() const
@@ -229,7 +233,9 @@ Block *Track::BlockAtTime(const rational &time) const
     return nullptr;
   }
 
-  foreach (Block* block, blocks_) {
+  for (int i=0; i<blocks_.size(); i++) {
+    Block* block = blocks_.at(i);
+
     if (block
         && block->in() <= time
         && block->out() > time) {

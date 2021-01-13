@@ -201,11 +201,11 @@ private slots:
 
   void NodeRemoved(Node* node);
 
-  void EdgeAdded(Node* output, int element);
+  void EdgeAdded(Node* output, NodeInput* input, int element);
 
-  void EdgeRemoved(Node* output, int element);
+  void EdgeRemoved(Node* output, NodeInput* input, int element);
 
-  void ValueChanged(const TimeRange& range, int element);
+  void ValueChanged(NodeInput* input, int element);
 
   void VideoParamsChanged();
 

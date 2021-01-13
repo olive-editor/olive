@@ -65,11 +65,24 @@ signals:
    */
   void NodeRemoved(Node* node);
 
+  void InputConnected(Node* output, NodeInput* input, int element);
+
+  void InputDisconnected(Node* output, NodeInput* input, int element);
+
+  void ValueChanged(NodeInput* input, int element);
+
 protected:
   virtual void childEvent(QChildEvent* event) override;
 
 private:
   QVector<Node*> node_children_;
+
+private slots:
+  void SignalInputConnected(Node* output, int element);
+
+  void SignalInputDisconnected(Node* output, int element);
+
+  void SignalValueChanged(const TimeRange& range, int element);
 
 };
 

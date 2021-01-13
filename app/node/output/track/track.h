@@ -60,6 +60,8 @@ public:
 
   virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
 
+  static TimeRange TransformRangeForBlock(Block* block, const TimeRange& range);
+
   const double& GetTrackHeight() const;
   void SetTrackHeight(const double& height);
 

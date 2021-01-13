@@ -294,13 +294,6 @@ void PreviewAutoCacher::AddNode(Node *node)
 
   // Copy parameters
   Node::CopyInputs(node, copy, false);
-
-  // Connect to each input
-  foreach (NodeInput* input, node->parameters()) {
-    connect(input, &NodeInput::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
-    connect(input, &NodeInput::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
-    connect(input, &NodeInput::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
-  }
 }
 
 void PreviewAutoCacher::RemoveNode(Node *node)
@@ -310,13 +303,6 @@ void PreviewAutoCacher::RemoveNode(Node *node)
 
   // Delete it
   delete copy;
-
-  // Disconnect from inputs
-  foreach (NodeInput* input, node->parameters()) {
-    disconnect(input, &NodeInput::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
-    disconnect(input, &NodeInput::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
-    disconnect(input, &NodeInput::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
-  }
 }
 
 void PreviewAutoCacher::AddEdge(Node *output, NodeInput *input, int element)
@@ -445,21 +431,19 @@ void PreviewAutoCacher::NodeRemoved(Node *node)
   graph_update_queue_.append({QueuedJob::kNodeRemoved, node, nullptr, -1});
 }
 
-void PreviewAutoCacher::EdgeAdded(Node *output, int element)
+void PreviewAutoCacher::EdgeAdded(Node *output, NodeInput *input, int element)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeAdded, output, static_cast<NodeInput*>(sender()), element});
+  graph_update_queue_.append({QueuedJob::kEdgeAdded, output, input, element});
 }
 
-void PreviewAutoCacher::EdgeRemoved(Node *output, int element)
+void PreviewAutoCacher::EdgeRemoved(Node *output, NodeInput *input, int element)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeRemoved, output, static_cast<NodeInput*>(sender()), element});
+  graph_update_queue_.append({QueuedJob::kEdgeRemoved, output, input, element});
 }
 
-void PreviewAutoCacher::ValueChanged(const TimeRange &range, int element)
+void PreviewAutoCacher::ValueChanged(NodeInput *input, int element)
 {
-  Q_UNUSED(range)
-
-  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, static_cast<NodeInput*>(sender()), element});
+  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, element});
 }
 
 void PreviewAutoCacher::VideoParamsChanged()
@@ -647,6 +631,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     disconnect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
     disconnect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
+    disconnect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
+    disconnect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
+    disconnect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
 
     // Disconnect signal (will be a no-op if the signal was never connected)
     disconnect(viewer_node_,
@@ -702,6 +689,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Connect signals for future node additions/deletions
     connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
     connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
+    connect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
+    connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
+    connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
 
     // Copy invalidated ranges - used to determine which frames need hashing
     invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges();

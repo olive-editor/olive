@@ -44,15 +44,48 @@ void NodeGraph::childEvent(QChildEvent *event)
     if (event->type() == QEvent::ChildAdded) {
 
       node_children_.append(node);
+
+      // Connect to each input
+      foreach (NodeInput* input, node->parameters()) {
+        connect(input, &NodeInput::InputConnected, this, &NodeGraph::SignalInputConnected);
+        connect(input, &NodeInput::InputDisconnected, this, &NodeGraph::SignalInputDisconnected);
+        connect(input, &NodeInput::ValueChanged, this, &NodeGraph::SignalValueChanged);
+      }
+
       emit NodeAdded(node);
 
     } else if (event->type() == QEvent::ChildRemoved) {
 
       node_children_.removeOne(node);
+
+      // Disconnect from inputs
+      foreach (NodeInput* input, node->parameters()) {
+        disconnect(input, &NodeInput::InputConnected, this, &NodeGraph::SignalInputConnected);
+        disconnect(input, &NodeInput::InputDisconnected, this, &NodeGraph::SignalInputDisconnected);
+        disconnect(input, &NodeInput::ValueChanged, this, &NodeGraph::SignalValueChanged);
+      }
+
       emit NodeRemoved(node);
 
     }
   }
+}
+
+void NodeGraph::SignalInputConnected(Node *output, int element)
+{
+  emit InputConnected(output, static_cast<NodeInput*>(sender()), element);
+}
+
+void NodeGraph::SignalInputDisconnected(Node *output, int element)
+{
+  emit InputDisconnected(output, static_cast<NodeInput*>(sender()), element);
+}
+
+void NodeGraph::SignalValueChanged(const TimeRange &range, int element)
+{
+  Q_UNUSED(range)
+
+  emit ValueChanged(static_cast<NodeInput*>(sender()), element);
 }
 
 }
