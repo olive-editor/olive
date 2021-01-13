@@ -40,7 +40,6 @@ QPalette StyleManager::platform_palette_;
 
 void StyleManager::UseOSNativeStyling(QWidget *widget)
 {
-//#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0) || QT_VERSION > QT_VERSION_CHECK(5, 15, 2)
 #if defined(Q_OS_WINDOWS)
   QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
   widget->setStyle(s);
@@ -50,7 +49,6 @@ void StyleManager::UseOSNativeStyling(QWidget *widget)
   widget->setStyle(s);
   widget->setPalette(platform_palette_);
 #endif
-//#endif
 }
 
 QPalette StyleManager::ParsePalette(const QString& ini_path)
