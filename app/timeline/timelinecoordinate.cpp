@@ -27,7 +27,7 @@ TimelineCoordinate::TimelineCoordinate() :
 {
 }
 
-TimelineCoordinate::TimelineCoordinate(const rational &frame, const TrackReference &track) :
+TimelineCoordinate::TimelineCoordinate(const rational &frame, const Track::Reference &track) :
   frame_(frame),
   track_(track)
 {
@@ -44,7 +44,7 @@ const rational &TimelineCoordinate::GetFrame() const
   return frame_;
 }
 
-const TrackReference &TimelineCoordinate::GetTrack() const
+const Track::Reference &TimelineCoordinate::GetTrack() const
 {
   return track_;
 }
@@ -54,7 +54,7 @@ void TimelineCoordinate::SetFrame(const rational &frame)
   frame_ = frame;
 }
 
-void TimelineCoordinate::SetTrack(const TrackReference &track)
+void TimelineCoordinate::SetTrack(const Track::Reference &track)
 {
   track_ = track;
 }

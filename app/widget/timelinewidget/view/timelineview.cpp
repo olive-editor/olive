@@ -229,6 +229,13 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
 
 void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
+  if (!connected_track_list_) {
+    return;
+  }
+
+  // Draw block backgrounds
+  DrawBlocks(painter, false);
+
   // Draw selections
   if (selections_ && !selections_->isEmpty()) {
     painter->setPen(Qt::NoPen);
@@ -247,6 +254,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
       }
     }
   }
+
+  // Draw block foregrounds
+  DrawBlocks(painter, true);
 
   // Draw ghosts
   if (ghosts_ && !ghosts_->isEmpty()) {
@@ -268,7 +278,6 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
   // Draw beam cursor
   if (show_beam_cursor_
-      && connected_track_list_
       && cursor_coord_.GetTrack().type() == connected_track_list_->type()) {
     painter->setPen(Qt::gray);
 
@@ -328,20 +337,20 @@ Track::Type TimelineView::ConnectedTrackType()
     return connected_track_list_->type();
   }
 
-  return Timeline::kTrackTypeNone;
+  return Track::kNone;
 }
 
 Stream::Type TimelineView::TrackTypeToStreamType(Track::Type track_type)
 {
   switch (track_type) {
-  case Timeline::kTrackTypeNone:
-  case Timeline::kTrackTypeCount:
+  case Track::kNone:
+  case Track::kCount:
     break;
-  case Timeline::kTrackTypeVideo:
+  case Track::kVideo:
     return Stream::kVideo;
-  case Timeline::kTrackTypeAudio:
+  case Track::kAudio:
     return Stream::kAudio;
-  case Timeline::kTrackTypeSubtitle:
+  case Track::kSubtitle:
     return Stream::kSubtitle;
   }
 
@@ -355,7 +364,7 @@ TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)
 
 TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
 {
-  return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(ConnectedTrackType(), SceneToTrack(pt.y())));
+  return TimelineCoordinate(SceneToTime(pt.x()), Track::Reference(ConnectedTrackType(), SceneToTrack(pt.y())));
 }
 
 TimelineViewMouseEvent TimelineView::CreateMouseEvent(QMouseEvent *event)
@@ -370,9 +379,51 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Mou
   return TimelineViewMouseEvent(scene_pt.x(),
                                 GetScale(),
                                 timebase(),
-                                TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
+                                Track::Reference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
                                 button,
                                 modifiers);
+}
+
+void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
+{
+  rational start_time = SceneToTime(0);
+  rational end_time = SceneToTime(viewport()->width());
+
+  foreach (Track* track, connected_track_list_->GetTracks()) {
+    // Get first visible block in this track
+    Block* block = track->NearestBlockBeforeOrAt(start_time);
+
+    while (block) {
+      if (block->type() == Block::kClip) {
+
+        qreal block_left = qMax(0.0, TimeToScene(block->in()));
+        qreal block_right = qMin(qreal(viewport()->width()), TimeToScene(block->out()));
+
+        QRectF r(block_left,
+                 GetTrackY(track->Index()),
+                 block_right - block_left,
+                 GetTrackHeight(track->Index()));
+
+        if (foreground) {
+          painter->setPen(Qt::white);
+          painter->setBrush(Qt::NoBrush);
+          painter->drawText(r, block->GetLabel());
+        } else {
+          painter->setPen(Qt::NoPen);
+          painter->setBrush(QColor(128, 128, 192));
+          painter->drawRect(r);
+        }
+
+      }
+
+      if (block->out() >= end_time) {
+        // Rest of the clips are offscreen, can break loop now
+        break;
+      }
+
+      block = block->next();
+    }
+  }
 }
 
 int TimelineView::GetHeightOfAllTracks() const
@@ -436,15 +487,7 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 
 void TimelineView::ConnectTrackList(TrackList *list)
 {
-  if (connected_track_list_) {
-    disconnect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
-  }
-
   connected_track_list_ = list;
-
-  if (connected_track_list_) {
-    connect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
-  }
 }
 
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)

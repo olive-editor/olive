@@ -18,8 +18,6 @@ PreviewAutoCacher::PreviewAutoCacher() :
   single_frame_render_(nullptr),
   last_update_time_(0),
   ignore_next_mouse_button_(false),
-  video_params_changed_(false),
-  audio_params_changed_(false),
   color_manager_(nullptr)
 {
   // Set default autocache range
@@ -91,7 +89,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
 
 void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 {
-  ClearQueue(false);
+  ClearVideoQueue();
 
   // Hash these frames since that should be relatively quick.
   if (ignore_next_mouse_button_ || !(qApp->mouseButtons() & Qt::LeftButton)) {
@@ -105,7 +103,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 
 void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 {
-  ClearQueue(false);
+  ClearAudioQueue();
 
   // Start jobs to re-render the audio at this range, split into 2 second chunks
   invalidated_audio_.insert(range);
@@ -239,23 +237,6 @@ void PreviewAutoCacher::VideoDownloaded()
   delete watcher;
 }
 
-void PreviewAutoCacher::VideoParamsChanged()
-{
-  // In case the user is pressing the mouse at this exact moment
-  IgnoreNextMouseButton();
-
-  ClearVideoQueue();
-  video_params_changed_ = true;
-  TryRender();
-}
-
-void PreviewAutoCacher::AudioParamsChanged()
-{
-  ClearAudioQueue();
-  audio_params_changed_ = true;
-  TryRender();
-}
-
 void PreviewAutoCacher::SingleFrameFinished()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
@@ -282,6 +263,12 @@ void PreviewAutoCacher::ProcessUpdateQueue()
       break;
     case QueuedJob::kValueChanged:
       CopyValue(job.input, job.element);
+      break;
+    case QueuedJob::kVideoParamsChanged:
+      UpdateVideoParams();
+      break;
+    case QueuedJob::kAudioParamsChanged:
+      UpdateAudioParams();
       break;
     }
   }
@@ -352,6 +339,16 @@ void PreviewAutoCacher::CopyValue(NodeInput *input, int element)
 {
   NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
   NodeInput::CopyValuesOfElement(input, our_input, element);
+}
+
+void PreviewAutoCacher::UpdateVideoParams()
+{
+  copied_viewer_node_->set_video_params(viewer_node_->video_params());
+}
+
+void PreviewAutoCacher::UpdateAudioParams()
+{
+  copied_viewer_node_->set_audio_params(viewer_node_->audio_params());
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -465,6 +462,23 @@ void PreviewAutoCacher::ValueChanged(const TimeRange &range, int element)
   graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, static_cast<NodeInput*>(sender()), element});
 }
 
+void PreviewAutoCacher::VideoParamsChanged()
+{
+  // In case the user is pressing the mouse at this exact moment
+  IgnoreNextMouseButton();
+
+  graph_update_queue_.append({QueuedJob::kVideoParamsChanged, nullptr, nullptr, -1});
+  ClearVideoQueue();
+  TryRender();
+}
+
+void PreviewAutoCacher::AudioParamsChanged()
+{
+  graph_update_queue_.append({QueuedJob::kAudioParamsChanged, nullptr, nullptr, -1});
+  ClearAudioQueue();
+  TryRender();
+}
+
 void PreviewAutoCacher::TryRender()
 {
   if (!graph_update_queue_.isEmpty()) {
@@ -475,16 +489,6 @@ void PreviewAutoCacher::TryRender()
 
     // No jobs are active, we can process the update queue
     ProcessUpdateQueue();
-
-    if (video_params_changed_) {
-      copied_viewer_node_->set_video_params(viewer_node_->video_params());
-      video_params_changed_ = false;
-    }
-
-    if (audio_params_changed_) {
-      copied_viewer_node_->set_audio_params(viewer_node_->audio_params());
-      audio_params_changed_ = false;
-    }
   }
 
   // If we're here, we must be able to render
@@ -575,7 +579,8 @@ void PreviewAutoCacher::RequeueFrames()
         video_tasks_.insert(watcher, hash);
         watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
                                                                   color_manager_,
-                                                                  t, RenderMode::kOffline,
+                                                                  t,
+                                                                  RenderMode::kOffline,
                                                                   viewer_node_->video_frame_cache(),
                                                                   false));
       }
@@ -637,14 +642,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     copied_viewer_node_ = nullptr;
     graph_update_queue_.clear();
 
-    video_params_changed_ = false;
-    audio_params_changed_ = false;
-
     // Disconnect signals for future node additions/deletions
     NodeGraph* graph = viewer_node_->parent();
 
-    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
-    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
+    disconnect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
+    disconnect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
 
     // Disconnect signal (will be a no-op if the signal was never connected)
     disconnect(viewer_node_,
@@ -694,6 +696,8 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
         }
       }
     }
+
+    last_update_time_ = QDateTime::currentMSecsSinceEpoch();
 
     // Connect signals for future node additions/deletions
     connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);

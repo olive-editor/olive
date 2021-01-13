@@ -460,13 +460,13 @@ void ProjectExplorer::set_root(Item *item)
   tree_view_->setRootIndex(index);
 }
 
-QList<Item *> ProjectExplorer::SelectedItems() const
+QVector<Item *> ProjectExplorer::SelectedItems() const
 {
   // Determine which view is active and get its selected indexes
   QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
 
   // Convert indexes to item objects
-  QList<Item*> selected_items;
+  QVector<Item*> selected_items;
 
   for (int i=0;i<index_list.size();i++) {
     const QModelIndex& index = index_list.at(i);
@@ -488,7 +488,7 @@ Folder *ProjectExplorer::GetSelectedFolder() const
   Folder* folder = nullptr;
 
   // Get the selected items from the panel
-  QList<Item*> selected_items = SelectedItems();
+  QVector<Item*> selected_items = SelectedItems();
 
   // Heuristic for finding the selected folder:
   //
@@ -565,7 +565,7 @@ QVector<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
 
 void ProjectExplorer::DeleteSelected()
 {
-  QList<Item*> selected = SelectedItems();
+  QVector<Item*> selected = SelectedItems();
 
   if (selected.isEmpty()) {
     return;

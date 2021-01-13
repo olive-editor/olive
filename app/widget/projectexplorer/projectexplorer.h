@@ -59,7 +59,7 @@ public:
 
   void set_root(Item* item);
 
-  QList<Item*> SelectedItems() const;
+  QVector<Item *> SelectedItems() const;
 
   /**
    * @brief Use a heuristic to determine which (if any) folder is selected
@@ -157,7 +157,7 @@ private:
 
   QTimer rename_timer_;
 
-  QList<Item*> context_menu_items_;
+  QVector<Item*> context_menu_items_;
 
 private slots:
   void ItemClickedSlot(const QModelIndex& index);

@@ -58,8 +58,8 @@ public:
 
   };
 
-  void PlaceAt(const QList<Footage*> &footage, const rational& start, bool insert);
-  void PlaceAt(const QList<DraggedFootage> &footage, const rational& start, bool insert);
+  void PlaceAt(const QVector<Footage*> &footage, const rational& start, bool insert);
+  void PlaceAt(const QVector<DraggedFootage> &footage, const rational& start, bool insert);
 
   enum DropWithoutSequenceBehavior {
     kDWSAsk,
@@ -70,15 +70,15 @@ public:
 
 private:
   static DraggedFootage FootageToDraggedFootage(Footage* f);
-  static QList<DraggedFootage> FootageToDraggedFootage(QList<Footage*> footage);
+  static QVector<DraggedFootage> FootageToDraggedFootage(QVector<Footage*> footage);
 
-  void FootageToGhosts(rational ghost_start, const QList<DraggedFootage>& footage, const rational &dest_tb, const int &track_start);
+  void FootageToGhosts(rational ghost_start, const QVector<DraggedFootage> &footage, const rational &dest_tb, const int &track_start);
 
   void PrepGhosts(const rational &frame, const int &track_index);
 
   void DropGhosts(bool insert);
 
-  QList<DraggedFootage> dragged_footage_;
+  QVector<DraggedFootage> dragged_footage_;
 
   int import_pre_buffer_;
 

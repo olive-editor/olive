@@ -90,20 +90,6 @@ public:
     color_manager_ = manager;
   }
 
-public slots:
-  /**
-   * @brief Main handler for when the NodeGraph changes
-   */
-  void NodeAdded(Node* node);
-
-  void NodeRemoved(Node* node);
-
-  void EdgeAdded(Node* output, int element);
-
-  void EdgeRemoved(Node* output, int element);
-
-  void ValueChanged(const TimeRange& range, int element);
-
 private:
   static void GenerateHashes(ViewerOutput* viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
@@ -124,6 +110,8 @@ private:
   void AddEdge(Node* output, NodeInput* input, int element);
   void RemoveEdge(Node* output, NodeInput* input, int element);
   void CopyValue(NodeInput* input, int element);
+  void UpdateVideoParams();
+  void UpdateAudioParams();
 
   class QueuedJob {
   public:
@@ -132,7 +120,9 @@ private:
       kNodeRemoved,
       kEdgeAdded,
       kEdgeRemoved,
-      kValueChanged
+      kValueChanged,
+      kVideoParamsChanged,
+      kAudioParamsChanged
     };
 
     Type type;
@@ -172,10 +162,6 @@ private:
 
   bool ignore_next_mouse_button_;
 
-  bool video_params_changed_;
-
-  bool audio_params_changed_;
-
   ColorManager* color_manager_;
 
   QTimer delayed_requeue_timer_;
@@ -210,6 +196,16 @@ private slots:
    * @brief Handler for when we've saved a video frame to the cache
    */
   void VideoDownloaded();
+
+  void NodeAdded(Node* node);
+
+  void NodeRemoved(Node* node);
+
+  void EdgeAdded(Node* output, int element);
+
+  void EdgeRemoved(Node* output, int element);
+
+  void ValueChanged(const TimeRange& range, int element);
 
   void VideoParamsChanged();
 

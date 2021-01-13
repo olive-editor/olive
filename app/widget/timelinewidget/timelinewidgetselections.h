@@ -24,11 +24,11 @@
 #include <QHash>
 
 #include "common/timerange.h"
-#include "timeline/trackreference.h"
+#include "node/output/track/track.h"
 
 namespace olive {
 
-class TimelineWidgetSelections : public QHash<TrackReference, TimeRangeList>
+class TimelineWidgetSelections : public QHash<Track::Reference, TimeRangeList>
 {
 public:
   TimelineWidgetSelections() = default;

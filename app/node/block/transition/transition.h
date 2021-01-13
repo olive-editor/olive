@@ -52,10 +52,6 @@ public:
 
   virtual NodeValueTable Value(NodeValueDatabase &value) const override;
 
-  static TransitionBlock* GetBlockInTransition(Block* block);
-
-  static TransitionBlock* GetBlockOutTransition(Block* block);
-
 protected:
   virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
 

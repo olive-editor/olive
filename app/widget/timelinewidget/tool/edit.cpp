@@ -80,7 +80,7 @@ void EditTool::MouseDoubleClick(TimelineViewMouseEvent *event)
 {
   Block* item = parent()->GetItemAtScenePos(event->GetCoordinates());
 
-  if (item && !parent()->GetTrackFromBlock(item)->IsLocked()) {
+  if (item && !item->track()->IsLocked()) {
     parent()->AddSelection(item);
   }
 }

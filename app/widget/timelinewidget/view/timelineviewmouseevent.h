@@ -36,7 +36,7 @@ public:
   TimelineViewMouseEvent(const qreal& scene_x,
                          const double& scale_x,
                          const rational& timebase,
-                         const TrackReference &track,
+                         const Track::Reference &track,
                          const Qt::MouseButton &button,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier) :
     scene_x_(scene_x),
@@ -74,7 +74,7 @@ public:
     return TimeScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
   }
 
-  const TrackReference& GetTrack() const
+  const Track::Reference& GetTrack() const
   {
     return track_;
   }
@@ -121,7 +121,7 @@ private:
   double scale_x_;
   rational timebase_;
 
-  TrackReference track_;
+  Track::Reference track_;
 
   Qt::MouseButton button_;
 

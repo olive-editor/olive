@@ -188,7 +188,7 @@ void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, Stil
 
 NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const TimeRange &range)
 {
-  if (track->track_type() == Track::kAudio) {
+  if (track->type() == Track::kAudio) {
 
     const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 

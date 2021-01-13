@@ -165,12 +165,12 @@ void TimelinePanel::ToggleSelectedEnabled()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->ToggleSelectedEnabled();
 }
 
-void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
+void TimelinePanel::InsertFootageAtPlayhead(const QVector<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);
 }
 
-void TimelinePanel::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
+void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->OverwriteFootageAtPlayhead(footage);
 }

@@ -42,9 +42,9 @@ protected:
   virtual void InitiateDrag(Block* clicked_item,
                             Timeline::MovementMode trim_mode);
 
-  TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode, bool check_if_exists = false);
+  TimelineViewGhostItem* AddGhostFromBlock(Block *block, Timeline::MovementMode mode, bool check_if_exists = false);
 
-  TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode);
+  TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const Track::Reference& track, Timeline::MovementMode mode);
 
   /**
    * @brief Validates Ghosts that are getting their in points trimmed
@@ -107,7 +107,7 @@ private:
 
   void ProcessGhostsForRolling();
 
-  bool AddMovingTransitionsToClipGhost(Block *block, const TrackReference &track, Timeline::MovementMode movement, const QVector<Block*> &selected_items);
+  bool AddMovingTransitionsToClipGhost(Block *block, Timeline::MovementMode movement, const QVector<Block*> &selected_items);
 
   bool movement_allowed_;
   bool trimming_allowed_;

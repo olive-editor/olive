@@ -38,7 +38,7 @@ public:
 
   static const double kMaximumScale;
 
-  void EnableSnap(const QList<rational>& points);
+  void EnableSnap(const QVector<rational> &points);
   void DisableSnap();
   bool IsSnapped() const
   {
@@ -106,7 +106,7 @@ private:
   QGraphicsScene scene_;
 
   bool snapped_;
-  QList<rational> snap_time_;
+  QVector<rational> snap_time_;
 
   rational end_time_;
 

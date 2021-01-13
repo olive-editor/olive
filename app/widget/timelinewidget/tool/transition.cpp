@@ -25,6 +25,7 @@
 #include "node/factory.h"
 #include "transition.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
@@ -35,7 +36,7 @@ TransitionTool::TransitionTool(TimelineWidget *parent) :
 
 void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = event->GetTrack();
+  const Track::Reference& track = event->GetTrack();
   Track* t = parent()->GetTrackFromReference(track);
   rational cursor_frame = event->GetFrame();
 
@@ -106,7 +107,7 @@ void TransitionTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->GetTrack();
+  const Track::Reference& track = ghost_->GetTrack();
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {

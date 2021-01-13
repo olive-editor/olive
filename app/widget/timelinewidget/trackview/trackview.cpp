@@ -72,7 +72,6 @@ void TrackView::ConnectTrackList(TrackList *list)
       RemoveTrack(track);
     }
 
-    disconnect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
     disconnect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }
@@ -84,7 +83,6 @@ void TrackView::ConnectTrackList(TrackList *list)
       InsertTrack(track);
     }
 
-    connect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
     connect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
     connect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }

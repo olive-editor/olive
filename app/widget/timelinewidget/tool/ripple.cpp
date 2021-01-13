@@ -82,20 +82,18 @@ void RippleTool::InitiateDrag(Block *clicked_item,
       if (block_before_ripple) {
         TimelineViewGhostItem* ghost;
 
-        TrackReference track_ref(track->track_type(), track->Index());
-
         if (block_before_ripple->type() == Block::kGap) {
           // If this Block is already a Gap, ghost it now
-          ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode);
+          ghost = AddGhostFromBlock(block_before_ripple, trim_mode);
         } else if (block_before_ripple->next()) {
           // Assuming this block is NOT at the end of the track (i.e. next != null)
 
           // We're going to create a gap after it. If next is a gap, we can just use that
           if (block_before_ripple->next()->type() == Block::kGap) {
-            ghost = AddGhostFromBlock(block_before_ripple->next(), track_ref, trim_mode);
+            ghost = AddGhostFromBlock(block_before_ripple->next(), trim_mode);
           } else {
             // If next is NOT a gap, we'll need to create one, for which we'll use a null ghost
-            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
+            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track->ToReference(), trim_mode);
             ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
           }
         }
@@ -120,7 +118,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
                                                   ghost->GetAdjustedLength(),
                                                   ghost->GetLength()};
 
-      info_list[track->track_type()].append(i);
+      info_list[track->type()].append(i);
     }
 
     QUndoCommand* command = new QUndoCommand();

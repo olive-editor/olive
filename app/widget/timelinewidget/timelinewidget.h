@@ -75,9 +75,9 @@ public:
 
   void DecreaseTrackHeight();
 
-  void InsertFootageAtPlayhead(const QList<Footage *> &footage);
+  void InsertFootageAtPlayhead(const QVector<Footage *> &footage);
 
-  void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
+  void OverwriteFootageAtPlayhead(const QVector<Footage *> &footage);
 
   void ToggleLinksOnSelected();
 
@@ -94,17 +94,7 @@ public:
     return selected_blocks_;
   }
 
-  Track* GetTrackFromBlock(Block* block) const
-  {
-    return GetTrackFromReference(GetTrackReferenceFromBlock(block));
-  }
-
-  TrackReference GetTrackReferenceFromBlock(Block* block) const
-  {
-    return track_lookup_.value(block);
-  }
-
-  virtual bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
+  virtual bool SnapPoint(QVector<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
 
   virtual void HideSnaps() override;
 
@@ -122,10 +112,10 @@ public:
    */
   Block* GetItemAtScenePos(const TimelineCoordinate &coord);
 
-  void AddSelection(const TimeRange& time, const TrackReference& track);
+  void AddSelection(const TimeRange& time, const Track::Reference& track);
   void AddSelection(Block* item);
 
-  void RemoveSelection(const TimeRange& time, const TrackReference& track);
+  void RemoveSelection(const TimeRange& time, const Track::Reference& track);
   void RemoveSelection(Block* item);
 
   const TimelineWidgetSelections& GetSelections() const
@@ -135,7 +125,7 @@ public:
 
   void SetSelections(const TimelineWidgetSelections &s);
 
-  Track* GetTrackFromReference(const TrackReference& ref) const;
+  Track* GetTrackFromReference(const Track::Reference& ref) const;
 
   void SetViewBeamCursor(const TimelineCoordinate& coord);
 
@@ -150,8 +140,8 @@ public:
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
   void EndRubberBandSelect();
 
-  int GetTrackY(const TrackReference& ref);
-  int GetTrackHeight(const TrackReference& ref);
+  int GetTrackY(const Track::Reference& ref);
+  int GetTrackHeight(const Track::Reference& ref);
 
   void AddGhost(TimelineViewGhostItem* ghost);
 
@@ -237,9 +227,11 @@ private:
 
   void EditTo(Timeline::MovementMode mode);
 
-  void ShowSnap(const QList<rational>& times);
+  void ShowSnap(const QVector<rational>& times);
 
   void UpdateViewports(const Track::Type& type = Track::kNone);
+
+  QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
 
   QPoint drag_origin_;
 
@@ -259,13 +251,13 @@ private:
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
-  QHash<Block*, TrackReference> track_lookup_;
-
-  QList<TimelineAndTrackView*> views_;
+  QVector<TimelineAndTrackView*> views_;
 
   TimeSlider* timecode_label_;
 
   QVector<Block*> selected_blocks_;
+
+  QVector<Block*> added_blocks_;
 
   int deferred_scroll_value_;
 
@@ -288,30 +280,18 @@ private slots:
   void ViewDragLeft(QDragLeaveEvent* event);
   void ViewDragDropped(TimelineViewMouseEvent* event);
 
-  void AddBlock(Block* block, TrackReference track);
+  void AddBlock(Block* block);
   void RemoveBlock(Block *blocks);
 
-  void AddTrack(Track* track, Track::Type type);
+  void AddTrack(Track* track);
   void RemoveTrack(Track* track);
-  void TrackIndexChanged();
-
-  /**
-   * @brief Slot for when a Block node changes its parameters and the graphics need to update
-   *
-   * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
-   * derivatives.
-   */
-  void BlockRefreshed();
+  void TrackUpdated();
 
   void BlockUpdated();
-
-  void TrackPreviewUpdated();
 
   void UpdateHorizontalSplitters();
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
-
-  void TrackHeightChanged(Track::Type type, int index, int height);
 
   void ShowContextMenu();
 

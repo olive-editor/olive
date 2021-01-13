@@ -37,15 +37,27 @@ class TrackList : public QObject
 public:
   TrackList(ViewerOutput *parent, const Track::Type& type, NodeInput* track_input);
 
-  const Track::Type& type() const;
+  const Track::Type& type() const
+  {
+    return type_;
+  }
 
-  const QVector<Track*>& GetTracks() const;
+  const QVector<Track*>& GetTracks() const
+  {
+    return track_cache_;
+  }
 
   Track* GetTrackAt(int index) const;
 
-  const rational& GetTotalLength() const;
+  const rational& GetTotalLength() const
+  {
+    return total_length_;
+  }
 
-  int GetTrackCount() const;
+  int GetTrackCount() const
+  {
+    return track_cache_.size();
+  }
 
   NodeGraph* GetParentGraph() const;
 
@@ -55,19 +67,13 @@ public:
   }
 
 signals:
-  void BlockAdded(Block* block, int index);
-
-  void BlockRemoved(Block* block);
-
-  void TrackAdded(Track* track);
-
-  void TrackRemoved(Track* track);
-
   void TrackListChanged();
 
   void LengthChanged(const rational &length);
 
-  void TrackHeightChanged(int index, int height);
+  void TrackAdded(Track* track);
+
+  void TrackRemoved(Track* track);
 
 private:
   void UpdateTrackIndexesFrom(int index);
@@ -95,24 +101,9 @@ private slots:
   void TrackDisconnected(Node* node, int element);
 
   /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackAddedBlock(Block* block);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackRemovedBlock(Block* block);
-
-  /**
    * @brief Slot for when any of the track's length changes so we can update the length of the tracklist
    */
   void UpdateTotalLength();
-
-  /**
-   * @brief Slot when a track height changes, transforms to the TrackHeightChanged signal which includes a track index
-   */
-  void TrackHeightChangedSlot(int height);
 
 };
 

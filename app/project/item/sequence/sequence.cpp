@@ -297,7 +297,7 @@ void Sequence::set_default_parameters()
                    AudioParams::kInternalFormat));
 }
 
-void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
+void Sequence::set_parameters_from_footage(const QVector<Footage *> footage)
 {
   bool found_video_params = false;
   bool found_audio_params = false;

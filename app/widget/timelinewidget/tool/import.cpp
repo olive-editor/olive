@@ -18,7 +18,7 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#include "import.h"
 
 #include <QCheckBox>
 #include <QMessageBox>
@@ -192,12 +192,12 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QList<Footage *> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<Footage *> &footage, const rational &start, bool insert)
 {
   PlaceAt(FootageToDraggedFootage(footage), start, insert);
 }
 
-void ImportTool::PlaceAt(const QList<DraggedFootage> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<DraggedFootage> &footage, const rational &start, bool insert)
 {
   dragged_footage_ = footage;
 
@@ -209,7 +209,7 @@ void ImportTool::PlaceAt(const QList<DraggedFootage> &footage, const rational &s
   DropGhosts(insert);
 }
 
-void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootage> &footage_list, const rational& dest_tb, const int& track_start)
+void ImportTool::FootageToGhosts(rational ghost_start, const QVector<DraggedFootage> &footage_list, const rational& dest_tb, const int& track_start)
 {
   foreach (const DraggedFootage& footage, footage_list) {
 
@@ -255,7 +255,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootag
         }
       }
 
-      ghost->SetTrack(TrackReference(track_type, track_offsets.at(track_type)));
+      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
       // Increment track count for this track type
       track_offsets[track_type]++;
@@ -361,7 +361,7 @@ void ImportTool::DropGhosts(bool insert)
 
         if (behavior == kDWSAuto) {
 
-          QList<Footage*> footage_only;
+          QVector<Footage*> footage_only;
 
           foreach (const DraggedFootage& df, dragged_footage_) {
             footage_only.append(df.footage());
@@ -431,25 +431,11 @@ void ImportTool::DropGhosts(bool insert)
         video_input->SetStream(footage_stream);
         new NodeAddCommand(dst_graph, video_input, command);
 
-
         TransformDistortNode* transform = new TransformDistortNode();
         new NodeAddCommand(dst_graph, transform, command);
 
         new NodeEdgeAddCommand(video_input, transform->texture_input(), -1, command);
         new NodeEdgeAddCommand(transform, clip->texture_input(), -1, command);
-
-        /*
-        MatrixGenerator* matrix = new MatrixGenerator();
-        new NodeAddCommand(dst_graph, matrix, command);
-
-        MathNode* multiply = new MathNode();
-        multiply->SetOperation(MathNode::kOpMultiply);
-        new NodeAddCommand(dst_graph, multiply, command);
-
-        new NodeEdgeAddCommand(video_input->output(), multiply->param_a_in(), command);
-        new NodeEdgeAddCommand(matrix->output(), multiply->param_b_in(), command);
-        new NodeEdgeAddCommand(multiply->output(), clip->texture_input(), command);
-        */
         break;
       }
       case Stream::kAudio:
@@ -503,9 +489,9 @@ ImportTool::DraggedFootage ImportTool::FootageToDraggedFootage(Footage *f)
   return DraggedFootage(f, f->get_enabled_stream_flags());
 }
 
-QList<ImportTool::DraggedFootage> ImportTool::FootageToDraggedFootage(QList<Footage *> footage)
+QVector<ImportTool::DraggedFootage> ImportTool::FootageToDraggedFootage(QVector<Footage *> footage)
 {
-  QList<DraggedFootage> df;
+  QVector<DraggedFootage> df;
 
   foreach (Footage* f, footage) {
     df.append(FootageToDraggedFootage(f));

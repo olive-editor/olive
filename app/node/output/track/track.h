@@ -46,8 +46,8 @@ public:
 
   virtual ~Track() override;
 
-  const Track::Type& track_type() const;
-  void set_track_type(const Track::Type& track_type);
+  const Track::Type& type() const;
+  void set_type(const Track::Type& track_type);
 
   virtual Node* copy() const override;
 
@@ -95,7 +95,58 @@ public:
 
   virtual void Retranslate() override;
 
-  const int& Index();
+  class Reference
+  {
+  public:
+    Reference() :
+      type_(kNone),
+      index_(-1)
+    {
+    }
+
+    Reference(const Track::Type& type, const int& index) :
+      type_(type),
+      index_(index)
+    {
+    }
+
+    const Track::Type& type() const
+    {
+      return type_;
+    }
+
+    const int& index() const
+    {
+      return index_;
+    }
+
+    bool operator==(const Reference& ref) const
+    {
+      return type_ == ref.type_ && index_ == ref.index_;
+    }
+
+    bool operator!=(const Reference& ref) const
+    {
+      return !(*this == ref);
+    }
+
+  private:
+    Track::Type type_;
+
+    int index_;
+
+  };
+
+  Reference ToReference() const
+  {
+    return Reference(type(), Index());
+  }
+
+  const int& Index() const
+  {
+    return index_;
+  }
+
   void SetIndex(const int& index);
 
   /**
@@ -164,7 +215,7 @@ public:
 
   const QVector<Block *> &Blocks() const
   {
-    return block_cache_;
+    return blocks_;
   }
 
   virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
@@ -273,6 +324,11 @@ signals:
    */
   void PreviewChanged();
 
+  /**
+   * @brief Emitted when a block changes length and all the subsequent blocks had to update
+   */
+  void BlocksRefreshed();
+
 protected:
   virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
 
@@ -281,13 +337,16 @@ protected:
 private:
   void UpdateInOutFrom(int index);
 
+  int GetArrayIndexFromBlock(Block* block) const;
+
   int GetArrayIndexFromCacheIndex(int index) const;
 
   int GetCacheIndexFromArrayIndex(int index) const;
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
-  QVector<Block*> block_cache_;
+  QVector<Block*> blocks_;
+  QVector<int> block_array_indexes_;
 
   NodeInput* block_input_;
 
@@ -315,6 +374,8 @@ private slots:
   void MutedInputValueChanged();
 
 };
+
+uint qHash(const Track::Reference& r, uint seed = 0);
 
 }
 

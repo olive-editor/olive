@@ -29,7 +29,10 @@ namespace olive {
 
 Block::Block() :
   previous_(nullptr),
-  next_(nullptr)
+  next_(nullptr),
+  track_(nullptr),
+  in_transition_(nullptr),
+  out_transition_(nullptr)
 {
   length_input_ = new NodeInput(this, QStringLiteral("length_in"), NodeValue::kRational);
   length_input_->SetConnectable(false);
@@ -57,26 +60,6 @@ Block::Block() :
 QVector<Node::CategoryID> Block::Category() const
 {
   return {kCategoryTimeline};
-}
-
-const rational &Block::in() const
-{
-  return in_point_;
-}
-
-const rational &Block::out() const
-{
-  return out_point_;
-}
-
-void Block::set_in(const rational &in)
-{
-  in_point_ = in;
-}
-
-void Block::set_out(const rational &out)
-{
-  out_point_ = out;
 }
 
 rational Block::length() const
@@ -108,31 +91,6 @@ void Block::set_length_and_media_in(const rational &length)
 
   // Set the length without setting media out
   set_length_internal(length);
-}
-
-TimeRange Block::range() const
-{
-  return TimeRange(in(), out());
-}
-
-Block *Block::previous()
-{
-  return previous_;
-}
-
-Block *Block::next()
-{
-  return next_;
-}
-
-void Block::set_previous(Block *previous)
-{
-  previous_ = previous;
-}
-
-void Block::set_next(Block *next)
-{
-  next_ = next;
 }
 
 rational Block::media_in() const
@@ -309,16 +267,6 @@ bool Block::AreLinked(Block *a, Block *b)
   return a->linked_clips_.contains(b);
 }
 
-const QVector<Block*> &Block::linked_clips()
-{
-  return linked_clips_;
-}
-
-bool Block::HasLinks()
-{
-  return !linked_clips_.isEmpty();
-}
-
 void Block::Retranslate()
 {
   Node::Retranslate();
@@ -327,21 +275,6 @@ void Block::Retranslate()
   media_in_input_->set_name(tr("Media In"));
   enabled_input_->set_name(tr("Enabled"));
   speed_input_->set_name(tr("Speed"));
-}
-
-NodeInput *Block::length_input() const
-{
-  return length_input_;
-}
-
-NodeInput *Block::media_in_input() const
-{
-  return media_in_input_;
-}
-
-NodeInput *Block::speed_input() const
-{
-  return speed_input_;
 }
 
 void Block::Hash(QCryptographicHash &, const rational &) const

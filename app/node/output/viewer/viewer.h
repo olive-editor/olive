@@ -32,7 +32,6 @@
 #include "render/framehashcache.h"
 #include "render/videoparams.h"
 #include "timeline/timelinecommon.h"
-#include "timeline/trackreference.h"
 
 namespace olive {
 
@@ -97,7 +96,7 @@ public:
     return track_cache_;
   }
 
-  Track* GetTrackFromReference(const TrackReference& track_ref) const
+  Track* GetTrackFromReference(const Track::Reference& track_ref) const
   {
     return track_lists_.at(track_ref.type())->GetTrackAt(track_ref.index());
   }
@@ -147,13 +146,8 @@ signals:
   void VideoParamsChanged();
   void AudioParamsChanged();
 
-  void BlockAdded(Block* block, TrackReference track);
-  void BlockRemoved(Block* block);
-
-  void TrackAdded(Track* track, Track::Type type);
+  void TrackAdded(Track* track);
   void TrackRemoved(Track* track);
-
-  void TrackHeightChanged(Track::Type type, int index, int height);
 
 private:
   QUuid uuid_;
@@ -184,12 +178,6 @@ private slots:
   void UpdateTrackCache();
 
   void VerifyLength();
-
-  void TrackListAddedBlock(Block* block, int index);
-
-  void TrackListAddedTrack(Track* track);
-
-  void TrackHeightChangedSlot(int index, int height);
 
 };
 

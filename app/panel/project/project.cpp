@@ -115,7 +115,7 @@ void ProjectPanel::set_root(Item *item)
   Retranslate();
 }
 
-QList<Item *> ProjectPanel::SelectedItems() const
+QVector<Item *> ProjectPanel::SelectedItems() const
 {
   return explorer_->SelectedItems();
 }
@@ -232,10 +232,10 @@ void ProjectPanel::SaveConnectedProject()
   Core::instance()->SaveProject(this->project());
 }
 
-QList<Footage *> ProjectPanel::GetSelectedFootage() const
+QVector<Footage *> ProjectPanel::GetSelectedFootage() const
 {
-  QList<Item*> items = SelectedItems();
-  QList<Footage*> footage;
+  QVector<Item*> items = SelectedItems();
+  QVector<Footage*> footage;
 
   foreach (Item* i, items) {
     if (i->type() == Item::kFootage) {

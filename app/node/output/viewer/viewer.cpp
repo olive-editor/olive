@@ -47,11 +47,8 @@ ViewerOutput::ViewerOutput() :
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
-    connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
-    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
-    connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
+    connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackAdded);
     connect(list, &TrackList::TrackRemoved, this, &ViewerOutput::TrackRemoved);
-    connect(list, &TrackList::TrackHeightChanged, this, &ViewerOutput::TrackHeightChangedSlot);
   }
 
   // Create UUID for this node
@@ -289,23 +286,6 @@ void ViewerOutput::EndOperation()
   operation_stack_--;
 
   Node::EndOperation();
-}
-
-void ViewerOutput::TrackListAddedBlock(Block *block, int index)
-{
-  Track::Type type = static_cast<TrackList*>(sender())->type();
-  emit BlockAdded(block, TrackReference(type, index));
-}
-
-void ViewerOutput::TrackListAddedTrack(Track *track)
-{
-  Track::Type type = static_cast<TrackList*>(sender())->type();
-  emit TrackAdded(track, type);
-}
-
-void ViewerOutput::TrackHeightChangedSlot(int index, int height)
-{
-  emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }
 
 }

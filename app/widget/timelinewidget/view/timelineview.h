@@ -56,7 +56,7 @@ public:
 
   void SetBeamCursor(const TimelineCoordinate& coord);
 
-  void SetSelectionList(QHash<TrackReference, TimeRangeList>* s)
+  void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
   {
     selections_ = s;
   }
@@ -65,6 +65,8 @@ public:
   {
     ghosts_ = ghosts;
   }
+
+  int SceneToTrack(double y);
 
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
@@ -107,15 +109,15 @@ private:
   TimelineViewMouseEvent CreateMouseEvent(QMouseEvent* event);
   TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
-  int GetHeightOfAllTracks() const;
+  void DrawBlocks(QPainter* painter, bool foreground);
 
-  int SceneToTrack(double y);
+  int GetHeightOfAllTracks() const;
 
   void UserSetTime(const int64_t& time);
 
   void UpdatePlayheadRect();
 
-  QHash<TrackReference, TimeRangeList>* selections_;
+  QHash<Track::Reference, TimeRangeList>* selections_;
 
   QVector<TimelineViewGhostItem*>* ghosts_;
 

@@ -123,12 +123,12 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, c
 NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
 {
   // By default, just follow the in point
-  int active_block = track->BlockAtTime(range.in());
+  Block* active_block = track->BlockAtTime(range.in());
 
   NodeValueTable table;
 
-  if (active_block >= 0) {
-    table = GenerateTable(track->Blocks().at(active_block).block, range);
+  if (active_block) {
+    table = GenerateTable(active_block, range);
   }
 
   return table;

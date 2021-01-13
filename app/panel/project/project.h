@@ -44,11 +44,11 @@ public:
 
   void set_root(Item* item);
 
-  QList<Item*> SelectedItems() const;
+  QVector<Item *> SelectedItems() const;
 
   Folder* GetSelectedFolder() const;
 
-  virtual QList<Footage*> GetSelectedFootage() const override;
+  virtual QVector<Footage *> GetSelectedFootage() const override;
 
   ProjectViewModel* model() const;
 

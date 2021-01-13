@@ -36,26 +36,6 @@ TrackList::TrackList(ViewerOutput *parent, const Track::Type &type, NodeInput *t
   connect(track_input_, &NodeInput::InputDisconnected, this, &TrackList::TrackDisconnected);
 }
 
-const Track::Type &TrackList::type() const
-{
-  return type_;
-}
-
-void TrackList::TrackAddedBlock(Block *block)
-{
-  emit BlockAdded(block, static_cast<Track*>(sender())->Index());
-}
-
-void TrackList::TrackRemovedBlock(Block *block)
-{
-  emit BlockRemoved(block);
-}
-
-const QVector<Track *> &TrackList::GetTracks() const
-{
-  return track_cache_;
-}
-
 Track *TrackList::GetTrackAt(int index) const
 {
   if (index < track_cache_.size()) {
@@ -63,16 +43,6 @@ Track *TrackList::GetTrackAt(int index) const
   } else {
     return nullptr;
   }
-}
-
-const rational &TrackList::GetTotalLength() const
-{
-  return total_length_;
-}
-
-int TrackList::GetTrackCount() const
-{
-  return track_cache_.size();
 }
 
 void TrackList::TrackConnected(Node *node, int element)
@@ -114,12 +84,9 @@ void TrackList::TrackConnected(Node *node, int element)
   // Update track indexes in the list (including this track)
   UpdateTrackIndexesFrom(track_index);
 
-  connect(track, &Track::BlockAdded, this, &TrackList::TrackAddedBlock);
-  connect(track, &Track::BlockRemoved, this, &TrackList::TrackRemovedBlock);
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-  connect(track, &Track::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
-  track->set_track_type(type_);
+  track->set_type(type_);
 
   emit TrackListChanged();
 
@@ -150,12 +117,9 @@ void TrackList::TrackDisconnected(Node *node, int element)
   emit TrackRemoved(track);
 
   track->SetIndex(-1);
-  track->set_track_type(Track::kNone);
+  track->set_type(Track::kNone);
 
-  disconnect(track, &Track::BlockAdded, this, &TrackList::TrackAddedBlock);
-  disconnect(track, &Track::BlockRemoved, this, &TrackList::TrackRemovedBlock);
   disconnect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-  disconnect(track, &Track::TrackHeightChangedInPixels, this, &TrackList::TrackHeightChangedSlot);
 
   emit TrackListChanged();
 
@@ -185,11 +149,6 @@ void TrackList::UpdateTotalLength()
   }
 
   emit LengthChanged(total_length_);
-}
-
-void TrackList::TrackHeightChangedSlot(int height)
-{
-  emit TrackHeightChanged(static_cast<Track*>(sender())->Index(), height);
 }
 
 }

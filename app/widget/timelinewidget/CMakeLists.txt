@@ -20,12 +20,13 @@ add_subdirectory(view)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelinewidget/timelineandtrackview.h
   widget/timelinewidget/timelineandtrackview.cpp
+  widget/timelinewidget/timelineandtrackview.h
+  widget/timelinewidget/timelineundo.cpp
   widget/timelinewidget/timelineundo.h
-  widget/timelinewidget/timelinewidget.h
   widget/timelinewidget/timelinewidget.cpp
-  widget/timelinewidget/timelinewidgetselections.h
+  widget/timelinewidget/timelinewidget.h
   widget/timelinewidget/timelinewidgetselections.cpp
+  widget/timelinewidget/timelinewidgetselections.h
   PARENT_SCOPE
 )

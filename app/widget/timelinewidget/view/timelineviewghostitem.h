@@ -25,7 +25,6 @@
 
 #include "project/item/footage/footage.h"
 #include "timeline/timelinecommon.h"
-#include "timeline/trackreference.h"
 
 namespace olive {
 /**
@@ -52,14 +51,14 @@ public:
   {
   }
 
-  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track)
+  static TimelineViewGhostItem* FromBlock(Block *block)
   {
     TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
     ghost->SetIn(block->in());
     ghost->SetOut(block->out());
     ghost->SetMediaIn(block->media_in());
-    ghost->SetTrack(track);
+    ghost->SetTrack(block->track()->ToReference());
     ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
 
     switch (block->type()) {
@@ -187,9 +186,9 @@ public:
     return media_in_ + media_in_adj_;
   }
 
-  TrackReference GetAdjustedTrack() const
+  Track::Reference GetAdjustedTrack() const
   {
-    return TrackReference(track_.type(), track_.index() + track_adj_);
+    return Track::Reference(track_.type(), track_.index() + track_adj_);
   }
 
   const Timeline::MovementMode& GetMode() const
@@ -220,12 +219,12 @@ public:
     data_.insert(key, value);
   }
 
-  const TrackReference& GetTrack() const
+  const Track::Reference& GetTrack() const
   {
     return track_;
   }
 
-  void SetTrack(const TrackReference& track)
+  void SetTrack(const Track::Reference& track)
   {
     track_ = track;
   }
@@ -258,7 +257,7 @@ private:
   bool can_have_zero_length_;
   bool can_move_tracks_;
 
-  TrackReference track_;
+  Track::Reference track_;
 
   QHash<int, QVariant> data_;
 

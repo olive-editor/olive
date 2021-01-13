@@ -26,6 +26,8 @@
 
 namespace olive {
 
+class TransitionBlock;
+
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
  */
@@ -45,24 +47,67 @@ public:
 
   virtual QVector<CategoryID> Category() const override;
 
-  const rational& in() const;
-  const rational& out() const;
-  void set_in(const rational& in);
-  void set_out(const rational& out);
+  const rational& in() const
+  {
+    return in_point_;
+  }
+
+  const rational& out() const
+  {
+    return out_point_;
+  }
+
+  void set_in(const rational& in)
+  {
+    in_point_ = in;
+  }
+
+  void set_out(const rational& out)
+  {
+    out_point_ = out;
+  }
 
   rational length() const;
   void set_length_and_media_out(const rational &length);
   void set_length_and_media_in(const rational &length);
 
-  TimeRange range() const;
+  TimeRange range() const
+  {
+    return TimeRange(in(), out());
+  }
 
-  Block* previous();
-  Block* next();
-  void set_previous(Block* previous);
-  void set_next(Block* next);
+  Block* previous() const
+  {
+    return previous_;
+  }
+
+  Block* next() const
+  {
+    return next_;
+  }
+
+  void set_previous(Block* previous)
+  {
+    previous_ = previous;
+  }
+
+  void set_next(Block* next)
+  {
+    next_ = next;
+  }
 
   rational media_in() const;
   void set_media_in(const rational& media_in);
+
+  Track* track() const
+  {
+    return track_;
+  }
+
+  void set_track(Track* track)
+  {
+    track_ = track;
+  }
 
   bool is_enabled() const;
   void set_enabled(bool e);
@@ -72,14 +117,53 @@ public:
   static bool Unlink(Block* a, Block* b);
   static void Unlink(const QList<Block*>& blocks);
   static bool AreLinked(Block* a, Block* b);
-  const QVector<Block*>& linked_clips();
-  bool HasLinks();
+
+  const QVector<Block*>& linked_clips() const
+  {
+    return linked_clips_;
+  }
+
+  bool HasLinks() const
+  {
+    return !linked_clips_.isEmpty();
+  }
 
   virtual void Retranslate() override;
 
-  NodeInput* length_input() const;
-  NodeInput* media_in_input() const;
-  NodeInput* speed_input() const;
+  NodeInput* length_input() const
+  {
+    return length_input_;
+  }
+
+  NodeInput* media_in_input() const
+  {
+    return media_in_input_;
+  }
+
+  NodeInput* speed_input() const
+  {
+    return speed_input_;
+  }
+
+  TransitionBlock* in_transition()
+  {
+    return in_transition_;
+  }
+
+  void set_in_transition(TransitionBlock* t)
+  {
+    in_transition_ = t;
+  }
+
+  TransitionBlock* out_transition()
+  {
+    return out_transition_;
+  }
+
+  void set_out_transition(TransitionBlock* t)
+  {
+    out_transition_ = t;
+  }
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
@@ -116,6 +200,10 @@ private:
 
   rational in_point_;
   rational out_point_;
+  Track* track_;
+
+  TransitionBlock* in_transition_;
+  TransitionBlock* out_transition_;
 
   QVector<Block*> linked_clips_;
 

@@ -172,23 +172,43 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
 void TransitionBlock::OutBlockConnected(Node *node)
 {
   // If node is not a block, this will just be null
-  connected_out_block_ = dynamic_cast<Block*>(node);
+  if ((connected_out_block_ = dynamic_cast<Block*>(node))) {
+
+    Q_ASSERT(connected_out_block_->type() != Block::kTransition
+        && !connected_out_block_->out_transition()
+        && connected_out_block_ == this->previous());
+
+    connected_out_block_->set_out_transition(this);
+  }
 }
 
 void TransitionBlock::OutBlockDisconnected()
 {
-  connected_out_block_ = nullptr;
+  if (connected_out_block_) {
+    connected_out_block_->set_in_transition(nullptr);
+    connected_out_block_ = nullptr;
+  }
 }
 
 void TransitionBlock::InBlockConnected(Node *node)
 {
   // If node is not a block, this will just be null
-  connected_in_block_ = dynamic_cast<Block*>(node);
+  if ((connected_in_block_ = dynamic_cast<Block*>(node))) {
+
+    Q_ASSERT(connected_in_block_->type() != Block::kTransition
+        && !connected_in_block_->in_transition()
+        && connected_in_block_ == this->next());
+
+    connected_in_block_->set_in_transition(this);
+  }
 }
 
 void TransitionBlock::InBlockDisconnected()
 {
-  connected_in_block_ = nullptr;
+  if (connected_in_block_) {
+    connected_in_block_->set_in_transition(nullptr);
+    connected_in_block_ = nullptr;
+  }
 }
 
 NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
@@ -249,33 +269,6 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
   }
 
   return table;
-}
-
-TransitionBlock *GetBlockTransitionInternal(Block *block, Timeline::MovementMode mode)
-{
-  // See if this block outputs to a transition
-  foreach (const NodeConnectable::InputConnection& conn, block->edges()) {
-    TransitionBlock* transition = dynamic_cast<TransitionBlock*>(conn.input->parent());
-
-    if (transition) {
-      if ((mode == Timeline::kTrimIn && conn.input == transition->in_block_input())
-          || (mode == Timeline::kTrimOut && conn.input == transition->out_block_input())) {
-        return transition;
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-TransitionBlock *TransitionBlock::GetBlockInTransition(Block *block)
-{
-  return GetBlockTransitionInternal(block, Timeline::kTrimIn);
-}
-
-TransitionBlock *TransitionBlock::GetBlockOutTransition(Block *block)
-{
-  return GetBlockTransitionInternal(block, Timeline::kTrimOut);
 }
 
 void TransitionBlock::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const

@@ -48,7 +48,7 @@ void TimelineWidgetSelections::ShiftTracks(Track::Type type, int diff)
 
   // Then re-insert them with the diff applied
   for (auto it=cached_selections.cbegin(); it!=cached_selections.cend(); it++) {
-    TrackReference ref(it.key().type(), it.key().index() + diff);
+    Track::Reference ref(it.key().type(), it.key().index() + diff);
 
     this->insert(ref, it.value());
   }

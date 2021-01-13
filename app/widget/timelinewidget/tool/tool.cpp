@@ -21,7 +21,6 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/transition/transition.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 

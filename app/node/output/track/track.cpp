@@ -60,12 +60,12 @@ Track::~Track()
   DisconnectAll();
 }
 
-void Track::set_track_type(const Type &track_type)
+void Track::set_type(const Type &track_type)
 {
   track_type_ = track_type;
 }
 
-const Track::Type& Track::track_type() const
+const Track::Type& Track::type() const
 {
   return track_type_;
 }
@@ -100,7 +100,7 @@ TimeRange Track::InputTimeAdjustment(NodeInput *input, int element, const TimeRa
 {
   if (input == block_input_ && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
-    const rational& block_in = blocks_.at(cache_index).range.in();
+    const rational& block_in = blocks_.at(cache_index)->in();
 
     return input_time - block_in;
   }
@@ -112,7 +112,7 @@ TimeRange Track::OutputTimeAdjustment(NodeInput *input, int element, const TimeR
 {
   if (input == block_input_ && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
-    const rational& block_in = blocks_.at(cache_index).range.in();
+    const rational& block_in = blocks_.at(cache_index)->in();
 
     return input_time + block_in;
   }
@@ -155,11 +155,6 @@ void Track::Retranslate()
   muted_input_->set_name(tr("Muted"));
 }
 
-const int &Track::Index()
-{
-  return index_;
-}
-
 void Track::SetIndex(const int &index)
 {
   index_ = index;
@@ -169,7 +164,7 @@ void Track::SetIndex(const int &index)
 
 Block *Track::BlockContainingTime(const rational &time) const
 {
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     if (block->in() < time && block->out() > time) {
       return block;
     } else if (block->out() == time) {
@@ -182,7 +177,7 @@ Block *Track::BlockContainingTime(const rational &time) const
 
 Block *Track::NearestBlockBefore(const rational &time) const
 {
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
     if (block->out() >= time) {
       return block;
@@ -194,7 +189,7 @@ Block *Track::NearestBlockBefore(const rational &time) const
 
 Block *Track::NearestBlockBeforeOrAt(const rational &time) const
 {
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
     if (block->out() > time) {
       return block;
@@ -206,7 +201,7 @@ Block *Track::NearestBlockBeforeOrAt(const rational &time) const
 
 Block *Track::NearestBlockAfterOrAt(const rational &time) const
 {
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
     if (block->in() >= time) {
       return block;
@@ -218,7 +213,7 @@ Block *Track::NearestBlockAfterOrAt(const rational &time) const
 
 Block *Track::NearestBlockAfter(const rational &time) const
 {
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
     if (block->in() > time) {
       return block;
@@ -234,7 +229,7 @@ Block *Track::BlockAtTime(const rational &time) const
     return nullptr;
   }
 
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     if (block
         && block->in() <= time
         && block->out() > time) {
@@ -257,7 +252,7 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
     return list;
   }
 
-  foreach (Block* block, block_cache_) {
+  foreach (Block* block, blocks_) {
     if (block
         && block->is_enabled()
         && block->out() > range.in()
@@ -293,16 +288,16 @@ void Track::InvalidateCache(const TimeRange& range, const InputConnection& from)
 
 void Track::InsertBlockBefore(Block* block, Block* after)
 {
-  InsertBlockAtIndex(block, block_cache_.indexOf(after));
+  InsertBlockAtIndex(block, blocks_.indexOf(after));
 }
 
 void Track::InsertBlockAfter(Block *block, Block *before)
 {
-  int before_index = block_cache_.indexOf(before);
+  int before_index = blocks_.indexOf(before);
 
   Q_ASSERT(before_index >= 0);
 
-  if (before_index == block_cache_.size() - 1) {
+  if (before_index == blocks_.size() - 1) {
     AppendBlock(block);
   } else {
     InsertBlockAtIndex(block, before_index + 1);
@@ -326,7 +321,7 @@ void Track::InsertBlockAtIndex(Block *block, int index)
 {
   BeginOperation();
 
-  int insert_index = GetInputIndexFromCacheIndex(index);
+  int insert_index = GetArrayIndexFromCacheIndex(index);
   block_input_->ArrayInsert(insert_index);
   Node::ConnectEdge(block, block_input_, insert_index);
 
@@ -355,7 +350,7 @@ void Track::RippleRemoveBlock(Block *block)
   rational remove_in = block->in();
   rational remove_out = block->out();
 
-  block_input_->ArrayRemove(GetInputIndexFromCacheIndex(block));
+  block_input_->ArrayRemove(GetArrayIndexFromBlock(block));
 
   EndOperation();
 
@@ -366,7 +361,7 @@ void Track::ReplaceBlock(Block *old, Block *replace)
 {
   BeginOperation();
 
-  int index_of_old_block = GetInputIndexFromCacheIndex(old);
+  int index_of_old_block = GetArrayIndexFromBlock(old);
 
   DisconnectEdge(old, block_input_, index_of_old_block);
 
@@ -442,11 +437,11 @@ void Track::SetLocked(bool e)
 void Track::UpdateInOutFrom(int index)
 {
   // Find block just before this one to find the last out point
-  rational last_out = (index == 0) ? 0 : block_cache_.at(index - 1)->out();
+  rational last_out = (index == 0) ? 0 : blocks_.at(index - 1)->out();
 
   // Iterate through all blocks updating their in/outs
-  for (int i=index; i<block_cache_.size(); i++) {
-    Block* b = block_cache_.at(i);
+  for (int i=index; i<blocks_.size(); i++) {
+    Block* b = blocks_.at(i);
 
     b->set_in(last_out);
 
@@ -455,24 +450,25 @@ void Track::UpdateInOutFrom(int index)
     b->set_out(last_out);
   }
 
+  emit BlocksRefreshed();
+
   // Update track length
   SetLengthInternal(last_out);
 }
 
+int Track::GetArrayIndexFromBlock(Block *block) const
+{
+  return block_array_indexes_.at(blocks_.indexOf(block));
+}
+
 int Track::GetArrayIndexFromCacheIndex(int index) const
 {
-  return blocks_.at(index).array_index;
+  return block_array_indexes_.at(index);
 }
 
 int Track::GetCacheIndexFromArrayIndex(int index) const
 {
-  for (int i=0; i<blocks_.size(); i++) {
-    if (blocks_.at(i).array_index == index) {
-      return i;
-    }
-  }
-
-  return -1;
+  return block_array_indexes_.indexOf(index);
 }
 
 void Track::SetLengthInternal(const rational &r, bool invalidate)
@@ -504,36 +500,36 @@ void Track::BlockConnected(Node *node, int element)
     return;
   }
 
+  // Determine where in the cache this block will be
+  int cache_index = -1;
   Block *previous = nullptr, *next = nullptr;
 
-  for (int i=element-1; i>=0; i--) {
-    // Find previous block
-    previous = dynamic_cast<Block*>(block_input_->GetConnectedNode(i));
+  for (int i=element+1; i<block_input_->ArraySize(); i++) {
+    // Find next block because this will be the index that we want to insert at
+    cache_index = GetCacheIndexFromArrayIndex(i);
 
-    if (previous) {
+    if (cache_index >= 0) {
+      next = blocks_.at(cache_index);
       break;
     }
   }
 
-  // Find cache index
-  int cache_index;
-  if (previous) {
-    // Insert block just after the previous block we found
-    cache_index = block_cache_.indexOf(previous) + 1;
+  // If there was no next, this will be inserted at the end
+  if (cache_index == -1) {
+    cache_index = blocks_.size();
+  }
 
-    // Use current previous' next as our next
-    next = previous->next();
-  } else {
-    // Didn't find a previous, so insert block at 0 (prepend it)
-    cache_index = 0;
-
-    if (!block_cache_.isEmpty()) {
-      next = block_cache_.first();
-    }
+  // Determine previous block, either by using next's previous or the last block if there was no
+  // next. If there are neither, they'll both remain null
+  if (next) {
+    previous = next->previous();
+  } else if (!blocks_.isEmpty()) {
+    previous = blocks_.last();
   }
 
   // Insert at index
-  block_cache_.insert(cache_index, block);
+  blocks_.insert(cache_index, block);
+  block_array_indexes_.insert(cache_index, element);
 
   // Update previous/next
   if (previous) {
@@ -545,6 +541,8 @@ void Track::BlockConnected(Node *node, int element)
     block->set_next(next);
     next->set_previous(block);
   }
+
+  block->set_track(this);
 
   // Update ins/outs
   UpdateInOutFrom(cache_index);
@@ -575,10 +573,16 @@ void Track::BlockDisconnected(Node* node, int element)
 
   TimeRange invalidate_range(b->in(), track_length());
 
-  // FIXME: What happens if a user connects the same block twice? This must be addressed in the
-  //        upcoming timeline rewrite.
-  block_cache_.removeOne(b);
+  // Get cache index
+  int cache_index = GetCacheIndexFromArrayIndex(element);
 
+  // Remove block here
+  blocks_.removeAt(cache_index);
+  block_array_indexes_.removeAt(cache_index);
+
+  emit BlockRemoved(b);
+
+  // Update previous/nexts
   Block* previous = b->previous();
   Block* next = b->next();
 
@@ -592,18 +596,18 @@ void Track::BlockDisconnected(Node* node, int element)
 
   b->set_previous(nullptr);
   b->set_next(nullptr);
+  b->set_track(nullptr);
 
+  // Update lengths
   if (next) {
-    UpdateInOutFrom(block_cache_.indexOf(next));
-  } else if (block_cache_.isEmpty()) {
+    UpdateInOutFrom(blocks_.indexOf(next));
+  } else if (blocks_.isEmpty()) {
     SetLengthInternal(rational());
   } else {
-    SetLengthInternal(block_cache_.last()->out());
+    SetLengthInternal(blocks_.last()->out());
   }
 
   disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
-
-  emit BlockRemoved(b);
 
   Node::InvalidateCache(invalidate_range);
 }
@@ -615,7 +619,7 @@ void Track::BlockLengthChanged()
 
   rational old_out = b->out();
 
-  UpdateInOutFrom(block_cache_.indexOf(b));
+  UpdateInOutFrom(blocks_.indexOf(b));
 
   rational new_out = b->out();
 
@@ -627,6 +631,14 @@ void Track::BlockLengthChanged()
 void Track::MutedInputValueChanged()
 {
   emit MutedChanged(IsMuted());
+}
+
+uint qHash(const Track::Reference &r, uint seed)
+{
+  // Not super efficient, but couldn't think of any better way to ensure a different hash each time
+  return ::qHash(QStringLiteral("%1:%2").arg(QString::number(r.type()),
+                                             QString::number(r.index())),
+                 seed);
 }
 
 }

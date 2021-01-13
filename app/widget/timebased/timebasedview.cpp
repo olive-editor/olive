@@ -70,7 +70,7 @@ void TimeBasedView::TimebaseChangedEvent(const rational &)
   viewport()->update();
 }
 
-void TimeBasedView::EnableSnap(const QList<rational> &points)
+void TimeBasedView::EnableSnap(const QVector<rational> &points)
 {
   snapped_ = true;
   snap_time_ = points;

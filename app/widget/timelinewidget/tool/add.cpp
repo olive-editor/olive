@@ -18,14 +18,12 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
-
 #include "add.h"
 #include "core.h"
 #include "node/factory.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/text.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -37,7 +35,7 @@ AddTool::AddTool(TimelineWidget *parent) :
 
 void AddTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = event->GetTrack();
+  const Track::Reference& track = event->GetTrack();
 
   // Check if track is locked
   Track* t = parent()->GetTrackFromReference(track);
@@ -89,7 +87,7 @@ void AddTool::MouseMove(TimelineViewMouseEvent *event)
 
 void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = ghost_->GetTrack();
+  const Track::Reference& track = ghost_->GetTrack();
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {
