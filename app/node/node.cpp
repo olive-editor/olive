@@ -203,13 +203,13 @@ void Node::EndOperation()
   }
 }
 
-TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(NodeInput *, int, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
 }
 
-TimeRange Node::OutputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
+TimeRange Node::OutputTimeAdjustment(NodeInput *, int, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
@@ -398,7 +398,7 @@ void Node::HashInputElement(QCryptographicHash &hash, NodeInput *input, int elem
 {
   // Get time adjustment
   // For a single frame, we only care about one of the times
-  rational input_time = InputTimeAdjustment(input, TimeRange(time, time)).in();
+  rational input_time = InputTimeAdjustment(input, element, TimeRange(time, time)).in();
 
   if (input->IsConnected(element)) {
     // Traverse down this edge
@@ -661,8 +661,8 @@ QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bo
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs_) {
       for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-        TimeRange input_adjustment = InputTimeAdjustment(input, time);
-        Node* connected = input->GetConnectedNode(it.key());
+        TimeRange input_adjustment = InputTimeAdjustment(input, it.key(), time);
+        Node* connected = it.value();
 
         if (connected == target) {
           // We found the target, no need to keep traversing
@@ -680,7 +680,7 @@ QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bo
     foreach (const InputConnection& conn, edges()) {
       Node* input_node = conn.input->parent();
 
-      TimeRange output_adjustment = input_node->OutputTimeAdjustment(conn.input, time);
+      TimeRange output_adjustment = input_node->OutputTimeAdjustment(conn.input, conn.element, time);
 
       if (input_node == target) {
         paths_found.append(output_adjustment);

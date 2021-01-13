@@ -33,6 +33,5 @@ set(OLIVE_SOURCES
   widget/projectexplorer/projectexplorernavigation.h
   widget/projectexplorer/projectexplorernavigation.cpp
   widget/projectexplorer/projectexplorerundo.h
-  widget/projectexplorer/projectexplorerundo.cpp
   PARENT_SCOPE
 )

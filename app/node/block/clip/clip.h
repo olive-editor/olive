@@ -46,9 +46,9 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
 
-  virtual TimeRange OutputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
+  virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
 
   virtual NodeValueTable Value(NodeValueDatabase& value) const override;
 

@@ -104,7 +104,7 @@ void Block::set_length_and_media_in(const rational &length)
   }
 
   // Calculate media_in adjustment
-  set_media_in(SequenceToMediaTime(in() + (this->length() - length)));
+  set_media_in(SequenceToMediaTime(this->length() - length));
 
   // Set the length without setting media out
   set_length_internal(length);
@@ -164,7 +164,7 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  rational local_time = sequence_time - in();
+  rational local_time = sequence_time;
 
   // FIXME: Doesn't handle reversing
   if (speed_input_->IsKeyframing() || speed_input_->IsConnected()) {
@@ -208,7 +208,7 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     }
   }
 
-  return sequence_time + in();
+  return sequence_time;
 }
 
 void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)

@@ -31,8 +31,6 @@
 #include "timelineviewmouseevent.h"
 #include "timelineviewghostitem.h"
 #include "widget/timebased/timebasedview.h"
-#include "widget/timelinewidget/undo/undo.h"
-#include "undo/undostack.h"
 
 namespace olive {
 

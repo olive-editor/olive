@@ -96,6 +96,30 @@ QString Track::Description() const
             "a Sequence.");
 }
 
+TimeRange Track::InputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+{
+  if (input == block_input_ && element >= 0) {
+    int cache_index = GetCacheIndexFromArrayIndex(element);
+    const rational& block_in = blocks_.at(cache_index).range.in();
+
+    return input_time - block_in;
+  }
+
+  return Node::InputTimeAdjustment(input, element, input_time);
+}
+
+TimeRange Track::OutputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+{
+  if (input == block_input_ && element >= 0) {
+    int cache_index = GetCacheIndexFromArrayIndex(element);
+    const rational& block_in = blocks_.at(cache_index).range.in();
+
+    return input_time + block_in;
+  }
+
+  return Node::OutputTimeAdjustment(input, element, input_time);
+}
+
 const double &Track::GetTrackHeight() const
 {
   return track_height_;
@@ -435,15 +459,15 @@ void Track::UpdateInOutFrom(int index)
   SetLengthInternal(last_out);
 }
 
-int Track::GetInputIndexFromCacheIndex(int cache_index)
+int Track::GetArrayIndexFromCacheIndex(int index) const
 {
-  return GetInputIndexFromCacheIndex(block_cache_.at(cache_index));
+  return blocks_.at(index).array_index;
 }
 
-int Track::GetInputIndexFromCacheIndex(Block *block)
+int Track::GetCacheIndexFromArrayIndex(int index) const
 {
-  for (int i=0; i<block_input_->ArraySize(); i++) {
-    if (block_input_->GetConnectedNode(i) == block) {
+  for (int i=0; i<blocks_.size(); i++) {
+    if (blocks_.at(i).array_index == index) {
       return i;
     }
   }

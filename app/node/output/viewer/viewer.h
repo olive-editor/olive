@@ -97,6 +97,11 @@ public:
     return track_cache_;
   }
 
+  Track* GetTrackFromReference(const TrackReference& track_ref) const
+  {
+    return track_lists_.at(track_ref.type())->GetTrackAt(track_ref.index());
+  }
+
   /**
    * @brief Same as GetTracks() but omits tracks that are locked.
    */

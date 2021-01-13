@@ -18,8 +18,8 @@
 
 ***/
 
-#ifndef TRACKOUTPUT_H
-#define TRACKOUTPUT_H
+#ifndef TRACK_H
+#define TRACK_H
 
 #include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
@@ -55,6 +55,10 @@ public:
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
+
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
+
+  virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
 
   const double& GetTrackHeight() const;
   void SetTrackHeight(const double& height);
@@ -277,8 +281,9 @@ protected:
 private:
   void UpdateInOutFrom(int index);
 
-  int GetInputIndexFromCacheIndex(int cache_index);
-  int GetInputIndexFromCacheIndex(Block* block);
+  int GetArrayIndexFromCacheIndex(int index) const;
+
+  int GetCacheIndexFromArrayIndex(int index) const;
 
   void SetLengthInternal(const rational& r, bool invalidate = true);
 
@@ -313,4 +318,4 @@ private slots:
 
 }
 
-#endif // TRACKOUTPUT_H
+#endif // TRACK_H

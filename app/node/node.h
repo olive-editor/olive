@@ -329,12 +329,12 @@ public:
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
    * overridden to do so. Also make sure to override OutputTimeAdjustment() to provide the inverse function.
    */
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const;
 
   /**
    * @brief The inverse of InputTimeAdjustment()
    */
-  virtual TimeRange OutputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
+  virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const;
 
   /**
    * @brief Copies inputs from from Node to another including connections

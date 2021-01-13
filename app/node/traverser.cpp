@@ -34,9 +34,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
       return NodeValueDatabase();
     }
 
-    TimeRange input_time = node->InputTimeAdjustment(input, range);
-
-    database.Insert(input, ProcessInput(input, input_time));
+    database.Insert(input, ProcessInput(input, range));
   }
 
   AddGlobalsToDatabase(database, range);
@@ -47,16 +45,18 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
+  Node* node = input->parent();
+
   if (input->IsConnected()) {
 
+    TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
+
     // Value will equal something from the connected node, follow it
-    return GenerateTable(input->GetConnectedNode(), range);
+    return GenerateTable(input->GetConnectedNode(), adjusted_range);
 
   } else {
 
     // Store node
-    Node* node = static_cast<Node*>(input->parent());
-
     QVariant return_val;
 
     if (input->IsArray()) {
@@ -66,11 +66,12 @@ NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& ra
 
       for (int i=0; i<array_tbl.size(); i++) {
         NodeValueTable& sub_tbl = array_tbl[i];
+        TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
         if (input->IsConnected(i)) {
-          sub_tbl = GenerateTable(input->GetConnectedNode(i), range);
+          sub_tbl = GenerateTable(input->GetConnectedNode(i), adjusted_range);
         } else {
-          QVariant input_value = input->GetValueAtTime(range.in(), i);
+          QVariant input_value = input->GetValueAtTime(adjusted_range.in(), i);
           sub_tbl.Push(input->GetDataType(), input_value, node);
         }
       }
@@ -80,7 +81,9 @@ NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& ra
     } else {
 
       // Not connected or an array, just pull the immediate
-      return_val = input->GetValueAtTime(range.in());
+      TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
+
+      return_val = input->GetValueAtTime(adjusted_range.in());
 
     }
 
@@ -120,12 +123,12 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, c
 NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
 {
   // By default, just follow the in point
-  Block* active_block = track->BlockAtTime(range.in());
+  int active_block = track->BlockAtTime(range.in());
 
   NodeValueTable table;
 
-  if (active_block) {
-    table = GenerateTable(active_block, range);
+  if (active_block >= 0) {
+    table = GenerateTable(track->Blocks().at(active_block).block, range);
   }
 
   return table;

@@ -26,7 +26,6 @@
 #include "node/graph.h"
 #include "node/node.h"
 #include "undo/undocommand.h"
-#include "widget/timelinewidget/undo/undo.h"
 
 namespace olive {
 

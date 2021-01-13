@@ -16,13 +16,13 @@
 
 add_subdirectory(trackview)
 add_subdirectory(tool)
-add_subdirectory(undo)
 add_subdirectory(view)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelinewidget/timelineandtrackview.h
   widget/timelinewidget/timelineandtrackview.cpp
+  widget/timelinewidget/timelineundo.h
   widget/timelinewidget/timelinewidget.h
   widget/timelinewidget/timelinewidget.cpp
   widget/timelinewidget/timelinewidgetselections.h

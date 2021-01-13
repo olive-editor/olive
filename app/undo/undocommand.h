@@ -24,9 +24,11 @@
 #include <QUndoCommand>
 
 #include "common/define.h"
-#include "project/project.h"
+#include "node/graph.h"
 
 namespace olive {
+
+class Project;
 
 class UndoCommand : public QUndoCommand
 {

@@ -151,7 +151,7 @@ void TransitionBlock::Hash(QCryptographicHash &hash, const rational &time) const
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
 {
-  return time - in().toDouble();
+  return time;
 }
 
 void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &time) const

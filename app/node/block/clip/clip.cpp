@@ -73,22 +73,26 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const InputConnection& f
   }
 }
 
-TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
+TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
 {
+  Q_UNUSED(element)
+
   if (input == texture_input_) {
     return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
-  return Block::InputTimeAdjustment(input, input_time);
+  return Block::InputTimeAdjustment(input, element, input_time);
 }
 
-TimeRange ClipBlock::OutputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
+TimeRange ClipBlock::OutputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
 {
+  Q_UNUSED(element)
+
   if (input == texture_input_) {
     return TimeRange(MediaToSequenceTime(input_time.in()), MediaToSequenceTime(input_time.out()));
   }
 
-  return Block::InputTimeAdjustment(input, input_time);
+  return Block::OutputTimeAdjustment(input, element, input_time);
 }
 
 NodeValueTable ClipBlock::Value(NodeValueDatabase &value) const
@@ -113,7 +117,7 @@ void ClipBlock::Retranslate()
 void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
   if (texture_input_->IsConnected()) {
-    rational t = InputTimeAdjustment(texture_input_, TimeRange(time, time)).in();
+    rational t = InputTimeAdjustment(texture_input_, -1, TimeRange(time, time)).in();
 
     texture_input_->GetConnectedNode()->Hash(hash, t);
   }

@@ -28,7 +28,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "project/item/sequence/sequence.h"
-#include "widget/timelinewidget/undo/undo.h"
 
 namespace olive {
 
