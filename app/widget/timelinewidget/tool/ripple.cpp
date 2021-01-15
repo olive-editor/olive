@@ -138,7 +138,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);

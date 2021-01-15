@@ -469,9 +469,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    new TransitionRemoveCommand(transition->track(),
-                                transition,
-                                command);
+    new TransitionRemoveCommand(transition, command);
 
     Node::RemoveNodesAndExclusiveDependencies(transition, command);
   }
@@ -480,7 +478,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   ReplaceBlocksWithGaps(clips_to_delete, true, command);
 
   // Remove all selections
-  new TimelineSetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), command);
+  new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), command);
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {

@@ -286,7 +286,8 @@ void Track::InvalidateCache(const TimeRange& range, const InputConnection& from)
 
     limited = TimeRange(qMax(range.in(), b->in()), qMin(range.out(), b->out()));
   } else {
-    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), track_length()));
+    limited = TimeRange(qMax(range.in(), rational(0)), qMin(range.out(), last_invalidated_length_));
+    last_invalidated_length_ = track_length();
   }
 
   Node::InvalidateCache(limited, from);
@@ -294,19 +295,27 @@ void Track::InvalidateCache(const TimeRange& range, const InputConnection& from)
 
 void Track::InsertBlockBefore(Block* block, Block* after)
 {
-  InsertBlockAtIndex(block, blocks_.indexOf(after));
+  if (!after) {
+    AppendBlock(block);
+  } else {
+    InsertBlockAtIndex(block, blocks_.indexOf(after));
+  }
 }
 
 void Track::InsertBlockAfter(Block *block, Block *before)
 {
-  int before_index = blocks_.indexOf(before);
-
-  Q_ASSERT(before_index >= 0);
-
-  if (before_index == blocks_.size() - 1) {
-    AppendBlock(block);
+  if (!before) {
+    PrependBlock(block);
   } else {
-    InsertBlockAtIndex(block, before_index + 1);
+    int before_index = blocks_.indexOf(before);
+
+    Q_ASSERT(before_index >= 0);
+
+    if (before_index == blocks_.size() - 1) {
+      AppendBlock(block);
+    } else {
+      InsertBlockAtIndex(block, before_index + 1);
+    }
   }
 }
 
@@ -320,7 +329,7 @@ void Track::PrependBlock(Block *block)
   EndOperation();
 
   // Everything has shifted at this point
-  Node::InvalidateCache(TimeRange(0, track_length()), InputConnection());
+  InvalidateCache(TimeRange(0, track_length()));
 }
 
 void Track::InsertBlockAtIndex(Block *block, int index)
@@ -333,7 +342,7 @@ void Track::InsertBlockAtIndex(Block *block, int index)
 
   EndOperation();
 
-  Node::InvalidateCache(TimeRange(block->in(), track_length()));
+  InvalidateCache(TimeRange(block->in(), track_length()));
 }
 
 void Track::AppendBlock(Block *block)
@@ -346,7 +355,7 @@ void Track::AppendBlock(Block *block)
   EndOperation();
 
   // Invalidate area that block was added to
-  Node::InvalidateCache(TimeRange(block->in(), track_length()));
+  InvalidateCache(TimeRange(block->in(), track_length()));
 }
 
 void Track::RippleRemoveBlock(Block *block)
@@ -360,7 +369,7 @@ void Track::RippleRemoveBlock(Block *block)
 
   EndOperation();
 
-  Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)));
+  InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)));
 }
 
 void Track::ReplaceBlock(Block *old, Block *replace)
@@ -376,9 +385,9 @@ void Track::ReplaceBlock(Block *old, Block *replace)
   EndOperation();
 
   if (old->length() == replace->length()) {
-    Node::InvalidateCache(TimeRange(replace->in(), replace->out()));
+    InvalidateCache(TimeRange(replace->in(), replace->out()));
   } else {
-    Node::InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX));
+    InvalidateCache(TimeRange(replace->in(), RATIONAL_MAX));
   }
 }
 
@@ -432,7 +441,7 @@ void Track::Hash(QCryptographicHash &hash, const rational &time) const
 void Track::SetMuted(bool e)
 {
   muted_input_->SetStandardValue(e);
-  Node::InvalidateCache(TimeRange(0, track_length()));
+  InvalidateCache(TimeRange(0, track_length()));
 }
 
 void Track::SetLocked(bool e)
@@ -454,6 +463,8 @@ void Track::UpdateInOutFrom(int index)
     last_out += b->length();
 
     b->set_out(last_out);
+
+    b->set_index(i);
   }
 
   emit BlocksRefreshed();
@@ -480,13 +491,16 @@ int Track::GetCacheIndexFromArrayIndex(int index) const
 void Track::SetLengthInternal(const rational &r, bool invalidate)
 {
   if (r != track_length_) {
+    // TimeRange will automatically normalize so that the shorter number is the in and the longer
+    // is the out
     TimeRange invalidate_range(track_length_, r);
 
     track_length_ = r;
+    last_invalidated_length_ = qMax(last_invalidated_length_, track_length_);
     emit TrackLengthChanged();
 
     if (invalidate) {
-      Node::InvalidateCache(invalidate_range);
+      InvalidateCache(invalidate_range);
     }
   }
 }
@@ -557,7 +571,7 @@ void Track::BlockConnected(Node *node, int element)
   connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
   // Invalidate cache now that block should have an in point
-  Node::InvalidateCache(TimeRange(block->in(), track_length()));
+  InvalidateCache(TimeRange(block->in(), track_length()));
 
   // Emit block added signal
   emit BlockAdded(block);
@@ -615,7 +629,7 @@ void Track::BlockDisconnected(Node* node, int element)
 
   disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
-  Node::InvalidateCache(invalidate_range);
+  InvalidateCache(invalidate_range);
 }
 
 void Track::BlockLengthChanged()
@@ -631,7 +645,7 @@ void Track::BlockLengthChanged()
 
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
 
-  Node::InvalidateCache(invalidate_region);
+  InvalidateCache(invalidate_region);
 }
 
 void Track::MutedInputValueChanged()

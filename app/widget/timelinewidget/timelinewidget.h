@@ -195,6 +195,34 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
+  class SetSelectionsCommand : public QUndoCommand {
+  public:
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, QUndoCommand* parent = nullptr) :
+      QUndoCommand(parent),
+      timeline_(timeline),
+      old_(old),
+      now_(now)
+    {
+    }
+
+  protected:
+    virtual void redo() override
+    {
+      timeline_->SetSelections(now_);
+    }
+
+    virtual void undo() override
+    {
+      timeline_->SetSelections(old_);
+    }
+
+  private:
+    TimelineWidget* timeline_;
+    TimelineWidgetSelections old_;
+    TimelineWidgetSelections now_;
+
+  };
+
 signals:
   void BlocksSelected(const QVector<Block*>& selected_blocks);
 

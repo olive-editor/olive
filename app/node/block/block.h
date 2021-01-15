@@ -165,6 +165,16 @@ public:
     out_transition_ = t;
   }
 
+  int index() const
+  {
+    return index_;
+  }
+
+  void set_index(int i)
+  {
+    index_ = i;
+  }
+
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
 public slots:
@@ -201,6 +211,7 @@ private:
   rational in_point_;
   rational out_point_;
   Track* track_;
+  int index_;
 
   TransitionBlock* in_transition_;
   TransitionBlock* out_transition_;

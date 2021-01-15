@@ -31,6 +31,7 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr),
   track_(nullptr),
+  index_(-1),
   in_transition_(nullptr),
   out_transition_(nullptr)
 {

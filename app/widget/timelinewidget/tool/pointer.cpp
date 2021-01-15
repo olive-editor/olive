@@ -590,7 +590,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
   }
 
@@ -655,7 +655,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     TimelineWidgetSelections new_sel = parent()->GetSelections();
     new_sel.ShiftTime(blocks_moving.first().ghost->GetInAdjustment());
     new_sel.ShiftTracks(drag_track_type_, blocks_moving.first().ghost->GetTrackAdjustment());
-    new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+    new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
   }
 
   if (!blocks_sliding.isEmpty()) {
@@ -717,7 +717,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       // Adjust selections
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       new_sel.ShiftTime(movement);
-      new TimelineSetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
     }
   }
 

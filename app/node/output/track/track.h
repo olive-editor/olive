@@ -220,7 +220,7 @@ public:
     return blocks_;
   }
 
-  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
+  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from = InputConnection()) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -357,6 +357,8 @@ private:
   Track::Type track_type_;
 
   rational track_length_;
+
+  rational last_invalidated_length_;
 
   double track_height_;
 
