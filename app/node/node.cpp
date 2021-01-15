@@ -167,7 +167,7 @@ void Node::RemoveNodeAndDisconnect(Node *node, QUndoCommand *command)
 
   foreach (NodeInput* input, node->inputs_) {
     for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      new NodeEdgeRemoveCommand(it.value(), input, it.key(), command);
+      new NodeEdgeRemoveCommand(it->second, input, it->first, command);
     }
   }
 
@@ -250,7 +250,7 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
   for (int i=0; i<src.size(); i++) {
     foreach (NodeInput* input, src.at(i)->inputs()) {
       for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-        int connection_index = src.indexOf(it.value());
+        int connection_index = src.indexOf(it->second);
 
         if (connection_index > -1) {
           // Found a connection
@@ -258,9 +258,9 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
           NodeInput* dst_input = dst.at(i)->GetInputWithID(input->id());
 
           if (command) {
-            new NodeEdgeAddCommand(dst_output, dst_input, it.key(), command);
+            new NodeEdgeAddCommand(dst_output, dst_input, it->first, command);
           } else {
-            ConnectEdge(dst_output, dst_input, it.key());
+            ConnectEdge(dst_output, dst_input, it->first);
           }
         }
       }
@@ -560,7 +560,7 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 {
   foreach (NodeInput* input, inputs_) {
     for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      Node* connected = it.value();
+      Node* connected = it->second;
 
       if (connected == n) {
         return true;
@@ -577,7 +577,7 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
 {
   foreach (NodeInput* input, inputs_) {
     for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      Node* connected = it.value();
+      Node* connected = it->second;
 
       if (connected->id() == id) {
         return true;
@@ -615,8 +615,8 @@ int Node::GetRoutesTo(Node *n) const
 void Node::DisconnectAll()
 {
   // Disconnect outputs (inputs will be disconnected in their respective destructors)
-  while (!edges().isEmpty()) {
-    DisconnectEdge(this, edges().first().input, edges().first().element);
+  while (!edges().empty()) {
+    DisconnectEdge(this, edges().front().input, edges().front().element);
   }
 }
 
@@ -661,8 +661,8 @@ QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bo
     // If this input is connected, traverse it to see if we stumble across the specified `node`
     foreach (NodeInput* input, inputs_) {
       for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-        TimeRange input_adjustment = InputTimeAdjustment(input, it.key(), time);
-        Node* connected = it.value();
+        TimeRange input_adjustment = InputTimeAdjustment(input, it->first, time);
+        Node* connected = it->second;
 
         if (connected == target) {
           // We found the target, no need to keep traversing

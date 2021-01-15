@@ -679,7 +679,7 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     foreach (Node* node, graph->nodes()) {
       foreach (NodeInput* input, node->inputs()) {
         for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-          AddEdge(it.value(), input, it.key());
+          AddEdge(it->second, input, it->first);
         }
       }
     }

@@ -66,10 +66,10 @@ QString NodeInput::name() const
 
 void NodeInput::DisconnectAll()
 {
-  auto copied_edges = edges();
+  std::map<int, Node*> copied_edges = edges();
 
   for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-    DisconnectEdge(it.value(), this, it.key());
+    DisconnectEdge(it->second, this, it->first);
   }
 }
 
@@ -154,9 +154,9 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
     writer->writeStartElement(QStringLiteral("connection"));
 
-    writer->writeAttribute(QStringLiteral("element"), QString::number(it.key()));
+    writer->writeAttribute(QStringLiteral("element"), QString::number(it->first));
 
-    writer->writeCharacters(QString::number(reinterpret_cast<quintptr>(it.value())));
+    writer->writeCharacters(QString::number(reinterpret_cast<quintptr>(it->second)));
 
     writer->writeEndElement(); // connection
   }
@@ -389,9 +389,9 @@ NodeInputImmediate *NodeInput::CreateImmediate()
 void NodeInput::GetDependencies(QVector<Node *> &list, bool traverse, bool exclusive_only) const
 {
   for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
-    if (it.value()->edges().size() == 1 || !exclusive_only) {
-      Node* connected = it.value();
+    Node* connected = it->second;
 
+    if (connected->edges().size() == 1 || !exclusive_only) {
       if (!list.contains(connected)) {
         list.append(connected);
 
@@ -439,12 +439,12 @@ void NodeInput::ArrayInsert(int index)
   subinputs_.insert(index, CreateImmediate());
 
   // Move connections down
-  auto copied_edges = edges();
-  for (auto it=copied_edges.cend(); it!=copied_edges.cbegin(); it--) {
-    if (it.key() >= index) {
+  std::map<int, Node*> copied_edges = edges();
+  for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
+    if (it->first >= index) {
       // Disconnect this and reconnect it one element down
-      DisconnectEdge(it.value(), this, it.key());
-      ConnectEdge(it.value(), this, it.key() + 1);
+      DisconnectEdge(it->second, this, it->first);
+      ConnectEdge(it->second, this, it->first + 1);
     }
   }
 
@@ -454,14 +454,14 @@ void NodeInput::ArrayInsert(int index)
 void NodeInput::ArrayRemove(int index)
 {
   // Move connections up
-  auto copied_edges = edges();
+  std::map<int, Node*> copied_edges = edges();
   for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-    if (it.key() >= index) {
+    if (it->first >= index) {
       // Disconnect this and reconnect it one element up if it's not the element being removed
-      DisconnectEdge(it.value(), this, it.key());
+      DisconnectEdge(it->second, this, it->first);
 
-      if (it.key() > index) {
-        ConnectEdge(it.value(), this, it.key() - 1);
+      if (it->first > index) {
+        ConnectEdge(it->second, this, it->first - 1);
       }
     }
   }
@@ -482,10 +482,9 @@ void NodeInput::ArrayResize(int size)
     if (array_size_ > size) {
       // Decreasing in size, disconnect any extraneous edges
       for (int i=size; i<array_size_; i++) {
-        Node* connection = edges().value(i);
-        if (connection) {
-          DisconnectEdge(connection, this, i);
-        }
+        try {
+          DisconnectEdge(edges().at(i), this, i);
+        } catch (std::out_of_range&) {}
       }
 
       // Note that we do not delete any immediates since the user might still want that data.
@@ -650,7 +649,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
     if (traverse_arrays) {
       // Copy all connections
       for (auto it=source->input_connections().cbegin(); it!=source->input_connections().cend(); it++) {
-        ConnectEdge(it.value(), dest, it.key());
+        ConnectEdge(it->second, dest, it->first);
       }
     } else {
       // Just copy the primary connection (at -1)

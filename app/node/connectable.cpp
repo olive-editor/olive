@@ -30,17 +30,17 @@ void NodeConnectable::ConnectEdge(Node *output, NodeInput *input, int element)
   InputConnection conn_to_in = {input, element};
 
   // Connection exists
-  if (output->output_connections_.contains(conn_to_in)) {
+  if (std::find(output->output_connections_.begin(), output->output_connections_.end(), conn_to_in) != output->output_connections_.end()) {
     qDebug() << "Ignored connect that already exists";
     return;
   }
 
   // Ensure a connection isn't getting overwritten
-  Q_ASSERT(!input->input_connections_.contains(element));
+  Q_ASSERT(input->input_connections_.find(element) == input->input_connections_.end());
 
   // Insert connections in both sides
-  output->output_connections_.append(conn_to_in);
-  input->input_connections_.insert(element, output);
+  output->output_connections_.push_back(conn_to_in);
+  input->input_connections_[element] = output;
 
   // Emit signals
   emit input->InputConnected(output, element);
@@ -52,17 +52,17 @@ void NodeConnectable::DisconnectEdge(Node *output, NodeInput *input, int element
   InputConnection conn_to_in = {input, element};
 
   // Connection exists
-  if (!output->output_connections_.contains(conn_to_in)) {
+  if (std::find(output->output_connections_.begin(), output->output_connections_.end(), conn_to_in) == output->output_connections_.end()) {
     qDebug() << "Ignored disconnect that doesn't exist";
     return;
   }
 
   // Assertions to ensure connection exists
-  Q_ASSERT(input->input_connections_.value(element) == output);
+  Q_ASSERT(input->input_connections_.at(element) == output);
 
   // Remove connections from both sides
-  output->output_connections_.removeOne(conn_to_in);
-  input->input_connections_.remove(element);
+  output->output_connections_.erase(std::find(output->output_connections_.begin(), output->output_connections_.end(), conn_to_in));
+  input->input_connections_.erase(input->input_connections_.find(element));
 
   // Emit signals
   emit input->InputDisconnected(output, element);

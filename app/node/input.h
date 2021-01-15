@@ -106,14 +106,14 @@ public:
     emit DataTypeChanged(type);
   }
 
-  const QMap<int, Node*>& edges() const
+  const std::map<int, Node*>& edges() const
   {
     return input_connections();
   }
 
   bool IsConnected(int element = -1) const
   {
-    return input_connections().contains(element);
+    return input_connections().find(element) != input_connections().end();
   }
 
   /**
@@ -127,7 +127,7 @@ public:
 
   Node* GetConnectedNode(int element = -1) const
   {
-    return input_connections().value(element);
+    return input_connections().at(element);
   }
 
   bool IsConnectable() const

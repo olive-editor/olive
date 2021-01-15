@@ -72,20 +72,20 @@ signals:
   void InputDisconnected(Node* source, int element);
 
 protected:
-  const QVector<InputConnection>& output_connections() const
+  const std::vector<InputConnection>& output_connections() const
   {
     return output_connections_;
   }
 
-  const QMap<int, Node*>& input_connections() const
+  const std::map<int, Node*>& input_connections() const
   {
     return input_connections_;
   }
 
 private:
-  QVector<InputConnection> output_connections_;
+  std::vector<InputConnection> output_connections_;
 
-  QMap<int, Node*> input_connections_;
+  std::map<int, Node*> input_connections_;
 
 };
 

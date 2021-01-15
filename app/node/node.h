@@ -396,7 +396,7 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const;
 
-  const QVector<InputConnection>& edges() const
+  const std::vector<InputConnection>& edges() const
   {
     return output_connections();
   }
@@ -491,7 +491,8 @@ template<class T>
 void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
   foreach (NodeInput* input, n->inputs_) {
-    foreach (Node* edge, input->edges()) {
+    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+      Node* edge = it->second;
       T* cast_test = dynamic_cast<T*>(edge);
 
       if (cast_test) {
