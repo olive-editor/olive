@@ -18,37 +18,41 @@
 
 ***/
 
-#ifndef PREFERENCESAPPEARANCETAB_H
-#define PREFERENCESAPPEARANCETAB_H
+#include "colorlabelmenuitem.h"
 
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
+#include <QHBoxLayout>
 
-#include "preferencestab.h"
 #include "ui/style/style.h"
-#include "widget/colorlabelmenu/colorcodingcombobox.h"
 
 namespace olive {
 
-class PreferencesAppearanceTab : public PreferencesTab
+ColorLabelMenuItem::ColorLabelMenuItem(QWidget* parent) :
+  QWidget(parent)
 {
-  Q_OBJECT
-public:
-  PreferencesAppearanceTab();
+  int text_height = fontMetrics().height();
+  int padding = text_height/4;
 
-  virtual void Accept() override;
+  QHBoxLayout* layout = new QHBoxLayout(this);
+  layout->setMargin(padding);
+  layout->setSpacing(padding);
 
-private:
-  /**
-   * @brief UI widget for selecting the current UI style
-   */
-  QComboBox* style_combobox_;
+  box_ = new ColorPreviewBox();
+  box_->setFixedSize(text_height, text_height);
+  layout->addWidget(box_);
 
-  QVector<ColorCodingComboBox*> color_btns_;
-
-};
-
+  label_ = new QLabel();
+  StyleManager::UseOSNativeStyling(label_);
+  layout->addWidget(label_);
 }
 
-#endif // PREFERENCESAPPEARANCETAB_H
+void ColorLabelMenuItem::SetText(const QString &text)
+{
+  label_->setText(text);
+}
+
+void ColorLabelMenuItem::SetColor(const Color &color)
+{
+  box_->SetColor(color);
+}
+
+}

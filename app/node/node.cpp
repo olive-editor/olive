@@ -27,15 +27,18 @@
 
 #include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
+#include "config/config.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
 #include "project/item/footage/videostream.h"
+#include "ui/colorcoding.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
 Node::Node() :
-  can_be_deleted_(true)
+  can_be_deleted_(true),
+  override_color_(-1)
 {
 }
 
@@ -99,6 +102,8 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       SetPosition(p);
     } else if (reader->name() == QStringLiteral("label")) {
       SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("color")) {
+      override_color_ = reader->readElementText().toInt();
     } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data);
     } else {
@@ -117,6 +122,7 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // pos
 
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
+  writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
 
   foreach (NodeInput* input, inputs_) {
     writer->writeStartElement(QStringLiteral("input"));
@@ -144,6 +150,43 @@ QString Node::Description() const
 
 void Node::Retranslate()
 {
+}
+
+Color Node::color() const
+{
+  int c;
+
+  if (override_color_ >= 0) {
+    c = override_color_;
+  } else {
+    c = Config::Current()[QStringLiteral("CatColor%1").arg(this->Category().first())].toInt();
+  }
+
+  return ColorCoding::GetColor(c);
+}
+
+QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
+{
+  QLinearGradient grad;
+
+  grad.setStart(0, top);
+  grad.setFinalStop(0, bottom);
+
+  QColor c = color().toQColor();
+
+  grad.setColorAt(0.0, c.lighter());
+  grad.setColorAt(1.0, c);
+
+  return grad;
+}
+
+QBrush Node::brush(qreal top, qreal bottom) const
+{
+  if (Config::Current()[QStringLiteral("UseGradients")].toBool()) {
+    return gradient_color(top, bottom);
+  } else {
+    return color().toQColor();
+  }
 }
 
 void Node::RemoveNodesAndExclusiveDependencies(Node *node, QUndoCommand *command)

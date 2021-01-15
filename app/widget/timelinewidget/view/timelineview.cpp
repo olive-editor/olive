@@ -32,6 +32,7 @@
 #include "common/timecodefunctions.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
+#include "ui/colorcoding.h"
 
 namespace olive {
 
@@ -386,8 +387,11 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Mou
 
 void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 {
-  rational start_time = SceneToTime(0);
-  rational end_time = SceneToTime(viewport()->width());
+  qreal left_bound = horizontalScrollBar()->value();
+  qreal right_bound = viewport()->width() + horizontalScrollBar()->value();
+
+  rational start_time = SceneToTime(left_bound);
+  rational end_time = SceneToTime(right_bound);
 
   foreach (Track* track, connected_track_list_->GetTracks()) {
     // Get first visible block in this track
@@ -396,22 +400,41 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
     while (block) {
       if (block->type() == Block::kClip) {
 
-        qreal block_left = qMax(0.0, TimeToScene(block->in()));
-        qreal block_right = qMin(qreal(viewport()->width()), TimeToScene(block->out()));
+        qreal block_left = qMax(left_bound, TimeToScene(block->in()));
+        qreal block_right = qMin(right_bound, TimeToScene(block->out())) - 1;
+        qreal block_top = GetTrackY(track->Index());
+        qreal block_height = GetTrackHeight(track->Index());
 
         QRectF r(block_left,
-                 GetTrackY(track->Index()),
+                 block_top,
                  block_right - block_left,
-                 GetTrackHeight(track->Index()));
+                 block_height);
+
+        QColor shadow_color = block->color().toQColor().darker();
 
         if (foreground) {
-          painter->setPen(Qt::white);
           painter->setBrush(Qt::NoBrush);
+
+          painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
           painter->drawText(r, block->GetLabel());
+
+          qreal line_bottom = block_top+block_height-1;
+
+          painter->setPen(Qt::white);
+          painter->drawLine(block_left, block_top, block_right, block_top);
+          painter->drawLine(block_left, block_top, block_left, line_bottom);
+
+          painter->setPen(shadow_color);
+          painter->drawLine(block_left, line_bottom, block_right, line_bottom);
+          painter->drawLine(block_right, line_bottom, block_right, block_top);
         } else {
           painter->setPen(Qt::NoPen);
-          painter->setBrush(QColor(128, 128, 192));
+          painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
           painter->drawRect(r);
+
+          // Draw waveform
+          painter->setPen(shadow_color);
+          AudioVisualWaveform::DrawWaveform(painter, r.toRect(), this->GetScale(), track->waveform(), SceneToTime(block_left));
         }
 
       }
@@ -493,7 +516,7 @@ void TimelineView::ConnectTrackList(TrackList *list)
 void TimelineView::SetBeamCursor(const TimelineCoordinate &coord)
 {
   bool update_required = coord.GetTrack().type() == connected_track_list_->type()
-                          || cursor_coord_.GetTrack().type() == connected_track_list_->type();
+      || cursor_coord_.GetTrack().type() == connected_track_list_->type();
 
   show_beam_cursor_ = true;
   cursor_coord_ = coord;

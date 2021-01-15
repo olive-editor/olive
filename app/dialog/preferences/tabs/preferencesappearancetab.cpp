@@ -28,6 +28,8 @@
 
 #include "node/node.h"
 #include "widget/colorbutton/colorbutton.h"
+#include "widget/menu/menushared.h"
+#include "ui/colorcoding.h"
 
 namespace olive {
 
@@ -64,7 +66,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
   {
     QGroupBox* color_group = new QGroupBox();
-    color_group->setTitle(tr("Node Color Scheme"));
+    color_group->setTitle(tr("Default Node Colors"));
 
     QGridLayout* color_layout = new QGridLayout(color_group);
 
@@ -72,15 +74,10 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
       QString cat_name = Node::GetCategoryName(static_cast<Node::CategoryID>(i));
       color_layout->addWidget(new QLabel(cat_name), i, 0);
 
-      Color c = Config::Current()[QStringLiteral("NodeCatColor%1").arg(i)].value<Color>();
-      colors_.append(c.toQColor());
-
-      QPushButton* color_btn = new QPushButton();
-      connect(color_btn, &QPushButton::clicked, this, &PreferencesAppearanceTab::ColorButtonClicked);
-      color_layout->addWidget(color_btn, i, 1);
-      color_btns_.append(color_btn);
-
-      UpdateButtonColor(i);
+      ColorCodingComboBox* ccc = new ColorCodingComboBox();
+      ccc->SetColor(Config::Current()[QStringLiteral("CatColor%1").arg(i)].toInt());
+      color_layout->addWidget(ccc, i, 1);
+      color_btns_.append(ccc);
     }
 
     appearance_layout->addWidget(color_group, row, 0, 1, 2);
@@ -98,27 +95,8 @@ void PreferencesAppearanceTab::Accept()
     Config::Current()["Style"] = style_path;
   }
 
-  for (int i=0;i<colors_.size();i++) {
-    Config::Current()[QStringLiteral("NodeCatColor%1").arg(i)] = QVariant::fromValue(Color(colors_.at(i)));
-  }
-}
-
-void PreferencesAppearanceTab::UpdateButtonColor(int index)
-{
-  color_btns_.at(index)->setStyleSheet(QStringLiteral("background: %1;")
-                                       .arg(colors_.at(index).name()));
-}
-
-void PreferencesAppearanceTab::ColorButtonClicked()
-{
-  int index = color_btns_.indexOf(static_cast<QPushButton*>(sender()));
-
-  QColor new_color = QColorDialog::getColor(colors_.at(index), this);
-
-  if (new_color.isValid()) {
-    colors_.replace(index, new_color);
-
-    UpdateButtonColor(index);
+  for (int i=0; i<color_btns_.size(); i++) {
+    Config::Current()[QStringLiteral("CatColor%1").arg(i)] = color_btns_.at(i)->GetSelectedColor();
   }
 }
 

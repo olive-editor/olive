@@ -89,6 +89,8 @@ public:
 
   void ToggleSelectedEnabled();
 
+  void SetColorLabel(int index);
+
   const QVector<Block*>& GetSelectedBlocks() const
   {
     return selected_blocks_;

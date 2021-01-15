@@ -90,20 +90,21 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeValue::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeValue::kBoolean, true);
+  SetEntryInternal(QStringLiteral("UseGradients"), NodeValue::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
-  SetEntryInternal(QStringLiteral("NodeCatColor0"), NodeValue::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.75)));
-  SetEntryInternal(QStringLiteral("NodeCatColor1"), NodeValue::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.25)));
-  SetEntryInternal(QStringLiteral("NodeCatColor2"), NodeValue::kColor, QVariant::fromValue(Color(0.75, 0.75, 0.25)));
-  SetEntryInternal(QStringLiteral("NodeCatColor3"), NodeValue::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.75)));
-  SetEntryInternal(QStringLiteral("NodeCatColor4"), NodeValue::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.75)));
-  SetEntryInternal(QStringLiteral("NodeCatColor5"), NodeValue::kColor, QVariant::fromValue(Color(0.50, 0.50, 0.50)));
-  SetEntryInternal(QStringLiteral("NodeCatColor6"), NodeValue::kColor, QVariant::fromValue(Color(0.25, 0.75, 0.25)));
-  SetEntryInternal(QStringLiteral("NodeCatColor7"), NodeValue::kColor, QVariant::fromValue(Color(0.25, 0.25, 0.75)));
-  SetEntryInternal(QStringLiteral("NodeCatColor8"), NodeValue::kColor, QVariant::fromValue(Color(0.75, 0.25, 0.25)));
-  SetEntryInternal(QStringLiteral("NodeCatColor9"), NodeValue::kColor, QVariant::fromValue(Color(0.55, 0.55, 0.75)));
-  SetEntryInternal(QStringLiteral("NodeCatColor10"), NodeValue::kColor, QVariant::fromValue(Color(0.75, 0.55, 0.25)));
+  SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, 0);
+  SetEntryInternal(QStringLiteral("CatColor1"), NodeValue::kInt, 1);
+  SetEntryInternal(QStringLiteral("CatColor2"), NodeValue::kInt, 2);
+  SetEntryInternal(QStringLiteral("CatColor3"), NodeValue::kInt, 3);
+  SetEntryInternal(QStringLiteral("CatColor4"), NodeValue::kInt, 4);
+  SetEntryInternal(QStringLiteral("CatColor5"), NodeValue::kInt, 5);
+  SetEntryInternal(QStringLiteral("CatColor6"), NodeValue::kInt, 6);
+  SetEntryInternal(QStringLiteral("CatColor7"), NodeValue::kInt, 7);
+  SetEntryInternal(QStringLiteral("CatColor8"), NodeValue::kInt, 8);
+  SetEntryInternal(QStringLiteral("CatColor9"), NodeValue::kInt, 9);
+  SetEntryInternal(QStringLiteral("CatColor10"), NodeValue::kInt, 10);
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());

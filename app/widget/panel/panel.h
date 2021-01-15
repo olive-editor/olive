@@ -168,6 +168,8 @@ public:
 
   virtual void Duplicate(){}
 
+  virtual void SetColorLabel(int){}
+
 signals:
   void CloseRequested();
 

@@ -155,6 +155,29 @@ public:
   virtual void Retranslate();
 
   /**
+   * @brief Retrieve the color of this node
+   */
+  Color color() const;
+
+  /**
+   * @brief Same as color() but return a pretty gradient version
+   */
+  QLinearGradient gradient_color(qreal top, qreal bottom) const;
+
+  /**
+   * @brief Uses config and returns either color() for flat shading or gradient for gradient
+   */
+  QBrush brush(qreal top, qreal bottom) const;
+
+  /**
+   * @brief Sets the override color. Set to -1 for no override color.
+   */
+  void SetOverrideColor(int index)
+  {
+    override_color_ = index;
+  }
+
+  /**
    * @brief Return a list of NodeParams
    */
   const QVector<NodeInput*>& parameters() const
@@ -484,6 +507,11 @@ private:
    * @brief Custom user label for node
    */
   QString label_;
+
+  /**
+   * @brief -1 if the color should be based on the category, >=0 if the user has set a custom color
+   */
+  int override_color_;
 
 };
 

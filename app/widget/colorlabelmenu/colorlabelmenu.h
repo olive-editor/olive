@@ -18,37 +18,35 @@
 
 ***/
 
-#ifndef PREFERENCESAPPEARANCETAB_H
-#define PREFERENCESAPPEARANCETAB_H
+#ifndef COLORLABELMENU_H
+#define COLORLABELMENU_H
 
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
-
-#include "preferencestab.h"
-#include "ui/style/style.h"
-#include "widget/colorlabelmenu/colorcodingcombobox.h"
+#include "colorlabelmenuitem.h"
+#include "widget/menu/menu.h"
 
 namespace olive {
 
-class PreferencesAppearanceTab : public PreferencesTab
+class ColorLabelMenu : public Menu
 {
   Q_OBJECT
 public:
-  PreferencesAppearanceTab();
+  ColorLabelMenu(QWidget* parent = nullptr);
 
-  virtual void Accept() override;
+  virtual void changeEvent(QEvent* event) override;
+
+signals:
+  void ColorSelected(int i);
 
 private:
-  /**
-   * @brief UI widget for selecting the current UI style
-   */
-  QComboBox* style_combobox_;
+  void Retranslate();
 
-  QVector<ColorCodingComboBox*> color_btns_;
+  QVector<ColorLabelMenuItem*> color_items_;
+
+private slots:
+  void ActionTriggered();
 
 };
 
 }
 
-#endif // PREFERENCESAPPEARANCETAB_H
+#endif // COLORLABELMENU_H

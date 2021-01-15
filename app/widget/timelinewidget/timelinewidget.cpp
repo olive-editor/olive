@@ -700,6 +700,15 @@ void TimelineWidget::ToggleSelectedEnabled()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::SetColorLabel(int index)
+{
+  foreach (Block* b, selected_blocks_) {
+    b->SetOverrideColor(index);
+  }
+
+  UpdateViewports();
+}
+
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
 {
   for (int i=0;i<Track::kCount;i++) {
@@ -923,6 +932,10 @@ void TimelineWidget::ShowContextMenu()
 
   if (!selected.isEmpty()) {
     MenuShared::instance()->AddItemsForEditMenu(&menu, true);
+
+    menu.addSeparator();
+
+    MenuShared::instance()->AddColorCodingMenu(&menu);
 
     menu.addSeparator();
 

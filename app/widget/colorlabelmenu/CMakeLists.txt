@@ -14,19 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(cursors)
-add_subdirectory(graphics)
-add_subdirectory(icons)
-add_subdirectory(style)
-
-set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  PARENT_SCOPE
-)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  ui/colorcoding.cpp
-  ui/colorcoding.h
+  widget/colorlabelmenu/colorcodingcombobox.cpp
+  widget/colorlabelmenu/colorcodingcombobox.h
+  widget/colorlabelmenu/colorlabelmenu.cpp
+  widget/colorlabelmenu/colorlabelmenu.h
+  widget/colorlabelmenu/colorlabelmenuitem.cpp
+  widget/colorlabelmenu/colorlabelmenuitem.h
   PARENT_SCOPE
 )
