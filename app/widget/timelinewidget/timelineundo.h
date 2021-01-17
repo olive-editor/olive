@@ -644,7 +644,7 @@ protected:
   {
     old_length_ = block_->length();
 
-    Q_ASSERT(block_->type() == Block::kClip && point_ > block_->in() && point_ < block_->out());
+    Q_ASSERT(point_ > block_->in() && point_ < block_->out());
 
     // Determine if we're copying the dependencies as part of this command
     bool copy_dependencies_too = Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool();
@@ -661,9 +661,6 @@ protected:
           // Copy dependency
           Node* copy = src_nodes_[i]->copy();
 
-          // Add copy to graph
-          copy->setParent(block_->parent());
-
           // Copy inputs
           Node::CopyInputs(src_nodes_[i], copy, false);
 
@@ -674,7 +671,6 @@ protected:
       } else {
         // Just copy the block itself
         added_nodes_.append(block_->copy());
-        Node::CopyInputs(block_, added_nodes_.first(), true);
       }
     }
 
@@ -683,14 +679,17 @@ protected:
       n->setParent(block_->parent());
     }
 
-    if (copy_dependencies_too) {
-      // Create equivalent connections among our copied dependency tree
-      if (!reconnect_tree_command_) {
+    if (!reconnect_tree_command_) {
+      if (copy_dependencies_too) {
+        // Create equivalent connections among our copied dependency tree
         reconnect_tree_command_ = new QUndoCommand();
         Node::CopyDependencyGraph(src_nodes_, added_nodes_, reconnect_tree_command_);
+      } else {
+        reconnect_tree_command_ = new NodeCopyInputsCommand(block_, new_block(), true);
       }
-      reconnect_tree_command_->redo();
     }
+
+    reconnect_tree_command_->redo();
 
     // Determine our new lengths
     rational new_length = point_ - block_->in();
@@ -740,9 +739,7 @@ protected:
     track->RippleRemoveBlock(new_block());
 
     // If we ran a reconnect command, disconnect now
-    if (reconnect_tree_command_) {
-      reconnect_tree_command_->undo();
-    }
+    reconnect_tree_command_->undo();
 
     foreach (Node* n, added_nodes_) {
       // Remove nodes
