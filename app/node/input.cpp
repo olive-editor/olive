@@ -438,6 +438,8 @@ void NodeInput::ArrayInsert(int index)
   // Add new input
   subinputs_.insert(index, CreateImmediate());
 
+  ChangeArraySizeInternal(array_size_ + 1);
+
   // Move connections down
   std::map<int, Node*> copied_edges = edges();
   for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
@@ -447,12 +449,14 @@ void NodeInput::ArrayInsert(int index)
       ConnectEdge(it->second, this, it->first + 1);
     }
   }
-
-  ChangeArraySizeInternal(array_size_ + 1);
 }
 
 void NodeInput::ArrayRemove(int index)
 {
+  // Remove input
+  delete subinputs_.takeAt(index);
+  ChangeArraySizeInternal(array_size_ - 1);
+
   // Move connections up
   std::map<int, Node*> copied_edges = edges();
   for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
@@ -465,10 +469,6 @@ void NodeInput::ArrayRemove(int index)
       }
     }
   }
-
-  // Remove input
-  delete subinputs_.takeAt(index);
-  ChangeArraySizeInternal(array_size_ - 1);
 }
 
 void NodeInput::ArrayPrepend()
@@ -479,6 +479,9 @@ void NodeInput::ArrayPrepend()
 void NodeInput::ArrayResize(int size)
 {
   if (array_size_ != size) {
+    // Update array size
+    ChangeArraySizeInternal(size);
+
     if (array_size_ > size) {
       // Decreasing in size, disconnect any extraneous edges
       for (int i=size; i<array_size_; i++) {
@@ -495,9 +498,6 @@ void NodeInput::ArrayResize(int size)
         subinputs_.append(CreateImmediate());
       }
     }
-
-    // Update array size
-    ChangeArraySizeInternal(size);
   }
 }
 
