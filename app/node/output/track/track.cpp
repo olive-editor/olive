@@ -119,6 +119,11 @@ TimeRange Track::OutputTimeAdjustment(NodeInput *input, int element, const TimeR
   return Node::OutputTimeAdjustment(input, element, input_time);
 }
 
+rational Track::TransformTimeForBlock(Block *block, const rational &time)
+{
+  return time - block->in();
+}
+
 TimeRange Track::TransformRangeForBlock(Block *block, const TimeRange &range)
 {
   return range - block->in();
@@ -434,7 +439,7 @@ void Track::Hash(QCryptographicHash &hash, const rational &time) const
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(hash, time);
+    b->Hash(hash, TransformTimeForBlock(b, time));
   }
 }
 
