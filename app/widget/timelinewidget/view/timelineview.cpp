@@ -431,7 +431,7 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 
             int underline_y = text_rect.y() + text_height;
 
-            painter->drawLine(text_rect.x(), underline_y, text_width, underline_y);
+            painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
           }
 
           qreal line_bottom = block_top+block_height-1;
