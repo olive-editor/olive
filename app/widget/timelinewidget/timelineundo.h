@@ -29,6 +29,8 @@
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
+#include "node/math/math/math.h"
+#include "node/math/merge/merge.h"
 #include "node/graph.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
@@ -1450,6 +1452,104 @@ private:
 
 };
 
+class TimelineAddTrackCommand : public UndoCommand {
+public:
+  TimelineAddTrackCommand(TrackList *timeline, QUndoCommand* command = nullptr) :
+    UndoCommand(command),
+    timeline_(timeline)
+  {
+    track_ = new Track();
+    track_->setParent(&memory_manager_);
+
+    if (Config::Current()[QStringLiteral("AutoMergeTracks")].toBool()) {
+      if (timeline_->type() == Track::kVideo) {
+        MergeNode* merge = new MergeNode();
+        base_ = merge->base_in();
+        blend_ = merge->blend_in();
+        merge_ = merge;
+      } else {
+        MathNode* math = new MathNode();
+        base_ = math->param_a_in();
+        blend_ = math->param_b_in();
+        merge_ = math;
+      }
+      merge_->setParent(&memory_manager_);
+    } else {
+      merge_ = nullptr;
+    }
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return timeline_->GetParentGraph()->project();
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    // Add track
+    track_->setParent(timeline_->GetParentGraph());
+    timeline_->track_input()->ArrayAppend();
+    Node::ConnectEdge(track_, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
+
+    // Add merge if applicable
+    if (merge_) {
+      merge_->setParent(timeline_->GetParentGraph());
+
+      Track* last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
+
+      // Whatever this track used to be connected to, connect the merge instead
+      std::vector<Node::InputConnection> edges = last_track->edges();
+      foreach (const Node::InputConnection& ic, edges) {
+        if (ic.input != timeline_->track_input()) {
+          Node::DisconnectEdge(last_track, ic.input, ic.element);
+          Node::ConnectEdge(merge_, ic.input, ic.element);
+        }
+      }
+
+      // Connect this as the "blend" track
+      Node::ConnectEdge(track_, blend_);
+      Node::ConnectEdge(last_track, base_);
+    }
+  }
+
+  virtual void undo_internal() override
+  {
+    // Remove merge if applicable
+    if (merge_) {
+      // Assume whatever this merge is connected to USED to be connected to the last track
+      Track* last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
+
+      Node::DisconnectEdge(track_, blend_);
+      Node::DisconnectEdge(last_track, base_);
+
+      std::vector<Node::InputConnection> edges = merge_->edges();
+      foreach (const Node::InputConnection& ic, edges) {
+        Node::DisconnectEdge(merge_, ic.input, ic.element);
+        Node::ConnectEdge(last_track, ic.input, ic.element);
+      }
+
+      merge_->setParent(&memory_manager_);
+    }
+
+    // Remove track
+    Node::DisconnectEdge(track_, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
+    timeline_->track_input()->ArrayRemoveLast();
+    track_->setParent(&memory_manager_);
+  }
+
+private:
+  TrackList* timeline_;
+
+  Track* track_;
+  Node* merge_;
+  NodeInput* base_;
+  NodeInput* blend_;
+
+  QObject memory_manager_;
+
+};
+
 /**
  * @brief Destructively places `block` at the in point `start`
  *
@@ -1473,6 +1573,7 @@ public:
   virtual ~TrackPlaceBlockCommand() override
   {
     delete ripple_remove_command_;
+    qDeleteAll(add_track_commands_);
   }
 
   virtual Project* GetRelevantProject() const override
@@ -1485,21 +1586,17 @@ protected:
   {
     // Determine if we need to add tracks
     if (track_index_ >= timeline_->GetTracks().size()) {
-      if (added_tracks_.isEmpty()) {
+      if (add_track_commands_.isEmpty()) {
         // First redo, create tracks now
-        added_tracks_.resize(track_index_ - timeline_->GetTracks().size() + 1);
+        add_track_commands_.resize(track_index_ - timeline_->GetTracks().size() + 1);
 
-        for (int i=0; i<added_tracks_.size(); i++) {
-          added_tracks_[i] = new Track();
+        for (int i=0; i<add_track_commands_.size(); i++) {
+          add_track_commands_[i] = new TimelineAddTrackCommand(timeline_);
         }
       }
 
-      for (int i=0; i<added_tracks_.size(); i++) {
-        Track* track = added_tracks_.at(i);
-        track->setParent(timeline_->GetParentGraph());
-
-        timeline_->track_input()->ArrayAppend();
-        Node::ConnectEdge(track, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
+      for (int i=0; i<add_track_commands_.size(); i++) {
+        add_track_commands_.at(i)->redo();
       }
     }
 
@@ -1548,11 +1645,8 @@ protected:
     }
 
     // Remove tracks if we added them
-    for (int i=added_tracks_.size()-1; i>=0; i--) {
-      Track* track = added_tracks_.at(i);
-      Node::DisconnectEdge(track, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
-      track->setParent(&memory_manager_);
-      timeline_->track_input()->ArrayRemoveLast();
+    for (int i=add_track_commands_.size()-1; i>=0; i--) {
+      add_track_commands_.at(i)->undo();
     }
   }
 
@@ -1562,7 +1656,7 @@ private:
   rational in_;
   GapBlock* gap_;
   Block* insert_;
-  QVector<Track*> added_tracks_;
+  QVector<TimelineAddTrackCommand*> add_track_commands_;
   QObject memory_manager_;
   TrackRippleRemoveAreaCommand* ripple_remove_command_;
 
