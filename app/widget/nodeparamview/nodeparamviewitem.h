@@ -72,7 +72,7 @@ private:
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItemBody(const QVector<Node::InputConnection>& inputs, QWidget* parent = nullptr);
+  NodeParamViewItemBody(Node* node, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -92,6 +92,8 @@ signals:
   void RequestSelectNode(const QVector<Node*>& node);
 
 private:
+  void CreateWidgets(QGridLayout *layout, NodeInput* input, int element, int row_index);
+
   void UpdateUIForEdgeConnection(NodeInput* input, int element);
 
   void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframe* keyframe);
@@ -99,7 +101,7 @@ private:
   struct InputUI {
     InputUI();
 
-    ClickableLabel* main_label;
+    QLabel* main_label;
     NodeParamViewWidgetBridge* widget_bridge;
     NodeParamViewConnectedLabel* connected_label;
     NodeParamViewKeyframeControl* key_control;

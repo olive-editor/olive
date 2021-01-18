@@ -29,8 +29,8 @@ NodePanel::NodePanel(QWidget *parent) :
   node_view_ = new NodeView(this);
 
   // Connect node view signals to this panel
-  //connect(node_view_, &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
-  //connect(node_view_, &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  connect(node_view_, &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
+  connect(node_view_, &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
 
   // Set it as the main widget of this panel
   SetWidgetWithPadding(node_view_);
