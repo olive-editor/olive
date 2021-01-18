@@ -48,8 +48,7 @@ Track *TrackList::GetTrackAt(int index) const
 void TrackList::TrackConnected(Node *node, int element)
 {
   if (element == -1) {
-    // FIXME: Should probably merge into Viewer so we can actually do this
-    //static_cast<ViewerOutput*>(parent())->InputConnectionChanged(node, element);
+    parent()->InputConnectionChanged(node, element);
     return;
   }
 
@@ -59,30 +58,29 @@ void TrackList::TrackConnected(Node *node, int element)
     return;
   }
 
-  // Find "real" index
+  // Determine where in the cache this block will be
+  int cache_index = -1;
   Track* next = nullptr;
   for (int i=element+1; i<track_input_->ArraySize(); i++) {
-    next = dynamic_cast<Track*>(track_input_->GetConnectedNode(i));
+    // Find next track because this will be the index we insert at
+    cache_index = GetCacheIndexFromArrayIndex(i);
 
-    if (next) {
+    if (cache_index >= 0) {
+      next = track_cache_.at(cache_index);
       break;
     }
   }
 
-  int track_index;
-
-  if (next) {
-    // Insert track before "next"
-    track_index = track_cache_.indexOf(next);
-    track_cache_.insert(track_index, track);
-  } else {
-    // No "next", this track must come at the end
-    track_index = track_cache_.size();
-    track_cache_.append(track);
+  // If there was no next, this will be inserted at the end
+  if (cache_index == -1) {
+    cache_index = track_cache_.size();
   }
 
+  track_cache_.insert(cache_index, track);
+  track_array_indexes_.insert(cache_index, element);
+
   // Update track indexes in the list (including this track)
-  UpdateTrackIndexesFrom(track_index);
+  UpdateTrackIndexesFrom(cache_index);
 
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
 
@@ -99,7 +97,11 @@ void TrackList::TrackConnected(Node *node, int element)
 
 void TrackList::TrackDisconnected(Node *node, int element)
 {
-  Q_UNUSED(element)
+  if (element == -1) {
+    // User has replaced the entire array, we will invalidate everything
+    parent()->InputConnectionChanged(node, element);
+    return;
+  }
 
   Track* track = dynamic_cast<Track*>(node);
 
@@ -107,14 +109,17 @@ void TrackList::TrackDisconnected(Node *node, int element)
     return;
   }
 
-  int index_of_track = track_cache_.indexOf(track);
-  track_cache_.removeAt(index_of_track);
-
-  // Update indices for all subsequent tracks
-  UpdateTrackIndexesFrom(index_of_track);
-
   // Traverse through Tracks uncaching and disconnecting them
   emit TrackRemoved(track);
+
+  int cache_index = GetCacheIndexFromArrayIndex(element);
+
+  // Remove track here
+  track_cache_.removeAt(cache_index);
+  track_array_indexes_.removeAt(cache_index);
+
+  // Update indices for all subsequent tracks
+  UpdateTrackIndexesFrom(cache_index);
 
   track->SetIndex(-1);
   track->set_type(Track::kNone);
@@ -136,6 +141,11 @@ void TrackList::UpdateTrackIndexesFrom(int index)
 NodeGraph *TrackList::GetParentGraph() const
 {
   return static_cast<NodeGraph*>(parent()->parent());
+}
+
+ViewerOutput *TrackList::parent() const
+{
+  return static_cast<ViewerOutput*>(QObject::parent());
 }
 
 void TrackList::UpdateTotalLength()
