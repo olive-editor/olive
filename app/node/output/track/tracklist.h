@@ -66,6 +66,8 @@ public:
     return track_input_;
   }
 
+  ViewerOutput* parent() const;
+
 signals:
   void TrackListChanged();
 
@@ -82,6 +84,17 @@ private:
    * @brief A cache of connected Tracks
    */
   QVector<Track*> track_cache_;
+  QVector<int> track_array_indexes_;
+
+  int GetArrayIndexFromCacheIndex(int index) const
+  {
+    return track_array_indexes_.at(index);
+  }
+
+  int GetCacheIndexFromArrayIndex(int index) const
+  {
+    return track_array_indexes_.indexOf(index);
+  }
 
   NodeInput* track_input_;
 

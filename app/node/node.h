@@ -473,7 +473,7 @@ signals:
    */
   void LabelChanged(const QString& s);
 
-protected slots:
+public slots:
   void InputChanged(const olive::TimeRange &range, int element);
 
   void InputConnectionChanged(Node* source, int element);

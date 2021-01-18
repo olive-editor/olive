@@ -596,6 +596,8 @@ void Track::BlockDisconnected(Node* node, int element)
     return;
   }
 
+  emit BlockRemoved(b);
+
   TimeRange invalidate_range(b->in(), track_length());
 
   // Get cache index
@@ -604,8 +606,6 @@ void Track::BlockDisconnected(Node* node, int element)
   // Remove block here
   blocks_.removeAt(cache_index);
   block_array_indexes_.removeAt(cache_index);
-
-  emit BlockRemoved(b);
 
   // Update previous/nexts
   Block* previous = b->previous();
