@@ -106,19 +106,33 @@ NodeInput *MergeNode::blend_in() const
 
 void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  // If only one of these is connected, the merge is a no-op, so we only leave a fingerprint if
-  // both are connected
-  if (base_in_->IsConnected() && blend_in_->IsConnected()) {
-    // Leave fingerprint of merge node
-    hash.addData(id().toUtf8());
-  }
+  // We do some hash optimization here. If only one of the inputs is connected, this node
+  // functions as a passthrough so there's no alteration to the hash. The same is true if the
+  // connected node happens to return nothing (a gap for instance). Therefore we only add our
+  // fingerprint if the base AND the blend change the hash. Otherwise, we assume it's a passthrough.
+
+  QByteArray current_result = hash.result();
+
+  bool base_changed_hash = false;
+  bool blend_changed_hash = false;
 
   if (base_in_->IsConnected()) {
     base_in_->GetConnectedNode()->Hash(hash, time);
+
+    QByteArray post_base_hash = hash.result();
+    base_changed_hash = (post_base_hash != current_result);
+    current_result = post_base_hash;
   }
 
   if (blend_in_->IsConnected()) {
     blend_in_->GetConnectedNode()->Hash(hash, time);
+
+    blend_changed_hash = (hash.result() != current_result);
+  }
+
+  if (base_changed_hash && blend_changed_hash) {
+    // Something changed, so we'll add our fingerprint
+    hash.addData(id().toUtf8());
   }
 }
 
