@@ -29,6 +29,7 @@
 
 #include "config/config.h"
 #include "common/flipmodifiers.h"
+#include "common/qtutils.h"
 #include "common/timecodefunctions.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
@@ -412,11 +413,26 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
 
         QColor shadow_color = block->color().toQColor().darker();
 
+        QFontMetrics fm = fontMetrics();
+        int text_height = fm.height();
+        int text_padding = text_height/4; // This ties into the track minimum height being 1.5
+        int text_total_height = text_height + text_padding + text_padding;
+
         if (foreground) {
           painter->setBrush(Qt::NoBrush);
 
+          QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
           painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
-          painter->drawText(r, block->GetLabel());
+          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, block->GetLabel());
+
+          if (block->HasLinks()) {
+            int text_width = qMin(qRound(text_rect.width()),
+                                  QtUtils::QFontMetricsWidth(fm, block->GetLabel()));
+
+            int underline_y = text_rect.y() + text_height;
+
+            painter->drawLine(text_rect.x(), underline_y, text_width, underline_y);
+          }
 
           qreal line_bottom = block_top+block_height-1;
 
@@ -433,8 +449,9 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
           painter->drawRect(r);
 
           // Draw waveform
+          QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
           painter->setPen(shadow_color);
-          AudioVisualWaveform::DrawWaveform(painter, r.toRect(), this->GetScale(), track->waveform(), SceneToTime(block_left));
+          AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), track->waveform(), SceneToTime(block_left));
         }
 
       }
