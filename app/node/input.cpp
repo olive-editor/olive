@@ -225,6 +225,7 @@ void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, cons
   default_value_ = default_val;
   array_size_ = 0;
   data_type_ = type;
+  is_array_ = false;
 
   primary_ = CreateImmediate();
 }

@@ -40,6 +40,7 @@ Track::Track() :
 {
   block_input_ = new NodeInput(this, QStringLiteral("block_in"), NodeValue::kNone);
   block_input_->SetKeyframable(false);
+  block_input_->SetIsArray(true);
   connect(block_input_, &NodeInput::InputConnected, this, &Track::BlockConnected);
   connect(block_input_, &NodeInput::InputDisconnected, this, &Track::BlockDisconnected);
 

@@ -40,6 +40,7 @@ ViewerOutput::ViewerOutput() :
   for (int i=0;i<Track::kCount;i++) {
     // Create track input
     NodeInput* track_input = new NodeInput(this, QStringLiteral("track_in_%1").arg(i), NodeValue::kNone);
+    track_input->SetIsArray(true);
     IgnoreInvalidationsFrom(track_input);
     track_inputs_.replace(i, track_input);
 
