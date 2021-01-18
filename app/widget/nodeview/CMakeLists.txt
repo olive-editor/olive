@@ -18,6 +18,13 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/nodeview/nodeview.cpp
   widget/nodeview/nodeview.h
+  widget/nodeview/nodeviewcommon.h
+  widget/nodeview/nodeviewedge.cpp
+  widget/nodeview/nodeviewedge.h
+  widget/nodeview/nodeviewitem.cpp
+  widget/nodeview/nodeviewitem.h
+  widget/nodeview/nodeviewscene.cpp
+  widget/nodeview/nodeviewscene.h
   widget/nodeview/nodeviewundo.cpp
   widget/nodeview/nodeviewundo.h
   PARENT_SCOPE
