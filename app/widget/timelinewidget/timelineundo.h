@@ -1266,23 +1266,20 @@ class TrackListRippleToolCommand : public UndoCommand {
 public:
   struct RippleInfo {
     Block* block;
-    Block* ref_block;
-    Track* track;
-    rational new_length;
-    rational old_length;
+    bool append_gap;
   };
 
   TrackListRippleToolCommand(TrackList* track_list,
-                             const QList<RippleInfo>& info,
+                             const QHash<Track*, RippleInfo>& info,
+                             const rational& ripple_movement,
                              const Timeline::MovementMode& movement_mode,
                              QUndoCommand* parent = nullptr) :
     UndoCommand(parent),
     track_list_(track_list),
     info_(info),
+    ripple_movement_(ripple_movement),
     movement_mode_(movement_mode)
   {
-    working_data_.resize(info_.size());
-
     all_tracks_unlocked_ = (info_.size() == track_list_->GetTrackCount());
   }
 
@@ -1294,157 +1291,191 @@ public:
 protected:
   virtual void redo_internal() override
   {
-    rational old_latest_pt;
-    rational earliest_pt;
-
-    if (all_tracks_unlocked_) {
-      // We can do some optimization here
-      foreach (const RippleInfo& info, info_) {
-        info.track->BeginOperation();
-      }
-
-      old_latest_pt = RATIONAL_MIN;
-      earliest_pt = RATIONAL_MAX;
-      foreach (const RippleInfo& info, info_) {
-        if (info.block) {
-          old_latest_pt = qMax(old_latest_pt, info.block->out());
-
-          if (movement_mode_ == Timeline::kTrimIn) {
-            earliest_pt = qMin(earliest_pt, info.block->in());
-          } else {
-            earliest_pt = qMin(earliest_pt, info.block->out());
-          }
-        } else {
-          old_latest_pt = qMax(old_latest_pt, info.ref_block->out());
-          earliest_pt = qMin(earliest_pt, info.ref_block->out());
-        }
-      }
-    }
-
-    for (int i=0;i<info_.size();i++) {
-      const RippleInfo& info = info_.at(i);
-
-      Block* b = info.block;
-
-      if (b) {
-        // This was a Block that already existed
-        if (info.new_length > 0) {
-          if (movement_mode_ == Timeline::kTrimIn) {
-            // We'll need to shift the media in point too
-            b->set_length_and_media_in(info.new_length);
-          } else {
-            b->set_length_and_media_out(info.new_length);
-          }
-        } else {
-          // Assume the Block was a Gap and it was reduced to zero length, remove it here
-          working_data_[i].removed_gap_after = b->previous();
-          info.track->RippleRemoveBlock(b);
-          b->setParent(&memory_manager_);
-        }
-      } else if (info.new_length > 0) {
-        // This is a gap we are creating
-        GapBlock* gap = working_data_[i].created_gap;
-
-        if (!gap) {
-          gap = new GapBlock();
-          working_data_[i].created_gap = gap;
-        }
-
-        gap->set_length_and_media_out(info.new_length);
-        gap->setParent(info.ref_block->parent());
-
-        info.track->InsertBlockAfter(gap, info.ref_block);
-      }
-    }
-
-    if (all_tracks_unlocked_) {
-      // We can do some optimization here
-
-      rational new_latest_pt = RATIONAL_MIN;
-      for (int i=0;i<info_.size();i++) {
-        const RippleInfo& info = info_.at(i);
-
-        if (info.block) {
-          if (info.new_length > 0) {
-            new_latest_pt = qMax(new_latest_pt, info.block->out());
-          } else {
-            new_latest_pt = qMax(new_latest_pt, info.block->in());
-          }
-        } else if (info.new_length > 0) {
-          new_latest_pt = qMax(new_latest_pt, working_data_.at(i).created_gap->out());
-        }
-      }
-
-      if (track_list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(old_latest_pt, new_latest_pt);
-      } else if (track_list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(old_latest_pt, new_latest_pt);
-      }
-
-      foreach (const RippleInfo& info, info_) {
-        info.track->EndOperation();
-
-        // FIXME: Untested, is this desirable behavior?
-        if (earliest_pt < new_latest_pt) {
-          info.track->InvalidateCache(TimeRange(earliest_pt, new_latest_pt),
-                                      info.track->block_input());
-        }
-      }
-    }
+    ripple(true);
   }
 
   virtual void undo_internal() override
   {
-    // FIXME: Add cache shift optimization
+    ripple(false);
+  }
 
-    // Clean created gaps
-    for (int i=info_.size()-1; i>=0; i--) {
-      const RippleInfo& info = info_.at(i);
+private:
+  void ripple(bool redo)
+  {
+    if (info_.isEmpty()) {
+      return;
+    }
 
+    // The following variables are used to determine how much of the cache to invalidate
+
+    // If we can shift, we will shift from the latest out before the ripple to the latest out after,
+    // since those sections will be unchanged by this ripple
+    rational pre_latest_out = RATIONAL_MIN;
+    rational post_latest_out = RATIONAL_MIN;
+
+    // Make timeline changes
+    for (auto it=info_.cbegin(); it!=info_.cend(); it++) {
+      Track* track = it.key();
+      const RippleInfo& info = it.value();
+      WorkingData working_data = working_data_.value(track);
       Block* b = info.block;
 
+      // Generate block length
+      rational new_block_length;
+      rational operation_movement = ripple_movement_;
+
+      if (movement_mode_ == Timeline::kTrimIn) {
+        operation_movement = -operation_movement;
+      }
+
+      if (!redo) {
+        operation_movement = -operation_movement;
+      }
+
       if (b) {
-        // This was a Block that already existed
-        if (info.new_length > 0) {
-          if (movement_mode_ == Timeline::kTrimIn) {
-            // We'll need to shift the media in point too
-            b->set_length_and_media_in(info.old_length);
-          } else {
-            b->set_length_and_media_out(info.old_length);
+        new_block_length = b->length() + operation_movement;
+      }
+
+      rational earliest_point_of_change;
+      rational pre_shift;
+      rational post_shift;
+
+      // Begin operation so we can invalidate better later
+      track->BeginOperation();
+
+      if (info.append_gap) {
+
+        // Rather than rippling the referenced block, we'll insert a gap and ripple with that
+        GapBlock* gap = working_data.created_gap;
+
+        if (redo) {
+          if (!gap) {
+            gap = new GapBlock();
+            gap->set_length_and_media_out(qAbs(ripple_movement_));
+            working_data.created_gap = gap;
           }
+
+          gap->setParent(track->parent());
+          track->InsertBlockAfter(gap, b);
+
+          // As an insertion, we will shift from the gap's in to the gap's out
+          pre_shift = gap->in();
+          post_shift = gap->out();
+          earliest_point_of_change = gap->in();
         } else {
-          // Assume the Block was a Gap and it was reduced to zero length, remove it here
-          Block* previous_block = working_data_[i].removed_gap_after;
+          // As a removal, we will shift from the gap's out to the gap's in
+          pre_shift = gap->out();
+          post_shift = gap->in();
 
-          b->setParent(info.track->parent());
-
-          if (previous_block) {
-            info.track->InsertBlockAfter(b, previous_block);
-          } else {
-            info.track->PrependBlock(b);
-          }
+          track->RippleRemoveBlock(gap);
+          gap->setParent(&memory_manager_);
         }
-      } else if (info.new_length > 0) {
-        // We created a gap here, remove it
-        GapBlock* gap = working_data_.at(i).created_gap;
-        info.track->RippleRemoveBlock(gap);
-        gap->setParent(&memory_manager_);
+
+      } else if ((redo && new_block_length.isNull()) || (!redo && !b->track())) {
+
+        // The ripple is the length of this block. We assume that for this to happen, it must have
+        // been a gap that we will now remove.
+
+        if (redo) {
+          // The earliest point changes will happen is at the start of this block
+          earliest_point_of_change = b->in();
+
+          // As a removal, we will be shifting from the out point to the in point
+          pre_shift = b->out();
+          post_shift = b->in();
+
+          // Remove gap from track and from graph
+          working_data.removed_gap_after = b->previous();
+          track->RippleRemoveBlock(b);
+          b->setParent(&memory_manager_);
+        } else {
+          // Restore gap to graph and track
+          b->setParent(track->parent());
+          track->InsertBlockAfter(b, working_data.removed_gap_after);
+
+          // The earliest point changes will happen is at the start of this block
+          earliest_point_of_change = b->in();
+
+          // As an insert, we will be shifting from the block's in point to its out point
+          pre_shift = b->in();
+          post_shift = b->out();
+        }
+
+      } else {
+
+        // Store old length
+        working_data.old_length = b->length();
+
+        if (movement_mode_ == Timeline::kTrimIn) {
+          // The earliest point changes will occur is in point of this bloc
+          earliest_point_of_change = b->in();
+
+          // Undo the trim in inversion we do above, this will still be inverted accurately for
+          // undoing where appropriate
+          rational inverted = -operation_movement;
+          if (inverted > 0) {
+            pre_shift = b->in() + inverted;
+            post_shift = b->in();
+          } else {
+            pre_shift = b->in();
+            post_shift = b->in() - inverted;
+          }
+
+          // Update length
+          b->set_length_and_media_in(new_block_length);
+        } else {
+          // The earliest point changes will occur is the out point if trimming out or the in point
+          // if trimming in
+          earliest_point_of_change = b->out();
+
+          // The latest out before the ripple is this block's current out point
+          pre_shift = b->out();
+
+          // Update length
+          b->set_length_and_media_out(new_block_length);
+
+          // The latest out after the ripple is this block's out point after the length change
+          post_shift = b->out();
+        }
+
+      }
+
+      track->EndOperation();
+
+      working_data_.insert(it.key(), working_data);
+
+      pre_latest_out = qMax(pre_latest_out, pre_shift);
+      post_latest_out = qMax(post_latest_out, post_shift);
+
+      if (!all_tracks_unlocked_) {
+        // If we're not shifting, the whole track must get invalidated
+        track->InvalidateCache(TimeRange(earliest_point_of_change, RATIONAL_MAX));
+      }
+    }
+
+    if (all_tracks_unlocked_) {
+      // We rippled all the tracks, so we can shift the whole cache
+      if (track_list_->type() == Track::kVideo) {
+        static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(pre_latest_out, post_latest_out);
+      } else if (track_list_->type() == Track::kAudio) {
+        static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(pre_latest_out, post_latest_out);
       }
     }
   }
 
-private:
   TrackList* track_list_;
 
-  QList<RippleInfo> info_;
+  QHash<Track*, RippleInfo> info_;
+  rational ripple_movement_;
   Timeline::MovementMode movement_mode_;
 
   struct WorkingData {
     GapBlock* created_gap = nullptr;
     Block* removed_gap_after;
+    rational old_length;
   };
 
-  QVector<WorkingData> working_data_;
+  QHash<Track*, WorkingData> working_data_;
 
   QObject memory_manager_;
 

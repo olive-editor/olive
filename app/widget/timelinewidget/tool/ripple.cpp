@@ -107,30 +107,50 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
   Q_UNUSED(event)
 
   if (parent()->HasGhosts()) {
-    QVector< QList<TrackListRippleToolCommand::RippleInfo> > info_list(Track::kCount);
+    QVector< QHash<Track*, TrackListRippleToolCommand::RippleInfo> > info_list(Track::kCount);
 
     foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+      if (!ghost->HasBeenAdjusted()) {
+        continue;
+      }
+
       Track* track = parent()->GetTrackFromReference(ghost->GetTrack());
 
-      TrackListRippleToolCommand::RippleInfo i = {Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)),
-                                                  Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock)),
-                                                  track,
-                                                  ghost->GetAdjustedLength(),
-                                                  ghost->GetLength()};
+      TrackListRippleToolCommand::RippleInfo info;
+      Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-      info_list[track->type()].append(i);
+      if (b) {
+        info.block = b;
+        info.append_gap = false;
+      } else {
+        info.block = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock));
+        info.append_gap = true;
+      }
+
+      info_list[track->type()].insert(track, info);
     }
 
     QUndoCommand* command = new QUndoCommand();
 
-    if (!info_list.isEmpty()) {
-      for (int i=0;i<info_list.size();i++) {
+    rational movement;
+
+    if (drag_movement_mode() == Timeline::kTrimOut) {
+      movement = parent()->GetGhostItems().first()->GetOutAdjustment();
+    } else {
+      movement = parent()->GetGhostItems().first()->GetInAdjustment();
+    }
+
+    for (int i=0;i<info_list.size();i++) {
+      if (!info_list.at(i).isEmpty()) {
         new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
                                        info_list.at(i),
+                                       movement,
                                        drag_movement_mode(),
                                        command);
       }
+    }
 
+    if (command->childCount() > 0) {
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       TimelineViewGhostItem* reference_ghost = parent()->GetGhostItems().first();
       if (drag_movement_mode() == Timeline::kTrimIn) {
@@ -139,9 +159,11 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
       new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
-    }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+      Core::instance()->undo_stack()->push(command);
+    } else {
+      delete command;
+    }
   }
 }
 
