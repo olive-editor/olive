@@ -726,7 +726,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
 Timeline::MovementMode PointerTool::IsCursorInTrimHandle(Block *block, qreal cursor_x)
 {
-  double kTrimHandle = QtUtils::QFontMetricsWidth(parent()->fontMetrics(), "H");
+  const double kTrimHandle = QtUtils::QFontMetricsWidth(parent()->fontMetrics(), "H");
 
   double block_left = parent()->TimeToScene(block->in());
   double block_right = parent()->TimeToScene(block->out());
@@ -739,7 +739,7 @@ Timeline::MovementMode PointerTool::IsCursorInTrimHandle(Block *block, qreal cur
 
   if (trimming_allowed_ && cursor_x <= block_left + kTrimHandle) {
     return Timeline::kTrimIn;
-  } else if (trimming_allowed_ && cursor_x >= block_left + block_right - kTrimHandle) {
+  } else if (trimming_allowed_ && cursor_x >= block_right - kTrimHandle) {
     return Timeline::kTrimOut;
   } else {
     return Timeline::kNone;
