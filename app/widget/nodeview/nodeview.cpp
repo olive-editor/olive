@@ -263,6 +263,13 @@ void NodeView::Duplicate()
   AttachNodesToCursor(duplicated_nodes);
 }
 
+void NodeView::SetColorLabel(int index)
+{
+  foreach (Node* node, selected_nodes_) {
+    node->SetOverrideColor(index);
+  }
+}
+
 void NodeView::keyPressEvent(QKeyEvent *event)
 {
   super::keyPressEvent(event);
@@ -561,6 +568,9 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     connect(label_action, &QAction::triggered, this, [this](){
       Core::instance()->LabelNodes(scene_.GetSelectedNodes());
     });
+
+    // Color menu
+    MenuShared::instance()->AddColorCodingMenu(&m);
 
     m.addSeparator();
 

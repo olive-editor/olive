@@ -167,12 +167,14 @@ void NodeViewScene::AddNode(Node* node)
   item_map_.insert(node, item);
 
   connect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
-  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
+  connect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  connect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
 }
 
 void NodeViewScene::RemoveNode(Node *node)
 {
-  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeLabelChanged);
+  disconnect(node, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
+  disconnect(node, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
   disconnect(node, &Node::PositionChanged, this, &NodeViewScene::NodePositionChanged);
 
   delete item_map_.take(node);
@@ -286,7 +288,7 @@ void NodeViewScene::NodePositionChanged(const QPointF &pos)
   item_map_.value(static_cast<Node*>(sender()))->SetNodePosition(pos);
 }
 
-void NodeViewScene::NodeLabelChanged()
+void NodeViewScene::NodeAppearanceChanged()
 {
   // Force item to update
   item_map_.value(static_cast<Node*>(sender()))->update();

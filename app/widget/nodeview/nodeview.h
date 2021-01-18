@@ -67,6 +67,8 @@ public:
 
   void Duplicate();
 
+  void SetColorLabel(int index);
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 

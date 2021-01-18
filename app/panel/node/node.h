@@ -75,6 +75,11 @@ public:
     node_view_->Duplicate();
   }
 
+  virtual void SetColorLabel(int index) override
+  {
+    node_view_->SetColorLabel(index);
+  }
+
 public slots:
   void Select(const QVector<Node*>& nodes)
   {

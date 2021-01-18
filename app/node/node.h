@@ -174,7 +174,10 @@ public:
    */
   void SetOverrideColor(int index)
   {
-    override_color_ = index;
+    if (override_color_ != index) {
+      override_color_ = index;
+      emit ColorChanged();
+    }
   }
 
   /**
@@ -472,6 +475,8 @@ signals:
    * @brief Signal emitted when SetLabel() is called
    */
   void LabelChanged(const QString& s);
+
+  void ColorChanged();
 
 public slots:
   void InputChanged(const olive::TimeRange &range, int element);

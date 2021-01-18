@@ -705,8 +705,6 @@ void TimelineWidget::SetColorLabel(int index)
   foreach (Block* b, selected_blocks_) {
     b->SetOverrideColor(index);
   }
-
-  UpdateViewports();
 }
 
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
@@ -838,29 +836,31 @@ void TimelineWidget::AddBlock(Block *block)
   if (!added_blocks_.contains(block)) {
     connect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+    connect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
     connect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
     added_blocks_.append(block);
   }
 }
 
-void TimelineWidget::RemoveBlock(Block *b)
+void TimelineWidget::RemoveBlock(Block *block)
 {
   // Disconnect all signals
-  disconnect(b, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
-  disconnect(b, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
-  disconnect(b, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::LinksChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::LabelChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::ColorChanged, this, &TimelineWidget::BlockUpdated);
+  disconnect(block, &Block::EnabledChanged, this, &TimelineWidget::BlockUpdated);
 
   // Take item from map
-  added_blocks_.removeOne(b);
+  added_blocks_.removeOne(block);
 
   // If selected, deselect it
-  int select_index = selected_blocks_.indexOf(b);
+  int select_index = selected_blocks_.indexOf(block);
   if (select_index > -1) {
     selected_blocks_.removeAt(select_index);
-    RemoveSelection(b);
+    RemoveSelection(block);
 
-    emit BlocksDeselected({b});
+    emit BlocksDeselected({block});
   }
 }
 
