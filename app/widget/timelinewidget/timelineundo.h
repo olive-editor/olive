@@ -1356,7 +1356,7 @@ private:
           }
 
           gap->setParent(track->parent());
-          track->InsertBlockAfter(gap, b);
+          track->InsertBlockBefore(gap, b);
 
           // As an insertion, we will shift from the gap's in to the gap's out
           pre_shift = gap->in();

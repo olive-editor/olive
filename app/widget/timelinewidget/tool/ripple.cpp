@@ -75,26 +75,28 @@ void RippleTool::InitiateDrag(Block *clicked_item,
 
     // If there's no ghost on this track, create one
     if (!ghost_on_this_track_exists) {
-      // Find the block that starts just before the ripple point, and ends either on or just after it
-      Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
+      // Find the block that starts just after or at the ripple point
+      Block* block_after_ripple = track->NearestBlockAfterOrAt(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple) {
+      if (block_after_ripple) {
         TimelineViewGhostItem* ghost;
 
-        if (block_before_ripple->type() == Block::kGap) {
+        if (block_after_ripple->type() == Block::kGap) {
           // If this Block is already a Gap, ghost it now
-          ghost = AddGhostFromBlock(block_before_ripple, trim_mode);
-        } else if (block_before_ripple->next()) {
-          // Assuming this block is NOT at the end of the track (i.e. next != null)
+          ghost = AddGhostFromBlock(block_after_ripple, trim_mode);
+        } else {
+          // Well we need to ripple SOMETHING, it'll either be the previous block if it's a gap
+          // or we'll have to create a new gap ourselves
+          Block* previous = block_after_ripple->previous();
 
-          // We're going to create a gap after it. If next is a gap, we can just use that
-          if (block_before_ripple->next()->type() == Block::kGap) {
-            ghost = AddGhostFromBlock(block_before_ripple->next(), trim_mode);
+          if (previous && previous->type() == Block::kGap) {
+            // Previous is a gap, that'll make a fine substitute
+            ghost = AddGhostFromBlock(previous, trim_mode);
           } else {
-            // If next is NOT a gap, we'll need to create one, for which we'll use a null ghost
-            ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track->ToReference(), trim_mode);
-            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
+            // Previous is not a gap, we'll have to insert one there ourselves
+            ghost = AddGhostFromNull(block_after_ripple->in(), block_after_ripple->in(), track->ToReference(), trim_mode);
+            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_after_ripple));
           }
         }
       }
