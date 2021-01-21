@@ -959,7 +959,7 @@ public:
    */
   Block* GetInsertionIndex() const
   {
-    return insert_before_;
+    return insert_previous_;
   }
 
   Block* GetSplicedBlock() const
@@ -1070,38 +1070,51 @@ private:
     }
 
     // Determine if this first block is getting trimmed or removed
-    bool first_block_is_trimmed = first_block->in() < range_.in();
+    bool first_block_is_out_trimmed = first_block->in() < range_.in();
+    bool first_block_is_in_trimmed = first_block->out() > range_.out();
 
-    insert_before_ = first_block_is_trimmed ? first_block : first_block->previous();
+    // Set's the block that any insert command should insert AFTER. If the first block is not
+    // getting out-trimmed, that means first block is either getting removed or in-trimmed, which
+    // means any insert should happen before it
+    insert_previous_ = first_block_is_out_trimmed ? first_block : first_block->previous();
 
     // If it's getting trimmed, determine if it's actually getting spliced
-    if (first_block_is_trimmed && first_block->out() > range_.out()) {
+    if (first_block_is_out_trimmed && first_block_is_in_trimmed) {
       // This block is getting spliced, so we'll handle that later
       splice_split_command_ = new BlockSplitCommand(first_block, range_.in());
     } else {
       // It's just getting trimmed or removed, so we'll append that operation
-      if (first_block_is_trimmed) {
+      if (first_block_is_out_trimmed) {
         trim_out_ = {first_block,
                      first_block->length(),
                      first_block->length() - (first_block->out() - range_.in())};
+      } else if (first_block_is_in_trimmed) {
+        // Block is getting in trimmed
+        trim_in_ = {first_block,
+                   first_block->length(),
+                   first_block->length() - (range_.out() - first_block->in())};
       } else {
+        // We know for sure this block is within the range so it will be removed
         removals_.append(RemoveOperation({first_block, first_block->previous()}));
       }
 
-      // Loop through the rest of the blocks and determine what to do with those
-      for (Block* next=first_block->next(); next; next=next->next()) {
-        bool trimming = (next->out() > range_.out());
+      // If the first block is getting in trimmed, we're already at the end of our range
+      if (!first_block_is_in_trimmed) {
+        // Loop through the rest of the blocks and determine what to do with those
+        for (Block* next=first_block->next(); next; next=next->next()) {
+          bool trimming = (next->out() > range_.out());
 
-        if (trimming) {
-          trim_in_ = {next,
-                      next->length(),
-                      next->length() - (range_.out() - next->in())};
-          break;
-        } else {
-          removals_.append(RemoveOperation({next, next->previous()}));
-
-          if (next->out() == range_.out()) {
+          if (trimming) {
+            trim_in_ = {next,
+                        next->length(),
+                        next->length() - (range_.out() - next->in())};
             break;
+          } else {
+            removals_.append(RemoveOperation({next, next->previous()}));
+
+            if (next->out() == range_.out()) {
+              break;
+            }
           }
         }
       }
@@ -1125,7 +1138,7 @@ private:
   TrimOperation trim_out_;
   QVector<RemoveOperation> removals_;
   TrimOperation trim_in_;
-  Block* insert_before_;
+  Block* insert_previous_;
 
   BlockSplitCommand* splice_split_command_;
   QVector<QUndoCommand*> remove_block_commands_;
