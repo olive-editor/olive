@@ -62,15 +62,6 @@ public:
     int element;
   };
 
-signals:
-  void OutputConnected(NodeInput* destination, int element);
-
-  void OutputDisconnected(NodeInput* destination, int element);
-
-  void InputConnected(Node* source, int element);
-
-  void InputDisconnected(Node* source, int element);
-
 protected:
   const std::vector<InputConnection>& output_connections() const
   {

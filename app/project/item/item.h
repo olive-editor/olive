@@ -60,7 +60,7 @@ public:
   /**
    * @brief Required virtual Item destructor
    */
-  virtual ~Item();
+  virtual ~Item() override;
 
   virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) = 0;
 

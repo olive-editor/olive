@@ -38,6 +38,11 @@ NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const No
   setParent(parent);
 }
 
+NodeKeyframe::~NodeKeyframe()
+{
+  setParent(nullptr);
+}
+
 NodeKeyframe *NodeKeyframe::copy(QObject* parent) const
 {
   NodeKeyframe* copy = new NodeKeyframe(time_, value_, type_, track_, element_, parent);

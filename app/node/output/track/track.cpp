@@ -515,7 +515,7 @@ void Track::BlockConnected(Node *node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
-    InputConnectionChanged(node, element);
+    InvalidateAll(block_input_, element);
     return;
   }
 
@@ -587,7 +587,7 @@ void Track::BlockDisconnected(Node* node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
-    InputConnectionChanged(node, element);
+    InvalidateAll(block_input_, element);
     return;
   }
 

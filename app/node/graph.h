@@ -77,13 +77,6 @@ protected:
 private:
   QVector<Node*> node_children_;
 
-private slots:
-  void SignalInputConnected(Node* output, int element);
-
-  void SignalInputDisconnected(Node* output, int element);
-
-  void SignalValueChanged(const TimeRange& range, int element);
-
 };
 
 }

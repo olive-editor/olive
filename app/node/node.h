@@ -427,6 +427,8 @@ public:
     return output_connections();
   }
 
+  void InvalidateAll(NodeInput *input, int element);
+
 protected:
   void SendInvalidateCache(const TimeRange &range);
 
@@ -478,10 +480,15 @@ signals:
 
   void ColorChanged();
 
-public slots:
-  void InputChanged(const olive::TimeRange &range, int element);
+  void ValueChanged(NodeInput* input, int element);
 
-  void InputConnectionChanged(Node* source, int element);
+  void InputConnected(Node* output, NodeInput* input, int element);
+
+  void InputDisconnected(Node* output, NodeInput* input, int element);
+
+  void OutputConnected(NodeInput* destination, int element);
+
+  void OutputDisconnected(NodeInput* destination, int element);
 
 private:
   template<class T>
@@ -517,6 +524,13 @@ private:
    * @brief -1 if the color should be based on the category, >=0 if the user has set a custom color
    */
   int override_color_;
+
+private slots:
+  void ParameterValueChanged(const olive::TimeRange &range, int element);
+
+  void ParameterConnected(Node* source, int element);
+
+  void ParameterDisconnected(Node* source, int element);
 
 };
 

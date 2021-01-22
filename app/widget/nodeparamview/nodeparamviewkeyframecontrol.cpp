@@ -230,7 +230,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
 
   if (e) {
     // Enable keyframing
-    new NodeParamSetKeyframingCommand(input_, true, command);
+    new NodeParamSetKeyframingCommand(input_, element_, true, command);
 
     // Create one keyframe across all tracks here
     const QVector<QVariant>& key_vals = input_->GetSplitStandardValue(element_);
@@ -267,7 +267,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
       }
 
       // Disable keyframing
-      new NodeParamSetKeyframingCommand(input_, false, command);
+      new NodeParamSetKeyframingCommand(input_, element_, false, command);
 
     } else {
       // Disable action has effectively been ignored

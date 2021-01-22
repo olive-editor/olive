@@ -42,6 +42,8 @@ public:
 
   void remove_keyframe(NodeKeyframe* key);
 
+  void delete_all_keyframes();
+
   /**
    * @brief Get non-keyframed value split into components (the way it's stored)
    */

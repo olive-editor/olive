@@ -48,7 +48,7 @@ Track *TrackList::GetTrackAt(int index) const
 void TrackList::TrackConnected(Node *node, int element)
 {
   if (element == -1) {
-    parent()->InputConnectionChanged(node, element);
+    parent()->InvalidateAll(track_input_, element);
     return;
   }
 
@@ -99,7 +99,7 @@ void TrackList::TrackDisconnected(Node *node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
-    parent()->InputConnectionChanged(node, element);
+    parent()->InvalidateAll(track_input_, element);
     return;
   }
 

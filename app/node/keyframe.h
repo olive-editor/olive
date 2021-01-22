@@ -63,6 +63,8 @@ public:
    */
   NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track, int element, QObject* parent = nullptr);
 
+  virtual ~NodeKeyframe() override;
+
   NodeKeyframe* copy(QObject* parent = nullptr) const;
 
   NodeInput* parent() const;

@@ -36,6 +36,8 @@
 
 namespace olive {
 
+#define super NodeConnectable
+
 Node::Node() :
   can_be_deleted_(true),
   override_color_(-1)
@@ -45,6 +47,8 @@ Node::Node() :
 Node::~Node()
 {
   DisconnectAll();
+
+  setParent(nullptr);
 }
 
 NodeGraph *Node::parent() const
@@ -319,6 +323,11 @@ void Node::SendInvalidateCache(const TimeRange &range)
   }
 }
 
+void Node::InvalidateAll(NodeInput* input, int element)
+{
+  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), {input, element});
+}
+
 void Node::IgnoreInvalidationsFrom(NodeInput *input)
 {
   ignore_connections_.append(input);
@@ -498,17 +507,30 @@ void Node::HashInputElement(QCryptographicHash &hash, NodeInput *input, int elem
   }
 }
 
-void Node::InputConnectionChanged(Node *source, int element)
+void Node::ParameterConnected(Node *source, int element)
 {
-  Q_UNUSED(source)
-
   NodeInput* input = static_cast<NodeInput*>(sender());
+
+  emit InputConnected(source, input, element);
 
   if (ignore_connections_.contains(input)) {
     return;
   }
 
-  InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), {input, element});
+  InvalidateAll(input, element);
+}
+
+void Node::ParameterDisconnected(Node *source, int element)
+{
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  emit InputDisconnected(source, input, element);
+
+  if (ignore_connections_.contains(input)) {
+    return;
+  }
+
+  InvalidateAll(input, element);
 }
 
 QVector<Node *> Node::GetDependencies() const
@@ -764,9 +786,11 @@ void Node::SetPosition(const QPointF &pos)
   emit PositionChanged(position_);
 }
 
-void Node::InputChanged(const TimeRange& range, int element)
+void Node::ParameterValueChanged(const TimeRange& range, int element)
 {
   NodeInput* input = static_cast<NodeInput*>(sender());
+
+  emit ValueChanged(input, element);
 
   if (ignore_connections_.contains(input)) {
     return;
@@ -807,6 +831,8 @@ void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rec
 
 void Node::childEvent(QChildEvent *event)
 {
+  super::childEvent(event);
+
   NodeInput* input = dynamic_cast<NodeInput*>(event->child());
 
   if (input) {
@@ -817,17 +843,13 @@ void Node::childEvent(QChildEvent *event)
       // Keep main output as the last parameter, assume if there are no parameters that this is the output parameter
       inputs_.append(input);
 
-      connect(input, &NodeInput::InputConnected, this, &Node::InputConnected);
-      connect(input, &NodeInput::InputDisconnected, this, &Node::InputDisconnected);
-      connect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-      connect(input, &NodeInput::InputConnected, this, &Node::InputConnectionChanged);
-      connect(input, &NodeInput::InputDisconnected, this, &Node::InputConnectionChanged);
+      connect(input, &NodeInput::ValueChanged, this, &Node::ParameterValueChanged);
+      connect(input, &NodeInput::InputConnected, this, &Node::ParameterConnected);
+      connect(input, &NodeInput::InputDisconnected, this, &Node::ParameterDisconnected);
     } else if (event->type() == QEvent::ChildRemoved) {
-      disconnect(input, &NodeInput::InputConnected, this, &Node::InputConnected);
-      disconnect(input, &NodeInput::InputDisconnected, this, &Node::InputDisconnected);
-      disconnect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
-      disconnect(input, &NodeInput::InputConnected, this, &Node::InputConnectionChanged);
-      disconnect(input, &NodeInput::InputDisconnected, this, &Node::InputConnectionChanged);
+      disconnect(input, &NodeInput::ValueChanged, this, &Node::ParameterValueChanged);
+      disconnect(input, &NodeInput::InputConnected, this, &Node::ParameterConnected);
+      disconnect(input, &NodeInput::InputDisconnected, this, &Node::ParameterDisconnected);
 
       inputs_.removeOne(input);
     }

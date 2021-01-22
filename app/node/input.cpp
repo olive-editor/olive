@@ -669,6 +669,7 @@ void NodeInput::CopyValuesOfElement(NodeInput *src, NodeInput *dst, int element)
   dst->SetSplitStandardValue(src->GetSplitStandardValue(element), element);
 
   // Copy keyframes
+  dst->GetImmediate(element)->delete_all_keyframes();
   foreach (const NodeKeyframeTrack& track, src->GetImmediate(element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
       key->copy(dst);

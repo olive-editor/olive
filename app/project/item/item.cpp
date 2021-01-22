@@ -22,6 +22,8 @@
 
 namespace olive {
 
+#define super QObject
+
 Item::Item() :
   item_parent_(nullptr),
   project_(nullptr)
@@ -30,6 +32,7 @@ Item::Item() :
 
 Item::~Item()
 {
+  setParent(nullptr);
 }
 
 const QString &Item::name() const
@@ -111,7 +114,7 @@ void Item::NameChangedEvent(const QString &)
 
 void Item::childEvent(QChildEvent *event)
 {
-  QObject::childEvent(event);
+  super::childEvent(event);
 
   Item* cast_test = dynamic_cast<Item*>(event->child());
 

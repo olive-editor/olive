@@ -28,10 +28,9 @@ NodeGraph::NodeGraph()
 
 void NodeGraph::Clear()
 {
-  foreach (Node* node, node_children_) {
-    delete node;
+  while (!node_children_.isEmpty()) {
+    delete node_children_.first();
   }
-  node_children_.clear();
 }
 
 void NodeGraph::childEvent(QChildEvent *event)
@@ -45,12 +44,10 @@ void NodeGraph::childEvent(QChildEvent *event)
 
       node_children_.append(node);
 
-      // Connect to each input
-      foreach (NodeInput* input, node->parameters()) {
-        connect(input, &NodeInput::InputConnected, this, &NodeGraph::SignalInputConnected);
-        connect(input, &NodeInput::InputDisconnected, this, &NodeGraph::SignalInputDisconnected);
-        connect(input, &NodeInput::ValueChanged, this, &NodeGraph::SignalValueChanged);
-      }
+      // Connect signals
+      connect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
+      connect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
+      connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeAdded(node);
 
@@ -58,34 +55,15 @@ void NodeGraph::childEvent(QChildEvent *event)
 
       node_children_.removeOne(node);
 
-      // Disconnect from inputs
-      foreach (NodeInput* input, node->parameters()) {
-        disconnect(input, &NodeInput::InputConnected, this, &NodeGraph::SignalInputConnected);
-        disconnect(input, &NodeInput::InputDisconnected, this, &NodeGraph::SignalInputDisconnected);
-        disconnect(input, &NodeInput::ValueChanged, this, &NodeGraph::SignalValueChanged);
-      }
+      // Disconnect signals
+      disconnect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
+      disconnect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
+      disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
 
       emit NodeRemoved(node);
 
     }
   }
-}
-
-void NodeGraph::SignalInputConnected(Node *output, int element)
-{
-  emit InputConnected(output, static_cast<NodeInput*>(sender()), element);
-}
-
-void NodeGraph::SignalInputDisconnected(Node *output, int element)
-{
-  emit InputDisconnected(output, static_cast<NodeInput*>(sender()), element);
-}
-
-void NodeGraph::SignalValueChanged(const TimeRange &range, int element)
-{
-  Q_UNUSED(range)
-
-  emit ValueChanged(static_cast<NodeInput*>(sender()), element);
 }
 
 }

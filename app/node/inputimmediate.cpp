@@ -240,4 +240,13 @@ void NodeInputImmediate::remove_keyframe(NodeKeyframe *key)
   keyframe_tracks_[key->track()].removeOne(key);
 }
 
+void NodeInputImmediate::delete_all_keyframes()
+{
+  for (NodeKeyframeTrack& track : keyframe_tracks_) {
+    while (!track.isEmpty()) {
+      delete track.first();
+    }
+  }
+}
+
 }

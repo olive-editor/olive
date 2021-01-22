@@ -355,6 +355,10 @@ signals:
 
   void DataTypeChanged(NodeValue::Type type);
 
+  void InputConnected(Node* source, int element);
+
+  void InputDisconnected(Node* source, int element);
+
 protected:
   virtual bool event(QEvent* e) override;
 
