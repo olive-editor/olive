@@ -35,6 +35,7 @@ Project::Project() :
   is_modified_(false),
   autorecovery_saved_(true)
 {
+  root_.setParent(this);
   root_.set_project(this);
 
   connect(&color_manager_, &ColorManager::ConfigChanged,
