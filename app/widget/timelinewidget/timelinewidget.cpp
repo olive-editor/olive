@@ -500,10 +500,8 @@ void TimelineWidget::IncreaseTrackHeight()
     return;
   }
 
-  QVector<Track*> all_tracks = GetConnectedNode()->GetTracks();
-
   // Increase the height of each track by one "unit"
-  foreach (Track* t, all_tracks) {
+  foreach (Track* t, GetConnectedNode()->GetTracks()) {
     t->SetTrackHeight(t->GetTrackHeight() + Track::kTrackHeightInterval);
   }
 }
@@ -514,10 +512,8 @@ void TimelineWidget::DecreaseTrackHeight()
     return;
   }
 
-  QVector<Track*> all_tracks = GetConnectedNode()->GetTracks();
-
   // Decrease the height of each track by one "unit"
-  foreach (Track* t, all_tracks) {
+  foreach (Track* t, GetConnectedNode()->GetTracks()) {
     t->SetTrackHeight(qMax(t->GetTrackHeight() - Track::kTrackHeightInterval, Track::kTrackHeightMinimum));
   }
 }
@@ -534,12 +530,10 @@ void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<Footage *> &footag
 
 void TimelineWidget::ToggleLinksOnSelected()
 {
-  QVector<Block*> sel = GetSelectedBlocks();
-
   QVector<Block*> blocks;
   bool link = true;
 
-  foreach (Block* item, sel) {
+  foreach (Block* item, GetSelectedBlocks()) {
     // Only clips can be linked
     if (item->type() != Block::kClip) {
       continue;
