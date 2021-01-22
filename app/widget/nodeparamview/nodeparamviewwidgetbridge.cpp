@@ -359,7 +359,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kFootage:
   {
     // Widget is a FootageComboBox
-    SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()), 0);
+    SetInputValue(Node::PtrToValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()), 0);
     break;
   }
   case NodeValue::kCombo:
