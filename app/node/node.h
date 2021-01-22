@@ -193,10 +193,6 @@ public:
     return inputs_;
   }
 
-  static void RemoveNodesAndExclusiveDependencies(Node* node, QUndoCommand* command);
-
-  static void RemoveNodeAndDisconnect(Node* node, QUndoCommand* command);
-
   /**
    * @brief Return the index of a parameter
    * @return Parameter index or -1 if this parameter is not part of this Node

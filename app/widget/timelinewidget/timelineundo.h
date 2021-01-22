@@ -48,9 +48,7 @@ inline bool NodeCanBeRemoved(Node* n)
 
 inline QUndoCommand* CreateRemoveCommand(Node* n)
 {
-  QUndoCommand* command = new QUndoCommand();
-  Node::RemoveNodesAndExclusiveDependencies(n, command);
-  return command;
+  return new NodeRemoveWithExclusiveDependenciesAndDisconnect(n);
 }
 
 inline QUndoCommand* CreateAndRunRemoveCommand(Node* n)

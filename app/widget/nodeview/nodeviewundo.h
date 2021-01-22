@@ -90,22 +90,124 @@ private:
   Node* node_;
 };
 
-class NodeRemoveCommand : public UndoCommand {
+class NodeRemoveAndDisconnectCommand : public UndoCommand {
 public:
-  NodeRemoveCommand(Node* node,
-                    QUndoCommand* parent = nullptr);
+  NodeRemoveAndDisconnectCommand(Node* node, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    node_(node),
+    graph_(nullptr),
+    command_(nullptr),
+    prepped_(false)
+  {
+  }
 
-  virtual Project* GetRelevantProject() const override;
+  virtual ~NodeRemoveAndDisconnectCommand() override
+  {
+    delete command_;
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    if (graph_) {
+      return graph_->project();
+    } else {
+      return node_->parent()->project();
+    }
+  }
 
 protected:
-  virtual void redo_internal() override;
-  virtual void undo_internal() override;
+  virtual void redo_internal() override
+  {
+    if (!prepped_) {
+      prep();
+      prepped_ = true;
+    }
+
+    command_->redo();
+
+    graph_ = node_->parent();
+    node_->setParent(&memory_manager_);
+  }
+
+  virtual void undo_internal() override
+  {
+    node_->setParent(graph_);
+    graph_ = nullptr;
+
+    command_->undo();
+  }
 
 private:
+  void prep();
+
   QObject memory_manager_;
 
-  NodeGraph* graph_;
   Node* node_;
+  NodeGraph* graph_;
+
+  QUndoCommand* command_;
+
+  bool prepped_;
+
+};
+
+class NodeRemoveWithExclusiveDependenciesAndDisconnect : public UndoCommand {
+public:
+  NodeRemoveWithExclusiveDependenciesAndDisconnect(Node* node, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    node_(node),
+    command_(nullptr),
+    prepped_(false)
+  {
+  }
+
+  virtual ~NodeRemoveWithExclusiveDependenciesAndDisconnect() override
+  {
+    delete command_;
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    if (command_) {
+      return static_cast<const NodeRemoveAndDisconnectCommand*>(command_->child(0))->GetRelevantProject();
+    } else {
+      return node_->parent()->project();
+    }
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    if (!prepped_) {
+      prep();
+      prepped_ = true;
+    }
+
+    command_->redo();
+  }
+
+  virtual void undo_internal() override
+  {
+    command_->undo();
+  }
+
+private:
+  void prep()
+  {
+    command_ = new QUndoCommand();
+
+    new NodeRemoveAndDisconnectCommand(node_, command_);
+
+    // Remove exclusive dependencies
+    QVector<Node*> deps = node_->GetExclusiveDependencies();
+    foreach (Node* d, deps) {
+      new NodeRemoveAndDisconnectCommand(d, command_);
+    }
+  }
+
+  Node* node_;
+  QUndoCommand* command_;
+  bool prepped_;
 
 };
 

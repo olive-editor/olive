@@ -31,7 +31,7 @@ void NodeConnectable::ConnectEdge(Node *output, NodeInput *input, int element)
 
   // Connection exists
   if (std::find(output->output_connections_.begin(), output->output_connections_.end(), conn_to_in) != output->output_connections_.end()) {
-    qDebug() << "Ignored connect that already exists";
+    qDebug() << "Ignored connect that already exists:" << output << input->parent() << input->id() << element;
     return;
   }
 
@@ -53,7 +53,7 @@ void NodeConnectable::DisconnectEdge(Node *output, NodeInput *input, int element
 
   // Connection exists
   if (std::find(output->output_connections_.begin(), output->output_connections_.end(), conn_to_in) == output->output_connections_.end()) {
-    qDebug() << "Ignored disconnect that doesn't exist";
+    qDebug() << "Ignored disconnect that doesn't exist:" << output << input->parent() << input->id() << element;
     return;
   }
 

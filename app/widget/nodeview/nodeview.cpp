@@ -139,7 +139,7 @@ void NodeView::DeleteSelected()
 
     if (!selected_nodes.isEmpty()) {
       foreach (Node* node, selected_nodes) {
-        Node::RemoveNodeAndDisconnect(node, command);
+        new NodeRemoveAndDisconnectCommand(node, command);
       }
     }
   }

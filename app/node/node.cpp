@@ -193,35 +193,6 @@ QBrush Node::brush(qreal top, qreal bottom) const
   }
 }
 
-void Node::RemoveNodesAndExclusiveDependencies(Node *node, QUndoCommand *command)
-{
-  // Remove main node
-  RemoveNodeAndDisconnect(node, command);
-
-  // Remove exclusive dependencies
-  QVector<Node*> deps = node->GetExclusiveDependencies();
-  foreach (Node* d, deps) {
-    RemoveNodeAndDisconnect(d, command);
-  }
-}
-
-void Node::RemoveNodeAndDisconnect(Node *node, QUndoCommand *command)
-{
-  // Disconnect everything
-  foreach (const InputConnection& conn, node->output_connections()) {
-    new NodeEdgeRemoveCommand(node, conn.input, conn.element, command);
-  }
-
-  foreach (NodeInput* input, node->inputs_) {
-    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      new NodeEdgeRemoveCommand(it->second, input, it->first, command);
-    }
-  }
-
-  // Remove node
-  new NodeRemoveCommand(node, command);
-}
-
 NodeValueTable Node::Value(NodeValueDatabase &value) const
 {
   return value.Merge();

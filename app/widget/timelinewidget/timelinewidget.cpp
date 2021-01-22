@@ -435,7 +435,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
     new TrackReplaceBlockWithGapCommand(original_track, b, command);
 
     if (remove_from_graph) {
-      Node::RemoveNodesAndExclusiveDependencies(b, command);
+      new NodeRemoveWithExclusiveDependenciesAndDisconnect(b, command);
     }
   }
 }
@@ -471,7 +471,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   foreach (TransitionBlock* transition, transitions_to_delete) {
     new TransitionRemoveCommand(transition, command);
 
-    Node::RemoveNodesAndExclusiveDependencies(transition, command);
+    new NodeRemoveWithExclusiveDependenciesAndDisconnect(transition, command);
   }
 
   // Replace clips with gaps (effectively deleting them)

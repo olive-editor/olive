@@ -21,6 +21,7 @@
 #include "nodeviewundo.h"
 
 #include "project/item/sequence/sequence.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 namespace olive {
 
@@ -94,28 +95,6 @@ Project *NodeAddCommand::GetRelevantProject() const
   return graph_->project();
 }
 
-NodeRemoveCommand::NodeRemoveCommand(Node *node, QUndoCommand *parent) :
-  UndoCommand(parent),
-  graph_(node->parent()),
-  node_(node)
-{
-}
-
-void NodeRemoveCommand::redo_internal()
-{
-  node_->setParent(&memory_manager_);
-}
-
-void NodeRemoveCommand::undo_internal()
-{
-  node_->setParent(graph_);
-}
-
-Project *NodeRemoveCommand::GetRelevantProject() const
-{
-  return static_cast<Sequence*>(graph_)->project();
-}
-
 NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections, QUndoCommand *parent) :
   QUndoCommand(parent),
   src_(src),
@@ -127,6 +106,28 @@ NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include
 void NodeCopyInputsCommand::redo()
 {
   Node::CopyInputs(src_, dest_, include_connections_);
+}
+
+void NodeRemoveAndDisconnectCommand::prep()
+{
+  command_ = new QUndoCommand();
+
+  // If this is a block, remove all links
+  Block* block = dynamic_cast<Block*>(node_);
+  if (block) {
+    new BlockUnlinkAllCommand(block, command_);
+  }
+
+  // Disconnect everything
+  foreach (const Node::InputConnection& conn, node_->edges()) {
+    new NodeEdgeRemoveCommand(node_, conn.input, conn.element, command_);
+  }
+
+  foreach (NodeInput* input, node_->inputs()) {
+    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
+      new NodeEdgeRemoveCommand(it->second, input, it->first, command_);
+    }
+  }
 }
 
 }
