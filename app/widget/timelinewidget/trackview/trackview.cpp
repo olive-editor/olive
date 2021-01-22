@@ -68,8 +68,9 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
 void TrackView::ConnectTrackList(TrackList *list)
 {
   if (list_ != nullptr) {
-    foreach (Track* track, list_->GetTracks()) {
-      RemoveTrack(track);
+    // Remove tracks
+    for (int i=0; i<list_->GetTrackCount(); i++) {
+      splitter_->Remove(0);
     }
 
     disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
