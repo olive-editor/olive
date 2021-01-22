@@ -22,6 +22,7 @@
 
 #include <QInputDialog>
 #include <QMouseEvent>
+#include <QScrollBar>
 
 #include "core.h"
 #include "nodeviewundo.h"
@@ -564,7 +565,21 @@ void NodeView::wheelEvent(QWheelEvent *event)
     double test_scale = scale_ * multiplier;
 
     if (test_scale > 0.1) {
+      QPointF cursor_pos;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+      cursor_pos = event->position();
+#else
+      cursor_pos = event->posF();
+#endif
+
+      int anchor_x = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / scale_ * test_scale - cursor_pos.x());
+      int anchor_y = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / scale_ * test_scale - cursor_pos.y());
+
       scale(multiplier, multiplier);
+
+      this->horizontalScrollBar()->setValue(anchor_x);
+      this->verticalScrollBar()->setValue(anchor_y);
+
       scale_ = test_scale;
     }
   } else {

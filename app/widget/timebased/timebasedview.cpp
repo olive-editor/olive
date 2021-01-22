@@ -302,7 +302,7 @@ bool TimeBasedView::HandleZoomFromScroll(QWheelEvent *event)
       if (!only_vertical) {
         double new_x_scale = GetScale() * scale_multiplier;
 
-        int new_x_scroll = qRound(horizontalScrollBar()->value() / GetScale() * new_x_scale + (cursor_pos.x() - cursor_pos.x() / new_x_scale * GetScale()));
+        int new_x_scroll = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / GetScale() * new_x_scale - cursor_pos.x());
 
         emit ScaleChanged(new_x_scale);
 
@@ -312,7 +312,7 @@ bool TimeBasedView::HandleZoomFromScroll(QWheelEvent *event)
       if (!only_horizontal) {
         double new_y_scale = GetYScale() * scale_multiplier;
 
-        int new_y_scroll = qRound(verticalScrollBar()->value() / GetYScale() * new_y_scale + (cursor_pos.y() - cursor_pos.y() / new_y_scale * GetYScale()));
+        int new_y_scroll = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / GetYScale() * new_y_scale - cursor_pos.y());
 
         SetYScale(new_y_scale);
 
