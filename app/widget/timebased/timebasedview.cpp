@@ -328,7 +328,7 @@ bool TimeBasedView::HandleZoomFromScroll(QWheelEvent *event)
 
 bool TimeBasedView::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
-  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()[QStringLiteral("ScrollZooms")].toBool());
 }
 
 }
