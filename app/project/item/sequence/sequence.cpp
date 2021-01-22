@@ -132,21 +132,6 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint v
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("id")) {
               QString id = attr.value().toString();
-              if (version <= 201003) {
-                // After version 201003, the video and audio nodes were merged into one media node
-                if (id == QStringLiteral("org.olivevideoeditor.Olive.audioinput")
-                    || id == QStringLiteral("org.olivevideoeditor.Olive.videoinput")) {
-                  id = QStringLiteral("org.olivevideoeditor.Olive.mediainput");
-                }
-              }
-
-              if (version <= 201118) {
-                // After version 201118, the orthographic matrix node ID was changed from
-                // "org.olivevideoeditor.Olive.transform" to "org.olivevideoeditor.Olive.ortho"
-                if (id == QStringLiteral("org.olivevideoeditor.Olive.transform")) {
-                  id = QStringLiteral("org.olivevideoeditor.Olive.ortho");
-                }
-              }
 
               node = NodeFactory::CreateFromID(id);
               break;

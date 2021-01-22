@@ -52,7 +52,7 @@ bool ProjectLoadTask::Run()
               // Project is newer than we support
               SetError(tr("This project is newer than this version of Olive and cannot be opened."));
               return false;
-            } else if (project_version < 201003) { // Change this if we drop support for a project version
+            } else if (project_version < 210122) { // Change this if we drop support for a project version
               // Project is older than we support
               SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
               return false;
