@@ -351,6 +351,7 @@ void NodeParamView::PinNode(bool pin)
 
     if (!active_nodes_.contains(node)) {
       RemoveNode(node);
+      SignalNodeOrder();
     }
   }
 }
