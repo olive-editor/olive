@@ -29,6 +29,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewarraywidget.h"
 #include "nodeparamviewconnectedlabel.h"
 #include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
@@ -105,11 +106,31 @@ private:
     NodeParamViewWidgetBridge* widget_bridge;
     NodeParamViewConnectedLabel* connected_label;
     NodeParamViewKeyframeControl* key_control;
+
+    NodeParamViewArrayButton* array_insert_btn;
+    NodeParamViewArrayButton* array_remove_btn;
   };
 
   QHash<Node::InputConnection, InputUI> input_ui_map_;
 
-  QVector<NodeParamViewItemBody*> sub_bodies_;
+  struct ArrayUI {
+    QWidget* widget;
+    int count;
+    NodeParamViewArrayButton* append_btn;
+  };
+
+  QHash<NodeInput*, ArrayUI> array_ui_;
+
+  /**
+   * @brief The column to place the keyframe controls in
+   *
+   * Serves as an effective "maximum column" index because the keyframe button is always aligned
+   * to the right edge.
+   */
+  static const int kKeyControlColumn;
+
+  static const int kArrayInsertColumn;
+  static const int kArrayRemoveColumn;
 
 private slots:
   void EdgeChanged(Node *src, int element);
@@ -118,7 +139,15 @@ private slots:
 
   void InputAddedKeyframe(NodeKeyframe* key);
 
-  void ConnectionClicked();
+  void ArrayCollapseBtnPressed(bool checked);
+
+  void InputArraySizeChanged(int size);
+
+  void ArrayAppendClicked();
+
+  void ArrayInsertClicked();
+
+  void ArrayRemoveClicked();
 
 };
 

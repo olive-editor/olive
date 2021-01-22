@@ -29,6 +29,27 @@
 
 namespace olive {
 
+class NodeParamViewArrayButton : public QPushButton
+{
+  Q_OBJECT
+public:
+  enum Type {
+    kAdd,
+    kRemove
+  };
+
+  NodeParamViewArrayButton(Type type, QWidget* parent = nullptr);
+
+protected:
+  virtual void changeEvent(QEvent* event) override;
+
+private:
+  void Retranslate();
+
+  Type type_;
+
+};
+
 class NodeParamViewArrayWidget : public QWidget
 {
   Q_OBJECT
@@ -40,12 +61,8 @@ private:
 
   QLabel* count_lbl_;
 
-  QPushButton* plus_btn_;
-
 private slots:
   void UpdateCounter();
-
-  void AddElement();
 
 };
 

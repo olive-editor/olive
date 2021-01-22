@@ -55,8 +55,6 @@ public:
   NodeViewItem* NodeToUIObject(Node* n);
   NodeViewEdge *EdgeToUIObject(Node* output, NodeInput *input, int element);
 
-  void SetGraph(NodeGraph* graph);
-
   QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
   QVector<NodeViewEdge*> GetSelectedEdges() const;
@@ -76,7 +74,10 @@ public:
   NodeViewCommon::FlowDirection GetFlowDirection() const;
   void SetFlowDirection(NodeViewCommon::FlowDirection direction);
 
-  bool GetEdgesAreCurved() const;
+  bool GetEdgesAreCurved() const
+  {
+    return curved_edges_;
+  }
 
   void ReorganizeFrom(Node* n);
 

@@ -481,6 +481,13 @@ void NodeInput::ArrayResize(int size)
 {
   if (array_size_ != size) {
     // Update array size
+    if (array_size_ < size) {
+      // Size is larger, create any immediates that don't exist
+      for (int i=subinputs_.size(); i<size; i++) {
+        subinputs_.append(CreateImmediate());
+      }
+    }
+
     ChangeArraySizeInternal(size);
 
     if (array_size_ > size) {
@@ -493,11 +500,6 @@ void NodeInput::ArrayResize(int size)
 
       // Note that we do not delete any immediates since the user might still want that data.
       // Therefore it's important to note that array_size_ does NOT necessarily equal subinputs_.size()
-    } else {
-      // Size is larger, create any immediates that don't exist
-      for (int i=subinputs_.size(); i<size; i++) {
-        subinputs_.append(CreateImmediate());
-      }
     }
   }
 }

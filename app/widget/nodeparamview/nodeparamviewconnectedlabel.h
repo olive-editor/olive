@@ -32,12 +32,14 @@ public:
   NodeParamViewConnectedLabel(NodeInput* input, int element, QWidget* parent = nullptr);
 
 signals:
-  void ConnectionClicked();
+  void RequestSelectNode(const QVector<Node*>& node);
 
 private slots:
   void UpdateConnected(Node* src, int element);
 
   void ShowLabelContextMenu();
+
+  void ConnectionClicked();
 
 private:
   ClickableLabel* connected_to_lbl_;

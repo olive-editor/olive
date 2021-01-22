@@ -94,4 +94,9 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
   m.exec(QCursor::pos());
 }
 
+void NodeParamViewConnectedLabel::ConnectionClicked()
+{
+  emit RequestSelectNode({input_->GetConnectedNode(element_)});
+}
+
 }

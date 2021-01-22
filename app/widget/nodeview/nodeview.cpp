@@ -79,14 +79,15 @@ void NodeView::SetGraph(NodeGraph *graph)
     disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
     disconnect(graph_, &NodeGraph::InputConnected, &scene_, &NodeViewScene::AddEdge);
     disconnect(graph_, &NodeGraph::InputDisconnected, &scene_, &NodeViewScene::RemoveEdge);
-  }
 
-  // Clear the scene of all UI objects
-  scene_.clear();
+    DeselectAll();
+
+    // Clear the scene of all UI objects
+    scene_.clear();
+  }
 
   // Set reference to the graph
   graph_ = graph;
-  scene_.SetGraph(graph_);
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_) {
@@ -148,6 +149,10 @@ void NodeView::DeleteSelected()
 
 void NodeView::SelectAll()
 {
+  if (!graph_) {
+    return;
+  }
+
   // Optimization: rather than respond to every single item being selected, ignore the signal and
   //               then handle them all at the end.
   DisconnectSelectionChangedSignal();
@@ -155,24 +160,29 @@ void NodeView::SelectAll()
   scene_.SelectAll();
 
   ConnectSelectionChangedSignal();
-  SceneSelectionChangedSlot();
+
+  if (selected_nodes_.isEmpty()) {
+    // No nodes were selected before so we can just emit them all
+    emit NodesSelected(graph_->nodes());
+  } else {
+    // We have to determine the difference
+    QVector<Node*> new_selection;
+    foreach (Node* n, graph_->nodes()) {
+      if (!selected_nodes_.contains(n)) {
+        new_selection.append(n);
+      }
+    }
+
+    emit NodesSelected(new_selection);
+  }
+
+  // Just add everything to the selected nodes list
+  selected_nodes_ = graph_->nodes();
 }
 
 void NodeView::DeselectAll()
 {
-  // Optimization: rather than respond to every single item being selected, ignore the signal and
-  //               then handle them all at the end.
-  DisconnectSelectionChangedSignal();
-
-  scene_.DeselectAll();
-
-  ConnectSelectionChangedSignal();
-  SceneSelectionChangedSlot();
-}
-
-void NodeView::Select(const QVector<Node *> &nodes)
-{
-  if (!graph_) {
+  if (!graph_ || selected_nodes_.isEmpty()) {
     return;
   }
 
@@ -182,14 +192,63 @@ void NodeView::Select(const QVector<Node *> &nodes)
 
   scene_.DeselectAll();
 
+  ConnectSelectionChangedSignal();
+
+  // Just emit all the nodes that are currently selected as no longer selected
+  emit NodesDeselected(selected_nodes_);
+  selected_nodes_.clear();
+}
+
+void NodeView::Select(QVector<Node *> nodes)
+{
+  if (!graph_) {
+    return;
+  }
+
+  // Optimization: rather than respond to every single item being selected, ignore the signal and
+  //               then handle them all at the end.
+  DisconnectSelectionChangedSignal();
+
+  QVector<Node*> deselections_ = selected_nodes_;
+  QVector<Node*> new_selections_;
+
+  scene_.DeselectAll();
+
+  // Remove any duplicates
+  QVector<Node*> processed;
+
   foreach (Node* n, nodes) {
+    if (processed.contains(n)) {
+      continue;
+    }
+
+    processed.append(n);
+
     NodeViewItem* item = scene_.NodeToUIObject(n);
 
     item->setSelected(true);
+
+    if (deselections_.contains(n)) {
+      deselections_.removeOne(n);
+    } else {
+      new_selections_.append(n);
+    }
   }
 
   ConnectSelectionChangedSignal();
-  SceneSelectionChangedSlot();
+
+  // Emit deselect signal for any nodes that weren't in the list
+  if (!deselections_.isEmpty()) {
+    emit NodesDeselected(deselections_);
+  }
+
+  // Emit select signal for any nodes that weren't in the list
+  if (!new_selections_.isEmpty()) {
+    emit NodesSelected(new_selections_);
+  }
+
+  // Update selected list to the list we received
+  selected_nodes_ = nodes;
 }
 
 void NodeView::SelectWithDependencies(QVector<Node *> nodes)
@@ -324,6 +383,11 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
     // Find if the cursor is currently inside an item
     NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
+
+    // Filter out connecting to self1
+    if (item_at_cursor == create_edge_src_) {
+      item_at_cursor = nullptr;
+    }
 
     // If the item has changed
     if (item_at_cursor != create_edge_dst_) {
@@ -505,7 +569,7 @@ void NodeView::wheelEvent(QWheelEvent *event)
   }
 }
 
-void NodeView::SceneSelectionChangedSlot()
+void NodeView::UpdateSelectionCache()
 {
   QVector<Node*> current_selection = scene_.GetSelectedNodes();
 
@@ -714,12 +778,12 @@ void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
 
 void NodeView::ConnectSelectionChangedSignal()
 {
-  connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
+  connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::UpdateSelectionCache);
 }
 
 void NodeView::DisconnectSelectionChangedSignal()
 {
-  disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
+  disconnect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::UpdateSelectionCache);
 }
 
 }

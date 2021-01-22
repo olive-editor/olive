@@ -33,13 +33,6 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInput *array, QWidget* pa
   count_lbl_ = new QLabel();
   layout->addWidget(count_lbl_);
 
-  layout->addStretch();
-
-  plus_btn_ = new QPushButton(tr("+"));
-  plus_btn_->setFixedWidth(plus_btn_->sizeHint().height());
-  layout->addWidget(plus_btn_);
-
-  connect(plus_btn_, &QPushButton::clicked, this, &NodeParamViewArrayWidget::AddElement);
   connect(array_, &NodeInput::ArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
 
   UpdateCounter();
@@ -50,9 +43,32 @@ void NodeParamViewArrayWidget::UpdateCounter()
   count_lbl_->setText(tr("%1 element(s)").arg(array_->ArraySize()));
 }
 
-void NodeParamViewArrayWidget::AddElement()
+NodeParamViewArrayButton::NodeParamViewArrayButton(NodeParamViewArrayButton::Type type, QWidget *parent) :
+  QPushButton(parent),
+  type_(type)
 {
-  array_->ArrayResize(array_->ArraySize() + 1);
+  Retranslate();
+
+  int sz = sizeHint().height() / 3 * 2;
+  setFixedSize(sz, sz);
+}
+
+void NodeParamViewArrayButton::changeEvent(QEvent *event)
+{
+  if (event->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+
+  QPushButton::changeEvent(event);
+}
+
+void NodeParamViewArrayButton::Retranslate()
+{
+  if (type_ == kAdd) {
+    setText(tr("+"));
+  } else {
+    setText(tr("-"));
+  }
 }
 
 }

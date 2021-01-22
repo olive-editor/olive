@@ -59,7 +59,7 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(const QVector<Node*>& nodes);
+  void Select(QVector<Node *> nodes);
   void SelectWithDependencies(QVector<Node *> nodes);
 
   void CopySelected(bool cut);
@@ -134,7 +134,7 @@ private slots:
   /**
    * @brief Receiver for when the scene's selected items change
    */
-  void SceneSelectionChangedSlot();
+  void UpdateSelectionCache();
 
   /**
    * @brief Receiver for when the user right clicks (or otherwise requests a context menu)

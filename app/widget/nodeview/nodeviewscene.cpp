@@ -29,7 +29,6 @@ namespace olive {
 
 NodeViewScene::NodeViewScene(QObject *parent) :
   QGraphicsScene(parent),
-  graph_(nullptr),
   direction_(NodeViewCommon::kLeftToRight),
   curved_edges_(true)
 {
@@ -108,11 +107,6 @@ NodeViewEdge *NodeViewScene::EdgeToUIObject(Node* output, NodeInput* input, int 
   }
 
   return nullptr;
-}
-
-void NodeViewScene::SetGraph(NodeGraph *graph)
-{
-  graph_ = graph;
 }
 
 QVector<Node *> NodeViewScene::GetSelectedNodes() const
@@ -264,11 +258,6 @@ void NodeViewScene::ReorganizeFrom(Node* n)
       ReorganizeFrom(i);
     }
   }
-}
-
-bool NodeViewScene::GetEdgesAreCurved() const
-{
-  return curved_edges_;
 }
 
 void NodeViewScene::SetEdgesAreCurved(bool curved)

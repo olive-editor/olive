@@ -25,11 +25,16 @@
 #include <QEvent>
 #include <QPainter>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 
 namespace olive {
+
+const int NodeParamViewItemBody::kKeyControlColumn = 10;
+const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
+const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QDockWidget(parent),
@@ -195,11 +200,42 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, QWidget *parent) :
 {
   QGridLayout* root_layout = new QGridLayout(this);
 
+  int insert_row = 0;
+
   // Create widgets all root level components
   for (int i=0; i<node->inputs().size(); i++) {
     NodeInput* input = node->inputs().at(i);
 
-    CreateWidgets(root_layout, input, -1, i);
+    CreateWidgets(root_layout, input, -1, insert_row);
+
+    insert_row++;
+
+    if (input->IsArray()) {
+      // Insert here
+      QWidget* array_widget = new QWidget();
+
+      QGridLayout* array_layout = new QGridLayout(array_widget);
+      array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
+
+      root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
+
+      for (int j=0; j<input->ArraySize(); j++) {
+        CreateWidgets(array_layout, input, j, j);
+      }
+
+      // Add one last add button for appending to the array
+      NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+      connect(append_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayAppendClicked);
+      array_layout->addWidget(append_btn, input->ArraySize(), kArrayInsertColumn);
+
+      array_widget->setVisible(false);
+
+      array_ui_.insert(input, {array_widget, input->ArraySize(), append_btn});
+
+      insert_row++;
+
+      connect(input, &NodeInput::ArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
+    }
   }
 }
 
@@ -213,32 +249,39 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
   // Label always goes into column 1 (array collapse button goes into 0 if applicable)
   layout->addWidget(ui_objects.main_label, row, 1);
 
-  if (input->IsArray() && element == -1) {
-    // Create a collapse toggle for expanding/collapsing the array
-    CollapseButton* array_collapse_btn = new CollapseButton();
+  if (input->IsArray()) {
+    if (element == -1) {
 
-    // Collapse button always goes into column 0
-    layout->addWidget(array_collapse_btn, row, 0);
+      // Create a collapse toggle for expanding/collapsing the array
+      CollapseButton* array_collapse_btn = new CollapseButton();
 
+      // Default to collapsed
+      array_collapse_btn->setChecked(false);
 
-    /*
-    QVector<NodeConnectable::InputConnection> subelements(conn.input->ArraySize());
+      // Add data
+      array_collapse_btn->setProperty("input", Node::PtrToValue(input));
 
-    for (int i=0; i<conn.input->ArraySize(); i++) {
-      subelements[i] = {conn.input, i};
+      // Collapse button always goes into column 0
+      layout->addWidget(array_collapse_btn, row, 0);
+
+      // Connect signal to show/hide array params when toggled
+      connect(array_collapse_btn, &CollapseButton::toggled, this, &NodeParamViewItemBody::ArrayCollapseBtnPressed);
+
+    } else {
+
+      NodeParamViewArrayButton* insert_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+      NodeParamViewArrayButton* remove_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kRemove);
+
+      layout->addWidget(insert_element_btn, row, kArrayInsertColumn);
+      layout->addWidget(remove_element_btn, row, kArrayRemoveColumn);
+
+      ui_objects.array_insert_btn = insert_element_btn;
+      ui_objects.array_remove_btn = remove_element_btn;
+
+      connect(insert_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayInsertClicked);
+      connect(remove_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayRemoveClicked);
+
     }
-
-    NodeParamViewItemBody* sub_body = new NodeParamViewItemBody(subelements);
-    sub_bodies_.append(sub_body);
-    sub_body->layout()->setMargin(0);
-    content_layout->addWidget(sub_body, row_count + 1, 0, 1, max_col + 1);
-
-    connect(array_collapse_btn, &CollapseButton::toggled, sub_body, &NodeParamViewItemBody::setVisible);
-
-    connect(sub_body, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItemBody::KeyframeAdded);
-    connect(sub_body, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
-    connect(sub_body, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
-    connect(sub_body, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);*/
   }
 
   // Create a widget/input bridge for this input
@@ -257,7 +300,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
   if (input->IsConnectable()) {
     // Create clickable label used when an input is connected
     ui_objects.connected_label = new NodeParamViewConnectedLabel(input, element);
-    connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::ConnectionClicked, this, &NodeParamViewItemBody::ConnectionClicked);
+    connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     layout->addWidget(ui_objects.connected_label, row, widget_start);
 
     connect(input, &NodeInput::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
@@ -266,13 +309,9 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
 
   // Add keyframe control to this layout if parameter is keyframable
   if (input->IsKeyframable()) {
-    // We make an assumption here that there will never be more than 7 widgets and so the 10th
-    // column will be free
-    const int control_column = 10;
-
     ui_objects.key_control = new NodeParamViewKeyframeControl();
     ui_objects.key_control->SetInput(input, element);
-    layout->addWidget(ui_objects.key_control, row, control_column);
+    layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
     connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
 
     connect(input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItemBody::InputKeyframeEnableChanged);
@@ -297,10 +336,6 @@ void NodeParamViewItemBody::SetTimeTarget(Node *target)
 
     ui_obj.widget_bridge->SetTimeTarget(target);
   }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SetTimeTarget(target);
-  }
 }
 
 void NodeParamViewItemBody::SetTime(const rational &time)
@@ -313,20 +348,20 @@ void NodeParamViewItemBody::SetTime(const rational &time)
 
     ui_obj.widget_bridge->SetTime(time);
   }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SetTime(time);
-  }
 }
 
 void NodeParamViewItemBody::Retranslate()
 {
   for (auto i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    i.value().main_label->setText(tr("%1:").arg(i.key().input->name()));
-  }
+    const Node::InputConnection& ic = i.key();
 
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->Retranslate();
+    if (ic.input->IsArray() && ic.element >= 0) {
+      // Make the label the array index
+      i.value().main_label->setText(tr("%n:", nullptr, ic.element));
+    } else {
+      // Set to the input's name
+      i.value().main_label->setText(tr("%1:").arg(i.key().input->name()));
+    }
   }
 }
 
@@ -340,10 +375,6 @@ void NodeParamViewItemBody::SignalAllKeyframes()
         InputAddedKeyframeInternal(input, key);
       }
     }
-  }
-
-  foreach (NodeParamViewItemBody* sb, sub_bodies_) {
-    sb->SignalAllKeyframes();
   }
 }
 
@@ -392,21 +423,6 @@ void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframe* key)
   InputAddedKeyframeInternal(input, key);
 }
 
-void NodeParamViewItemBody::ConnectionClicked()
-{
-  for (auto iterator=input_ui_map_.begin(); iterator!=input_ui_map_.end(); iterator++) {
-    if (iterator.value().connected_label == sender()) {
-      Node* connected = iterator.key().input->parent();
-
-      if (connected) {
-        emit RequestSelectNode({connected});
-      }
-
-      return;
-    }
-  }
-}
-
 void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframe* keyframe)
 {
   // Find its row in the parameters
@@ -421,11 +437,92 @@ void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKey
   emit KeyframeAdded(keyframe, lbl_center.y());
 }
 
+void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
+{
+  NodeInput* input = Node::ValueToPtr<NodeInput>(sender()->property("input"));
+
+  array_ui_.value(input).widget->setVisible(checked);
+}
+
+void NodeParamViewItemBody::InputArraySizeChanged(int size)
+{
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  ArrayUI& array_ui = array_ui_[input];
+
+  if (size != array_ui.count) {
+    QGridLayout* grid = static_cast<QGridLayout*>(array_ui.widget->layout());
+
+    if (array_ui.count < size) {
+      // Our UI count is smaller than the size, create more
+      grid->addWidget(array_ui.append_btn, size, kArrayInsertColumn);
+
+      for (int i=array_ui.count; i<size; i++) {
+        CreateWidgets(grid, input, i, i);
+      }
+    } else {
+      for (int i=array_ui.count-1; i>=size; i--) {
+        // Our UI count is larger than the size, delete
+        InputUI input_ui = input_ui_map_.take({input, i});
+        delete input_ui.main_label;
+        qDeleteAll(input_ui.widget_bridge->widgets());
+        delete input_ui.widget_bridge;
+        delete input_ui.connected_label;
+        delete input_ui.key_control;
+        delete input_ui.array_insert_btn;
+        delete input_ui.array_remove_btn;
+      }
+
+      grid->addWidget(array_ui.append_btn, size, kArrayInsertColumn);
+    }
+
+    array_ui.count = size;
+  }
+
+  Retranslate();
+}
+
+void NodeParamViewItemBody::ArrayAppendClicked()
+{
+  for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
+    if (it.value().append_btn == sender()) {
+      it.key()->ArrayAppend();
+      break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ArrayInsertClicked()
+{
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().array_insert_btn == sender()) {
+      // Found our input and element
+      const Node::InputConnection& ic = it.key();
+      ic.input->ArrayInsert(ic.element);
+      break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ArrayRemoveClicked()
+{
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().array_remove_btn == sender()) {
+      // Found our input and element
+      const Node::InputConnection& ic = it.key();
+      ic.input->ArrayRemove(ic.element);
+      break;
+    }
+  }
+}
+
 NodeParamViewItemBody::InputUI::InputUI() :
   main_label(nullptr),
   widget_bridge(nullptr),
   connected_label(nullptr),
-  key_control(nullptr)
+  key_control(nullptr),
+  array_insert_btn(nullptr),
+  array_remove_btn(nullptr)
 {
 }
 

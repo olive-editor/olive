@@ -67,7 +67,7 @@ const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
-  if (input_->IsArray()) {
+  if (input_->IsArray() && element_ == -1) {
 
     NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(input_);
     widgets_.append(w);
