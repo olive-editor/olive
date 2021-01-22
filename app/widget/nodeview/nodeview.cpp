@@ -28,6 +28,7 @@
 #include "nodeviewundo.h"
 #include "node/factory.h"
 #include "widget/menu/menushared.h"
+#include "widget/timebased/timebasedview.h"
 
 #define super HandMovableView
 
@@ -558,8 +559,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
 void NodeView::wheelEvent(QWheelEvent *event)
 {
-  if (event->modifiers() & Qt::ControlModifier) {
-    // FIXME: Hardcoded divider (0.001)
+  if (TimeBasedView::WheelEventIsAZoomEvent(event)) {
     qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 
     double test_scale = scale_ * multiplier;

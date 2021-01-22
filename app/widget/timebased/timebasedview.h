@@ -50,6 +50,8 @@ public:
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
 public slots:
   void SetTime(const int64_t time);
 
@@ -72,8 +74,6 @@ protected:
   virtual void VerticalScaleChangedEvent(double scale);
 
   bool HandleZoomFromScroll(QWheelEvent* event);
-
-  bool WheelEventIsAZoomEvent(QWheelEvent* event);
 
   rational GetPlayheadTime() const;
 
