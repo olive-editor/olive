@@ -21,6 +21,7 @@
 #include "floatslider.h"
 
 #include <QAudio>
+#include <QDebug>
 
 namespace olive {
 
@@ -94,7 +95,13 @@ QString FloatSlider::ValueToString(const QVariant &v)
     break;
   case kDecibel:
     // Convert to decibels and return dB formatted string
-    val = QAudio::convertVolume(val, QAudio::LinearVolumeScale, QAudio::DecibelVolumeScale);
+
+    // Return negative infinity for zero volume
+    if (qIsNull(val)) {
+      return tr("\xE2\x88\x9E");
+    }
+
+    val = LinearToDecibel(val);
     break;
   case kPercentage:
     // Multiply value by 100 for user-friendly percentage
@@ -131,7 +138,7 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
 
     if (valid) {
       // Convert from decibel scale to linear decimal
-      return QAudio::convertVolume(decibels, QAudio::DecibelVolumeScale, QAudio::LinearVolumeScale);
+      return DecibelToLinear(decibels);
     }
 
     break;
@@ -166,9 +173,9 @@ double FloatSlider::AdjustDragDistanceInternal(const double &start, const double
     break;
   case kDecibel:
   {
-    qreal current_db = QAudio::convertVolume(start, QAudio::LinearVolumeScale, QAudio::DecibelVolumeScale);
+    double current_db = LinearToDecibel(start);
     current_db += drag;
-    qreal adjusted_linear = QAudio::convertVolume(current_db, QAudio::DecibelVolumeScale, QAudio::LinearVolumeScale);
+    double adjusted_linear = DecibelToLinear(current_db);
 
     return adjusted_linear;
   }
@@ -182,6 +189,23 @@ double FloatSlider::AdjustDragDistanceInternal(const double &start, const double
 void FloatSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toDouble());
+}
+
+double FloatSlider::LinearToDecibel(double linear)
+{
+  return double(20.0) * std::log10(linear);
+}
+
+double FloatSlider::DecibelToLinear(double decibel)
+{
+  double to_linear = std::pow(double(10.0), decibel / double(20.0));
+
+  // Minimum threshold that we figure is close enough to 0 that we may as well just return 0
+  if (to_linear < 0.000001) {
+    return 0;
+  } else {
+    return to_linear;
+  }
 }
 
 }

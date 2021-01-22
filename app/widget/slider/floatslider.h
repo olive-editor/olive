@@ -65,6 +65,10 @@ private slots:
   void ConvertValue(QVariant v);
 
 private:
+  static double LinearToDecibel(double linear);
+
+  static double DecibelToLinear(double decibel);
+
   DisplayType display_type_;
 
   int decimal_places_;
