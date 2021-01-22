@@ -232,110 +232,114 @@ void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, cons
 
 void NodeInput::LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
-  if (reader->name() == QStringLiteral("standard")) {
-    // Load standard value
-    int val_index = 0;
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("standard")) {
+      // Load standard value
+      int val_index = 0;
 
-    while (XMLReadNextStartElement(reader)) {
-      if (cancelled && *cancelled) {
-        return;
-      }
-
-      if (reader->name() == QStringLiteral("value")) {
-        QString value_text = reader->readElementText();
-        QVariant value_on_track;
-
-        if (!value_text.isEmpty()) {
-          value_on_track = StringToValue(value_text, xml_node_data.footage_connections, element);
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
         }
 
-        SetStandardValueOnTrack(value_on_track, val_index, element);
+        if (reader->name() == QStringLiteral("track")) {
+          QString value_text = reader->readElementText();
+          QVariant value_on_track;
 
-        val_index++;
-      } else {
-        reader->skipCurrentElement();
-      }
-    }
-  } else if (reader->name() == QStringLiteral("keyframing")) {
-    SetIsKeyframing(reader->readElementText().toInt(), element);
-  } else if (reader->name() == QStringLiteral("keyframes")) {
-    int track = 0;
-
-    while (XMLReadNextStartElement(reader)) {
-      if (cancelled && *cancelled) {
-        return;
-      }
-
-      if (reader->name() == QStringLiteral("track")) {
-        while (XMLReadNextStartElement(reader)) {
-          if (cancelled && *cancelled) {
-            return;
+          if (!value_text.isEmpty()) {
+            value_on_track = StringToValue(value_text, xml_node_data.footage_connections, element);
           }
 
-          if (reader->name() == QStringLiteral("key")) {
-            rational key_time;
-            NodeKeyframe::Type key_type;
-            QVariant key_value;
-            QPointF key_in_handle;
-            QPointF key_out_handle;
+          SetStandardValueOnTrack(value_on_track, val_index, element);
 
-            XMLAttributeLoop(reader, attr) {
-              if (cancelled && *cancelled) {
-                return;
-              }
+          val_index++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("keyframing") && IsKeyframable()) {
+      SetIsKeyframing(reader->readElementText().toInt(), element);
+    } else if (reader->name() == QStringLiteral("keyframes")) {
+      int track = 0;
 
-              if (attr.name() == QStringLiteral("time")) {
-                key_time = rational::fromString(attr.value().toString());
-              } else if (attr.name() == QStringLiteral("type")) {
-                key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-              } else if (attr.name() == QStringLiteral("inhandlex")) {
-                key_in_handle.setX(attr.value().toDouble());
-              } else if (attr.name() == QStringLiteral("inhandley")) {
-                key_in_handle.setY(attr.value().toDouble());
-              } else if (attr.name() == QStringLiteral("outhandlex")) {
-                key_out_handle.setX(attr.value().toDouble());
-              } else if (attr.name() == QStringLiteral("outhandley")) {
-                key_out_handle.setY(attr.value().toDouble());
-              }
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("track")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (cancelled && *cancelled) {
+              return;
             }
 
-            key_value = StringToValue(reader->readElementText(), xml_node_data.footage_connections, element);
+            if (reader->name() == QStringLiteral("key")) {
+              rational key_time;
+              NodeKeyframe::Type key_type;
+              QVariant key_value;
+              QPointF key_in_handle;
+              QPointF key_out_handle;
 
-            NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, this);
-            key->set_bezier_control_in(key_in_handle);
-            key->set_bezier_control_out(key_out_handle);
-          } else {
-            reader->skipCurrentElement();
+              XMLAttributeLoop(reader, attr) {
+                if (cancelled && *cancelled) {
+                  return;
+                }
+
+                if (attr.name() == QStringLiteral("time")) {
+                  key_time = rational::fromString(attr.value().toString());
+                } else if (attr.name() == QStringLiteral("type")) {
+                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+                } else if (attr.name() == QStringLiteral("inhandlex")) {
+                  key_in_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("inhandley")) {
+                  key_in_handle.setY(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandlex")) {
+                  key_out_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandley")) {
+                  key_out_handle.setY(attr.value().toDouble());
+                }
+              }
+
+              key_value = StringToValue(reader->readElementText(), xml_node_data.footage_connections, element);
+
+              NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, this);
+              key->set_bezier_control_in(key_in_handle);
+              key->set_bezier_control_out(key_out_handle);
+            } else {
+              reader->skipCurrentElement();
+            }
           }
-        }
 
-        track++;
-      } else {
-        reader->skipCurrentElement();
+          track++;
+        } else {
+          reader->skipCurrentElement();
+        }
       }
+    } else if (reader->name() == QStringLiteral("csinput")) {
+      setProperty("col_input", reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csdisplay")) {
+      setProperty("col_display", reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csview")) {
+      setProperty("col_view", reader->readElementText());
+    } else if (reader->name() == QStringLiteral("cslook")) {
+      setProperty("col_look", reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
     }
-  } else if (reader->name() == QStringLiteral("csinput")) {
-    setProperty("col_input", reader->readElementText());
-  } else if (reader->name() == QStringLiteral("csdisplay")) {
-    setProperty("col_display", reader->readElementText());
-  } else if (reader->name() == QStringLiteral("csview")) {
-    setProperty("col_view", reader->readElementText());
-  } else if (reader->name() == QStringLiteral("cslook")) {
-    setProperty("col_look", reader->readElementText());
-  } else {
-    reader->skipCurrentElement();
   }
 }
 
 void NodeInput::SaveImmediate(QXmlStreamWriter* writer, int element) const
 {
-  writer->writeTextElement(QStringLiteral("keyframing"), QString::number(IsKeyframing(element)));
+  if (IsKeyframable()) {
+    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(IsKeyframing(element)));
+  }
 
   // Write standard value
   writer->writeStartElement("standard");
 
   foreach (const QVariant& v, GetSplitStandardValue(element)) {
-    writer->writeTextElement("value", ValueToString(v));
+    writer->writeTextElement("track", ValueToString(v));
   }
 
   writer->writeEndElement(); // standard
