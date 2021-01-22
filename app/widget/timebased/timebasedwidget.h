@@ -205,10 +205,17 @@ private:
 
   QVector<QObject*> wheel_passthrough_objects_;
 
+  int scrollbar_start_width_;
+  double scrollbar_start_value_;
+  double scrollbar_start_scale_;
+  bool scrollbar_top_handle_;
+
 private slots:
   void UpdateMaximumScroll();
 
-  void ScrollBarResized(const double& multiplier);
+  void ScrollBarResizeBegan(int current_bar_width, bool top_handle);
+
+  void ScrollBarResizeMoved(int new_bar_width);
 
   /**
    * @brief Slot to handle page scrolling of the playhead

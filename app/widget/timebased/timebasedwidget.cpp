@@ -44,7 +44,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
-  connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
+  connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
+  connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
 
   PassWheelEventsToScrollBar(ruler_);
 }
@@ -126,7 +127,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
 void TimeBasedWidget::UpdateMaximumScroll()
 {
-  rational length = (viewer_node_) ? viewer_node_->GetLength() : rational();
+  rational length = (viewer_node_) ? viewer_node_->GetLength() : 0;
 
   if (auto_max_scrollbar_) {
     scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
@@ -137,27 +138,47 @@ void TimeBasedWidget::UpdateMaximumScroll()
   }
 }
 
-void TimeBasedWidget::ScrollBarResized(const double &multiplier)
+void TimeBasedWidget::ScrollBarResizeBegan(int current_bar_width, bool top_handle)
 {
   QScrollBar* bar = static_cast<QScrollBar*>(sender());
 
-  // Our extension area (represented by a TimelineViewEndItem) is NOT scaled, but the ResizableScrollBar doesn't know
-  // this. Here we re-calculate the requested scale knowing that the end item is not affected by scale.
+  scrollbar_start_width_ = current_bar_width;
+  scrollbar_start_value_ = bar->value();
+  scrollbar_start_scale_ = GetScale();
+  scrollbar_top_handle_ = top_handle;
+}
 
-  int current_max = bar->maximum();
-  double proposed_max = static_cast<double>(current_max) * multiplier;
+void TimeBasedWidget::ScrollBarResizeMoved(int movement)
+{
+  ResizableScrollBar* bar = static_cast<ResizableScrollBar*>(sender());
 
-  proposed_max = proposed_max - (bar->width() * 0.5 / multiplier) + (bar->width() * 0.5);
-
-  double corrected_scale;
-
-  if (current_max == 0) {
-    corrected_scale = multiplier;
-  } else {
-    corrected_scale = (proposed_max / static_cast<double>(current_max));
+  // Negate movement for the top handle
+  if (scrollbar_top_handle_) {
+    movement = -movement;
   }
 
-  SetScale(GetScale() * corrected_scale);
+  // The user wants the bar to be this size
+  int proposed_size = scrollbar_start_width_ + movement;
+
+  double ratio = double(scrollbar_start_width_) / double(proposed_size);
+
+  if (ratio > 0) {
+    SetScale(scrollbar_start_scale_ * ratio);
+
+    if (scrollbar_top_handle_) {
+      int viewable_area;
+
+      if (timeline_views_.isEmpty()) {
+        viewable_area = width();
+      } else {
+        viewable_area = timeline_views_.first()->width();
+      }
+
+      bar->setValue((scrollbar_start_value_ + viewable_area) * ratio - viewable_area);
+    } else {
+      bar->setValue(scrollbar_start_value_ * ratio);
+    }
+  }
 }
 
 void TimeBasedWidget::PageScrollToPlayhead()
@@ -492,7 +513,7 @@ void TimeBasedWidget::SetMarker()
   bool ok;
   QString marker_name;
 
-  if (Config::Current()["SetNameWithMarker"].toBool()) {
+  if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
     marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
   } else {
     ok = true;

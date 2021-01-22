@@ -48,53 +48,23 @@ void ResizableScrollBar::mousePressEvent(QMouseEvent *event)
   if (mouse_handle_state_ == kNotInHandle) {
     QScrollBar::mousePressEvent(event);
   } else {
-    mouse_dragging_ = true;
+    dragging_ = true;
 
-    mouse_drag_start_ = GetActiveMousePos(event);
+    drag_start_point_ = GetActiveMousePos(event);
+
+    emit ResizeBegan(GetActiveBarSize(), (mouse_handle_state_ == kInTopHandle));
   }
 }
 
 void ResizableScrollBar::mouseMoveEvent(QMouseEvent *event)
 {
-  QStyleOptionSlider opt;
-  initStyleOption(&opt);
+  QRect sr = GetScrollBarRect();
 
-  QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
-                                     QStyle::SC_ScrollBarSlider, this);
+  if (dragging_) {
+    // Determine how much the cursor has moved
+    int mouse_movement = GetActiveMousePos(event) - drag_start_point_;
 
-  if (mouse_dragging_) {
-    int new_drag_pos = GetActiveMousePos(event);
-    int mouse_movement = new_drag_pos - mouse_drag_start_;
-    mouse_drag_start_ = new_drag_pos;
-
-    if (mouse_handle_state_ == kInTopHandle) {
-      mouse_movement = -mouse_movement;
-    }
-
-    double width_adjustment = static_cast<double>(sr.width() + mouse_movement);
-
-    // Prevent dividing by zero or emitting a negative scale
-    if (width_adjustment > 0) {
-      double scale_multiplier = static_cast<double>(sr.width()) / width_adjustment;
-      emit RequestScale(scale_multiplier);
-
-      if (mouse_handle_state_ == kInTopHandle) {
-        QRect gr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
-                                           QStyle::SC_ScrollBarGroove, this);
-
-        int slider_min = gr.x();
-        int slider_max = gr.right() - (sr.width() + mouse_movement);
-        int val = QStyle::sliderValueFromPosition(minimum(),
-                                                  maximum(),
-                                                  event->pos().x() - slider_min,
-                                                  slider_max - slider_min,
-                                                  opt.upsideDown);
-
-        setValue(val);
-      } else {
-        setValue(qRound(static_cast<double>(value()) * scale_multiplier));
-      }
-    }
+    emit ResizeMoved(mouse_movement);
 
   } else {
 
@@ -133,11 +103,25 @@ void ResizableScrollBar::mouseMoveEvent(QMouseEvent *event)
 
 void ResizableScrollBar::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (mouse_dragging_) {
-    mouse_dragging_ = false;
+  if (dragging_) {
+    dragging_ = false;
+
+    emit ResizeEnded();
   } else {
     QScrollBar::mouseReleaseEvent(event);
   }
+}
+
+QRect ResizableScrollBar::GetScrollBarRect()
+{
+  // Initialize "style option". I don't know what this does, I just ripped it straight from
+  // Qt source code
+  QStyleOptionSlider opt;
+  initStyleOption(&opt);
+
+  // Determine rect of slider bar
+  return style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+                                 QStyle::SC_ScrollBarSlider, this);
 }
 
 void ResizableScrollBar::Init()
@@ -147,7 +131,7 @@ void ResizableScrollBar::Init()
   setMouseTracking(true);
 
   mouse_handle_state_= kNotInHandle;
-  mouse_dragging_ = false;
+  dragging_ = false;
 }
 
 int ResizableScrollBar::GetActiveMousePos(QMouseEvent *event)
@@ -156,6 +140,17 @@ int ResizableScrollBar::GetActiveMousePos(QMouseEvent *event)
     return event->pos().x();
   } else {
     return event->pos().y();
+  }
+}
+
+int ResizableScrollBar::GetActiveBarSize()
+{
+  QRect sr = GetScrollBarRect();
+
+  if (orientation() == Qt::Horizontal) {
+    return sr.width();
+  } else {
+    return sr.height();
   }
 }
 
