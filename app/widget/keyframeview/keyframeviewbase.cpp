@@ -21,6 +21,7 @@
 #include "keyframeviewbase.h"
 
 #include <QMouseEvent>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 #include "dialog/keyframeproperties/keyframeproperties.h"
@@ -142,6 +143,8 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
           selected_keys_.resize(selected_items.size());
 
+          initial_drag_item_ = static_cast<KeyframeViewItem*>(item_under_cursor);
+
           for (int i=0;i<selected_items.size();i++) {
             KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
 
@@ -196,6 +199,23 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
           //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
         }
+
+        // Show information about this keyframe
+        QString tip = Timecode::time_to_timecode(initial_drag_item_->key()->time(), timebase(),
+                                                 Core::instance()->GetTimecodeDisplay(), false);
+
+        if (IsYAxisEnabled()) {
+          bool ok;
+          double num_value = initial_drag_item_->key()->value().toDouble(&ok);
+
+          if (ok) {
+            tip.append('\n');
+            tip.append(QString::number(num_value));
+          }
+        }
+
+        QToolTip::hideText();
+        QToolTip::showText(QCursor::pos(), tip);
       }
     }
   }

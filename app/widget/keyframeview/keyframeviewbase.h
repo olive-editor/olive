@@ -92,6 +92,8 @@ private:
   QPointF dragging_bezier_point_start_;
   QPointF dragging_bezier_point_opposing_start_;
 
+  KeyframeViewItem* initial_drag_item_;
+
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool currently_autoselecting_;
