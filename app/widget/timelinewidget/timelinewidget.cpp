@@ -1441,17 +1441,7 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s)
 
 Block *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
 {
-  Track* track = GetTrackFromReference(coord.GetTrack());
-
-  foreach (Block* b, added_blocks_) {
-    if (b->in() <= coord.GetFrame()
-        && b->out() > coord.GetFrame()
-        && b->track() == track) {
-      return b;
-    }
-  }
-
-  return nullptr;
+  return views_.at(coord.GetTrack().type())->view()->GetItemAtScenePos(coord.GetFrame(), coord.GetTrack().index());
 }
 
 struct SnapData {

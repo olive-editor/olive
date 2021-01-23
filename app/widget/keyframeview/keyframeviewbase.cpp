@@ -113,7 +113,9 @@ KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframe* key)
 
 void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 {
-  if (HandPress(event) || PlayheadPress(event)) {
+  QGraphicsItem* item_under_cursor = itemAt(event->pos());
+
+  if (HandPress(event) || (!item_under_cursor && PlayheadPress(event))) {
     return;
   }
 
@@ -123,8 +125,6 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
 
     if (active_tool_ == Tool::kPointer) {
-      QGraphicsItem* item_under_cursor = itemAt(event->pos());
-
       if (item_under_cursor) {
 
         drag_start_ = event->pos();

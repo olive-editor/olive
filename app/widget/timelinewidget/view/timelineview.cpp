@@ -55,23 +55,29 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
-  if (HandPress(event) || PlayheadPress(event)) {
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
+
+  if (HandPress(event)
+      || (!GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index()) && PlayheadPress(event))) {
     // Let the parent handle this
     return;
   }
 
   if (dragMode() != GetDefaultDragMode()) {
+    // Use default behavior when hand dragging for instance
     TimeBasedView::mousePressEvent(event);
     return;
   }
-
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MousePressed(&timeline_event);
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
+  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
+
+
+
   if (HandMove(event) || PlayheadMove(event)) {
     // Let the parent handle this
     return;
@@ -81,8 +87,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     TimeBasedView::mouseMoveEvent(event);
     return;
   }
-
-  TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseMoved(&timeline_event);
 }
@@ -558,6 +562,23 @@ int TimelineView::SceneToTrack(double y)
   } while (y > heights);
 
   return track;
+}
+
+Block *TimelineView::GetItemAtScenePos(const rational &time, int track_index) const
+{
+  if (connected_track_list_) {
+    Track* track = connected_track_list_->GetTrackAt(track_index);
+
+    if (track) {
+      foreach (Block* b, track->Blocks()) {
+        if (b->in() <= time && b->out() > time) {
+          return b;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void TimelineView::UserSetTime(const int64_t &time)

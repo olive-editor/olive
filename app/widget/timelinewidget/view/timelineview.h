@@ -68,6 +68,8 @@ public:
 
   int SceneToTrack(double y);
 
+  Block* GetItemAtScenePos(const rational& time, int track_index) const;
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
