@@ -48,6 +48,16 @@ public:
 
   void DeleteSelected();
 
+  void SelectAll()
+  {
+    view_->SelectAll();
+  }
+
+  void DeselectAll()
+  {
+    view_->DeselectAll();
+  }
+
 public slots:
   void SetNodes(const QVector<Node *> &nodes);
 

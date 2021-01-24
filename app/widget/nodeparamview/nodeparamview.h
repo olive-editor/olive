@@ -72,6 +72,16 @@ public:
 
   void DeleteSelected();
 
+  void SelectAll()
+  {
+    keyframe_view_->SelectAll();
+  }
+
+  void DeselectAll()
+  {
+    keyframe_view_->DeselectAll();
+  }
+
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
 

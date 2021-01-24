@@ -44,6 +44,10 @@ public:
 
   void RemoveKeyframesOfInput(NodeInput* input);
 
+  void SelectAll();
+
+  void DeselectAll();
+
 public slots:
   void RemoveKeyframe(NodeKeyframe* key);
 

@@ -34,6 +34,10 @@ public:
 
   virtual void DeleteSelected() override;
 
+  virtual void SelectAll() override;
+
+  virtual void DeselectAll() override;
+
 public slots:
   void SetNodes(const QVector<Node *> &nodes);
 

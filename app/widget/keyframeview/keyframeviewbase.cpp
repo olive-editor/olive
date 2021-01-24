@@ -89,6 +89,20 @@ void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *input)
   }
 }
 
+void KeyframeViewBase::SelectAll()
+{
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    it.value()->setSelected(true);
+  }
+}
+
+void KeyframeViewBase::DeselectAll()
+{
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    it.value()->setSelected(false);
+  }
+}
+
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframe* key)
 {
   KeyframeAboutToBeRemoved(key);
