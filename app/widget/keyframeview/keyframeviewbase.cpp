@@ -186,6 +186,11 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
       // Calculate cursor difference and scale it
       QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
 
+      if (event->modifiers() & Qt::ShiftModifier) {
+        // If holding shift, only move one axis
+        mouse_diff_scaled.setY(0);
+      }
+
       if (dragging_bezier_point_) {
         ProcessBezierDrag(mouse_diff_scaled,
                           !(event->modifiers() & Qt::ControlModifier),
@@ -245,10 +250,14 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 
     if (active_tool_ == Tool::kPointer) {
-      QPoint mouse_diff = event->pos() - drag_start_;
-      QPointF mouse_diff_scaled = GetScaledCursorPos(mouse_diff);
+      QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
 
-      if (!mouse_diff.isNull()) {
+      if (event->modifiers() & Qt::ShiftModifier) {
+        // If holding shift, only move one axis
+        mouse_diff_scaled.setY(0);
+      }
+
+      if (!mouse_diff_scaled.isNull()) {
         if (dragging_bezier_point_) {
           ProcessBezierDrag(mouse_diff_scaled,
                             !(event->modifiers() & Qt::ControlModifier),
