@@ -294,7 +294,7 @@ void NodeView::Paste()
 
   QUndoCommand* command = new QUndoCommand();
 
-  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
+  QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 

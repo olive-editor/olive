@@ -36,7 +36,7 @@ NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, i
 
 Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(input_->parent()->parent())->project();
+  return input_->parent()->parent()->project();
 }
 
 void NodeParamSetKeyframingCommand::redo_internal()
@@ -68,7 +68,7 @@ NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe*
 
 Project *NodeParamSetKeyframeValueCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(key_->parent()->parent()->parent()->parent())->project();
+  return key_->parent()->parent()->parent()->project();
 }
 
 void NodeParamSetKeyframeValueCommand::redo_internal()
@@ -91,7 +91,7 @@ NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input,
 
 Project *NodeParamInsertKeyframeCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(input_->parent()->parent())->project();
+  return input_->parent()->parent()->project();
 }
 
 void NodeParamInsertKeyframeCommand::redo_internal()
@@ -113,7 +113,7 @@ NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeKeyframe* key
 
 Project *NodeParamRemoveKeyframeCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(input_->parent()->parent())->project();
+  return input_->parent()->parent()->project();
 }
 
 void NodeParamRemoveKeyframeCommand::redo_internal()
@@ -145,7 +145,7 @@ NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* k
 
 Project *NodeParamSetKeyframeTimeCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(key_->parent()->parent()->parent())->project();
+  return key_->parent()->parent()->parent()->project();
 }
 
 void NodeParamSetKeyframeTimeCommand::redo_internal()
@@ -180,7 +180,7 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
 
 Project *NodeParamSetStandardValueCommand::GetRelevantProject() const
 {
-  return static_cast<Sequence*>(input_->parent()->parent())->project();
+  return input_->parent()->parent()->project();
 }
 
 void NodeParamSetStandardValueCommand::redo_internal()

@@ -596,7 +596,7 @@ void TimelineWidget::Paste(bool insert)
   QUndoCommand* command = new QUndoCommand();
 
   QVector<BlockPasteData> paste_data;
-  QVector<Node*> pasted = PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()), command, &paste_data);
+  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->parent(), command, &paste_data);
 
   rational paste_start = GetTime();
 

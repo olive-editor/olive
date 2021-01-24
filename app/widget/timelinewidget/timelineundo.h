@@ -671,7 +671,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<Sequence*>(blocks_.first()->parent())->project();
+    return blocks_.first()->parent()->project();
   }
 
 protected:
