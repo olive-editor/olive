@@ -121,7 +121,7 @@ protected:
 
   TimelinePoints* GetConnectedTimelinePoints() const;
 
-  void ConnectTimelineView(TimeBasedView* base);
+  void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
   void PassWheelEventsToScrollBar(QObject* object);
 
@@ -184,6 +184,10 @@ private:
    */
   void ResetPoint(Timeline::MovementMode m);
 
+  void PageScrollInternal(bool whole_page_scroll);
+
+  bool UserIsDraggingPlayhead() const;
+
   ViewerOutput* viewer_node_;
 
   TimeRuler* ruler_;
@@ -224,6 +228,8 @@ private slots:
    * do nothing.
    */
   void PageScrollToPlayhead();
+
+  void CatchUpScrollToPlayhead();
 
 };
 

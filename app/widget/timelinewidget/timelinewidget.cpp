@@ -124,7 +124,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view_splitter_->addWidget(tview);
 
-    ConnectTimelineView(view);
+    ConnectTimelineView(view, false);
 
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
@@ -1012,9 +1012,7 @@ void TimelineWidget::ViewTimestampChanged(int64_t ts)
   }
 
   // Update all other views
-  SetViewTimestamp(ts);
-
-  ruler()->SetTime(ts);
+  SetTimestamp(ts);
   emit TimeChanged(ts);
 }
 

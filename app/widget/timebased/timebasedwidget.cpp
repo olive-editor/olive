@@ -183,18 +183,12 @@ void TimeBasedWidget::ScrollBarResizeMoved(int movement)
 
 void TimeBasedWidget::PageScrollToPlayhead()
 {
-  int playhead_pos = qRound(TimeToScene(GetTime()));
+  PageScrollInternal(true);
+}
 
-  int viewport_width = ruler()->width();
-  int viewport_padding = viewport_width / 16;
-
-  if (playhead_pos < scrollbar()->value()) {
-    // Anchor the playhead to the RIGHT of where we scroll to
-    scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
-  } else if (playhead_pos > scrollbar()->value() + viewport_width) {
-    // Anchor the playhead to the LEFT of where we scroll to
-    scrollbar()->setValue(playhead_pos - viewport_padding);
-  }
+void TimeBasedWidget::CatchUpScrollToPlayhead()
+{
+  PageScrollInternal(false);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -259,8 +253,13 @@ TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
   return points_;
 }
 
-void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base)
+void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time_change_event)
 {
+  if (connect_time_change_event) {
+    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimestamp);
+    connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::TimeChanged);
+  }
+
   timeline_views_.append(base);
 }
 
@@ -272,21 +271,29 @@ void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
 
 void TimeBasedWidget::SetTimestamp(int64_t timestamp)
 {
-  ruler_->SetTime(timestamp);
+  if (GetTime() != timestamp) {
+    if (UserIsDraggingPlayhead()) {
+      // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
+      QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
+    } else {
+      // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
+      switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+      case AutoScroll::kNone:
+        // Do nothing
+        break;
+      case AutoScroll::kPage:
+        QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
+        break;
+      case AutoScroll::kSmooth:
+        QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
+        break;
+      }
+    }
 
-  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
-  case AutoScroll::kNone:
-    // Do nothing
-    break;
-  case AutoScroll::kPage:
-    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
-    break;
-  case AutoScroll::kSmooth:
-    QMetaObject::invokeMethod(this, "CenterScrollOnPlayhead", Qt::QueuedConnection);
-    break;
+    ruler_->SetTime(timestamp);
+
+    TimeChangedEvent(timestamp);
   }
-
-  TimeChangedEvent(timestamp);
 }
 
 void TimeBasedWidget::SetTimebase(const rational &timebase)
@@ -472,6 +479,46 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
   }
 
   Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, r));
+}
+
+void TimeBasedWidget::PageScrollInternal(bool whole_page_scroll)
+{
+  int playhead_pos = qRound(TimeToScene(GetTime()));
+
+  int viewport_width = ruler()->width();
+  int viewport_padding = viewport_width / 16;
+
+  if (whole_page_scroll) {
+    if (playhead_pos < scrollbar()->value()) {
+      // Anchor the playhead to the RIGHT of where we scroll to
+      scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
+    } else if (playhead_pos > scrollbar()->value() + viewport_width) {
+      // Anchor the playhead to the LEFT of where we scroll to
+      scrollbar()->setValue(playhead_pos - viewport_padding);
+    }
+  } else {
+    // Just jump in increments
+    if (playhead_pos < scrollbar()->value() + viewport_padding) {
+      scrollbar()->setValue(scrollbar()->value() - viewport_padding);
+    } else if (playhead_pos > scrollbar()->value() + viewport_width - viewport_padding) {
+      scrollbar()->setValue(scrollbar()->value() + viewport_padding);
+    }
+  }
+}
+
+bool TimeBasedWidget::UserIsDraggingPlayhead() const
+{
+  if (ruler_->IsDraggingPlayhead()) {
+    return true;
+  }
+
+  foreach (TimeBasedView* view, timeline_views_) {
+    if (view->IsDraggingPlayhead()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void TimeBasedWidget::SetInAtPlayhead()

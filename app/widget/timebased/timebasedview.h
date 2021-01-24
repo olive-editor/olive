@@ -52,6 +52,11 @@ public:
 
   static bool WheelEventIsAZoomEvent(QWheelEvent* event);
 
+  bool IsDraggingPlayhead() const
+  {
+    return dragging_playhead_;
+  }
+
 public slots:
   void SetTime(const int64_t time);
 
