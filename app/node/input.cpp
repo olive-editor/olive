@@ -190,22 +190,24 @@ void NodeInput::childEvent(QChildEvent *event)
     if (event->type() == QEvent::ChildAdded) {
       GetImmediate(key->element())->insert_keyframe(key);
 
+      connect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::InvalidateFromKeyframeTimeChange);
       connect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
-      connect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
-      connect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
-      connect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
-      connect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
+      connect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::InvalidateFromKeyframeValueChange);
+      connect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::InvalidateFromKeyframeTypeChanged);
+      connect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::InvalidateFromKeyframeBezierInChange);
+      connect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::InvalidateFromKeyframeBezierOutChange);
 
       emit KeyframeAdded(key);
       emit ValueChanged(get_range_affected_by_keyframe(key), key->element());
     } else if (event->type() == QEvent::ChildRemoved) {
       TimeRange time_affected = get_range_affected_by_keyframe(key);
 
+      disconnect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::InvalidateFromKeyframeTimeChange);
       disconnect(key, &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
-      disconnect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
-      disconnect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
-      disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
-      disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
+      disconnect(key, &NodeKeyframe::ValueChanged, this, &NodeInput::InvalidateFromKeyframeValueChange);
+      disconnect(key, &NodeKeyframe::TypeChanged, this, &NodeInput::InvalidateFromKeyframeTypeChanged);
+      disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &NodeInput::InvalidateFromKeyframeBezierInChange);
+      disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::InvalidateFromKeyframeBezierOutChange);
 
       GetImmediate(key->element())->remove_keyframe(key);
 
@@ -701,7 +703,7 @@ void NodeInput::set_combobox_strings(const QStringList &strings)
   setProperty("combo_str", strings);
 }
 
-void NodeInput::KeyframeBezierInChanged()
+void NodeInput::InvalidateFromKeyframeBezierInChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
@@ -717,7 +719,7 @@ void NodeInput::KeyframeBezierInChanged()
   emit ValueChanged(TimeRange(start, end), key->element());
 }
 
-void NodeInput::KeyframeBezierOutChanged()
+void NodeInput::InvalidateFromKeyframeBezierOutChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);
@@ -733,7 +735,7 @@ void NodeInput::KeyframeBezierOutChanged()
   emit ValueChanged(TimeRange(start, end), key->element());
 }
 
-void NodeInput::KeyframeTimeChanged()
+void NodeInput::InvalidateFromKeyframeTimeChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   NodeInputImmediate* immediate = GetImmediate(key->element());
@@ -760,13 +762,13 @@ void NodeInput::KeyframeTimeChanged()
   }
 }
 
-void NodeInput::KeyframeValueChanged()
+void NodeInput::InvalidateFromKeyframeValueChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   emit ValueChanged(get_range_affected_by_keyframe(key), key->element());
 }
 
-void NodeInput::KeyframeTypeChanged()
+void NodeInput::InvalidateFromKeyframeTypeChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   const NodeKeyframeTrack& track = GetTrackFromKeyframe(key);

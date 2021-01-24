@@ -347,6 +347,8 @@ signals:
 
   void KeyframeRemoved(NodeKeyframe* key);
 
+  void KeyframeTimeChanged();
+
   void PropertyChanged(const QString& s, const QVariant& v);
 
   void ArraySizeChanged(int size);
@@ -445,27 +447,27 @@ private slots:
   /**
    * @brief Slot when a keyframe's time changes to keep the keyframes correctly sorted by time
    */
-  void KeyframeTimeChanged();
+  void InvalidateFromKeyframeTimeChange();
 
   /**
    * @brief Slot when a keyframe's value changes to signal that the cache needs updating
    */
-  void KeyframeValueChanged();
+  void InvalidateFromKeyframeValueChange();
 
   /**
    * @brief Slot when a keyframe's type changes to signal that the cache needs updating
    */
-  void KeyframeTypeChanged();
+  void InvalidateFromKeyframeTypeChanged();
 
   /**
    * @brief Slot when a keyframe's bezier in value changes to signal that the cache needs updating
    */
-  void KeyframeBezierInChanged();
+  void InvalidateFromKeyframeBezierInChange();
 
   /**
    * @brief Slot when a keyframe's bezier out value changes to signal that the cache needs updating
    */
-  void KeyframeBezierOutChanged();
+  void InvalidateFromKeyframeBezierOutChange();
 
 };
 

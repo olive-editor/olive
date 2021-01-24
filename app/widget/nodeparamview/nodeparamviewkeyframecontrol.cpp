@@ -77,6 +77,7 @@ void NodeParamViewKeyframeControl::SetInput(NodeInput *input, int element)
     disconnect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
     disconnect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
     disconnect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
+    disconnect(input_, &NodeInput::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 
   input_ = input;
@@ -93,6 +94,7 @@ void NodeParamViewKeyframeControl::SetInput(NodeInput *input, int element)
     connect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
     connect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
     connect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
+    connect(input_, &NodeInput::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 }
 
