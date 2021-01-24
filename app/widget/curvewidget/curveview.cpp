@@ -474,7 +474,7 @@ void CurveView::ZoomToFitSelected()
 
 void CurveView::ResetZoom()
 {
-  SetScale(1.0);
+  emit ScaleChanged(1.0);
   SetYScale(1.0);
 }
 
