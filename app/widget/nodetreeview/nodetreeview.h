@@ -17,6 +17,8 @@ public:
 
   bool IsInputEnabled(NodeInput* i, int element, int track) const;
 
+  void SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference& ref, const QColor& color);
+
   void SetOnlyShowKeyframable(bool e)
   {
     only_show_keyframable_ = e;
@@ -51,6 +53,8 @@ private:
 
   QTreeWidgetItem *CreateItem(QTreeWidgetItem* parent, NodeInput* input, int element, int track);
 
+  void CreateItemsForTracks(QTreeWidgetItem* parent, NodeInput* input, int element, int track_count);
+
   enum ItemType {
     kItemTypeNode,
     kItemTypeInput
@@ -67,9 +71,13 @@ private:
 
   QVector<NodeInput::KeyframeTrackReference> disabled_inputs_;
 
+  QHash<NodeInput::KeyframeTrackReference, QTreeWidgetItem*> item_map_;
+
   bool only_show_keyframable_;
 
   bool show_keyframe_tracks_as_rows_;
+
+  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
 
 private slots:
   void ItemCheckStateChanged(QTreeWidgetItem* item, int column);

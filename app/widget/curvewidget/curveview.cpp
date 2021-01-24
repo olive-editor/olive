@@ -75,11 +75,6 @@ void CurveView::ConnectInput(NodeInput *input, int element, int track)
     this->AddKeyframe(key);
   }
 
-  if (!keyframe_colors_.contains(ref)) {
-    // Generate a random color for this input
-    keyframe_colors_.insert(ref, QColor::fromHsv(std::rand()%360, std::rand()%255, 255));
-  }
-
   // Append to the list
   connected_inputs_.append(ref);
 }
@@ -128,6 +123,19 @@ void CurveView::ZoomToFitInput(NodeInput *input, int element, int track)
   }
 
   ZoomToFitInternal(keys);
+}
+
+void CurveView::SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference &ref, const QColor &color)
+{
+  // Insert color into hashmap
+  keyframe_colors_.insert(ref, color);
+
+  // Update all keyframes
+  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
+    if (it.key()->parent() == ref.input && it.key()->element() == ref.element && it.key()->track() == ref.track) {
+      it.value()->SetOverrideBrush(color);
+    }
+  }
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -341,17 +349,17 @@ void CurveView::ZoomToFitInternal(const QList<NodeKeyframe *> &keys)
   double min_val = DBL_MAX;
   double max_val = DBL_MIN;
 
-  for (auto i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
-    rational transformed_time = GetAdjustedTime(i.key()->parent()->parent(),
+  foreach (NodeKeyframe* key, keys) {
+    rational transformed_time = GetAdjustedTime(key->parent()->parent(),
                                                 GetTimeTarget(),
-                                                i.key()->time(),
+                                                key->time(),
                                                 false);
 
     min_time = qMin(transformed_time, min_time);
     max_time = qMax(transformed_time, max_time);
 
-    min_val = qMin(i.key()->value().toDouble(), min_val);
-    max_val = qMax(i.key()->value().toDouble(), max_val);
+    min_val = qMin(key->value().toDouble(), min_val);
+    max_val = qMax(key->value().toDouble(), max_val);
   }
 
   double time_range = max_time.toDouble() - min_time.toDouble();
@@ -361,8 +369,10 @@ void CurveView::ZoomToFitInternal(const QList<NodeKeyframe *> &keys)
   emit ScaleChanged(new_x_scale);
   SetYScale(new_y_scale);
 
-  horizontalScrollBar()->setValue(TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width()));
-  verticalScrollBar()->setValue(GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height()));
+  QMetaObject::invokeMethod(horizontalScrollBar(), "setValue", Qt::QueuedConnection,
+                            Q_ARG(int, TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width())));
+  QMetaObject::invokeMethod(verticalScrollBar(), "setValue", Qt::QueuedConnection,
+                            Q_ARG(int, GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height())));
 }
 
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)

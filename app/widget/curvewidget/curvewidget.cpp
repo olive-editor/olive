@@ -229,6 +229,23 @@ void CurveWidget::ConnectInput(NodeInput *input, bool connect)
   bool multiple_tracks = track_count > 1;
 
   for (int i=-1; i<input->ArraySize(); i++) {
+    if (!input->IsKeyframable()) {
+      continue;
+    }
+
+    // Generate a random color for this input
+    for (int j=0; j<input->GetKeyframeTracks(i).size(); j++) {
+      NodeInput::KeyframeTrackReference ref = {input, i, j};
+
+      if (!keyframe_colors_.contains(ref)) {
+        QColor c = QColor::fromHsv(std::rand()%360, std::rand()%255, 255);
+
+        keyframe_colors_.insert(ref, c);
+        tree_view_->SetKeyframeTrackColor(ref, c);
+        view_->SetKeyframeTrackColor(ref, c);
+      }
+    }
+
     if (tree_view_->IsInputEnabled(input, i, multiple_tracks ? -1 : 0)) {
       if (multiple_tracks) {
         for (int j=0; j<track_count; j++) {

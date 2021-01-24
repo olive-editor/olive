@@ -83,6 +83,8 @@ private:
 
   void ConnectInput(NodeInput* input, bool connect);
 
+  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
+
   NodeTreeView* tree_view_;
 
   QPushButton* linear_button_;

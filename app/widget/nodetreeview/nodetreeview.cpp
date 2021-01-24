@@ -23,11 +23,24 @@ bool NodeTreeView::IsInputEnabled(NodeInput *i, int element, int track) const
   return !disabled_inputs_.contains({i, element, track});
 }
 
+void NodeTreeView::SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference &ref, const QColor &color)
+{
+  // Insert into hashmap
+  keyframe_colors_.insert(ref, color);
+
+  // If we currently have an item for this, set it
+  QTreeWidgetItem* item = item_map_.value(ref);
+  if (item) {
+    item->setForeground(0, color);
+  }
+}
+
 void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
 {
   nodes_ = nodes;
 
   this->clear();
+  item_map_.clear();
 
   foreach (Node* n, nodes_) {
     QTreeWidgetItem* node_item = new QTreeWidgetItem();
@@ -41,24 +54,30 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
         continue;
       }
 
-      int type_track_count = NodeValue::get_number_of_keyframe_tracks(input->GetDataType());
-      bool type_has_multiple_tracks = (type_track_count > 1);
+      QTreeWidgetItem* input_item = nullptr;
 
-      QTreeWidgetItem* input_item = CreateItem(node_item, input, -1, type_has_multiple_tracks ? -1 : 0);
+      for (int i=-1; i<input->ArraySize(); i++) {
+        const QVector<NodeKeyframeTrack>& key_tracks = input->GetKeyframeTracks(i);
 
-      if (input->IsArray()) {
-        for (int i=0; i<input->ArraySize(); i++) {
-          QTreeWidgetItem* element_item = CreateItem(input_item, input, i, type_has_multiple_tracks ? -1 : 0);
+        int this_element_track;
 
-          if (type_has_multiple_tracks && show_keyframe_tracks_as_rows_) {
-            for (int j=0; j<type_track_count; j++) {
-              CreateItem(element_item, input, i, j);
-            }
-          }
+        if (show_keyframe_tracks_as_rows_ && (key_tracks.size() == 1 || (i == -1 && input->IsArray()))) {
+          this_element_track = 0;
+        } else {
+          this_element_track = -1;
         }
-      } else if (type_has_multiple_tracks && show_keyframe_tracks_as_rows_) {
-        for (int j=0; j<type_track_count; j++) {
-          CreateItem(input_item, input, -1, j);
+
+        QTreeWidgetItem* element_item;
+
+        if (input_item) {
+          element_item = CreateItem(input_item, input, i, this_element_track);
+        } else {
+          input_item = CreateItem(node_item, input, i, this_element_track);
+          element_item = input_item;
+        }
+
+        if (show_keyframe_tracks_as_rows_ && key_tracks.size() > 1 && (!input->IsArray() || i >= 0)) {
+          CreateItemsForTracks(element_item, input, i, key_tracks.size());
         }
       }
 
@@ -152,7 +171,22 @@ QTreeWidgetItem* NodeTreeView::CreateItem(QTreeWidgetItem *parent, NodeInput *in
   input_item->setData(0, kItemElement, element);
   input_item->setData(0, kItemTrack, track);
 
+  NodeInput::KeyframeTrackReference ref = {input, element, track};
+
+  if (keyframe_colors_.contains(ref)) {
+    input_item->setForeground(0, keyframe_colors_.value(ref));
+  }
+
+  item_map_.insert(ref, input_item);
+
   return input_item;
+}
+
+void NodeTreeView::CreateItemsForTracks(QTreeWidgetItem *parent, NodeInput *input, int element, int track_count)
+{
+  for (int j=0; j<track_count; j++) {
+    CreateItem(parent, input, element, j);
+  }
 }
 
 void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)

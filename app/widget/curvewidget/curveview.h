@@ -46,6 +46,8 @@ public:
 
   void ZoomToFitInput(NodeInput* input, int element, int track);
 
+  void SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference& ref, const QColor& color);
+
 public slots:
   void AddKeyframe(NodeKeyframe* key);
 
