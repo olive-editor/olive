@@ -143,7 +143,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
       if (item_under_cursor) {
 
         dragging_ = true;
-        drag_start_ = event->pos();
+        drag_start_ = mapToScene(event->pos());
 
         // Determine what type of item is under the cursor
         dragging_bezier_point_ = dynamic_cast<BezierControlPointItem*>(item_under_cursor);
@@ -186,7 +186,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
     if (dragging_) {
       // Calculate cursor difference and scale it
-      QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
+      QPointF mouse_diff_scaled = GetScaledCursorPos(mapToScene(event->pos()) - drag_start_);
 
       if (event->modifiers() & Qt::ShiftModifier) {
         // If holding shift, only move one axis
@@ -241,6 +241,8 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
         QToolTip::hideText();
         QToolTip::showText(QCursor::pos(), tip);
+
+        emit Dragged(qRound(initial_drag_item_->x()), qRound(initial_drag_item_->y()));
       }
     }
   }
@@ -256,7 +258,7 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 
     if (dragging_) {
-      QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
+      QPointF mouse_diff_scaled = GetScaledCursorPos(mapToScene(event->pos()) - drag_start_);
 
       if (event->modifiers() & Qt::ShiftModifier) {
         // If holding shift, only move one axis
@@ -447,10 +449,10 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
   }
 }
 
-QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
+QPointF KeyframeViewBase::GetScaledCursorPos(const QPointF &cursor_pos)
 {
-  return QPointF(static_cast<double>(cursor_pos.x()) / GetScale(),
-                 static_cast<double>(cursor_pos.y()) / GetYScale());
+  return QPointF(cursor_pos.x() / GetScale(),
+                 cursor_pos.y() / GetYScale());
 }
 
 void KeyframeViewBase::ShowContextMenu()

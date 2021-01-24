@@ -118,6 +118,10 @@ private slots:
 
   void InputDoubleClicked(NodeInput* input, int element, int track);
 
+  void KeyframeViewDragged(int x, int y);
+
+  void CatchUpYScrollToPoint(int point);
+
 };
 
 }

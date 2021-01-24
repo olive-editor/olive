@@ -137,6 +137,8 @@ protected slots:
    */
   void SetAutoSetTimebase(bool e);
 
+  static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
+
 signals:
   void TimeChanged(const int64_t&);
 
@@ -184,7 +186,7 @@ private:
    */
   void ResetPoint(Timeline::MovementMode m);
 
-  void PageScrollInternal(bool whole_page_scroll);
+  void PageScrollInternal(int screen_position, bool whole_page_scroll);
 
   bool UserIsDraggingPlayhead() const;
 
@@ -230,6 +232,8 @@ private slots:
   void PageScrollToPlayhead();
 
   void CatchUpScrollToPlayhead();
+
+  void CatchUpScrollToPoint(int point);
 
 };
 

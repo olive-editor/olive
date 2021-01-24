@@ -771,7 +771,11 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
   if (GetConnectedNode()) {
     if (active_tool_) {
       active_tool_->MouseMove(event);
+
       UpdateViewports();
+
+      QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                                Q_ARG(int, qRound(event->GetSceneX())));
     } else {
       // Mouse is not down, attempt a hover event
       TimelineTool* hover_tool = GetActiveTool();

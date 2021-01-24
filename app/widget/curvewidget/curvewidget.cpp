@@ -101,6 +101,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
+  connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
@@ -387,6 +388,19 @@ void CurveWidget::InputSelectionChanged(NodeInput *input, int element, int track
 void CurveWidget::InputDoubleClicked(NodeInput *input, int element, int track)
 {
   view_->ZoomToFitInput(input, element, track);
+}
+
+void CurveWidget::KeyframeViewDragged(int x, int y)
+{
+  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, x));
+  QMetaObject::invokeMethod(this, "CatchUpYScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, y));
+}
+
+void CurveWidget::CatchUpYScrollToPoint(int point)
+{
+  PageScrollInternal(view_->verticalScrollBar(), view_->height(), point, false);
 }
 
 }

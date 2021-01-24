@@ -140,6 +140,8 @@ private slots:
 
   void FocusChanged(QWidget *old, QWidget *now);
 
+  void KeyframeViewDragged(int x, int y);
+
 };
 
 }

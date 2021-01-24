@@ -183,12 +183,17 @@ void TimeBasedWidget::ScrollBarResizeMoved(int movement)
 
 void TimeBasedWidget::PageScrollToPlayhead()
 {
-  PageScrollInternal(true);
+  PageScrollInternal(qRound(TimeToScene(GetTime())), true);
 }
 
 void TimeBasedWidget::CatchUpScrollToPlayhead()
 {
-  PageScrollInternal(false);
+  CatchUpScrollToPoint(qRound(TimeToScene(GetTime())));
+}
+
+void TimeBasedWidget::CatchUpScrollToPoint(int point)
+{
+  PageScrollInternal(point, false);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -481,29 +486,31 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
   Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, r));
 }
 
-void TimeBasedWidget::PageScrollInternal(bool whole_page_scroll)
+void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
 {
-  int playhead_pos = qRound(TimeToScene(GetTime()));
-
-  int viewport_width = ruler()->width();
-  int viewport_padding = viewport_width / 16;
+  int viewport_padding = maximum / 16;
 
   if (whole_page_scroll) {
-    if (playhead_pos < scrollbar()->value()) {
+    if (screen_position < bar->value()) {
       // Anchor the playhead to the RIGHT of where we scroll to
-      scrollbar()->setValue(playhead_pos - viewport_width + viewport_padding);
-    } else if (playhead_pos > scrollbar()->value() + viewport_width) {
+      bar->setValue(screen_position - maximum + viewport_padding);
+    } else if (screen_position > bar->value() + maximum) {
       // Anchor the playhead to the LEFT of where we scroll to
-      scrollbar()->setValue(playhead_pos - viewport_padding);
+      bar->setValue(screen_position - viewport_padding);
     }
   } else {
     // Just jump in increments
-    if (playhead_pos < scrollbar()->value() + viewport_padding) {
-      scrollbar()->setValue(scrollbar()->value() - viewport_padding);
-    } else if (playhead_pos > scrollbar()->value() + viewport_width - viewport_padding) {
-      scrollbar()->setValue(scrollbar()->value() + viewport_padding);
+    if (screen_position < bar->value() + viewport_padding) {
+      bar->setValue(bar->value() - viewport_padding);
+    } else if (screen_position > bar->value() + maximum - viewport_padding) {
+      bar->setValue(bar->value() + viewport_padding);
     }
   }
+}
+
+void TimeBasedWidget::PageScrollInternal(int screen_position, bool whole_page_scroll)
+{
+  PageScrollInternal(scrollbar(), ruler()->width(), screen_position, whole_page_scroll);
 }
 
 bool TimeBasedWidget::UserIsDraggingPlayhead() const

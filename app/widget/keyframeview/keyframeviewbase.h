@@ -48,6 +48,9 @@ public:
 
   void DeselectAll();
 
+signals:
+  void Dragged(int current_x, int current_y);
+
 public slots:
   void RemoveKeyframe(NodeKeyframe* key);
 
@@ -82,7 +85,7 @@ private:
 
   void ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable);
 
-  QPointF GetScaledCursorPos(const QPoint& cursor_pos);
+  QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
   struct KeyframeItemAndTime {
     KeyframeViewItem* key;
@@ -95,7 +98,7 @@ private:
 
   Tool::Item active_tool_;
 
-  QPoint drag_start_;
+  QPointF drag_start_;
 
   BezierControlPointItem* dragging_bezier_point_;
   QPointF dragging_bezier_point_start_;

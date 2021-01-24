@@ -76,8 +76,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
-
-
   if (HandMove(event) || PlayheadMove(event)) {
     // Let the parent handle this
     return;

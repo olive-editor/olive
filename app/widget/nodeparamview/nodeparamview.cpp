@@ -91,6 +91,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
   connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTimestamp);
+  connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
 
   // Connect keyframe view scaling to this
   connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
@@ -386,6 +387,14 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
 
     parent = parent->parent();
   }
+}
+
+void NodeParamView::KeyframeViewDragged(int x, int y)
+{
+  Q_UNUSED(y)
+
+  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
+                            Q_ARG(int, x));
 }
 
 }
