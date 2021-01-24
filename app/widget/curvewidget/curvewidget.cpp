@@ -48,6 +48,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(tree_view_, &NodeTreeView::NodeEnableChanged, this, &CurveWidget::NodeEnabledChanged);
   connect(tree_view_, &NodeTreeView::InputEnableChanged, this, &CurveWidget::InputEnabledChanged);
   connect(tree_view_, &NodeTreeView::InputSelectionChanged, this, &CurveWidget::InputSelectionChanged);
+  connect(tree_view_, &NodeTreeView::InputDoubleClicked, this, &CurveWidget::InputDoubleClicked);
   splitter->addWidget(tree_view_);
 
   QWidget* workarea = new QWidget();
@@ -359,9 +360,16 @@ void CurveWidget::RemoveKeyframe(NodeKeyframe *key)
 
 void CurveWidget::InputSelectionChanged(NodeInput *input, int element, int track)
 {
-  Q_UNUSED(track)
-
   key_control_->SetInput(input, element);
+
+  if (input) {
+    view_->SelectKeyframesOf(input, element, track);
+  }
+}
+
+void CurveWidget::InputDoubleClicked(NodeInput *input, int element, int track)
+{
+  view_->ZoomToFitInput(input, element, track);
 }
 
 }

@@ -37,11 +37,17 @@ signals:
 
   void InputSelectionChanged(NodeInput* input, int element, int track);
 
+  void InputDoubleClicked(NodeInput* input, int element, int track);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
+  virtual void mouseDoubleClickEvent(QMouseEvent* e) override;
+
 private:
   void Retranslate();
+
+  NodeInput::KeyframeTrackReference GetSelectedInput();
 
   QTreeWidgetItem *CreateItem(QTreeWidgetItem* parent, NodeInput* input, int element, int track);
 

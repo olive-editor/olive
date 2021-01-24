@@ -102,6 +102,34 @@ void CurveView::DisconnectInput(NodeInput *input, int element, int track)
   connected_inputs_.removeOne(ref);
 }
 
+void CurveView::SelectKeyframesOf(NodeInput *input, int element, int track)
+{
+  DeselectAll();
+
+  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
+    if (it.key()->parent() == input
+        && it.key()->element() == element
+        && it.key()->track() == track) {
+      it.value()->setSelected(true);
+    }
+  }
+}
+
+void CurveView::ZoomToFitInput(NodeInput *input, int element, int track)
+{
+  QList<NodeKeyframe*> keys;
+
+  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
+    if (it.key()->parent() == input
+        && it.key()->element() == element
+        && it.key()->track() == track) {
+      keys.append(it.key());
+    }
+  }
+
+  ZoomToFitInternal(keys);
+}
+
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 {
   if (timebase().isNull()) {
@@ -293,7 +321,48 @@ void CurveView::ContextMenuEvent(Menu &m)
   QAction* zoom_fit_action = m.addAction(tr("Zoom to Fit"));
   connect(zoom_fit_action, &QAction::triggered, this, &CurveView::ZoomToFit);
 
-  //QAction* reset_zoom_action = m.addAction(tr("Reset Zoom"));
+  QAction* zoom_fit_selected_action = m.addAction(tr("Zoom to Fit Selected"));
+  connect(zoom_fit_selected_action, &QAction::triggered, this, &CurveView::ZoomToFitSelected);
+
+  QAction* reset_zoom_action = m.addAction(tr("Reset Zoom"));
+  connect(reset_zoom_action, &QAction::triggered, this, &CurveView::ResetZoom);
+}
+
+void CurveView::ZoomToFitInternal(const QList<NodeKeyframe *> &keys)
+{
+  if (keys.isEmpty()) {
+    // Prevent scaling to DBL_MIN/DBL_MAX
+    return;
+  }
+
+  rational min_time = RATIONAL_MAX;
+  rational max_time = RATIONAL_MIN;
+
+  double min_val = DBL_MAX;
+  double max_val = DBL_MIN;
+
+  for (auto i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
+    rational transformed_time = GetAdjustedTime(i.key()->parent()->parent(),
+                                                GetTimeTarget(),
+                                                i.key()->time(),
+                                                false);
+
+    min_time = qMin(transformed_time, min_time);
+    max_time = qMax(transformed_time, max_time);
+
+    min_val = qMin(i.key()->value().toDouble(), min_val);
+    max_val = qMax(i.key()->value().toDouble(), max_val);
+  }
+
+  double time_range = max_time.toDouble() - min_time.toDouble();
+  double new_x_scale = CalculateScaleFromDimensions(this->width(), time_range);
+  double new_y_scale = CalculateScaleFromDimensions(this->height(), max_val - min_val);
+
+  emit ScaleChanged(new_x_scale);
+  SetYScale(new_y_scale);
+
+  horizontalScrollBar()->setValue(TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width()));
+  verticalScrollBar()->setValue(GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height()));
 }
 
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
@@ -377,39 +446,26 @@ void CurveView::BezierControlPointDestroyed()
 
 void CurveView::ZoomToFit()
 {
-  if (item_map().isEmpty()) {
-    // Prevent scaling to DBL_MIN/DBL_MAX
-    return;
+  ZoomToFitInternal(item_map().keys());
+}
+
+void CurveView::ZoomToFitSelected()
+{
+  QList<NodeKeyframe*> selected_keys;
+
+  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
+    if (it.value()->isSelected()) {
+      selected_keys.append(it.key());
+    }
   }
 
-  rational min_time = RATIONAL_MAX;
-  rational max_time = RATIONAL_MIN;
+  ZoomToFitInternal(selected_keys);
+}
 
-  double min_val = DBL_MAX;
-  double max_val = DBL_MIN;
-
-  for (auto i=item_map().constBegin(); i!=item_map().constEnd(); i++) {
-    rational transformed_time = GetAdjustedTime(i.key()->parent()->parent(),
-                                                GetTimeTarget(),
-                                                i.key()->time(),
-                                                false);
-
-    min_time = qMin(transformed_time, min_time);
-    max_time = qMax(transformed_time, max_time);
-
-    min_val = qMin(i.key()->value().toDouble(), min_val);
-    max_val = qMax(i.key()->value().toDouble(), max_val);
-  }
-
-  double time_range = max_time.toDouble() - min_time.toDouble();
-  double new_x_scale = CalculateScaleFromDimensions(this->width(), time_range);
-  double new_y_scale = CalculateScaleFromDimensions(this->height(), max_val - min_val);
-
-  emit ScaleChanged(new_x_scale);
-  SetYScale(new_y_scale);
-
-  horizontalScrollBar()->setValue(TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width()));
-  verticalScrollBar()->setValue(GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height()));
+void CurveView::ResetZoom()
+{
+  SetScale(1.0);
+  SetYScale(1.0);
 }
 
 void CurveView::AddKeyframe(NodeKeyframe* key)

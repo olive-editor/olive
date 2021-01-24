@@ -104,6 +104,8 @@ private slots:
 
   void InputSelectionChanged(NodeInput* input, int element, int track);
 
+  void InputDoubleClicked(NodeInput* input, int element, int track);
+
 };
 
 }

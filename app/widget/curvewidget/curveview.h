@@ -42,10 +42,18 @@ public:
 
   void DisconnectInput(NodeInput* input, int element, int track);
 
+  void SelectKeyframesOf(NodeInput* input, int element, int track);
+
+  void ZoomToFitInput(NodeInput* input, int element, int track);
+
 public slots:
   void AddKeyframe(NodeKeyframe* key);
 
   void ZoomToFit();
+
+  void ZoomToFitSelected();
+
+  void ResetZoom();
 
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
@@ -61,6 +69,8 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
+  void ZoomToFitInternal(const QList<NodeKeyframe *> &keys);
+
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 

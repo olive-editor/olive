@@ -82,9 +82,41 @@ void NodeTreeView::changeEvent(QEvent *e)
   }
 }
 
+void NodeTreeView::mouseDoubleClickEvent(QMouseEvent *e)
+{
+  QTreeWidget::mouseDoubleClickEvent(e);
+
+  NodeInput::KeyframeTrackReference ref = GetSelectedInput();
+
+  if (ref.input) {
+    emit InputDoubleClicked(ref.input, ref.element, ref.track);
+  }
+}
+
 void NodeTreeView::Retranslate()
 {
   setHeaderLabel(tr("Nodes"));
+}
+
+NodeInput::KeyframeTrackReference NodeTreeView::GetSelectedInput()
+{
+  QList<QTreeWidgetItem*> sel = selectedItems();
+
+  NodeInput* selected_input = nullptr;
+  int selected_element = -1;
+  int selected_track = -1;
+
+  if (!sel.isEmpty()) {
+    QTreeWidgetItem* item = sel.first();
+
+    if (item->data(0, kItemType).toInt() == kItemTypeInput) {
+      selected_input = reinterpret_cast<NodeInput*>(item->data(0, kItemPointer).value<quintptr>());
+      selected_element = item->data(0, kItemElement).toInt();
+      selected_track = item->data(0, kItemTrack).toInt();
+    }
+  }
+
+  return {selected_input, selected_element, selected_track};
 }
 
 QTreeWidgetItem* NodeTreeView::CreateItem(QTreeWidgetItem *parent, NodeInput *input, int element, int track)
@@ -166,23 +198,9 @@ void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)
 
 void NodeTreeView::SelectionChanged()
 {
-  QList<QTreeWidgetItem*> sel = selectedItems();
+  NodeInput::KeyframeTrackReference ref = GetSelectedInput();
 
-  NodeInput* selected_input = nullptr;
-  int selected_element = -1;
-  int selected_track = -1;
-
-  if (!sel.isEmpty()) {
-    QTreeWidgetItem* item = sel.first();
-
-    if (item->data(0, kItemType).toInt() == kItemTypeInput) {
-      selected_input = reinterpret_cast<NodeInput*>(item->data(0, kItemPointer).value<quintptr>());
-      selected_element = item->data(0, kItemElement).toInt();
-      selected_track = item->data(0, kItemTrack).toInt();
-    }
-  }
-
-  emit InputSelectionChanged(selected_input, selected_element, selected_track);
+  emit InputSelectionChanged(ref.input, ref.element, ref.track);
 }
 
 }
