@@ -36,7 +36,8 @@ namespace olive {
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimeBasedView(parent),
   dragging_bezier_point_(nullptr),
-  currently_autoselecting_(false)
+  currently_autoselecting_(false),
+  dragging_(false)
 {
   SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -141,6 +142,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
     if (active_tool_ == Tool::kPointer) {
       if (item_under_cursor) {
 
+        dragging_ = true;
         drag_start_ = event->pos();
 
         // Determine what type of item is under the cursor
@@ -182,7 +184,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
   if (event->buttons() & Qt::LeftButton) {
     QGraphicsView::mouseMoveEvent(event);
 
-    if (active_tool_ == Tool::kPointer) {
+    if (dragging_) {
       // Calculate cursor difference and scale it
       QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
 
@@ -231,6 +233,10 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
             tip.append('\n');
             tip.append(QString::number(num_value));
           }
+
+          // Force viewport to update since Qt might try to optimize it out if the keyframe is
+          // offscreen
+          viewport()->update();
         }
 
         QToolTip::hideText();
@@ -249,7 +255,7 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
   if (event->button() == Qt::LeftButton) {
     QGraphicsView::mouseReleaseEvent(event);
 
-    if (active_tool_ == Tool::kPointer) {
+    if (dragging_) {
       QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
 
       if (event->modifiers() & Qt::ShiftModifier) {
@@ -293,9 +299,10 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
 
             // Commit value if we're setting a value
             if (IsYAxisEnabled()) {
-              item->key()->set_value(keypair.value);
+              double new_val = keypair.value - mouse_diff_scaled.y();
+              item->key()->set_value(new_val);
               new NodeParamSetKeyframeValueCommand(item->key(),
-                                                   keypair.value - mouse_diff_scaled.y(),
+                                                   new_val,
                                                    keypair.value,
                                                    command);
             }
@@ -308,6 +315,8 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
       }
 
       selected_keys_.clear();
+
+      dragging_ = false;
     }
   }
 }
@@ -316,9 +325,7 @@ void KeyframeViewBase::ScaleChangedEvent(const double &scale)
 {
   TimeBasedView::ScaleChangedEvent(scale);
 
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
+  for (auto iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
     iterator.value()->SetScale(scale);
   }
 }

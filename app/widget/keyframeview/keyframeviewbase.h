@@ -68,6 +68,11 @@ protected:
 
   virtual void ContextMenuEvent(Menu &m);
 
+  bool IsDragging() const
+  {
+    return dragging_;
+  }
+
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
@@ -101,6 +106,8 @@ private:
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool currently_autoselecting_;
+
+  bool dragging_;
 
 private slots:
   void ShowContextMenu();
