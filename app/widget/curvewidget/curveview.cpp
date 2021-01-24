@@ -269,10 +269,12 @@ void CurveView::VerticalScaleChangedEvent(double scale)
 {
   Q_UNUSED(scale)
 
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
+  for (auto iterator=item_map().begin();iterator!=item_map().end();iterator++) {
     SetItemYFromKeyframeValue(iterator.value()->key(), iterator.value());
+  }
+
+  foreach (BezierControlPointItem* item, bezier_control_points_) {
+    item->SetYScale(scale);
   }
 }
 
@@ -319,11 +321,13 @@ void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)
 {
   BezierControlPointItem* bezier_in_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kInHandle, item);
   bezier_in_pt->SetXScale(GetScale());
+  bezier_in_pt->SetYScale(GetYScale());
   bezier_control_points_.append(bezier_in_pt);
   connect(bezier_in_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
 
   BezierControlPointItem* bezier_out_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kOutHandle, item);
   bezier_out_pt->SetXScale(GetScale());
+  bezier_out_pt->SetYScale(GetYScale());
   bezier_control_points_.append(bezier_out_pt);
   connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
 }
@@ -350,10 +354,9 @@ void CurveView::KeyframeTypeChanged()
 void CurveView::SelectionChanged()
 {
   // Clear current bezier handles
-  foreach (BezierControlPointItem* item, bezier_control_points_) {
-    delete item;
+  while (!bezier_control_points_.isEmpty()) {
+    delete bezier_control_points_.first();
   }
-  bezier_control_points_.clear();
 
   QList<QGraphicsItem*> selected = scene()->selectedItems();
 
