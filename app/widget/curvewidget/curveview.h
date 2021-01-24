@@ -42,7 +42,7 @@ public:
 
   void DisconnectInput(NodeInput* input, int element, int track);
 
-  void SelectKeyframesOf(NodeInput* input, int element, int track);
+  void SelectKeyframesOfInput(NodeInput* input, int element, int track);
 
   void ZoomToFitInput(NodeInput* input, int element, int track);
 

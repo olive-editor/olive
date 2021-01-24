@@ -102,7 +102,7 @@ void CurveView::DisconnectInput(NodeInput *input, int element, int track)
   connected_inputs_.removeOne(ref);
 }
 
-void CurveView::SelectKeyframesOf(NodeInput *input, int element, int track)
+void CurveView::SelectKeyframesOfInput(NodeInput *input, int element, int track)
 {
   DeselectAll();
 

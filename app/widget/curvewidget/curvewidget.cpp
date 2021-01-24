@@ -363,7 +363,7 @@ void CurveWidget::InputSelectionChanged(NodeInput *input, int element, int track
   key_control_->SetInput(input, element);
 
   if (input) {
-    view_->SelectKeyframesOf(input, element, track);
+    view_->SelectKeyframesOfInput(input, element, track);
   }
 }
 
