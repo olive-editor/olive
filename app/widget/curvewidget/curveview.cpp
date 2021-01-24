@@ -165,11 +165,13 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
         painter->setPen(QPen(keyframe_colors_.value(ref),
                              qMax(1, fontMetrics().height() / 4)));
 
-        QVector<QLineF> keyframe_lines;
+        // Create a path
+        QPainterPath path;
 
         // Draw straight line leading to first keyframe
         QPointF first_key_pos = item_map().value(track.first())->pos();
-        keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
+        path.moveTo(QPointF(scene_bottom_left.x(), first_key_pos.y()));
+        path.lineTo(first_key_pos);
 
         // Draw lines between each keyframe
         for (int i=1;i<track.size();i++) {
@@ -180,26 +182,20 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
           KeyframeViewItem* after_item = item_map().value(after);
 
           if (before->type() == NodeKeyframe::kHold) {
+
             // Draw a hold keyframe (basically a right angle)
-            keyframe_lines.append(QLineF(before_item->pos().x(),
-                                         before_item->pos().y(),
-                                         after_item->pos().x(),
-                                         before_item->pos().y()));
-            keyframe_lines.append(QLineF(after_item->pos().x(),
-                                         before_item->pos().y(),
-                                         after_item->pos().x(),
-                                         after_item->pos().y()));
+            path.lineTo(after_item->pos().x(), before_item->pos().y());
+            path.lineTo(after_item->pos().x(), after_item->pos().y());
+
           } else if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+
             // Draw a cubic bezier
 
             // Cubic beziers have two control points, so we can just use both
-            QPointF before_control_point = before_item->pos() + ScalePoint(before->bezier_control_out());
-            QPointF after_control_point = after_item->pos() + ScalePoint(after->bezier_control_in());
+            QPointF before_control_point = before_item->pos() + ScalePoint(before->valid_bezier_control_out());
+            QPointF after_control_point = after_item->pos() + ScalePoint(after->valid_bezier_control_in());
 
-            QPainterPath path;
-            path.moveTo(before_item->pos());
             path.cubicTo(before_control_point, after_control_point, after_item->pos());
-            painter->drawPath(path);
 
           } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
             // Draw a quadratic bezier
@@ -210,32 +206,31 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 
             if (before->type() == NodeKeyframe::kBezier) {
               key_anchor = before_item->pos();
-              control_point = before->bezier_control_out();
+              control_point = before->valid_bezier_control_out();
             } else {
               key_anchor = after_item->pos();
-              control_point = after->bezier_control_in();
+              control_point = after->valid_bezier_control_in();
             }
 
             // Scale control point
             control_point = key_anchor + ScalePoint(control_point);
 
             // Create the path from both keyframes
-            QPainterPath path;
-            path.moveTo(before_item->pos());
             path.quadTo(control_point, after_item->pos());
-            painter->drawPath(path);
 
           } else {
+
             // Linear to linear
-            keyframe_lines.append(QLineF(before_item->pos(), after_item->pos()));
+            path.lineTo(after_item->pos());
+
           }
         }
 
         // Draw straight line leading from end keyframe
         QPointF last_key_pos = item_map().value(track.last())->pos();
-        keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
+        path.lineTo(QPointF(scene_top_right.x(), last_key_pos.y()));
 
-        painter->drawLines(keyframe_lines);
+        painter->drawPath(path);
       }
     }
   }

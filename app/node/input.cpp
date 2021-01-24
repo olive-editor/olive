@@ -577,13 +577,13 @@ QVariant NodeInput::GetValueAtTimeForTrack(const rational &time, int track, int 
 
           double t = Bezier::CubicXtoT(time.toDouble(),
                                        before->time().toDouble(),
-                                       before->time().toDouble() + before->bezier_control_out().x(),
-                                       after->time().toDouble() + after->bezier_control_in().x(),
+                                       before->time().toDouble() + before->valid_bezier_control_out().x(),
+                                       after->time().toDouble() + after->valid_bezier_control_in().x(),
                                        after->time().toDouble());
 
           double y = Bezier::CubicTtoY(before->value().toDouble(),
-                                       before->value().toDouble() + before->bezier_control_out().y(),
-                                       after->value().toDouble() + after->bezier_control_in().y(),
+                                       before->value().toDouble() + before->valid_bezier_control_out().y(),
+                                       after->value().toDouble() + after->valid_bezier_control_in().y(),
                                        after->value().toDouble(),
                                        t);
 
@@ -597,11 +597,11 @@ QVariant NodeInput::GetValueAtTimeForTrack(const rational &time, int track, int 
           double control_point_value;
 
           if (before->type() == NodeKeyframe::kBezier) {
-            control_point = before->bezier_control_out();
+            control_point = before->valid_bezier_control_out();
             control_point_time = before->time().toDouble() + control_point.x();
             control_point_value = before->value().toDouble() + control_point.y();
           } else {
-            control_point = after->bezier_control_in();
+            control_point = after->valid_bezier_control_in();
             control_point_time = after->time().toDouble() + control_point.x();
             control_point_value = after->value().toDouble() + control_point.y();
           }

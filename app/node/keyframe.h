@@ -100,6 +100,16 @@ public:
   void set_bezier_control_out(const QPointF& control);
 
   /**
+  * @brief Returns a known good bezier that should be used in actual animation
+  *
+  * While users can move the bezier controls wherever they want, we have to limit their usage
+  * internally to prevent a situation where the animation overlaps (i.e. there can only be one Y
+  * value for any given X in the bezier line). This returns a value that is known good.
+  */
+  QPointF valid_bezier_control_in() const;
+  QPointF valid_bezier_control_out() const;
+
+  /**
    * @brief Convenience functions for retrieving/setting bezier handle information with a BezierType
    */
   const QPointF& bezier_control(BezierType type) const;
@@ -125,6 +135,26 @@ public:
    * @brief Convenience function for getting the opposite handle type (e.g. kInHandle <-> kOutHandle)
    */
   static BezierType get_opposing_bezier_type(BezierType type);
+
+  NodeKeyframe* previous() const
+  {
+    return previous_;
+  }
+
+  void set_previous(NodeKeyframe* keyframe)
+  {
+    previous_ = keyframe;
+  }
+
+  NodeKeyframe* next() const
+  {
+    return next_;
+  }
+
+  void set_next(NodeKeyframe* keyframe)
+  {
+    next_ = keyframe;
+  }
 
 signals:
   /**
@@ -166,6 +196,10 @@ private:
   int track_;
 
   int element_;
+
+  NodeKeyframe* previous_;
+
+  NodeKeyframe* next_;
 
 };
 

@@ -220,6 +220,8 @@ void NodeInputImmediate::insert_keyframe(NodeKeyframe* key)
 {
   NodeKeyframeTrack& key_track = keyframe_tracks_[key->track()];
 
+  int insert_index = key_track.size();
+
   for (int i=0;i<key_track.size();i++) {
     NodeKeyframe* compare = key_track.at(i);
 
@@ -227,16 +229,41 @@ void NodeInputImmediate::insert_keyframe(NodeKeyframe* key)
     Q_ASSERT(compare->time() != key->time());
 
     if (compare->time() > key->time()) {
-      key_track.insert(i, key);
-      return;
+      insert_index = i;
+      break;
     }
   }
 
-  key_track.append(key);
+  key_track.insert(insert_index, key);
+
+  NodeKeyframe* previous = insert_index > 0 ? key_track.at(insert_index-1) : nullptr;
+  NodeKeyframe* next = insert_index < key_track.size()-1 ? key_track.at(insert_index+1) : nullptr;
+
+  key->set_previous(previous);
+  key->set_next(next);
+
+  if (previous) {
+    previous->set_next(key);
+  }
+
+  if (next) {
+    next->set_previous(key);
+  }
 }
 
 void NodeInputImmediate::remove_keyframe(NodeKeyframe *key)
 {
+  if (key->previous()) {
+    key->previous()->set_next(key->next());
+  }
+
+  if (key->next()) {
+    key->next()->set_previous(key->previous());
+  }
+
+  key->set_previous(nullptr);
+  key->set_next(nullptr);
+
   keyframe_tracks_[key->track()].removeOne(key);
 }
 
