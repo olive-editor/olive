@@ -15,11 +15,16 @@ public:
 
   bool IsNodeEnabled(Node* n) const;
 
-  bool IsInputEnabled(NodeInput* i) const;
+  bool IsInputEnabled(NodeInput* i, int element, int track) const;
 
   void SetOnlyShowKeyframable(bool e)
   {
     only_show_keyframable_ = e;
+  }
+
+  void SetShowKeyframeTracksAsRows(bool e)
+  {
+    show_keyframe_tracks_as_rows_ = e;
   }
 
 public slots:
@@ -28,13 +33,17 @@ public slots:
 signals:
   void NodeEnableChanged(Node* n, bool e);
 
-  void InputEnableChanged(NodeInput* i, bool e);
+  void InputEnableChanged(NodeInput* i, int element, int track, bool e);
+
+  void InputSelectionChanged(NodeInput* input, int element, int track);
 
 protected:
   virtual void changeEvent(QEvent* e) override;
 
 private:
   void Retranslate();
+
+  QTreeWidgetItem *CreateItem(QTreeWidgetItem* parent, NodeInput* input, int element, int track);
 
   enum ItemType {
     kItemTypeNode,
@@ -43,17 +52,23 @@ private:
 
   static const int kItemType = Qt::UserRole;
   static const int kItemPointer = Qt::UserRole + 1;
+  static const int kItemElement = Qt::UserRole + 2;
+  static const int kItemTrack = Qt::UserRole + 3;
 
   QVector<Node*> nodes_;
 
   QVector<Node*> disabled_nodes_;
 
-  QVector<NodeInput*> disabled_inputs_;
+  QVector<NodeInput::KeyframeTrackReference> disabled_inputs_;
 
   bool only_show_keyframable_;
 
+  bool show_keyframe_tracks_as_rows_;
+
 private slots:
   void ItemCheckStateChanged(QTreeWidgetItem* item, int column);
+
+  void SelectionChanged();
 
 };
 

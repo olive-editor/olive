@@ -338,6 +338,17 @@ public:
     return GetImmediate(element)->get_closest_keyframe_after_time(time);
   }
 
+  struct KeyframeTrackReference {
+    NodeInput* input;
+    int element;
+    int track;
+
+    bool operator==(const KeyframeTrackReference& rhs) const
+    {
+      return input == rhs.input && element == rhs.element && track == rhs.track;
+    }
+  };
+
 signals:
   void NameChanged(const QString& name);
 
@@ -470,6 +481,8 @@ private slots:
   void InvalidateFromKeyframeBezierOutChange();
 
 };
+
+uint qHash(const NodeInput::KeyframeTrackReference& ref, uint seed = 0);
 
 }
 

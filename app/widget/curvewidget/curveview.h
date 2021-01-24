@@ -38,11 +38,9 @@ public:
 
   virtual void Clear() override;
 
-  void ConnectInput(NodeInput* input);
+  void ConnectInput(NodeInput* input, int element, int track);
 
-  void DisconnectNode(Node* node);
-
-  void DisconnectInput(NodeInput* input);
+  void DisconnectInput(NodeInput* input, int element, int track);
 
 public slots:
   void AddKeyframe(NodeKeyframe* key);
@@ -63,8 +61,6 @@ protected:
   virtual void ContextMenuEvent(Menu &m) override;
 
 private:
-  void ConnectInputElement(NodeInput* input, int element);
-
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
 
@@ -76,19 +72,17 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  uint GetKeyframeTrackUniqueID(NodeInput* input, int element, int track);
-
-  QMap<uint, QColor> keyframe_colors_;
+  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
 
   int text_padding_;
 
   int minimum_grid_space_;
 
-  QList<QGraphicsLineItem*> lines_;
+  QVector<QGraphicsLineItem*> lines_;
 
-  QList<BezierControlPointItem*> bezier_control_points_;
+  QVector<BezierControlPointItem*> bezier_control_points_;
 
-  QList<NodeInput*> connected_inputs_;
+  QVector<NodeInput::KeyframeTrackReference> connected_inputs_;
 
 private slots:
   void KeyframeValueChanged();

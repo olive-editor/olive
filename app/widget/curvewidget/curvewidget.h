@@ -69,9 +69,9 @@ private:
 
   void UpdateBridgeTime(const int64_t& timestamp);
 
-  void ConnectNode(Node* n);
+  void ConnectNode(Node* node, bool connect);
 
-  void DisconnectNode(Node* n);
+  void ConnectInput(NodeInput* input, bool connect);
 
   NodeTreeView* tree_view_;
 
@@ -96,7 +96,13 @@ private slots:
 
   void NodeEnabledChanged(Node* n, bool e);
 
-  void InputEnabledChanged(NodeInput* i, bool e);
+  void InputEnabledChanged(NodeInput* i, int element, int track, bool e);
+
+  void AddKeyframe(NodeKeyframe* key);
+
+  void RemoveKeyframe(NodeKeyframe* key);
+
+  void InputSelectionChanged(NodeInput* input, int element, int track);
 
 };
 

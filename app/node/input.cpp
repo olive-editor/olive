@@ -834,4 +834,9 @@ QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::Foot
   return NodeValue::StringToValue(data_type_, string, true);
 }
 
+uint qHash(const NodeInput::KeyframeTrackReference &ref, uint seed)
+{
+  return qHash(ref.input, seed) ^ qHash(ref.element, seed) ^ qHash(ref.track, seed);
+}
+
 }

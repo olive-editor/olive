@@ -44,8 +44,10 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   tree_view_ = new NodeTreeView();
   tree_view_->SetOnlyShowKeyframable(true);
+  tree_view_->SetShowKeyframeTracksAsRows(true);
   connect(tree_view_, &NodeTreeView::NodeEnableChanged, this, &CurveWidget::NodeEnabledChanged);
   connect(tree_view_, &NodeTreeView::InputEnableChanged, this, &CurveWidget::InputEnabledChanged);
+  connect(tree_view_, &NodeTreeView::InputSelectionChanged, this, &CurveWidget::InputSelectionChanged);
   splitter->addWidget(tree_view_);
 
   QWidget* workarea = new QWidget();
@@ -137,14 +139,14 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
   // Detect removed nodes
   foreach (Node* n, nodes_) {
     if (!nodes.contains(n)) {
-      view_->DisconnectNode(n);
+      ConnectNode(n, false);
     }
   }
 
   // Detect added nodes
   foreach (Node* n, nodes) {
     if (tree_view_->IsNodeEnabled(n) && !nodes_.contains(n)) {
-      ConnectNode(n);
+      ConnectNode(n, true);
     }
   }
 
@@ -213,18 +215,48 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
   key_control_->SetTime(time);
 }
 
-void CurveWidget::ConnectNode(Node *n)
+void CurveWidget::ConnectNode(Node *node, bool connect)
 {
-  foreach (NodeInput* i, n->parameters()) {
-    if (tree_view_->IsInputEnabled(i)) {
-      view_->ConnectInput(i);
-    }
+  foreach (NodeInput* input, node->parameters()) {
+    ConnectInput(input, connect);
   }
 }
 
-void CurveWidget::DisconnectNode(Node *n)
+void CurveWidget::ConnectInput(NodeInput *input, bool connect)
 {
-  view_->DisconnectNode(n);
+  int track_count = NodeValue::get_number_of_keyframe_tracks(input->GetDataType());
+  bool multiple_tracks = track_count > 1;
+
+  for (int i=-1; i<input->ArraySize(); i++) {
+    if (tree_view_->IsInputEnabled(input, i, multiple_tracks ? -1 : 0)) {
+      if (multiple_tracks) {
+        for (int j=0; j<track_count; j++) {
+          if (tree_view_->IsInputEnabled(input, i, j)) {
+            if (connect) {
+              view_->ConnectInput(input, i, j);
+            } else {
+              view_->DisconnectInput(input, i, j);
+            }
+          }
+        }
+      } else {
+        if (connect) {
+          view_->ConnectInput(input, i, 0);
+        } else {
+          view_->DisconnectInput(input, i, 0);
+        }
+      }
+    }
+  }
+
+  // Connect add/remove signals
+  if (connect) {
+    QObject::connect(input, &NodeInput::KeyframeAdded, this, &CurveWidget::AddKeyframe);
+    QObject::connect(input, &NodeInput::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
+  } else {
+    QObject::disconnect(input, &NodeInput::KeyframeAdded, this, &CurveWidget::AddKeyframe);
+    QObject::disconnect(input, &NodeInput::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
+  }
 }
 
 void CurveWidget::SelectionChanged()
@@ -303,20 +335,33 @@ void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
 
 void CurveWidget::NodeEnabledChanged(Node* n, bool e)
 {
+  ConnectNode(n, e);
+}
+
+void CurveWidget::InputEnabledChanged(NodeInput *i, int element, int track, bool e)
+{
   if (e) {
-    ConnectNode(n);
+    view_->ConnectInput(i, element, track);
   } else {
-    DisconnectNode(n);
+    view_->DisconnectInput(i, element, track);
   }
 }
 
-void CurveWidget::InputEnabledChanged(NodeInput *i, bool e)
+void CurveWidget::AddKeyframe(NodeKeyframe *key)
 {
-  if (e) {
-    view_->ConnectInput(i);
-  } else {
-    view_->DisconnectInput(i);
-  }
+  view_->AddKeyframe(key);
+}
+
+void CurveWidget::RemoveKeyframe(NodeKeyframe *key)
+{
+  view_->RemoveKeyframe(key);
+}
+
+void CurveWidget::InputSelectionChanged(NodeInput *input, int element, int track)
+{
+  Q_UNUSED(track)
+
+  key_control_->SetInput(input, element);
 }
 
 }
