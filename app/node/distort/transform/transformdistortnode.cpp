@@ -33,6 +33,7 @@ TransformDistortNode::TransformDistortNode()
   interpolation_input_ = new NodeInput(this, QStringLiteral("interpolation_in"), NodeValue::kCombo, 2);
 
   texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
+  texture_input_->SetKeyframable(false);
 }
 
 void TransformDistortNode::Retranslate()

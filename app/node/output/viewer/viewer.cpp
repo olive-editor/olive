@@ -30,8 +30,10 @@ ViewerOutput::ViewerOutput() :
   operation_stack_(0)
 {
   texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
+  texture_input_->SetKeyframable(false);
 
   samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
+  samples_input_->SetKeyframable(false);
 
   // Create TrackList instances
   track_inputs_.resize(Track::kCount);
@@ -41,6 +43,8 @@ ViewerOutput::ViewerOutput() :
     // Create track input
     NodeInput* track_input = new NodeInput(this, QStringLiteral("track_in_%1").arg(i), NodeValue::kNone);
     track_input->SetIsArray(true);
+    track_input->SetKeyframable(false);
+
     IgnoreInvalidationsFrom(track_input);
     track_inputs_.replace(i, track_input);
 
