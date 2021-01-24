@@ -50,7 +50,7 @@ struct XMLNodeData {
   };
 
   struct BlockLink {
-    Block* block;
+    Node* block;
     quintptr link;
   };
 

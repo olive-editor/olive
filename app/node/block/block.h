@@ -112,22 +112,6 @@ public:
   bool is_enabled() const;
   void set_enabled(bool e);
 
-  static bool Link(Block* a, Block* b);
-  static void Link(const QList<Block*>& blocks);
-  static bool Unlink(Block* a, Block* b);
-  static void Unlink(const QList<Block*>& blocks);
-  static bool AreLinked(Block* a, Block* b);
-
-  const QVector<Block*>& linked_clips() const
-  {
-    return linked_clips_;
-  }
-
-  bool HasLinks() const
-  {
-    return !linked_clips_.isEmpty();
-  }
-
   virtual void Retranslate() override;
 
   NodeInput* length_input() const
@@ -175,13 +159,16 @@ public:
     index_ = i;
   }
 
+  const QVector<Block*>& block_links() const
+  {
+    return block_links_;
+  }
+
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
 public slots:
 
 signals:
-  void LinksChanged();
-
   void EnabledChanged();
 
   void LengthChanged();
@@ -191,11 +178,9 @@ protected:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
-
-  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
-
   virtual QVector<NodeInput*> GetInputsToHash() const override;
+
+  virtual void LinkChangeEvent() override;
 
   Block* previous_;
   Block* next_;
@@ -216,7 +201,7 @@ private:
   TransitionBlock* in_transition_;
   TransitionBlock* out_transition_;
 
-  QVector<Block*> linked_clips_;
+  QVector<Block*> block_links_;
 
 };
 

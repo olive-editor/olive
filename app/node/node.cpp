@@ -108,6 +108,14 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
       SetLabel(reader->readElementText());
     } else if (reader->name() == QStringLiteral("color")) {
       override_color_ = reader->readElementText().toInt();
+    } else if (reader->name() == QStringLiteral("links")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("link")) {
+          xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("custom")) {
       LoadInternal(reader, xml_node_data);
     } else {
@@ -135,6 +143,12 @@ void Node::Save(QXmlStreamWriter *writer) const
 
     writer->writeEndElement(); // input
   }
+
+  writer->writeStartElement(QStringLiteral("links"));
+  foreach (Node* link, links_) {
+    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+  }
+  writer->writeEndElement(); // links
 
   writer->writeStartElement(QStringLiteral("custom"));
   SaveInternal(writer);
@@ -297,6 +311,51 @@ void Node::SendInvalidateCache(const TimeRange &range)
 void Node::InvalidateAll(NodeInput* input, int element)
 {
   InvalidateCache(TimeRange(RATIONAL_MIN, RATIONAL_MAX), {input, element});
+}
+
+bool Node::Link(Node *a, Node *b)
+{
+  if (a == b || !a || !b) {
+    return false;
+  }
+
+  if (AreLinked(a, b)) {
+    return false;
+  }
+
+  a->links_.append(b);
+  b->links_.append(a);
+
+  a->LinkChangeEvent();
+  b->LinkChangeEvent();
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
+}
+
+bool Node::Unlink(Node *a, Node *b)
+{
+  if (!AreLinked(a, b)) {
+    return false;
+  }
+
+  a->links_.removeOne(b);
+  b->links_.removeOne(a);
+
+  a->LinkChangeEvent();
+  b->LinkChangeEvent();
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
+}
+
+bool Node::AreLinked(Node *a, Node *b)
+{
+  return a->links_.contains(b);
 }
 
 void Node::IgnoreInvalidationsFrom(NodeInput *input)

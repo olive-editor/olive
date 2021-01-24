@@ -170,24 +170,6 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   return sequence_time;
 }
 
-void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
-{
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("link")) {
-      xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void Block::SaveInternal(QXmlStreamWriter *writer) const
-{
-  foreach (Block* link, linked_clips_) {
-    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
-  }
-}
-
 QVector<NodeInput *> Block::GetInputsToHash() const
 {
   QVector<NodeInput*> inputs = Node::GetInputsToHash();
@@ -200,72 +182,22 @@ QVector<NodeInput *> Block::GetInputsToHash() const
   return inputs;
 }
 
+void Block::LinkChangeEvent()
+{
+  block_links_.clear();
+
+  foreach (Node* n, links()) {
+    Block* b = dynamic_cast<Block*>(n);
+
+    if (b) {
+      block_links_.append(b);
+    }
+  }
+}
+
 void Block::set_length_internal(const rational &length)
 {
   length_input_->SetStandardValue(QVariant::fromValue(length));
-}
-
-bool Block::Link(Block *a, Block *b)
-{
-  if (a == b || !a || !b) {
-    return false;
-  }
-
-  // Prevent duplicate link entries (assume that we only need to check one clip since this should be the only function
-  // that adds to the linked array)
-  if (Block::AreLinked(a, b)) {
-    return false;
-  }
-
-  a->linked_clips_.append(b);
-  b->linked_clips_.append(a);
-
-  emit a->LinksChanged();
-  emit b->LinksChanged();
-
-  return true;
-}
-
-void Block::Link(const QList<Block*>& blocks)
-{
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
-      Link(a, b);
-    }
-  }
-}
-
-bool Block::Unlink(Block *a, Block *b)
-{
-  if (a == b || !a || !b) {
-    return false;
-  }
-
-  if (!Block::AreLinked(a, b)) {
-    return false;
-  }
-
-  a->linked_clips_.removeOne(b);
-  b->linked_clips_.removeOne(a);
-
-  emit a->LinksChanged();
-  emit b->LinksChanged();
-
-  return true;
-}
-
-void Block::Unlink(const QList<Block *> &blocks)
-{
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
-      Unlink(a, b);
-    }
-  }
-}
-
-bool Block::AreLinked(Block *a, Block *b)
-{
-  return a->linked_clips_.contains(b);
 }
 
 void Block::Retranslate()

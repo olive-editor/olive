@@ -500,117 +500,6 @@ private:
   Block* before_;
 };
 
-class BlockLinkCommand : public UndoCommand {
-public:
-  BlockLinkCommand(Block* a, Block* b, bool link, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
-    a_(a),
-    b_(b),
-    link_(link)
-  {
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return a_->parent()->project();
-  }
-
-protected:
-  virtual void redo_internal() override
-  {
-    if (link_) {
-      done_ = Block::Link(a_, b_);
-    } else {
-      done_ = Block::Unlink(a_, b_);
-    }
-  }
-
-  virtual void undo_internal() override
-  {
-    if (done_) {
-      if (link_) {
-        Block::Unlink(a_, b_);
-      } else {
-        Block::Link(a_, b_);
-      }
-    }
-  }
-
-private:
-  Block* a_;
-
-  Block* b_;
-
-  bool link_;
-
-  bool done_;
-
-};
-
-class BlockUnlinkAllCommand : public UndoCommand {
-public:
-  BlockUnlinkAllCommand(Block* block, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
-    block_(block)
-  {
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return static_cast<Sequence*>(block_->parent())->project();
-  }
-
-protected:
-  virtual void redo_internal() override
-  {
-    unlinked_ = block_->linked_clips();
-
-    foreach (Block* link, unlinked_) {
-      Block::Unlink(block_, link);
-    }
-  }
-
-  virtual void undo_internal() override
-  {
-    foreach (Block* link, unlinked_) {
-      Block::Link(block_, link);
-    }
-
-    unlinked_.clear();
-  }
-
-private:
-  Block* block_;
-
-  QVector<Block*> unlinked_;
-
-};
-
-class BlockLinkManyCommand : public UndoCommand {
-public:
-  BlockLinkManyCommand(const QVector<Block*> blocks, bool link, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
-    blocks_(blocks)
-  {
-    foreach (Block* a, blocks_) {
-      foreach (Block* b, blocks_) {
-        if (a != b) {
-          new BlockLinkCommand(a, b, link, this);
-        }
-      }
-    }
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return blocks_.first()->parent()->project();
-  }
-
-private:
-  QVector<Block*> blocks_;
-
-};
-
 class BlockSplitCommand : public UndoCommand {
 public:
   BlockSplitCommand(Block* block, rational point, QUndoCommand* parent = nullptr) :
@@ -833,7 +722,7 @@ protected:
             // These blocks are linked, ensure all the splits are linked too
 
             foreach (const QVector<Block*>& split_list, split_blocks) {
-              BlockLinkCommand* blc = new BlockLinkCommand(split_list.at(i), split_list.at(j), true);
+              NodeLinkCommand* blc = new NodeLinkCommand(split_list.at(i), split_list.at(j), true);
               blc->redo();
               commands_.append(blc);
             }

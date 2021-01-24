@@ -77,7 +77,7 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
       // Add links if no alt is held
       if (!(event->GetModifiers() & Qt::AltModifier)) {
-        foreach (Block* link, block_at_time->linked_clips()) {
+        foreach (Block* link, block_at_time->block_links()) {
           if (!blocks_to_split.contains(link)) {
             blocks_to_split.append(link);
           }

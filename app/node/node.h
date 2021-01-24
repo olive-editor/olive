@@ -425,6 +425,20 @@ public:
 
   void InvalidateAll(NodeInput *input, int element);
 
+  bool HasLinks() const
+  {
+    return !links_.isEmpty();
+  }
+
+  const QVector<Node*>& links() const
+  {
+    return links_;
+  }
+
+  static bool Link(Node* a, Node* b);
+  static bool Unlink(Node* a, Node* b);
+  static bool AreLinked(Node* a, Node* b);
+
 protected:
   void SendInvalidateCache(const TimeRange &range);
 
@@ -463,6 +477,8 @@ protected:
 
   virtual void childEvent(QChildEvent* event) override;
 
+  virtual void LinkChangeEvent(){}
+
 signals:
   /**
    * @brief Signal emitted whenever the position is set through SetPosition()
@@ -485,6 +501,8 @@ signals:
   void OutputConnected(NodeInput* destination, int element);
 
   void OutputDisconnected(NodeInput* destination, int element);
+
+  void LinksChanged();
 
 private:
   template<class T>
@@ -520,6 +538,11 @@ private:
    * @brief -1 if the color should be based on the category, >=0 if the user has set a custom color
    */
   int override_color_;
+
+  /**
+   * @brief Nodes that are linked with this one
+   */
+  QVector<Node*> links_;
 
 private slots:
   void ParameterValueChanged(const olive::TimeRange &range, int element);

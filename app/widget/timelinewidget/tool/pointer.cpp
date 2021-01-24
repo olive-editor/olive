@@ -93,7 +93,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
         // If not holding alt, deselect all links as well
         if (!(event->GetModifiers() & Qt::AltModifier)) {
           parent()->SetBlockLinksSelected(clicked_item_, false);
-          deselected_blocks.append(clicked_item_->linked_clips());
+          deselected_blocks.append(clicked_item_->block_links());
         }
       }
 
@@ -120,7 +120,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     // If not holding alt, select all links as well
     if (!(event->GetModifiers() & Qt::AltModifier)) {
       parent()->SetBlockLinksSelected(clicked_item_, true);
-      selected_blocks.append(clicked_item_->linked_clips());
+      selected_blocks.append(clicked_item_->block_links());
     }
 
     parent()->SignalSelectedBlocks(selected_blocks);

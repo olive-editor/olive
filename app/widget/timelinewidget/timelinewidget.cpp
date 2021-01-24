@@ -530,7 +530,7 @@ void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<Footage *> &footag
 
 void TimelineWidget::ToggleLinksOnSelected()
 {
-  QVector<Block*> blocks;
+  QVector<Node*> blocks;
   bool link = true;
 
   foreach (Block* item, GetSelectedBlocks()) {
@@ -551,7 +551,7 @@ void TimelineWidget::ToggleLinksOnSelected()
     return;
   }
 
-  Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, link));
+  Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
 }
 
 void TimelineWidget::CopySelected(bool cut)
@@ -1050,7 +1050,7 @@ void TimelineWidget::SetViewBeamCursor(const TimelineCoordinate &coord)
 
 void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
 {
-  foreach (Block* link, block->linked_clips()) {
+  foreach (Block* link, block->block_links()) {
     if (selected) {
       AddSelection(link);
     } else {
@@ -1385,7 +1385,7 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
     }
 
     if (select_links) {
-      foreach (Block* link, b->linked_clips()) {
+      foreach (Block* link, b->block_links()) {
         if (!rubberband_now_selected_.contains(link)) {
           AddSelection(link);
           rubberband_now_selected_.append(link);

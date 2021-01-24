@@ -230,6 +230,114 @@ private:
 
 };
 
+class NodeLinkCommand : public UndoCommand {
+public:
+  NodeLinkCommand(Node* a, Node* b, bool link, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    a_(a),
+    b_(b),
+    link_(link)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return a_->parent()->project();
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    if (link_) {
+      done_ = Node::Link(a_, b_);
+    } else {
+      done_ = Node::Unlink(a_, b_);
+    }
+  }
+
+  virtual void undo_internal() override
+  {
+    if (done_) {
+      if (link_) {
+        Node::Unlink(a_, b_);
+      } else {
+        Node::Link(a_, b_);
+      }
+    }
+  }
+
+private:
+  Node* a_;
+  Node* b_;
+  bool link_;
+  bool done_;
+
+};
+
+class NodeUnlinkAllCommand : public UndoCommand {
+public:
+  NodeUnlinkAllCommand(Node* node, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    node_(node)
+  {
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return node_->parent()->project();
+  }
+
+protected:
+  virtual void redo_internal() override
+  {
+    unlinked_ = node_->links();
+
+    foreach (Node* link, unlinked_) {
+      Node::Unlink(node_, link);
+    }
+  }
+
+  virtual void undo_internal() override
+  {
+    foreach (Node* link, unlinked_) {
+      Node::Link(node_, link);
+    }
+
+    unlinked_.clear();
+  }
+
+private:
+  Node* node_;
+
+  QVector<Node*> unlinked_;
+
+};
+
+class NodeLinkManyCommand : public UndoCommand {
+public:
+  NodeLinkManyCommand(const QVector<Node*> nodes, bool link, QUndoCommand* parent = nullptr) :
+    UndoCommand(parent),
+    nodes_(nodes)
+  {
+    foreach (Node* a, nodes_) {
+      foreach (Node* b, nodes_) {
+        if (a != b) {
+          new NodeLinkCommand(a, b, link, this);
+        }
+      }
+    }
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return nodes_.first()->parent()->project();
+  }
+
+private:
+  QVector<Node*> nodes_;
+
+};
+
 }
 
 #endif // NODEVIEWUNDO_H

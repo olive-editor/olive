@@ -113,9 +113,8 @@ void NodeRemoveAndDisconnectCommand::prep()
   command_ = new QUndoCommand();
 
   // If this is a block, remove all links
-  Block* block = dynamic_cast<Block*>(node_);
-  if (block) {
-    new BlockUnlinkAllCommand(block, command_);
+  if (node_->HasLinks()) {
+    new NodeUnlinkAllCommand(node_, command_);
   }
 
   // Disconnect everything
