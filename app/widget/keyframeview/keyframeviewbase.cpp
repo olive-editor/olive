@@ -194,15 +194,68 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
       }
 
       if (dragging_bezier_point_) {
-        ProcessBezierDrag(mouse_diff_scaled,
-                          !(event->modifiers() & Qt::ControlModifier),
-                          false);
+
+        // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
+        mouse_diff_scaled.setY(-mouse_diff_scaled.y());
+
+        QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
+                                                               dragging_bezier_point_start_,
+                                                               mouse_diff_scaled);
+
+        // If the user is NOT holding control, we set the other handle to the exact negative of this handle
+        QPointF new_opposing_pos;
+        NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
+
+
+        if (!(event->modifiers() & Qt::ControlModifier)) {
+          new_opposing_pos = GenerateBezierControlPosition(opposing_type,
+                                                           dragging_bezier_point_opposing_start_,
+                                                           -mouse_diff_scaled);
+        } else {
+          new_opposing_pos = dragging_bezier_point_opposing_start_;
+        }
+
+        dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
+                                                          new_bezier_pos);
+
+        dragging_bezier_point_->key()->set_bezier_control(opposing_type,
+                                                          new_opposing_pos);
+
+        emit Dragged(qRound(dragging_bezier_point_->x()), qRound(dragging_bezier_point_->y()));
+
       } else if (!selected_keys_.isEmpty()) {
+
+        // Validate movement - ensure no keyframe goes above its max point or below its min point
+        FloatSlider::DisplayType display_type = FloatSlider::kNormal;
+
+        if (IsYAxisEnabled()) {
+          foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+            NodeInput* input = keypair.key->key()->parent();
+            QList<QByteArray> properties = input->dynamicPropertyNames();
+
+            double new_val = keypair.value - mouse_diff_scaled.y();
+            double limited = new_val;
+
+            if (properties.contains("min")) {
+              limited = qMax(limited, input->property("min").toDouble());
+            }
+
+            if (properties.contains("max")) {
+              limited = qMin(limited, input->property("max").toDouble());
+            }
+
+            if (limited != new_val) {
+              mouse_diff_scaled.setY(keypair.value - limited);
+            }
+          }
+
+          NodeInput* initial_drag_input = initial_drag_item_->key()->parent();
+          if (initial_drag_input->dynamicPropertyNames().contains("view")) {
+            display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->property("view").toInt());
+          }
+        }
+
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-          //NodeInput* input_parent = keypair.key->key()->parent();
-
-          //input_parent->blockSignals(true);
-
           rational node_time = GetAdjustedTime(GetTimeTarget(),
                                                keypair.key->key()->parent()->parent(),
                                                CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
@@ -213,12 +266,6 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
           if (IsYAxisEnabled()) {
             keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
           }
-
-          // We emit a custom value changed signal while the keyframe is being dragged so only the currently viewed
-          // frame gets rendered in this time
-          //input_parent->blockSignals(false);
-
-          //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
         }
 
         // Show information about this keyframe
@@ -231,7 +278,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
           if (ok) {
             tip.append('\n');
-            tip.append(QString::number(num_value));
+            tip.append(FloatSlider::ValueToString(num_value, display_type, 2, true));
           }
 
           // Force viewport to update since Qt might try to optimize it out if the keyframe is
@@ -243,6 +290,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
         QToolTip::showText(QCursor::pos(), tip);
 
         emit Dragged(qRound(initial_drag_item_->x()), qRound(initial_drag_item_->y()));
+
       }
     }
   }
@@ -258,67 +306,58 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 
     if (dragging_) {
-      QPointF mouse_diff_scaled = GetScaledCursorPos(mapToScene(event->pos()) - drag_start_);
+      if (dragging_bezier_point_) {
+        QUndoCommand* command = new QUndoCommand();
 
-      if (event->modifiers() & Qt::ShiftModifier) {
-        // If holding shift, only move one axis
-        mouse_diff_scaled.setY(0);
-      }
+        // Create undo command with the current bezier point and the old one
+        new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                          dragging_bezier_point_->mode(),
+                                          dragging_bezier_point_->key()->bezier_control(dragging_bezier_point_->mode()),
+                                          dragging_bezier_point_start_,
+                                          command);
 
-      if (!mouse_diff_scaled.isNull()) {
-        if (dragging_bezier_point_) {
-          ProcessBezierDrag(mouse_diff_scaled,
-                            !(event->modifiers() & Qt::ControlModifier),
-                            true);
+        if (!(event->modifiers() & Qt::ControlModifier)) {
+          auto opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
 
-          dragging_bezier_point_ = nullptr;
-        } else if (!selected_keys_.isEmpty()) {
-          QUndoCommand* command = new QUndoCommand();
-
-          foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-            KeyframeViewItem* item = keypair.key;
-
-            keypair.key->key()->parent()->blockSignals(true);
-
-            // Calculate the new time for this keyframe
-            rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                                 keypair.key->key()->parent()->parent(),
-                                                 CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
-                                                 true);
-
-
-
-            // Commit movement
-
-            // Since we overrode the cache signalling while dragging, we simulate here precisely the change that
-            // occurred by first setting the keyframe to its original position, and then letting the input handle
-            // the signalling once the undo command is pushed.
-            item->key()->set_time(keypair.time);
-            new NodeParamSetKeyframeTimeCommand(item->key(),
-                                                node_time,
-                                                keypair.time,
-                                                command);
-
-            // Commit value if we're setting a value
-            if (IsYAxisEnabled()) {
-              double new_val = keypair.value - mouse_diff_scaled.y();
-              item->key()->set_value(new_val);
-              new NodeParamSetKeyframeValueCommand(item->key(),
-                                                   new_val,
-                                                   keypair.value,
-                                                   command);
-            }
-
-            keypair.key->key()->parent()->blockSignals(false);
-          }
-
-          Core::instance()->undo_stack()->push(command);
+          new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                            opposing_type,
+                                            dragging_bezier_point_->key()->bezier_control(opposing_type),
+                                            dragging_bezier_point_opposing_start_,
+                                            command);
         }
+
+        dragging_bezier_point_ = nullptr;
+
+        Core::instance()->undo_stack()->push(command);
+      } else if (!selected_keys_.isEmpty()) {
+        QUndoCommand* command = new QUndoCommand();
+
+        foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+          NodeKeyframe* item = keypair.key->key();
+
+          // Commit movement
+          new NodeParamSetKeyframeTimeCommand(item,
+                                              item->time(),
+                                              keypair.time,
+                                              command);
+
+          // Commit value if we're setting a value
+          if (IsYAxisEnabled()) {
+            new NodeParamSetKeyframeValueCommand(item,
+                                                 item->value(),
+                                                 keypair.value,
+                                                 command);
+          }
+        }
+
+        Core::instance()->undo_stack()->push(command);
       }
 
       selected_keys_.clear();
 
       dragging_ = false;
+
+      QToolTip::hideText();
     }
   }
 }
@@ -378,75 +417,6 @@ QPointF KeyframeViewBase::GenerateBezierControlPosition(const NodeKeyframe::Bezi
   }
 
   return new_bezier_pos;
-}
-
-void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable)
-{
-  // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
-  mouse_diff_scaled.setY(-mouse_diff_scaled.y());
-
-  QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
-                                                         dragging_bezier_point_start_,
-                                                         mouse_diff_scaled);
-
-  // If the user is NOT holding control, we set the other handle to the exact negative of this handle
-  QPointF new_opposing_pos;
-  NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
-
-  if (include_opposing) {
-    new_opposing_pos = GenerateBezierControlPosition(opposing_type,
-                                                     dragging_bezier_point_opposing_start_,
-                                                     -mouse_diff_scaled);
-  } else {
-    new_opposing_pos = dragging_bezier_point_opposing_start_;
-  }
-
-  //NodeInput* input_parent = dragging_bezier_point_->key()->parent();
-
-  if (undoable) {
-    QUndoCommand* command = new QUndoCommand();
-
-    // Similar to the code in MouseRelease, we manipulated the signalling earlier and need to set the keys back to their
-    // original position to allow the input to signal correctly when the undo command is pushed.
-
-    //input_parent->blockSignals(true);
-
-    dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
-                                                      dragging_bezier_point_start_);
-
-    new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                      dragging_bezier_point_->mode(),
-                                      new_bezier_pos,
-                                      dragging_bezier_point_start_,
-                                      command);
-
-    if (include_opposing) {
-      dragging_bezier_point_->key()->set_bezier_control(opposing_type,
-                                                        dragging_bezier_point_opposing_start_);
-
-      new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                        opposing_type,
-                                        new_opposing_pos,
-                                        dragging_bezier_point_opposing_start_,
-                                        command);
-    }
-
-    //input_parent->blockSignals(false);
-
-    Core::instance()->undo_stack()->push(command);
-  } else {
-    //input_parent->blockSignals(true);
-
-    dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
-                                                      new_bezier_pos);
-
-    dragging_bezier_point_->key()->set_bezier_control(opposing_type,
-                                                      new_opposing_pos);
-
-    //input_parent->blockSignals(false);
-
-    //input_parent->parentNode()->InvalidateVisible(input_parent, input_parent);
-  }
 }
 
 QPointF KeyframeViewBase::GetScaledCursorPos(const QPointF &cursor_pos)

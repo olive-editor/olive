@@ -24,6 +24,7 @@
 
 #include "node/output/track/track.h"
 #include "transition/transition.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
@@ -52,7 +53,7 @@ Block::Block() :
 
   speed_input_ = new NodeInput(this, QStringLiteral("speed_in"), NodeValue::kFloat);
   speed_input_->SetStandardValue(1.0);
-  speed_input_->setProperty("view", QStringLiteral("percent"));
+  speed_input_->setProperty("view", FloatSlider::kPercentage);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);

@@ -20,6 +20,8 @@
 
 #include "pan.h"
 
+#include "widget/slider/floatslider.h"
+
 namespace olive {
 
 PanNode::PanNode()
@@ -29,7 +31,7 @@ PanNode::PanNode()
   panning_input_ = new NodeInput(this, QStringLiteral("panning_in"), NodeValue::kFloat, 0.0);
   panning_input_->setProperty("min", -1.0);
   panning_input_->setProperty("max", 1.0);
-  panning_input_->setProperty("view", QStringLiteral("percent"));
+  panning_input_->setProperty("view", FloatSlider::kPercentage);
 }
 
 Node *PanNode::copy() const

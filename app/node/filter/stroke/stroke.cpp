@@ -21,6 +21,7 @@
 #include "stroke.h"
 
 #include "render/color.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
@@ -37,7 +38,7 @@ StrokeFilterNode::StrokeFilterNode()
   radius_input_->setProperty("min", 0.0f);
 
   opacity_input_ = new NodeInput(this, QStringLiteral("opacity_in"), NodeValue::kFloat, 1.0f);
-  opacity_input_->setProperty("view", QStringLiteral("percent"));
+  opacity_input_->setProperty("view", FloatSlider::kPercentage);
   opacity_input_->setProperty("min", 0.0f);
   opacity_input_->setProperty("max", 1.0f);
 

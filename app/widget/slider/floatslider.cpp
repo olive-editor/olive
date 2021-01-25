@@ -85,11 +85,9 @@ void FloatSlider::SetAutoTrimDecimalPlaces(bool e)
   ForceLabelUpdate();
 }
 
-QString FloatSlider::ValueToString(const QVariant &v)
+QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display, int decimal_places, bool autotrim_decimal_places)
 {
-  double val = v.toDouble();
-
-  switch (display_type_) {
+  switch (display) {
   case kNormal:
     // Do nothing, skip to the return string at the end
     break;
@@ -109,9 +107,9 @@ QString FloatSlider::ValueToString(const QVariant &v)
     break;
   }
 
-  QString s = QString::number(val, 'f', decimal_places_);
+  QString s = QString::number(val, 'f', decimal_places);
 
-  if (autotrim_decimal_places_) {
+  if (autotrim_decimal_places) {
     while (s.endsWith('0')
            && s.at(s.size() - 2).isDigit()) {
       s = s.left(s.size() - 1);
@@ -119,6 +117,11 @@ QString FloatSlider::ValueToString(const QVariant &v)
   }
 
   return s;
+}
+
+QString FloatSlider::ValueToString(const QVariant &v)
+{
+  return ValueToString(v.toDouble(), display_type_, decimal_places_, autotrim_decimal_places_);
 }
 
 QVariant FloatSlider::StringToValue(const QString &s, bool *ok)

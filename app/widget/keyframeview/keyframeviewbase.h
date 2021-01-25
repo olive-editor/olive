@@ -83,8 +83,6 @@ private:
                                                const QPointF& start_point,
                                                const QPointF& scaled_cursor_diff);
 
-  void ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable);
-
   QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
   struct KeyframeItemAndTime {

@@ -650,16 +650,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   // Parameters for floats and vectors only
   if (input_->GetDataType() == NodeValue::kFloat || NodeValue::type_is_vector(input_->GetDataType())) {
     if (key == QStringLiteral("view")) {
-      FloatSlider::DisplayType display_type;
-
-      if (value == QStringLiteral("percent")) {
-        display_type = FloatSlider::kPercentage;
-      } else if (value == QStringLiteral("db")) {
-        display_type = FloatSlider::kDecibel;
-      } else {
-        // Avoid undefined behavior
-        return;
-      }
+      FloatSlider::DisplayType display_type = static_cast<FloatSlider::DisplayType>(value.toInt());
 
       foreach (QWidget* w, widgets_) {
         static_cast<FloatSlider*>(w)->SetDisplayType(display_type);

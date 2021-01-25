@@ -20,6 +20,8 @@
 
 #include "volume.h"
 
+#include "widget/slider/floatslider.h"
+
 namespace olive {
 
 VolumeNode::VolumeNode()
@@ -29,7 +31,7 @@ VolumeNode::VolumeNode()
 
   volume_input_ = new NodeInput(this, QStringLiteral("volume_in"), NodeValue::kFloat, 1.0);
   volume_input_->setProperty("min", 0.0);
-  volume_input_->setProperty("view", QStringLiteral("db"));
+  volume_input_->setProperty("view", FloatSlider::kDecibel);
 }
 
 Node *VolumeNode::copy() const

@@ -51,6 +51,8 @@ public:
 
   void SetAutoTrimDecimalPlaces(bool e);
 
+  static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
+
 protected:
   virtual QString ValueToString(const QVariant& v) override;
 

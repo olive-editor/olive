@@ -21,6 +21,7 @@
 #include "cropdistortnode.h"
 
 #include "common/lerp.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
@@ -31,22 +32,22 @@ CropDistortNode::CropDistortNode()
   left_input_ = new NodeInput(this, QStringLiteral("left_in"), NodeValue::kFloat, 0.0);
   left_input_->setProperty("min", 0.0);
   left_input_->setProperty("max", 1.0);
-  left_input_->setProperty("view", QStringLiteral("percent"));
+  left_input_->setProperty("view", FloatSlider::kPercentage);
 
   top_input_ = new NodeInput(this, QStringLiteral("top_in"), NodeValue::kFloat, 0.0);
   top_input_->setProperty("min", 0.0);
   top_input_->setProperty("max", 1.0);
-  top_input_->setProperty("view", QStringLiteral("percent"));
+  top_input_->setProperty("view", FloatSlider::kPercentage);
 
   right_input_ = new NodeInput(this, QStringLiteral("right_in"), NodeValue::kFloat, 0.0);
   right_input_->setProperty("min", 0.0);
   right_input_->setProperty("max", 1.0);
-  right_input_->setProperty("view", QStringLiteral("percent"));
+  right_input_->setProperty("view", FloatSlider::kPercentage);
 
   bottom_input_ = new NodeInput(this, QStringLiteral("bottom_in"), NodeValue::kFloat, 0.0);
   bottom_input_->setProperty("min", 0.0);
   bottom_input_->setProperty("max", 1.0);
-  bottom_input_->setProperty("view", QStringLiteral("percent"));
+  bottom_input_->setProperty("view", FloatSlider::kPercentage);
 
   feather_input_ = new NodeInput(this, QStringLiteral("feather_in"), NodeValue::kFloat, 0.0);
   feather_input_->setProperty("min", 0.0);
