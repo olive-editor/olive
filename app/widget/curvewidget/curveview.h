@@ -49,7 +49,7 @@ public:
   void SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference& ref, const QColor& color);
 
 public slots:
-  void AddKeyframe(NodeKeyframe* key);
+  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
 
   void ZoomToFit();
 

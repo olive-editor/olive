@@ -72,6 +72,43 @@ void KeyframeViewBase::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void KeyframeViewBase::AddKeyframesOfNode(Node *n)
+{
+  foreach (NodeInput* i, n->inputs()) {
+    AddKeyframesOfInput(i);
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfInput(NodeInput *input)
+{
+  if (!input->IsKeyframable()) {
+    return;
+  }
+
+  for (int i=-1; i<input->ArraySize(); i++) {
+    AddKeyframesOfElement(input, i);
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfElement(NodeInput *input, int element)
+{
+  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+
+  for (int i=0; i<tracks.size(); i++) {
+    AddKeyframesOfTrack(input, element, i);
+  }
+}
+
+void KeyframeViewBase::AddKeyframesOfTrack(NodeInput *input, int element, int track)
+{
+  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+  const NodeKeyframeTrack& t = tracks.at(track);
+
+  foreach (NodeKeyframe* key, t) {
+    AddKeyframe(key);
+  }
+}
+
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
   foreach (NodeInput* i, n->inputs()) {
@@ -81,12 +118,31 @@ void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 
 void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *input)
 {
+  if (!input->IsKeyframable()) {
+    return;
+  }
+
   for (int i=-1; i<input->ArraySize(); i++) {
-    foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(i)) {
-      foreach (NodeKeyframe* key, track) {
-        RemoveKeyframe(key);
-      }
-    }
+    RemoveKeyframesOfElement(input, i);
+  }
+}
+
+void KeyframeViewBase::RemoveKeyframesOfElement(NodeInput *input, int element)
+{
+  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+
+  for (int i=0; i<tracks.size(); i++) {
+    RemoveKeyframesOfTrack(input, element, i);
+  }
+}
+
+void KeyframeViewBase::RemoveKeyframesOfTrack(NodeInput *input, int element, int track)
+{
+  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+  const NodeKeyframeTrack& t = tracks.at(track);
+
+  foreach (NodeKeyframe* key, t) {
+    RemoveKeyframe(key);
   }
 }
 
@@ -111,7 +167,7 @@ void KeyframeViewBase::RemoveKeyframe(NodeKeyframe* key)
   delete item_map_.take(key);
 }
 
-KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframe* key)
+KeyframeViewItem *KeyframeViewBase::AddKeyframe(NodeKeyframe* key)
 {
   KeyframeViewItem* item = item_map_.value(key);
 

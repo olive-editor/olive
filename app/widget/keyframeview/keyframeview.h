@@ -36,15 +36,19 @@ public:
     max_scroll_ = i;
   }
 
+  void SetElementY(const Node::InputConnection& c, int y);
+
 protected:
   virtual void wheelEvent(QWheelEvent* event) override;
 
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
 public slots:
-  void AddKeyframe(NodeKeyframe* key, int y);
+  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
 
 private:
+  QHash<Node::InputConnection, qreal> element_y_;
+
   int max_scroll_;
 
 };

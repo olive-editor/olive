@@ -285,7 +285,7 @@ public:
 
   void SetIsKeyframing(bool keyframing, int element)
   {
-    if (IsKeyframable()) {
+    if (!IsKeyframable()) {
       qDebug() << "Ignored set keyframing because this input is not keyframable";
       return;
     }

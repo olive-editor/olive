@@ -51,8 +51,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   body_ = new NodeParamViewItemBody(node_);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
-  connect(body_, &NodeParamViewItemBody::KeyframeAdded, this, &NodeParamViewItem::KeyframeAdded);
-  connect(body_, &NodeParamViewItemBody::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
+  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItem::SetExpanded);
   connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItem::PinToggled);
 
@@ -85,11 +84,6 @@ void NodeParamViewItem::SetTime(const rational &time)
 Node *NodeParamViewItem::GetNode() const
 {
   return node_;
-}
-
-void NodeParamViewItem::SignalAllKeyframes()
-{
-  body_->SignalAllKeyframes();
 }
 
 void NodeParamViewItem::changeEvent(QEvent *e)
@@ -131,11 +125,23 @@ void NodeParamViewItem::SetExpanded(bool e)
 {
   body_->setVisible(e);
   title_bar_->SetExpanded(e);
+
+  emit ExpandedChanged(e);
 }
 
 bool NodeParamViewItem::IsExpanded() const
 {
   return body_->isVisible();
+}
+
+int NodeParamViewItem::GetElementY(const NodeConnectable::InputConnection &c) const
+{
+  if (IsExpanded()) {
+    return body_->GetElementY(c);
+  } else {
+    // Not expanded, put keyframes at the titlebar Y
+    return mapToGlobal(title_bar_->rect().center()).y();
+  }
 }
 
 void NodeParamViewItem::ToggleExpanded()
@@ -313,10 +319,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
     ui_objects.key_control->SetInput(input, element);
     layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
     connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
-
-    connect(input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItemBody::InputKeyframeEnableChanged);
-    connect(input, &NodeInput::KeyframeAdded, this, &NodeParamViewItemBody::InputAddedKeyframe);
-    connect(input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItemBody::KeyframeRemoved);
   }
 
   input_ui_map_.insert(Node::InputConnection(input, element), ui_objects);
@@ -365,17 +367,24 @@ void NodeParamViewItemBody::Retranslate()
   }
 }
 
-void NodeParamViewItemBody::SignalAllKeyframes()
+int NodeParamViewItemBody::GetElementY(NodeConnectable::InputConnection c) const
 {
-  for (auto i=input_ui_map_.begin(); i!=input_ui_map_.end(); i++) {
-    NodeInput* input = i.key().input;
-
-    foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(i.key().element)) {
-      foreach (NodeKeyframe* key, track) {
-        InputAddedKeyframeInternal(input, i.key().element, key);
-      }
-    }
+  if (c.input->IsArray() && !array_ui_.value(c.input).widget->isVisible()) {
+    // Array is collapsed, so we'll return the Y of its root
+    c.element = -1;
   }
+
+  // Find its row in the parameters
+  QLabel* lbl = input_ui_map_.value(c).main_label;
+
+  // Find label's Y position
+  QPoint lbl_center = lbl->rect().center();
+
+  // Find global position
+  lbl_center = lbl->mapToGlobal(lbl_center);
+
+  // Return Y
+  return lbl_center.y();
 }
 
 void NodeParamViewItemBody::EdgeChanged(Node* src, int element)
@@ -398,50 +407,13 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(NodeInput *input, int elem
   ui_objects.connected_label->setVisible(input->IsConnected(element));
 }
 
-void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e, int element)
-{
-  NodeInput* input = static_cast<NodeInput*>(sender());
-
-  foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(element)) {
-    foreach (NodeKeyframe* key, track) {
-      if (e) {
-        // Add a keyframe item for each keyframe
-        InputAddedKeyframeInternal(input, element, key);
-      } else {
-        // Remove each keyframe item
-        emit KeyframeRemoved(key);
-      }
-    }
-  }
-}
-
-void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframe* key)
-{
-  // Get NodeInput that emitted this signal
-  NodeInput* input = static_cast<NodeInput*>(sender());
-
-  InputAddedKeyframeInternal(input, key->element(), key);
-}
-
-void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, int element, NodeKeyframe* keyframe)
-{
-  // Find its row in the parameters
-  QLabel* lbl = input_ui_map_.value({input, element}).main_label;
-
-  // Find label's Y position
-  QPoint lbl_center = lbl->rect().center();
-
-  // Find global position
-  lbl_center = lbl->mapToGlobal(lbl_center);
-
-  emit KeyframeAdded(keyframe, lbl_center.y());
-}
-
 void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
 {
   NodeInput* input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
 
   array_ui_.value(input).widget->setVisible(checked);
+
+  emit ArrayExpandedChanged(checked);
 }
 
 void NodeParamViewItemBody::InputArraySizeChanged(int size)

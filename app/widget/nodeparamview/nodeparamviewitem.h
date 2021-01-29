@@ -81,23 +81,19 @@ public:
 
   void Retranslate();
 
-  void SignalAllKeyframes();
+  int GetElementY(NodeConnectable::InputConnection c) const;
 
 signals:
-  void KeyframeAdded(NodeKeyframe* key, int y);
-
-  void KeyframeRemoved(NodeKeyframe* key);
-
   void RequestSetTime(const rational& time);
 
   void RequestSelectNode(const QVector<Node*>& node);
+
+  void ArrayExpandedChanged(bool e);
 
 private:
   void CreateWidgets(QGridLayout *layout, NodeInput* input, int element, int row_index);
 
   void UpdateUIForEdgeConnection(NodeInput* input, int element);
-
-  void InputAddedKeyframeInternal(NodeInput* input, int element, NodeKeyframe* keyframe);
 
   struct InputUI {
     InputUI();
@@ -137,10 +133,6 @@ private:
 private slots:
   void EdgeChanged(Node *src, int element);
 
-  void InputKeyframeEnableChanged(bool e, int element);
-
-  void InputAddedKeyframe(NodeKeyframe* key);
-
   void ArrayCollapseBtnPressed(bool checked);
 
   void InputArraySizeChanged(int size);
@@ -176,23 +168,23 @@ public:
     update();
   }
 
-public slots:
-  void SignalAllKeyframes();
+  int GetElementY(const Node::InputConnection& c) const;
 
+public slots:
   void SetExpanded(bool e);
 
   void ToggleExpanded();
 
 signals:
-  void KeyframeAdded(NodeKeyframe* key, int y);
-
-  void KeyframeRemoved(NodeKeyframe* key);
-
   void RequestSetTime(const rational& time);
 
   void RequestSelectNode(const QVector<Node*>& node);
 
   void PinToggled(bool e);
+
+  void ExpandedChanged(bool e);
+
+  void ArrayExpandedChanged(bool e);
 
 protected:
   virtual void changeEvent(QEvent *e) override;

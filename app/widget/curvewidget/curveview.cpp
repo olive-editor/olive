@@ -30,6 +30,8 @@
 
 namespace olive {
 
+#define super KeyframeViewBase
+
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)
 {
@@ -71,9 +73,7 @@ void CurveView::ConnectInput(NodeInput *input, int element, int track)
   }
 
   // Add keyframes from track
-  foreach (NodeKeyframe* key, input->GetKeyframeTracks(element).at(track)) {
-    this->AddKeyframe(key);
-  }
+  AddKeyframesOfTrack(input, element, track);
 
   // Append to the list
   connected_inputs_.append(ref);
@@ -89,9 +89,7 @@ void CurveView::DisconnectInput(NodeInput *input, int element, int track)
   }
 
   // Remove keyframes belonging to this element and track
-  foreach (NodeKeyframe* key, input->GetKeyframeTracks(element).at(track)) {
-    RemoveKeyframe(key);
-  }
+  RemoveKeyframesOfTrack(input, element, track);
 
   // Remove from the list
   connected_inputs_.removeOne(ref);
@@ -478,14 +476,16 @@ void CurveView::ResetZoom()
   SetYScale(1.0);
 }
 
-void CurveView::AddKeyframe(NodeKeyframe* key)
+KeyframeViewItem* CurveView::AddKeyframe(NodeKeyframe* key)
 {
-  KeyframeViewItem* item = AddKeyframeInternal(key);
+  KeyframeViewItem* item = super::AddKeyframe(key);
   SetItemYFromKeyframeValue(key, item);
   item->SetOverrideBrush(keyframe_colors_.value({key->parent(), key->element(), key->track()}));
 
   connect(key, &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
   connect(key, &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
+
+  return item;
 }
 
 }

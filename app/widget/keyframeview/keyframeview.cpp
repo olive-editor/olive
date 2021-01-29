@@ -22,11 +22,26 @@
 
 namespace olive {
 
+#define super KeyframeViewBase
+
 KeyframeView::KeyframeView(QWidget *parent) :
   KeyframeViewBase(parent),
   max_scroll_(0)
 {
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
+}
+
+void KeyframeView::SetElementY(const NodeConnectable::InputConnection &c, int y)
+{
+  qreal scene_y = mapToScene(mapFromGlobal(QPoint(0, y))).y();
+
+  element_y_.insert(c, scene_y);
+
+  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
+    if (it.key()->parent() == c.input && it.key()->element() == c.element) {
+      it.value()->SetOverrideY(scene_y);
+    }
+  }
 }
 
 void KeyframeView::wheelEvent(QWheelEvent *event)
@@ -42,14 +57,11 @@ void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
   rect.setHeight(max_scroll_);
 }
 
-void KeyframeView::AddKeyframe(NodeKeyframe* key, int y)
+KeyframeViewItem* KeyframeView::AddKeyframe(NodeKeyframe* key)
 {
-  QPoint global_pt(0, y);
-  QPoint local_pt = mapFromGlobal(global_pt);
-  QPointF scene_pt = mapToScene(local_pt);
-
-  KeyframeViewItem* item = AddKeyframeInternal(key);
-  item->SetOverrideY(scene_pt.y());
+  KeyframeViewItem* item = super::AddKeyframe(key);
+  item->SetOverrideY(element_y_.value({key->parent(), key->element()}));
+  return item;
 }
 
 }

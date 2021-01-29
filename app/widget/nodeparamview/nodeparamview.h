@@ -105,6 +105,8 @@ private:
 
   void SignalNodeOrder();
 
+  void AddNode(Node* n);
+
   void RemoveNode(Node* n);
 
   KeyframeView* keyframe_view_;
@@ -134,13 +136,13 @@ private slots:
 
   void UpdateGlobalScrollBar();
 
-  void PlaceKeyframesOnView();
-
   void PinNode(bool pin);
 
   void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
+
+  void UpdateElementY();
 
 };
 

@@ -40,9 +40,21 @@ public:
 
   void DeleteSelected();
 
+  void AddKeyframesOfNode(Node* n);
+
+  void AddKeyframesOfInput(NodeInput* input);
+
+  void AddKeyframesOfElement(NodeInput* input, int element);
+
+  void AddKeyframesOfTrack(NodeInput* input, int element, int track);
+
   void RemoveKeyframesOfNode(Node* n);
 
   void RemoveKeyframesOfInput(NodeInput* input);
+
+  void RemoveKeyframesOfElement(NodeInput* input, int element);
+
+  void RemoveKeyframesOfTrack(NodeInput* input, int element, int track);
 
   void SelectAll();
 
@@ -52,11 +64,11 @@ signals:
   void Dragged(int current_x, int current_y);
 
 public slots:
+  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key);
+
   void RemoveKeyframe(NodeKeyframe* key);
 
 protected:
-  virtual KeyframeViewItem* AddKeyframeInternal(NodeKeyframe* key);
-
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
