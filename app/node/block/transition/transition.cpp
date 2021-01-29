@@ -223,7 +223,7 @@ NodeValueTable TransitionBlock::Value(NodeValueDatabase &value) const
     data_type = NodeValue::kNone;
   }
 
-  NodeValue::Type job_type;
+  NodeValue::Type job_type = NodeValue::kNone;
   QVariant push_job;
 
   if (data_type == NodeValue::kTexture) {
