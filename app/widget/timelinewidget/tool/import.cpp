@@ -37,6 +37,7 @@
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
+#include "window/mainwindow/mainwindowundo.h"
 
 namespace olive {
 
@@ -472,14 +473,14 @@ void ImportTool::DropGhosts(bool insert)
     }
   }
 
+  if (open_sequence) {
+    command->add_child(new OpenSequenceCommand(open_sequence));
+  }
+
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   parent()->ClearGhosts();
   dragged_footage_.clear();
-
-  if (open_sequence) {
-    Core::instance()->main_window()->OpenSequence(open_sequence);
-  }
 }
 
 ImportTool::DraggedFootage ImportTool::FootageToDraggedFootage(Footage *f)
