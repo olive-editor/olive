@@ -223,7 +223,9 @@ void NodeInput::ClearElement(int index)
 {
   GetImmediate(index)->delete_all_keyframes();
 
-  SetIsKeyframing(false, index);
+  if (IsKeyframable()) {
+    SetIsKeyframing(false, index);
+  }
 
   SetSplitStandardValue(default_value_, index);
 }

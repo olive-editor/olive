@@ -429,7 +429,9 @@ private:
     virtual void redo() override
     {
       // Save immediate data
-      is_keyframing_ = input_->IsKeyframing(index_);
+      if (input_->IsKeyframable()) {
+        is_keyframing_ = input_->IsKeyframing(index_);
+      }
       standard_value_ = input_->GetSplitStandardValue(index_);
       keyframes_ = input_->GetImmediate(index_)->keyframe_tracks();
       input_->GetImmediate(index_)->delete_all_keyframes(&memory_manager_);
@@ -448,7 +450,10 @@ private:
         }
       }
       input_->SetSplitStandardValue(standard_value_, index_);
-      input_->SetIsKeyframing(is_keyframing_, index_);
+
+      if (input_->IsKeyframable()) {
+        input_->SetIsKeyframing(is_keyframing_, index_);
+      }
     }
 
   private:
