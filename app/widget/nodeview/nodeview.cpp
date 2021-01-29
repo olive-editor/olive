@@ -118,13 +118,13 @@ void NodeView::DeleteSelected()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   {
     QVector<NodeViewEdge *> selected_edges = scene_.GetSelectedEdges();
 
     foreach (NodeViewEdge* edge, selected_edges) {
-      new NodeEdgeRemoveCommand(edge->output(), edge->input(), edge->element(), command);
+      command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input(), edge->element()));
     }
   }
 
@@ -141,7 +141,7 @@ void NodeView::DeleteSelected()
 
     if (!selected_nodes.isEmpty()) {
       foreach (Node* node, selected_nodes) {
-        new NodeRemoveAndDisconnectCommand(node, command);
+        command->add_child(new NodeRemoveAndDisconnectCommand(node));
       }
     }
   }
@@ -292,7 +292,7 @@ void NodeView::Paste()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<Node*> pasted_nodes = PasteNodesFromClipboard(graph_, command);
 
@@ -315,7 +315,7 @@ void NodeView::Duplicate()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<Node*> duplicated_nodes = Node::CopyDependencyGraph(selected, command);
 
@@ -536,14 +536,14 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
       if (drop_edge_) {
         // We have everything we need to place the node in between
-        QUndoCommand* command = new QUndoCommand();
+        MultiUndoCommand* command = new MultiUndoCommand();
 
         // Remove old edge
-        new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input(), drop_edge_->element(), command);
+        command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input(), drop_edge_->element()));
 
         // Place new edges
-        new NodeEdgeAddCommand(drop_edge_->output(), drop_input_, -1, command);
-        new NodeEdgeAddCommand(dropping_node, drop_edge_->input(), drop_edge_->element(), command);
+        command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_, -1));
+        command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input(), drop_edge_->element()));
 
         Core::instance()->undo_stack()->push(command);
       }

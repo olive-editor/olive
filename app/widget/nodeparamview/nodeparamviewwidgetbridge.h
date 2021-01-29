@@ -47,12 +47,15 @@ public:
 
   const QList<QWidget*>& widgets() const;
 
+signals:
+  void ArrayWidgetDoubleClicked();
+
 private:
   void CreateWidgets();
 
   void SetInputValue(const QVariant& value, int track);
 
-  void SetInputValueInternal(const QVariant& value, int track, QUndoCommand* command);
+  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command);
 
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
@@ -77,7 +80,7 @@ private:
 private slots:
   void WidgetCallback();
 
-  void InputValueChanged(const TimeRange& range);
+  void InputValueChanged(const TimeRange& range, int element);
 
   void PropertyChanged(const QString& key, const QVariant& value);
 

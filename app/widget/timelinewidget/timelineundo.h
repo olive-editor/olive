@@ -21,8 +21,6 @@
 #ifndef TIMELINEUNDOABLE_H
 #define TIMELINEUNDOABLE_H
 
-#include <QUndoCommand>
-
 #include "config/config.h"
 #include "core.h"
 #include "node/block/block.h"
@@ -46,22 +44,21 @@ inline bool NodeCanBeRemoved(Node* n)
   return n->edges().empty();
 }
 
-inline QUndoCommand* CreateRemoveCommand(Node* n)
+inline UndoCommand* CreateRemoveCommand(Node* n)
 {
   return new NodeRemoveWithExclusiveDependenciesAndDisconnect(n);
 }
 
-inline QUndoCommand* CreateAndRunRemoveCommand(Node* n)
+inline UndoCommand* CreateAndRunRemoveCommand(Node* n)
 {
-  QUndoCommand* command = CreateRemoveCommand(n);
+  UndoCommand* command = CreateRemoveCommand(n);
   command->redo();
   return command;
 }
 
 class BlockResizeCommand : public UndoCommand {
 public:
-  BlockResizeCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockResizeCommand(Block* block, rational new_length) :
     block_(block),
     new_length_(new_length)
   {
@@ -72,14 +69,13 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     old_length_ = block_->length();
     block_->set_length_and_media_out(new_length_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     block_->set_length_and_media_out(old_length_);
   }
@@ -93,8 +89,7 @@ private:
 
 class BlockResizeWithMediaInCommand : public UndoCommand {
 public:
-  BlockResizeWithMediaInCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockResizeWithMediaInCommand(Block* block, rational new_length) :
     block_(block),
     new_length_(new_length)
   {
@@ -105,14 +100,13 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     old_length_ = block_->length();
     block_->set_length_and_media_in(new_length_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     block_->set_length_and_media_in(old_length_);
   }
@@ -135,8 +129,7 @@ private:
  */
 class BlockTrimCommand : public UndoCommand {
 public:
-  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode, QUndoCommand* command = nullptr) :
-    UndoCommand(command),
+  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode) :
     prepped_(false),
     track_(track),
     block_(block),
@@ -177,8 +170,7 @@ public:
     remove_block_from_graph_ = e;
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (!prepped_) {
       prep();
@@ -245,7 +237,7 @@ protected:
     track_->InvalidateCache(invalidate_range, track_->block_input());
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     if (doing_nothing_) {
       return;
@@ -360,7 +352,7 @@ private:
   bool needs_adjacent_;
   bool we_created_adjacent_;
   bool we_removed_adjacent_;
-  QUndoCommand* deleted_adjacent_command_;
+  UndoCommand* deleted_adjacent_command_;
 
   bool trim_is_a_roll_edit_;
   bool remove_block_from_graph_;
@@ -371,8 +363,7 @@ private:
 
 class BlockSetMediaInCommand : public UndoCommand {
 public:
-  BlockSetMediaInCommand(Block* block, rational new_media_in, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockSetMediaInCommand(Block* block, rational new_media_in) :
     block_(block),
     new_media_in_(new_media_in)
   {
@@ -383,14 +374,13 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     old_media_in_ = block_->media_in();
     block_->set_media_in(new_media_in_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     block_->set_media_in(old_media_in_);
   }
@@ -403,8 +393,7 @@ private:
 
 class TrackRippleRemoveBlockCommand : public UndoCommand {
 public:
-  TrackRippleRemoveBlockCommand(Track* track, Block* block, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackRippleRemoveBlockCommand(Track* track, Block* block) :
     track_(track),
     block_(block)
   {
@@ -415,14 +404,13 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     before_ = block_->previous();
     track_->RippleRemoveBlock(block_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->InsertBlockAfter(block_, before_);
   }
@@ -438,8 +426,7 @@ private:
 
 class TrackPrependBlockCommand : public UndoCommand {
 public:
-  TrackPrependBlockCommand(Track* track, Block* block, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackPrependBlockCommand(Track* track, Block* block) :
     track_(track),
     block_(block)
   {
@@ -450,13 +437,12 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     track_->PrependBlock(block_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->RippleRemoveBlock(block_);
   }
@@ -468,8 +454,7 @@ private:
 
 class TrackInsertBlockAfterCommand : public UndoCommand {
 public:
-  TrackInsertBlockAfterCommand(Track* track, Block* block, Block* before, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackInsertBlockAfterCommand(Track* track, Block* block, Block* before) :
     track_(track),
     block_(block),
     before_(before)
@@ -481,13 +466,12 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     track_->InsertBlockAfter(block_, before_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->RippleRemoveBlock(block_);
   }
@@ -502,8 +486,7 @@ private:
 
 class BlockSplitCommand : public UndoCommand {
 public:
-  BlockSplitCommand(Block* block, rational point, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockSplitCommand(Block* block, rational point) :
     block_(block),
     point_(point),
     reconnect_tree_command_(nullptr)
@@ -528,8 +511,7 @@ public:
     return static_cast<Block*>(added_nodes_.first());
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     old_length_ = block_->length();
 
@@ -571,8 +553,8 @@ protected:
     if (!reconnect_tree_command_) {
       if (copy_dependencies_too) {
         // Create equivalent connections among our copied dependency tree
-        reconnect_tree_command_ = new QUndoCommand();
-        Node::CopyDependencyGraph(src_nodes_, added_nodes_, reconnect_tree_command_);
+        reconnect_tree_command_ = new MultiUndoCommand();
+        Node::CopyDependencyGraph(src_nodes_, added_nodes_, static_cast<MultiUndoCommand*>(reconnect_tree_command_));
       } else {
         reconnect_tree_command_ = new NodeCopyInputsCommand(block_, new_block(), true);
       }
@@ -613,7 +595,7 @@ protected:
     track->EndOperation();
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     Track* track = block_->track();
 
@@ -646,7 +628,7 @@ private:
 
   QObject memory_manager_;
 
-  QUndoCommand* reconnect_tree_command_;
+  UndoCommand* reconnect_tree_command_;
 
   NodeInput* moved_transition_;
 
@@ -657,8 +639,7 @@ private:
 
 class BlockSplitPreservingLinksCommand : public UndoCommand {
 public:
-  BlockSplitPreservingLinksCommand(const QVector<Block *> &blocks, const QList<rational>& times, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockSplitPreservingLinksCommand(const QVector<Block *> &blocks, const QList<rational>& times) :
     blocks_(blocks),
     times_(times)
   {
@@ -674,8 +655,7 @@ public:
     return blocks_.first()->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (commands_.isEmpty()) {
       QVector< QVector<Block*> > split_blocks(times_.size());
@@ -736,7 +716,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     for (int i=commands_.size()-1; i>=0; i--) {
       commands_.at(i)->undo();
@@ -748,14 +728,13 @@ private:
 
   QList<rational> times_;
 
-  QVector<QUndoCommand*> commands_;
+  QVector<UndoCommand*> commands_;
 
 };
 
 class TrackSplitAtTimeCommand : public UndoCommand {
 public:
-  TrackSplitAtTimeCommand(Track* track, rational point, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackSplitAtTimeCommand(Track* track, rational point) :
     prepped_(false),
     track_(track),
     point_(point),
@@ -773,8 +752,7 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (!prepped_) {
       // Find Block that contains this time
@@ -792,7 +770,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     if (command_) {
       command_->undo();
@@ -806,7 +784,7 @@ private:
 
   rational point_;
 
-  QUndoCommand* command_;
+  UndoCommand* command_;
 
 };
 
@@ -819,8 +797,7 @@ private:
  */
 class TrackRippleRemoveAreaCommand : public UndoCommand {
 public:
-  TrackRippleRemoveAreaCommand(Track* track, const TimeRange& range, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackRippleRemoveAreaCommand(Track* track, const TimeRange& range) :
     prepped_(false),
     track_(track),
     range_(range),
@@ -858,8 +835,7 @@ public:
     return nullptr;
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (!prepped_) {
       prep();
@@ -900,7 +876,7 @@ protected:
           }
         }
 
-        foreach (QUndoCommand* c, remove_block_commands_) {
+        foreach (UndoCommand* c, remove_block_commands_) {
           c->redo();
         }
       }
@@ -911,7 +887,7 @@ protected:
     track_->InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX));
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     // Begin operations
     track_->BeginOperation();
@@ -1028,14 +1004,13 @@ private:
   Block* insert_previous_;
 
   BlockSplitCommand* splice_split_command_;
-  QVector<QUndoCommand*> remove_block_commands_;
+  QVector<UndoCommand*> remove_block_commands_;
 
 };
 
 class TrackListRippleRemoveAreaCommand : public UndoCommand {
 public:
-  TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out) :
     list_(list),
     in_(in),
     out_(out)
@@ -1052,8 +1027,7 @@ public:
     return static_cast<ViewerOutput*>(list_->parent())->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     // Code that's only run on the first redo
     if (commands_.isEmpty()) {
@@ -1096,7 +1070,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     if (all_tracks_unlocked_) {
       // We can optimize here by simply shifting the whole cache forward instead of re-caching
@@ -1138,17 +1112,15 @@ private:
 
 };
 
-class TimelineRippleRemoveAreaCommand : public UndoCommand {
+class TimelineRippleRemoveAreaCommand : public MultiUndoCommand {
 public:
-  TimelineRippleRemoveAreaCommand(ViewerOutput* timeline, rational in, rational out, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TimelineRippleRemoveAreaCommand(ViewerOutput* timeline, rational in, rational out) :
     timeline_(timeline)
   {
     for (int i=0; i<Track::kCount; i++) {
-      new TrackListRippleRemoveAreaCommand(timeline->track_list(static_cast<Track::Type>(i)),
-                                           in,
-                                           out,
-                                           this);
+      add_child(new TrackListRippleRemoveAreaCommand(timeline->track_list(static_cast<Track::Type>(i)),
+                                                     in,
+                                                     out));
     }
   }
 
@@ -1173,8 +1145,7 @@ public:
                              const QHash<Track*, RippleInfo>& info,
                              const rational& ripple_movement,
                              const Timeline::MovementMode& movement_mode,
-                             QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+                             UndoCommand* parent = nullptr) :
     track_list_(track_list),
     info_(info),
     ripple_movement_(ripple_movement),
@@ -1188,13 +1159,12 @@ public:
     return static_cast<ViewerOutput*>(track_list_->parent())->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     ripple(true);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     ripple(false);
   }
@@ -1385,8 +1355,7 @@ private:
 
 class TimelineAddTrackCommand : public UndoCommand {
 public:
-  TimelineAddTrackCommand(TrackList *timeline, QUndoCommand* command = nullptr) :
-    UndoCommand(command),
+  TimelineAddTrackCommand(TrackList *timeline) :
     timeline_(timeline)
   {
     track_ = new Track();
@@ -1415,8 +1384,7 @@ public:
     return timeline_->GetParentGraph()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     // Add track
     track_->setParent(timeline_->GetParentGraph());
@@ -1444,7 +1412,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     // Remove merge if applicable
     if (merge_) {
@@ -1490,8 +1458,7 @@ private:
  */
 class TrackPlaceBlockCommand : public UndoCommand {
 public:
-  TrackPlaceBlockCommand(TrackList *timeline, int track, Block* block, rational in, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackPlaceBlockCommand(TrackList *timeline, int track, Block* block, rational in) :
     timeline_(timeline),
     track_index_(track),
     in_(in),
@@ -1512,8 +1479,7 @@ public:
     return timeline_->GetParentGraph()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     // Determine if we need to add tracks
     if (track_index_ >= timeline_->GetTracks().size()) {
@@ -1560,7 +1526,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     Track* t = timeline_->GetTrackAt(track_index_);
 
@@ -1600,8 +1566,7 @@ private:
  */
 class TrackReplaceBlockCommand : public UndoCommand {
 public:
-  TrackReplaceBlockCommand(Track* track, Block* old, Block* replace, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackReplaceBlockCommand(Track* track, Block* old, Block* replace) :
     track_(track),
     old_(old),
     replace_(replace)
@@ -1613,13 +1578,12 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     track_->ReplaceBlock(old_, replace_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->ReplaceBlock(replace_, old_);
   }
@@ -1633,8 +1597,7 @@ private:
 
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackReplaceBlockWithGapCommand(Track* track, Block* block, QUndoCommand* command = nullptr) :
-    UndoCommand(command),
+  TrackReplaceBlockWithGapCommand(Track* track, Block* block) :
     track_(track),
     block_(block),
     existing_gap_(nullptr),
@@ -1648,8 +1611,7 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     track_->BeginOperation();
 
@@ -1721,7 +1683,7 @@ protected:
     track_->InvalidateCache(invalidate_range, track_->block_input());
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->BeginOperation();
 
@@ -1793,8 +1755,7 @@ private:
 
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
 public:
-  TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput* vo, const TimeRangeList& regions, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput* vo, const TimeRangeList& regions) :
     timeline_(vo),
     regions_(regions)
   {
@@ -1810,8 +1771,7 @@ public:
     return timeline_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (commands_.isEmpty()) {
       foreach (const TimeRange& range, regions_) {
@@ -1849,12 +1809,12 @@ protected:
       }
     }
 
-    foreach (QUndoCommand* c, commands_) {
+    foreach (UndoCommand* c, commands_) {
       c->redo();
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     for (int i=commands_.size()-1;i>=0;i--) {
       commands_.at(i)->undo();
@@ -1865,14 +1825,13 @@ private:
   ViewerOutput* timeline_;
   TimeRangeList regions_;
 
-  QVector<QUndoCommand*> commands_;
+  QVector<UndoCommand*> commands_;
 
 };
 
 class WorkareaSetEnabledCommand : public UndoCommand {
 public:
-  WorkareaSetEnabledCommand(Project *project, TimelinePoints* points, bool enabled, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  WorkareaSetEnabledCommand(Project *project, TimelinePoints* points, bool enabled) :
     project_(project),
     points_(points),
     old_enabled_(points_->workarea()->enabled()),
@@ -1885,13 +1844,12 @@ public:
     return project_;
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     points_->workarea()->set_enabled(new_enabled_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     points_->workarea()->set_enabled(old_enabled_);
   }
@@ -1909,8 +1867,7 @@ private:
 
 class WorkareaSetRangeCommand : public UndoCommand {
 public:
-  WorkareaSetRangeCommand(Project *project, TimelinePoints* points, const TimeRange& range, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  WorkareaSetRangeCommand(Project *project, TimelinePoints* points, const TimeRange& range) :
     project_(project),
     points_(points),
     old_range_(points_->workarea()->range()),
@@ -1923,13 +1880,12 @@ public:
     return project_;
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     points_->workarea()->set_range(new_range_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     points_->workarea()->set_range(old_range_);
   }
@@ -1947,8 +1903,7 @@ private:
 
 class BlockEnableDisableCommand : public UndoCommand {
 public:
-  BlockEnableDisableCommand(Block* block, bool enabled, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  BlockEnableDisableCommand(Block* block, bool enabled) :
     block_(block),
     old_enabled_(block_->is_enabled()),
     new_enabled_(enabled)
@@ -1960,13 +1915,12 @@ public:
     return block_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     block_->set_enabled(new_enabled_);
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     block_->set_enabled(old_enabled_);
   }
@@ -1982,8 +1936,7 @@ private:
 
 class TrackSlideCommand : public UndoCommand {
 public:
-  TrackSlideCommand(Track* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackSlideCommand(Track* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement) :
     prepped_(false),
     track_(track),
     blocks_(moving_blocks),
@@ -2007,8 +1960,7 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (!prepped_) {
       prep();
@@ -2073,7 +2025,7 @@ protected:
     track_->InvalidateCache(invalidate_range, track_->block_input());
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     // Make sure all movement blocks' old positions are invalidated
     TimeRange invalidate_range(blocks_.first()->in(), blocks_.last()->out());
@@ -2145,10 +2097,10 @@ private:
 
   bool we_created_in_adjacent_;
   Block* in_adjacent_;
-  QUndoCommand* in_adjacent_remove_command_;
+  UndoCommand* in_adjacent_remove_command_;
   bool we_created_out_adjacent_;
   Block* out_adjacent_;
-  QUndoCommand* out_adjacent_remove_command_;
+  UndoCommand* out_adjacent_remove_command_;
 
   QObject memory_manager_;
 
@@ -2156,8 +2108,7 @@ private:
 
 class TrackListInsertGaps : public UndoCommand {
 public:
-  TrackListInsertGaps(TrackList* track_list, const rational& point, const rational& length, QUndoCommand* parent = nullptr) :
-    UndoCommand(parent),
+  TrackListInsertGaps(TrackList* track_list, const rational& point, const rational& length) :
     prepped_(false),
     track_list_(track_list),
     point_(point),
@@ -2176,8 +2127,7 @@ public:
     return static_cast<ViewerOutput*>(track_list_->parent())->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     if (!prepped_) {
       prep();
@@ -2221,7 +2171,7 @@ protected:
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     if (all_tracks_unlocked_) {
       // Optimize by shifting over since we have a constant amount of time being inserted
@@ -2340,8 +2290,7 @@ private:
 
 class TransitionRemoveCommand : public UndoCommand {
 public:
-  TransitionRemoveCommand(TransitionBlock* block, QUndoCommand *parent = nullptr) :
-    UndoCommand(parent),
+  TransitionRemoveCommand(TransitionBlock* block, UndoCommand *parent = nullptr) :
     block_(block)
   {
   }
@@ -2351,8 +2300,7 @@ public:
     return track_->parent()->project();
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     track_ = block_->track();
     out_block_ = block_->connected_out_block();
@@ -2387,7 +2335,7 @@ protected:
     track_->InvalidateCache(invalidate_range, track_->block_input());
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     track_->BeginOperation();
 

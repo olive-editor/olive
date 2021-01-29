@@ -120,18 +120,16 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID(Core::instance()->GetSelectedTransition()));
       }
 
-      QUndoCommand* command = new QUndoCommand();
+      MultiUndoCommand* command = new MultiUndoCommand();
 
       // Place transition in place
-      new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
-                         transition,
-                         command);
+      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
+                                            transition));
 
-      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
-                                 track.index(),
-                                 transition,
-                                 ghost_->GetAdjustedIn(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
+                                                    track.index(),
+                                                    transition,
+                                                    ghost_->GetAdjustedIn()));
 
       if (dual_transition_) {
         transition->set_length_and_media_out(ghost_->GetAdjustedLength());
@@ -148,15 +146,13 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
-        new NodeEdgeAddCommand(out_block,
-                               transition->out_block_input(),
-                               -1,
-                               command);
+        command->add_child(new NodeEdgeAddCommand(out_block,
+                                                  transition->out_block_input(),
+                                                  -1));
 
-        new NodeEdgeAddCommand(in_block,
-                               transition->in_block_input(),
-                               -1,
-                               command);
+        command->add_child(new NodeEdgeAddCommand(in_block,
+                                                  transition->in_block_input(),
+                                                  -1));
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         NodeInput* transition_input_to_connect;
@@ -170,10 +166,9 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         }
 
         // Connect block to transition
-        new NodeEdgeAddCommand(block_to_transition,
-                               transition_input_to_connect,
-                               -1,
-                               command);
+        command->add_child(new NodeEdgeAddCommand(block_to_transition,
+                                                  transition_input_to_connect,
+                                                  -1));
       }
 
       Core::instance()->undo_stack()->push(command);

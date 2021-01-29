@@ -38,6 +38,13 @@ NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInput *array, QWidget* pa
   UpdateCounter();
 }
 
+void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  QWidget::mouseDoubleClickEvent(event);
+
+  emit DoubleClicked();
+}
+
 void NodeParamViewArrayWidget::UpdateCounter()
 {
   count_lbl_->setText(tr("%1 element(s)").arg(array_->ArraySize()));

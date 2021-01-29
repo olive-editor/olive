@@ -31,8 +31,7 @@ namespace olive {
  */
 class OfflineFootageCommand : public UndoCommand {
 public:
-  OfflineFootageCommand(const QVector<MediaInput*>& media,  QUndoCommand* parent = nullptr) :
-    UndoCommand(parent)
+  OfflineFootageCommand(const QVector<MediaInput*>& media)
   {
     foreach (MediaInput* i, media) {
       stream_data_.insert(i, i->stream());
@@ -46,15 +45,14 @@ public:
     return project_;
   }
 
-protected:
-  virtual void redo_internal() override
+  virtual void redo() override
   {
     for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
       it.key()->SetStream(nullptr);
     }
   }
 
-  virtual void undo_internal() override
+  virtual void undo() override
   {
     for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
       it.key()->SetStream(it.value());

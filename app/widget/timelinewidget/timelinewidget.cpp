@@ -421,7 +421,7 @@ void TimelineWidget::SplitAtPlayhead()
 
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            bool remove_from_graph,
-                                           QUndoCommand *command)
+                                           MultiUndoCommand *command)
 {
   foreach (Block* b, blocks) {
     if (b->type() == Block::kGap) {
@@ -432,10 +432,10 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
     Track* original_track = b->track();
 
-    new TrackReplaceBlockWithGapCommand(original_track, b, command);
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b));
 
     if (remove_from_graph) {
-      new NodeRemoveWithExclusiveDependenciesAndDisconnect(b, command);
+      command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
     }
   }
 }
@@ -454,7 +454,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
@@ -469,16 +469,16 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    new TransitionRemoveCommand(transition, command);
+    command->add_child(new TransitionRemoveCommand(transition));
 
-    new NodeRemoveWithExclusiveDependenciesAndDisconnect(transition, command);
+    command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(transition));
   }
 
   // Replace clips with gaps (effectively deleting them)
   ReplaceBlocksWithGaps(clips_to_delete, true, command);
 
   // Remove all selections
-  new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), command);
+  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections()));
 
   // Insert ripple command now that it's all cleaned up gaps
   if (ripple) {
@@ -488,7 +488,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
       range_list.insert(TimeRange(b->in(), b->out()));
     }
 
-    new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list, command);
+    command->add_child(new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -593,7 +593,7 @@ void TimelineWidget::Paste(bool insert)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<BlockPasteData> paste_data;
   QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->parent(), command, &paste_data);
@@ -614,11 +614,10 @@ void TimelineWidget::Paste(bool insert)
 
   foreach (const BlockPasteData& bpd, paste_data) {
     qDebug() << "Placing" << bpd.block;
-    new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
-                               bpd.track_index,
-                               bpd.block,
-                               paste_start + bpd.in,
-                               command);
+    command->add_child(new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
+                                                  bpd.track_index,
+                                                  bpd.block,
+                                                  paste_start + bpd.in));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -632,14 +631,13 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (ripple) {
 
-    new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
-                                        GetConnectedTimelinePoints()->workarea()->in(),
-                                        GetConnectedTimelinePoints()->workarea()->out(),
-                                        command);
+    command->add_child(new TimelineRippleRemoveAreaCommand(GetConnectedNode(),
+                                                           GetConnectedTimelinePoints()->workarea()->in(),
+                                                           GetConnectedTimelinePoints()->workarea()->out()));
 
   } else {
     QVector<Track*> unlocked_tracks = GetConnectedNode()->GetUnlockedTracks();
@@ -649,23 +647,20 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
       gap->set_length_and_media_out(GetConnectedTimelinePoints()->workarea()->length());
 
-      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
-                         gap,
-                         command);
+      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+                                            gap));
 
-      new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->type()),
-                                 track->Index(),
-                                 gap,
-                                 GetConnectedTimelinePoints()->workarea()->in(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(GetConnectedNode()->track_list(track->type()),
+                                                    track->Index(),
+                                                    gap,
+                                                    GetConnectedTimelinePoints()->workarea()->in()));
     }
   }
 
   // Clear workarea after this
-  new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
-                                GetConnectedTimelinePoints(),
-                                false,
-                                command);
+  command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(),
+                                                   GetConnectedTimelinePoints(),
+                                                   false));
 
   if (ripple) {
     SetTimeAndSignal(Timecode::time_to_timestamp(GetConnectedTimelinePoints()->workarea()->in(),
@@ -683,12 +678,11 @@ void TimelineWidget::ToggleSelectedEnabled()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (Block* i, items) {
-    new BlockEnableDisableCommand(i,
-                                  !i->is_enabled(),
-                                  command);
+    command->add_child(new BlockEnableDisableCommand(i,
+                                                     !i->is_enabled()));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -701,13 +695,12 @@ void TimelineWidget::SetColorLabel(int index)
   }
 }
 
-void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
+void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, MultiUndoCommand *command)
 {
   for (int i=0;i<Track::kCount;i++) {
-    new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
-                            earliest_point,
-                            insert_length,
-                            command);
+    command->add_child(new TrackListInsertGaps(GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
+                                               earliest_point,
+                                               insert_length));
   }
 }
 
@@ -1238,7 +1231,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block
@@ -1253,11 +1246,10 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
       }
       new_len = info.nearest_block->length() - new_len;
 
-      new BlockTrimCommand(info.track,
-                           info.nearest_block,
-                           new_len,
-                           mode,
-                           command);
+      command->add_child(new BlockTrimCommand(info.track,
+                                              info.nearest_block,
+                                              new_len,
+                                              mode));
     }
   }
 

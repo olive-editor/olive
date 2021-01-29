@@ -145,7 +145,7 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 
   QVector<NodeKeyframe*> keys = input_->GetKeyframesAtTime(node_time, element_);
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   int nb_tracks = input_->GetNumberOfKeyframeTracks();
 
@@ -158,20 +158,19 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
                                            i,
                                            element_);
 
-      new NodeParamInsertKeyframeCommand(input_, key, command);
+      command->add_child(new NodeParamInsertKeyframeCommand(input_, key));
     }
   } else if (!e && !keys.isEmpty()) {
     // Remove all keyframes at this time
     foreach (NodeKeyframe* key, keys) {
-      new NodeParamRemoveKeyframeCommand(key, command);
+      command->add_child(new NodeParamRemoveKeyframeCommand(key));
 
       if (input_->GetKeyframeTracks(key->track()).size() == 1) {
         // If this was the last keyframe on this track, set the standard value to the value at this time too
-        new NodeParamSetStandardValueCommand(input_,
-                                             key->track(),
-                                             element_,
-                                             input_->GetValueAtTimeForTrack(node_time, key->track(), element_),
-                                             command);
+        command->add_child(new NodeParamSetStandardValueCommand(input_,
+                                                                key->track(),
+                                                                element_,
+                                                                input_->GetValueAtTimeForTrack(node_time, key->track(), element_)));
       }
     }
   }
@@ -228,11 +227,11 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (e) {
     // Enable keyframing
-    new NodeParamSetKeyframingCommand(input_, element_, true, command);
+    command->add_child(new NodeParamSetKeyframingCommand(input_, element_, true));
 
     // Create one keyframe across all tracks here
     const QVector<QVariant>& key_vals = input_->GetSplitStandardValue(element_);
@@ -244,7 +243,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
                                            i,
                                            element_);
 
-      new NodeParamInsertKeyframeCommand(input_, key, command);
+      command->add_child(new NodeParamInsertKeyframeCommand(input_, key));
     }
   } else {
     // Confirm the user wants to clear all keyframes
@@ -259,17 +258,17 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
       // Delete all keyframes
       foreach (const NodeKeyframeTrack& track, input_->GetKeyframeTracks(element_)) {
         for (int i=track.size()-1;i>=0;i--) {
-          new NodeParamRemoveKeyframeCommand(track.at(i), command);
+          command->add_child(new NodeParamRemoveKeyframeCommand(track.at(i)));
         }
       }
 
       // Update standard value
       for (int i=0;i<stored_vals.size();i++) {
-        new NodeParamSetStandardValueCommand(input_, i, element_, stored_vals.at(i), command);
+        command->add_child(new NodeParamSetStandardValueCommand(input_, i, element_, stored_vals.at(i)));
       }
 
       // Disable keyframing
-      new NodeParamSetKeyframingCommand(input_, element_, false, command);
+      command->add_child(new NodeParamSetKeyframingCommand(input_, element_, false));
 
     } else {
       // Disable action has effectively been ignored

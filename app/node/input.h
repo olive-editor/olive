@@ -26,6 +26,8 @@
 #include "node/connectable.h"
 #include "node/inputimmediate.h"
 #include "node/value.h"
+#include "splitvalue.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
@@ -47,7 +49,7 @@ public:
    * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
    * older version. This of course assumes that parameters don't change their ID.
    */
-  NodeInput(Node* parent, const QString &id, NodeValue::Type type, const QVector<QVariant>& default_value);
+  NodeInput(Node* parent, const QString &id, NodeValue::Type type, const SplitValue& default_value);
   NodeInput(Node* parent, const QString &id, NodeValue::Type type, const QVariant& default_value);
   NodeInput(Node* parent, const QString &id, NodeValue::Type type);
 
@@ -176,7 +178,7 @@ public:
   /**
    * @brief Get non-keyframed value split into components (the way it's stored)
    */
-  const QVector<QVariant>& GetSplitStandardValue(int element = -1) const
+  const SplitValue& GetSplitStandardValue(int element = -1) const
   {
     return GetImmediate(element)->get_split_standard_value();
   }
@@ -197,7 +199,7 @@ public:
     SetSplitStandardValue(NodeValue::split_normal_value_into_track_values(data_type_, value), element);
   }
 
-  void SetSplitStandardValue(const QVector<QVariant>& value, int element = -1)
+  void SetSplitStandardValue(const SplitValue& value, int element = -1)
   {
     GetImmediate(element)->set_split_standard_value(value);
 
@@ -231,7 +233,11 @@ public:
    */
   static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true, bool traverse_arrays = true);
 
-  static void CopyValuesOfElement(NodeInput* source, NodeInput* dst, int element);
+  static void CopyValuesOfElement(NodeInput* source, NodeInput* dst, int src_element, int dst_element);
+  static void CopyValuesOfElement(NodeInput* source, NodeInput* dst, int element)
+  {
+    CopyValuesOfElement(source, dst, element, element);
+  }
 
   QStringList get_combobox_strings() const;
 
@@ -244,7 +250,7 @@ public:
     return NodeValue::combine_track_values_into_normal_value(data_type_, default_value_);
   }
 
-  const QVector<QVariant>& GetSplitDefaultValue() const
+  const SplitValue& GetSplitDefaultValue() const
   {
     return default_value_;
   }
@@ -279,32 +285,35 @@ public:
 
   void SetIsKeyframing(bool keyframing, int element)
   {
-    Q_ASSERT(IsKeyframable());
+    if (IsKeyframable()) {
+      qDebug() << "Ignored set keyframing because this input is not keyframable";
+      return;
+    }
 
     GetImmediate(element)->set_is_keyframing(keyframing);
 
     emit KeyframeEnableChanged(keyframing, element);
   }
 
-  void ArrayAppend()
-  {
-    ArrayResize(ArraySize() + 1);
-  }
+  /// Alias for ArrayResize(ArraySize() + 1)
+  void ArrayAppend(bool undoable = false);
 
-  void ArrayInsert(int index);
+  void ArrayInsert(int index, bool undoable = false);
 
-  void ArrayRemove(int index);
+  void ArrayRemove(int index, bool undoable = false);
 
-  void ArrayPrepend();
+  /// Alias for ArrayInsert(0)
+  void ArrayPrepend(bool undoable = false);
 
-  void ArrayResize(int size);
+  void ArrayResize(int size, bool undoable = false);
+
+  /// Alias for ArrayResize(ArraySize() - 1)
+  void ArrayRemoveLast(bool undoable = false);
 
   int ArraySize() const
   {
     return array_size_;
   }
-
-  void ArrayRemoveLast();
 
   int GetNumberOfKeyframeTracks() const
   {
@@ -318,7 +327,7 @@ public:
    */
   QVariant GetValueAtTime(const rational& time, int element = -1) const;
 
-  QVector<QVariant> GetSplitValuesAtTime(const rational& time, int element = -1) const;
+  SplitValue GetSplitValuesAtTime(const rational& time, int element = -1) const;
 
   /**
    * @brief Calculate the stored value for a specific track
@@ -378,13 +387,139 @@ protected:
   virtual void childEvent(QChildEvent* e) override;
 
 private:
-  void Init(Node *parent, const QString& id, NodeValue::Type type, const QVector<QVariant> &default_val);
+  class ArrayInsertCommand : public UndoCommand
+  {
+  public:
+    ArrayInsertCommand(NodeInput* input, int index) :
+      input_(input),
+      index_(index)
+    {
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+    virtual void redo() override
+    {
+      input_->ArrayInsert(index_, false);
+    }
+
+    virtual void undo() override
+    {
+      input_->ArrayRemove(index_, false);
+    }
+
+  private:
+    NodeInput* input_;
+    int index_;
+
+  };
+
+  class ArrayRemoveCommand : public UndoCommand
+  {
+  public:
+    ArrayRemoveCommand(NodeInput* input, int index) :
+      input_(input),
+      index_(index)
+    {
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      // Save immediate data
+      is_keyframing_ = input_->IsKeyframing(index_);
+      standard_value_ = input_->GetSplitStandardValue(index_);
+      keyframes_ = input_->GetImmediate(index_)->keyframe_tracks();
+      input_->GetImmediate(index_)->delete_all_keyframes(&memory_manager_);
+
+      input_->ArrayRemove(index_, false);
+    }
+
+    virtual void undo() override
+    {
+      input_->ArrayInsert(index_, false);
+
+      // Restore keyframes
+      foreach (const NodeKeyframeTrack& track, keyframes_) {
+        foreach (NodeKeyframe* key, track) {
+          key->setParent(input_);
+        }
+      }
+      input_->SetSplitStandardValue(standard_value_, index_);
+      input_->SetIsKeyframing(is_keyframing_, index_);
+    }
+
+  private:
+    NodeInput* input_;
+    int index_;
+
+    SplitValue standard_value_;
+    bool is_keyframing_;
+    QVector<NodeKeyframeTrack> keyframes_;
+    QObject memory_manager_;
+
+  };
+
+  class ArrayResizeCommand : public UndoCommand
+  {
+  public:
+    ArrayResizeCommand(NodeInput* input, int size) :
+      input_(input),
+      size_(size)
+    {}
+
+    virtual void redo() override
+    {
+      old_size_ = input_->array_size_;
+
+      if (old_size_ > size_) {
+        // Decreasing in size, disconnect any extraneous edges
+        for (int i=size_; i<old_size_; i++) {
+          try {
+            Node* output = input_->edges().at(i);
+
+            removed_connections_.insert(i, output);
+
+            DisconnectEdge(output, input_, i);
+          } catch (std::out_of_range&) {}
+        }
+      }
+
+      input_->ArrayResizeInternal(size_);
+    }
+
+    virtual void undo() override
+    {
+      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
+        ConnectEdge(it.value(), input_, it.key());
+      }
+      removed_connections_.clear();
+
+      input_->ArrayResizeInternal(old_size_);
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+  private:
+    NodeInput* input_;
+    int size_;
+    int old_size_;
+
+    QHash<int, Node*> removed_connections_;
+
+  };
+
+  void ClearElement(int index);
+
+  void Init(Node *parent, const QString& id, NodeValue::Type type, const SplitValue &default_val);
 
   void LoadImmediate(QXmlStreamReader *reader, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void SaveImmediate(QXmlStreamWriter *writer, int element) const;
 
-  void ChangeArraySizeInternal(int size);
+  void ArrayResizeInternal(int size);
 
   NodeInputImmediate* CreateImmediate();
 
@@ -426,7 +561,7 @@ private:
 
   QVector<NodeInputImmediate*> subinputs_;
 
-  QVector<QVariant> default_value_;
+  SplitValue default_value_;
 
   /**
    * @brief Unique identifier of this input within this node

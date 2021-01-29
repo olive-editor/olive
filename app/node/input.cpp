@@ -23,14 +23,16 @@
 #include "common/bezier.h"
 #include "common/lerp.h"
 #include "common/xmlutils.h"
+#include "core.h"
 #include "node.h"
 #include "project/item/footage/stream.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 #define super NodeConnectable
 
 namespace olive {
 
-NodeInput::NodeInput(Node* parent, const QString& id, NodeValue::Type type, const QVector<QVariant> &default_value)
+NodeInput::NodeInput(Node* parent, const QString& id, NodeValue::Type type, const SplitValue &default_value)
 {
   Init(parent, id, type, default_value);
 }
@@ -42,7 +44,7 @@ NodeInput::NodeInput(Node *parent, const QString &id, NodeValue::Type type, cons
 
 NodeInput::NodeInput(Node* parent, const QString &id, NodeValue::Type type)
 {
-  Init(parent, id, type, QVector<QVariant>());
+  Init(parent, id, type, SplitValue());
 }
 
 NodeInput::~NodeInput()
@@ -217,7 +219,16 @@ void NodeInput::childEvent(QChildEvent *event)
   }
 }
 
-void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, const QVector<QVariant>& default_val)
+void NodeInput::ClearElement(int index)
+{
+  GetImmediate(index)->delete_all_keyframes();
+
+  SetIsKeyframing(false, index);
+
+  SetSplitStandardValue(default_value_, index);
+}
+
+void NodeInput::Init(Node* parent, const QString &id, NodeValue::Type type, const SplitValue& default_val)
 {
   setParent(parent);
 
@@ -381,11 +392,25 @@ void NodeInput::SaveImmediate(QXmlStreamWriter* writer, int element) const
   }
 }
 
-void NodeInput::ChangeArraySizeInternal(int size)
+void NodeInput::ArrayResizeInternal(int size)
 {
-  array_size_ = size;
-  emit ArraySizeChanged(array_size_);
-  emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), -1);
+  if (array_size_ != size) {
+    // Update array size
+    if (array_size_ < size) {
+      // Size is larger, create any immediates that don't exist
+      for (int i=subinputs_.size(); i<size; i++) {
+        subinputs_.append(CreateImmediate());
+      }
+
+      // Note that we do not delete any immediates when decreasing size since the user might still
+      // want that data. Therefore it's important to note that array_size_ does NOT necessarily
+      // equal subinputs_.size()
+    }
+
+    array_size_ = size;
+    emit ArraySizeChanged(array_size_);
+    emit ValueChanged(TimeRange(RATIONAL_MIN, RATIONAL_MAX), -1);
+  }
 }
 
 NodeInputImmediate *NodeInput::CreateImmediate()
@@ -440,79 +465,95 @@ QVector<Node *> NodeInput::GetImmediateDependencies() const
   return GetDependencies(false, false);
 }
 
-void NodeInput::ArrayInsert(int index)
+void NodeInput::ArrayAppend(bool undoable)
 {
-  // Add new input
-  subinputs_.insert(index, CreateImmediate());
-
-  ChangeArraySizeInternal(array_size_ + 1);
-
-  // Move connections down
-  std::map<int, Node*> copied_edges = edges();
-  for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-    if (it->first >= index) {
-      // Disconnect this and reconnect it one element down
-      DisconnectEdge(it->second, this, it->first);
-      ConnectEdge(it->second, this, it->first + 1);
-    }
-  }
+  ArrayResize(ArraySize() + 1, undoable);
 }
 
-void NodeInput::ArrayRemove(int index)
+void NodeInput::ArrayInsert(int index, bool undoable)
 {
-  // Remove input
-  delete subinputs_.takeAt(index);
-  ChangeArraySizeInternal(array_size_ - 1);
+  if (undoable) {
+    Core::instance()->undo_stack()->push(new ArrayInsertCommand(this, index));
+  } else {
+    // Add new input
+    ArrayResizeInternal(ArraySize() + 1);
 
-  // Move connections up
-  std::map<int, Node*> copied_edges = edges();
-  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-    if (it->first >= index) {
-      // Disconnect this and reconnect it one element up if it's not the element being removed
-      DisconnectEdge(it->second, this, it->first);
-
-      if (it->first > index) {
-        ConnectEdge(it->second, this, it->first - 1);
-      }
-    }
-  }
-}
-
-void NodeInput::ArrayPrepend()
-{
-  ArrayInsert(0);
-}
-
-void NodeInput::ArrayResize(int size)
-{
-  if (array_size_ != size) {
-    // Update array size
-    if (array_size_ < size) {
-      // Size is larger, create any immediates that don't exist
-      for (int i=subinputs_.size(); i<size; i++) {
-        subinputs_.append(CreateImmediate());
+    // Move connections down
+    std::map<int, Node*> copied_edges = edges();
+    for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
+      if (it->first >= index) {
+        // Disconnect this and reconnect it one element down
+        DisconnectEdge(it->second, this, it->first);
+        ConnectEdge(it->second, this, it->first + 1);
       }
     }
 
-    ChangeArraySizeInternal(size);
-
-    if (array_size_ > size) {
-      // Decreasing in size, disconnect any extraneous edges
-      for (int i=size; i<array_size_; i++) {
-        try {
-          DisconnectEdge(edges().at(i), this, i);
-        } catch (std::out_of_range&) {}
-      }
-
-      // Note that we do not delete any immediates since the user might still want that data.
-      // Therefore it's important to note that array_size_ does NOT necessarily equal subinputs_.size()
+    // Shift values and keyframes up one element
+    for (int i=ArraySize()-1; i>index; i--) {
+      CopyValuesOfElement(this, this, i-1, i);
     }
+
+    // Reset value of element we just "inserted"
+    ClearElement(index);
   }
 }
 
-void NodeInput::ArrayRemoveLast()
+void NodeInput::ArrayRemove(int index, bool undoable)
 {
-  ArrayResize(ArraySize() - 1);
+  if (undoable) {
+    Core::instance()->undo_stack()->push(new ArrayRemoveCommand(this, index));
+  } else {
+    // Remove input
+    ArrayResizeInternal(ArraySize() - 1);
+
+    // Move connections up
+    std::map<int, Node*> copied_edges = edges();
+    for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+      if (it->first >= index) {
+        // Disconnect this and reconnect it one element up if it's not the element being removed
+        DisconnectEdge(it->second, this, it->first);
+
+        if (it->first > index) {
+          ConnectEdge(it->second, this, it->first - 1);
+        }
+      }
+    }
+
+    // Shift values and keyframes down one element
+    for (int i=index; i<ArraySize(); i++) {
+      // Copying ArraySize()+1 is actually legal because immediates are never deleted
+      CopyValuesOfElement(this, this, i+1, i);
+    }
+
+    // Reset value of last element
+    ClearElement(ArraySize());
+  }
+}
+
+void NodeInput::ArrayPrepend(bool undoable)
+{
+  ArrayInsert(0, undoable);
+}
+
+void NodeInput::ArrayResize(int size, bool undoable)
+{
+  if (array_size_ == size) {
+    return;
+  }
+
+  ArrayResizeCommand* c = new ArrayResizeCommand(this, size);
+
+  if (undoable) {
+    Core::instance()->undo_stack()->push(c);
+  } else {
+    c->redo();
+    delete c;
+  }
+}
+
+void NodeInput::ArrayRemoveLast(bool undoable)
+{
+  ArrayResize(ArraySize() - 1, undoable);
 }
 
 QVariant NodeInput::GetValueAtTime(const rational &time, int element) const
@@ -520,9 +561,9 @@ QVariant NodeInput::GetValueAtTime(const rational &time, int element) const
   return NodeValue::combine_track_values_into_normal_value(data_type_, GetSplitValuesAtTime(time, element));
 }
 
-QVector<QVariant> NodeInput::GetSplitValuesAtTime(const rational &time, int element) const
+SplitValue NodeInput::GetSplitValuesAtTime(const rational &time, int element) const
 {
-  QVector<QVariant> vals;
+  SplitValue vals;
 
   int nb_tracks = GetNumberOfKeyframeTracks();
 
@@ -669,26 +710,31 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   }
 }
 
-void NodeInput::CopyValuesOfElement(NodeInput *src, NodeInput *dst, int element)
+void NodeInput::CopyValuesOfElement(NodeInput *src, NodeInput *dst, int src_element, int dst_element)
 {
+  if (dst_element >= dst->subinputs_.size()) {
+    qDebug() << "Ignored destination element that was out of array bounds";
+    return;
+  }
+
   // Copy standard value
-  dst->SetSplitStandardValue(src->GetSplitStandardValue(element), element);
+  dst->SetSplitStandardValue(src->GetSplitStandardValue(src_element), dst_element);
 
   // Copy keyframes
-  dst->GetImmediate(element)->delete_all_keyframes();
-  foreach (const NodeKeyframeTrack& track, src->GetImmediate(element)->keyframe_tracks()) {
+  dst->GetImmediate(dst_element)->delete_all_keyframes();
+  foreach (const NodeKeyframeTrack& track, src->GetImmediate(src_element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
-      key->copy(dst);
+      key->copy(dst_element, dst);
     }
   }
 
   // Copy keyframing state
   if (src->IsKeyframable()) {
-    dst->SetIsKeyframing(src->IsKeyframing(element), element);
+    dst->SetIsKeyframing(src->IsKeyframing(src_element), dst_element);
   }
 
   // If this is the root of an array, copy the array size
-  if (element == -1) {
+  if (src_element == -1 && dst_element == -1) {
     dst->ArrayResize(src->ArraySize());
   }
 }
@@ -837,6 +883,21 @@ QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::Foot
 uint qHash(const NodeInput::KeyframeTrackReference &ref, uint seed)
 {
   return qHash(ref.input, seed) ^ qHash(ref.element, seed) ^ qHash(ref.track, seed);
+}
+
+Project *NodeInput::ArrayRemoveCommand::GetRelevantProject() const
+{
+  return input_->parent()->parent()->project();
+}
+
+Project *NodeInput::ArrayResizeCommand::GetRelevantProject() const
+{
+  return input_->parent()->parent()->project();
+}
+
+Project *NodeInput::ArrayInsertCommand::GetRelevantProject() const
+{
+  return input_->parent()->parent()->project();
 }
 
 }

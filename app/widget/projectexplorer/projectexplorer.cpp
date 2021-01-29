@@ -571,7 +571,7 @@ void ProjectExplorer::DeleteSelected()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (Item* item, selected) {
     // Verify whether this item is in use anywhere
@@ -629,7 +629,7 @@ void ProjectExplorer::DeleteSelected()
         if (msgbox.clickedButton() == offline_btn || msgbox.clickedButton() == delete_clip_btn) {
 
           // For safety, even if we're deleting clips, we'll offline the footage nodes too
-          new OfflineFootageCommand(footage_nodes, command);
+          command->add_child(new OfflineFootageCommand(footage_nodes));
 
         }
 
@@ -676,7 +676,7 @@ void ProjectExplorer::DeleteSelected()
       break;
     }
 
-    new ProjectViewModel::RemoveItemCommand(&model_, item, command);
+    command->add_child(new ProjectViewModel::RemoveItemCommand(&model_, item));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

@@ -152,9 +152,8 @@ private:
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     Project* project_;

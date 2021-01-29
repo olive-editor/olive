@@ -56,6 +56,12 @@ class NodeParamViewArrayWidget : public QWidget
 public:
   NodeParamViewArrayWidget(NodeInput* array, QWidget* parent = nullptr);
 
+signals:
+  void DoubleClicked();
+
+protected:
+  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+
 private:
   NodeInput* array_;
 

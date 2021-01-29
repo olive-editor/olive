@@ -247,7 +247,7 @@ TimeRange Node::OutputTimeAdjustment(NodeInput *, int, const TimeRange &input_ti
   return input_time;
 }
 
-QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCommand* command)
+QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUndoCommand *command)
 {
   int nb_nodes = nodes.size();
 
@@ -263,7 +263,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
     // Add to graph
     NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
     if (command) {
-      new NodeAddCommand(graph, c, command);
+      command->add_child(new NodeAddCommand(graph, c));
     } else {
       c->setParent(graph);
     }
@@ -277,7 +277,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, QUndoCom
   return copies;
 }
 
-void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, QUndoCommand *command)
+void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *> &dst, MultiUndoCommand *command)
 {
   for (int i=0; i<src.size(); i++) {
     foreach (NodeInput* input, src.at(i)->inputs()) {
@@ -290,7 +290,7 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
           NodeInput* dst_input = dst.at(i)->GetInputWithID(input->id());
 
           if (command) {
-            new NodeEdgeAddCommand(dst_output, dst_input, it->first, command);
+            command->add_child(new NodeEdgeAddCommand(dst_output, dst_input, it->first));
           } else {
             ConnectEdge(dst_output, dst_input, it->first);
           }

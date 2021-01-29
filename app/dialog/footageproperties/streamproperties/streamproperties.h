@@ -21,10 +21,10 @@
 #ifndef STREAMPROPERTIES_H
 #define STREAMPROPERTIES_H
 
-#include <QUndoCommand>
 #include <QWidget>
 
 #include "common/define.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
@@ -33,7 +33,7 @@ class StreamProperties : public QWidget
 public:
   StreamProperties(QWidget* parent = nullptr);
 
-  virtual void Accept(QUndoCommand*){}
+  virtual void Accept(MultiUndoCommand*){}
 
   virtual bool SanityCheck(){return true;}
 

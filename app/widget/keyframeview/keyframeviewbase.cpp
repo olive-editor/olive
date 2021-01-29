@@ -59,13 +59,13 @@ void KeyframeViewBase::Clear()
 
 void KeyframeViewBase::DeleteSelected()
 {
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
 
   for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
     if (i.value()->isSelected()) {
-      new NodeParamRemoveKeyframeCommand(i.key(), command);
+      command->add_child(new NodeParamRemoveKeyframeCommand(i.key()));
     }
   }
 
@@ -307,46 +307,42 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
 
     if (dragging_) {
       if (dragging_bezier_point_) {
-        QUndoCommand* command = new QUndoCommand();
+        MultiUndoCommand* command = new MultiUndoCommand();
 
         // Create undo command with the current bezier point and the old one
-        new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                          dragging_bezier_point_->mode(),
-                                          dragging_bezier_point_->key()->bezier_control(dragging_bezier_point_->mode()),
-                                          dragging_bezier_point_start_,
-                                          command);
+        command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                                             dragging_bezier_point_->mode(),
+                                                             dragging_bezier_point_->key()->bezier_control(dragging_bezier_point_->mode()),
+                                                             dragging_bezier_point_start_));
 
         if (!(event->modifiers() & Qt::ControlModifier)) {
           auto opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
 
-          new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
-                                            opposing_type,
-                                            dragging_bezier_point_->key()->bezier_control(opposing_type),
-                                            dragging_bezier_point_opposing_start_,
-                                            command);
+          command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                                               opposing_type,
+                                                               dragging_bezier_point_->key()->bezier_control(opposing_type),
+                                                               dragging_bezier_point_opposing_start_));
         }
 
         dragging_bezier_point_ = nullptr;
 
         Core::instance()->undo_stack()->push(command);
       } else if (!selected_keys_.isEmpty()) {
-        QUndoCommand* command = new QUndoCommand();
+        MultiUndoCommand* command = new MultiUndoCommand();
 
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
           NodeKeyframe* item = keypair.key->key();
 
           // Commit movement
-          new NodeParamSetKeyframeTimeCommand(item,
-                                              item->time(),
-                                              keypair.time,
-                                              command);
+          command->add_child(new NodeParamSetKeyframeTimeCommand(item,
+                                                                 item->time(),
+                                                                 keypair.time));
 
           // Commit value if we're setting a value
           if (IsYAxisEnabled()) {
-            new NodeParamSetKeyframeValueCommand(item,
-                                                 item->value(),
-                                                 keypair.value,
-                                                 command);
+            command->add_child(new NodeParamSetKeyframeValueCommand(item,
+                                                                    item->value(),
+                                                                    keypair.value));
           }
         }
 
@@ -497,11 +493,10 @@ void KeyframeViewBase::ShowContextMenu()
         new_type = NodeKeyframe::kLinear;
       }
 
-      QUndoCommand* command = new QUndoCommand();
+      MultiUndoCommand* command = new MultiUndoCommand();
       foreach (QGraphicsItem* item, items) {
-        new KeyframeSetTypeCommand(static_cast<KeyframeViewItem*>(item)->key(),
-                                   new_type,
-                                   command);
+        command->add_child(new KeyframeSetTypeCommand(static_cast<KeyframeViewItem*>(item)->key(),
+                                                      new_type));
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
     }

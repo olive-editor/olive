@@ -258,14 +258,13 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
       // Default to collapsed
       array_collapse_btn->setChecked(false);
 
-      // Add data
-      array_collapse_btn->setProperty("input", Node::PtrToValue(input));
-
       // Collapse button always goes into column 0
       layout->addWidget(array_collapse_btn, row, 0);
 
       // Connect signal to show/hide array params when toggled
       connect(array_collapse_btn, &CollapseButton::toggled, this, &NodeParamViewItemBody::ArrayCollapseBtnPressed);
+
+      array_collapse_buttons_.insert(input, array_collapse_btn);
 
     } else {
 
@@ -286,6 +285,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, NodeInput *input,
 
   // Create a widget/input bridge for this input
   ui_objects.widget_bridge = new NodeParamViewWidgetBridge(input, element, this);
+  connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked, this, &NodeParamViewItemBody::ToggleArrayExpanded);
 
   // 0 is for the array collapse button, 1 is for the main label, widgets start at 2
   const int widget_start = 2;
@@ -372,7 +372,7 @@ void NodeParamViewItemBody::SignalAllKeyframes()
 
     foreach (const NodeKeyframeTrack& track, input->GetKeyframeTracks(i.key().element)) {
       foreach (NodeKeyframe* key, track) {
-        InputAddedKeyframeInternal(input, key);
+        InputAddedKeyframeInternal(input, i.key().element, key);
       }
     }
   }
@@ -406,7 +406,7 @@ void NodeParamViewItemBody::InputKeyframeEnableChanged(bool e, int element)
     foreach (NodeKeyframe* key, track) {
       if (e) {
         // Add a keyframe item for each keyframe
-        InputAddedKeyframeInternal(input, key);
+        InputAddedKeyframeInternal(input, element, key);
       } else {
         // Remove each keyframe item
         emit KeyframeRemoved(key);
@@ -420,13 +420,13 @@ void NodeParamViewItemBody::InputAddedKeyframe(NodeKeyframe* key)
   // Get NodeInput that emitted this signal
   NodeInput* input = static_cast<NodeInput*>(sender());
 
-  InputAddedKeyframeInternal(input, key);
+  InputAddedKeyframeInternal(input, key->element(), key);
 }
 
-void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframe* keyframe)
+void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, int element, NodeKeyframe* keyframe)
 {
   // Find its row in the parameters
-  QLabel* lbl = input_ui_map_.value(input).main_label;
+  QLabel* lbl = input_ui_map_.value({input, element}).main_label;
 
   // Find label's Y position
   QPoint lbl_center = lbl->rect().center();
@@ -439,7 +439,7 @@ void NodeParamViewItemBody::InputAddedKeyframeInternal(NodeInput *input, NodeKey
 
 void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
 {
-  NodeInput* input = Node::ValueToPtr<NodeInput>(sender()->property("input"));
+  NodeInput* input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
 
   array_ui_.value(input).widget->setVisible(checked);
 }
@@ -486,7 +486,7 @@ void NodeParamViewItemBody::ArrayAppendClicked()
 {
   for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
     if (it.value().append_btn == sender()) {
-      it.key()->ArrayAppend();
+      it.key()->ArrayAppend(true);
       break;
     }
   }
@@ -498,7 +498,7 @@ void NodeParamViewItemBody::ArrayInsertClicked()
     if (it.value().array_insert_btn == sender()) {
       // Found our input and element
       const Node::InputConnection& ic = it.key();
-      ic.input->ArrayInsert(ic.element);
+      ic.input->ArrayInsert(ic.element, true);
       break;
     }
   }
@@ -510,8 +510,21 @@ void NodeParamViewItemBody::ArrayRemoveClicked()
     if (it.value().array_remove_btn == sender()) {
       // Found our input and element
       const Node::InputConnection& ic = it.key();
-      ic.input->ArrayRemove(ic.element);
+      ic.input->ArrayRemove(ic.element, true);
       break;
+    }
+  }
+}
+
+void NodeParamViewItemBody::ToggleArrayExpanded()
+{
+  NodeParamViewWidgetBridge* bridge = static_cast<NodeParamViewWidgetBridge*>(sender());
+
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().widget_bridge == bridge) {
+      CollapseButton* b = array_collapse_buttons_.value(it.key().input);
+      b->setChecked(!b->isChecked());
+      return;
     }
   }
 }

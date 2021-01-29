@@ -563,7 +563,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (!blocks_trimming.isEmpty()) {
     foreach (const GhostBlockPair& p, blocks_trimming) {
@@ -574,10 +574,11 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
         BlockTrimCommand* c = new BlockTrimCommand(parent()->GetTrackFromReference(ghost->GetAdjustedTrack()),
                                                    p.block,
                                                    ghost->GetAdjustedLength(),
-                                                   ghost->GetMode(),
-                                                   command);
+                                                   ghost->GetMode());
 
         c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
+
+        command->add_child(c);
       }
     }
 
@@ -590,7 +591,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
     }
   }
 
@@ -632,11 +633,10 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
         } else {
           copy = block->copy();
 
-          new NodeAddCommand(static_cast<NodeGraph*>(block->parent()),
-                             copy,
-                             command);
+          command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(block->parent()),
+                                                copy));
 
-          new NodeCopyInputsCommand(block, copy, true, command);
+          command->add_child(new NodeCopyInputsCommand(block, copy, true));
         }
 
         // Place the copy instead of the original block
@@ -644,18 +644,17 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       }
 
       const Track::Reference& track_ref = p.ghost->GetAdjustedTrack();
-      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track_ref.type()),
-                                 track_ref.index(),
-                                 block,
-                                 p.ghost->GetAdjustedIn(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track_ref.type()),
+                                                    track_ref.index(),
+                                                    block,
+                                                    p.ghost->GetAdjustedIn()));
     }
 
     // Adjust selections
     TimelineWidgetSelections new_sel = parent()->GetSelections();
     new_sel.ShiftTime(blocks_moving.first().ghost->GetInAdjustment());
     new_sel.ShiftTracks(drag_track_type_, blocks_moving.first().ghost->GetTrackAdjustment());
-    new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+    command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
   }
 
   if (!blocks_sliding.isEmpty()) {
@@ -706,18 +705,17 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     if (!movement.isNull()) {
       QHash<Track::Reference, QList<Block*> >::const_iterator i;
       for (i=slide_info.constBegin(); i!=slide_info.constEnd(); i++) {
-        new TrackSlideCommand(parent()->GetTrackFromReference(i.key()),
+        command->add_child(new TrackSlideCommand(parent()->GetTrackFromReference(i.key()),
                               i.value(),
                               in_adjacents.value(i.key()),
                               out_adjacents.value(i.key()),
-                              movement,
-                              command);
+                              movement));
       }
 
       // Adjust selections
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       new_sel.ShiftTime(movement);
-      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
     }
   }
 

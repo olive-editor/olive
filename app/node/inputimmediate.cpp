@@ -27,7 +27,7 @@
 
 namespace olive {
 
-NodeInputImmediate::NodeInputImmediate(NodeValue::Type type, const QVector<QVariant> &default_val) :
+NodeInputImmediate::NodeInputImmediate(NodeValue::Type type, const SplitValue &default_val) :
   keyframing_(false)
 {
   int track_size = NodeValue::get_number_of_keyframe_tracks(type);
@@ -43,7 +43,7 @@ void NodeInputImmediate::set_standard_value_on_track(const QVariant &value, int 
   standard_value_.replace(track, value);
 }
 
-void NodeInputImmediate::set_split_standard_value(const QVector<QVariant> &value)
+void NodeInputImmediate::set_split_standard_value(const SplitValue &value)
 {
   for (int i=0; i<value.size() && i<standard_value_.size(); i++) {
     standard_value_[i] = value[i];
@@ -267,11 +267,15 @@ void NodeInputImmediate::remove_keyframe(NodeKeyframe *key)
   keyframe_tracks_[key->track()].removeOne(key);
 }
 
-void NodeInputImmediate::delete_all_keyframes()
+void NodeInputImmediate::delete_all_keyframes(QObject* parent)
 {
   for (NodeKeyframeTrack& track : keyframe_tracks_) {
     while (!track.isEmpty()) {
-      delete track.first();
+      if (parent) {
+        track.first()->setParent(parent);
+      } else {
+        delete track.first();
+      }
     }
   }
 }

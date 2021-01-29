@@ -21,7 +21,6 @@
 #include "timebasedwidget.h"
 
 #include <QInputDialog>
-#include <QUndoCommand>
 
 #include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
@@ -435,11 +434,11 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   // Enable workarea if it isn't already enabled
   if (!points_->workarea()->enabled()) {
-    new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true, command);
+    command->add_child(new WorkareaSetEnabledCommand(GetTimelinePointsProject(), points_, true));
   }
 
   // Determine our new range
@@ -464,7 +463,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   }
 
   // Set workarea
-  new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point), command);
+  command->add_child(new WorkareaSetRangeCommand(GetTimelinePointsProject(), points_, TimeRange(in_point, out_point)));
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -647,12 +646,12 @@ Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
   return project_;
 }
 
-void TimeBasedWidget::MarkerAddCommand::redo_internal()
+void TimeBasedWidget::MarkerAddCommand::redo()
 {
   added_marker_ = marker_list_->AddMarker(range_, name_);
 }
 
-void TimeBasedWidget::MarkerAddCommand::undo_internal()
+void TimeBasedWidget::MarkerAddCommand::undo()
 {
   marker_list_->RemoveMarker(added_marker_);
 }

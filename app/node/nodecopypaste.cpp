@@ -56,7 +56,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   Core::CopyStringToClipboard(copy_str);
 }
 
-QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, QUndoCommand* command, void *userdata)
+QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand* command, void *userdata)
 {
   QString clipboard = Core::PasteStringFromClipboard();
 
@@ -121,7 +121,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   // Add all nodes to graph
   foreach (Node* n, pasted_nodes) {
-    new NodeAddCommand(graph, n, command);
+    command->add_child(new NodeAddCommand(graph, n));
   }
 
   // Make connections

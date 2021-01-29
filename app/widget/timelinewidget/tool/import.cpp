@@ -306,7 +306,7 @@ void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
 
 void ImportTool::DropGhosts(bool insert)
 {
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   NodeGraph* dst_graph = nullptr;
   ViewerOutput* viewer_node = nullptr;
@@ -383,10 +383,9 @@ void ImportTool::DropGhosts(bool insert)
         if (sequence_is_valid) {
           new_sequence->add_default_nodes();
 
-          new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
-                                               Core::instance()->GetSelectedFolderInActiveProject(),
-                                               new_sequence,
-                                               command);
+          command->add_child(new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
+                                                                  Core::instance()->GetSelectedFolderInActiveProject(),
+                                                                  new_sequence));
 
           FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
 
@@ -422,44 +421,43 @@ void ImportTool::DropGhosts(bool insert)
       clip->set_media_in(ghost->GetMediaIn());
       clip->set_length_and_media_out(ghost->GetLength());
       clip->SetLabel(footage_stream->footage()->name());
-      new NodeAddCommand(dst_graph, clip, command);
+      command->add_child(new NodeAddCommand(dst_graph, clip));
 
       switch (footage_stream->type()) {
       case Stream::kVideo:
       {
         MediaInput* video_input = new MediaInput();
         video_input->SetStream(footage_stream);
-        new NodeAddCommand(dst_graph, video_input, command);
+        command->add_child(new NodeAddCommand(dst_graph, video_input));
 
         TransformDistortNode* transform = new TransformDistortNode();
-        new NodeAddCommand(dst_graph, transform, command);
+        command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        new NodeEdgeAddCommand(video_input, transform->texture_input(), -1, command);
-        new NodeEdgeAddCommand(transform, clip->texture_input(), -1, command);
+        command->add_child(new NodeEdgeAddCommand(video_input, transform->texture_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(transform, clip->texture_input(), -1));
         break;
       }
       case Stream::kAudio:
       {
         MediaInput* audio_input = new MediaInput();
         audio_input->SetStream(footage_stream);
-        new NodeAddCommand(dst_graph, audio_input, command);
+        command->add_child(new NodeAddCommand(dst_graph, audio_input));
 
         VolumeNode* volume_node = new VolumeNode();
-        new NodeAddCommand(dst_graph, volume_node, command);
+        command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        new NodeEdgeAddCommand(audio_input, volume_node->samples_input(), -1, command);
-        new NodeEdgeAddCommand(volume_node, clip->texture_input(), -1, command);
+        command->add_child(new NodeEdgeAddCommand(audio_input, volume_node->samples_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(volume_node, clip->texture_input(), -1));
         break;
       }
       default:
         break;
       }
 
-      new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
-                                 ghost->GetAdjustedTrack().index(),
-                                 clip,
-                                 ghost->GetAdjustedIn(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
+                                                    ghost->GetAdjustedTrack().index(),
+                                                    clip,
+                                                    ghost->GetAdjustedIn()));
 
       block_items.replace(i, clip);
 

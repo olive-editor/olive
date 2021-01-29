@@ -43,6 +43,7 @@ set(OLIVE_SOURCES
   node/node.cpp
   node/nodecopypaste.h
   node/nodecopypaste.cpp
+  node/splitvalue.h
   node/traverser.h
   node/traverser.cpp
   node/value.h

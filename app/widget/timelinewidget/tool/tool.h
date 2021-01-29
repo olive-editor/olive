@@ -75,7 +75,7 @@ protected:
 
   void GetGhostData(rational *earliest_point, rational *latest_point);
 
-  void InsertGapsAtGhostDestination(QUndoCommand* command);
+  void InsertGapsAtGhostDestination(MultiUndoCommand* command);
 
   QVector<rational> snap_points_;
 

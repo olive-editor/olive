@@ -336,12 +336,12 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   // Ensure only the appropriate button is checked
   SetKeyframeButtonCheckedFromType(new_type);
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (QGraphicsItem* item, selected) {
     KeyframeViewItem* key_item = static_cast<KeyframeViewItem*>(item);
 
-    new KeyframeSetTypeCommand(key_item->key(), new_type, command);
+    command->add_child(new KeyframeSetTypeCommand(key_item->key(), new_type));
   }
 
   Core::instance()->undo_stack()->push(command);

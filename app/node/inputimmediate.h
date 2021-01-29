@@ -25,6 +25,7 @@
 #include "common/xmlutils.h"
 #include "node/keyframe.h"
 #include "node/value.h"
+#include "splitvalue.h"
 
 namespace olive {
 
@@ -33,7 +34,7 @@ class NodeInput;
 class NodeInputImmediate
 {
 public:
-  NodeInputImmediate(NodeValue::Type type, const QVector<QVariant>& default_val);
+  NodeInputImmediate(NodeValue::Type type, const SplitValue& default_val);
 
   /**
    * @brief Internal insert function, automatically does an insertion sort based on the keyframe's time
@@ -42,19 +43,19 @@ public:
 
   void remove_keyframe(NodeKeyframe* key);
 
-  void delete_all_keyframes();
+  void delete_all_keyframes(QObject *parent = nullptr);
 
   /**
    * @brief Get non-keyframed value split into components (the way it's stored)
    */
-  const QVector<QVariant>& get_split_standard_value() const
+  const SplitValue& get_split_standard_value() const
   {
     return standard_value_;
   }
 
   void set_standard_value_on_track(const QVariant &value, int track = 0);
 
-  void set_split_standard_value(const QVector<QVariant>& value);
+  void set_split_standard_value(const SplitValue& value);
 
   /**
    * @brief Retrieve a list of keyframe objects for all tracks at a given time
@@ -149,7 +150,7 @@ private:
   /**
    * @brief Non-keyframed value
    */
-  QVector<QVariant> standard_value_;
+  SplitValue standard_value_;
 
   /**
    * @brief Internal keyframe array

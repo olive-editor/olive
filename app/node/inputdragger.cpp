@@ -106,21 +106,21 @@ void NodeInputDragger::End()
     return;
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (input_->IsKeyframing(element_)) {
     if (drag_created_key_) {
       // We created a keyframe in this process
-      new NodeParamInsertKeyframeCommand(input_, dragging_key_, command);
+      command->add_child(new NodeParamInsertKeyframeCommand(input_, dragging_key_));
     }
 
     // We just set a keyframe's value
     // We do this even when inserting a keyframe because we don't actually perform an insert in this undo command
     // so this will ensure the ValueChanged() signal is sent correctly
-    new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_, command);
+    command->add_child(new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_));
   } else {
     // We just set the standard value
-    new NodeParamSetStandardValueCommand(input_, track_, element_, end_value_, start_value_, command);
+    command->add_child(new NodeParamSetStandardValueCommand(input_, track_, element_, end_value_, start_value_));
   }
 
   Core::instance()->undo_stack()->push(command);

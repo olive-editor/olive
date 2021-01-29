@@ -27,7 +27,7 @@ namespace olive {
 
 PolygonGenerator::PolygonGenerator()
 {
-  points_input_ = new NodeInput(this, QStringLiteral("points_in"), NodeValue::kVec2);
+  points_input_ = new NodeInput(this, QStringLiteral("points_in"), NodeValue::kVec2, QVector2D(0, 0));
   points_input_->SetIsArray(true);
 
   color_input_ = new NodeInput(this, QStringLiteral("color_in"), NodeValue::kColor, QVariant::fromValue(Color(1.0, 1.0, 1.0)));

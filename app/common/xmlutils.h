@@ -21,10 +21,10 @@
 #ifndef XMLREADLOOP_H
 #define XMLREADLOOP_H
 
-#include <QUndoCommand>
 #include <QXmlStreamReader>
 
 #include "project/item/footage/stream.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
@@ -63,7 +63,7 @@ struct XMLNodeData {
 
 };
 
-void XMLConnectNodes(const XMLNodeData& xml_node_data, QUndoCommand* command = nullptr);
+void XMLConnectNodes(const XMLNodeData& xml_node_data, MultiUndoCommand *command = nullptr);
 
 bool XMLReadNextStartElement(QXmlStreamReader* reader);
 

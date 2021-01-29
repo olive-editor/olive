@@ -128,7 +128,7 @@ void TimelineTool::GetGhostData(rational *earliest_point, rational *latest_point
   }
 }
 
-void TimelineTool::InsertGapsAtGhostDestination(QUndoCommand *command)
+void TimelineTool::InsertGapsAtGhostDestination(olive::MultiUndoCommand *command)
 {
   rational earliest_point, latest_point;
 

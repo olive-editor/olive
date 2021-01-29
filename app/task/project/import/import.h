@@ -38,7 +38,7 @@ public:
 
   const int& GetFileCount() const;
 
-  QUndoCommand* GetCommand() const
+  MultiUndoCommand* GetCommand() const
   {
     return command_;
   }
@@ -57,7 +57,7 @@ protected:
   virtual bool Run() override;
 
 private:
-  void Import(Folder* folder, QFileInfoList import, int& counter, QUndoCommand *parent_command);
+  void Import(Folder* folder, QFileInfoList import, int& counter, MultiUndoCommand *parent_command);
 
   void ValidateImageSequence(Footage *footage, QFileInfoList &info_list, int index);
 
@@ -67,7 +67,7 @@ private:
 
   static int64_t GetImageSequenceLimit(const QString &start_fn, int64_t start, bool up);
 
-  QUndoCommand* command_;
+  MultiUndoCommand* command_;
 
   ProjectViewModel* model_;
 

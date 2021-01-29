@@ -24,7 +24,6 @@
 #include <QFontMetrics>
 #include <QGraphicsRectItem>
 #include <QLinearGradient>
-#include <QUndoCommand>
 #include <QWidget>
 
 #include "node/node.h"

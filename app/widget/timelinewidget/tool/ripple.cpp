@@ -132,7 +132,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
       info_list[track->type()].insert(track, info);
     }
 
-    QUndoCommand* command = new QUndoCommand();
+    MultiUndoCommand* command = new MultiUndoCommand();
 
     rational movement;
 
@@ -144,15 +144,14 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 
     for (int i=0;i<info_list.size();i++) {
       if (!info_list.at(i).isEmpty()) {
-        new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
-                                       info_list.at(i),
-                                       movement,
-                                       drag_movement_mode(),
-                                       command);
+        command->add_child(new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
+                                                          info_list.at(i),
+                                                          movement,
+                                                          drag_movement_mode()));
       }
     }
 
-    if (command->childCount() > 0) {
+    if (command->child_count() > 0) {
       TimelineWidgetSelections new_sel = parent()->GetSelections();
       TimelineViewGhostItem* reference_ghost = parent()->GetGhostItems().first();
       if (drag_movement_mode() == Timeline::kTrimIn) {
@@ -160,7 +159,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
       } else {
         new_sel.TrimOut(reference_ghost->GetOutAdjustment());
       }
-      new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), command);
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections()));
 
       Core::instance()->undo_stack()->push(command);
     } else {

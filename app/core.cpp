@@ -479,7 +479,7 @@ void Core::ImportTaskComplete(Task* task)
 {
   ProjectImportTask* import_task = static_cast<ProjectImportTask*>(task);
 
-  QUndoCommand *command = import_task->GetCommand();
+  MultiUndoCommand *command = import_task->GetCommand();
 
   if (import_task->HasInvalidFiles()) {
     ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);

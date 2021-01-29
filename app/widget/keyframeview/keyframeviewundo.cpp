@@ -26,8 +26,7 @@
 
 namespace olive {
 
-KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframe* key, NodeKeyframe::Type type, QUndoCommand *parent) :
-  UndoCommand(parent),
+KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframe* key, NodeKeyframe::Type type) :
   key_(key),
   old_type_(key->type()),
   new_type_(type)
@@ -39,18 +38,17 @@ Project *KeyframeSetTypeCommand::GetRelevantProject() const
   return key_->parent()->parent()->parent()->project();
 }
 
-void KeyframeSetTypeCommand::redo_internal()
+void KeyframeSetTypeCommand::redo()
 {
   key_->set_type(new_type_);
 }
 
-void KeyframeSetTypeCommand::undo_internal()
+void KeyframeSetTypeCommand::undo()
 {
   key_->set_type(old_type_);
 }
 
-KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand *parent) :
-  UndoCommand(parent),
+KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF& point) :
   key_(key),
   mode_(mode),
   old_point_(key->bezier_control(mode_)),
@@ -58,8 +56,7 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, 
 {
 }
 
-KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF &new_point, const QPointF &old_point, QUndoCommand *parent) :
-  UndoCommand(parent),
+KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, NodeKeyframe::BezierType mode, const QPointF &new_point, const QPointF &old_point) :
   key_(key),
   mode_(mode),
   old_point_(old_point),
@@ -72,12 +69,12 @@ Project *KeyframeSetBezierControlPoint::GetRelevantProject() const
   return key_->parent()->parent()->parent()->project();
 }
 
-void KeyframeSetBezierControlPoint::redo_internal()
+void KeyframeSetBezierControlPoint::redo()
 {
   key_->set_bezier_control(mode_, new_point_);
 }
 
-void KeyframeSetBezierControlPoint::undo_internal()
+void KeyframeSetBezierControlPoint::undo()
 {
   key_->set_bezier_control(mode_, old_point_);
 }

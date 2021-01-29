@@ -59,14 +59,12 @@ private:
   class FootageChangeCommand : public UndoCommand {
   public:
     FootageChangeCommand(Footage* footage,
-                         const QString& name,
-                         QUndoCommand *command = nullptr);
+                         const QString& name);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     Footage* footage_;
@@ -78,14 +76,12 @@ private:
   class StreamEnableChangeCommand : public UndoCommand {
   public:
     StreamEnableChangeCommand(Stream* stream,
-                              bool enabled,
-                              QUndoCommand* command = nullptr);
+                              bool enabled);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     Stream* stream_;

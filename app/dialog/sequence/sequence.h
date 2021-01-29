@@ -38,7 +38,7 @@ namespace olive {
  * This dialog exposes all the parameters of a Sequence to users allowing them to set up a Sequence however they wish.
  * A Sequence can be sent to this dialog through the constructor. All fields will be filled using that Sequence's
  * parameters, allowing the user to view and edit them. Accepting the dialog will apply them back to that Sequence,
- * either directly or using a QUndoCommand (see SetUndoable()).
+ * either directly or using an UndoCommand (see SetUndoable()).
  *
  * If creating a new Sequence, the Sequence must still be constructed first before sending it to SequenceDialog.
  * SequenceDialog does not create any new objects. In most cases when creating a new Sequence, editing its parameters
@@ -104,21 +104,19 @@ private:
   QLineEdit* name_field_;
 
   /**
-   * @brief A QUndoCommand for setting the parameters on a sequence
+   * @brief An UndoCommand for setting the parameters on a sequence
    */
   class SequenceParamCommand : public UndoCommand {
   public:
     SequenceParamCommand(Sequence* s,
                          const VideoParams& video_params,
                          const AudioParams& audio_params,
-                         const QString& name,
-                         QUndoCommand* parent = nullptr);
+                         const QString& name);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     Sequence* sequence_;

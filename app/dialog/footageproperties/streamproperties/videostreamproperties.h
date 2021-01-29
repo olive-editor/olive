@@ -26,7 +26,6 @@
 
 #include "project/item/footage/videostream.h"
 #include "streamproperties.h"
-#include "undo/undocommand.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
@@ -38,7 +37,7 @@ class VideoStreamProperties : public StreamProperties
 public:
   VideoStreamProperties(VideoStream* stream);
 
-  virtual void Accept(QUndoCommand* parent) override;
+  virtual void Accept(MultiUndoCommand *parent) override;
 
   virtual bool SanityCheck() override;
 
@@ -89,14 +88,12 @@ private:
                              bool premultiplied,
                              QString colorspace,
                              VideoParams::Interlacing interlacing,
-                             const rational& pixel_ar,
-                             QUndoCommand* parent = nullptr);
+                             const rational& pixel_ar);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     VideoStream* stream_;
@@ -118,14 +115,12 @@ private:
     ImageSequenceChangeCommand(VideoStream* video_stream,
                                int64_t start_index,
                                int64_t duration,
-                               const rational& frame_rate,
-                               QUndoCommand* parent = nullptr);
+                               const rational& frame_rate);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
-    virtual void undo_internal() override;
+    virtual void redo() override;
+    virtual void undo() override;
 
   private:
     VideoStream* video_stream_;

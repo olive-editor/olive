@@ -50,7 +50,7 @@ const int &ProjectImportTask::GetFileCount() const
 
 bool ProjectImportTask::Run()
 {
-  command_ = new QUndoCommand();
+  command_ = new MultiUndoCommand();
 
   int imported = 0;
 
@@ -65,7 +65,7 @@ bool ProjectImportTask::Run()
   }
 }
 
-void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counter, QUndoCommand* parent_command)
+void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counter, MultiUndoCommand* parent_command)
 {
   for (int i=0; i<import.size(); i++) {
     if (IsCancelled()) {
@@ -100,10 +100,9 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         f->set_name(file_info.fileName());
 
         // Create undoable command that adds the items to the model
-        new ProjectViewModel::AddItemCommand(model_,
-                                             folder,
-                                             f,
-                                             parent_command);
+        parent_command->add_child(new ProjectViewModel::AddItemCommand(model_,
+                                                                       folder,
+                                                                       f));
 
         // Recursively follow this path
         Import(f, entry_list, counter, parent_command);
@@ -122,10 +121,9 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
-        new ProjectViewModel::AddItemCommand(model_,
-                                             folder,
-                                             footage,
-                                             parent_command);
+        parent_command->add_child(new ProjectViewModel::AddItemCommand(model_,
+                                                                       folder,
+                                                                       footage));
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());

@@ -124,7 +124,7 @@ VideoStreamProperties::VideoStreamProperties(VideoStream *stream) :
   }
 }
 
-void VideoStreamProperties::Accept(QUndoCommand *parent)
+void VideoStreamProperties::Accept(MultiUndoCommand *parent)
 {
   QString set_colorspace;
 
@@ -137,12 +137,11 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
       || static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()) != stream_->interlacing()
       || pixel_aspect_combo_->GetPixelAspectRatio() != stream_->pixel_aspect_ratio()) {
 
-    new VideoStreamChangeCommand(stream_,
-                                 video_premultiply_alpha_ ? video_premultiply_alpha_->isChecked() : stream_->premultiplied_alpha(),
-                                 set_colorspace,
-                                 static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
-                                 pixel_aspect_combo_->GetPixelAspectRatio(),
-                                 parent);
+    parent->add_child(new VideoStreamChangeCommand(stream_,
+                                                   video_premultiply_alpha_ ? video_premultiply_alpha_->isChecked() : stream_->premultiplied_alpha(),
+                                                   set_colorspace,
+                                                   static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
+                                                   pixel_aspect_combo_->GetPixelAspectRatio()));
   }
 
   if (stream_->video_type() == VideoStream::kVideoTypeImageSequence) {
@@ -153,11 +152,10 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
     if (video_stream->start_time() != imgseq_start_time_->GetValue()
         || video_stream->duration() != new_dur
         || video_stream->frame_rate() != imgseq_frame_rate_->GetFrameRate()) {
-      new ImageSequenceChangeCommand(video_stream,
-                                     imgseq_start_time_->GetValue(),
-                                     new_dur,
-                                     imgseq_frame_rate_->GetFrameRate(),
-                                     parent);
+      parent->add_child(new ImageSequenceChangeCommand(video_stream,
+                                                       imgseq_start_time_->GetValue(),
+                                                       new_dur,
+                                                       imgseq_frame_rate_->GetFrameRate()));
     }
   }
 }
@@ -181,9 +179,7 @@ VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoS
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           VideoParams::Interlacing interlacing,
-                                                                          const rational &pixel_ar,
-                                                                          QUndoCommand *parent) :
-  UndoCommand(parent),
+                                                                          const rational &pixel_ar) :
   stream_(stream),
   new_premultiplied_(premultiplied),
   new_colorspace_(colorspace),
@@ -197,7 +193,7 @@ Project *VideoStreamProperties::VideoStreamChangeCommand::GetRelevantProject() c
   return stream_->footage()->project();
 }
 
-void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
+void VideoStreamProperties::VideoStreamChangeCommand::redo()
 {
   old_premultiplied_ = stream_->premultiplied_alpha();
   old_colorspace_ = stream_->colorspace(false);
@@ -210,7 +206,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
   stream_->set_pixel_aspect_ratio(new_pixel_ar_);
 }
 
-void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
+void VideoStreamProperties::VideoStreamChangeCommand::undo()
 {
   stream_->set_premultiplied_alpha(old_premultiplied_);
   stream_->set_colorspace(old_colorspace_);
@@ -218,8 +214,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
   stream_->set_pixel_aspect_ratio(old_pixel_ar_);
 }
 
-VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStream *video_stream, int64_t start_index, int64_t duration, const rational &frame_rate, QUndoCommand *parent) :
-  UndoCommand(parent),
+VideoStreamProperties::ImageSequenceChangeCommand::ImageSequenceChangeCommand(VideoStream *video_stream, int64_t start_index, int64_t duration, const rational &frame_rate) :
   video_stream_(video_stream),
   new_start_index_(start_index),
   new_duration_(duration),
@@ -232,7 +227,7 @@ Project *VideoStreamProperties::ImageSequenceChangeCommand::GetRelevantProject()
   return video_stream_->footage()->project();
 }
 
-void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal()
+void VideoStreamProperties::ImageSequenceChangeCommand::redo()
 {
   old_start_index_ = video_stream_->start_time();
   video_stream_->set_start_time(new_start_index_);
@@ -245,7 +240,7 @@ void VideoStreamProperties::ImageSequenceChangeCommand::redo_internal()
   video_stream_->set_timebase(new_frame_rate_.flipped());
 }
 
-void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
+void VideoStreamProperties::ImageSequenceChangeCommand::undo()
 {
   video_stream_->set_start_time(old_start_index_);
   video_stream_->set_duration(old_duration_);

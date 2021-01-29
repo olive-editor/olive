@@ -18,44 +18,16 @@
 
 ***/
 
-#include "undocommand.h"
+#ifndef SPLITVALUE_H
+#define SPLITVALUE_H
 
-#include "core.h"
+#include <QVariant>
+#include <QVector>
 
 namespace olive {
 
-void MultiUndoCommand::redo()
-{
-  for (auto it=children_.cbegin(); it!=children_.cend(); it++) {
-    (*it)->redo_and_set_modified();
-  }
-}
-
-void MultiUndoCommand::undo()
-{
-  for (auto it=children_.crbegin(); it!=children_.crend(); it++) {
-    (*it)->undo_and_set_modified();
-  }
-}
-
-void UndoCommand::redo_and_set_modified()
-{
-  redo();
-
-  project_ = GetRelevantProject();
-  if (project_) {
-    modified_ = project_->is_modified();
-    project_->set_modified(true);
-  }
-}
-
-void UndoCommand::undo_and_set_modified()
-{
-  undo();
-
-  if (project_) {
-    project_->set_modified(modified_);
-  }
-}
+using SplitValue = QVector<QVariant>;
 
 }
+
+#endif // SPLITVALUE_H

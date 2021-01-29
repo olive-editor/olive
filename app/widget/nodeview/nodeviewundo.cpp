@@ -25,22 +25,41 @@
 
 namespace olive {
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, NodeInput *input, int element, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, NodeInput *input, int element) :
   output_(output),
   input_(input),
-  element_(element)
+  element_(element),
+  remove_command_(nullptr)
 {
 }
 
-void NodeEdgeAddCommand::redo_internal()
+NodeEdgeAddCommand::~NodeEdgeAddCommand()
 {
+  delete remove_command_;
+}
+
+void NodeEdgeAddCommand::redo()
+{
+  if (input_->IsConnected(element_)) {
+    if (!remove_command_) {
+      remove_command_ = new NodeEdgeRemoveCommand(input_->GetConnectedNode(element_),
+                                                  input_,
+                                                  element_);
+    }
+
+    remove_command_->redo();
+  }
+
   Node::ConnectEdge(output_, input_, element_);
 }
 
-void NodeEdgeAddCommand::undo_internal()
+void NodeEdgeAddCommand::undo()
 {
   Node::DisconnectEdge(output_, input_, element_);
+
+  if (remove_command_) {
+    remove_command_->undo();
+  }
 }
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
@@ -48,20 +67,19 @@ Project *NodeEdgeAddCommand::GetRelevantProject() const
   return output_->parent()->project();
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(Node *output, NodeInput *input, int element, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(Node *output, NodeInput *input, int element) :
   output_(output),
   input_(input),
   element_(element)
 {
 }
 
-void NodeEdgeRemoveCommand::redo_internal()
+void NodeEdgeRemoveCommand::redo()
 {
   Node::DisconnectEdge(output_, input_, element_);
 }
 
-void NodeEdgeRemoveCommand::undo_internal()
+void NodeEdgeRemoveCommand::undo()
 {
   Node::ConnectEdge(output_, input_, element_);
 }
@@ -71,8 +89,7 @@ Project *NodeEdgeRemoveCommand::GetRelevantProject() const
   return output_->parent()->project();
 }
 
-NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
   graph_(graph),
   node_(node)
 {
@@ -80,12 +97,12 @@ NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node, QUndoCommand *paren
   node_->setParent(&memory_manager_);
 }
 
-void NodeAddCommand::redo_internal()
+void NodeAddCommand::redo()
 {
   node_->setParent(graph_);
 }
 
-void NodeAddCommand::undo_internal()
+void NodeAddCommand::undo()
 {
   node_->setParent(&memory_manager_);
 }
@@ -95,8 +112,7 @@ Project *NodeAddCommand::GetRelevantProject() const
   return graph_->project();
 }
 
-NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections, QUndoCommand *parent) :
-  QUndoCommand(parent),
+NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections) :
   src_(src),
   dest_(dest),
   include_connections_(include_connections)
@@ -110,21 +126,21 @@ void NodeCopyInputsCommand::redo()
 
 void NodeRemoveAndDisconnectCommand::prep()
 {
-  command_ = new QUndoCommand();
+  command_ = new MultiUndoCommand();
 
   // If this is a block, remove all links
   if (node_->HasLinks()) {
-    new NodeUnlinkAllCommand(node_, command_);
+    command_->add_child(new NodeUnlinkAllCommand(node_));
   }
 
   // Disconnect everything
   foreach (const Node::InputConnection& conn, node_->edges()) {
-    new NodeEdgeRemoveCommand(node_, conn.input, conn.element, command_);
+    command_->add_child(new NodeEdgeRemoveCommand(node_, conn.input, conn.element));
   }
 
   foreach (NodeInput* input, node_->inputs()) {
     for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      new NodeEdgeRemoveCommand(it->second, input, it->first, command_);
+      command_->add_child(new NodeEdgeRemoveCommand(it->second, input, it->first));
     }
   }
 }

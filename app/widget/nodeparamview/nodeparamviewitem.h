@@ -97,7 +97,7 @@ private:
 
   void UpdateUIForEdgeConnection(NodeInput* input, int element);
 
-  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframe* keyframe);
+  void InputAddedKeyframeInternal(NodeInput* input, int element, NodeKeyframe* keyframe);
 
   struct InputUI {
     InputUI();
@@ -120,6 +120,8 @@ private:
   };
 
   QHash<NodeInput*, ArrayUI> array_ui_;
+
+  QHash<NodeInput*, CollapseButton*> array_collapse_buttons_;
 
   /**
    * @brief The column to place the keyframe controls in
@@ -148,6 +150,8 @@ private slots:
   void ArrayInsertClicked();
 
   void ArrayRemoveClicked();
+
+  void ToggleArrayExpanded();
 
 };
 

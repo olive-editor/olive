@@ -124,21 +124,19 @@ void FootagePropertiesDialog::accept() {
     }
   }
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   if (footage_->name() != footage_name_field_->text()) {
-    new FootageChangeCommand(footage_,
-                             footage_name_field_->text(),
-                             command);
+    command->add_child(new FootageChangeCommand(footage_,
+                                                footage_name_field_->text()));
   }
 
   for (int i=0;i<footage_->streams().size();i++) {
     bool stream_enabled = (track_list->item(i)->checkState() == Qt::Checked);
 
     if (footage_->stream(i)->enabled() != stream_enabled) {
-      new StreamEnableChangeCommand(footage_->stream(i),
-                                    stream_enabled,
-                                    command);
+      command->add_child(new StreamEnableChangeCommand(footage_->stream(i),
+                                                       stream_enabled));
     }
   }
 
@@ -151,8 +149,7 @@ void FootagePropertiesDialog::accept() {
   QDialog::accept();
 }
 
-FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name, QUndoCommand* command) :
-  UndoCommand(command),
+FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name) :
   footage_(footage),
   new_name_(name)
 {
@@ -163,20 +160,19 @@ Project *FootagePropertiesDialog::FootageChangeCommand::GetRelevantProject() con
   return footage_->project();
 }
 
-void FootagePropertiesDialog::FootageChangeCommand::redo_internal()
+void FootagePropertiesDialog::FootageChangeCommand::redo()
 {
   old_name_ = footage_->name();
 
   footage_->set_name(new_name_);
 }
 
-void FootagePropertiesDialog::FootageChangeCommand::undo_internal()
+void FootagePropertiesDialog::FootageChangeCommand::undo()
 {
   footage_->set_name(old_name_);
 }
 
-FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(Stream *stream, bool enabled, QUndoCommand *command) :
-  UndoCommand(command),
+FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(Stream *stream, bool enabled) :
   stream_(stream),
   old_enabled_(stream->enabled()),
   new_enabled_(enabled)
@@ -188,12 +184,12 @@ Project *FootagePropertiesDialog::StreamEnableChangeCommand::GetRelevantProject(
   return stream_->footage()->project();
 }
 
-void FootagePropertiesDialog::StreamEnableChangeCommand::redo_internal()
+void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
 {
   stream_->set_enabled(new_enabled_);
 }
 
-void FootagePropertiesDialog::StreamEnableChangeCommand::undo_internal()
+void FootagePropertiesDialog::StreamEnableChangeCommand::undo()
 {
   stream_->set_enabled(old_enabled_);
 }

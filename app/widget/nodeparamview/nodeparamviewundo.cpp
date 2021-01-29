@@ -25,8 +25,7 @@
 
 namespace olive {
 
-NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, int element, bool setting, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, int element, bool setting) :
   input_(input),
   setting_(setting),
   element_(element)
@@ -39,26 +38,24 @@ Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
   return input_->parent()->parent()->project();
 }
 
-void NodeParamSetKeyframingCommand::redo_internal()
+void NodeParamSetKeyframingCommand::redo()
 {
   input_->SetIsKeyframing(setting_, element_);
 }
 
-void NodeParamSetKeyframingCommand::undo_internal()
+void NodeParamSetKeyframingCommand::undo()
 {
   input_->SetIsKeyframing(!setting_, element_);
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value, QUndoCommand* parent) :
-  UndoCommand(parent),
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value) :
   key_(key),
   old_value_(key_->value()),
   new_value_(value)
 {
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant &new_value, const QVariant &old_value) :
   key_(key),
   old_value_(old_value),
   new_value_(new_value)
@@ -71,18 +68,17 @@ Project *NodeParamSetKeyframeValueCommand::GetRelevantProject() const
   return key_->parent()->parent()->parent()->project();
 }
 
-void NodeParamSetKeyframeValueCommand::redo_internal()
+void NodeParamSetKeyframeValueCommand::redo()
 {
   key_->set_value(new_value_);
 }
 
-void NodeParamSetKeyframeValueCommand::undo_internal()
+void NodeParamSetKeyframeValueCommand::undo()
 {
   key_->set_value(old_value_);
 }
 
-NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input, NodeKeyframe* keyframe, QUndoCommand* parent) :
-  UndoCommand(parent),
+NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input, NodeKeyframe* keyframe) :
   input_(input),
   keyframe_(keyframe)
 {
@@ -94,18 +90,17 @@ Project *NodeParamInsertKeyframeCommand::GetRelevantProject() const
   return input_->parent()->parent()->project();
 }
 
-void NodeParamInsertKeyframeCommand::redo_internal()
+void NodeParamInsertKeyframeCommand::redo()
 {
   keyframe_->setParent(input_);
 }
 
-void NodeParamInsertKeyframeCommand::undo_internal()
+void NodeParamInsertKeyframeCommand::undo()
 {
   keyframe_->setParent(&memory_manager_);
 }
 
-NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeKeyframe* keyframe, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeKeyframe* keyframe) :
   input_(keyframe->parent()),
   keyframe_(keyframe)
 {
@@ -116,27 +111,25 @@ Project *NodeParamRemoveKeyframeCommand::GetRelevantProject() const
   return input_->parent()->parent()->project();
 }
 
-void NodeParamRemoveKeyframeCommand::redo_internal()
+void NodeParamRemoveKeyframeCommand::redo()
 {
   // Removes from input
   keyframe_->setParent(&memory_manager_);
 }
 
-void NodeParamRemoveKeyframeCommand::undo_internal()
+void NodeParamRemoveKeyframeCommand::undo()
 {
   keyframe_->setParent(input_);
 }
 
-NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational &time, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational &time) :
   key_(key),
   old_time_(key->time()),
   new_time_(time)
 {
 }
 
-NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational &new_time, const rational &old_time, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* key, const rational &new_time, const rational &old_time) :
   key_(key),
   old_time_(old_time),
   new_time_(new_time)
@@ -148,18 +141,17 @@ Project *NodeParamSetKeyframeTimeCommand::GetRelevantProject() const
   return key_->parent()->parent()->parent()->project();
 }
 
-void NodeParamSetKeyframeTimeCommand::redo_internal()
+void NodeParamSetKeyframeTimeCommand::redo()
 {
   key_->set_time(new_time_);
 }
 
-void NodeParamSetKeyframeTimeCommand::undo_internal()
+void NodeParamSetKeyframeTimeCommand::undo()
 {
   key_->set_time(old_time_);
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &value, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &value) :
   input_(input),
   element_(element),
   track_(track),
@@ -168,8 +160,7 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
 {
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
-  UndoCommand(parent),
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &new_value, const QVariant &old_value) :
   input_(input),
   element_(element),
   track_(track),
@@ -183,14 +174,19 @@ Project *NodeParamSetStandardValueCommand::GetRelevantProject() const
   return input_->parent()->parent()->project();
 }
 
-void NodeParamSetStandardValueCommand::redo_internal()
+void NodeParamSetStandardValueCommand::redo()
 {
   input_->SetStandardValueOnTrack(new_value_, track_, element_);
 }
 
-void NodeParamSetStandardValueCommand::undo_internal()
+void NodeParamSetStandardValueCommand::undo()
 {
   input_->SetStandardValueOnTrack(old_value_, track_, element_);
+}
+
+Project *NodeParamArrayInsertCommand::GetRelevantProject() const
+{
+  return input_->parent()->parent()->project();
 }
 
 }

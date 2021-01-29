@@ -110,18 +110,17 @@ public:
   QModelIndex CreateIndexFromItem(Item* item, int column = 0);
 
   /**
-   * @brief A QUndoCommand for moving an item from one folder to another folder
+   * @brief An UndoCommand for moving an item from one folder to another folder
    */
   class MoveItemCommand : public UndoCommand {
   public:
-    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
+    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
+    virtual void redo() override;
 
-    virtual void undo_internal() override;
+    virtual void undo() override;
 
   private:
     ProjectViewModel* model_;
@@ -132,18 +131,17 @@ public:
   };
 
   /**
-   * @brief A QUndoCommand for renaming an item
+   * @brief An UndoCommand for renaming an item
    */
   class RenameItemCommand : public UndoCommand {
   public:
-    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
+    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
+    virtual void redo() override;
 
-    virtual void undo_internal() override;
+    virtual void undo() override;
 
   private:
     ProjectViewModel* model_;
@@ -153,18 +151,17 @@ public:
   };
 
   /**
-   * @brief A QUndoCommand for adding an item
+   * @brief An UndoCommand for adding an item
    */
   class AddItemCommand : public UndoCommand {
   public:
-    AddItemCommand(ProjectViewModel* model, Item* folder, Item *child, QUndoCommand* parent = nullptr);
+    AddItemCommand(ProjectViewModel* model, Item* folder, Item *child);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
+    virtual void redo() override;
 
-    virtual void undo_internal() override;
+    virtual void undo() override;
 
   private:
     ProjectViewModel* model_;
@@ -179,14 +176,13 @@ public:
    */
   class RemoveItemCommand : public UndoCommand {
   public:
-    RemoveItemCommand(ProjectViewModel* model, Item* item, QUndoCommand* parent = nullptr);
+    RemoveItemCommand(ProjectViewModel* model, Item* item);
 
     virtual Project* GetRelevantProject() const override;
 
-  protected:
-    virtual void redo_internal() override;
+    virtual void redo() override;
 
-    virtual void undo_internal() override;
+    virtual void undo() override;
 
   private:
     ProjectViewModel* model_;
@@ -240,8 +236,8 @@ private:
    * This function will emit a signal indicating that rows are moving, set `destination` as the new parent of `item`,
    * and then emit a signal that the row has finished moving.
    *
-   * It's not recommended to use this function directly in most cases since it does not create a QUndoCommand allowing
-   * the user to undo the move. Instead this function should primarily be called from QUndoCommands belonging to this
+   * It's not recommended to use this function directly in most cases since it does not create an UndoCommand allowing
+   * the user to undo the move. Instead this function should primarily be called from UndoCommands belonging to this
    * class (e.g. MoveItemCommand).
    */
   void MoveItemInternal(Item* item, Item* destination);

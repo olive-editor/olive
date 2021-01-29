@@ -21,31 +21,83 @@
 #ifndef UNDOCOMMAND_H
 #define UNDOCOMMAND_H
 
-#include <QUndoCommand>
+#include <list>
+#include <QString>
+#include <vector>
 
 #include "common/define.h"
-#include "node/graph.h"
 
 namespace olive {
 
 class Project;
 
-class UndoCommand : public QUndoCommand
+class UndoCommand
 {
 public:
-  UndoCommand(QUndoCommand* parent = nullptr);
+  UndoCommand() = default;
+
+  virtual ~UndoCommand(){}
+
+  DISABLE_COPY_MOVE(UndoCommand)
+
+  virtual void redo() = 0;
+  virtual void undo() = 0;
+
+  void redo_and_set_modified();
+
+  void undo_and_set_modified();
+
+  virtual Project* GetRelevantProject() const = 0;
+
+  const QString& name() const
+  {
+    return name_;
+  }
+
+  void set_name(const QString& name)
+  {
+    name_ = name;
+  }
+
+private:
+  bool modified_;
+
+  QString name_;
+
+  Project* project_;
+
+};
+
+class MultiUndoCommand : public UndoCommand
+{
+public:
+  MultiUndoCommand() = default;
 
   virtual void redo() override;
   virtual void undo() override;
 
-  virtual Project* GetRelevantProject() const = 0;
+  virtual Project* GetRelevantProject() const override
+  {
+    return nullptr;
+  }
 
-protected:
-  virtual void redo_internal();
-  virtual void undo_internal();
+  void add_child(UndoCommand* command)
+  {
+    children_.push_back(command);
+  }
+
+  int child_count() const
+  {
+    return children_.size();
+  }
+
+  UndoCommand* child(int i) const
+  {
+    return children_[i];
+  }
 
 private:
-  bool modified_;
+  std::vector<UndoCommand*> children_;
 
 };
 

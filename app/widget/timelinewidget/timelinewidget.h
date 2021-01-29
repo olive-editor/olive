@@ -104,7 +104,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, QUndoCommand* command);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -136,7 +136,7 @@ public:
     return ghost_items_;
   }
 
-  void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
+  void InsertGapsAt(const rational& time, const rational& length, MultiUndoCommand *command);
 
   void StartRubberBandSelect(const QPoint& global_cursor_start);
   void MoveRubberBandSelect(bool enable_selecting, bool select_links);
@@ -197,17 +197,15 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
-  class SetSelectionsCommand : public QUndoCommand {
+  class SetSelectionsCommand : public UndoCommand {
   public:
-    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, QUndoCommand* parent = nullptr) :
-      QUndoCommand(parent),
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old) :
       timeline_(timeline),
       old_(old),
       now_(now)
     {
     }
 
-  protected:
     virtual void redo() override
     {
       timeline_->SetSelections(now_);
@@ -217,6 +215,8 @@ public:
     {
       timeline_->SetSelections(old_);
     }
+
+    virtual Project* GetRelevantProject() const override {return nullptr;}
 
   private:
     TimelineWidget* timeline_;

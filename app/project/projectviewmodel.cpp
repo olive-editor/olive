@@ -330,9 +330,9 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     quint64 enabled_streams;
 
     // Loop through all data
-    QUndoCommand* move_command = new QUndoCommand();
+    MultiUndoCommand* move_command = new MultiUndoCommand();
 
-    move_command->setText(tr("Move Items"));
+    move_command->set_name(tr("Move Items"));
 
     while (!stream.atEnd()) {
       stream >> enabled_streams >> r >> item_ptr;
@@ -343,9 +343,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
       // no-op
 
       if (item != drop_location && item->parent() != drop_location && !ItemIsParentOfChild(item, drop_location)) {
-        MoveItemCommand* mic = new MoveItemCommand(this, item, static_cast<Folder*>(drop_location), move_command);
-
-        Q_UNUSED(mic)
+        move_command->add_child(new MoveItemCommand(this, item, static_cast<Folder*>(drop_location)));
       }
     }
 
@@ -499,16 +497,14 @@ QModelIndex ProjectViewModel::CreateIndexFromItem(Item *item, int column)
 
 ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
                                                    Item *item,
-                                                   Folder *destination,
-                                                   QUndoCommand *parent) :
-  UndoCommand(parent),
+                                                   Folder *destination) :
   model_(model),
   item_(item),
   destination_(destination)
 {
   source_ = static_cast<Folder*>(item->parent());
 
-  setText(QCoreApplication::translate("MoveItemCommand", "Move Item"));
+  set_name(QCoreApplication::translate("MoveItemCommand", "Move Item"));
 }
 
 Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
@@ -516,25 +512,24 @@ Project *ProjectViewModel::MoveItemCommand::GetRelevantProject() const
   return model_->project();
 }
 
-void ProjectViewModel::MoveItemCommand::redo_internal()
+void ProjectViewModel::MoveItemCommand::redo()
 {
   model_->MoveItemInternal(item_, destination_);
 }
 
-void ProjectViewModel::MoveItemCommand::undo_internal()
+void ProjectViewModel::MoveItemCommand::undo()
 {
   model_->MoveItemInternal(item_, source_);
 }
 
-ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, Item *item, const QString &name, QUndoCommand *parent) :
-  UndoCommand(parent),
+ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, Item *item, const QString &name) :
   model_(model),
   item_(item),
   new_name_(name)
 {
   old_name_ = item->name();
 
-  setText(QCoreApplication::translate("RenameItemCommand", "Rename Item"));
+  set_name(QCoreApplication::translate("RenameItemCommand", "Rename Item"));
 }
 
 Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const
@@ -542,18 +537,17 @@ Project *ProjectViewModel::RenameItemCommand::GetRelevantProject() const
   return model_->project();
 }
 
-void ProjectViewModel::RenameItemCommand::redo_internal()
+void ProjectViewModel::RenameItemCommand::redo()
 {
   model_->RenameChild(item_, new_name_);
 }
 
-void ProjectViewModel::RenameItemCommand::undo_internal()
+void ProjectViewModel::RenameItemCommand::undo()
 {
   model_->RenameChild(item_, old_name_);
 }
 
-ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent) :
-  UndoCommand(parent),
+ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child) :
   model_(model),
   parent_(folder),
   child_(child)
@@ -571,18 +565,17 @@ Project *ProjectViewModel::AddItemCommand::GetRelevantProject() const
   return model_->project();
 }
 
-void ProjectViewModel::AddItemCommand::redo_internal()
+void ProjectViewModel::AddItemCommand::redo()
 {
   model_->AddChild(parent_, child_);
 }
 
-void ProjectViewModel::AddItemCommand::undo_internal()
+void ProjectViewModel::AddItemCommand::undo()
 {
   model_->RemoveChild(parent_, child_, &memory_manager_);
 }
 
-ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, Item *item, QUndoCommand *parent) :
-  UndoCommand(parent),
+ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, Item *item) :
   model_(model),
   item_(item)
 {
@@ -599,12 +592,12 @@ Project *ProjectViewModel::RemoveItemCommand::GetRelevantProject() const
   return model_->project();
 }
 
-void ProjectViewModel::RemoveItemCommand::redo_internal()
+void ProjectViewModel::RemoveItemCommand::redo()
 {
   model_->RemoveChild(parent_, item_, &memory_manager_);
 }
 
-void ProjectViewModel::RemoveItemCommand::undo_internal()
+void ProjectViewModel::RemoveItemCommand::undo()
 {
   model_->AddChild(parent_, item_);
 }

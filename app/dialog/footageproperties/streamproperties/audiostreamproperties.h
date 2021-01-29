@@ -31,7 +31,7 @@ class AudioStreamProperties : public StreamProperties
 public:
   AudioStreamProperties(AudioStream* stream);
 
-  virtual void Accept(QUndoCommand* parent) override;
+  virtual void Accept(MultiUndoCommand* parent) override;
 
 private:
   AudioStream* stream_;

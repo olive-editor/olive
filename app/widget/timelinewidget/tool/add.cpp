@@ -91,7 +91,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {
-      QUndoCommand* command = new QUndoCommand();
+      MultiUndoCommand* command = new MultiUndoCommand();
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->GetAdjustedLength());
@@ -99,15 +99,13 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
-      new NodeAddCommand(graph,
-                         clip,
-                         command);
+      command->add_child(new NodeAddCommand(graph,
+                                            clip));
 
-      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
-                                 track.index(),
-                                 clip,
-                                 ghost_->GetAdjustedIn(),
-                                 command);
+      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
+                                                    track.index(),
+                                                    clip,
+                                                    ghost_->GetAdjustedIn()));
 
       switch (Core::instance()->GetSelectedAddableObject()) {
       case olive::Tool::kAddableEmpty:
@@ -117,22 +115,20 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       {
         Node* solid = new SolidGenerator();
 
-        new NodeAddCommand(graph,
-                           solid,
-                           command);
+        command->add_child(new NodeAddCommand(graph,
+                                              solid));
 
-        new NodeEdgeAddCommand(solid, clip->texture_input(), -1, command);
+        command->add_child(new NodeEdgeAddCommand(solid, clip->texture_input(), -1));
         break;
       }
       case olive::Tool::kAddableTitle:
       {
         Node* text = new TextGenerator();
 
-        new NodeAddCommand(graph,
-                           text,
-                           command);
+        command->add_child(new NodeAddCommand(graph,
+                                              text));
 
-        new NodeEdgeAddCommand(text, clip->texture_input(), -1, command);
+        command->add_child(new NodeEdgeAddCommand(text, clip->texture_input(), -1));
         break;
       }
       case olive::Tool::kAddableBars:

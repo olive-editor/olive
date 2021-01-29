@@ -75,10 +75,10 @@ MainMenu::MainMenu(MainWindow *parent) :
   //
   edit_menu_ = new Menu(this);
 
-  edit_undo_item_ = Core::instance()->undo_stack()->createUndoAction(this);
+  edit_undo_item_ = Core::instance()->undo_stack()->GetUndoAction();
   Menu::ConformItem(edit_undo_item_, "undo", "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
-  edit_redo_item_ = Core::instance()->undo_stack()->createRedoAction(this);
+  edit_redo_item_ = Core::instance()->undo_stack()->GetRedoAction();
   Menu::ConformItem(edit_redo_item_, "redo", "Ctrl+Shift+Z");
   edit_menu_->addAction(edit_redo_item_);
 

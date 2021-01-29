@@ -65,6 +65,7 @@ public:
 
   virtual ~NodeKeyframe() override;
 
+  NodeKeyframe* copy(int element, QObject* parent = nullptr) const;
   NodeKeyframe* copy(QObject* parent = nullptr) const;
 
   NodeInput* parent() const;

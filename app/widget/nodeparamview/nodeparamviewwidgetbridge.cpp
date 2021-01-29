@@ -70,6 +70,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   if (input_->IsArray() && element_ == -1) {
 
     NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(input_);
+    connect(w, &NodeParamViewArrayWidget::DoubleClicked, this, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked);
     widgets_.append(w);
 
   } else {
@@ -190,14 +191,14 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
 void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   SetInputValueInternal(value, track, command);
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, QUndoCommand *command)
+void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
@@ -205,7 +206,7 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
     NodeKeyframe* existing_key = input_->GetKeyframeAtTimeOnTrack(node_time, track, element_);
 
     if (existing_key) {
-      new NodeParamSetKeyframeValueCommand(existing_key, value, command);
+      command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
       NodeKeyframe* new_key = new NodeKeyframe(node_time,
@@ -214,10 +215,10 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
                                                track,
                                                element_);
 
-      new NodeParamInsertKeyframeCommand(input_, new_key, command);
+      command->add_child(new NodeParamInsertKeyframeCommand(input_, new_key));
     }
   } else {
-    new NodeParamSetStandardValueCommand(input_, track, element_, value, command);
+    command->add_child(new NodeParamSetStandardValueCommand(input_, track, element_, value));
   }
 }
 
@@ -231,12 +232,10 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
     // While we're dragging, we block the input's normal signalling and create our own
     if (!dragger_.IsStarted()) {
-      dragger_.Start(input_, node_time, slider_track);
+      dragger_.Start(input_, node_time, slider_track, element_);
     }
 
     dragger_.Drag(value);
-
-    //input_->parentNode()->InvalidateVisible(input_, input_);
 
   } else if (dragger_.IsStarted()) {
 
@@ -245,8 +244,10 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
     dragger_.End();
 
   } else {
+
     // No drag was involved, we can just push the value
     SetInputValue(value, slider_track);
+
   }
 }
 
@@ -321,7 +322,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Sender is a ColorButton
     ManagedColor c = static_cast<ColorButton*>(sender())->GetColor();
 
-    QUndoCommand* command = new QUndoCommand();
+    MultiUndoCommand* command = new MultiUndoCommand();
 
     SetInputValueInternal(c.red(), 0, command);
     SetInputValueInternal(c.green(), 1, command);
@@ -394,7 +395,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 
 void NodeParamViewWidgetBridge::UpdateWidgetValues()
 {
-  if (input_->IsArray()) {
+  if (input_->IsArray() && element_ == -1) {
     return;
   }
 
@@ -428,7 +429,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kVec2:
   {
-    QVector2D vec2 = input_->GetValueAtTime(node_time, -1).value<QVector2D>();
+    QVector2D vec2 = input_->GetValueAtTime(node_time, element_).value<QVector2D>();
     QVector2D offset = input_->property("offset").value<QVector2D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x() + offset.x()));
@@ -510,9 +511,11 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   return GetAdjustedTime(GetTimeTarget(), input_->parent(), time_, true);
 }
 
-void NodeParamViewWidgetBridge::InputValueChanged(const TimeRange &range)
+void NodeParamViewWidgetBridge::InputValueChanged(const TimeRange &range, int element)
 {
-  if (!dragger_.IsStarted() && range.in() <= time_ && range.out() >= time_) {
+  if (element == element_
+      && !dragger_.IsStarted()
+      && range.in() <= time_ && range.out() >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
     UpdateWidgetValues();
   }

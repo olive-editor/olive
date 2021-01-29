@@ -139,9 +139,7 @@ void SequenceDialog::accept()
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
                                                            const VideoParams& video_params,
                                                            const AudioParams &audio_params,
-                                                           const QString& name,
-                                                           QUndoCommand* parent) :
-  UndoCommand(parent),
+                                                           const QString& name) :
   sequence_(s),
   new_video_params_(video_params),
   new_audio_params_(audio_params),
@@ -157,14 +155,14 @@ Project *SequenceDialog::SequenceParamCommand::GetRelevantProject() const
   return sequence_->project();
 }
 
-void SequenceDialog::SequenceParamCommand::redo_internal()
+void SequenceDialog::SequenceParamCommand::redo()
 {
   sequence_->set_video_params(new_video_params_);
   sequence_->set_audio_params(new_audio_params_);
   sequence_->set_name(new_name_);
 }
 
-void SequenceDialog::SequenceParamCommand::undo_internal()
+void SequenceDialog::SequenceParamCommand::undo()
 {
   sequence_->set_video_params(old_video_params_);
   sequence_->set_audio_params(old_audio_params_);
