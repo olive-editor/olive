@@ -60,13 +60,11 @@ void TrackList::TrackConnected(Node *node, int element)
 
   // Determine where in the cache this block will be
   int cache_index = -1;
-  Track* next = nullptr;
   for (int i=element+1; i<track_input_->ArraySize(); i++) {
     // Find next track because this will be the index we insert at
     cache_index = GetCacheIndexFromArrayIndex(i);
 
     if (cache_index >= 0) {
-      next = track_cache_.at(cache_index);
       break;
     }
   }
