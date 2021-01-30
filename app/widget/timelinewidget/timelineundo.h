@@ -1356,12 +1356,13 @@ private:
 class TimelineAddTrackCommand : public UndoCommand {
 public:
   TimelineAddTrackCommand(TrackList *timeline) :
-    timeline_(timeline)
+    timeline_(timeline),
+    direct_(nullptr)
   {
     track_ = new Track();
     track_->setParent(&memory_manager_);
 
-    if (Config::Current()[QStringLiteral("AutoMergeTracks")].toBool()) {
+    if (timeline->GetTrackCount() > 0 && Config::Current()[QStringLiteral("AutoMergeTracks")].toBool()) {
       if (timeline_->type() == Track::kVideo) {
         MergeNode* merge = new MergeNode();
         base_ = merge->base_in();
@@ -1377,6 +1378,11 @@ public:
     } else {
       merge_ = nullptr;
     }
+  }
+
+  Track* track() const
+  {
+    return track_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -1409,6 +1415,21 @@ public:
       // Connect this as the "blend" track
       Node::ConnectEdge(track_, blend_);
       Node::ConnectEdge(last_track, base_);
+    } else if (timeline_->GetTrackCount() == 1) {
+      // If this was the first track we added,
+      NodeInput* relevant_input;
+
+      if (timeline_->type() == Track::kVideo) {
+        relevant_input = timeline_->parent()->texture_input();
+      } else {
+        relevant_input = timeline_->parent()->samples_input();
+      }
+
+      if (!relevant_input->IsConnected()) {
+        Node::ConnectEdge(track_, relevant_input);
+
+        direct_ = relevant_input;
+      }
     }
   }
 
@@ -1429,6 +1450,8 @@ public:
       }
 
       merge_->setParent(&memory_manager_);
+    } else if (direct_) {
+      Node::DisconnectEdge(track_, direct_);
     }
 
     // Remove track
@@ -1444,6 +1467,8 @@ private:
   Node* merge_;
   NodeInput* base_;
   NodeInput* blend_;
+
+  NodeInput* direct_;
 
   QObject memory_manager_;
 

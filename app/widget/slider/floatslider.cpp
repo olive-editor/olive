@@ -20,6 +20,7 @@
 
 #include "floatslider.h"
 
+#include <cmath>
 #include <QAudio>
 #include <QDebug>
 

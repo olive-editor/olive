@@ -41,7 +41,7 @@ protected:
 private:
   opentimelineio::v1_0::Timeline* SerializeTimeline(Sequence* sequence);
 
-  opentimelineio::v1_0::Track* SerializeTrack(TrackOutput* track);
+  opentimelineio::v1_0::Track* SerializeTrack(Track* track);
 
   bool SerializeTrackList(TrackList* list, opentimelineio::v1_0::Timeline *otio_timeline);
 

@@ -32,6 +32,7 @@
 #include "node/input/media/media.h"
 #include "project/item/folder/folder.h"
 #include "project/item/sequence/sequence.h"
+#include "widget/timelinewidget/timelineundo.h"
 
 #define OTIO opentimelineio::v1_0
 
@@ -92,23 +93,21 @@ bool LoadOTIOTask::Run()
       auto otio_track = static_cast<OTIO::Track*>(c.value);
 
       // Create a new track
-      TrackOutput* track = nullptr;
+      Track* track = nullptr;
 
       // Determine what kind of track it is
-      if (otio_track->kind() == "Video") {
-        track = seq_viewer->track_list(Timeline::kTrackTypeVideo)->AddTrack();
+      if (otio_track->kind() == "Video" || otio_track->kind() == "Audio") {
+        Track::Type type;
 
-        if (seq_viewer->track_list(Timeline::kTrackTypeVideo)->GetTrackCount() == 1) {
-          // If this is the first track, connect it to the viewer
-          NodeParam::ConnectEdge(track->output(), seq_viewer->texture_input());
+        if (otio_track->kind() == "Video") {
+          type = Track::kVideo;
+        } else {
+          type = Track::kAudio;
         }
-      } else if (otio_track->kind() == "Audio") {
-        track = seq_viewer->track_list(Timeline::kTrackTypeAudio)->AddTrack();
 
-        if (seq_viewer->track_list(Timeline::kTrackTypeAudio)->GetTrackCount() == 1) {
-          // If this is the first track, connect it to the viewer
-          NodeParam::ConnectEdge(track->output(), seq_viewer->samples_input());
-        }
+        TimelineAddTrackCommand t(seq_viewer->track_list(type));
+        t.redo();
+        track = t.track();
       } else {
         qWarning() << "Found unknown track type:" << otio_track->kind().c_str();
         continue;
@@ -150,7 +149,7 @@ bool LoadOTIOTask::Run()
 
         block->set_media_in(start_time);
         block->set_length_and_media_out(duration);
-        sequence->AddNode(block);
+        block->setParent(sequence);
         track->AppendBlock(block);
 
         if (otio_block->schema_name() == "Clip") {
@@ -172,14 +171,14 @@ bool LoadOTIOTask::Run()
 
             if (probed_item && probed_item->type() == Item::kFootage) {
               MediaInput* media = new MediaInput();
-              if (track->track_type() == Timeline::kTrackTypeVideo) {
+              if (track->type() == Track::kVideo) {
                 media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kVideo));
               } else {
                 media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kAudio));
               }
-              sequence->AddNode(media);
+              media->setParent(sequence);
 
-              NodeParam::ConnectEdge(media->output(), static_cast<ClipBlock*>(block)->texture_input());
+              Node::ConnectEdge(media, static_cast<ClipBlock*>(block)->texture_input());
             } else {
               // FIXME: Add to some kind of list that we couldn't find it
             }

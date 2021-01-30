@@ -95,8 +95,8 @@ opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequen
 {
   auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->name().toStdString());
 
-  if (!SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeVideo), otio_timeline)
-      || !SerializeTrackList(sequence->viewer_output()->track_list(Timeline::kTrackTypeAudio), otio_timeline)) {
+  if (!SerializeTrackList(sequence->viewer_output()->track_list(Track::kVideo), otio_timeline)
+      || !SerializeTrackList(sequence->viewer_output()->track_list(Track::kAudio), otio_timeline)) {
     otio_timeline->possibly_delete();
     return nullptr;
   }
@@ -104,21 +104,21 @@ opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequen
   return otio_timeline;
 }
 
-opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(TrackOutput *track)
+opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(Track *track)
 {
   auto otio_track = new opentimelineio::v1_0::Track();
 
   opentimelineio::v1_0::ErrorStatus es;
 
-  switch (track->track_type()) {
-  case Timeline::kTrackTypeVideo:
+  switch (track->type()) {
+  case Track::kVideo:
     otio_track->set_kind("Video");
     break;
-  case Timeline::kTrackTypeAudio:
+  case Track::kAudio:
     otio_track->set_kind("Audio");
     break;
   default:
-    qWarning() << "Don't know OTIO track kind for native type" << track->track_type();
+    qWarning() << "Don't know OTIO track kind for native type" << track->type();
     goto fail;
   }
 
@@ -188,7 +188,7 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, opentimelineio::v1_0::Tim
 {
   opentimelineio::v1_0::ErrorStatus es;
 
-  foreach (TrackOutput* track, list->GetTracks()) {
+  foreach (Track* track, list->GetTracks()) {
     auto otio_track = SerializeTrack(track);
 
     if (!otio_track) {
