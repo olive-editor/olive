@@ -22,10 +22,11 @@
 
 namespace olive {
 
+const QString ClipBlock::kBufferIn = QStringLiteral("buffer_in");
+
 ClipBlock::ClipBlock()
 {
-  texture_input_ = new NodeInput(this, QStringLiteral("buffer_in"), NodeValue::kNone);
-  texture_input_->SetKeyframable(false);
+  AddInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 }
 
 Node *ClipBlock::copy() const
@@ -53,15 +54,12 @@ QString ClipBlock::Description() const
   return tr("A time-based node that represents a media source.");
 }
 
-NodeInput *ClipBlock::texture_input() const
+void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element)
 {
-  return texture_input_;
-}
+  Q_UNUSED(element)
 
-void ClipBlock::InvalidateCache(const TimeRange& range, const InputConnection& from)
-{
   // If signal is from texture input, transform all times from media time to sequence time
-  if (from.input == texture_input_) {
+  if (from == kBufferIn) {
     // Adjust range from media time to sequence time
     rational start = MediaToSequenceTime(range.in());
     rational end = MediaToSequenceTime(range.out());
@@ -73,32 +71,34 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const InputConnection& f
   }
 }
 
-TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
 {
   Q_UNUSED(element)
 
-  if (input == texture_input_) {
+  if (input == kBufferIn) {
     return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
   return Block::InputTimeAdjustment(input, element, input_time);
 }
 
-TimeRange ClipBlock::OutputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
 {
   Q_UNUSED(element)
 
-  if (input == texture_input_) {
+  if (input == kBufferIn) {
     return TimeRange(MediaToSequenceTime(input_time.in()), MediaToSequenceTime(input_time.out()));
   }
 
   return Block::OutputTimeAdjustment(input, element, input_time);
 }
 
-NodeValueTable ClipBlock::Value(NodeValueDatabase &value) const
+NodeValueTable ClipBlock::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   // We discard most values here except for the buffer we received
-  NodeValue data = value[texture_input()].GetWithMeta(NodeValue::kBuffer);
+  NodeValue data = value[kBufferIn].GetWithMeta(NodeValue::kBuffer);
 
   NodeValueTable table;
   if (data.type() != NodeValue::kNone) {
@@ -111,15 +111,15 @@ void ClipBlock::Retranslate()
 {
   Block::Retranslate();
 
-  texture_input_->set_name(tr("Buffer"));
+  SetInputName(kBufferIn, tr("Buffer"));
 }
 
 void ClipBlock::Hash(QCryptographicHash &hash, const rational &time) const
 {
-  if (texture_input_->IsConnected()) {
-    rational t = InputTimeAdjustment(texture_input_, -1, TimeRange(time, time)).in();
+  if (IsInputConnected(kBufferIn)) {
+    rational t = InputTimeAdjustment(kBufferIn, -1, TimeRange(time, time)).in();
 
-    texture_input_->GetConnectedNode()->Hash(hash, t);
+    GetConnectedNode(kBufferIn)->Hash(hash, t);
   }
 }
 

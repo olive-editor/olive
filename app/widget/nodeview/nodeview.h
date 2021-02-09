@@ -107,12 +107,12 @@ private:
   QList<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
-  NodeInput* drop_input_;
+  NodeInput drop_input_;
 
   NodeViewEdge* create_edge_;
   NodeViewItem* create_edge_src_;
   NodeViewItem* create_edge_dst_;
-  NodeInput* create_edge_dst_input_;
+  NodeInput create_edge_dst_input_;
   bool create_edge_dst_temp_expanded_;
 
   NodeViewScene scene_;

@@ -187,8 +187,8 @@ void NodeViewItem::SetNode(Node *n)
   if (node_) {
     node_->Retranslate();
 
-    foreach (NodeInput* input, node_->parameters()) {
-      if (input->IsConnectable()) {
+    foreach (const QString& input, node_->inputs()) {
+      if (node_->IsInputConnectable(input)) {
         node_inputs_.append(input);
       }
     }
@@ -258,7 +258,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->fillRect(input_rect, highlight_col);
       }
 
-      painter->drawText(input_rect, Qt::AlignCenter, node_inputs_.at(i)->name());
+      painter->drawText(input_rect, Qt::AlignCenter, node_->GetInputName(node_inputs_.at(i)));
     }
   }
 
@@ -430,17 +430,12 @@ QRectF NodeViewItem::GetInputRect(int index) const
   return r;
 }
 
-QPointF NodeViewItem::GetInputPoint(NodeInput *input, const QPointF& source_pos) const
+QPointF NodeViewItem::GetInputPoint(const QString &input, int element, const QPointF& source_pos) const
 {
-  return GetInputPoint(node_inputs_.indexOf(input), source_pos);
+  return pos() + GetInputPointInternal(node_inputs_.indexOf(input), source_pos);
 }
 
-QPointF NodeViewItem::GetInputPoint(int input, const QPointF &source_pos) const
-{
-  return pos() + GetInputPointInternal(input, source_pos);
-}
-
-QPointF NodeViewItem::GetOutputPoint() const
+QPointF NodeViewItem::GetOutputPoint(const QString& output) const
 {
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:

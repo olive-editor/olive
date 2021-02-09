@@ -30,31 +30,23 @@ enum TextVerticalAlign {
   kVerticalAlignBottom,
 };
 
+const QString TextGenerator::kTextInput = QStringLiteral("text_in");
+const QString TextGenerator::kColorInput = QStringLiteral("color_in");
+const QString TextGenerator::kVAlignInput = QStringLiteral("valign_in");
+const QString TextGenerator::kFontInput = QStringLiteral("font_in");
+const QString TextGenerator::kFontSizeInput = QStringLiteral("font_size_in");
+
 TextGenerator::TextGenerator()
 {
-  text_input_ = new NodeInput(this,
-                              QStringLiteral("text_in"),
-                              NodeValue::kText,
-                              tr("Sample Text"));
+  AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
 
-  color_input_ = new NodeInput(this,
-                               QStringLiteral("color_in"),
-                               NodeValue::kColor,
-                               QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
 
-  valign_input_ = new NodeInput(this,
-                                QStringLiteral("valign_in"),
-                                NodeValue::kCombo,
-                                1);
+  AddInput(kVAlignInput, NodeValue::kCombo, 1);
 
-  font_input_ = new NodeInput(this,
-                              QStringLiteral("font_in"),
-                              NodeValue::kFont);
+  AddInput(kFontInput, NodeValue::kFont);
 
-  font_size_input_ = new NodeInput(this,
-                                   QStringLiteral("font_size_in"),
-                                   NodeValue::kFloat,
-                                   72.0f);
+  AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
 }
 
 Node *TextGenerator::copy() const
@@ -84,27 +76,29 @@ QString TextGenerator::Description() const
 
 void TextGenerator::Retranslate()
 {
-  text_input_->set_name(tr("Text"));
-  font_input_->set_name(tr("Font"));
-  font_size_input_->set_name(tr("Font Size"));
-  color_input_->set_name(tr("Color"));
-  valign_input_->set_name(tr("Vertical Align"));
-  valign_input_->set_combobox_strings({tr("Top"), tr("Center"), tr("Bottom")});
+  SetInputName(kTextInput, tr("Text"));
+  SetInputName(kFontInput, tr("Font"));
+  SetInputName(kFontSizeInput, tr("Font Size"));
+  SetInputName(kColorInput, tr("Color"));
+  SetInputName(kVAlignInput, tr("Vertical Align"));
+  SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-NodeValueTable TextGenerator::Value(NodeValueDatabase &value) const
+NodeValueTable TextGenerator::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   GenerateJob job;
-  job.InsertValue(text_input_, value);
-  job.InsertValue(color_input_, value);
-  job.InsertValue(valign_input_, value);
-  job.InsertValue(font_input_, value);
-  job.InsertValue(font_size_input_, value);
+  job.InsertValue(this, kTextInput, value);
+  job.InsertValue(this, kColorInput, value);
+  job.InsertValue(this, kVAlignInput, value);
+  job.InsertValue(this, kFontInput, value);
+  job.InsertValue(this, kFontSizeInput, value);
   job.SetAlphaChannelRequired(true);
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(text_input_).data().toString().isEmpty()) {
+  if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
     table.Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
   }
 
@@ -124,14 +118,14 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
 
   // Set default font
   QFont default_font;
-  default_font.setFamily(job.GetValue(font_input_).data().toString());
-  default_font.setPointSizeF(job.GetValue(font_size_input_).data().toFloat());
+  default_font.setFamily(job.GetValue(kFontInput).data().toString());
+  default_font.setPointSizeF(job.GetValue(kFontSizeInput).data().toFloat());
   text_doc.setDefaultFont(default_font);
 
   // Center by default
   text_doc.setDefaultTextOption(QTextOption(Qt::AlignCenter));
 
-  text_doc.setHtml(job.GetValue(text_input_).data().toString());
+  text_doc.setHtml(job.GetValue(kTextInput).data().toString());
 
   // Align to 80% width because that's considered the "title safe" area
   int tenth_of_width = frame->video_params().width() / 10;
@@ -144,7 +138,7 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // Push 10% inwards to compensate for title safe area
   p.translate(tenth_of_width, 0);
 
-  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(valign_input_).data().toInt());
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(kVAlignInput).data().toInt());
   int doc_height = text_doc.size().height();
 
   switch (valign) {
@@ -165,7 +159,7 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   text_doc.drawContents(&p);
 
   // Transplant alpha channel to frame
-  Color rgb = job.GetValue(color_input_).data().value<Color>();
+  Color rgb = job.GetValue(kColorInput).data().value<Color>();
   for (int x=0; x<frame->width(); x++) {
     for (int y=0; y<frame->height(); y++) {
       uchar src_alpha = img.bits()[img.bytesPerLine() * y + x];

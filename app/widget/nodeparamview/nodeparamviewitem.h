@@ -81,7 +81,7 @@ public:
 
   void Retranslate();
 
-  int GetElementY(NodeConnectable::InputConnection c) const;
+  int GetElementY(NodeInput c) const;
 
 signals:
   void RequestSetTime(const rational& time);
@@ -91,9 +91,9 @@ signals:
   void ArrayExpandedChanged(bool e);
 
 private:
-  void CreateWidgets(QGridLayout *layout, NodeInput* input, int element, int row_index);
+  void CreateWidgets(QGridLayout *layout, Node* node, const QString& input, int element, int row_index);
 
-  void UpdateUIForEdgeConnection(NodeInput* input, int element);
+  void UpdateUIForEdgeConnection(const NodeInput &input);
 
   struct InputUI {
     InputUI();
@@ -107,7 +107,7 @@ private:
     NodeParamViewArrayButton* array_remove_btn;
   };
 
-  QHash<Node::InputConnection, InputUI> input_ui_map_;
+  QHash<NodeInput, InputUI> input_ui_map_;
 
   struct ArrayUI {
     QWidget* widget;
@@ -115,9 +115,9 @@ private:
     NodeParamViewArrayButton* append_btn;
   };
 
-  QHash<NodeInput*, ArrayUI> array_ui_;
+  QHash<NodeInputPair, ArrayUI> array_ui_;
 
-  QHash<NodeInput*, CollapseButton*> array_collapse_buttons_;
+  QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
 
   /**
    * @brief The column to place the keyframe controls in
@@ -131,11 +131,11 @@ private:
   static const int kArrayRemoveColumn;
 
 private slots:
-  void EdgeChanged(Node *src, int element);
+  void EdgeChanged(const NodeOutput &output, const NodeInput &input);
 
   void ArrayCollapseBtnPressed(bool checked);
 
-  void InputArraySizeChanged(int size);
+  void InputArraySizeChanged(const QString &input, int size);
 
   void ArrayAppendClicked();
 
@@ -168,7 +168,7 @@ public:
     update();
   }
 
-  int GetElementY(const Node::InputConnection& c) const;
+  int GetElementY(const NodeInput& c) const;
 
 public slots:
   void SetExpanded(bool e);

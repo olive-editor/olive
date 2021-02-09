@@ -21,7 +21,9 @@
 #ifndef NODEPARAMVIEWUNDO_H
 #define NODEPARAMVIEWUNDO_H
 
-#include "node/input.h"
+#include "node/keyframe.h"
+#include "node/node.h"
+#include "node/param.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -29,7 +31,7 @@ namespace olive {
 class NodeParamSetKeyframingCommand : public UndoCommand
 {
 public:
-  NodeParamSetKeyframingCommand(NodeInput* input, int element, bool setting);
+  NodeParamSetKeyframingCommand(const NodeInput& input, bool setting);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -37,16 +39,15 @@ public:
   virtual void undo() override;
 
 private:
-  NodeInput* input_;
+  NodeInput input_;
   bool setting_;
-  int element_;
 
 };
 
 class NodeParamInsertKeyframeCommand : public UndoCommand
 {
 public:
-  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframe* keyframe);
+  NodeParamInsertKeyframeCommand(Node *node, NodeKeyframe* keyframe);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -54,7 +55,7 @@ public:
   virtual void undo() override;
 
 private:
-  NodeInput* input_;
+  Node* input_;
 
   NodeKeyframe* keyframe_;
 
@@ -73,7 +74,7 @@ public:
   virtual void undo() override;
 
 private:
-  NodeInput* input_;
+  Node* input_;
 
   NodeKeyframe* keyframe_;
 
@@ -122,8 +123,8 @@ private:
 class NodeParamSetStandardValueCommand : public UndoCommand
 {
 public:
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, int element, const QVariant& value);
-  NodeParamSetStandardValueCommand(NodeInput* input, int track, int element, const QVariant& new_value, const QVariant& old_value);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& value);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& new_value, const QVariant& old_value);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -131,9 +132,7 @@ public:
   virtual void undo() override;
 
 private:
-  NodeInput* input_;
-  int element_;
-  int track_;
+  NodeKeyframeTrackReference ref_;
 
   QVariant old_value_;
   QVariant new_value_;
@@ -143,7 +142,7 @@ private:
 class NodeParamArrayInsertCommand : public UndoCommand
 {
 public:
-  NodeParamArrayInsertCommand(NodeInput* input, int index) :
+  NodeParamArrayInsertCommand(const NodeInput& input, int index) :
     input_(input),
     index_(index)
   {
@@ -153,16 +152,16 @@ public:
 
   virtual void redo() override
   {
-    input_->ArrayInsert(index_);
+    input_.node()->InputArrayInsert(input_.input(), index_);
   }
 
   virtual void undo() override
   {
-    input_->ArrayRemove(index_);
+    input_.node()->InputArrayRemove(input_.input(), index_);
   }
 
 private:
-  NodeInput* input_;
+  NodeInput input_;
   int index_;
 
 };

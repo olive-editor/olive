@@ -29,7 +29,7 @@
 
 namespace olive {
 
-ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInput *param_a_in, olive::NodeInput *param_b_in) const
+ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const QString& param_a_in, const QString& param_b_in) const
 {
   QStringList code_id = shader_id.split('.');
 
@@ -43,11 +43,11 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
   if (pairing == kPairTextureMatrix && op == kOpMultiply) {
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
-    NodeInput* tex_in = (type_a == NodeValue::kTexture) ? param_a_in : param_b_in;
-    NodeInput* mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
+    const QString& tex_in = (type_a == NodeValue::kTexture) ? param_a_in : param_b_in;
+    const QString& mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
 
     // No-op frag shader (can we return QString() instead?)
-    operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in->id());
+    operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in);
 
     vert = QStringLiteral("uniform mat4 %1;\n"
                           "\n"
@@ -59,7 +59,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
                           "void main() {\n"
                           "    gl_Position = %1 * a_position;\n"
                           "    ove_texcoord = a_texcoord;\n"
-                          "}\n").arg(mat_in->id());
+                          "}\n").arg(mat_in);
 
   } else {
     switch (op) {
@@ -89,8 +89,8 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
       break;
     }
 
-    operation = operation.arg(GetShaderVariableCall(param_a_in->id(), type_a),
-                              GetShaderVariableCall(param_b_in->id(), type_b));
+    operation = operation.arg(GetShaderVariableCall(param_a_in, type_a),
+                              GetShaderVariableCall(param_b_in, type_b));
   }
 
   frag = QStringLiteral("uniform %1 %3;\n"
@@ -104,8 +104,8 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, NodeInp
                         "    fragColor = %5;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
-                                   param_a_in->id(),
-                                   param_b_in->id(),
+                                   param_a_in,
+                                   param_b_in,
                                    operation);
 
   return ShaderCode(frag, vert);
@@ -165,7 +165,7 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   }
 }
 
-NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation operation, Pairing pairing, NodeInput *param_a_in, const NodeValue& val_a, NodeInput *param_b_in, const NodeValue& val_b) const
+NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b) const
 {
   NodeValueTable output = value.Merge();
 
@@ -342,7 +342,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
   {
     // Queue a sample job
     const NodeValue& number_val = val_a.type() == NodeValue::kSamples ? val_b : val_a;
-    NodeInput* number_param = val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in;
+    const QString& number_param = val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in;
 
     float number = RetrieveNumber(number_val);
 
@@ -350,7 +350,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
     job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
 
     if (job.HasSamples()) {
-      if (number_param->IsStatic()) {
+      if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
             for (int j=0;j<job.samples()->sample_count();j++) {
@@ -375,7 +375,7 @@ NodeValueTable MathNodeBase::ValueInternal(NodeValueDatabase &value, Operation o
   return output;
 }
 
-void MathNodeBase::ProcessSamplesInternal(NodeValueDatabase &values, MathNodeBase::Operation operation, NodeInput *param_a_in, NodeInput *param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNodeBase::ProcessSamplesInternal(NodeValueDatabase &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   // This function is only used for sample+number pairing
   NodeValue number_val = values[param_a_in].GetWithMeta(NodeValue::kNumber);

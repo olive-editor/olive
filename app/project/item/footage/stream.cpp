@@ -67,7 +67,7 @@ Stream *Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("ptr")) {
-      xml_node_data.footage_ptrs.insert(reader->readElementText().toULongLong(), stream);
+      //xml_node_data.footage_ptrs.insert(reader->readElementText().toULongLong(), stream);
     } else if (reader->name() == QStringLiteral("index")) {
       stream->set_index(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("timebase")) {

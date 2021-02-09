@@ -87,8 +87,7 @@ void NodeTableView::SetTime(const rational &time)
     for (l=db.begin(); l!=db.end(); l++) {
       const NodeValueTable& table = l.value();
 
-      NodeInput* input = node->GetInputWithID(l.key());
-      if (!input) {
+      if (!node->HasInputWithID(l.key())) {
         // Filters out table entries that aren't inputs (like "global")
         continue;
       }
@@ -98,7 +97,7 @@ void NodeTableView::SetTime(const rational &time)
       for (int j=0; j<item->childCount(); j++) {
         QTreeWidgetItem* compare = item->child(j);
 
-        if (compare->data(0, Qt::UserRole).toString() == input->id()) {
+        if (compare->data(0, Qt::UserRole).toString() == l.key()) {
           input_item = compare;
           break;
         }
@@ -106,8 +105,8 @@ void NodeTableView::SetTime(const rational &time)
 
       if (!input_item) {
         input_item = new QTreeWidgetItem();
-        input_item->setText(0, input->name());
-        input_item->setData(0, Qt::UserRole, input->id());
+        input_item->setText(0, node->GetInputName(l.key()));
+        input_item->setData(0, Qt::UserRole, l.key());
         input_item->setFirstColumnSpanned(true);
         item->addChild(input_item);
       }
@@ -151,7 +150,7 @@ void NodeTableView::SetTime(const rational &time)
         }
         default:
         {
-          QVector<QVariant> split_values = NodeValue::split_normal_value_into_track_values(input->GetDataType(), value.data());
+          QVector<QVariant> split_values = NodeValue::split_normal_value_into_track_values(node->GetInputDataType(l.key()), value.data());
           for (int k=0;k<split_values.size();k++) {
             sub_item->setText(2 + k, NodeValue::ValueToString(value.type(), split_values.at(k), true));
           }

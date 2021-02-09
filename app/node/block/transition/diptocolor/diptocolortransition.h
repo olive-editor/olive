@@ -40,11 +40,10 @@ public:
 
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
 
+  static const QString kColorInput;
+
 protected:
   virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const override;
-
-private:
-  NodeInput* color_input_;
 
 };
 

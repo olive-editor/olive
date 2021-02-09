@@ -118,7 +118,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeAddCommand(graph,
                                               solid));
 
-        command->add_child(new NodeEdgeAddCommand(solid, clip->texture_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(solid, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
       case olive::Tool::kAddableTitle:
@@ -128,7 +128,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeAddCommand(graph,
                                               text));
 
-        command->add_child(new NodeEdgeAddCommand(text, clip->texture_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(text, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
       case olive::Tool::kAddableBars:

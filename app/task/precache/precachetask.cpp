@@ -34,7 +34,7 @@ PreCacheTask::PreCacheTask(VideoStream *footage, Sequence* sequence) :
   video_node_ = new MediaInput();
   video_node_->SetStream(footage);
 
-  Node::ConnectEdge(video_node_, viewer()->texture_input());
+  Node::ConnectEdge(video_node_, NodeInput(viewer(), ViewerOutput::kTextureInput));
 
   SetTitle(tr("Pre-caching %1:%2").arg(footage->footage()->filename(),
                                        QString::number(footage->index())));

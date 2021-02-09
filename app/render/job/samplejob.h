@@ -38,7 +38,7 @@ public:
     samples_ = value.data().value<SampleBufferPtr>();
   }
 
-  SampleJob(NodeInput* from, NodeValueDatabase& db)
+  SampleJob(const QString& from, NodeValueDatabase& db)
   {
     samples_ = db[from].Take(NodeValue::kSamples).value<SampleBufferPtr>();
   }

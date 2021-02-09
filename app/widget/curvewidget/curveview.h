@@ -38,15 +38,15 @@ public:
 
   virtual void Clear() override;
 
-  void ConnectInput(NodeInput* input, int element, int track);
+  void ConnectInput(const NodeKeyframeTrackReference &ref);
 
-  void DisconnectInput(NodeInput* input, int element, int track);
+  void DisconnectInput(const NodeKeyframeTrackReference &ref);
 
-  void SelectKeyframesOfInput(NodeInput* input, int element, int track);
+  void SelectKeyframesOfInput(const NodeKeyframeTrackReference &ref);
 
-  void ZoomToFitInput(NodeInput* input, int element, int track);
+  void ZoomToFitInput(const NodeKeyframeTrackReference &ref);
 
-  void SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference& ref, const QColor& color);
+  void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
 public slots:
   virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
@@ -84,7 +84,7 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
-  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
+  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
   int text_padding_;
 
@@ -94,7 +94,7 @@ private:
 
   QVector<BezierControlPointItem*> bezier_control_points_;
 
-  QVector<NodeInput::KeyframeTrackReference> connected_inputs_;
+  QVector<NodeKeyframeTrackReference> connected_inputs_;
 
 private slots:
   void KeyframeValueChanged();

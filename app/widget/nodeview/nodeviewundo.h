@@ -34,7 +34,7 @@ namespace olive {
  */
 class NodeEdgeRemoveCommand : public UndoCommand {
 public:
-  NodeEdgeRemoveCommand(Node* output, NodeInput* input, int element);
+  NodeEdgeRemoveCommand(const NodeOutput& output, const NodeInput& input);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -42,9 +42,8 @@ public:
   virtual void undo() override;
 
 private:
-  Node* output_;
-  NodeInput* input_;
-  int element_;
+  NodeOutput output_;
+  NodeInput input_;
 
 };
 
@@ -55,7 +54,7 @@ private:
  */
 class NodeEdgeAddCommand : public UndoCommand {
 public:
-  NodeEdgeAddCommand(Node* output, NodeInput* input, int element);
+  NodeEdgeAddCommand(const NodeOutput& output, const NodeInput& input);
 
   virtual ~NodeEdgeAddCommand() override;
 
@@ -65,9 +64,8 @@ public:
   virtual void undo() override;
 
 private:
-  Node* output_;
-  NodeInput* input_;
-  int element_;
+  NodeOutput output_;
+  NodeInput input_;
 
   NodeEdgeRemoveCommand* remove_command_;
 

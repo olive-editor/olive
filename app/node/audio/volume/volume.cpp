@@ -24,14 +24,16 @@
 
 namespace olive {
 
+const QString VolumeNode::kSamplesInput = QStringLiteral("samples_in");
+const QString VolumeNode::kVolumeInput = QStringLiteral("volume_in");
+
 VolumeNode::VolumeNode()
 {
-  samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
-  samples_input_->SetKeyframable(false);
+  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
 
-  volume_input_ = new NodeInput(this, QStringLiteral("volume_in"), NodeValue::kFloat, 1.0);
-  volume_input_->setProperty("min", 0.0);
-  volume_input_->setProperty("view", FloatSlider::kDecibel);
+  AddInput(kVolumeInput, NodeValue::kFloat, 1.0);
+  SetInputProperty(kVolumeInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kVolumeInput, QStringLiteral("view"), FloatSlider::kDecibel);
 }
 
 Node *VolumeNode::copy() const
@@ -59,26 +61,28 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-NodeValueTable VolumeNode::Value(NodeValueDatabase &value) const
+NodeValueTable VolumeNode::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   return ValueInternal(value,
                        kOpMultiply,
                        kPairSampleNumber,
-                       samples_input_,
-                       value[samples_input_].TakeWithMeta(NodeValue::kSamples),
-                       volume_input_,
-                       value[volume_input_].TakeWithMeta(NodeValue::kFloat));
+                       kSamplesInput,
+                       value[kSamplesInput].TakeWithMeta(NodeValue::kSamples),
+                       kVolumeInput,
+                       value[kVolumeInput].TakeWithMeta(NodeValue::kFloat));
 }
 
 void VolumeNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  return ProcessSamplesInternal(values, kOpMultiply, samples_input_, volume_input_, input, output, index);
+  return ProcessSamplesInternal(values, kOpMultiply, kSamplesInput, kVolumeInput, input, output, index);
 }
 
 void VolumeNode::Retranslate()
 {
-  samples_input_->set_name(tr("Samples"));
-  volume_input_->set_name(tr("Volume"));
+  SetInputName(kSamplesInput, tr("Samples"));
+  SetInputName(kVolumeInput, tr("Volume"));
 }
 
 }

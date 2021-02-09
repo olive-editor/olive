@@ -220,6 +220,8 @@ QString FFmpegDecoder::id()
 
 Footage *FFmpegDecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
 {
+  Q_UNUSED(cancelled)
+
   // Variable for receiving errors from FFmpeg
   int error_code;
 

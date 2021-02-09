@@ -27,7 +27,6 @@
 #include <QWidget>
 
 #include "curveview.h"
-#include "node/input.h"
 #include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/nodetreeview/nodetreeview.h"
@@ -81,9 +80,9 @@ private:
 
   void ConnectNode(Node* node, bool connect);
 
-  void ConnectInput(NodeInput* input, bool connect);
+  void ConnectInput(Node* node, const QString& input, bool connect);
 
-  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
+  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
   NodeTreeView* tree_view_;
 
@@ -108,15 +107,15 @@ private slots:
 
   void NodeEnabledChanged(Node* n, bool e);
 
-  void InputEnabledChanged(NodeInput* i, int element, int track, bool e);
+  void InputEnabledChanged(const NodeKeyframeTrackReference &ref, bool e);
 
   void AddKeyframe(NodeKeyframe* key);
 
   void RemoveKeyframe(NodeKeyframe* key);
 
-  void InputSelectionChanged(NodeInput* input, int element, int track);
+  void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
 
-  void InputDoubleClicked(NodeInput* input, int element, int track);
+  void InputDoubleClicked(const NodeKeyframeTrackReference& ref);
 
   void KeyframeViewDragged(int x, int y);
 

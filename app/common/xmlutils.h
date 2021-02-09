@@ -23,6 +23,7 @@
 
 #include <QXmlStreamReader>
 
+#include "node/param.h"
 #include "project/item/footage/stream.h"
 #include "undo/undocommand.h"
 
@@ -38,15 +39,9 @@ class NodeInput;
 
 struct XMLNodeData {
   struct SerializedConnection {
-    NodeInput* input;
-    int element;
-    quintptr output;
-  };
-
-  struct FootageConnection {
-    NodeInput* input;
-    int element;
-    quintptr footage;
+    NodeInput input;
+    quintptr output_node;
+    QString output;
   };
 
   struct BlockLink {
@@ -56,8 +51,6 @@ struct XMLNodeData {
 
   QHash<quintptr, Node*> node_ptrs;
   QList<SerializedConnection> desired_connections;
-  QHash<quintptr, Stream*> footage_ptrs;
-  QList<FootageConnection> footage_connections;
   QList<BlockLink> block_links;
   QHash<quintptr, Item*> item_ptrs;
 

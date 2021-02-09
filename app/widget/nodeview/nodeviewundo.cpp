@@ -25,10 +25,9 @@
 
 namespace olive {
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, NodeInput *input, int element) :
+NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
   input_(input),
-  element_(element),
   remove_command_(nullptr)
 {
 }
@@ -40,22 +39,20 @@ NodeEdgeAddCommand::~NodeEdgeAddCommand()
 
 void NodeEdgeAddCommand::redo()
 {
-  if (input_->IsConnected(element_)) {
+  if (input_.IsConnected()) {
     if (!remove_command_) {
-      remove_command_ = new NodeEdgeRemoveCommand(input_->GetConnectedNode(element_),
-                                                  input_,
-                                                  element_);
+      remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
     }
 
     remove_command_->redo();
   }
 
-  Node::ConnectEdge(output_, input_, element_);
+  Node::ConnectEdge(output_, input_);
 }
 
 void NodeEdgeAddCommand::undo()
 {
-  Node::DisconnectEdge(output_, input_, element_);
+  Node::DisconnectEdge(output_, input_);
 
   if (remove_command_) {
     remove_command_->undo();
@@ -64,29 +61,28 @@ void NodeEdgeAddCommand::undo()
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
 {
-  return output_->parent()->project();
+  return output_.node()->parent()->project();
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(Node *output, NodeInput *input, int element) :
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
-  input_(input),
-  element_(element)
+  input_(input)
 {
 }
 
 void NodeEdgeRemoveCommand::redo()
 {
-  Node::DisconnectEdge(output_, input_, element_);
+  Node::DisconnectEdge(output_, input_);
 }
 
 void NodeEdgeRemoveCommand::undo()
 {
-  Node::ConnectEdge(output_, input_, element_);
+  Node::ConnectEdge(output_, input_);
 }
 
 Project *NodeEdgeRemoveCommand::GetRelevantProject() const
 {
-  return output_->parent()->project();
+  return output_.node()->parent()->project();
 }
 
 NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
@@ -134,14 +130,12 @@ void NodeRemoveAndDisconnectCommand::prep()
   }
 
   // Disconnect everything
-  foreach (const Node::InputConnection& conn, node_->edges()) {
-    command_->add_child(new NodeEdgeRemoveCommand(node_, conn.input, conn.element));
+  for (auto it=node_->input_connections().cbegin(); it!=node_->input_connections().cend(); it++) {
+    command_->add_child(new NodeEdgeRemoveCommand(it->second, it->first));
   }
 
-  foreach (NodeInput* input, node_->inputs()) {
-    for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-      command_->add_child(new NodeEdgeRemoveCommand(it->second, input, it->first));
-    }
+  for (const Node::OutputConnection& conn : node_->output_connections()) {
+    command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
 }
 

@@ -63,59 +63,51 @@ void CurveView::Clear()
   lines_.clear();
 }
 
-void CurveView::ConnectInput(NodeInput *input, int element, int track)
+void CurveView::ConnectInput(const NodeKeyframeTrackReference& ref)
 {
-  NodeInput::KeyframeTrackReference ref = {input, element, track};
-
   if (connected_inputs_.contains(ref)) {
     // Input wasn't connected, do nothing
     return;
   }
 
   // Add keyframes from track
-  AddKeyframesOfTrack(input, element, track);
+  AddKeyframesOfTrack(ref);
 
   // Append to the list
   connected_inputs_.append(ref);
 }
 
-void CurveView::DisconnectInput(NodeInput *input, int element, int track)
+void CurveView::DisconnectInput(const NodeKeyframeTrackReference& ref)
 {
-  NodeInput::KeyframeTrackReference ref = {input, element, track};
-
   if (!connected_inputs_.contains(ref)) {
     // Input wasn't connected, do nothing
     return;
   }
 
   // Remove keyframes belonging to this element and track
-  RemoveKeyframesOfTrack(input, element, track);
+  RemoveKeyframesOfTrack(ref);
 
   // Remove from the list
   connected_inputs_.removeOne(ref);
 }
 
-void CurveView::SelectKeyframesOfInput(NodeInput *input, int element, int track)
+void CurveView::SelectKeyframesOfInput(const NodeKeyframeTrackReference& ref)
 {
   DeselectAll();
 
   for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
-    if (it.key()->parent() == input
-        && it.key()->element() == element
-        && it.key()->track() == track) {
+    if (it.key()->key_track_ref() == ref) {
       it.value()->setSelected(true);
     }
   }
 }
 
-void CurveView::ZoomToFitInput(NodeInput *input, int element, int track)
+void CurveView::ZoomToFitInput(const NodeKeyframeTrackReference& ref)
 {
   QList<NodeKeyframe*> keys;
 
   for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
-    if (it.key()->parent() == input
-        && it.key()->element() == element
-        && it.key()->track() == track) {
+    if (it.key()->key_track_ref() == ref) {
       keys.append(it.key());
     }
   }
@@ -123,14 +115,14 @@ void CurveView::ZoomToFitInput(NodeInput *input, int element, int track)
   ZoomToFitInternal(keys);
 }
 
-void CurveView::SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference &ref, const QColor &color)
+void CurveView::SetKeyframeTrackColor(const NodeKeyframeTrackReference &ref, const QColor &color)
 {
   // Insert color into hashmap
   keyframe_colors_.insert(ref, color);
 
   // Update all keyframes
   for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
-    if (it.key()->parent() == ref.input && it.key()->element() == ref.element && it.key()->track() == ref.track) {
+    if (it.key()->key_track_ref() == ref) {
       it.value()->SetOverrideBrush(color);
     }
   }
@@ -187,13 +179,14 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   painter->drawLines(lines);
 
   // Draw keyframe lines
-  foreach (const NodeInput::KeyframeTrackReference& ref, connected_inputs_) {
-    NodeInput* input = ref.input;
+  foreach (const NodeKeyframeTrackReference& ref, connected_inputs_) {
+    Node* node = ref.input().node();
+    const QString& input = ref.input().input();
 
-    if (input->IsKeyframing(ref.element)) {
-      const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(ref.element);
+    if (node->IsInputKeyframing(input, ref.input().element())) {
+      const QVector<NodeKeyframeTrack>& tracks = node->GetKeyframeTracks(ref.input());
 
-      const NodeKeyframeTrack& track = tracks.at(ref.track);
+      const NodeKeyframeTrack& track = tracks.at(ref.track());
 
       if (!track.isEmpty()) {
         painter->setPen(QPen(keyframe_colors_.value(ref),
@@ -348,7 +341,7 @@ void CurveView::ZoomToFitInternal(const QList<NodeKeyframe *> &keys)
   double max_val = DBL_MIN;
 
   foreach (NodeKeyframe* key, keys) {
-    rational transformed_time = GetAdjustedTime(key->parent()->parent(),
+    rational transformed_time = GetAdjustedTime(key->parent(),
                                                 GetTimeTarget(),
                                                 key->time(),
                                                 false);
@@ -480,7 +473,7 @@ KeyframeViewItem* CurveView::AddKeyframe(NodeKeyframe* key)
 {
   KeyframeViewItem* item = super::AddKeyframe(key);
   SetItemYFromKeyframeValue(key, item);
-  item->SetOverrideBrush(keyframe_colors_.value({key->parent(), key->element(), key->track()}));
+  item->SetOverrideBrush(keyframe_colors_.value(key->key_track_ref()));
 
   connect(key, &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
   connect(key, &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);

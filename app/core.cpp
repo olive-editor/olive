@@ -892,6 +892,8 @@ QString Core::GetProjectFilter(bool include_any_filter)
   if (include_any_filter) {
     filters.append(QStringLiteral("All Supported Projects (*.ove *.otio);;"));
   }
+#else
+  Q_UNUSED(include_any_filter)
 #endif
 
   // Append standard filter

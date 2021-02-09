@@ -41,20 +41,14 @@ public:
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
-private:
-  NodeInput* texture_input_;
-
-  NodeInput* method_input_;
-
-  NodeInput* radius_input_;
-
-  NodeInput* horiz_input_;
-
-  NodeInput* vert_input_;
-
-  NodeInput* repeat_edge_pixels_input_;
+  static const QString kTextureInput;
+  static const QString kMethodInput;
+  static const QString kRadiusInput;
+  static const QString kHorizInput;
+  static const QString kVertInput;
+  static const QString kRepeatEdgePixelsInput;
 
 };
 

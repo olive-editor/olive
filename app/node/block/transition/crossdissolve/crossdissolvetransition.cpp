@@ -61,6 +61,8 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const QString &shader_id) cons
 
 void CrossDissolveTransition::ShaderJobEvent(NodeValueDatabase &value, ShaderJob &job) const
 {
+  Q_UNUSED(value)
+
   job.SetAlphaChannelRequired(true);
 }
 

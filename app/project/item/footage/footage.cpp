@@ -44,6 +44,8 @@ Footage::~Footage()
 
 void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
 {
+  Q_UNUSED(version)
+
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;

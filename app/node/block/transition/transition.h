@@ -33,9 +33,6 @@ public:
 
   virtual Type type() const override;
 
-  NodeInput* out_block_input() const;
-  NodeInput* in_block_input() const;
-
   virtual void Retranslate() override;
 
   rational in_offset() const;
@@ -50,7 +47,11 @@ public:
 
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
+
+  static const QString kOutBlockInput;
+  static const QString kInBlockInput;
+  static const QString kCurveInput;
 
 protected:
   virtual void ShaderJobEvent(NodeValueDatabase &value, ShaderJob& job) const;
@@ -58,6 +59,10 @@ protected:
   virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const;
 
   double TransformCurve(double linear) const;
+
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
 
 private:
   enum CurveType {
@@ -70,24 +75,9 @@ private:
 
   void InsertTransitionTimes(AcceleratedJob* job, const double& time) const;
 
-  NodeInput* out_block_input_;
-
-  NodeInput* in_block_input_;
-
-  NodeInput* curve_input_;
-
   Block* connected_out_block_;
 
   Block* connected_in_block_;
-
-private slots:
-  void OutBlockConnected(Node* node);
-
-  void OutBlockDisconnected();
-
-  void InBlockConnected(Node* node);
-
-  void InBlockDisconnected();
 
 };
 

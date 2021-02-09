@@ -41,10 +41,10 @@ public:
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
-  NodeInput* base_in() const;
-  NodeInput* blend_in() const;
+  static const QString kBaseIn;
+  static const QString kBlendIn;
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 

@@ -291,12 +291,8 @@ void NodeParamView::AddNode(Node *n)
   item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
   item->SetExpanded(node_expanded_state_.value(n, true));
 
-  foreach (NodeInput* input, n->inputs()) {
-    if (input->IsKeyframable()) {
-      connect(input, &NodeInput::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-      connect(input, &NodeInput::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-    }
-  }
+  connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+  connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
@@ -326,12 +322,8 @@ void NodeParamView::RemoveNode(Node *n)
 {
   keyframe_view_->RemoveKeyframesOfNode(n);
 
-  foreach (NodeInput* input, n->inputs()) {
-    if (input->IsKeyframable()) {
-      disconnect(input, &NodeInput::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-      disconnect(input, &NodeInput::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-    }
-  }
+  disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+  disconnect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
 
   delete items_.take(n);
 
@@ -414,9 +406,12 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 void NodeParamView::UpdateElementY()
 {
   for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
-    foreach (NodeInput* input, it.key()->inputs()) {
-      for (int i=-1; i<input->ArraySize(); i++) {
-        Node::InputConnection ic = {input, i};
+    foreach (const QString& input, it.key()->inputs()) {
+      int arr_sz = it.key()->InputArraySize(input);
+
+      for (int i=-1; i<arr_sz; i++) {
+        NodeInput ic = {it.key(), input, i};
+
         int y = it.value()->GetElementY(ic);
         keyframe_view_->SetElementY(ic, y);
       }

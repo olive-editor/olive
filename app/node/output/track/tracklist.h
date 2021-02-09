@@ -35,7 +35,7 @@ class TrackList : public QObject
 {
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const Track::Type& type, NodeInput* track_input);
+  TrackList(ViewerOutput *parent, const Track::Type& type, const QString& track_input);
 
   const Track::Type& type() const
   {
@@ -61,12 +61,26 @@ public:
 
   NodeGraph* GetParentGraph() const;
 
-  NodeInput* track_input() const
-  {
-    return track_input_;
-  }
+  const QString &track_input() const;
+  NodeInput track_input(int element) const;
 
   ViewerOutput* parent() const;
+
+  int ArraySize() const;
+
+  void ArrayAppend(bool undoable = false);
+  void ArrayRemoveLast(bool undoable = false);
+
+public slots:
+  /**
+   * @brief Slot for when the track connection is added
+   */
+  void TrackConnected(Node* node, int element);
+
+  /**
+   * @brief Slot for when the track connection is removed
+   */
+  void TrackDisconnected(Node* node, int element);
 
 signals:
   void TrackListChanged();
@@ -96,23 +110,13 @@ private:
     return track_array_indexes_.indexOf(index);
   }
 
-  NodeInput* track_input_;
+  QString track_input_;
 
   rational total_length_;
 
   enum Track::Type type_;
 
 private slots:
-  /**
-   * @brief Slot for when the track connection is added
-   */
-  void TrackConnected(Node* node, int element);
-
-  /**
-   * @brief Slot for when the track connection is removed
-   */
-  void TrackDisconnected(Node* node, int element);
-
   /**
    * @brief Slot for when any of the track's length changes so we can update the length of the tracklist
    */

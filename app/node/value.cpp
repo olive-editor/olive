@@ -20,13 +20,13 @@
 
 #include "value.h"
 
+#include <QCoreApplication>
 #include <QMatrix4x4>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
 
 #include "common/tohex.h"
-#include "node/input.h"
 #include "render/color.h"
 
 namespace olive {
@@ -309,26 +309,6 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
   }
 
   return QCoreApplication::translate("NodeValue",  "Unknown");
-}
-
-NodeValueTable &NodeValueDatabase::operator[](const NodeInput *input)
-{
-  return tables_[input->id()];
-}
-
-void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value)
-{
-  tables_.insert(key->id(), value);
-}
-
-NodeValueTable NodeValueDatabase::Merge() const
-{
-  QHash<QString, NodeValueTable> copy = tables_;
-
-  // Kinda hacky, but we don't need this table to slipstream
-  copy.remove(QStringLiteral("global"));
-
-  return NodeValueTable::Merge(copy.values());
 }
 
 NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, const QString &tag) const

@@ -65,7 +65,7 @@ void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cac
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->texture_input()->GetConnectedNode(), viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->video_params(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -256,13 +256,13 @@ void PreviewAutoCacher::ProcessUpdateQueue()
       RemoveNode(job.node);
       break;
     case QueuedJob::kEdgeAdded:
-      AddEdge(job.node, job.input, job.element);
+      AddEdge(job.output, job.input);
       break;
     case QueuedJob::kEdgeRemoved:
-      RemoveEdge(job.node, job.input, job.element);
+      RemoveEdge(job.output, job.input);
       break;
     case QueuedJob::kValueChanged:
-      CopyValue(job.input, job.element);
+      CopyValue(job.input);
       break;
     case QueuedJob::kVideoParamsChanged:
       UpdateVideoParams();
@@ -305,26 +305,26 @@ void PreviewAutoCacher::RemoveNode(Node *node)
   delete copy;
 }
 
-void PreviewAutoCacher::AddEdge(Node *output, NodeInput *input, int element)
+void PreviewAutoCacher::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  Node* our_output = copy_map_.value(output);
-  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
+  Node* our_output = copy_map_.value(output.node());
+  Node* our_input = copy_map_.value(input.node());
 
-  Node::ConnectEdge(our_output, our_input, element);
+  Node::ConnectEdge(NodeOutput(our_output, output.output()), NodeInput(our_input, input.input(), input.element()));
 }
 
-void PreviewAutoCacher::RemoveEdge(Node *output, NodeInput *input, int element)
+void PreviewAutoCacher::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
-  Node* our_output = copy_map_.value(output);
-  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
+  Node* our_output = copy_map_.value(output.node());
+  Node* our_input = copy_map_.value(input.node());
 
-  Node::DisconnectEdge(our_output, our_input, element);
+  Node::DisconnectEdge(NodeOutput(our_output, output.output()), NodeInput(our_input, input.input(), input.element()));
 }
 
-void PreviewAutoCacher::CopyValue(NodeInput *input, int element)
+void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
-  NodeInput* our_input = copy_map_.value(input->parent())->GetInputWithID(input->id());
-  NodeInput::CopyValuesOfElement(input, our_input, element);
+  Node* our_input = copy_map_.value(input.node());
+  Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
 }
 
 void PreviewAutoCacher::UpdateVideoParams()
@@ -423,27 +423,27 @@ void PreviewAutoCacher::ClearVideoDownloadQueue(bool wait)
 
 void PreviewAutoCacher::NodeAdded(Node *node)
 {
-  graph_update_queue_.append({QueuedJob::kNodeAdded, node, nullptr, -1});
+  graph_update_queue_.append({QueuedJob::kNodeAdded, node, NodeInput(), NodeOutput()});
 }
 
 void PreviewAutoCacher::NodeRemoved(Node *node)
 {
-  graph_update_queue_.append({QueuedJob::kNodeRemoved, node, nullptr, -1});
+  graph_update_queue_.append({QueuedJob::kNodeRemoved, node, NodeInput(), NodeOutput()});
 }
 
-void PreviewAutoCacher::EdgeAdded(Node *output, NodeInput *input, int element)
+void PreviewAutoCacher::EdgeAdded(const NodeOutput &output, const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeAdded, output, input, element});
+  graph_update_queue_.append({QueuedJob::kEdgeAdded, nullptr, input, output});
 }
 
-void PreviewAutoCacher::EdgeRemoved(Node *output, NodeInput *input, int element)
+void PreviewAutoCacher::EdgeRemoved(const NodeOutput &output, const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeRemoved, output, input, element});
+  graph_update_queue_.append({QueuedJob::kEdgeRemoved, nullptr, input, output});
 }
 
-void PreviewAutoCacher::ValueChanged(NodeInput *input, int element)
+void PreviewAutoCacher::ValueChanged(const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, element});
+  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, NodeOutput()});
 }
 
 void PreviewAutoCacher::VideoParamsChanged()
@@ -451,14 +451,14 @@ void PreviewAutoCacher::VideoParamsChanged()
   // In case the user is pressing the mouse at this exact moment
   IgnoreNextMouseButton();
 
-  graph_update_queue_.append({QueuedJob::kVideoParamsChanged, nullptr, nullptr, -1});
+  graph_update_queue_.append({QueuedJob::kVideoParamsChanged, nullptr, NodeInput(), NodeOutput()});
   ClearVideoQueue();
   TryRender();
 }
 
 void PreviewAutoCacher::AudioParamsChanged()
 {
-  graph_update_queue_.append({QueuedJob::kAudioParamsChanged, nullptr, nullptr, -1});
+  graph_update_queue_.append({QueuedJob::kAudioParamsChanged, nullptr, NodeInput(), NodeOutput()});
   ClearAudioQueue();
   TryRender();
 }
@@ -677,10 +677,8 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Add all connections
     foreach (Node* node, graph->nodes()) {
-      foreach (NodeInput* input, node->inputs()) {
-        for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-          AddEdge(it->second, input, it->first);
-        }
+      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+        AddEdge(it->second, it->first);
       }
     }
 

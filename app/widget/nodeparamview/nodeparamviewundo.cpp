@@ -25,27 +25,26 @@
 
 namespace olive {
 
-NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(NodeInput *input, int element, bool setting) :
+NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(const NodeInput &input, bool setting) :
   input_(input),
-  setting_(setting),
-  element_(element)
+  setting_(setting)
 {
-  Q_ASSERT(setting != input_->IsKeyframing());
+  Q_ASSERT(setting != input_.IsKeyframing());
 }
 
 Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
 {
-  return input_->parent()->parent()->project();
+  return input_.node()->parent()->project();
 }
 
 void NodeParamSetKeyframingCommand::redo()
 {
-  input_->SetIsKeyframing(setting_, element_);
+  input_.node()->SetInputIsKeyframing(input_, setting_);
 }
 
 void NodeParamSetKeyframingCommand::undo()
 {
-  input_->SetIsKeyframing(!setting_, element_);
+  input_.node()->SetInputIsKeyframing(input_, !setting_);
 }
 
 NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value) :
@@ -65,7 +64,7 @@ NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe*
 
 Project *NodeParamSetKeyframeValueCommand::GetRelevantProject() const
 {
-  return key_->parent()->parent()->parent()->project();
+  return key_->parent()->parent()->project();
 }
 
 void NodeParamSetKeyframeValueCommand::redo()
@@ -78,16 +77,17 @@ void NodeParamSetKeyframeValueCommand::undo()
   key_->set_value(old_value_);
 }
 
-NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input, NodeKeyframe* keyframe) :
-  input_(input),
+NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(Node* node, NodeKeyframe* keyframe) :
+  input_(node),
   keyframe_(keyframe)
 {
-  keyframe_->setParent(&memory_manager_);
+  // Take ownership of the keyframe
+  undo();
 }
 
 Project *NodeParamInsertKeyframeCommand::GetRelevantProject() const
 {
-  return input_->parent()->parent()->project();
+  return input_->parent()->project();
 }
 
 void NodeParamInsertKeyframeCommand::redo()
@@ -108,7 +108,7 @@ NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeKeyframe* key
 
 Project *NodeParamRemoveKeyframeCommand::GetRelevantProject() const
 {
-  return input_->parent()->parent()->project();
+  return input_->parent()->project();
 }
 
 void NodeParamRemoveKeyframeCommand::redo()
@@ -138,7 +138,7 @@ NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* k
 
 Project *NodeParamSetKeyframeTimeCommand::GetRelevantProject() const
 {
-  return key_->parent()->parent()->parent()->project();
+  return key_->parent()->parent()->project();
 }
 
 void NodeParamSetKeyframeTimeCommand::redo()
@@ -151,19 +151,15 @@ void NodeParamSetKeyframeTimeCommand::undo()
   key_->set_time(old_time_);
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &value) :
-  input_(input),
-  element_(element),
-  track_(track),
-  old_value_(input_->GetStandardValue(element_)),
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &value) :
+  ref_(input),
+  old_value_(ref_.input().node()->GetStandardValue(ref_.input())),
   new_value_(value)
 {
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, int element, const QVariant &new_value, const QVariant &old_value) :
-  input_(input),
-  element_(element),
-  track_(track),
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &new_value, const QVariant &old_value) :
+  ref_(input),
   old_value_(old_value),
   new_value_(new_value)
 {
@@ -171,22 +167,22 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
 
 Project *NodeParamSetStandardValueCommand::GetRelevantProject() const
 {
-  return input_->parent()->parent()->project();
+  return ref_.input().node()->parent()->project();
 }
 
 void NodeParamSetStandardValueCommand::redo()
 {
-  input_->SetStandardValueOnTrack(new_value_, track_, element_);
+  ref_.input().node()->SetSplitStandardValueOnTrack(ref_, new_value_);
 }
 
 void NodeParamSetStandardValueCommand::undo()
 {
-  input_->SetStandardValueOnTrack(old_value_, track_, element_);
+  ref_.input().node()->SetSplitStandardValueOnTrack(ref_, old_value_);
 }
 
 Project *NodeParamArrayInsertCommand::GetRelevantProject() const
 {
-  return input_->parent()->parent()->project();
+  return input_.node()->parent()->project();
 }
 
 }

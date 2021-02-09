@@ -15,9 +15,9 @@ public:
 
   bool IsNodeEnabled(Node* n) const;
 
-  bool IsInputEnabled(NodeInput* i, int element, int track) const;
+  bool IsInputEnabled(const NodeKeyframeTrackReference& ref) const;
 
-  void SetKeyframeTrackColor(const NodeInput::KeyframeTrackReference& ref, const QColor& color);
+  void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
   void SetOnlyShowKeyframable(bool e)
   {
@@ -35,11 +35,11 @@ public slots:
 signals:
   void NodeEnableChanged(Node* n, bool e);
 
-  void InputEnableChanged(NodeInput* i, int element, int track, bool e);
+  void InputEnableChanged(const NodeKeyframeTrackReference& ref, bool e);
 
-  void InputSelectionChanged(NodeInput* input, int element, int track);
+  void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
 
-  void InputDoubleClicked(NodeInput* input, int element, int track);
+  void InputDoubleClicked(const NodeKeyframeTrackReference& ref);
 
 protected:
   virtual void changeEvent(QEvent* e) override;
@@ -49,11 +49,11 @@ protected:
 private:
   void Retranslate();
 
-  NodeInput::KeyframeTrackReference GetSelectedInput();
+  NodeKeyframeTrackReference GetSelectedInput();
 
-  QTreeWidgetItem *CreateItem(QTreeWidgetItem* parent, NodeInput* input, int element, int track);
+  QTreeWidgetItem *CreateItem(QTreeWidgetItem* parent, const NodeKeyframeTrackReference& ref);
 
-  void CreateItemsForTracks(QTreeWidgetItem* parent, NodeInput* input, int element, int track_count);
+  void CreateItemsForTracks(QTreeWidgetItem* parent, const NodeInput& input, int track_count);
 
   enum ItemType {
     kItemTypeNode,
@@ -61,23 +61,22 @@ private:
   };
 
   static const int kItemType = Qt::UserRole;
-  static const int kItemPointer = Qt::UserRole + 1;
-  static const int kItemElement = Qt::UserRole + 2;
-  static const int kItemTrack = Qt::UserRole + 3;
+  static const int kItemInputReference = Qt::UserRole + 1;
+  static const int kItemNodePointer = Qt::UserRole + 1;
 
   QVector<Node*> nodes_;
 
   QVector<Node*> disabled_nodes_;
 
-  QVector<NodeInput::KeyframeTrackReference> disabled_inputs_;
+  QVector<NodeKeyframeTrackReference> disabled_inputs_;
 
-  QHash<NodeInput::KeyframeTrackReference, QTreeWidgetItem*> item_map_;
+  QHash<NodeKeyframeTrackReference, QTreeWidgetItem*> item_map_;
 
   bool only_show_keyframable_;
 
   bool show_keyframe_tracks_as_rows_;
 
-  QHash<NodeInput::KeyframeTrackReference, QColor> keyframe_colors_;
+  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
 private slots:
   void ItemCheckStateChanged(QTreeWidgetItem* item, int column);

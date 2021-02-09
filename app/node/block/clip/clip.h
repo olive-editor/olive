@@ -42,22 +42,19 @@ public:
   virtual QString id() const override;
   virtual QString Description() const override;
 
-  NodeInput* texture_input() const;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1) override;
 
-  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
-
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
   virtual void Retranslate() override;
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
-private:
-  NodeInput* texture_input_;
+  static const QString kBufferIn;
 
 };
 

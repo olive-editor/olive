@@ -40,7 +40,6 @@ NodeView::NodeView(QWidget *parent) :
   drop_edge_(nullptr),
   create_edge_(nullptr),
   create_edge_dst_(nullptr),
-  create_edge_dst_input_(nullptr),
   create_edge_dst_temp_expanded_(false),
   filter_mode_(kFilterShowSelectedBlocks),
   scale_(1.0)
@@ -103,10 +102,8 @@ void NodeView::SetGraph(NodeGraph *graph)
     }
 
     foreach (Node* n, graph_->nodes()) {
-      foreach (NodeInput* input, n->parameters()) {
-        for (auto it=input->edges().cbegin(); it!=input->edges().cend(); it++) {
-          scene_.AddEdge(it->second, input, it->first);
-        }
+      for (auto it=n->input_connections().cbegin(); it!=n->input_connections().cend(); it++) {
+        scene_.AddEdge(it->second, it->first);
       }
     }
   }
@@ -124,7 +121,7 @@ void NodeView::DeleteSelected()
     QVector<NodeViewEdge *> selected_edges = scene_.GetSelectedEdges();
 
     foreach (NodeViewEdge* edge, selected_edges) {
-      command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input(), edge->element()));
+      command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input()));
     }
   }
 
@@ -426,18 +423,18 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
     if (highlight_index >= 0) {
       create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(),
-                              create_edge_dst_->GetInputPoint(highlight_index, create_edge_src_->pos()),
+      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
+                              create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element(), create_edge_src_->pos()),
                               true);
     } else {
-      create_edge_dst_input_ = nullptr;
-      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(),
+      create_edge_dst_input_.Reset();
+      create_edge_->SetPoints(create_edge_src_->GetOutputPoint(Node::kDefaultOutput),
                               scene_pt,
                               false);
     }
 
     // Set connected to whether we have a valid input destination
-    create_edge_->SetConnected(create_edge_dst_input_);
+    create_edge_->SetConnected(create_edge_dst_input_.IsValid());
     return;
   }
 
@@ -466,20 +463,22 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
 
         if (new_drop_edge) {
-          drop_input_ = nullptr;
+          drop_input_.Reset();
 
-          foreach (NodeInput* input, attached_node->parameters()) {
-            if (input->IsConnectable()) {
-              if (input->GetDataType() == new_drop_edge->input()->GetDataType()) {
-                drop_input_ = input;
+          foreach (const QString& input, attached_node->inputs()) {
+            NodeInput i(attached_node, input);
+
+            if (attached_node->IsInputConnectable(input)) {
+              if (attached_node->GetInputDataType(input) == new_drop_edge->input().GetDataType()) {
+                drop_input_ = i;
                 break;
-              } else if (!drop_input_) {
-                drop_input_ = input;
+              } else if (!drop_input_.IsValid()) {
+                drop_input_ = i;
               }
             }
           }
 
-          if (drop_input_) {
+          if (drop_input_.IsValid()) {
             break;
           } else {
             new_drop_edge = nullptr;
@@ -519,10 +518,10 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         create_edge_dst_->SetExpanded(false);
       }
 
-      if (create_edge_dst_input_) {
+      if (create_edge_dst_input_.IsValid()) {
         // Make connection
-        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(create_edge_src_->GetNode(), create_edge_dst_input_, -1));
-        create_edge_dst_input_ = nullptr;
+        Core::instance()->undo_stack()->push(new NodeEdgeAddCommand(create_edge_src_->GetNode(), create_edge_dst_input_));
+        create_edge_dst_input_.Reset();
       }
 
       create_edge_dst_ = nullptr;
@@ -539,11 +538,11 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         MultiUndoCommand* command = new MultiUndoCommand();
 
         // Remove old edge
-        command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input(), drop_edge_->element()));
+        command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
 
         // Place new edges
-        command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_, -1));
-        command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input(), drop_edge_->element()));
+        command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
+        command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
 
         Core::instance()->undo_stack()->push(command);
       }

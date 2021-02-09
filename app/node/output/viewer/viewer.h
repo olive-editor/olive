@@ -59,17 +59,7 @@ public:
   void ShiftAudioCache(const rational& from, const rational& to);
   void ShiftCache(const rational& from, const rational& to);
 
-  NodeInput* texture_input() const
-  {
-    return texture_input_;
-  }
-
-  NodeInput* samples_input() const
-  {
-    return samples_input_;
-  }
-
-  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1) override;
 
   const VideoParams& video_params() const
   {
@@ -106,11 +96,6 @@ public:
    */
   QVector<Track *> GetUnlockedTracks() const;
 
-  NodeInput* track_input(Track::Type type) const
-  {
-    return track_inputs_.at(type);
-  }
-
   TrackList* track_list(Track::Type type) const
   {
     return track_lists_.at(type);
@@ -132,6 +117,10 @@ public:
 
   virtual void EndOperation() override;
 
+  static const QString kTextureInput;
+  static const QString kSamplesInput;
+  static const QString kTrackInputFormat;
+
 signals:
   void TimebaseChanged(const rational&);
 
@@ -149,18 +138,19 @@ signals:
   void TrackAdded(Track* track);
   void TrackRemoved(Track* track);
 
+  void TextureInputChanged();
+
+protected:
+  void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
 private:
   QUuid uuid_;
-
-  NodeInput* texture_input_;
-
-  NodeInput* samples_input_;
 
   VideoParams video_params_;
 
   AudioParams audio_params_;
-
-  QVector<NodeInput*> track_inputs_;
 
   QVector<TrackList*> track_lists_;
 

@@ -24,31 +24,31 @@
 
 namespace olive {
 
+const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
+const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
+const QString ViewerOutput::kTrackInputFormat = QStringLiteral("track_in_%1");
+
 ViewerOutput::ViewerOutput() :
   video_frame_cache_(this),
   audio_playback_cache_(this),
   operation_stack_(0)
 {
-  texture_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
-  texture_input_->SetKeyframable(false);
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  samples_input_ = new NodeInput(this, QStringLiteral("samples_in"), NodeValue::kSamples);
-  samples_input_->SetKeyframable(false);
+  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
 
   // Create TrackList instances
-  track_inputs_.resize(Track::kCount);
   track_lists_.resize(Track::kCount);
 
   for (int i=0;i<Track::kCount;i++) {
     // Create track input
-    NodeInput* track_input = new NodeInput(this, QStringLiteral("track_in_%1").arg(i), NodeValue::kNone);
-    track_input->SetIsArray(true);
-    track_input->SetKeyframable(false);
+    QString track_input_id = kTrackInputFormat.arg(i);
 
-    IgnoreInvalidationsFrom(track_input);
-    track_inputs_.replace(i, track_input);
+    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
 
-    TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input);
+    IgnoreInvalidationsFrom(track_input_id);
+
+    TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
     track_lists_.replace(i, list);
     connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
     connect(list, &TrackList::LengthChanged, this, &ViewerOutput::VerifyLength);
@@ -110,15 +110,17 @@ void ViewerOutput::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void ViewerOutput::InvalidateCache(const TimeRange& range, const InputConnection& from)
+void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element)
 {
+  Q_UNUSED(element)
+
   if (operation_stack_ == 0) {
-    if (from.input == texture_input_ || from.input == samples_input_) {
+    if (from == kTextureInput || from == kSamplesInput) {
       TimeRange invalidated_range(qMax(rational(), range.in()),
                                   qMin(GetLength(), range.out()));
 
       if (invalidated_range.in() != invalidated_range.out()) {
-        if (from.input == texture_input_) {
+        if (from == kTextureInput) {
           video_frame_cache_.Invalidate(invalidated_range);
         } else {
           audio_playback_cache_.Invalidate(invalidated_range);
@@ -216,8 +218,8 @@ void ViewerOutput::VerifyLength()
   {
     video_length = track_lists_.at(Track::kVideo)->GetTotalLength();
 
-    if (video_length.isNull() && texture_input_->IsConnected()) {
-      NodeValueTable t = traverser.GenerateTable(texture_input_->GetConnectedNode(), 0, 0);
+    if (video_length.isNull() && IsInputConnected(kTextureInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
       video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
     }
 
@@ -227,8 +229,8 @@ void ViewerOutput::VerifyLength()
   {
     audio_length = track_lists_.at(Track::kAudio)->GetTotalLength();
 
-    if (audio_length.isNull() && samples_input_->IsConnected()) {
-      NodeValueTable t = traverser.GenerateTable(samples_input_->GetConnectedNode(), 0, 0);
+    if (audio_length.isNull() && IsInputConnected(kSamplesInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
       audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
     }
 
@@ -251,11 +253,11 @@ void ViewerOutput::Retranslate()
 {
   Node::Retranslate();
 
-  texture_input_->set_name(tr("Texture"));
+  SetInputName(kTextureInput, tr("Texture"));
 
-  samples_input_->set_name(tr("Samples"));
+  SetInputName(kSamplesInput, tr("Samples"));
 
-  for (int i=0;i<track_inputs_.size();i++) {
+  for (int i=0;i<Track::kCount;i++) {
     QString input_name;
 
     switch (static_cast<Track::Type>(i)) {
@@ -274,7 +276,7 @@ void ViewerOutput::Retranslate()
     }
 
     if (!input_name.isEmpty()) {
-      track_inputs_.at(i)->set_name(input_name);
+      SetInputName(kTrackInputFormat.arg(i), input_name);
     }
   }
 }
@@ -291,6 +293,34 @@ void ViewerOutput::EndOperation()
   operation_stack_--;
 
   Node::EndOperation();
+}
+
+void ViewerOutput::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kTextureInput) {
+    emit TextureInputChanged();
+  } else {
+    foreach (TrackList* list, track_lists_) {
+      if (list->track_input() == input) {
+        list->TrackConnected(output.node(), element);
+        break;
+      }
+    }
+  }
+}
+
+void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kTextureInput) {
+    emit TextureInputChanged();
+  } else {
+    foreach (TrackList* list, track_lists_) {
+      if (list->track_input() == input) {
+        list->TrackDisconnected(output.node(), element);
+        break;
+      }
+    }
+  }
 }
 
 }

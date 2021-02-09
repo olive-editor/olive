@@ -22,19 +22,22 @@
 
 namespace olive {
 
+const QString MathNode::kMethodIn = QStringLiteral("method_in");
+const QString MathNode::kParamAIn = QStringLiteral("param_a_in");
+const QString MathNode::kParamBIn = QStringLiteral("param_b_in");
+const QString MathNode::kParamCIn = QStringLiteral("param_c_in");
+
 MathNode::MathNode()
 {
-  method_in_ = new NodeInput(this, QStringLiteral("method_in"), NodeValue::kCombo);
-  method_in_->SetConnectable(false);
-  method_in_->SetKeyframable(false);
+  AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  param_a_in_ = new NodeInput(this, QStringLiteral("param_a_in"), NodeValue::kFloat, 0.0);
-  param_a_in_->setProperty("decimalplaces", 8);
-  param_a_in_->setProperty("autotrim", true);
+  AddInput(kParamAIn, NodeValue::kFloat, 0.0);
+  SetInputProperty(kParamAIn, QStringLiteral("decimalplaces"), 8);
+  SetInputProperty(kParamAIn, QStringLiteral("autotrim"), true);
 
-  param_b_in_ = new NodeInput(this, QStringLiteral("param_b_in"), NodeValue::kFloat, 0.0);
-  param_b_in_->setProperty("decimalplaces", 8);
-  param_b_in_->setProperty("autotrim", true);
+  AddInput(kParamBIn, NodeValue::kFloat, 0.0);
+  SetInputProperty(kParamBIn, QStringLiteral("decimalplaces"), 8);
+  SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
 }
 
 Node *MathNode::copy() const
@@ -66,9 +69,9 @@ void MathNode::Retranslate()
 {
   Node::Retranslate();
 
-  method_in_->set_name(tr("Method"));
-  param_a_in_->set_name(tr("Value"));
-  param_b_in_->set_name(tr("Value"));
+  SetInputName(kMethodIn, tr("Method"));
+  SetInputName(kParamAIn, tr("Value"));
+  SetInputName(kParamBIn, tr("Value"));
 
   QStringList operations = {tr("Add"),
                             tr("Subtract"),
@@ -77,19 +80,21 @@ void MathNode::Retranslate()
                             QString(),
                             tr("Power")};
 
-  method_in_->set_combobox_strings(operations);
+  SetComboBoxStrings(kMethodIn, operations);
 }
 
 ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
 {
-  return GetShaderCodeInternal(shader_id, param_a_in_, param_b_in_);
+  return GetShaderCodeInternal(shader_id, kParamAIn, kParamBIn);
 }
 
-NodeValueTable MathNode::Value(NodeValueDatabase &value) const
+NodeValueTable MathNode::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   // Auto-detect what values to operate with
   // FIXME: Add manual override for this
-  PairingCalculator calc(value[param_a_in_], value[param_b_in_]);
+  PairingCalculator calc(value[kParamAIn], value[kParamBIn]);
 
   // Do nothing if no pairing was found
   if (!calc.FoundMostLikelyPairing()) {
@@ -97,23 +102,23 @@ NodeValueTable MathNode::Value(NodeValueDatabase &value) const
   }
 
   NodeValue val_a = calc.GetMostLikelyValueA();
-  value[param_a_in_].Remove(val_a);
+  value[kParamAIn].Remove(val_a);
 
   NodeValue val_b = calc.GetMostLikelyValueB();
-  value[param_b_in_].Remove(val_b);
+  value[kParamBIn].Remove(val_b);
 
   return ValueInternal(value,
                        GetOperation(),
                        calc.GetMostLikelyPairing(),
-                       param_a_in_,
+                       kParamAIn,
                        val_a,
-                       param_b_in_,
+                       kParamBIn,
                        val_b);
 }
 
 void MathNode::ProcessSamples(NodeValueDatabase &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  return ProcessSamplesInternal(values, GetOperation(), param_a_in_, param_b_in_, input, output, index);
+  return ProcessSamplesInternal(values, GetOperation(), kParamAIn, kParamBIn, input, output, index);
 }
 
 }

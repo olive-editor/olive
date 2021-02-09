@@ -25,24 +25,27 @@
 
 namespace olive {
 
+const QString StrokeFilterNode::kTextureInput = QStringLiteral("tex_in");
+const QString StrokeFilterNode::kColorInput = QStringLiteral("color_in");
+const QString StrokeFilterNode::kRadiusInput = QStringLiteral("radius_in");
+const QString StrokeFilterNode::kOpacityInput = QStringLiteral("opacity_in");
+const QString StrokeFilterNode::kInnerInput = QStringLiteral("inner_in");
+
 StrokeFilterNode::StrokeFilterNode()
 {
-  tex_input_ = new NodeInput(this, QStringLiteral("tex_in"), NodeValue::kTexture);
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  color_input_ = new NodeInput(this,
-                               QStringLiteral("color_in"),
-                               NodeValue::kColor,
-                               QVariant::fromValue(Color(1.0f, 1.0f, 1.0f, 1.0f)));
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0f, 1.0f)));
 
-  radius_input_ = new NodeInput(this, QStringLiteral("radius_in"), NodeValue::kFloat, 10.0f);
-  radius_input_->setProperty("min", 0.0f);
+  AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
+  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
-  opacity_input_ = new NodeInput(this, QStringLiteral("opacity_in"), NodeValue::kFloat, 1.0f);
-  opacity_input_->setProperty("view", FloatSlider::kPercentage);
-  opacity_input_->setProperty("min", 0.0f);
-  opacity_input_->setProperty("max", 1.0f);
+  AddInput(kOpacityInput, NodeValue::kFloat, 1.0f);
+  SetInputProperty(kOpacityInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kOpacityInput, QStringLiteral("min"), 0.0f);
+  SetInputProperty(kOpacityInput, QStringLiteral("max"), 1.0f);
 
-  inner_input_ = new NodeInput(this, QStringLiteral("inner_in"), NodeValue::kBoolean, false);
+  AddInput(kInnerInput, NodeValue::kBoolean, false);
 }
 
 Node *StrokeFilterNode::copy() const
@@ -72,33 +75,35 @@ QString StrokeFilterNode::Description() const
 
 void StrokeFilterNode::Retranslate()
 {
-  tex_input_->set_name(tr("Input"));
-  color_input_->set_name(tr("Color"));
-  radius_input_->set_name(tr("Radius"));
-  opacity_input_->set_name(tr("Opacity"));
-  inner_input_->set_name(tr("Inner"));
+  SetInputName(kTextureInput, tr("Input"));
+  SetInputName(kColorInput, tr("Color"));
+  SetInputName(kRadiusInput, tr("Radius"));
+  SetInputName(kOpacityInput, tr("Opacity"));
+  SetInputName(kInnerInput, tr("Inner"));
 }
 
-NodeValueTable StrokeFilterNode::Value(NodeValueDatabase &value) const
+NodeValueTable StrokeFilterNode::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   ShaderJob job;
 
-  job.InsertValue(tex_input_, value);
-  job.InsertValue(color_input_, value);
-  job.InsertValue(radius_input_, value);
-  job.InsertValue(opacity_input_, value);
-  job.InsertValue(inner_input_, value);
+  job.InsertValue(this, kTextureInput, value);
+  job.InsertValue(this, kColorInput, value);
+  job.InsertValue(this, kRadiusInput, value);
+  job.InsertValue(this, kOpacityInput, value);
+  job.InsertValue(this, kInnerInput, value);
   job.InsertValue(QStringLiteral("resolution_in"),
                   NodeValue(NodeValue::kVec2, value[QStringLiteral("global")].Get(NodeValue::kVec2, QStringLiteral("resolution")), this));
 
   NodeValueTable table = value.Merge();
 
-  if (!job.GetValue(tex_input_).data().isNull()) {
-    if (job.GetValue(radius_input_).data().toDouble() > 0.0
-        && job.GetValue(opacity_input_).data().toDouble() > 0.0) {
+  if (!job.GetValue(kTextureInput).data().isNull()) {
+    if (job.GetValue(kRadiusInput).data().toDouble() > 0.0
+        && job.GetValue(kOpacityInput).data().toDouble() > 0.0) {
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
     } else {
-      table.Push(job.GetValue(tex_input_));
+      table.Push(job.GetValue(kTextureInput));
     }
   }
 

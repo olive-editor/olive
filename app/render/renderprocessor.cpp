@@ -58,7 +58,7 @@ void RenderProcessor::Run()
     const VideoParams& video_params = ticket_->property("vparam").value<VideoParams>();
     rational time = ticket_->property("time").value<rational>();
 
-    NodeValueTable table = ProcessInput(viewer->texture_input(),
+    NodeValueTable table = ProcessInput(viewer, ViewerOutput::kTextureInput,
                                         TimeRange(time, time + video_params.time_base()));
 
     TexturePtr texture = table.Get(NodeValue::kTexture).value<TexturePtr>();
@@ -133,7 +133,7 @@ void RenderProcessor::Run()
     ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
-    NodeValueTable table = ProcessInput(viewer->samples_input(), time);
+    NodeValueTable table = ProcessInput(viewer, ViewerOutput::kSamplesInput, time);
 
     ticket_->Finish(table.Get(NodeValue::kSamples), IsCancelled());
     break;
@@ -219,10 +219,10 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
       }
 
       // FIXME: Doesn't handle reversing
-      if (b->speed_input()->IsKeyframing() || b->speed_input()->IsConnected()) {
+      if (b->IsInputKeyframing(Block::kSpeedInput) || b->IsInputConnected(Block::kSpeedInput)) {
         // FIXME: We'll need to calculate the speed hoo boy
       } else {
-        double speed_value = b->speed_input()->GetStandardValue().toDouble();
+        double speed_value = b->GetStandardValue(Block::kSpeedInput).toDouble();
 
         if (qIsNull(speed_value)) {
           // Just silence, don't think there's any other practical application of 0 speed audio
@@ -450,16 +450,8 @@ QVariant RenderProcessor::ProcessSamples(const Node *node, const TimeRange &rang
     rational this_sample_time = rational::fromDouble(range.in().toDouble() + sample_to_second);
 
     // Update all non-sample and non-footage inputs
-    NodeValueMap::const_iterator j;
-    for (j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      NodeValueTable value;
-      NodeInput* corresponding_input = node->GetInputWithID(j.key());
-
-      if (corresponding_input) {
-        value = ProcessInput(corresponding_input, TimeRange(this_sample_time, this_sample_time));
-      } else {
-        value.Push(j.value());
-      }
+    for (auto j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
+      NodeValueTable value = ProcessInput(node, j.key(), TimeRange(this_sample_time, this_sample_time));
 
       value_db.Insert(j.key(), value);
     }

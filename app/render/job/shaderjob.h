@@ -46,9 +46,9 @@ public:
     shader_id_ = id;
   }
 
-  void SetIterations(int iterations, NodeInput* iterative_input)
+  void SetIterations(int iterations, const NodeInput& iterative_input)
   {
-    SetIterations(iterations, iterative_input->id());
+    SetIterations(iterations, iterative_input.input());
   }
 
   void SetIterations(int iterations, const QString& iterative_input)
@@ -72,9 +72,9 @@ public:
     return interpolation_.value(id, Texture::kDefaultInterpolation);
   }
 
-  void SetInterpolation(NodeInput* input, Texture::Interpolation interp)
+  void SetInterpolation(const NodeInput& input, Texture::Interpolation interp)
   {
-    interpolation_.insert(input->id(), interp);
+    interpolation_.insert(input.input(), interp);
   }
 
   void SetInterpolation(const QString& id, Texture::Interpolation interp)

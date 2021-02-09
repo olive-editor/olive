@@ -26,7 +26,6 @@
 #include <QWidget>
 
 #include "common/qtutils.h"
-#include "node/input.h"
 
 namespace olive {
 
@@ -117,7 +116,7 @@ void KeyframeViewItem::TimeTargetChangedEvent(Node *)
 
 void KeyframeViewItem::UpdatePos()
 {
-  rational adjusted = GetAdjustedTime(key_->parent()->parent(), GetTimeTarget(), key_->time(), false);
+  rational adjusted = GetAdjustedTime(key_->parent(), GetTimeTarget(), key_->time(), false);
 
   setPos(adjusted.toDouble() * scale_, vert_center_);
 }

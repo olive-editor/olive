@@ -114,21 +114,6 @@ public:
 
   virtual void Retranslate() override;
 
-  NodeInput* length_input() const
-  {
-    return length_input_;
-  }
-
-  NodeInput* media_in_input() const
-  {
-    return media_in_input_;
-  }
-
-  NodeInput* speed_input() const
-  {
-    return speed_input_;
-  }
-
   TransitionBlock* in_transition()
   {
     return in_transition_;
@@ -166,6 +151,11 @@ public:
 
   virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
 
+  static const QString kLengthInput;
+  static const QString kMediaInInput;
+  static const QString kEnabledInput;
+  static const QString kSpeedInput;
+
 public slots:
 
 signals:
@@ -178,7 +168,7 @@ protected:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  virtual QVector<NodeInput*> GetInputsToHash() const override;
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
   virtual void LinkChangeEvent() override;
 
@@ -187,11 +177,6 @@ protected:
 
 private:
   void set_length_internal(const rational &length);
-
-  NodeInput* length_input_;
-  NodeInput* media_in_input_;
-  NodeInput* speed_input_;
-  NodeInput* enabled_input_;
 
   rational in_point_;
   rational out_point_;

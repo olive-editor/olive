@@ -74,35 +74,36 @@ void KeyframeViewBase::DeleteSelected()
 
 void KeyframeViewBase::AddKeyframesOfNode(Node *n)
 {
-  foreach (NodeInput* i, n->inputs()) {
-    AddKeyframesOfInput(i);
+  foreach (const QString& i, n->inputs()) {
+    AddKeyframesOfInput(n, i);
   }
 }
 
-void KeyframeViewBase::AddKeyframesOfInput(NodeInput *input)
+void KeyframeViewBase::AddKeyframesOfInput(Node* n, const QString& input)
 {
-  if (!input->IsKeyframable()) {
+  if (!n->IsInputKeyframable(input)) {
     return;
   }
 
-  for (int i=-1; i<input->ArraySize(); i++) {
-    AddKeyframesOfElement(input, i);
+  int arr_sz = n->InputArraySize(input);
+  for (int i=-1; i<arr_sz; i++) {
+    AddKeyframesOfElement(NodeInput(n, input, i));
   }
 }
 
-void KeyframeViewBase::AddKeyframesOfElement(NodeInput *input, int element)
+void KeyframeViewBase::AddKeyframesOfElement(const NodeInput& input)
 {
-  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+  const QVector<NodeKeyframeTrack>& tracks = input.node()->GetKeyframeTracks(input);
 
   for (int i=0; i<tracks.size(); i++) {
-    AddKeyframesOfTrack(input, element, i);
+    AddKeyframesOfTrack(NodeKeyframeTrackReference(input, i));
   }
 }
 
-void KeyframeViewBase::AddKeyframesOfTrack(NodeInput *input, int element, int track)
+void KeyframeViewBase::AddKeyframesOfTrack(const NodeKeyframeTrackReference& ref)
 {
-  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
-  const NodeKeyframeTrack& t = tracks.at(track);
+  const QVector<NodeKeyframeTrack>& tracks = ref.input().node()->GetKeyframeTracks(ref.input());
+  const NodeKeyframeTrack& t = tracks.at(ref.track());
 
   foreach (NodeKeyframe* key, t) {
     AddKeyframe(key);
@@ -111,35 +112,36 @@ void KeyframeViewBase::AddKeyframesOfTrack(NodeInput *input, int element, int tr
 
 void KeyframeViewBase::RemoveKeyframesOfNode(Node *n)
 {
-  foreach (NodeInput* i, n->inputs()) {
-    RemoveKeyframesOfInput(i);
+  foreach (const QString& i, n->inputs()) {
+    RemoveKeyframesOfInput(n, i);
   }
 }
 
-void KeyframeViewBase::RemoveKeyframesOfInput(NodeInput *input)
+void KeyframeViewBase::RemoveKeyframesOfInput(Node* n, const QString& input)
 {
-  if (!input->IsKeyframable()) {
+  if (!n->IsInputKeyframable(input)) {
     return;
   }
 
-  for (int i=-1; i<input->ArraySize(); i++) {
-    RemoveKeyframesOfElement(input, i);
+  int arr_sz = n->InputArraySize(input);
+  for (int i=-1; i<arr_sz; i++) {
+    RemoveKeyframesOfElement(NodeInput(n, input, i));
   }
 }
 
-void KeyframeViewBase::RemoveKeyframesOfElement(NodeInput *input, int element)
+void KeyframeViewBase::RemoveKeyframesOfElement(const NodeInput& input)
 {
-  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
+  const QVector<NodeKeyframeTrack>& tracks = input.node()->GetKeyframeTracks(input);
 
   for (int i=0; i<tracks.size(); i++) {
-    RemoveKeyframesOfTrack(input, element, i);
+    RemoveKeyframesOfTrack(NodeKeyframeTrackReference(input, i));
   }
 }
 
-void KeyframeViewBase::RemoveKeyframesOfTrack(NodeInput *input, int element, int track)
+void KeyframeViewBase::RemoveKeyframesOfTrack(const NodeKeyframeTrackReference& ref)
 {
-  const QVector<NodeKeyframeTrack>& tracks = input->GetKeyframeTracks(element);
-  const NodeKeyframeTrack& t = tracks.at(track);
+  const QVector<NodeKeyframeTrack>& tracks = ref.input().node()->GetKeyframeTracks(ref.input());
+  const NodeKeyframeTrack& t = tracks.at(ref.track());
 
   foreach (NodeKeyframe* key, t) {
     RemoveKeyframe(key);
@@ -222,7 +224,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
             selected_keys_.replace(i, {key,
                                        key->x(),
-                                       GetAdjustedTime(key->key()->parent()->parent(), GetTimeTarget(), key->key()->time(), false),
+                                       GetAdjustedTime(key->key()->parent(), GetTimeTarget(), key->key()->time(), false),
                                        key->key()->value().toDouble()});
           }
         }
@@ -286,18 +288,17 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
         if (IsYAxisEnabled()) {
           foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-            NodeInput* input = keypair.key->key()->parent();
-            QList<QByteArray> properties = input->dynamicPropertyNames();
-
+            Node* node = keypair.key->key()->parent();
+            const QString& input = keypair.key->key()->input();
             double new_val = keypair.value - mouse_diff_scaled.y();
             double limited = new_val;
 
-            if (properties.contains("min")) {
-              limited = qMax(limited, input->property("min").toDouble());
+            if (node->HasInputProperty(input, QStringLiteral("min"))) {
+              limited = qMax(limited, node->GetInputProperty(input, QStringLiteral("min")).toDouble());
             }
 
-            if (properties.contains("max")) {
-              limited = qMin(limited, input->property("max").toDouble());
+            if (node->HasInputProperty(input, QStringLiteral("max"))) {
+              limited = qMin(limited, node->GetInputProperty(input, QStringLiteral("max")).toDouble());
             }
 
             if (limited != new_val) {
@@ -305,15 +306,16 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
             }
           }
 
-          NodeInput* initial_drag_input = initial_drag_item_->key()->parent();
-          if (initial_drag_input->dynamicPropertyNames().contains("view")) {
-            display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->property("view").toInt());
+          Node* initial_drag_input = initial_drag_item_->key()->parent();
+          const QString& initial_drag_input_id = initial_drag_item_->key()->input();
+          if (initial_drag_input->HasInputProperty(initial_drag_input_id, QStringLiteral("view"))) {
+            display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->GetInputProperty(initial_drag_input_id, QStringLiteral("view")).toInt());
           }
         }
 
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
           rational node_time = GetAdjustedTime(GetTimeTarget(),
-                                               keypair.key->key()->parent()->parent(),
+                                               keypair.key->key()->parent(),
                                                CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
                                                true);
 
@@ -590,7 +592,7 @@ void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
 
     rational key_time = key_item->key()->time();
 
-    QVector<NodeKeyframe*> keys = key_item->key()->parent()->GetKeyframesAtTime(key_time, key_item->key()->element());
+    QVector<NodeKeyframe*> keys = key_item->key()->parent()->GetKeyframesAtTime(key_item->key()->input(), key_time, key_item->key()->element());
 
     foreach (NodeKeyframe* k, keys) {
       if (k == key_item->key()) {

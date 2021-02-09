@@ -23,7 +23,6 @@
 #include "common/bezier.h"
 #include "common/lerp.h"
 #include "common/tohex.h"
-#include "input.h"
 
 namespace olive {
 

@@ -93,12 +93,14 @@ public slots:
 
   void SelectBlocks(const QVector<Block*>& nodes)
   {
+    Q_UNUSED(nodes)
     qDebug() << "Stub";
     //node_view_->SelectBlocks(nodes);
   }
 
   void DeselectBlocks(const QVector<Block*>& nodes)
   {
+    Q_UNUSED(nodes)
     qDebug() << "Stub";
     //node_view_->DeselectBlocks(nodes);
   }

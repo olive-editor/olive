@@ -63,16 +63,16 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
+
+  static const QString kFootageInput;
 
 protected:
-  NodeInput* footage_input_;
+  virtual void InputValueChangedEvent(const QString& input, int element);
 
   Stream* connected_footage_;
 
 private slots:
-  void FootageChanged();
-
   void FootageParametersChanged();
 
 };

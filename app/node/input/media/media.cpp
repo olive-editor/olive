@@ -25,13 +25,12 @@
 
 namespace olive {
 
+const QString MediaInput::kFootageInput = QStringLiteral("footage_in");
+
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
-  footage_input_ = new NodeInput(this, QStringLiteral("footage_in"), NodeValue::kFootage);
-  footage_input_->SetConnectable(false);
-  footage_input_->SetKeyframable(false);
-  connect(footage_input_, &NodeInput::ValueChanged, this, &MediaInput::FootageChanged);
+  AddInput(kFootageInput, NodeValue::kFootage, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 }
 
 QVector<Node::CategoryID> MediaInput::Category() const
@@ -41,21 +40,23 @@ QVector<Node::CategoryID> MediaInput::Category() const
 
 Stream *MediaInput::stream() const
 {
-  return Node::ValueToPtr<Stream>(footage_input_->GetStandardValue());
+  return Node::ValueToPtr<Stream>(GetStandardValue(kFootageInput));
 }
 
 void MediaInput::SetStream(Stream* s)
 {
-  footage_input_->SetStandardValue(Node::PtrToValue(s));
+  SetStandardValue(kFootageInput, Node::PtrToValue(s));
 }
 
 void MediaInput::Retranslate()
 {
-  footage_input_->set_name(tr("Media"));
+  SetInputName(kFootageInput, tr("Media"));
 }
 
-NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
+NodeValueTable MediaInput::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   NodeValueTable table = value.Merge();
 
   if (connected_footage_) {
@@ -68,28 +69,32 @@ NodeValueTable MediaInput::Value(NodeValueDatabase &value) const
   return table;
 }
 
-void MediaInput::FootageChanged()
+void MediaInput::InputValueChangedEvent(const QString &input, int element)
 {
-  Stream* new_footage = footage_input_->GetStandardValue().value<Stream*>();
+  Q_UNUSED(element)
 
-  if (new_footage == connected_footage_) {
-    return;
-  }
+  if (input == kFootageInput) {
+    Stream* new_footage = stream();
 
-  if (connected_footage_) {
-    disconnect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
-  }
+    if (new_footage == connected_footage_) {
+      return;
+    }
 
-  connected_footage_ = new_footage;
+    if (connected_footage_) {
+      disconnect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    }
 
-  if (connected_footage_) {
-    connect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    connected_footage_ = new_footage;
+
+    if (connected_footage_) {
+      connect(connected_footage_, &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
+    }
   }
 }
 
 void MediaInput::FootageParametersChanged()
 {
-  InvalidateCache(TimeRange(0, RATIONAL_MAX), InputConnection(footage_input_));
+  InvalidateCache(TimeRange(0, RATIONAL_MAX), kFootageInput);
 }
 
 }

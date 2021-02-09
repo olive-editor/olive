@@ -40,43 +40,37 @@
 
 namespace olive {
 
-NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput *input, int element, QObject *parent) :
+NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(const NodeInput &input, QObject *parent) :
   QObject(parent),
-  input_(input),
-  element_(element)
+  input_(input)
 {
   CreateWidgets();
 
-  connect(input_, &NodeInput::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
-  connect(input_, &NodeInput::PropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
+  connect(input_.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
+  connect(input_.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
 {
   time_ = time;
 
-  if (input_) {
+  if (input_.IsValid()) {
     UpdateWidgetValues();
   }
 }
 
-const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
-{
-  return widgets_;
-}
-
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
-  if (input_->IsArray() && element_ == -1) {
+  if (input_.IsArray() && input_.element() == -1) {
 
-    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(input_);
+    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(input_.node(), input_.input());
     connect(w, &NodeParamViewArrayWidget::DoubleClicked, this, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked);
     widgets_.append(w);
 
   } else {
 
     // We assume the first data type is the "primary" type
-    switch (input_->GetDataType()) {
+    switch (input_.GetDataType()) {
     // None of these inputs have applicable UI widgets
     case NodeValue::kNone:
     case NodeValue::kTexture:
@@ -89,38 +83,34 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       break;
     case NodeValue::kInt:
     {
-      IntegerSlider* slider = new IntegerSlider();
-      slider->SetDefaultValue(input_->GetDefaultValue());
-      slider->SetLadderElementCount(2);
-      widgets_.append(slider);
-      connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      CreateSliders<IntegerSlider>(1);
       break;
     }
     case NodeValue::kFloat:
     {
-      CreateSliders(1);
+      CreateSliders<FloatSlider>(1);
       break;
     }
     case NodeValue::kVec2:
     {
-      CreateSliders(2);
+      CreateSliders<FloatSlider>(2);
       break;
     }
     case NodeValue::kVec3:
     {
-      CreateSliders(3);
+      CreateSliders<FloatSlider>(3);
       break;
     }
     case NodeValue::kVec4:
     {
-      CreateSliders(4);
+      CreateSliders<FloatSlider>(4);
       break;
     }
     case NodeValue::kCombo:
     {
       QComboBox* combobox = new QComboBox();
 
-      QStringList items = input_->get_combobox_strings();
+      QStringList items = input_.GetComboBoxStrings();
       foreach (const QString& s, items) {
         combobox->addItem(s);
       }
@@ -135,7 +125,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kColor:
     {
       // NOTE: Very convoluted way to get back to the project's color manager
-      ColorButton* color_button = new ColorButton(input_->parent()->parent()->project()->color_manager());
+      ColorButton* color_button = new ColorButton(input_.node()->parent()->project()->color_manager());
       widgets_.append(color_button);
       connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -164,7 +154,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kFootage:
     {
       FootageComboBox* footage_combobox = new FootageComboBox();
-      footage_combobox->SetRoot(input_->parent()->parent()->project()->root());
+      footage_combobox->SetRoot(input_.node()->parent()->project()->root());
 
       connect(footage_combobox, &FootageComboBox::FootageChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
@@ -175,8 +165,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
 
     // Check all properties
-    foreach (const QByteArray& key, input_->dynamicPropertyNames()) {
-      PropertyChanged(key, input_->property(key));
+    auto input_properties = input_.node()->GetInputProperties(input_.input());
+    for (auto it=input_properties.cbegin(); it!=input_properties.cend(); it++) {
+      PropertyChanged(input_.input(), it.key(), it.value());
     }
 
     UpdateWidgetValues();
@@ -202,8 +193,8 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
-  if (input_->IsKeyframing(element_)) {
-    NodeKeyframe* existing_key = input_->GetKeyframeAtTimeOnTrack(node_time, track, element_);
+  if (input_.IsKeyframing()) {
+    NodeKeyframe* existing_key = input_.GetKeyframeAtTimeOnTrack(node_time, track);
 
     if (existing_key) {
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
@@ -211,14 +202,15 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
       // No existing key, create a new one
       NodeKeyframe* new_key = new NodeKeyframe(node_time,
                                                value,
-                                               input_->GetBestKeyframeTypeForTime(node_time, track, element_),
+                                               input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, track), node_time),
                                                track,
-                                               element_);
+                                               input_.element(),
+                                               input_.input());
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_, new_key));
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
     }
   } else {
-    command->add_child(new NodeParamSetStandardValueCommand(input_, track, element_, value));
+    command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, track), value));
   }
 }
 
@@ -232,7 +224,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
     // While we're dragging, we block the input's normal signalling and create our own
     if (!dragger_.IsStarted()) {
-      dragger_.Start(input_, node_time, slider_track, element_);
+      dragger_.Start(NodeKeyframeTrackReference(input_, slider_track), node_time);
     }
 
     dragger_.Drag(value);
@@ -253,7 +245,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
 
 void NodeParamViewWidgetBridge::WidgetCallback()
 {
-  switch (input_->GetDataType()) {
+  switch (input_.GetDataType()) {
   // None of these inputs have applicable UI widgets
   case NodeValue::kNone:
   case NodeValue::kTexture:
@@ -269,7 +261,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a IntegerSlider
     IntegerSlider* slider = static_cast<IntegerSlider*>(sender());
 
-    int64_t offset = input_->property("offset").toLongLong();
+    int64_t offset = input_.GetProperty("offset").toLongLong();
 
     ProcessSlider(slider, QVariant::fromValue(slider->GetValue() - offset));
     break;
@@ -279,7 +271,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    double offset = input_->property("offset").toDouble();
+    double offset = input_.GetProperty("offset").toDouble();
 
     ProcessSlider(slider, slider->GetValue() - offset);
     break;
@@ -289,7 +281,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector2D offset = input_->property("offset").value<QVector2D>();
+    QVector2D offset = input_.GetProperty("offset").value<QVector2D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -299,7 +291,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector3D offset = input_->property("offset").value<QVector3D>();
+    QVector3D offset = input_.GetProperty("offset").value<QVector3D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -309,7 +301,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector4D offset = input_->property("offset").value<QVector4D>();
+    QVector4D offset = input_.GetProperty("offset").value<QVector4D>();
 
     ProcessSlider(slider, slider->GetValue() - offset[widgets_.indexOf(slider)]);
     break;
@@ -329,12 +321,13 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValueInternal(c.blue(), 2, command);
     SetInputValueInternal(c.alpha(), 3, command);
 
-    input_->blockSignals(true);
-    input_->setProperty("col_input", c.color_input());
-    input_->setProperty("col_display", c.color_output().display());
-    input_->setProperty("col_view", c.color_output().view());
-    input_->setProperty("col_look", c.color_output().look());
-    input_->blockSignals(false);
+    Node* n = input_.node();
+    n->blockSignals(true);
+    n->SetInputProperty(input_.input(), QStringLiteral("col_input"), c.color_input());
+    n->SetInputProperty(input_.input(), QStringLiteral("col_display"), c.color_output().display());
+    n->SetInputProperty(input_.input(), QStringLiteral("col_view"), c.color_output().view());
+    n->SetInputProperty(input_.input(), QStringLiteral("col_look"), c.color_output().look());
+    n->blockSignals(false);
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
     break;
@@ -382,27 +375,28 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   }
 }
 
+template <typename T>
 void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
-    FloatSlider* fs = new FloatSlider();
-    fs->SetDefaultValue(input_->GetDefaultValueForTrack(i));
+    T* fs = new T();
+    fs->SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
     widgets_.append(fs);
-    connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+    connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }
 }
 
 void NodeParamViewWidgetBridge::UpdateWidgetValues()
 {
-  if (input_->IsArray() && element_ == -1) {
+  if (input_.IsArray() && input_.element() == -1) {
     return;
   }
 
   rational node_time = GetCurrentTimeAsNodeTime();
 
   // We assume the first data type is the "primary" type
-  switch (input_->GetDataType()) {
+  switch (input_.GetDataType()) {
   // None of these inputs have applicable UI widgets
   case NodeValue::kNone:
   case NodeValue::kTexture:
@@ -415,22 +409,22 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeValue::kInt:
   {
-    int64_t offset = input_->property("offset").toLongLong();
+    int64_t offset = input_.GetProperty("offset").toLongLong();
 
-    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->GetValueAtTime(node_time, element_).toLongLong() + offset);
+    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toLongLong() + offset);
     break;
   }
   case NodeValue::kFloat:
   {
-    double offset = input_->property("offset").toDouble();
+    double offset = input_.GetProperty("offset").toDouble();
 
-    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->GetValueAtTime(node_time, element_).toDouble() + offset);
+    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toDouble() + offset);
     break;
   }
   case NodeValue::kVec2:
   {
-    QVector2D vec2 = input_->GetValueAtTime(node_time, element_).value<QVector2D>();
-    QVector2D offset = input_->property("offset").value<QVector2D>();
+    QVector2D vec2 = input_.GetValueAtTime(node_time).value<QVector2D>();
+    QVector2D offset = input_.GetProperty("offset").value<QVector2D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y() + offset.y()));
@@ -438,8 +432,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kVec3:
   {
-    QVector3D vec3 = input_->GetValueAtTime(node_time, element_).value<QVector3D>();
-    QVector3D offset = input_->property("offset").value<QVector3D>();
+    QVector3D vec3 = input_.GetValueAtTime(node_time).value<QVector3D>();
+    QVector3D offset = input_.GetProperty("offset").value<QVector3D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y() + offset.y()));
@@ -448,8 +442,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kVec4:
   {
-    QVector4D vec4 = input_->GetValueAtTime(node_time, element_).value<QVector4D>();
-    QVector4D offset = input_->property("offset").value<QVector4D>();
+    QVector4D vec4 = input_.GetValueAtTime(node_time).value<QVector4D>();
+    QVector4D offset = input_.GetProperty("offset").value<QVector4D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x() + offset.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y() + offset.y()));
@@ -462,13 +456,13 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   case NodeValue::kColor:
   {
-    ManagedColor mc = input_->GetValueAtTime(node_time, element_).value<Color>();
+    ManagedColor mc = input_.GetValueAtTime(node_time).value<Color>();
 
-    mc.set_color_input(input_->property("col_input").toString());
+    mc.set_color_input(input_.GetProperty("col_input").toString());
 
-    QString d = input_->property("col_display").toString();
-    QString v = input_->property("col_view").toString();
-    QString l = input_->property("col_look").toString();
+    QString d = input_.GetProperty("col_display").toString();
+    QString v = input_.GetProperty("col_view").toString();
+    QString l = input_.GetProperty("col_look").toString();
 
     mc.set_color_output(ColorTransform(d, v, l));
 
@@ -478,17 +472,17 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kText:
   {
     NodeParamViewRichText* e = static_cast<NodeParamViewRichText*>(widgets_.first());
-    e->setTextPreservingCursor(input_->GetValueAtTime(node_time, element_).toString());
+    e->setTextPreservingCursor(input_.GetValueAtTime(node_time).toString());
     break;
   }
   case NodeValue::kBoolean:
-    static_cast<QCheckBox*>(widgets_.first())->setChecked(input_->GetValueAtTime(node_time, element_).toBool());
+    static_cast<QCheckBox*>(widgets_.first())->setChecked(input_.GetValueAtTime(node_time).toBool());
     break;
   case NodeValue::kFont:
   {
     QFontComboBox* fc = static_cast<QFontComboBox*>(widgets_.first());
     fc->blockSignals(true);
-    fc->setCurrentFont(input_->GetValueAtTime(node_time, element_).toString());
+    fc->setCurrentFont(input_.GetValueAtTime(node_time).toString());
     fc->blockSignals(false);
     break;
   }
@@ -496,24 +490,24 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   {
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
     cb->blockSignals(true);
-    cb->setCurrentIndex(input_->GetValueAtTime(node_time, element_).toInt());
+    cb->setCurrentIndex(input_.GetValueAtTime(node_time).toInt());
     cb->blockSignals(false);
     break;
   }
   case NodeValue::kFootage:
-    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(Node::ValueToPtr<Stream>(input_->GetValueAtTime(node_time, element_)));
+    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(Node::ValueToPtr<Stream>(input_.GetValueAtTime(node_time)));
     break;
   }
 }
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), input_->parent(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
 }
 
-void NodeParamViewWidgetBridge::InputValueChanged(const TimeRange &range, int element)
+void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  if (element == element_
+  if (input_ == input
       && !dragger_.IsStarted()
       && range.in() <= time_ && range.out() >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
@@ -521,10 +515,16 @@ void NodeParamViewWidgetBridge::InputValueChanged(const TimeRange &range, int el
   }
 }
 
-void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVariant &value)
+void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QString &key, const QVariant &value)
 {
+  if (input != input_.input()) {
+    return;
+  }
+
+  NodeValue::Type data_type = input_.GetDataType();
+
   // Parameters for vectors only
-  if (NodeValue::type_is_vector(input_->GetDataType())) {
+  if (NodeValue::type_is_vector(data_type)) {
     if (key == QStringLiteral("disablex")) {
       static_cast<FloatSlider*>(widgets_.at(0))->setEnabled(!value.toBool());
     } else if (key == QStringLiteral("disabley")) {
@@ -537,9 +537,9 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   }
 
   // Parameters for integers, floats, and vectors
-  if (NodeValue::type_is_numeric(input_->GetDataType()) || NodeValue::type_is_vector(input_->GetDataType())) {
+  if (NodeValue::type_is_numeric(data_type) || NodeValue::type_is_vector(data_type)) {
     if (key == QStringLiteral("min")) {
-      switch (input_->GetDataType()) {
+      switch (data_type) {
       case NodeValue::kInt:
         static_cast<IntegerSlider*>(widgets_.first())->SetMinimum(value.value<int64_t>());
         break;
@@ -577,7 +577,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
         break;
       }
     } else if (key == QStringLiteral("max")) {
-      switch (input_->GetDataType()) {
+      switch (data_type) {
       case NodeValue::kInt:
         static_cast<IntegerSlider*>(widgets_.first())->SetMaximum(value.value<int64_t>());
         break;
@@ -620,7 +620,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   }
 
   // ComboBox strings changing
-  if (input_->GetDataType() & NodeValue::kCombo) {
+  if (data_type & NodeValue::kCombo) {
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
 
     int old_index = cb->currentIndex();
@@ -630,7 +630,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
 
     cb->clear();
 
-    QStringList items = input_->get_combobox_strings();
+    QStringList items = input_.GetComboBoxStrings();
     foreach (const QString& s, items) {
       if (s.isEmpty()) {
         cb->insertSeparator(cb->count());
@@ -651,7 +651,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
   }
 
   // Parameters for floats and vectors only
-  if (input_->GetDataType() == NodeValue::kFloat || NodeValue::type_is_vector(input_->GetDataType())) {
+  if (data_type == NodeValue::kFloat || NodeValue::type_is_vector(data_type)) {
     if (key == QStringLiteral("view")) {
       FloatSlider::DisplayType display_type = static_cast<FloatSlider::DisplayType>(value.toInt());
 

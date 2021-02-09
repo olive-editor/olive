@@ -31,7 +31,6 @@
 
 #include "common/filefunctions.h"
 #include "config/config.h"
-#include "node/input.h"
 #include "render/videoparams.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"

@@ -42,19 +42,19 @@ public:
 
   void AddKeyframesOfNode(Node* n);
 
-  void AddKeyframesOfInput(NodeInput* input);
+  void AddKeyframesOfInput(Node *n, const QString &input);
 
-  void AddKeyframesOfElement(NodeInput* input, int element);
+  void AddKeyframesOfElement(const NodeInput &input);
 
-  void AddKeyframesOfTrack(NodeInput* input, int element, int track);
+  void AddKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
 
   void RemoveKeyframesOfNode(Node* n);
 
-  void RemoveKeyframesOfInput(NodeInput* input);
+  void RemoveKeyframesOfInput(Node *n, const QString &input);
 
-  void RemoveKeyframesOfElement(NodeInput* input, int element);
+  void RemoveKeyframesOfElement(const NodeInput &input);
 
-  void RemoveKeyframesOfTrack(NodeInput* input, int element, int track);
+  void RemoveKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
 
   void SelectAll();
 

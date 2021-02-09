@@ -33,24 +33,21 @@ const double Track::kTrackHeightDefault = 3.0;
 const double Track::kTrackHeightMinimum = 1.5;
 const double Track::kTrackHeightInterval = 0.5;
 
+const QString Track::kBlockInput = QStringLiteral("block_in");
+const QString Track::kMutedInput = QStringLiteral("muted_in");
+
 Track::Track() :
   track_type_(Track::kNone),
   index_(-1),
   locked_(false)
 {
-  block_input_ = new NodeInput(this, QStringLiteral("block_in"), NodeValue::kNone);
-  block_input_->SetKeyframable(false);
-  block_input_->SetIsArray(true);
-  connect(block_input_, &NodeInput::InputConnected, this, &Track::BlockConnected);
-  connect(block_input_, &NodeInput::InputDisconnected, this, &Track::BlockDisconnected);
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 
   // Since blocks are time based, we can handle the invalidate timing a little more intelligently
   // on our end
-  IgnoreInvalidationsFrom(block_input_);
+  IgnoreInvalidationsFrom(kBlockInput);
 
-  muted_input_ = new NodeInput(this, QStringLiteral("muted_in"), NodeValue::kBoolean);
-  muted_input_->SetKeyframable(false);
-  connect(muted_input_, &NodeInput::ValueChanged, this, &Track::MutedInputValueChanged);
+  AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Set default height
   track_height_ = kTrackHeightDefault;
@@ -97,9 +94,9 @@ QString Track::Description() const
             "a Sequence.");
 }
 
-TimeRange Track::InputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
 {
-  if (input == block_input_ && element >= 0) {
+  if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     return TransformRangeForBlock(blocks_.at(cache_index), input_time);
@@ -108,9 +105,9 @@ TimeRange Track::InputTimeAdjustment(NodeInput *input, int element, const TimeRa
   return Node::InputTimeAdjustment(input, element, input_time);
 }
 
-TimeRange Track::OutputTimeAdjustment(NodeInput *input, int element, const TimeRange &input_time) const
+TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
 {
-  if (input == block_input_ && element >= 0) {
+  if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
     const rational& block_in = blocks_.at(cache_index)->in();
 
@@ -157,12 +154,153 @@ void Track::SaveInternal(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
+void Track::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kBlockInput) {
+    if (element == -1) {
+      // User has replaced the entire array, we will invalidate everything
+      InvalidateAll(kBlockInput, element);
+      return;
+    }
+
+    // Check if a block was connected, if not, ignore
+    Block* block = dynamic_cast<Block*>(output.node());
+
+    if (!block) {
+      return;
+    }
+
+    // Determine where in the cache this block will be
+    int cache_index = -1;
+    Block *previous = nullptr, *next = nullptr;
+
+    int arr_sz = InputArraySize(kBlockInput);
+    for (int i=element+1; i<arr_sz; i++) {
+      // Find next block because this will be the index that we want to insert at
+      cache_index = GetCacheIndexFromArrayIndex(i);
+
+      if (cache_index >= 0) {
+        next = blocks_.at(cache_index);
+        break;
+      }
+    }
+
+    // If there was no next, this will be inserted at the end
+    if (cache_index == -1) {
+      cache_index = blocks_.size();
+    }
+
+    // Determine previous block, either by using next's previous or the last block if there was no
+    // next. If there are neither, they'll both remain null
+    if (next) {
+      previous = next->previous();
+    } else if (!blocks_.isEmpty()) {
+      previous = blocks_.last();
+    }
+
+    // Insert at index
+    blocks_.insert(cache_index, block);
+    block_array_indexes_.insert(cache_index, element);
+
+    // Update previous/next
+    if (previous) {
+      previous->set_next(block);
+      block->set_previous(previous);
+    }
+
+    if (next) {
+      block->set_next(next);
+      next->set_previous(block);
+    }
+
+    block->set_track(this);
+
+    // Update ins/outs
+    UpdateInOutFrom(cache_index);
+
+    // Connect to the block
+    connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
+    // Invalidate cache now that block should have an in point
+    InvalidateCache(TimeRange(block->in(), track_length()));
+
+    // Emit block added signal
+    emit BlockAdded(block);
+  }
+}
+
+void Track::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kBlockInput) {
+    if (element == -1) {
+      // User has replaced the entire array, we will invalidate everything
+      InvalidateAll(kBlockInput, element);
+      return;
+    }
+
+    Block* b = dynamic_cast<Block*>(output.node());
+
+    if (!b) {
+      return;
+    }
+
+    emit BlockRemoved(b);
+
+    TimeRange invalidate_range(b->in(), track_length());
+
+    // Get cache index
+    int cache_index = GetCacheIndexFromArrayIndex(element);
+
+    // Remove block here
+    blocks_.removeAt(cache_index);
+    block_array_indexes_.removeAt(cache_index);
+
+    // Update previous/nexts
+    Block* previous = b->previous();
+    Block* next = b->next();
+
+    if (previous) {
+      previous->set_next(next);
+    }
+
+    if (next) {
+      next->set_previous(previous);
+    }
+
+    b->set_previous(nullptr);
+    b->set_next(nullptr);
+    b->set_track(nullptr);
+
+    // Update lengths
+    if (next) {
+      UpdateInOutFrom(blocks_.indexOf(next));
+    } else if (blocks_.isEmpty()) {
+      SetLengthInternal(rational());
+    } else {
+      SetLengthInternal(blocks_.last()->out());
+    }
+
+    disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
+    InvalidateCache(invalidate_range);
+  }
+}
+
+void Track::InputValueChangedEvent(const QString &input, int element)
+{
+  Q_UNUSED(element)
+
+  if (input == kMutedInput) {
+    emit MutedChanged(IsMuted());
+  }
+}
+
 void Track::Retranslate()
 {
   Node::Retranslate();
 
-  block_input_->set_name(tr("Blocks"));
-  muted_input_->set_name(tr("Muted"));
+  SetInputName(kBlockInput, tr("Blocks"));
+  SetInputName(kMutedInput, tr("Muted"));
 }
 
 void Track::SetIndex(const int &index)
@@ -276,15 +414,15 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
-void Track::InvalidateCache(const TimeRange& range, const InputConnection& from)
+void Track::InvalidateCache(const TimeRange& range, const QString& from, int element)
 {
   TimeRange limited;
 
-  Block* b;
+  const Block* b;
 
-  if (from.input == block_input_
-      && from.element >= 0
-      && (b = dynamic_cast<Block*>(from.input->GetConnectedNode(from.element)))) {
+  if (from == kBlockInput
+      && element >= 0
+      && (b = dynamic_cast<const Block*>(GetConnectedOutput(from, element).node()))) {
     // Limit the range signal to the corresponding block
     if (range.out() <= b->in() || range.in() >= b->out()) {
       return;
@@ -329,8 +467,8 @@ void Track::PrependBlock(Block *block)
 {
   BeginOperation();
 
-  block_input_->ArrayPrepend();
-  Node::ConnectEdge(block, block_input_, 0);
+  InputArrayPrepend(kBlockInput);
+  Node::ConnectEdge(block, NodeInput(this, kBlockInput, 0));
 
   EndOperation();
 
@@ -343,8 +481,8 @@ void Track::InsertBlockAtIndex(Block *block, int index)
   BeginOperation();
 
   int insert_index = GetArrayIndexFromCacheIndex(index);
-  block_input_->ArrayInsert(insert_index);
-  Node::ConnectEdge(block, block_input_, insert_index);
+  InputArrayInsert(kBlockInput, insert_index);
+  Node::ConnectEdge(block, NodeInput(this, kBlockInput, insert_index));
 
   EndOperation();
 
@@ -355,8 +493,8 @@ void Track::AppendBlock(Block *block)
 {
   BeginOperation();
 
-  block_input_->ArrayAppend();
-  Node::ConnectEdge(block, block_input_, block_input_->ArraySize() - 1);
+  InputArrayAppend(kBlockInput);
+  Node::ConnectEdge(block, NodeInput(this, kBlockInput, InputArraySize(kBlockInput) - 1));
 
   EndOperation();
 
@@ -371,7 +509,7 @@ void Track::RippleRemoveBlock(Block *block)
   rational remove_in = block->in();
   rational remove_out = block->out();
 
-  block_input_->ArrayRemove(GetArrayIndexFromBlock(block));
+  InputArrayRemove(kBlockInput, GetArrayIndexFromBlock(block));
 
   EndOperation();
 
@@ -384,9 +522,9 @@ void Track::ReplaceBlock(Block *old, Block *replace)
 
   int index_of_old_block = GetArrayIndexFromBlock(old);
 
-  DisconnectEdge(old, block_input_, index_of_old_block);
+  DisconnectEdge(old, NodeInput(this, kBlockInput, index_of_old_block));
 
-  ConnectEdge(replace, block_input_, index_of_old_block);
+  ConnectEdge(replace, NodeInput(this, kBlockInput, index_of_old_block));
 
   EndOperation();
 
@@ -421,17 +559,12 @@ QString Track::GetDefaultTrackName(Track::Type type, int index)
 
 bool Track::IsMuted() const
 {
-  return muted_input_->GetStandardValue().toBool();
+  return GetStandardValue(kMutedInput).toBool();
 }
 
 bool Track::IsLocked() const
 {
   return locked_;
-}
-
-NodeInput *Track::block_input() const
-{
-  return block_input_;
 }
 
 void Track::Hash(QCryptographicHash &hash, const rational &time) const
@@ -446,8 +579,7 @@ void Track::Hash(QCryptographicHash &hash, const rational &time) const
 
 void Track::SetMuted(bool e)
 {
-  muted_input_->SetStandardValue(e);
-  InvalidateCache(TimeRange(0, track_length()));
+  SetStandardValue(kMutedInput, e);
 }
 
 void Track::SetLocked(bool e)
@@ -511,133 +643,6 @@ void Track::SetLengthInternal(const rational &r, bool invalidate)
   }
 }
 
-void Track::BlockConnected(Node *node, int element)
-{
-  if (element == -1) {
-    // User has replaced the entire array, we will invalidate everything
-    InvalidateAll(block_input_, element);
-    return;
-  }
-
-  // Check if a block was connected, if not, ignore
-  Block* block = dynamic_cast<Block*>(node);
-
-  if (!block) {
-    return;
-  }
-
-  // Determine where in the cache this block will be
-  int cache_index = -1;
-  Block *previous = nullptr, *next = nullptr;
-
-  for (int i=element+1; i<block_input_->ArraySize(); i++) {
-    // Find next block because this will be the index that we want to insert at
-    cache_index = GetCacheIndexFromArrayIndex(i);
-
-    if (cache_index >= 0) {
-      next = blocks_.at(cache_index);
-      break;
-    }
-  }
-
-  // If there was no next, this will be inserted at the end
-  if (cache_index == -1) {
-    cache_index = blocks_.size();
-  }
-
-  // Determine previous block, either by using next's previous or the last block if there was no
-  // next. If there are neither, they'll both remain null
-  if (next) {
-    previous = next->previous();
-  } else if (!blocks_.isEmpty()) {
-    previous = blocks_.last();
-  }
-
-  // Insert at index
-  blocks_.insert(cache_index, block);
-  block_array_indexes_.insert(cache_index, element);
-
-  // Update previous/next
-  if (previous) {
-    previous->set_next(block);
-    block->set_previous(previous);
-  }
-
-  if (next) {
-    block->set_next(next);
-    next->set_previous(block);
-  }
-
-  block->set_track(this);
-
-  // Update ins/outs
-  UpdateInOutFrom(cache_index);
-
-  // Connect to the block
-  connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
-
-  // Invalidate cache now that block should have an in point
-  InvalidateCache(TimeRange(block->in(), track_length()));
-
-  // Emit block added signal
-  emit BlockAdded(block);
-}
-
-void Track::BlockDisconnected(Node* node, int element)
-{
-  if (element == -1) {
-    // User has replaced the entire array, we will invalidate everything
-    InvalidateAll(block_input_, element);
-    return;
-  }
-
-  Block* b = dynamic_cast<Block*>(node);
-
-  if (!b) {
-    return;
-  }
-
-  emit BlockRemoved(b);
-
-  TimeRange invalidate_range(b->in(), track_length());
-
-  // Get cache index
-  int cache_index = GetCacheIndexFromArrayIndex(element);
-
-  // Remove block here
-  blocks_.removeAt(cache_index);
-  block_array_indexes_.removeAt(cache_index);
-
-  // Update previous/nexts
-  Block* previous = b->previous();
-  Block* next = b->next();
-
-  if (previous) {
-    previous->set_next(next);
-  }
-
-  if (next) {
-    next->set_previous(previous);
-  }
-
-  b->set_previous(nullptr);
-  b->set_next(nullptr);
-  b->set_track(nullptr);
-
-  // Update lengths
-  if (next) {
-    UpdateInOutFrom(blocks_.indexOf(next));
-  } else if (blocks_.isEmpty()) {
-    SetLengthInternal(rational());
-  } else {
-    SetLengthInternal(blocks_.last()->out());
-  }
-
-  disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
-
-  InvalidateCache(invalidate_range);
-}
-
 void Track::BlockLengthChanged()
 {
   // Assumes sender is a Block
@@ -652,11 +657,6 @@ void Track::BlockLengthChanged()
   TimeRange invalidate_region(qMin(old_out, new_out), track_length());
 
   InvalidateCache(invalidate_region);
-}
-
-void Track::MutedInputValueChanged()
-{
-  emit MutedChanged(IsMuted());
 }
 
 uint qHash(const Track::Reference &r, uint seed)

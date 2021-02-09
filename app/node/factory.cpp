@@ -52,13 +52,18 @@ void NodeFactory::Initialize()
 
   // Add internal types
   for (int i=0;i<kInternalNodeCount;i++) {
-    library_.append(CreateFromFactoryIndex(static_cast<InternalID>(i)));
-  }
+    Node* created_node = CreateFromFactoryIndex(static_cast<InternalID>(i));
 
-  /*
-  library_.append(new ExternalTransition(":/shaders/crossdissolve.xml"));
-  library_.append(new ExternalTransition(":/shaders/diptoblack.xml"));
-  */
+    library_.append(created_node);
+
+    if (created_node->inputs().isEmpty()) {
+      qWarning() << "Node" << created_node->id() << "has no inputs";
+    }
+
+    if (created_node->outputs().isEmpty()) {
+      qWarning() << "Node" << created_node->id() << "has no outputs";
+    }
+  }
 }
 
 void NodeFactory::Destroy()

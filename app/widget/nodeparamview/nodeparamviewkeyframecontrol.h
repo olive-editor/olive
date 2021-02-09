@@ -24,7 +24,7 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "node/input.h"
+#include "node/param.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
@@ -35,17 +35,12 @@ class NodeParamViewKeyframeControl : public QWidget, public TimeTargetObject
 public:
   NodeParamViewKeyframeControl(bool right_align = true, QWidget* parent = nullptr);
 
-  NodeInput* GetConnectedInput() const
+  const NodeInput& GetConnectedInput() const
   {
     return input_;
   }
 
-  int GetConnectedElement() const
-  {
-    return element_;
-  }
-
-  void SetInput(NodeInput* input, int element);
+  void SetInput(const NodeInput& input);
 
   void SetTime(const rational& time);
 
@@ -66,8 +61,7 @@ private:
   QPushButton* next_key_btn_;
   QPushButton* enable_key_btn_;
 
-  NodeInput* input_;
-  int element_;
+  NodeInput input_;
 
   rational time_;
 
@@ -82,7 +76,9 @@ private slots:
 
   void GoToNextKey();
 
-  void KeyframeEnableChanged(bool e);
+  void KeyframeEnableBtnClicked(bool e);
+
+  void KeyframeEnableChanged(const NodeInput& input, bool e);
 
 };
 

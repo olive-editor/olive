@@ -20,7 +20,6 @@
 
 #include "keyframeviewundo.h"
 
-#include "node/input.h"
 #include "node/node.h"
 #include "project/item/sequence/sequence.h"
 
@@ -35,7 +34,7 @@ KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframe* key, NodeKeyframe::
 
 Project *KeyframeSetTypeCommand::GetRelevantProject() const
 {
-  return key_->parent()->parent()->parent()->project();
+  return key_->parent()->parent()->project();
 }
 
 void KeyframeSetTypeCommand::redo()
@@ -66,7 +65,7 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframe* key, 
 
 Project *KeyframeSetBezierControlPoint::GetRelevantProject() const
 {
-  return key_->parent()->parent()->parent()->project();
+  return key_->parent()->parent()->project();
 }
 
 void KeyframeSetBezierControlPoint::redo()

@@ -38,7 +38,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
 
   virtual void Hash(QCryptographicHash& hash, const rational& time) const override;
 

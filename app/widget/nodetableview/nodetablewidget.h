@@ -42,7 +42,7 @@ public:
   }
 
 protected:
-  virtual void TimeChangedEvent(const int64_t& ts) override
+  virtual void TimeChangedEvent(const int64_t&) override
   {
     UpdateView();
   }

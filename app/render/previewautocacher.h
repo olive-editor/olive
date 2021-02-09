@@ -107,9 +107,9 @@ private:
 
   void AddNode(Node* node);
   void RemoveNode(Node* node);
-  void AddEdge(Node* output, NodeInput* input, int element);
-  void RemoveEdge(Node* output, NodeInput* input, int element);
-  void CopyValue(NodeInput* input, int element);
+  void AddEdge(const NodeOutput& output, const NodeInput& input);
+  void RemoveEdge(const NodeOutput& output, const NodeInput& input);
+  void CopyValue(const NodeInput& input);
   void UpdateVideoParams();
   void UpdateAudioParams();
 
@@ -127,8 +127,8 @@ private:
 
     Type type;
     Node* node;
-    NodeInput* input;
-    int element;
+    NodeInput input;
+    NodeOutput output;
   };
 
   ViewerOutput* viewer_node_;
@@ -201,11 +201,11 @@ private slots:
 
   void NodeRemoved(Node* node);
 
-  void EdgeAdded(Node* output, NodeInput* input, int element);
+  void EdgeAdded(const NodeOutput& output, const NodeInput& input);
 
-  void EdgeRemoved(Node* output, NodeInput* input, int element);
+  void EdgeRemoved(const NodeOutput& output, const NodeInput& input);
 
-  void ValueChanged(NodeInput* input, int element);
+  void ValueChanged(const NodeInput& input);
 
   void VideoParamsChanged();
 

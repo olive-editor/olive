@@ -26,61 +26,64 @@
 
 namespace olive {
 
-NodeInputDragger::NodeInputDragger() :
-  input_(nullptr)
+NodeInputDragger::NodeInputDragger()
 {
 
 }
 
 bool NodeInputDragger::IsStarted() const
 {
-  return input_;
+  return input_.IsValid();
 }
 
-void NodeInputDragger::Start(NodeInput *input, const rational &time, int track, int element)
+void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rational &time)
 {
-  Q_ASSERT(!input_);
+  Q_ASSERT(!IsStarted());
 
   // Set up new drag
   input_ = input;
   time_ = time;
-  track_ = track;
-  element_ = element;
+
+  Node* node = input_.input().node();
 
   // Cache current value
-  start_value_ = input_->GetValueAtTimeForTrack(time, track, element_);
+  start_value_ = node->GetSplitValueAtTimeOnTrack(input_, time);
 
   // Determine whether we are creating a keyframe or not
-  if (input_->IsKeyframing(element_)) {
-    dragging_key_ = input_->GetKeyframeAtTimeOnTrack(time, track, element_);
+  if (input_.input().IsKeyframing()) {
+    dragging_key_ = node->GetKeyframeAtTimeOnTrack(input_, time);
     drag_created_key_ = !dragging_key_;
 
     if (drag_created_key_) {
       dragging_key_ = new NodeKeyframe(time,
                                        start_value_,
-                                       input_->GetBestKeyframeTypeForTime(time, track, element_),
-                                       track,
-                                       element_,
-                                       input_);
+                                       node->GetBestKeyframeTypeForTimeOnTrack(input_, time),
+                                       input_.track(),
+                                       input_.input().element(),
+                                       input_.input().input(),
+                                       node);
     }
   }
 }
 
 void NodeInputDragger::Drag(QVariant value)
 {
-  Q_ASSERT(input_);
+  Q_ASSERT(IsStarted());
 
-  if (input_->property("min").isValid()) {
+  Node* node = input_.input().node();
+  const QString& input = input_.input().input();
+
+  if (node->HasInputProperty(input, QStringLiteral("min"))) {
     // Assumes the value is a double of some kind
-    double min = input_->property("min").toDouble();
+    double min = node->GetInputProperty(input, QStringLiteral("min")).toDouble();
     double v = value.toDouble();
     if (v < min) {
       value = min;
     }
   }
 
-  if (input_->property("max").isValid()) {
-    double max = input_->property("max").toDouble();
+  if (node->HasInputProperty(input, QStringLiteral("max"))) {
+    double max = node->GetInputProperty(input, QStringLiteral("max")).toDouble();
     double v = value.toDouble();
     if (v > max) {
       value = max;
@@ -91,10 +94,10 @@ void NodeInputDragger::Drag(QVariant value)
 
   //input_->blockSignals(true);
 
-  if (input_->IsKeyframing(element_)) {
+  if (input_.input().IsKeyframing()) {
     dragging_key_->set_value(value);
   } else {
-    input_->SetStandardValueOnTrack(value, track_, element_);
+    node->SetSplitStandardValueOnTrack(input_, value);
   }
 
   //input_->blockSignals(false);
@@ -108,10 +111,10 @@ void NodeInputDragger::End()
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  if (input_->IsKeyframing(element_)) {
+  if (input_.input().node()->IsInputKeyframing(input_.input())) {
     if (drag_created_key_) {
       // We created a keyframe in this process
-      command->add_child(new NodeParamInsertKeyframeCommand(input_, dragging_key_));
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.input().node(), dragging_key_));
     }
 
     // We just set a keyframe's value
@@ -120,12 +123,12 @@ void NodeInputDragger::End()
     command->add_child(new NodeParamSetKeyframeValueCommand(dragging_key_, end_value_, start_value_));
   } else {
     // We just set the standard value
-    command->add_child(new NodeParamSetStandardValueCommand(input_, track_, element_, end_value_, start_value_));
+    command->add_child(new NodeParamSetStandardValueCommand(input_, end_value_, start_value_));
   }
 
   Core::instance()->undo_stack()->push(command);
 
-  input_ = nullptr;
+  input_.Reset();
 }
 
 }

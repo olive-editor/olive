@@ -60,8 +60,8 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     video_node_->SetStream(nullptr);
     audio_node_->SetStream(nullptr);
 
-    Node::DisconnectEdge(video_node_, sequence_.viewer_output()->texture_input());
-    Node::DisconnectEdge(audio_node_, sequence_.viewer_output()->samples_input());
+    Node::DisconnectEdge(video_node_, NodeInput(sequence_.viewer_output(), ViewerOutput::kTextureInput));
+    Node::DisconnectEdge(audio_node_, NodeInput(sequence_.viewer_output(), ViewerOutput::kSamplesInput));
   }
 
   footage_ = footage;
@@ -98,12 +98,12 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     if (video_stream) {
       video_node_->SetStream(video_stream);
-      Node::ConnectEdge(video_node_, sequence_.viewer_output()->texture_input());
+      Node::ConnectEdge(video_node_, NodeInput(sequence_.viewer_output(), ViewerOutput::kTextureInput));
     }
 
     if (audio_stream) {
       audio_node_->SetStream(audio_stream);
-      Node::ConnectEdge(audio_node_, sequence_.viewer_output()->samples_input());
+      Node::ConnectEdge(audio_node_, NodeInput(sequence_.viewer_output(), ViewerOutput::kSamplesInput));
     }
 
     ConnectViewerNode(sequence_.viewer_output(), footage_->project()->color_manager());

@@ -39,18 +39,18 @@ class NodeViewItem;
 class NodeViewEdge : public QGraphicsPathItem
 {
 public:
-  NodeViewEdge(Node* output, NodeInput *input, int element,
+  NodeViewEdge(const NodeOutput& output, const NodeInput& input,
                NodeViewItem* from_item, NodeViewItem* to_item,
                QGraphicsItem* parent = nullptr);
 
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
-  Node* output() const
+  const NodeOutput& output() const
   {
     return output_;
   }
 
-  NodeInput* input() const
+  const NodeInput& input() const
   {
     return input_;
   }
@@ -112,9 +112,9 @@ protected:
 private:
   void Init();
 
-  Node* output_;
+  NodeOutput output_;
 
-  NodeInput* input_;
+  NodeInput input_;
 
   int element_;
 

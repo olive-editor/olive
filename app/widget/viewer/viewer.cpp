@@ -178,8 +178,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  connect(n->texture_input(), &NodeInput::InputConnected, this, &ViewerWidget::UpdateStack);
-  connect(n->texture_input(), &NodeInput::InputDisconnected, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   InterlacingChangedSlot(n->video_params().interlacing());
 
@@ -233,8 +232,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
-  disconnect(n->texture_input(), &NodeInput::InputConnected, this, &ViewerWidget::UpdateStack);
-  disconnect(n->texture_input(), &NodeInput::InputDisconnected, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   ruler()->SetPlaybackCache(nullptr);
 
@@ -398,8 +396,8 @@ void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &fn, 
 bool ViewerWidget::ShouldForceWaveform() const
 {
   return GetConnectedNode()
-      && !GetConnectedNode()->texture_input()->IsConnected()
-      && GetConnectedNode()->samples_input()->IsConnected();
+      && !GetConnectedNode()->IsInputConnected(ViewerOutput::kTextureInput)
+      && GetConnectedNode()->IsInputConnected(ViewerOutput::kSamplesInput);
 }
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)

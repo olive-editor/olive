@@ -30,8 +30,7 @@
 namespace olive {
 
 NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWidget *parent) :
-  QWidget(parent),
-  input_(nullptr)
+  QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
@@ -64,37 +63,36 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWi
   connect(next_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::GoToNextKey);
   connect(toggle_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::ToggleKeyframe);
   connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable);
-  connect(enable_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+  connect(enable_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::KeyframeEnableBtnClicked);
 
   // Set defaults
-  SetInput(nullptr, -1);
+  SetInput(NodeInput());
   ShowButtonsFromKeyframeEnable(false);
 }
 
-void NodeParamViewKeyframeControl::SetInput(NodeInput *input, int element)
+void NodeParamViewKeyframeControl::SetInput(const NodeInput& input)
 {
-  if (input_ != nullptr) {
-    disconnect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
-    disconnect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
-    disconnect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
-    disconnect(input_, &NodeInput::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
+  if (input_.IsValid()) {
+    disconnect(input_.node(), &Node::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+    disconnect(input_.node(), &Node::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
+    disconnect(input_.node(), &Node::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
+    disconnect(input_.node(), &Node::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 
   input_ = input;
-  element_ = element;
-  SetButtonsEnabled(input_);
+  SetButtonsEnabled(input_.IsValid());
 
   // Pick up keyframing value
-  enable_key_btn_->setChecked(input_ && input_->IsKeyframing(element_));
+  enable_key_btn_->setChecked(input_.IsValid() && input_.IsKeyframing());
 
   // Update buttons
   UpdateState();
 
-  if (input_ != nullptr) {
-    connect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
-    connect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
-    connect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
-    connect(input_, &NodeInput::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
+  if (input_.IsValid()) {
+    connect(input_.node(), &Node::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+    connect(input_.node(), &Node::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
+    connect(input_.node(), &Node::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
+    connect(input_.node(), &Node::KeyframeTimeChanged, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 }
 
@@ -124,12 +122,12 @@ void NodeParamViewKeyframeControl::SetButtonsEnabled(bool e)
 
 rational NodeParamViewKeyframeControl::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), input_->parent(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
 }
 
 rational NodeParamViewKeyframeControl::ConvertToViewerTime(const rational &r) const
 {
-  return GetAdjustedTime(input_->parent(), GetTimeTarget(), r, false);
+  return GetAdjustedTime(input_.node(), GetTimeTarget(), r, false);
 }
 
 void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
@@ -143,34 +141,33 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
-  QVector<NodeKeyframe*> keys = input_->GetKeyframesAtTime(node_time, element_);
+  QVector<NodeKeyframe*> keys = input_.node()->GetKeyframesAtTime(input_, node_time);
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  int nb_tracks = input_->GetNumberOfKeyframeTracks();
+  int nb_tracks = input_.node()->GetNumberOfKeyframeTracks(input_);
 
   if (e && keys.isEmpty()) {
     // Add a keyframe here (one for each track)
     for (int i=0;i<nb_tracks;i++) {
       NodeKeyframe* key = new NodeKeyframe(node_time,
-                                           input_->GetValueAtTimeForTrack(node_time, i, element_),
-                                           input_->GetBestKeyframeTypeForTime(node_time, i, element_),
+                                           input_.node()->GetSplitValueAtTimeOnTrack(input_, node_time, i),
+                                           input_.node()->GetBestKeyframeTypeForTimeOnTrack(input_, node_time, i),
                                            i,
-                                           element_);
+                                           input_.element(),
+                                           input_.input());
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_, key));
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), key));
     }
   } else if (!e && !keys.isEmpty()) {
     // Remove all keyframes at this time
     foreach (NodeKeyframe* key, keys) {
       command->add_child(new NodeParamRemoveKeyframeCommand(key));
 
-      if (input_->GetKeyframeTracks(key->track()).size() == 1) {
+      if (input_.node()->GetKeyframeTracks(input_).size() == 1) {
         // If this was the last keyframe on this track, set the standard value to the value at this time too
-        command->add_child(new NodeParamSetStandardValueCommand(input_,
-                                                                key->track(),
-                                                                element_,
-                                                                input_->GetValueAtTimeForTrack(node_time, key->track(), element_)));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, key->track()),
+                                                                input_.node()->GetSplitValueAtTimeOnTrack(input_, node_time, key->track())));
       }
     }
   }
@@ -180,25 +177,25 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 
 void NodeParamViewKeyframeControl::UpdateState()
 {
-  if (!input_) {
+  if (!input_.IsValid()) {
     return;
   }
 
-  NodeKeyframe* earliest_key = input_->GetEarliestKeyframe(element_);
-  NodeKeyframe* latest_key = input_->GetLatestKeyframe(element_);
+  NodeKeyframe* earliest_key = input_.node()->GetEarliestKeyframe(input_);
+  NodeKeyframe* latest_key = input_.node()->GetLatestKeyframe(input_);
 
   rational node_time = GetCurrentTimeAsNodeTime();
 
   prev_key_btn_->setEnabled(earliest_key && node_time > earliest_key->time());
   next_key_btn_->setEnabled(latest_key && node_time < latest_key->time());
-  toggle_key_btn_->setChecked(input_->HasKeyframeAtTime(node_time, element_));
+  toggle_key_btn_->setChecked(input_.node()->HasKeyframeAtTime(input_, node_time));
 }
 
 void NodeParamViewKeyframeControl::GoToPreviousKey()
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
-  NodeKeyframe* previous_key = input_->GetClosestKeyframeBeforeTime(node_time, element_);
+  NodeKeyframe* previous_key = input_.node()->GetClosestKeyframeBeforeTime(input_, node_time);
 
   if (previous_key) {
     rational key_time = ConvertToViewerTime(previous_key->time());
@@ -211,7 +208,7 @@ void NodeParamViewKeyframeControl::GoToNextKey()
 {
   rational node_time = GetCurrentTimeAsNodeTime();
 
-  NodeKeyframe* next_key = input_->GetClosestKeyframeAfterTime(node_time, element_);
+  NodeKeyframe* next_key = input_.node()->GetClosestKeyframeAfterTime(input_, node_time);
 
   if (next_key) {
     rational key_time = ConvertToViewerTime(next_key->time());
@@ -220,9 +217,9 @@ void NodeParamViewKeyframeControl::GoToNextKey()
   }
 }
 
-void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
+void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
 {
-  if (e == input_->IsKeyframing(element_)) {
+  if (e == input_.IsKeyframing()) {
     // No-op
     return;
   }
@@ -231,19 +228,20 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
 
   if (e) {
     // Enable keyframing
-    command->add_child(new NodeParamSetKeyframingCommand(input_, element_, true));
+    command->add_child(new NodeParamSetKeyframingCommand(input_, true));
 
     // Create one keyframe across all tracks here
-    const QVector<QVariant>& key_vals = input_->GetSplitStandardValue(element_);
+    const QVector<QVariant>& key_vals = input_.node()->GetSplitStandardValue(input_);
 
     for (int i=0;i<key_vals.size();i++) {
       NodeKeyframe* key = new NodeKeyframe(GetCurrentTimeAsNodeTime(),
                                            key_vals.at(i),
                                            NodeKeyframe::kDefaultType,
                                            i,
-                                           element_);
+                                           input_.element(),
+                                           input_.input());
 
-      command->add_child(new NodeParamInsertKeyframeCommand(input_, key));
+      command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), key));
     }
   } else {
     // Confirm the user wants to clear all keyframes
@@ -253,10 +251,10 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
       // Store value at this time, we'll set this as the persistent value later
-      const QVector<QVariant>& stored_vals = input_->GetSplitValuesAtTime(GetCurrentTimeAsNodeTime(), element_);
+      const QVector<QVariant>& stored_vals = input_.node()->GetSplitValueAtTime(input_, GetCurrentTimeAsNodeTime());
 
       // Delete all keyframes
-      foreach (const NodeKeyframeTrack& track, input_->GetKeyframeTracks(element_)) {
+      foreach (const NodeKeyframeTrack& track, input_.node()->GetKeyframeTracks(input_)) {
         for (int i=track.size()-1;i>=0;i--) {
           command->add_child(new NodeParamRemoveKeyframeCommand(track.at(i)));
         }
@@ -264,11 +262,11 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
 
       // Update standard value
       for (int i=0;i<stored_vals.size();i++) {
-        command->add_child(new NodeParamSetStandardValueCommand(input_, i, element_, stored_vals.at(i)));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, i), stored_vals.at(i)));
       }
 
       // Disable keyframing
-      command->add_child(new NodeParamSetKeyframingCommand(input_, element_, false));
+      command->add_child(new NodeParamSetKeyframingCommand(input_, false));
 
     } else {
       // Disable action has effectively been ignored
@@ -277,6 +275,13 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void NodeParamViewKeyframeControl::KeyframeEnableChanged(const NodeInput &input, bool e)
+{
+  if (input_ == input) {
+    enable_key_btn_->setChecked(e);
+  }
 }
 
 }

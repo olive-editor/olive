@@ -56,9 +56,9 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  virtual TimeRange OutputTimeAdjustment(NodeInput* input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
   static rational TransformTimeForBlock(Block* block, const rational& time);
 
@@ -222,7 +222,7 @@ public:
     return blocks_;
   }
 
-  virtual void InvalidateCache(const TimeRange& range, const InputConnection& from = InputConnection()) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from = QString(), int element = -1) override;
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -274,8 +274,6 @@ public:
 
   bool IsLocked() const;
 
-  NodeInput* block_input() const;
-
   virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
 
   AudioVisualWaveform& waveform()
@@ -286,6 +284,9 @@ public:
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
   static const double kTrackHeightInterval;
+
+  static const QString kBlockInput;
+  static const QString kMutedInput;
 
 public slots:
   void SetMuted(bool e);
@@ -338,6 +339,12 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output) override;
+
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
 private:
   void UpdateInOutFrom(int index);
 
@@ -351,10 +358,6 @@ private:
 
   QVector<Block*> blocks_;
   QVector<int> block_array_indexes_;
-
-  NodeInput* block_input_;
-
-  NodeInput* muted_input_;
 
   Track::Type track_type_;
 
@@ -371,13 +374,7 @@ private:
   AudioVisualWaveform waveform_;
 
 private slots:
-  void BlockConnected(Node* node, int element);
-
-  void BlockDisconnected(Node* node, int element);
-
   void BlockLengthChanged();
-
-  void MutedInputValueChanged();
 
 };
 

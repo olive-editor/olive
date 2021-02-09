@@ -37,6 +37,12 @@ public:
 
   class DraggedFootage {
   public:
+    DraggedFootage() :
+      footage_(nullptr),
+      streams_(0)
+    {
+    }
+
     DraggedFootage(Footage* f, quint64 streams) :
       footage_(f),
       streams_(streams)

@@ -18,32 +18,15 @@
 
 ***/
 
-#ifndef GAPBLOCK_H
-#define GAPBLOCK_H
+#include "acceleratedjob.h"
 
-#include "node/block/block.h"
+#include "node/node.h"
 
 namespace olive {
 
-/**
- * @brief Node that represents nothing in its respective track for a certain period of time
- */
-class GapBlock : public Block
+void AcceleratedJob::InsertValue(const Node* node, const QString& input, NodeValueDatabase& value)
 {
-  Q_OBJECT
-public:
-  GapBlock();
-
-  virtual Node * copy() const override;
-
-  virtual Type type() const override;
-
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QString Description() const override;
-
-};
-
+  InsertValue(input, value[input].TakeWithMeta(node->GetInputDataType(input)));
 }
 
-#endif // TIMELINEBLOCK_H
+}

@@ -18,16 +18,16 @@
 
 ***/
 
-#ifndef VALUE_H
-#define VALUE_H
+#ifndef NODEVALUE_H
+#define NODEVALUE_H
 
 #include <QString>
 #include <QVariant>
+#include <QVector>
 
 namespace olive {
 
 class Node;
-class NodeInput;
 
 class NodeValue
 {
@@ -374,59 +374,13 @@ public:
 private:
   int GetInternal(const QVector<NodeValue::Type> &type, const QString& tag) const;
 
-  QList<NodeValue> values_;
+  QVector<NodeValue> values_;
 
 };
-
-class NodeValueDatabase
-{
-public:
-  NodeValueDatabase() = default;
-
-  NodeValueTable& operator[](const QString& input_id)
-  {
-    return tables_[input_id];
-  }
-
-  NodeValueTable& operator[](const NodeInput* input);
-
-  void Insert(const QString& key, const NodeValueTable &value)
-  {
-    tables_.insert(key, value);
-  }
-
-  void Insert(const NodeInput* key, const NodeValueTable& value);
-
-  NodeValueTable Merge() const;
-
-  using const_iterator = QHash<QString, NodeValueTable>::const_iterator;
-
-  inline QHash<QString, NodeValueTable>::const_iterator begin() const
-  {
-    return tables_.cbegin();
-  }
-
-  inline QHash<QString, NodeValueTable>::const_iterator end() const
-  {
-    return tables_.cend();
-  }
-
-  inline bool contains(const QString& s) const
-  {
-    return tables_.contains(s);
-  }
-
-private:
-  QHash<QString, NodeValueTable> tables_;
-
-};
-
-using NodeValueMap = QHash<QString, NodeValue>;
 
 }
 
 Q_DECLARE_METATYPE(olive::NodeValue)
 Q_DECLARE_METATYPE(olive::NodeValueTable)
-Q_DECLARE_METATYPE(olive::NodeValueDatabase)
 
-#endif // VALUE_H
+#endif // NODEVALUE_H

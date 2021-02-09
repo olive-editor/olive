@@ -27,13 +27,11 @@
 
 namespace olive {
 
-TrackList::TrackList(ViewerOutput *parent, const Track::Type &type, NodeInput *track_input) :
+TrackList::TrackList(ViewerOutput *parent, const Track::Type &type, const QString &track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input_, &NodeInput::InputConnected, this, &TrackList::TrackConnected);
-  connect(track_input_, &NodeInput::InputDisconnected, this, &TrackList::TrackDisconnected);
 }
 
 Track *TrackList::GetTrackAt(int index) const
@@ -48,7 +46,7 @@ Track *TrackList::GetTrackAt(int index) const
 void TrackList::TrackConnected(Node *node, int element)
 {
   if (element == -1) {
-    parent()->InvalidateAll(track_input_, element);
+    parent()->InvalidateAll(track_input(), element);
     return;
   }
 
@@ -60,7 +58,7 @@ void TrackList::TrackConnected(Node *node, int element)
 
   // Determine where in the cache this block will be
   int cache_index = -1;
-  for (int i=element+1; i<track_input_->ArraySize(); i++) {
+  for (int i=element+1; i<ArraySize(); i++) {
     // Find next track because this will be the index we insert at
     cache_index = GetCacheIndexFromArrayIndex(i);
 
@@ -97,7 +95,7 @@ void TrackList::TrackDisconnected(Node *node, int element)
 {
   if (element == -1) {
     // User has replaced the entire array, we will invalidate everything
-    parent()->InvalidateAll(track_input_, element);
+    parent()->InvalidateAll(track_input(), element);
     return;
   }
 
@@ -141,9 +139,34 @@ NodeGraph *TrackList::GetParentGraph() const
   return static_cast<NodeGraph*>(parent()->parent());
 }
 
+const QString& TrackList::track_input() const
+{
+  return track_input_;
+}
+
+NodeInput TrackList::track_input(int element) const
+{
+  return NodeInput(parent(), track_input(), element);
+}
+
 ViewerOutput *TrackList::parent() const
 {
   return static_cast<ViewerOutput*>(QObject::parent());
+}
+
+int TrackList::ArraySize() const
+{
+  return parent()->InputArraySize(track_input());
+}
+
+void TrackList::ArrayAppend(bool undoable)
+{
+  parent()->InputArrayAppend(track_input(), undoable);
+}
+
+void TrackList::ArrayRemoveLast(bool undoable)
+{
+  parent()->InputArrayRemoveLast(track_input(), undoable);
 }
 
 void TrackList::UpdateTotalLength()

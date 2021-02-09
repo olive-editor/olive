@@ -18,32 +18,18 @@
 
 ***/
 
-#ifndef GAPBLOCK_H
-#define GAPBLOCK_H
-
-#include "node/block/block.h"
+#include "valuedatabase.h"
 
 namespace olive {
 
-/**
- * @brief Node that represents nothing in its respective track for a certain period of time
- */
-class GapBlock : public Block
+NodeValueTable NodeValueDatabase::Merge() const
 {
-  Q_OBJECT
-public:
-  GapBlock();
+  QHash<QString, NodeValueTable> copy = tables_;
 
-  virtual Node * copy() const override;
+  // Kinda hacky, but we don't need this table to slipstream
+  copy.remove(QStringLiteral("global"));
 
-  virtual Type type() const override;
-
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QString Description() const override;
-
-};
-
+  return NodeValueTable::Merge(copy.values());
 }
 
-#endif // TIMELINEBLOCK_H
+}

@@ -22,11 +22,14 @@
 
 namespace olive {
 
+const QString MergeNode::kBaseIn = QStringLiteral("base_in");
+const QString MergeNode::kBlendIn = QStringLiteral("blend_in");
+
 MergeNode::MergeNode()
 {
-  base_in_ = new NodeInput(this, QStringLiteral("base_in"), NodeValue::kTexture);
+  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  blend_in_ = new NodeInput(this, QStringLiteral("blend_in"), NodeValue::kTexture);
+  AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 }
 
 Node *MergeNode::copy() const
@@ -56,8 +59,9 @@ QString MergeNode::Description() const
 
 void MergeNode::Retranslate()
 {
-  base_in_->set_name(tr("Base"));
-  blend_in_->set_name(tr("Blend"));
+  SetInputName(kBaseIn, tr("Base"));
+
+  SetInputName(kBlendIn, tr("Blend"));
 }
 
 ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
@@ -67,24 +71,26 @@ ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
+NodeValueTable MergeNode::Value(const QString &output, NodeValueDatabase &value) const
 {
+  Q_UNUSED(output)
+
   ShaderJob job;
-  job.InsertValue(base_in_, value);
-  job.InsertValue(blend_in_, value);
+  job.InsertValue(this, kBaseIn, value);
+  job.InsertValue(this, kBlendIn, value);
 
   NodeValueTable table = value.Merge();
 
-  TexturePtr base_tex = job.GetValue(base_in_).data().value<TexturePtr>();
-  TexturePtr blend_tex = job.GetValue(blend_in_).data().value<TexturePtr>();
+  TexturePtr base_tex = job.GetValue(kBaseIn).data().value<TexturePtr>();
+  TexturePtr blend_tex = job.GetValue(kBlendIn).data().value<TexturePtr>();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      table.Push(job.GetValue(blend_in_));
+      table.Push(job.GetValue(kBlendIn));
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table.Push(job.GetValue(base_in_));
+      table.Push(job.GetValue(kBaseIn));
     } else {
       // We have both textures, push the job
       table.Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
@@ -92,16 +98,6 @@ NodeValueTable MergeNode::Value(NodeValueDatabase &value) const
   }
 
   return table;
-}
-
-NodeInput *MergeNode::base_in() const
-{
-  return base_in_;
-}
-
-NodeInput *MergeNode::blend_in() const
-{
-  return blend_in_;
 }
 
 void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
@@ -116,16 +112,16 @@ void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
   bool base_changed_hash = false;
   bool blend_changed_hash = false;
 
-  if (base_in_->IsConnected()) {
-    base_in_->GetConnectedNode()->Hash(hash, time);
+  if (IsInputConnected(kBaseIn)) {
+    GetConnectedNode(kBaseIn)->Hash(hash, time);
 
     QByteArray post_base_hash = hash.result();
     base_changed_hash = (post_base_hash != current_result);
     current_result = post_base_hash;
   }
 
-  if (blend_in_->IsConnected()) {
-    blend_in_->GetConnectedNode()->Hash(hash, time);
+  if(IsInputConnected(kBlendIn)) {
+    GetConnectedNode(kBlendIn)->Hash(hash, time);
 
     blend_changed_hash = (hash.result() != current_result);
   }

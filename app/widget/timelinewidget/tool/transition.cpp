@@ -147,28 +147,25 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
         // Connect block to transition
         command->add_child(new NodeEdgeAddCommand(out_block,
-                                                  transition->out_block_input(),
-                                                  -1));
+                                                  NodeInput(transition, TransitionBlock::kOutBlockInput)));
 
         command->add_child(new NodeEdgeAddCommand(in_block,
-                                                  transition->in_block_input(),
-                                                  -1));
+                                                  NodeInput(transition, TransitionBlock::kInBlockInput)));
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
-        NodeInput* transition_input_to_connect;
+        QString transition_input_to_connect;
 
         if (ghost_->GetMode() == Timeline::kTrimIn) {
           transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-          transition_input_to_connect = transition->in_block_input();
+          transition_input_to_connect = TransitionBlock::kInBlockInput;
         } else {
           transition->set_length_and_media_out(ghost_->GetAdjustedLength());
-          transition_input_to_connect = transition->out_block_input();
+          transition_input_to_connect = TransitionBlock::kOutBlockInput;
         }
 
         // Connect block to transition
         command->add_child(new NodeEdgeAddCommand(block_to_transition,
-                                                  transition_input_to_connect,
-                                                  -1));
+                                                  NodeInput(transition, transition_input_to_connect)));
       }
 
       Core::instance()->undo_stack()->push(command);

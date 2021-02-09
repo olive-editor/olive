@@ -98,10 +98,10 @@ NodeViewItem *NodeViewScene::NodeToUIObject(Node *n)
   return item_map_.value(n);
 }
 
-NodeViewEdge *NodeViewScene::EdgeToUIObject(Node* output, NodeInput* input, int element)
+NodeViewEdge *NodeViewScene::EdgeToUIObject(const NodeOutput& output, const NodeInput& input)
 {
   foreach (NodeViewEdge* edge, edges_) {
-    if (edge->output() == output && edge->input() == input && edge->element() == element) {
+    if (edge->output() == output && edge->input() == input) {
       return edge;
     }
   }
@@ -174,14 +174,14 @@ void NodeViewScene::RemoveNode(Node *node)
   delete item_map_.take(node);
 }
 
-void NodeViewScene::AddEdge(Node* output, NodeInput* input, int element)
+void NodeViewScene::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  AddEdgeInternal(output, input, element, NodeToUIObject(output), NodeToUIObject(input->parent()));
+  AddEdgeInternal(output, input, NodeToUIObject(output.node()), NodeToUIObject(input.node()));
 }
 
-void NodeViewScene::RemoveEdge(Node* output, NodeInput* input, int element)
+void NodeViewScene::RemoveEdge(const NodeOutput &output, const NodeInput &input)
 {
-  NodeViewEdge* edge = EdgeToUIObject(output, input, element);
+  NodeViewEdge* edge = EdgeToUIObject(output, input);
   edge->from_item()->RemoveEdge(edge);
   edge->to_item()->RemoveEdge(edge);
   edges_.removeOne(edge);
@@ -203,9 +203,9 @@ int NodeViewScene::DetermineWeight(Node *n)
   return qMax(1, weight);
 }
 
-void NodeViewScene::AddEdgeInternal(Node *output, NodeInput *input, int element, NodeViewItem *from, NodeViewItem *to)
+void NodeViewScene::AddEdgeInternal(const NodeOutput& output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
 {
-  NodeViewEdge* edge_ui = new NodeViewEdge(output, input, element, from, to);
+  NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
 
   edge_ui->SetFlowDirection(direction_);
   edge_ui->SetCurved(curved_edges_);

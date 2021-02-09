@@ -65,11 +65,11 @@ signals:
    */
   void NodeRemoved(Node* node);
 
-  void InputConnected(Node* output, NodeInput* input, int element);
+  void InputConnected(const NodeOutput& output, const NodeInput& input);
 
-  void InputDisconnected(Node* output, NodeInput* input, int element);
+  void InputDisconnected(const NodeOutput& output, const NodeInput& input);
 
-  void ValueChanged(NodeInput* input, int element);
+  void ValueChanged(const NodeInput& input);
 
 protected:
   virtual void childEvent(QChildEvent* event) override;

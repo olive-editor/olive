@@ -41,7 +41,7 @@ namespace olive {
 inline bool NodeCanBeRemoved(Node* n)
 {
   //return n->edges().isEmpty() && n->GetExclusiveDependencies().isEmpty();
-  return n->edges().empty();
+  return n->output_connections().empty();
 }
 
 inline UndoCommand* CreateRemoveCommand(Node* n)
@@ -234,7 +234,7 @@ public:
       invalidate_range = block_->range();
     }
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -294,7 +294,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
 private:
@@ -578,13 +578,13 @@ public:
     track->InsertBlockAfter(new_block(), block_);
 
     // If the block had an out transition, we move it to the new block
-    moved_transition_ = nullptr;
+    moved_transition_ = NodeInput();
 
     TransitionBlock* potential_transition = dynamic_cast<TransitionBlock*>(new_block()->next());
     if (potential_transition) {
-      foreach (const Node::InputConnection& conn, block_->edges()) {
-        if (conn.input->parent() == potential_transition) {
-          moved_transition_ = potential_transition->out_block_input();
+      for (const Node::OutputConnection& output : block_->output_connections()) {
+        if (output.second.node() == potential_transition) {
+          moved_transition_ = NodeInput(potential_transition, TransitionBlock::kOutBlockInput);
           Node::DisconnectEdge(block_, moved_transition_);
           Node::ConnectEdge(new_block(), moved_transition_);
           break;
@@ -601,9 +601,9 @@ public:
 
     track->BeginOperation();
 
-    if (moved_transition_) {
+    if (moved_transition_.IsValid()) {
       Node::DisconnectEdge(new_block(), moved_transition_);
-      Node::DisconnectEdge(block_, moved_transition_);
+      Node::ConnectEdge(block_, moved_transition_);
     }
 
     block_->set_length_and_media_out(old_length_);
@@ -630,7 +630,7 @@ private:
 
   UndoCommand* reconnect_tree_command_;
 
-  NodeInput* moved_transition_;
+  NodeInput moved_transition_;
 
   QVector<Node*> src_nodes_;
   QVector<Node*> added_nodes_;
@@ -1144,8 +1144,7 @@ public:
   TrackListRippleToolCommand(TrackList* track_list,
                              const QHash<Track*, RippleInfo>& info,
                              const rational& ripple_movement,
-                             const Timeline::MovementMode& movement_mode,
-                             UndoCommand* parent = nullptr) :
+                             const Timeline::MovementMode& movement_mode) :
     track_list_(track_list),
     info_(info),
     ripple_movement_(ripple_movement),
@@ -1356,23 +1355,20 @@ private:
 class TimelineAddTrackCommand : public UndoCommand {
 public:
   TimelineAddTrackCommand(TrackList *timeline) :
-    timeline_(timeline),
-    direct_(nullptr)
+    timeline_(timeline)
   {
     track_ = new Track();
     track_->setParent(&memory_manager_);
 
     if (timeline->GetTrackCount() > 0 && Config::Current()[QStringLiteral("AutoMergeTracks")].toBool()) {
       if (timeline_->type() == Track::kVideo) {
-        MergeNode* merge = new MergeNode();
-        base_ = merge->base_in();
-        blend_ = merge->blend_in();
-        merge_ = merge;
+        merge_ = new MergeNode();
+        base_ = NodeInput(merge_, MergeNode::kBaseIn);
+        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
       } else {
-        MathNode* math = new MathNode();
-        base_ = math->param_a_in();
-        blend_ = math->param_b_in();
-        merge_ = math;
+        merge_ = new MathNode();
+        base_ = NodeInput(merge_, MathNode::kParamAIn);
+        blend_ = NodeInput(merge_, MathNode::kParamBIn);
       }
       merge_->setParent(&memory_manager_);
     } else {
@@ -1394,8 +1390,8 @@ public:
   {
     // Add track
     track_->setParent(timeline_->GetParentGraph());
-    timeline_->track_input()->ArrayAppend();
-    Node::ConnectEdge(track_, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
+    timeline_->ArrayAppend();
+    Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
 
     // Add merge if applicable
     if (merge_) {
@@ -1404,11 +1400,14 @@ public:
       Track* last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
 
       // Whatever this track used to be connected to, connect the merge instead
-      std::vector<Node::InputConnection> edges = last_track->edges();
-      foreach (const Node::InputConnection& ic, edges) {
-        if (ic.input != timeline_->track_input()) {
-          Node::DisconnectEdge(last_track, ic.input, ic.element);
-          Node::ConnectEdge(merge_, ic.input, ic.element);
+      const Node::OutputConnections edges = last_track->output_connections();
+      for (const Node::OutputConnection& ic : edges) {
+        const NodeInput& i = ic.second;
+
+        // Ignore the track input, but funnel everything else through our merge
+        if (i.node() != timeline_->parent() && i.input() != timeline_->track_input()) {
+          Node::DisconnectEdge(last_track, i);
+          Node::ConnectEdge(merge_, i);
         }
       }
 
@@ -1417,18 +1416,20 @@ public:
       Node::ConnectEdge(last_track, base_);
     } else if (timeline_->GetTrackCount() == 1) {
       // If this was the first track we added,
-      NodeInput* relevant_input;
+      QString relevant_input;
 
       if (timeline_->type() == Track::kVideo) {
-        relevant_input = timeline_->parent()->texture_input();
+        relevant_input = ViewerOutput::kTextureInput;
       } else {
-        relevant_input = timeline_->parent()->samples_input();
+        relevant_input = ViewerOutput::kSamplesInput;
       }
 
-      if (!relevant_input->IsConnected()) {
-        Node::ConnectEdge(track_, relevant_input);
+      if (!timeline_->parent()->IsInputConnected(relevant_input)) {
+        direct_ = NodeInput(timeline_->parent(), relevant_input);
 
-        direct_ = relevant_input;
+        Node::ConnectEdge(track_, direct_);
+      } else {
+        direct_ = NodeInput();
       }
     }
   }
@@ -1443,20 +1444,23 @@ public:
       Node::DisconnectEdge(track_, blend_);
       Node::DisconnectEdge(last_track, base_);
 
-      std::vector<Node::InputConnection> edges = merge_->edges();
-      foreach (const Node::InputConnection& ic, edges) {
-        Node::DisconnectEdge(merge_, ic.input, ic.element);
-        Node::ConnectEdge(last_track, ic.input, ic.element);
+      // Make copy of edges since the node's internal array will change as we disconnect things
+      const Node::OutputConnections edges = merge_->output_connections();
+      for (const Node::OutputConnection& ic : edges) {
+        const NodeInput& i = ic.second;
+
+        Node::DisconnectEdge(merge_, i);
+        Node::ConnectEdge(last_track, i);
       }
 
       merge_->setParent(&memory_manager_);
-    } else if (direct_) {
+    } else if (direct_.IsValid()) {
       Node::DisconnectEdge(track_, direct_);
     }
 
     // Remove track
-    Node::DisconnectEdge(track_, timeline_->track_input(), timeline_->track_input()->ArraySize() - 1);
-    timeline_->track_input()->ArrayRemoveLast();
+    Node::DisconnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
+    timeline_->ArrayRemoveLast();
     track_->setParent(&memory_manager_);
   }
 
@@ -1465,10 +1469,10 @@ private:
 
   Track* track_;
   Node* merge_;
-  NodeInput* base_;
-  NodeInput* blend_;
+  NodeInput base_;
+  NodeInput blend_;
 
-  NodeInput* direct_;
+  NodeInput direct_;
 
   QObject memory_manager_;
 
@@ -1705,7 +1709,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -1762,7 +1766,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input());
+    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
   }
 
 private:
@@ -2047,7 +2051,7 @@ public:
     invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                                qMax(invalidate_range.out(), blocks_.last()->out()));
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -2087,7 +2091,7 @@ public:
     invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                                qMax(invalidate_range.out(), blocks_.last()->out()));
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
 private:
@@ -2315,7 +2319,7 @@ private:
 
 class TransitionRemoveCommand : public UndoCommand {
 public:
-  TransitionRemoveCommand(TransitionBlock* block, UndoCommand *parent = nullptr) :
+  TransitionRemoveCommand(TransitionBlock* block) :
     block_(block)
   {
   }
@@ -2346,18 +2350,18 @@ public:
     }
 
     if (in_block_) {
-      Node::DisconnectEdge(in_block_, block_->in_block_input());
+      Node::DisconnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
     }
 
     if (out_block_) {
-      Node::DisconnectEdge(out_block_, block_->out_block_input());
+      Node::DisconnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
     }
 
     track_->RippleRemoveBlock(block_);
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, track_->block_input());
+    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -2371,11 +2375,11 @@ public:
     }
 
     if (in_block_) {
-      Node::ConnectEdge(in_block_, block_->in_block_input());
+      Node::ConnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
     }
 
     if (out_block_) {
-      Node::ConnectEdge(out_block_, block_->out_block_input());
+      Node::ConnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
     }
 
     // These if statements must be separated because in_offset and out_offset report different things
@@ -2391,7 +2395,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), track_->block_input());
+    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
   }
 
 private:

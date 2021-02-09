@@ -434,8 +434,8 @@ void ImportTool::DropGhosts(bool insert)
         TransformDistortNode* transform = new TransformDistortNode();
         command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        command->add_child(new NodeEdgeAddCommand(video_input, transform->texture_input(), -1));
-        command->add_child(new NodeEdgeAddCommand(transform, clip->texture_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(video_input, NodeInput(transform, TransformDistortNode::kTextureInput)));
+        command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
       case Stream::kAudio:
@@ -447,8 +447,8 @@ void ImportTool::DropGhosts(bool insert)
         VolumeNode* volume_node = new VolumeNode();
         command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        command->add_child(new NodeEdgeAddCommand(audio_input, volume_node->samples_input(), -1));
-        command->add_child(new NodeEdgeAddCommand(volume_node, clip->texture_input(), -1));
+        command->add_child(new NodeEdgeAddCommand(audio_input, NodeInput(volume_node, VolumeNode::kSamplesInput)));
+        command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
       default:

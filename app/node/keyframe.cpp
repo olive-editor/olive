@@ -20,18 +20,19 @@
 
 #include "keyframe.h"
 
-#include "input.h"
+#include "node.h"
 
 namespace olive {
 
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
-NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track, int element, QObject *parent) :
+NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, Type type, int track, int element, const QString &input, QObject *parent) :
   time_(time),
   value_(value),
   type_(type),
   bezier_control_in_(QPointF(0.0, 0.0)),
   bezier_control_out_(QPointF(0.0, 0.0)),
+  input_(input),
   track_(track),
   element_(element),
   previous_(nullptr),
@@ -47,7 +48,7 @@ NodeKeyframe::~NodeKeyframe()
 
 NodeKeyframe *NodeKeyframe::copy(int element, QObject *parent) const
 {
-  NodeKeyframe* copy = new NodeKeyframe(time_, value_, type_, track_, element, parent);
+  NodeKeyframe* copy = new NodeKeyframe(time_, value_, type_, track_, element, input_, parent);
   copy->bezier_control_in_ = bezier_control_in_;
   copy->bezier_control_out_ = bezier_control_out_;
   return copy;
@@ -58,9 +59,9 @@ NodeKeyframe *NodeKeyframe::copy(QObject* parent) const
   return copy(element_, parent);
 }
 
-NodeInput *NodeKeyframe::parent() const
+Node *NodeKeyframe::parent() const
 {
-  return static_cast<NodeInput*>(QObject::parent());
+  return static_cast<Node*>(QObject::parent());
 }
 
 const rational &NodeKeyframe::time() const

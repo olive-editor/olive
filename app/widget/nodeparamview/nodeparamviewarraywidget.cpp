@@ -20,22 +20,26 @@
 
 #include "nodeparamviewarraywidget.h"
 
+#include <QEvent>
 #include <QHBoxLayout>
+
+#include "node/node.h"
 
 namespace olive {
 
-NodeParamViewArrayWidget::NodeParamViewArrayWidget(NodeInput *array, QWidget* parent) :
+NodeParamViewArrayWidget::NodeParamViewArrayWidget(Node *node, const QString &input, QWidget* parent) :
   QWidget(parent),
-  array_(array)
+  node_(node),
+  input_(input)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
   count_lbl_ = new QLabel();
   layout->addWidget(count_lbl_);
 
-  connect(array_, &NodeInput::ArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
+  connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
 
-  UpdateCounter();
+  UpdateCounter(input_, node_->InputArraySize(input_));
 }
 
 void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
@@ -45,9 +49,11 @@ void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
   emit DoubleClicked();
 }
 
-void NodeParamViewArrayWidget::UpdateCounter()
+void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int new_size)
 {
-  count_lbl_->setText(tr("%1 element(s)").arg(array_->ArraySize()));
+  if (input == input_) {
+    count_lbl_->setText(tr("%1 element(s)").arg(new_size));
+  }
 }
 
 NodeParamViewArrayButton::NodeParamViewArrayButton(NodeParamViewArrayButton::Type type, QWidget *parent) :

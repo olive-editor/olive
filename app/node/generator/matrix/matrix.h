@@ -44,7 +44,13 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValueTable Value(NodeValueDatabase& value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase& value) const override;
+
+  static const QString kPositionInput;
+  static const QString kRotationInput;
+  static const QString kScaleInput;
+  static const QString kUniformScaleInput;
+  static const QString kAnchorInput;
 
 protected:
   QMatrix4x4 GenerateMatrix(NodeValueDatabase &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const;
@@ -54,44 +60,7 @@ protected:
                                    bool uniform_scale,
                                    const QVector2D &anchor);
 
-  NodeInput* position_input() const
-  {
-    return position_input_;
-  }
-
-  NodeInput* rotation_input() const
-  {
-    return rotation_input_;
-  }
-
-  NodeInput* scale_input() const
-  {
-    return scale_input_;
-  }
-
-  NodeInput* uniform_scale_input() const
-  {
-    return uniform_scale_input_;
-  }
-
-  NodeInput* anchor_input() const
-  {
-    return anchor_input_;
-  }
-
-private:
-  NodeInput* position_input_;
-
-  NodeInput* rotation_input_;
-
-  NodeInput* scale_input_;
-
-  NodeInput* uniform_scale_input_;
-
-  NodeInput* anchor_input_;
-
-private slots:
-  void UniformScaleChanged();
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 };
 

@@ -53,7 +53,12 @@ public:
     return standard_value_;
   }
 
-  void set_standard_value_on_track(const QVariant &value, int track = 0);
+  const QVariant& get_split_standard_value_on_track(int track) const
+  {
+    return standard_value_.at(track);
+  }
+
+  void set_standard_value_on_track(const QVariant &value, int track);
 
   void set_split_standard_value(const SplitValue& value);
 

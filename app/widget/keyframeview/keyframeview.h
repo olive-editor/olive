@@ -36,7 +36,7 @@ public:
     max_scroll_ = i;
   }
 
-  void SetElementY(const Node::InputConnection& c, int y);
+  void SetElementY(const NodeInput& c, int y);
 
 protected:
   virtual void wheelEvent(QWheelEvent* event) override;
@@ -47,7 +47,7 @@ public slots:
   virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
 
 private:
-  QHash<Node::InputConnection, qreal> element_y_;
+  QHash<NodeInput, qreal> element_y_;
 
   int max_scroll_;
 

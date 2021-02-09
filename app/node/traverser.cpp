@@ -29,12 +29,12 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   NodeValueDatabase database;
 
   // We need to insert tables into the database for each input
-  foreach (NodeInput* input, node->parameters()) {
+  foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
       return NodeValueDatabase();
     }
 
-    database.Insert(input, ProcessInput(input, range));
+    database.Insert(input, ProcessInput(node, input, range));
   }
 
   AddGlobalsToDatabase(database, range);
@@ -42,37 +42,35 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   return database;
 }
 
-NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& range)
+NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
-  Node* node = input->parent();
-
-  if (input->IsConnected()) {
+  if (node->IsInputConnected(input)) {
 
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    return GenerateTable(input->GetConnectedNode(), adjusted_range);
+    return GenerateTable(node->GetConnectedOutput(input), adjusted_range);
 
   } else {
 
     // Store node
     QVariant return_val;
 
-    if (input->IsArray()) {
+    if (node->InputIsArray(input)) {
 
       // Value is an array, we will return a list of NodeValueTables
-      QVector<NodeValueTable> array_tbl(input->ArraySize());
+      QVector<NodeValueTable> array_tbl(node->InputArraySize(input));
 
       for (int i=0; i<array_tbl.size(); i++) {
         NodeValueTable& sub_tbl = array_tbl[i];
         TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
-        if (input->IsConnected(i)) {
-          sub_tbl = GenerateTable(input->GetConnectedNode(i), adjusted_range);
+        if (node->IsInputConnected(input, i)) {
+          sub_tbl = GenerateTable(node->GetConnectedOutput(input, i), adjusted_range);
         } else {
-          QVariant input_value = input->GetValueAtTime(adjusted_range.in(), i);
-          sub_tbl.Push(input->GetDataType(), input_value, node);
+          QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
+          sub_tbl.Push(node->GetInputDataType(input), input_value, node);
         }
       }
 
@@ -83,18 +81,18 @@ NodeValueTable NodeTraverser::ProcessInput(NodeInput* input, const TimeRange& ra
       // Not connected or an array, just pull the immediate
       TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
-      return_val = input->GetValueAtTime(adjusted_range.in());
+      return_val = node->GetValueAtTime(input, adjusted_range.in());
 
     }
 
     NodeValueTable return_table;
-    return_table.Push(input->GetDataType(), return_val, node, true);
+    return_table.Push(node->GetInputDataType(input), return_val, node, true);
     return return_table;
 
   }
 }
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const QString& output, const TimeRange& range)
 {
   const Track* track = dynamic_cast<const Track*>(n);
   if (track) {
@@ -108,16 +106,11 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
   NodeValueDatabase database = GenerateDatabase(n, range);
 
   // By this point, the node should have all the inputs it needs to render correctly
-  NodeValueTable table = n->Value(database);
+  NodeValueTable table = n->Value(output, database);
 
   PostProcessTable(n, range, table);
 
   return table;
-}
-
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const rational &in, const rational &out)
-{
-  return GenerateTable(n, TimeRange(in, out));
 }
 
 NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)

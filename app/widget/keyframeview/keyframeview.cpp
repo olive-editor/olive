@@ -31,14 +31,14 @@ KeyframeView::KeyframeView(QWidget *parent) :
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
-void KeyframeView::SetElementY(const NodeConnectable::InputConnection &c, int y)
+void KeyframeView::SetElementY(const NodeInput &c, int y)
 {
   qreal scene_y = mapToScene(mapFromGlobal(QPoint(0, y))).y();
 
   element_y_.insert(c, scene_y);
 
   for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
-    if (it.key()->parent() == c.input && it.key()->element() == c.element) {
+    if (it.key()->key_track_ref().input() == c) {
       it.value()->SetOverrideY(scene_y);
     }
   }
@@ -60,7 +60,7 @@ void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
 KeyframeViewItem* KeyframeView::AddKeyframe(NodeKeyframe* key)
 {
   KeyframeViewItem* item = super::AddKeyframe(key);
-  item->SetOverrideY(element_y_.value({key->parent(), key->element()}));
+  item->SetOverrideY(element_y_.value(key->key_track_ref().input()));
   return item;
 }
 

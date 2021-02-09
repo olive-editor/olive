@@ -28,6 +28,11 @@
 
 namespace olive {
 
+const QString Block::kLengthInput = QStringLiteral("length_in");
+const QString Block::kMediaInInput = QStringLiteral("media_in_in");
+const QString Block::kEnabledInput = QStringLiteral("enabled_in");
+const QString Block::kSpeedInput = QStringLiteral("speed_in");
+
 Block::Block() :
   previous_(nullptr),
   next_(nullptr),
@@ -36,24 +41,18 @@ Block::Block() :
   in_transition_(nullptr),
   out_transition_(nullptr)
 {
-  length_input_ = new NodeInput(this, QStringLiteral("length_in"), NodeValue::kRational);
-  length_input_->SetConnectable(false);
-  length_input_->SetKeyframable(false);
-  IgnoreInvalidationsFrom(length_input_);
-  connect(length_input_, &NodeInput::ValueChanged, this, &Block::LengthChanged);
+  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreInvalidationsFrom(kLengthInput);
+  IgnoreHashingFrom(kLengthInput);
 
-  media_in_input_ = new NodeInput(this, QStringLiteral("media_in_in"), NodeValue::kRational);
-  media_in_input_->SetConnectable(false);
-  media_in_input_->SetKeyframable(false);
+  AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  IgnoreHashingFrom(kMediaInInput);
 
-  enabled_input_ = new NodeInput(this, QStringLiteral("enabled_in"), NodeValue::kBoolean);
-  enabled_input_->SetConnectable(false);
-  enabled_input_->SetKeyframable(false);
-  enabled_input_->SetStandardValue(true);
+  AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  speed_input_ = new NodeInput(this, QStringLiteral("speed_in"), NodeValue::kFloat);
-  speed_input_->SetStandardValue(1.0);
-  speed_input_->setProperty("view", FloatSlider::kPercentage);
+  AddInput(kSpeedInput, NodeValue::kFloat, 1.0);
+  SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  IgnoreHashingFrom(kSpeedInput);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
@@ -66,7 +65,7 @@ QVector<Node::CategoryID> Block::Category() const
 
 rational Block::length() const
 {
-  return length_input_->GetStandardValue().value<rational>();
+  return GetStandardValue(kLengthInput).value<rational>();
 }
 
 void Block::set_length_and_media_out(const rational &length)
@@ -97,22 +96,22 @@ void Block::set_length_and_media_in(const rational &length)
 
 rational Block::media_in() const
 {
-  return media_in_input_->GetStandardValue().value<rational>();
+  return GetStandardValue(kMediaInInput).value<rational>();
 }
 
 void Block::set_media_in(const rational &media_in)
 {
-  media_in_input_->SetStandardValue(QVariant::fromValue(media_in));
+  SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
 }
 
 bool Block::is_enabled() const
 {
-  return enabled_input_->GetStandardValue().toBool();
+  return GetStandardValue(kEnabledInput).toBool();
 }
 
 void Block::set_enabled(bool e)
 {
-  enabled_input_->SetStandardValue(e);
+  SetStandardValue(kEnabledInput, e);
 
   emit EnabledChanged();
 }
@@ -127,10 +126,8 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
   rational local_time = sequence_time;
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->IsKeyframing() || speed_input_->IsConnected()) {
-    // FIXME: We'll need to calculate the speed hoo boy
-  } else {
-    double speed_value = speed_input_->GetStandardValue().toDouble();
+  if (IsInputStatic(kSpeedInput)) {
+    double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point
@@ -139,6 +136,8 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
       // Multiply time
       local_time = rational::fromDouble(local_time.toDouble() * speed_value);
     }
+  } else {
+    // FIXME: We'll need to calculate the speed hoo boy
   }
 
   return local_time + media_in();
@@ -154,10 +153,10 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   rational sequence_time = media_time - media_in();
 
   // FIXME: Doesn't handle reversing
-  if (speed_input_->IsKeyframing() || speed_input_->IsConnected()) {
+  if (IsInputKeyframing(kSpeedInput) || IsInputConnected(kSpeedInput)) {
     // FIXME: We'll need to calculate the speed hoo boy
   } else {
-    double speed_value = speed_input_->GetStandardValue().toDouble();
+    double speed_value = GetStandardValue(kSpeedInput).toDouble();
 
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point, also prevents divide by zero
@@ -171,16 +170,15 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   return sequence_time;
 }
 
-QVector<NodeInput *> Block::GetInputsToHash() const
+void Block::InputValueChangedEvent(const QString &input, int element)
 {
-  QVector<NodeInput*> inputs = Node::GetInputsToHash();
+  Q_UNUSED(element)
 
-  // Ignore these inputs
-  inputs.removeOne(media_in_input_);
-  inputs.removeOne(speed_input_);
-  inputs.removeOne(length_input_);
-
-  return inputs;
+  if (input == kLengthInput) {
+    emit LengthChanged();
+  } else if (input == kEnabledInput) {
+    emit EnabledChanged();
+  }
 }
 
 void Block::LinkChangeEvent()
@@ -198,17 +196,17 @@ void Block::LinkChangeEvent()
 
 void Block::set_length_internal(const rational &length)
 {
-  length_input_->SetStandardValue(QVariant::fromValue(length));
+  SetStandardValue(kLengthInput, QVariant::fromValue(length));
 }
 
 void Block::Retranslate()
 {
   Node::Retranslate();
 
-  length_input_->set_name(tr("Length"));
-  media_in_input_->set_name(tr("Media In"));
-  enabled_input_->set_name(tr("Enabled"));
-  speed_input_->set_name(tr("Speed"));
+  SetInputName(kLengthInput, tr("Length"));
+  SetInputName(kMediaInInput, tr("Media In"));
+  SetInputName(kEnabledInput, tr("Enabled"));
+  SetInputName(kSpeedInput, tr("Speed"));
 }
 
 void Block::Hash(QCryptographicHash &, const rational &) const

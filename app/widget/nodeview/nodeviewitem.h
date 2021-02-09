@@ -78,10 +78,9 @@ public:
   /**
    * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
-  QPointF GetInputPoint(NodeInput* input, const QPointF &source_pos) const;
-  QPointF GetInputPoint(int input, const QPointF &source_pos) const;
+  QPointF GetInputPoint(const QString& input, int element, const QPointF &source_pos) const;
 
-  QPointF GetOutputPoint() const;
+  QPointF GetOutputPoint(const QString &output) const;
 
   /**
    * @brief Sets the direction nodes are flowing
@@ -105,9 +104,9 @@ public:
 
   int GetIndexAt(QPointF pt) const;
 
-  NodeInput* GetInputAtIndex(int index) const
+  NodeInput GetInputAtIndex(int index) const
   {
-    return node_inputs_.at(index);
+    return NodeInput(node_, node_inputs_.at(index));
   }
 
   void SetHighlightedIndex(int index);
@@ -143,7 +142,7 @@ private:
   /**
    * @brief Cached list of node inputs
    */
-  QList<NodeInput*> node_inputs_;
+  QVector<QString> node_inputs_;
 
   /**
    * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)

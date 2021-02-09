@@ -36,13 +36,16 @@ class NodeTraverser : public CancelableObject
 public:
   NodeTraverser() = default;
 
-  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
-  NodeValueTable GenerateTable(const Node *n, const rational &in, const rational& out);
+  NodeValueTable GenerateTable(const Node *n, const QString &output, const TimeRange &range);
+  NodeValueTable GenerateTable(const NodeOutput& output, const TimeRange &range)
+  {
+    return GenerateTable(output.node(), output.output(), range);
+  }
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
 protected:
-  NodeValueTable ProcessInput(NodeInput *input, const TimeRange &range);
+  NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 

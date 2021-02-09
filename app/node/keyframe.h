@@ -26,11 +26,11 @@
 #include <QVariant>
 
 #include "common/rational.h"
+#include "node/param.h"
 
 namespace olive {
 
-class NodeInput;
-class NodeInputImmediate;
+class Node;
 
 /**
  * @brief A point of data to be used at a certain time and interpolated with other data
@@ -61,14 +61,23 @@ public:
   /**
    * @brief NodeKeyframe Constructor
    */
-  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track, int element, QObject* parent = nullptr);
+  NodeKeyframe(const rational& time, const QVariant& value, Type type, int track, int element, const QString& input, QObject* parent = nullptr);
 
   virtual ~NodeKeyframe() override;
 
   NodeKeyframe* copy(int element, QObject* parent = nullptr) const;
   NodeKeyframe* copy(QObject* parent = nullptr) const;
 
-  NodeInput* parent() const;
+  Node* parent() const;
+  const QString& input() const
+  {
+    return input_;
+  }
+
+  NodeKeyframeTrackReference key_track_ref() const
+  {
+    return NodeKeyframeTrackReference(NodeInput(parent(), input(), element()), track());
+  }
 
   /**
    * @brief The time this keyframe is set at
@@ -193,6 +202,8 @@ private:
   QPointF bezier_control_in_;
 
   QPointF bezier_control_out_;
+
+  QString input_;
 
   int track_;
 

@@ -132,37 +132,6 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   // Link blocks
   XMLLinkBlocks(xml_node_data);
 
-  // Connect footage to existing footage if it exists
-  if (!xml_node_data.footage_connections.isEmpty()) {
-    // Get list of all footage from project
-    QVector<Item*> footage = graph->project()->get_items_of_type(Item::kFootage);
-
-    if (!footage.isEmpty()) {
-      foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
-        if (con.footage) {
-          // Assume this is a pointer to a Stream*
-          Stream* loaded_stream = reinterpret_cast<Stream*>(con.footage);
-
-          bool found = false;
-
-          foreach (Item* item, footage) {
-            foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-              if (s == loaded_stream) {
-                con.input->SetStandardValue(Node::PtrToValue(s), con.element);
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-
   return pasted_nodes;
 }
 
@@ -172,6 +141,7 @@ void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, void*
 
 void NodeCopyPasteService::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
 {
+  Q_UNUSED(xml_node_data)
   reader->skipCurrentElement();
 }
 

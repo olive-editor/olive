@@ -25,28 +25,28 @@ add_subdirectory(output)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/connectable.cpp
-  node/connectable.h
-  node/factory.h
   node/factory.cpp
-  node/graph.h
+  node/factory.h
   node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/inputdragger.h
+  node/graph.h
   node/inputdragger.cpp
-  node/inputimmediate.h
+  node/inputdragger.h
   node/inputimmediate.cpp
-  node/keyframe.h
+  node/inputimmediate.h
   node/keyframe.cpp
-  node/node.h
+  node/keyframe.h
   node/node.cpp
-  node/nodecopypaste.h
+  node/node.h
   node/nodecopypaste.cpp
+  node/nodecopypaste.h
+  node/param.cpp
+  node/param.h
   node/splitvalue.h
-  node/traverser.h
   node/traverser.cpp
-  node/value.h
+  node/traverser.h
   node/value.cpp
+  node/value.h
+  node/valuedatabase.cpp
+  node/valuedatabase.h
   PARENT_SCOPE
 )

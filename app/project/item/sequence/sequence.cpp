@@ -207,17 +207,8 @@ void Sequence::Save(QXmlStreamWriter *writer) const
 void Sequence::add_default_nodes()
 {
   // Create tracks and connect them to the viewer
-  Track* video_track = new Track();
-  video_track->setParent(this);
-  viewer_output_->track_input(Track::kVideo)->ArrayAppend();
-  Node::ConnectEdge(video_track, viewer_output_->track_input(Track::kVideo), 0);
-  Node::ConnectEdge(video_track, viewer_output_->texture_input());
-
-  Track* audio_track = new Track();
-  audio_track->setParent(this);
-  viewer_output_->track_input(Track::kAudio)->ArrayAppend();
-  Node::ConnectEdge(audio_track, viewer_output_->track_input(Track::kAudio), 0);
-  Node::ConnectEdge(audio_track, viewer_output_->samples_input());
+  TimelineAddTrackCommand(viewer_output_->track_list(Track::kVideo)).redo();
+  TimelineAddTrackCommand(viewer_output_->track_list(Track::kAudio)).redo();
 }
 
 Item::Type Sequence::type() const

@@ -25,7 +25,7 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "node/input.h"
+#include "node/param.h"
 
 namespace olive {
 
@@ -54,7 +54,7 @@ class NodeParamViewArrayWidget : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewArrayWidget(NodeInput* array, QWidget* parent = nullptr);
+  NodeParamViewArrayWidget(Node* node, const QString& input, QWidget* parent = nullptr);
 
 signals:
   void DoubleClicked();
@@ -63,12 +63,14 @@ protected:
   virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
-  NodeInput* array_;
+  Node* node_;
+
+  QString input_;
 
   QLabel* count_lbl_;
 
 private slots:
-  void UpdateCounter();
+  void UpdateCounter(const QString &input, int new_size);
 
 };
 

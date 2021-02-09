@@ -42,7 +42,7 @@ public:
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
-  virtual NodeValueTable Value(NodeValueDatabase &value) const override;
+  virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 
   virtual bool HasGizmos() const override;
   //virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) const override;
@@ -51,14 +51,13 @@ public:
   //virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
   //virtual void GizmoRelease() override;
 
+  static const QString kPointsInput;
+  static const QString kColorInput;
+
 private:
   QVector<QPointF> GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D &scale) const;
 
   QVector<QRectF> GetGizmoRects(const QVector<QPointF>& points) const;
-
-  NodeInput* points_input_;
-
-  NodeInput* color_input_;
 
   NodeInput* gizmo_drag_;
   QPointF gizmo_drag_start_;

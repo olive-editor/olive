@@ -29,13 +29,13 @@ namespace olive {
 void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command)
 {
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
-    Node* out = xml_node_data.node_ptrs.value(con.output);
+    NodeOutput out(xml_node_data.node_ptrs.value(con.output_node), con.output);
 
-    if (out) {
+    if (out.IsValid()) {
       if (command) {
-        command->add_child(new NodeEdgeAddCommand(out, con.input, con.element));
+        command->add_child(new NodeEdgeAddCommand(out, con.input));
       } else {
-        Node::ConnectEdge(out, con.input, con.element);
+        Node::ConnectEdge(out, con.input);
       }
     }
   }

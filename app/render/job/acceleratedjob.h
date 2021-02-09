@@ -21,8 +21,8 @@
 #ifndef ACCELERATEDJOB_H
 #define ACCELERATEDJOB_H
 
-#include "node/input.h"
-#include "node/value.h"
+#include "node/param.h"
+#include "node/valuedatabase.h"
 
 namespace olive {
 
@@ -30,29 +30,16 @@ class AcceleratedJob {
 public:
   AcceleratedJob() = default;
 
-  NodeValue GetValue(NodeInput* input) const
-  {
-    return value_map_.value(input->id());
-  }
-
   NodeValue GetValue(const QString& input) const
   {
     return value_map_.value(input);
   }
 
-  void InsertValue(NodeInput* input, NodeValueDatabase& value)
-  {
-    InsertValue(input->id(), value[input].TakeWithMeta(input->GetDataType()));
-  }
+  void InsertValue(const Node* node, const QString& input, NodeValueDatabase& value);
 
   void InsertValue(const QString& input, const NodeValue& value)
   {
     value_map_.insert(input, value);
-  }
-
-  void InsertValue(NodeInput* input, const NodeValue& value)
-  {
-    value_map_.insert(input->id(), value);
   }
 
   const NodeValueMap &GetValues() const
