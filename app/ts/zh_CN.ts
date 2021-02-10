@@ -824,7 +824,7 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1087"/>
         <source>Set node label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">设置节点标签</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1107"/>
@@ -834,12 +834,12 @@ Make sure a sequence is loaded and it has a connected Viewer node.</source>
     <message>
         <location filename="../core.cpp" line="1122"/>
         <source>Cannot open recent project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法打开最近项目</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1123"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">项目“%1”不存在。您要从最近列表移除此文件吗？</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1151"/>
@@ -4665,7 +4665,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="365"/>
         <source>No in or out points are set to cache.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">未设置要缓存的入点或出点</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="729"/>
