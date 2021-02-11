@@ -1049,6 +1049,10 @@ private:
   void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const rational& time) const;
 
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
+  void ParameterValueChanged(const NodeInput& input, const olive::TimeRange &range)
+  {
+    ParameterValueChanged(input.input(), input.element(), range);
+  }
 
   void LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 

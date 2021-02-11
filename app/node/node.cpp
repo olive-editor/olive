@@ -830,7 +830,7 @@ void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int
     for (int i=0; i<value.size(); i++) {
       if (IsUsingStandardValue(id, i, element)) {
         // If this standard value is being used, we need to send a value changed signal
-        emit ValueChanged(NodeInput(this, id, element), TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+        ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
         break;
       }
     }
@@ -848,7 +848,7 @@ void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const QVar
 
     if (IsUsingStandardValue(id, track, element)) {
       // If this standard value is being used, we need to send a value changed signal
-      emit ValueChanged(NodeInput(this, id, element), TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+      ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
     }
   } else {
     ReportInvalidInput("set standard value of", id);
@@ -1260,7 +1260,7 @@ void Node::ArrayResizeInternal(const QString &id, int size)
 
     imm->array_size = size;
     emit InputArraySizeChanged(id, size);
-    emit ValueChanged(NodeInput(this, id, -1), TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+    ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }
 }
 
@@ -2052,7 +2052,7 @@ void Node::childEvent(QChildEvent *event)
       connect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
 
       emit KeyframeAdded(key);
-      emit ValueChanged(i, GetRangeAffectedByKeyframe(key));
+      ParameterValueChanged(i, GetRangeAffectedByKeyframe(key));
     } else if (event->type() == QEvent::ChildRemoved) {
       TimeRange time_affected = GetRangeAffectedByKeyframe(key);
 
@@ -2066,7 +2066,7 @@ void Node::childEvent(QChildEvent *event)
       GetImmediate(key->input(), key->element())->remove_keyframe(key);
 
       emit KeyframeRemoved(key);
-      emit ValueChanged(i, time_affected);
+      ParameterValueChanged(i, time_affected);
     }
   }
 }
@@ -2084,7 +2084,7 @@ void Node::InvalidateFromKeyframeBezierInChange()
     start = track.at(keyframe_index - 1)->time();
   }
 
-  emit ValueChanged(key->key_track_ref().input(), TimeRange(start, end));
+  ParameterValueChanged(key->key_track_ref().input(), TimeRange(start, end));
 }
 
 void Node::InvalidateFromKeyframeBezierOutChange()
@@ -2100,7 +2100,7 @@ void Node::InvalidateFromKeyframeBezierOutChange()
     end = track.at(keyframe_index + 1)->time();
   }
 
-  emit ValueChanged(key->key_track_ref().input(), TimeRange(start, end));
+  ParameterValueChanged(key->key_track_ref().input(), TimeRange(start, end));
 }
 
 void Node::InvalidateFromKeyframeTimeChange()
@@ -2126,14 +2126,14 @@ void Node::InvalidateFromKeyframeTimeChange()
   // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
   // was resorted in the if block above)
   foreach (const TimeRange& r, invalidate_range) {
-    emit ValueChanged(key->key_track_ref().input(), r);
+    ParameterValueChanged(key->key_track_ref().input(), r);
   }
 }
 
 void Node::InvalidateFromKeyframeValueChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  emit ValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
+  ParameterValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
 }
 
 void Node::InvalidateFromKeyframeTypeChanged()
@@ -2147,7 +2147,7 @@ void Node::InvalidateFromKeyframeTypeChanged()
   }
 
   // Invalidate entire range
-  emit ValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
+  ParameterValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
 }
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const
