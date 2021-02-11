@@ -62,8 +62,12 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   stacked_widget_ = new QStackedWidget(this);
   layout->addWidget(stacked_widget_);
 
+  // Set up sort filter proxy model
+  sort_model_.setSourceModel(&model_);
+
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
+  tree_view_->setSortingEnabled(true);
   tree_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(tree_view_);
 
@@ -120,12 +124,12 @@ void ProjectExplorer::set_view_type(ProjectToolbar::ViewType type)
 
 void ProjectExplorer::Edit(Item *item)
 {
-  CurrentView()->edit(model_.CreateIndexFromItem(item));
+  CurrentView()->edit(sort_model_.mapFromSource(model_.CreateIndexFromItem(item)));
 }
 
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
-  view->setModel(&model_);
+  view->setModel(&sort_model_);
   view->setEditTriggers(QAbstractItemView::NoEditTriggers);
   connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
   connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
@@ -144,7 +148,7 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set navbar text to folder's name
   if (index.isValid()) {
-    Folder* f = static_cast<Folder*>(index.internalPointer());
+    Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
     nav_bar_->set_text(f->name());
   } else {
     // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
@@ -195,7 +199,7 @@ void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
   rename_timer_.stop();
 
   // Retrieve source item from index
-  Item* i = static_cast<Item*>(index.internalPointer());
+  Item* i = static_cast<Item*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
   if (i->CanHaveChildren()
@@ -454,7 +458,7 @@ QModelIndex ProjectExplorer::get_root_index() const
 
 void ProjectExplorer::set_root(Item *item)
 {
-  QModelIndex index = model_.CreateIndexFromItem(item);
+  QModelIndex index = sort_model_.mapFromSource(model_.CreateIndexFromItem(item));
 
   BrowseToFolder(index);
   tree_view_->setRootIndex(index);
@@ -469,7 +473,7 @@ QVector<Item *> ProjectExplorer::SelectedItems() const
   QVector<Item*> selected_items;
 
   for (int i=0;i<index_list.size();i++) {
-    const QModelIndex& index = index_list.at(i);
+    QModelIndex index = sort_model_.mapToSource(index_list.at(i));
 
     Item* item = static_cast<Item*>(index.internalPointer());
 

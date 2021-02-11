@@ -21,6 +21,7 @@
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
+#include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QTreeView>
@@ -151,6 +152,7 @@ private:
 
   ProjectToolbar::ViewType view_type_;
 
+  QSortFilterProxyModel sort_model_;
   ProjectViewModel model_;
 
   QModelIndex clicked_index_;
