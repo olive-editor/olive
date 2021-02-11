@@ -14,22 +14,29 @@ yum install --setopt=tsflags=nodocs -y \
     cups-libs \
     freetype-devel \
     giflib-devel \
-    gstreamer1 gstreamer1-devel \
-    gstreamer1-plugins-bad-free gstreamer1-plugins-bad-free-devel \
+    gstreamer1 \
+    gstreamer1-devel \
+    gstreamer1-plugins-bad-free \
+    gstreamer1-plugins-bad-free-devel \
     libicu-devel \
     libmng-devel \
     LibRaw-devel \
     libwebp-devel \
-    libXcomposite libXcomposite-devel \
-    libXcursor libXcursor-devel \
-    libxkbcommon libxkbcommon-devel \
+    libXcomposite \
+    libXcomposite-devel \
+    libXcursor \
+    libXcursor-devel \
+    libxkbcommon \
+    libxkbcommon-devel \
     libxkbcommon-x11-devel \
-    libXScrnSaver libXScrnSaver-devel \
+    libXScrnSaver \
+    libXScrnSaver-devel \
     mesa-libGL-devel \
     numactl-devel \
     openjpeg2-devel \
     pciutils-devel \
-    pulseaudio-libs pulseaudio-libs-devel \
+    pulseaudio-libs \
+    pulseaudio-libs-devel \
     python3-tkinter \
     zlib-devel
 
@@ -56,11 +63,12 @@ yum install -y epel-release
 
 # Additional package that are not found initially
 yum install -y \
-    rh-git218 \
+    rh-git218
 #   lame-devel
 #   libcaca-devel \
 #   libdb4-devel \
 #   libdc1394-devel \
+#   openssl11-devel \
 #   p7zip \
 #   yasm-devel \
 #   zvbi-devel

@@ -37,6 +37,17 @@ find_path(CRASHPAD_BASE_INCLUDE_DIR
 )
 list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_BASE_INCLUDE_DIR})
 
+find_path(CRASHPAD_GEN_INCLUDE_DIR
+    build/chromeos_buildflags.h
+  HINTS
+    "${CRASHPAD_LOCATION}"
+    "$ENV{CRASHPAD_LOCATION}"
+    "${CRASHPAD_BASE_DIR}"
+  PATH_SUFFIXES
+    "out/Default/gen"
+)
+list(APPEND CRASHPAD_INCLUDE_DIRS ${CRASHPAD_GEN_INCLUDE_DIR})
+
 # Try to find build files
 if (WIN32)
   find_path(CRASHPAD_LIBRARY_DIRS
@@ -100,6 +111,7 @@ find_package_handle_standard_args(GoogleCrashpad
     BREAKPAD_BIN_DIR
     CRASHPAD_CLIENT_INCLUDE_DIR
     CRASHPAD_BASE_INCLUDE_DIR
+    CRASHPAD_GEN_INCLUDE_DIR
 )
 
 if (UNIX AND NOT APPLE)

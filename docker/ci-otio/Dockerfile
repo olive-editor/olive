@@ -9,9 +9,10 @@ ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2021
 
-FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-python
-FROM ${ASWF_PKG_ORG}/ci-package-qt:${VFXPLATFORM_VERSION} as ci-package-qt
-FROM ${ASWF_PKG_ORG}/ci-package-pyside:${VFXPLATFORM_VERSION} as ci-package-pyside
+# We are currently not interested in the Python implementation and bindings
+#FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-python
+#FROM ${ASWF_PKG_ORG}/ci-package-qt:${VFXPLATFORM_VERSION} as ci-package-qt
+#FROM ${ASWF_PKG_ORG}/ci-package-pyside:${VFXPLATFORM_VERSION} as ci-package-pyside
 
 FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-otio
 
@@ -32,21 +33,20 @@ LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 ENV OLIVE_ORG=${OLIVE_ORG} \
     CI_COMMON_VERSION=${CI_COMMON_VERSION} \
     VFXPLATFORM_VERSION=${VFXPLATFORM_VERSION} \
-    PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages:/usr/local/lib/python \
     OLIVE_INSTALL_PREFIX=/usr/local
+#   PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages:/usr/local/lib/python \
 
 COPY scripts/base/install_cmake.sh \
      scripts/build_otio.sh \
      /tmp/
 
-COPY --from=ci-package-python /. /usr/local/
-COPY --from=ci-package-qt /. /usr/local/
-COPY --from=ci-package-pyside /. /usr/local/
+#COPY --from=ci-package-python /. /usr/local/
+#COPY --from=ci-package-qt /. /usr/local/
+#COPY --from=ci-package-pyside /. /usr/local/
 
 RUN export DOWNLOADS_DIR=/tmp/downloads && \
     mkdir /tmp/downloads && \
     /tmp/install_cmake.sh && \
-    pip install flake8 tox urllib3 && \
     rm -rf /tmp/downloads
 
 RUN /tmp/before_build.sh && \
