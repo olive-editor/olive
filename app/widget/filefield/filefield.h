@@ -18,54 +18,45 @@
 
 ***/
 
-#ifndef FOOTAGECOMBOBOX_H
-#define FOOTAGECOMBOBOX_H
+#ifndef FILEFIELD_H
+#define FILEFIELD_H
 
-#include <QComboBox>
-#include <QMenu>
-
-#include "project/item/footage/footage.h"
-#include "project/project.h"
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace olive {
 
-class FootageComboBox : public QComboBox
+class FileField : public QWidget
 {
   Q_OBJECT
 public:
-  FootageComboBox(QWidget* parent = nullptr);
+  FileField(QWidget* parent = nullptr);
 
-  virtual void showPopup() override;
-
-  void SetRoot(const Folder *p);
-
-  void SetOnlyShowReadyFootage(bool e);
-
-  Stream* SelectedFootage() const
+  QString GetFilename() const
   {
-    return footage_;
+    return line_edit_->text();
   }
 
-public slots:
-  void SetFootage(Stream* f);
+  void SetFilename(const QString& s)
+  {
+    line_edit_->setText(s);
+  }
 
 signals:
-  void FootageChanged(Stream* f);
+  void FilenameChanged(const QString& filename);
 
 private:
-  void TraverseFolder(const Folder *f, QMenu* m) const;
+  QLineEdit* line_edit_;
 
-  void UpdateText();
+  QPushButton* browse_btn_;
 
-  static QString FootageToString(Stream* f);
+private slots:
+  void BrowseBtnClicked();
 
-  const Folder* root_;
+  void LineEditChanged(const QString &text);
 
-  Stream* footage_;
-
-  bool only_show_ready_footage_;
 };
 
 }
 
-#endif // FOOTAGECOMBOBOX_H
+#endif // FILEFIELD_H

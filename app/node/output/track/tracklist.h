@@ -29,13 +29,13 @@
 
 namespace olive {
 
-class ViewerOutput;
+class Sequence;
 
 class TrackList : public QObject
 {
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const Track::Type& type, const QString& track_input);
+  TrackList(Sequence *parent, const Track::Type& type, const QString& track_input);
 
   const Track::Type& type() const
   {
@@ -64,7 +64,7 @@ public:
   const QString &track_input() const;
   NodeInput track_input(int element) const;
 
-  ViewerOutput* parent() const;
+  Sequence* parent() const;
 
   int ArraySize() const;
 

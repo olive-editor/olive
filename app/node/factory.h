@@ -38,7 +38,6 @@ public:
     kPolygonGenerator,
     kMatrixGenerator,
     kTransformDistort,
-    kFootageInput,
     kTrackOutput,
     kAudioVolume,
     kAudioPanning,
@@ -54,6 +53,9 @@ public:
     kDipToColorTransition,
     kMosaicFilter,
     kCropDistort,
+    kProjectFootage,
+    kProjectFolder,
+    kProjectSequence,
 
     // Count value
     kInternalNodeCount

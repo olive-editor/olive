@@ -91,6 +91,14 @@ public:
 
   void SetColorLabel(int index);
 
+  /**
+   * @brief Timelines should always be connected to sequences
+   */
+  Sequence* sequence() const
+  {
+    return static_cast<Sequence*>(GetConnectedNode());
+  }
+
   const QVector<Block*>& GetSelectedBlocks() const
   {
     return selected_blocks_;
@@ -237,8 +245,8 @@ protected:
   virtual void TimeChangedEvent(const int64_t &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput* n) override;
-  virtual void DisconnectNodeInternal(ViewerOutput* n) override;
+  virtual void ConnectNodeInternal(Sequence* n) override;
+  virtual void DisconnectNodeInternal(Sequence* n) override;
 
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;

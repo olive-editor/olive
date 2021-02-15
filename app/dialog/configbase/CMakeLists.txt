@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/footagecombobox/footagecombobox.h
-  widget/footagecombobox/footagecombobox.cpp
+  dialog/configbase/configdialogbase.cpp
+  dialog/configbase/configdialogbase.h
+  dialog/configbase/configdialogbasetab.cpp
+  dialog/configbase/configdialogbasetab.h
   PARENT_SCOPE
 )

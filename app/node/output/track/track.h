@@ -274,7 +274,7 @@ public:
 
   bool IsLocked() const;
 
-  virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const override;
 
   AudioVisualWaveform& waveform()
   {
@@ -335,7 +335,7 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 

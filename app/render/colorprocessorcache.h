@@ -21,7 +21,6 @@
 #ifndef COLORPROCESSORCACHE_H
 #define COLORPROCESSORCACHE_H
 
-#include "project/item/footage/stream.h"
 #include "render/colorprocessor.h"
 
 namespace olive {

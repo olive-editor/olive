@@ -241,7 +241,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QVector<Node *> &nodes) const;
+  void LabelNodes(const QVector<Node *> &nodes);
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -488,7 +488,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  ViewerOutput* GetSequenceToExport();
+  Sequence* GetSequenceToExport();
 
   /**
    * @brief Internal main window object

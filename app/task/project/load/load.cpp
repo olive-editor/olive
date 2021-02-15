@@ -37,27 +37,30 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 bool ProjectLoadTask::Run()
 {
   QFile project_file(GetFilename());
-  uint project_version = Core::kProjectVersion;
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
+    bool ok;
+    uint project_version = reader.documentVersion().toUInt(&ok);
+
+    if (!ok) {
+      SetError(tr("Failed to determine project's version identifier."));
+      return false;
+    } else if (project_version > Core::kProjectVersion) {
+      // Project is newer than we support
+      SetError(tr("This project is newer than this version of Olive and cannot be opened."));
+      return false;
+    } else if (project_version < 210122) { // Change this if we drop support for a project version
+      // Project is older than we support
+      SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+      return false;
+    }
+
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {
-          if (reader.name() == QStringLiteral("version")) {
-            project_version = reader.readElementText().toUInt();
-
-            if (project_version > Core::kProjectVersion) {
-              // Project is newer than we support
-              SetError(tr("This project is newer than this version of Olive and cannot be opened."));
-              return false;
-            } else if (project_version < 210122) { // Change this if we drop support for a project version
-              // Project is older than we support
-              SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
-              return false;
-            }
-          } else if (reader.name() == QStringLiteral("url")) {
+          if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
             project_ = new Project();

@@ -18,18 +18,41 @@
 
 ***/
 
-#include "audiostreamproperties.h"
+#ifndef CONFIGBASE_H
+#define CONFIGBASE_H
+
+#include <QDialog>
+#include <QListWidget>
+#include <QStackedWidget>
+
+#include "configdialogbasetab.h"
 
 namespace olive {
 
-AudioStreamProperties::AudioStreamProperties(AudioStream *stream) :
-  stream_(stream)
+class ConfigDialogBase : public QDialog
 {
+  Q_OBJECT
+public:
+  ConfigDialogBase(QWidget* parent = nullptr);
+
+private slots:
+  /**
+   * @brief Override of accept to save preferences to Config.
+   */
+  virtual void accept() override;
+
+protected:
+  void AddTab(ConfigDialogBaseTab* tab, const QString& title);
+
+private:
+  QListWidget* list_widget_;
+
+  QStackedWidget* preference_pane_stack_;
+
+  QList<ConfigDialogBaseTab*> tabs_;
+
+};
+
 }
 
-void AudioStreamProperties::Accept(MultiUndoCommand*)
-{
-  Q_UNUSED(stream_)
-}
-
-}
+#endif // CONFIGBASE_H

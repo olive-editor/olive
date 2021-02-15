@@ -33,8 +33,8 @@
 #include "config/config.h"
 #include "project/project.h"
 #include "project/item/footage/footage.h"
-#include "project/item/footage/videostream.h"
 #include "ui/colorcoding.h"
+#include "ui/icons/icons.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
@@ -76,7 +76,7 @@ NodeGraph *Node::parent() const
   return static_cast<NodeGraph*>(QObject::parent());
 }
 
-void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled)
+void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled)
 {
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
@@ -114,7 +114,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
         }
       }
     } else if (reader->name() == QStringLiteral("custom")) {
-      LoadInternal(reader, xml_node_data);
+      LoadInternal(reader, xml_node_data, version, cancelled);
     } else if (reader->name() == QStringLiteral("connections")) {
       // Load connections
       while (XMLReadNextStartElement(reader)) {
@@ -199,6 +199,11 @@ void Node::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // custom
 }
 
+Project* Node::project() const
+{
+  return dynamic_cast<Project*>(parent());
+}
+
 QString Node::ShortName() const
 {
   return Name();
@@ -212,6 +217,12 @@ QString Node::Description() const
 
 void Node::Retranslate()
 {
+}
+
+QIcon Node::icon() const
+{
+  // Just a meaningless default icon to be used where necessary
+  return icon::New;
 }
 
 Color Node::color() const
@@ -253,9 +264,8 @@ QBrush Node::brush(qreal top, qreal bottom) const
 
 void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
 {
-  // Ensure parameters exist on the nodes requested
-  Q_ASSERT(input.node()->HasInputWithID(input.input()));
-  Q_ASSERT(output.node()->HasOutputWithID(output.output()));
+  // Ensure graph is the same
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
 
   // Ensure a connection isn't getting overwritten
   Q_ASSERT(input.node()->input_connections().find(input) == input.node()->input_connections().end());
@@ -264,8 +274,9 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
   input.node()->input_connections_[input] = output;
   output.node()->output_connections_.push_back(std::pair<NodeOutput, NodeInput>({output, input}));
 
-  // Call internal event
+  // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
+  output.node()->OutputConnectedEvent(output.output(), input);
 
   // Emit signals
   emit input.node()->InputConnected(output, input);
@@ -279,9 +290,8 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
 
 void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
 {
-  // Ensure parameters exist on the nodes requested
-  Q_ASSERT(input.node()->HasInputWithID(input.input()));
-  Q_ASSERT(output.node()->HasOutputWithID(output.output()));
+  // Ensure graph is the same
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
 
   // Ensure connection exists
   Q_ASSERT(input.node()->input_connections().at(input) == output);
@@ -293,8 +303,9 @@ void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
   OutputConnections& outputs = output.node()->output_connections_;
   outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<NodeOutput, NodeInput>({output, input})));
 
-  // Call internal event
+  // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
+  output.node()->OutputDisconnectedEvent(output.output(), input);
 
   emit input.node()->InputDisconnected(output, input);
   emit output.node()->OutputDisconnected(output, input);
@@ -1292,7 +1303,7 @@ void Node::IgnoreHashingFrom(const QString &input_id)
   ignore_when_hashing_.append(input_id);
 }
 
-void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint, const QAtomicInt*)
 {
   reader->skipCurrentElement();
 }
@@ -1337,10 +1348,13 @@ void Node::SetLabel(const QString &s)
   }
 }
 
-void Node::Hash(QCryptographicHash &hash, const rational& time) const
+void Node::Hash(const QString &output, QCryptographicHash &hash, const rational& time) const
 {
-  // Add this Node's ID
+  Q_UNUSED(output)
+
+  // Add this Node's ID and output being used
   hash.addData(id().toUtf8());
+  hash.addData(output.toUtf8());
 
   foreach (const QString& input, input_ids_) {
     // For each input, try to hash its value
@@ -1479,56 +1493,13 @@ void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int 
 
   if (IsInputConnected(input, element)) {
     // Traverse down this edge
-    GetConnectedNode(input, element)->Hash(hash, input_time);
+    NodeOutput output = GetConnectedOutput(input, element);
+
+    output.node()->Hash(output.output(), hash, input_time);
   } else {
     // Grab the value at this time
     QVariant value = GetValueAtTime(input, input_time, element);
     hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
-  }
-
-  // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
-  if (GetInputDataType(input) == NodeValue::kFootage) {
-    Stream* stream = Node::ValueToPtr<Stream>(GetStandardValue(input, element));
-
-    if (stream) {
-      // Add footage details to hash
-
-      // Footage filename
-      hash.addData(stream->footage()->filename().toUtf8());
-
-      // Footage last modified date
-      hash.addData(QString::number(stream->footage()->timestamp()).toUtf8());
-
-      // Footage stream
-      hash.addData(QString::number(stream->index()).toUtf8());
-
-      if (stream->type() == Stream::kVideo) {
-        VideoStream* image_stream = static_cast<VideoStream*>(stream);
-
-        // Current color config and space
-        hash.addData(image_stream->footage()->project()->color_manager()->GetConfigFilename().toUtf8());
-        hash.addData(image_stream->colorspace().toUtf8());
-
-        // Alpha associated setting
-        hash.addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
-
-        // Pixel aspect ratio
-        hash.addData(reinterpret_cast<const char*>(&image_stream->pixel_aspect_ratio()), sizeof(rational));
-      }
-
-      // Footage timestamp
-      if (stream->type() == Stream::kVideo) {
-        VideoStream* video_stream = static_cast<VideoStream*>(stream);
-
-        int64_t video_ts = Timecode::time_to_timestamp(input_time, video_stream->timebase());
-
-        // Add timestamp in units of the video stream's timebase
-        hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(int64_t));
-
-        // Add start time - used for both image sequences and video streams
-        hash.addData(QString::number(video_stream->start_time()).toUtf8());
-      }
-    }
   }
 }
 
@@ -1700,6 +1671,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Channel");
   case kCategoryTransition:
     return tr("Transition");
+  case kCategoryProject:
+    return tr("Project");
   case kCategoryUnknown:
   case kCategoryCount:
     break;
@@ -2032,6 +2005,18 @@ void Node::InputDisconnectedEvent(const QString &input, int element, const NodeO
   Q_UNUSED(output)
 }
 
+void Node::OutputConnectedEvent(const QString &output, const NodeInput &input)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(input)
+}
+
+void Node::OutputDisconnectedEvent(const QString &output, const NodeInput &input)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(input)
+}
+
 void Node::childEvent(QChildEvent *event)
 {
   super::childEvent(event);
@@ -2152,17 +2137,17 @@ void Node::InvalidateFromKeyframeTypeChanged()
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const
 {
-  return node_->parent()->project();
+  return node_->project();
 }
 
 Project *Node::ArrayRemoveCommand::GetRelevantProject() const
 {
-  return node_->parent()->project();
+  return node_->project();
 }
 
 Project *Node::ArrayResizeCommand::GetRelevantProject() const
 {
-  return node_->parent()->project();
+  return node_->project();
 }
 
 }

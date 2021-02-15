@@ -20,7 +20,6 @@
 
 #include "sequence.h"
 
-#include <QCoreApplication>
 #include <QThread>
 
 #include "config/config.h"
@@ -38,192 +37,67 @@
 
 namespace olive {
 
-Sequence::Sequence()
-{
-  viewer_output_ = new ViewerOutput();
-  viewer_output_->SetCanBeDeleted(false);
-  viewer_output_->setParent(this);
-  connect(viewer_output_, &ViewerOutput::LabelChanged, this, &Sequence::set_name);
-}
+const QString Sequence::kTextureInput = QStringLiteral("tex_in");
+const QString Sequence::kSamplesInput = QStringLiteral("samples_in");
+const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
 
-void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
-{
-  {
-    XMLAttributeLoop(reader, attr) {
-      if (cancelled && *cancelled) {
-        return;
-      }
+#define super Item
 
-      if (attr.name() == QStringLiteral("name")) {
-        set_name(attr.value().toString());
-      } else if (attr.name() == QStringLiteral("ptr")) {
-        xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
-      }
+Sequence::Sequence(bool viewer_only_mode) :
+  Item(!viewer_only_mode, true),
+  video_frame_cache_(this),
+  audio_playback_cache_(this),
+  operation_stack_(0)
+{
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+
+  if (!viewer_only_mode) {
+    // Create TrackList instances
+    track_lists_.resize(Track::kCount);
+
+    for (int i=0;i<Track::kCount;i++) {
+      // Create track input
+      QString track_input_id = kTrackInputFormat.arg(i);
+
+      AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
+
+      IgnoreInvalidationsFrom(track_input_id);
+
+      TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
+      track_lists_.replace(i, list);
+      connect(list, &TrackList::TrackListChanged, this, &Sequence::UpdateTrackCache);
+      connect(list, &TrackList::LengthChanged, this, &Sequence::VerifyLength);
+      connect(list, &TrackList::TrackAdded, this, &Sequence::TrackAdded);
+      connect(list, &TrackList::TrackRemoved, this, &Sequence::TrackRemoved);
     }
   }
 
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
-
-    if (reader->name() == QStringLiteral("video")) {
-      int video_width = 0, video_height = 0, preview_div = 1;
-      rational video_timebase, video_pixel_aspect;
-      VideoParams::Interlacing video_interlacing = VideoParams::kInterlaceNone;
-      VideoParams::Format preview_format = VideoParams::kFormatInvalid;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (reader->name() == QStringLiteral("width")) {
-          video_width = reader->readElementText().toInt();
-        } else if (reader->name() == QStringLiteral("height")) {
-          video_height = reader->readElementText().toInt();
-        } else if (reader->name() == QStringLiteral("timebase")) {
-          video_timebase = rational::fromString(reader->readElementText());
-        } else if (reader->name() == QStringLiteral("divider")) {
-          preview_div = reader->readElementText().toInt();
-        } else if (reader->name() == QStringLiteral("format")) {
-          preview_format = static_cast<VideoParams::Format>(reader->readElementText().toInt());
-        } else if (reader->name() == QStringLiteral("pixelaspect")) {
-          video_pixel_aspect = rational::fromString(reader->readElementText());
-        } else if (reader->name() == QStringLiteral("interlacing")) {
-          video_interlacing = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-      set_video_params(VideoParams(video_width, video_height, video_timebase, preview_format,
-                                   VideoParams::kInternalChannelCount, video_pixel_aspect,
-                                   video_interlacing, preview_div));
-    } else if (reader->name() == QStringLiteral("audio")) {
-      int rate = 0;
-      uint64_t layout = 0;
-      AudioParams::Format format = AudioParams::kFormatInvalid;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("rate")) {
-          rate = reader->readElementText().toInt();
-        } else if (reader->name() == QStringLiteral("layout")) {
-          layout = reader->readElementText().toULongLong();
-        } else if (reader->name() == QStringLiteral("format")) {
-          format = static_cast<AudioParams::Format>(reader->readElementText().toInt());
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-      set_audio_params(AudioParams(rate, layout, format));
-    } else if (reader->name() == QStringLiteral("points")) {
-
-      TimelinePoints::Load(reader);
-
-    } else if (reader->name() == QStringLiteral("node") || reader->name() == QStringLiteral("viewer")) {
-      Node* node;
-
-      if (reader->name() == QStringLiteral("node")) {
-        node = nullptr;
-
-        {
-          XMLAttributeLoop(reader, attr) {
-            if (attr.name() == QStringLiteral("id")) {
-              QString id = attr.value().toString();
-
-              node = NodeFactory::CreateFromID(id);
-              break;
-            }
-          }
-        }
-      } else {
-        node = viewer_output_;
-      }
-
-      if (node) {
-        node->Load(reader, xml_node_data, cancelled);
-        node->setParent(this);
-      }
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-
-  // Make connections
-  XMLConnectNodes(xml_node_data);
-
-  // Link blocks
-  XMLLinkBlocks(xml_node_data);
+  // Create UUID for this node
+  uuid_ = QUuid::createUuid();
 }
 
-void Sequence::Save(QXmlStreamWriter *writer) const
+Sequence::~Sequence()
 {
-  writer->writeAttribute(QStringLiteral("name"), name());
-
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeStartElement(QStringLiteral("video"));
-
-  writer->writeTextElement(QStringLiteral("width"), QString::number(video_params().width()));
-  writer->writeTextElement(QStringLiteral("height"), QString::number(video_params().height()));
-  writer->writeTextElement(QStringLiteral("timebase"), video_params().time_base().toString());
-  writer->writeTextElement(QStringLiteral("pixelaspect"), video_params().pixel_aspect_ratio().toString());
-  writer->writeTextElement(QStringLiteral("interlacing"), QString::number(video_params().interlacing()));
-  writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params().divider()));
-  writer->writeTextElement(QStringLiteral("format"), QString::number(video_params().format()));
-
-  writer->writeEndElement(); // video
-
-  writer->writeStartElement(QStringLiteral("audio"));
-
-  writer->writeTextElement(QStringLiteral("rate"), QString::number(audio_params().sample_rate()));
-  writer->writeTextElement(QStringLiteral("layout"), QString::number(audio_params().channel_layout()));
-  writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params().format()));
-
-  writer->writeEndElement(); // audio
-
-  // Write TimelinePoints
-  writer->writeStartElement(QStringLiteral("points"));
-    TimelinePoints::Save(writer);
-  writer->writeEndElement(); // points
-
-  foreach (Node* node, nodes()) {
-    if (node != viewer_output_) {
-      writer->writeStartElement(QStringLiteral("node"));
-      writer->writeAttribute(QStringLiteral("id"), node->id());
-      node->Save(writer);
-      writer->writeEndElement(); // node;
-    }
-  }
-
-  writer->writeStartElement(QStringLiteral("viewer"));
-  writer->writeAttribute(QStringLiteral("id"), viewer_output_->id());
-  viewer_output_->Save(writer);
-  writer->writeEndElement(); // viewer;
+  DisconnectAll();
 }
 
-void Sequence::add_default_nodes()
+void Sequence::add_default_nodes(MultiUndoCommand* command)
 {
   // Create tracks and connect them to the viewer
-  TimelineAddTrackCommand(viewer_output_->track_list(Track::kVideo)).redo();
-  TimelineAddTrackCommand(viewer_output_->track_list(Track::kAudio)).redo();
+  command->add_child(new TimelineAddTrackCommand(track_list(Track::kVideo)));
+  command->add_child(new TimelineAddTrackCommand(track_list(Track::kAudio)));
 }
 
-Item::Type Sequence::type() const
-{
-  return kSequence;
-}
-
-QIcon Sequence::icon()
+QIcon Sequence::icon() const
 {
   return icon::Sequence;
 }
 
 QString Sequence::duration()
 {
-  rational timeline_length = viewer_output_->GetLength();
+  rational timeline_length = GetLength();
 
   int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params().time_base());
 
@@ -232,27 +106,7 @@ QString Sequence::duration()
 
 QString Sequence::rate()
 {
-  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_params().time_base().flipped().toDouble());
-}
-
-const VideoParams &Sequence::video_params() const
-{
-  return viewer_output_->video_params();
-}
-
-void Sequence::set_video_params(const VideoParams &vparam)
-{
-  viewer_output_->set_video_params(vparam);
-}
-
-const AudioParams &Sequence::audio_params() const
-{
-  return viewer_output_->audio_params();
-}
-
-void Sequence::set_audio_params(const AudioParams &params)
-{
-  viewer_output_->set_audio_params(params);
+  return tr("%1 FPS").arg(video_params().time_base().flipped().toDouble());
 }
 
 void Sequence::set_default_parameters()
@@ -279,45 +133,48 @@ void Sequence::set_parameters_from_footage(const QVector<Footage *> footage)
   bool found_audio_params = false;
 
   foreach (Footage* f, footage) {
-    foreach (Stream* s, f->streams()) {
-      if (!s->enabled()) {
+    for (int i=0; i<f->GetStreamCount(); i++) {
+      if (!f->IsStreamEnabled(i)) {
         continue;
       }
 
-      switch (s->type()) {
+      Stream s = f->GetStreamAt(i);
+
+      if (!s.IsValid()) {
+        continue;
+      }
+
+      switch (s.type()) {
       case Stream::kVideo:
       {
-        VideoStream* vs = static_cast<VideoStream*>(s);
-
         // If this is a video stream, use these parameters
         if (!found_video_params) {
           rational using_timebase;
 
-          if (vs->video_type() == VideoStream::kVideoTypeStill) {
+          if (s.video_type() == Stream::kVideoTypeStill) {
             // If this is a still image, we'll use it's resolution but won't set
             // `found_video_params` in case something with a frame rate comes along which we'll
             // prioritize
             using_timebase = video_params().time_base();
           } else {
-            using_timebase = vs->frame_rate().flipped();
+            using_timebase = s.frame_rate().flipped();
             found_video_params = true;
           }
 
-          set_video_params(VideoParams(vs->width(),
-                                       vs->height(),
+          set_video_params(VideoParams(s.width(),
+                                       s.height(),
                                        using_timebase,
-                                       static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                       static_cast<VideoParams::Format>(Config::Current()[QStringLiteral("OfflinePixelFormat")].toInt()),
                                        VideoParams::kInternalChannelCount,
-                                       vs->pixel_aspect_ratio(),
-                                       vs->interlacing(),
-                                       VideoParams::generate_auto_divider(vs->width(), vs->height())));
+                                       s.pixel_aspect_ratio(),
+                                       s.interlacing(),
+                                       VideoParams::generate_auto_divider(s.width(), s.height())));
         }
         break;
       }
       case Stream::kAudio:
         if (!found_audio_params) {
-          AudioStream* as = static_cast<AudioStream*>(s);
-          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout(), AudioParams::kInternalFormat));
+          set_audio_params(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
           found_audio_params = true;
         }
         break;
@@ -336,14 +193,296 @@ void Sequence::set_parameters_from_footage(const QVector<Footage *> footage)
   }
 }
 
-ViewerOutput *Sequence::viewer_output() const
+QVector<Track *> Sequence::GetUnlockedTracks() const
 {
-  return viewer_output_;
+  QVector<Track*> tracks = GetTracks();
+
+  for (int i=0;i<tracks.size();i++) {
+    if (tracks.at(i)->IsLocked()) {
+      tracks.removeAt(i);
+      i--;
+    }
+  }
+
+  return tracks;
 }
 
-void Sequence::NameChangedEvent(const QString &name)
+void Sequence::Retranslate()
 {
-  viewer_output_->SetLabel(name);
+  super::Retranslate();
+
+  SetInputName(kTextureInput, tr("Texture"));
+
+  SetInputName(kSamplesInput, tr("Samples"));
+
+  for (int i=0;i<Track::kCount;i++) {
+    QString input_name;
+
+    switch (static_cast<Track::Type>(i)) {
+    case Track::kVideo:
+      input_name = tr("Video Tracks");
+      break;
+    case Track::kAudio:
+      input_name = tr("Audio Tracks");
+      break;
+    case Track::kSubtitle:
+      input_name = tr("Subtitle Tracks");
+      break;
+    case Track::kNone:
+    case Track::kCount:
+      break;
+    }
+
+    if (!input_name.isEmpty()) {
+      SetInputName(kTrackInputFormat.arg(i), input_name);
+    }
+  }
+}
+
+rational Sequence::GetCustomLength(Track::Type type) const
+{
+  switch (type) {
+  case Track::kVideo:
+    return track_lists_.at(Track::kVideo)->GetTotalLength();
+  case Track::kAudio:
+    return track_lists_.at(Track::kAudio)->GetTotalLength();
+  case Track::kSubtitle:
+    return track_lists_.at(Track::kSubtitle)->GetTotalLength();
+  case Track::kNone:
+  case Track::kCount:
+    break;
+  }
+
+  return rational();
+}
+
+void Sequence::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kTextureInput) {
+    emit TextureInputChanged();
+  } else {
+    foreach (TrackList* list, track_lists_) {
+      if (list->track_input() == input) {
+        // Return because we found our input
+        list->TrackConnected(output.node(), element);
+        return;
+      }
+    }
+  }
+
+  super::InputConnectedEvent(input, element, output);
+}
+
+void Sequence::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
+{
+  if (input == kTextureInput) {
+    emit TextureInputChanged();
+  } else {
+    foreach (TrackList* list, track_lists_) {
+      if (list->track_input() == input) {
+        // Return because we found our input
+        list->TrackDisconnected(output.node(), element);
+        return;
+      }
+    }
+  }
+
+  super::InputDisconnectedEvent(input, element, output);
+}
+
+void Sequence::ShiftAudioEvent(const rational &from, const rational &to)
+{
+  foreach (Track* track, track_lists_.at(Track::kAudio)->GetTracks()) {
+    track->waveform().Shift(from, to);
+  }
+}
+
+void Sequence::UpdateTrackCache()
+{
+  track_cache_.clear();
+
+  foreach (TrackList* list, track_lists_) {
+    foreach (Track* track, list->GetTracks()) {
+      track_cache_.append(track);
+    }
+  }
+}
+
+void Sequence::ShiftVideoCache(const rational &from, const rational &to)
+{
+  video_frame_cache_.Shift(from, to);
+
+  ShiftVideoEvent(from, to);
+}
+
+void Sequence::ShiftAudioCache(const rational &from, const rational &to)
+{
+  audio_playback_cache_.Shift(from, to);
+
+  ShiftAudioEvent(from, to);
+}
+
+void Sequence::ShiftCache(const rational &from, const rational &to)
+{
+  ShiftVideoCache(from, to);
+  ShiftAudioCache(from, to);
+}
+
+void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int element)
+{
+  Q_UNUSED(element)
+
+  if (operation_stack_ == 0) {
+    if (from == kTextureInput || from == kSamplesInput) {
+      TimeRange invalidated_range(qMax(rational(), range.in()),
+                                  qMin(GetLength(), range.out()));
+
+      if (invalidated_range.in() != invalidated_range.out()) {
+        if (from == kTextureInput) {
+          video_frame_cache_.Invalidate(invalidated_range);
+        } else {
+          audio_playback_cache_.Invalidate(invalidated_range);
+        }
+      }
+    }
+
+    VerifyLength();
+  }
+
+  super::InvalidateCache(range, from);
+}
+
+void Sequence::set_video_params(const VideoParams &video)
+{
+  bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
+  bool timebase_changed = video_params_.time_base() != video.time_base();
+  bool pixel_aspect_changed = video_params_.pixel_aspect_ratio() != video.pixel_aspect_ratio();
+  bool interlacing_changed = video_params_.interlacing() != video.interlacing();
+
+  video_params_ = video;
+
+  if (size_changed) {
+    emit SizeChanged(video_params_.width(), video_params_.height());
+  }
+
+  if (pixel_aspect_changed) {
+    emit PixelAspectChanged(video_params_.pixel_aspect_ratio());
+  }
+
+  if (interlacing_changed) {
+    emit InterlacingChanged(video_params_.interlacing());
+  }
+
+  if (timebase_changed) {
+    video_frame_cache_.SetTimebase(video_params_.time_base());
+    emit TimebaseChanged(video_params_.time_base());
+  }
+
+  emit VideoParamsChanged();
+
+  video_frame_cache_.InvalidateAll();
+}
+
+void Sequence::set_audio_params(const AudioParams &audio)
+{
+  audio_params_ = audio;
+
+  emit AudioParamsChanged();
+
+  // This will automatically InvalidateAll
+  audio_playback_cache_.SetParameters(audio_params());
+}
+
+rational Sequence::GetLength()
+{
+  return last_length_;
+}
+
+void Sequence::VerifyLength()
+{
+  if (operation_stack_ != 0) {
+    return;
+  }
+
+  NodeTraverser traverser;
+
+  rational video_length, audio_length, subtitle_length;
+
+  {
+    video_length = GetCustomLength(Track::kVideo);
+
+    if (video_length.isNull() && IsInputConnected(kTextureInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
+      video_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+
+    video_frame_cache_.SetLength(video_length);
+  }
+
+  {
+    audio_length = GetCustomLength(Track::kAudio);
+
+    if (audio_length.isNull() && IsInputConnected(kSamplesInput)) {
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
+      audio_length = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+    }
+
+    audio_playback_cache_.SetLength(audio_length);
+  }
+
+  {
+    subtitle_length = GetCustomLength(Track::kSubtitle);
+  }
+
+  rational real_length = qMax(subtitle_length, qMax(video_length, audio_length));
+
+  if (real_length != last_length_) {
+    last_length_ = real_length;
+    emit LengthChanged(last_length_);
+  }
+}
+
+void Sequence::BeginOperation()
+{
+  operation_stack_++;
+
+  super::BeginOperation();
+}
+
+void Sequence::EndOperation()
+{
+  operation_stack_--;
+
+  super::EndOperation();
+}
+
+void Sequence::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled)
+{
+  Q_UNUSED(xml_node_data)
+  Q_UNUSED(version)
+  Q_UNUSED(cancelled)
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("points")) {
+      timeline_points_.Load(reader);
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void Sequence::SaveInternal(QXmlStreamWriter *writer) const
+{
+  // Write TimelinePoints
+  writer->writeStartElement(QStringLiteral("points"));
+  timeline_points_.Save(writer);
+  writer->writeEndElement(); // points
+}
+
+void Sequence::ShiftVideoEvent(const rational &from, const rational &to)
+{
+  Q_UNUSED(from)
+  Q_UNUSED(to)
 }
 
 }

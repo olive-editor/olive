@@ -67,7 +67,7 @@ public:
 
   bool IsSequenceOpen(Sequence* sequence) const;
 
-  void FolderOpen(Project* p, Item* i, bool floating);
+  void FolderOpen(Project* p, Folder *i, bool floating);
 
   ScopePanel* AppendScopePanel();
 
@@ -130,7 +130,7 @@ private:
 
   void RemoveProjectPanel(ProjectPanel* panel);
 
-  void TimelineFocused(ViewerOutput *viewer);
+  void TimelineFocused(Sequence *viewer);
 
   QByteArray premaximized_state_;
 

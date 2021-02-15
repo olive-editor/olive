@@ -36,7 +36,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   QXmlStreamWriter writer(&copy_str);
   writer.setAutoFormatting(true);
 
-  writer.writeStartDocument();
+  writer.writeStartDocument(QString::number(Core::kProjectVersion));
   writer.writeStartElement(QStringLiteral("olive"));
 
   foreach (Node* n, nodes) {
@@ -65,12 +65,15 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   }
 
   QXmlStreamReader reader(clipboard);
+  uint data_version = reader.documentVersion().toUInt();
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
+      // Default to current version - this may not be desirable?
+
       while (XMLReadNextStartElement(&reader)) {
         if (reader.name() == QStringLiteral("node")) {
           Node* node = nullptr;
@@ -83,7 +86,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
           }
 
           if (node) {
-            node->Load(&reader, xml_node_data, nullptr);
+            node->Load(&reader, xml_node_data, data_version, nullptr);
 
             pasted_nodes.append(node);
           }

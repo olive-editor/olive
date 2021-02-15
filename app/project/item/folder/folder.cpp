@@ -27,80 +27,65 @@
 
 namespace olive {
 
-Item::Type Folder::type() const
+Folder::Folder()
 {
-  return kFolder;
 }
 
-bool Folder::CanHaveChildren() const
-{
-  return true;
-}
-
-QIcon Folder::icon()
+QIcon Folder::icon() const
 {
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt *cancelled)
+bool ChildExistsWithNameInternal(const Folder* n, const QString& s)
 {
-  XMLAttributeLoop(reader, attr) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  foreach (const Node::OutputConnection& c, n->output_connections()) {
+    Node* connected = c.second.node();
 
-    if (attr.name() == QStringLiteral("name")) {
-      set_name(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("ptr")) {
-      xml_node_data.item_ptrs.insert(attr.value().toULongLong(), this);
+    if (connected->GetLabel() == s) {
+      return true;
+    } else {
+      Folder* subfolder = dynamic_cast<Folder*>(connected);
+
+      if (subfolder && ChildExistsWithNameInternal(subfolder, s)) {
+        return true;
+      }
     }
   }
 
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
+  return false;
+}
 
-    Item* child;
+bool Folder::ChildExistsWithName(const QString &s) const
+{
+  return ChildExistsWithNameInternal(this, s);
+}
 
-    if (reader->name() == QStringLiteral("folder")) {
-      child = new Folder();
-    } else if (reader->name() == QStringLiteral("footage")) {
-      child = new Footage();
-    } else if (reader->name() == QStringLiteral("sequence")) {
-      child = new Sequence();
-    } else {
-      reader->skipCurrentElement();
-      continue;
-    }
+void Folder::OutputConnectedEvent(const QString &output, const NodeInput &input)
+{
+  Q_UNUSED(output)
 
-    child->setParent(this);
-    child->Load(reader, xml_node_data, version, cancelled);
+  Item* item = dynamic_cast<Item*>(input.node());
+
+  if (item) {
+    // The insert index is always our "count" because we only support appending in our internal
+    // model. For sorting/organizing, a QSortFilterProxyModel is used instead.
+    emit BeginInsertItem(item, item_child_count());
+    item_children_.append(item);
+    emit EndInsertItem();
   }
 }
 
-void Folder::Save(QXmlStreamWriter *writer) const
+void Folder::OutputDisconnectedEvent(const QString &output, const NodeInput &input)
 {
-  writer->writeAttribute(QStringLiteral("name"), name());
+  Q_UNUSED(output)
 
-  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+  Item* item = dynamic_cast<Item*>(input.node());
 
-  foreach (Item* child, children()) {
-    switch (child->type()) {
-    case Item::kFootage:
-      writer->writeStartElement(QStringLiteral("footage"));
-      break;
-    case Item::kSequence:
-      writer->writeStartElement(QStringLiteral("sequence"));
-      break;
-    case Item::kFolder:
-      writer->writeStartElement(QStringLiteral("folder"));
-      break;
-    }
-
-    child->Save(writer);
-
-    writer->writeEndElement(); // footage/folder/sequence
+  if (item) {
+    int child_index = item_children_.indexOf(item);
+    emit BeginRemoveItem(item, child_index);
+    item_children_.removeAt(child_index);
+    emit EndRemoveItem();
   }
 }
 

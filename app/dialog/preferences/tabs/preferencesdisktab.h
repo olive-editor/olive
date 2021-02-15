@@ -25,14 +25,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 #include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
 #include "widget/path/pathwidget.h"
 
 namespace olive {
 
-class PreferencesDiskTab : public PreferencesTab
+class PreferencesDiskTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
@@ -40,7 +40,7 @@ public:
 
   virtual bool Validate() override;
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   PathWidget* disk_cache_location_;

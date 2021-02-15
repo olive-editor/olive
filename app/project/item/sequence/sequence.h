@@ -21,12 +21,24 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#include <QUuid>
+
 #include "common/rational.h"
+#include "node/block/block.h"
 #include "node/graph.h"
-#include "node/output/viewer/viewer.h"
-#include "render/videoparams.h"
-#include "project/item/footage/stream.h"
+#include "node/node.h"
+#include "node/output/track/track.h"
+#include "node/output/track/tracklist.h"
+#include "node/traverser.h"
+#include "project/item/footage/footage.h"
 #include "project/item/item.h"
+#include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/framehashcache.h"
+#include "render/videoparams.h"
+#include "render/videoparams.h"
+#include "timeline/timelinecommon.h"
+#include "timeline/timelinepoints.h"
 #include "timeline/timelinepoints.h"
 
 namespace olive {
@@ -34,51 +46,180 @@ namespace olive {
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
  */
-class Sequence : public NodeGraph, public TimelinePoints
+class Sequence : public Item, public TimelinePoints
 {
   Q_OBJECT
 public:
-  Sequence();
+  Sequence(bool viewer_only_mode = false);
 
-  /**
-   * @brief Load function
-   */
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+  virtual ~Sequence() override;
 
-  /**
-   * @brief Save function
-   */
-  virtual void Save(QXmlStreamWriter *writer) const override;
+  virtual Node* copy() const override
+  {
+    return new Sequence();
+  }
 
-  void add_default_nodes();
+  virtual QString Name() const override
+  {
+    return tr("Sequence");
+  }
 
-  /**
-   * @brief Item::Type() override
-   */
-  virtual Type type() const override;
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.sequence");
+  }
 
-  virtual QIcon icon() override;
+  virtual QVector<CategoryID> Category() const override
+  {
+    return {kCategoryProject};
+  }
+
+  virtual QString Description() const override
+  {
+    return tr("A series of cuts that result in an edited video. Also called a timeline.");
+  }
+
+  void add_default_nodes(MultiUndoCommand *command);
+
+  virtual QIcon icon() const override;
 
   virtual QString duration() override;
   virtual QString rate() override;
-
-  const VideoParams &video_params() const;
-  void set_video_params(const VideoParams &vparam);
-
-  const AudioParams& audio_params() const;
-  void set_audio_params(const AudioParams& params);
 
   void set_default_parameters();
 
   void set_parameters_from_footage(const QVector<Footage *> footage);
 
-  ViewerOutput* viewer_output() const;
+  const QVector<Track *> &GetTracks() const
+  {
+    return track_cache_;
+  }
+
+  Track* GetTrackFromReference(const Track::Reference& track_ref) const
+  {
+    return track_lists_.at(track_ref.type())->GetTrackAt(track_ref.index());
+  }
+
+  /**
+   * @brief Same as GetTracks() but omits tracks that are locked.
+   */
+  QVector<Track *> GetUnlockedTracks() const;
+
+  TrackList* track_list(Track::Type type) const
+  {
+    return track_lists_.at(type);
+  }
+
+  void ShiftVideoCache(const rational& from, const rational& to);
+  void ShiftAudioCache(const rational& from, const rational& to);
+  void ShiftCache(const rational& from, const rational& to);
+
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1) override;
+
+  const VideoParams& video_params() const
+  {
+    return video_params_;
+  }
+
+  const AudioParams& audio_params() const
+  {
+    return audio_params_;
+  }
+
+  void set_video_params(const VideoParams &video);
+  void set_audio_params(const AudioParams &audio);
+
+  rational GetLength();
+
+  virtual void Retranslate() override;
+
+  FrameHashCache* video_frame_cache()
+  {
+    return &video_frame_cache_;
+  }
+
+  AudioPlaybackCache* audio_playback_cache()
+  {
+    return &audio_playback_cache_;
+  }
+
+  virtual void BeginOperation() override;
+
+  virtual void EndOperation() override;
+
+  static const QString kTextureInput;
+  static const QString kSamplesInput;
+  static const QString kTrackInputFormat;
+
+  TimelinePoints* timeline_points()
+  {
+    return &timeline_points_;
+  }
+
+  const QUuid& uuid() const
+  {
+    return uuid_;
+  }
+
+signals:
+  void TimebaseChanged(const rational&);
+
+  void LengthChanged(const rational& length);
+
+  void SizeChanged(int width, int height);
+
+  void PixelAspectChanged(const rational& pixel_aspect);
+
+  void InterlacingChanged(VideoParams::Interlacing mode);
+
+  void VideoParamsChanged();
+  void AudioParamsChanged();
+
+  void TrackAdded(Track* track);
+  void TrackRemoved(Track* track);
+
+  void TextureInputChanged();
+
+public slots:
+  void VerifyLength();
 
 protected:
-  virtual void NameChangedEvent(const QString& name) override;
+  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+
+  virtual rational GetCustomLength(Track::Type type) const;
+
+  virtual void ShiftVideoEvent(const rational &from, const rational &to);
+
+  virtual void ShiftAudioEvent(const rational &from, const rational &to);
+
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveInternal(QXmlStreamWriter *writer) const override;
 
 private:
-  ViewerOutput* viewer_output_;
+  QVector<TrackList*> track_lists_;
+
+  QVector<Track*> track_cache_;
+
+  QUuid uuid_;
+
+  rational last_length_;
+
+  FrameHashCache video_frame_cache_;
+
+  AudioPlaybackCache audio_playback_cache_;
+
+  int operation_stack_;
+
+  VideoParams video_params_;
+  AudioParams audio_params_;
+
+  TimelinePoints timeline_points_;
+
+private slots:
+  void UpdateTrackCache();
 
 };
 

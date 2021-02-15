@@ -32,7 +32,6 @@
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
-#include "node/input/media/media.h"
 #include "node/math/math/math.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -97,7 +96,7 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
       Item* item = reinterpret_cast<Item*>(item_ptr);
 
       // Check if Item is Footage
-      if (item->type() == Item::kFootage) {
+      if (dynamic_cast<Footage*>(item)) {
 
         Footage* f = static_cast<Footage*>(item);
 
@@ -225,8 +224,10 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QVector<DraggedFoot
     quint64 enabled_streams = footage.streams();
 
     // Loop through all streams in footage
-    foreach (Stream* stream, footage.footage()->streams()) {
-      Track::Type track_type = TrackTypeFromStreamType(stream->type());
+    foreach (const QString& output, footage.footage()->outputs()) {
+      Footage::StreamReference ref = footage.footage()->GetReferenceFromOutput(output);
+
+      Track::Type track_type = TrackTypeFromStreamType(ref.type());
 
       quint64 cached_enabled_streams = enabled_streams;
       enabled_streams >>= 1;
@@ -239,8 +240,10 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QVector<DraggedFoot
 
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
-      if (stream->type() == Stream::kVideo
-          && static_cast<VideoStream*>(stream)->video_type() == VideoStream::kVideoTypeStill) {
+      Stream stream = ref.GetStream();
+
+      if (ref.type() == Stream::kVideo
+          && stream.video_type() == Stream::kVideoTypeStill) {
         // Stream is essentially length-less - we may use the default still image length in config,
         // or we may use another stream's length depending on the circumstance
         contains_image_stream = true;
@@ -251,7 +254,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QVector<DraggedFoot
           footage_duration = qMax(footage_duration, footage.footage()->workarea()->range().length());
           ghost->SetMediaIn(footage.footage()->workarea()->in());
         } else {
-          int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
+          int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream.duration(), stream.timebase(), dest_tb);
           footage_duration = qMax(footage_duration, Timecode::timestamp_to_time(stream_duration, dest_tb));
         }
       }
@@ -261,7 +264,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const QVector<DraggedFoot
       // Increment track count for this track type
       track_offsets[track_type]++;
 
-      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, Node::PtrToValue(stream));
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(TimelineViewGhostItem::AttachedFootage({footage.footage(), output})));
       ghost->SetMode(Timeline::kMove);
 
       footage_ghosts.append(ghost);
@@ -310,12 +313,12 @@ void ImportTool::DropGhosts(bool insert)
   MultiUndoCommand* command = new MultiUndoCommand();
 
   NodeGraph* dst_graph = nullptr;
-  ViewerOutput* viewer_node = nullptr;
-  Sequence* open_sequence = nullptr;
+  Sequence* sequence = nullptr;
+  bool open_sequence = false;
 
   if (parent()->GetConnectedNode()) {
-    viewer_node = parent()->GetConnectedNode();
-    dst_graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
+    sequence = parent()->GetConnectedNode();
+    dst_graph = parent()->GetConnectedNode()->parent();
   } else {
     // There's no active timeline here, ask the user what to do
 
@@ -382,19 +385,18 @@ void ImportTool::DropGhosts(bool insert)
         }
 
         if (sequence_is_valid) {
-          new_sequence->add_default_nodes();
+          dst_graph = Core::instance()->GetActiveProject();
 
-          command->add_child(new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
-                                                                  Core::instance()->GetSelectedFolderInActiveProject(),
-                                                                  new_sequence));
+          command->add_child(new NodeAddCommand(dst_graph, new_sequence));
+          command->add_child(new NodeEdgeAddCommand(Core::instance()->GetSelectedFolderInActiveProject(), NodeInput(new_sequence, Item::kParentInput)));
+          new_sequence->add_default_nodes(command);
 
           FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
 
-          dst_graph = new_sequence;
-          viewer_node = new_sequence->viewer_output();
+          sequence = new_sequence;
 
           // Set this as the sequence to open
-          open_sequence = new_sequence;
+          open_sequence = true;
         } else {
           // If the sequence is valid, ownership is passed to AddItemCommand.
           // Otherwise, we're responsible for deleting it.
@@ -416,38 +418,32 @@ void ImportTool::DropGhosts(bool insert)
     for (int i=0;i<parent()->GetGhostItems().size();i++) {
       TimelineViewGhostItem* ghost = parent()->GetGhostItems().at(i);
 
-      Stream* footage_stream = Node::ValueToPtr<Stream>(ghost->GetData(TimelineViewGhostItem::kAttachedFootage));
+      TimelineViewGhostItem::AttachedFootage footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
+
+      NodeOutput corresponding_output(footage_stream.footage, footage_stream.output);
 
       ClipBlock* clip = new ClipBlock();
       clip->set_media_in(ghost->GetMediaIn());
       clip->set_length_and_media_out(ghost->GetLength());
-      clip->SetLabel(footage_stream->footage()->name());
+      clip->SetLabel(footage_stream.footage->GetLabel());
       command->add_child(new NodeAddCommand(dst_graph, clip));
 
-      switch (footage_stream->type()) {
+      switch (footage_stream.footage->GetTypeFromOutput(footage_stream.output)) {
       case Stream::kVideo:
       {
-        MediaInput* video_input = new MediaInput();
-        video_input->SetStream(footage_stream);
-        command->add_child(new NodeAddCommand(dst_graph, video_input));
-
         TransformDistortNode* transform = new TransformDistortNode();
         command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        command->add_child(new NodeEdgeAddCommand(video_input, NodeInput(transform, TransformDistortNode::kTextureInput)));
+        command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
       case Stream::kAudio:
       {
-        MediaInput* audio_input = new MediaInput();
-        audio_input->SetStream(footage_stream);
-        command->add_child(new NodeAddCommand(dst_graph, audio_input));
-
         VolumeNode* volume_node = new VolumeNode();
         command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        command->add_child(new NodeEdgeAddCommand(audio_input, NodeInput(volume_node, VolumeNode::kSamplesInput)));
+        command->add_child(new NodeEdgeAddCommand(corresponding_output, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
         break;
       }
@@ -455,7 +451,7 @@ void ImportTool::DropGhosts(bool insert)
         break;
       }
 
-      command->add_child(new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
+      command->add_child(new TrackPlaceBlockCommand(sequence->track_list(ghost->GetAdjustedTrack().type()),
                                                     ghost->GetAdjustedTrack().index(),
                                                     clip,
                                                     ghost->GetAdjustedIn()));
@@ -464,9 +460,9 @@ void ImportTool::DropGhosts(bool insert)
 
       // Link any clips so far that share the same Footage with this one
       for (int j=0;j<i;j++) {
-        Stream* footage_compare = Node::ValueToPtr<Stream>(parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage));
+        TimelineViewGhostItem::AttachedFootage footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
 
-        if (footage_compare->footage() == footage_stream->footage()) {
+        if (footage_compare.footage == footage_stream.footage) {
           Block::Link(block_items.at(j), clip);
         }
       }
@@ -474,7 +470,7 @@ void ImportTool::DropGhosts(bool insert)
   }
 
   if (open_sequence) {
-    command->add_child(new OpenSequenceCommand(open_sequence));
+    command->add_child(new OpenSequenceCommand(sequence));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

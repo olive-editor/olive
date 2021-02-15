@@ -45,7 +45,7 @@ public:
   double GetOutProgress(const double &time) const;
   double GetInProgress(const double &time) const;
 
-  virtual void Hash(QCryptographicHash& hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const override;
 
   virtual NodeValueTable Value(const QString& output, NodeValueDatabase &value) const override;
 

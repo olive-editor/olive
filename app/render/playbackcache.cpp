@@ -151,12 +151,7 @@ Project *PlaybackCache::GetProject() const
     return nullptr;
   }
 
-  Sequence* sequence = static_cast<Sequence*>(viewer->parent());
-  if (!sequence) {
-    return nullptr;
-  }
-
-  return sequence->project();
+  return viewer->project();
 }
 
 void PlaybackCache::RemoveRangeFromJobs(const TimeRange &remove)

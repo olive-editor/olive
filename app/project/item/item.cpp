@@ -20,31 +20,21 @@
 
 #include "item.h"
 
+#include "folder/folder.h"
+
 namespace olive {
 
 #define super QObject
 
-Item::Item() :
-  item_parent_(nullptr),
-  project_(nullptr)
-{
-}
+const QString Item::kParentInput = QStringLiteral("parent_in");
 
-Item::~Item()
+Item::Item(bool create_folder_input, bool create_default_output) :
+  Node(create_default_output)
 {
-  setParent(nullptr);
-}
-
-const QString &Item::name() const
-{
-  return name_;
-}
-
-void Item::set_name(const QString &n)
-{
-  name_ = n;
-
-  NameChangedEvent(n);
+  if (create_folder_input) {
+    // Hierarchy input for items
+    AddInput(kParentInput, NodeValue::kNone);
+  }
 }
 
 const QString &Item::tooltip() const
@@ -67,91 +57,14 @@ QString Item::rate()
   return QString();
 }
 
-Project *Item::project() const
+Folder *Item::item_parent() const
 {
-  return project_;
+  return dynamic_cast<Folder*>(GetConnectedNode(kParentInput));
 }
 
-void Item::set_project(Project *project)
+void Item::Retranslate()
 {
-  project_ = project;
-
-  foreach (Item* i, item_children_) {
-    i->set_project(project_);
-  }
-}
-
-QVector<Item *> Item::get_children_of_type(Type type, bool recursive) const
-{
-  QVector<Item *> list;
-
-  foreach (Item* item, item_children_) {
-    if (item->type() == type) {
-      list.append(item);
-    }
-
-    if (recursive && item->CanHaveChildren()) {
-      list.append(item->get_children_of_type(type, recursive));
-    }
-  }
-
-  return list;
-}
-
-bool Item::CanHaveChildren() const
-{
-  return false;
-}
-
-bool Item::ChildExistsWithName(const QString &name)
-{
-  return ChildExistsWithNameInternal(name, this);
-}
-
-void Item::NameChangedEvent(const QString &)
-{
-}
-
-void Item::childEvent(QChildEvent *event)
-{
-  super::childEvent(event);
-
-  Item* cast_test = dynamic_cast<Item*>(event->child());
-
-  if (cast_test) {
-    if (event->type() == QEvent::ChildAdded) {
-
-      item_children_.append(cast_test);
-      cast_test->item_parent_ = this;
-      cast_test->set_project(project_);
-
-    } else if (event->type() == QEvent::ChildRemoved) {
-
-      item_children_.removeOne(cast_test);
-      cast_test->item_parent_ = nullptr;
-      cast_test->set_project(nullptr);
-
-    }
-  }
-}
-
-bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
-{
-  // Loop through all children
-  foreach (Item* child, folder->item_children_) {
-    // If this child has the same name, return true
-    if (child->name() == name) {
-      return true;
-    } else if (child->CanHaveChildren()) {
-      // If the child has children, run function recursively on this item
-      if (ChildExistsWithNameInternal(name, child)) {
-        // If it returns true, we've found a child so we can return now
-        return true;
-      }
-    }
-  }
-
-  return false;
+  SetInputName(kParentInput, tr("Folder"));
 }
 
 }

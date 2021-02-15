@@ -25,7 +25,7 @@
 
 namespace olive {
 
-RenderTask::RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams) :
+RenderTask::RenderTask(Sequence* viewer, const VideoParams &vparams, const AudioParams &aparams) :
   viewer_(viewer),
   video_params_(vparams),
   audio_params_(aparams),

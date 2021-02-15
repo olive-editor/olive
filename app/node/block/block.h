@@ -149,7 +149,7 @@ public:
     return block_links_;
   }
 
-  virtual void Hash(QCryptographicHash &hash, const rational &time) const override;
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
 
   static const QString kLengthInput;
   static const QString kMediaInInput;

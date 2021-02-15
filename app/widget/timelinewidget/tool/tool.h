@@ -53,6 +53,8 @@ public:
 
   TimelineWidget* parent();
 
+  Sequence* sequence();
+
   static Timeline::MovementMode FlipTrimMode(const Timeline::MovementMode& trim_mode);
 
   static rational SnapMovementToTimebase(const rational& start, rational movement, const rational& timebase);

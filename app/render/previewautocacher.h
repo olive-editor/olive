@@ -7,6 +7,7 @@
 #include "node/graph.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
+#include "project/project.h"
 #include "render/colormanager.h"
 #include "threading/threadticketwatcher.h"
 
@@ -28,7 +29,7 @@ public:
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(ViewerOutput *viewer_node);
+  void SetViewerNode(Sequence *viewer_node);
 
   /**
    * @brief If the mouse is held during the next cache invalidation, cache anyway
@@ -91,7 +92,7 @@ public:
   }
 
 private:
-  static void GenerateHashes(ViewerOutput* viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
+  static void GenerateHashes(Sequence *viewer, FrameHashCache *cache, const QVector<rational>& times, qint64 job_time);
 
   void TryRender();
 
@@ -131,11 +132,13 @@ private:
     NodeOutput output;
   };
 
-  ViewerOutput* viewer_node_;
+  Sequence* viewer_node_;
+
+  Project copied_project_;
 
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
-  ViewerOutput* copied_viewer_node_;
+  Sequence* copied_viewer_node_;
 
   bool paused_;
 

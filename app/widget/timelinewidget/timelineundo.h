@@ -66,7 +66,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -97,7 +97,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -147,7 +147,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   /**
@@ -371,7 +371,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -401,7 +401,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override
@@ -434,7 +434,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override
@@ -463,7 +463,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -500,7 +500,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   /**
@@ -652,7 +652,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return blocks_.first()->parent()->project();
+    return blocks_.first()->project();
   }
 
   virtual void redo() override
@@ -749,7 +749,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override
@@ -815,7 +815,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   /**
@@ -1024,7 +1024,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<ViewerOutput*>(list_->parent())->parent()->project();
+    return list_->parent()->project();
   }
 
   virtual void redo() override
@@ -1049,9 +1049,9 @@ public:
       // We can optimize here by simply shifting the whole cache forward instead of re-caching
       // everything following this time
       if (list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(out_, in_);
+        list_->parent()->ShiftVideoCache(out_, in_);
       } else if (list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(out_, in_);
+        list_->parent()->ShiftAudioCache(out_, in_);
       }
 
       foreach (Track* track, working_tracks_) {
@@ -1076,9 +1076,9 @@ public:
       // We can optimize here by simply shifting the whole cache forward instead of re-caching
       // everything following this time
       if (list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(list_->parent())->ShiftVideoCache(in_, out_);
+        list_->parent()->ShiftVideoCache(in_, out_);
       } else if (list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(list_->parent())->ShiftAudioCache(in_, out_);
+        list_->parent()->ShiftAudioCache(in_, out_);
       }
 
       foreach (Track* track, working_tracks_) {
@@ -1114,7 +1114,7 @@ private:
 
 class TimelineRippleRemoveAreaCommand : public MultiUndoCommand {
 public:
-  TimelineRippleRemoveAreaCommand(ViewerOutput* timeline, rational in, rational out) :
+  TimelineRippleRemoveAreaCommand(Sequence* timeline, rational in, rational out) :
     timeline_(timeline)
   {
     for (int i=0; i<Track::kCount; i++) {
@@ -1126,11 +1126,11 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return timeline_->parent()->project();
+    return timeline_->project();
   }
 
 private:
-  ViewerOutput* timeline_;
+  Sequence* timeline_;
 
 };
 
@@ -1155,7 +1155,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<ViewerOutput*>(track_list_->parent())->parent()->project();
+    return track_list_->parent()->project();
   }
 
   virtual void redo() override
@@ -1325,9 +1325,9 @@ private:
     if (all_tracks_unlocked_) {
       // We rippled all the tracks, so we can shift the whole cache
       if (track_list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(pre_latest_out, post_latest_out);
+        track_list_->parent()->ShiftVideoCache(pre_latest_out, post_latest_out);
       } else if (track_list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(pre_latest_out, post_latest_out);
+        track_list_->parent()->ShiftAudioCache(pre_latest_out, post_latest_out);
       }
     }
   }
@@ -1383,7 +1383,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return timeline_->GetParentGraph()->project();
+    return timeline_->parent()->project();
   }
 
   virtual void redo() override
@@ -1419,9 +1419,9 @@ public:
       QString relevant_input;
 
       if (timeline_->type() == Track::kVideo) {
-        relevant_input = ViewerOutput::kTextureInput;
+        relevant_input = Sequence::kTextureInput;
       } else {
-        relevant_input = ViewerOutput::kSamplesInput;
+        relevant_input = Sequence::kSamplesInput;
       }
 
       if (!timeline_->parent()->IsInputConnected(relevant_input)) {
@@ -1505,7 +1505,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return timeline_->GetParentGraph()->project();
+    return timeline_->parent()->project();
   }
 
   virtual void redo() override
@@ -1604,7 +1604,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override
@@ -1637,7 +1637,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -1784,7 +1784,7 @@ private:
 
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
 public:
-  TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput* vo, const TimeRangeList& regions) :
+  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const TimeRangeList& regions) :
     timeline_(vo),
     regions_(regions)
   {
@@ -1797,7 +1797,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return timeline_->parent()->project();
+    return timeline_->project();
   }
 
   virtual void redo() override
@@ -1851,7 +1851,7 @@ public:
   }
 
 private:
-  ViewerOutput* timeline_;
+  Sequence* timeline_;
   TimeRangeList regions_;
 
   QVector<UndoCommand*> commands_;
@@ -1941,7 +1941,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return block_->parent()->project();
+    return block_->project();
   }
 
   virtual void redo() override
@@ -1986,7 +1986,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override
@@ -2153,7 +2153,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return static_cast<ViewerOutput*>(track_list_->parent())->parent()->project();
+    return track_list_->parent()->project();
   }
 
   virtual void redo() override
@@ -2166,9 +2166,9 @@ public:
     if (all_tracks_unlocked_) {
       // Optimize by shifting over since we have a constant amount of time being inserted
       if (track_list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_, point_ + length_);
+        track_list_->parent()->ShiftVideoCache(point_, point_ + length_);
       } else if (track_list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_, point_ + length_);
+        track_list_->parent()->ShiftAudioCache(point_, point_ + length_);
       }
     }
 
@@ -2205,9 +2205,9 @@ public:
     if (all_tracks_unlocked_) {
       // Optimize by shifting over since we have a constant amount of time being inserted
       if (track_list_->type() == Track::kVideo) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftVideoCache(point_ + length_, point_);
+        track_list_->parent()->ShiftVideoCache(point_ + length_, point_);
       } else if (track_list_->type() == Track::kAudio) {
-        static_cast<ViewerOutput*>(track_list_->parent())->ShiftAudioCache(point_ + length_, point_);
+        track_list_->parent()->ShiftAudioCache(point_ + length_, point_);
       }
     }
 
@@ -2326,7 +2326,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return track_->parent()->project();
+    return track_->project();
   }
 
   virtual void redo() override

@@ -5,7 +5,7 @@
 #include <QWaitCondition>
 
 #include "common/rational.h"
-#include "project/item/footage/videostream.h"
+#include "project/item/footage/footage.h"
 #include "render/texture.h"
 
 namespace olive {
@@ -14,7 +14,7 @@ class StillImageCache
 {
 public:
   struct Entry {
-    Entry(TexturePtr t, VideoStream* s, const QString& cs, bool a, int d, const rational& i, bool w)
+    Entry(TexturePtr t, const Footage::StreamReference& s, const QString& cs, bool a, int d, const rational& i, bool w)
     {
       texture = t;
       stream = s;
@@ -26,7 +26,7 @@ public:
     }
 
     TexturePtr texture;
-    VideoStream* stream;
+    Footage::StreamReference stream;
     QString colorspace;
     bool alpha_is_associated;
     int divider;

@@ -21,6 +21,7 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
+#include "node/node.h"
 #include "project/item/item.h"
 
 namespace olive {
@@ -33,20 +34,113 @@ namespace olive {
  */
 class Folder : public Item
 {
+  Q_OBJECT
 public:
-  Folder() = default;
+  Folder();
 
-  virtual Type type() const override;
+  virtual Node* copy() const override
+  {
+    return new Folder();
+  }
 
-  virtual bool CanHaveChildren() const override;
+  virtual QString Name() const override
+  {
+    return tr("Folder");
+  }
 
-  virtual QIcon icon() override;
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.folder");
+  }
 
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
+  virtual QVector<CategoryID> Category() const override
+  {
+    return {kCategoryProject};
+  }
 
-  virtual void Save(QXmlStreamWriter* writer) const override;
+  virtual QString Description() const override
+  {
+    return tr("Organize several items into a single collection.");
+  }
+
+  virtual QIcon icon() const override;
+
+  bool ChildExistsWithName(const QString& s) const;
+
+  int item_child_count() const
+  {
+    return item_children_.size();
+  }
+
+  Item* item_child(int i) const
+  {
+    return item_children_.at(i);
+  }
+
+  const QVector<Item*>& children() const
+  {
+    return item_children_;
+  }
+
+  /**
+   * @brief Returns a list of nodes that are of a certain type that this node outputs to
+   */
+  template <typename T>
+  QVector<T*> ListOutputsOfType(bool recursive = true) const
+  {
+    QVector<T *> list;
+
+    ListOutputsOfTypeInternal(this, list, recursive);
+
+    return list;
+  }
+
+  int index_of_child(Item* item) const
+  {
+    return item_children_.indexOf(item);
+  }
+
+signals:
+  void BeginInsertItem(Item* n, int index);
+
+  void EndInsertItem();
+
+  void BeginRemoveItem(Item* n, int index);
+
+  void EndRemoveItem();
+
+protected:
+  virtual void OutputConnectedEvent(const QString& output, const NodeInput& input) override;
+
+  virtual void OutputDisconnectedEvent(const QString& output, const NodeInput& input) override;
 
 private:
+  template<typename T>
+  static void ListOutputsOfTypeInternal(const Folder* n, QVector<T*>& list, bool recursive)
+  {
+    foreach (const Node::OutputConnection& c, n->output_connections()) {
+      Node* connected = c.second.node();
+
+      T* cast_test = dynamic_cast<T*>(connected);
+
+      if (cast_test) {
+        // Avoid duplicates
+        if (!list.contains(cast_test)) {
+          list.append(cast_test);
+        }
+      }
+
+      if (recursive) {
+        Folder* subfolder = dynamic_cast<Folder*>(connected);
+
+        if (subfolder) {
+          ListOutputsOfTypeInternal(subfolder, list, recursive);
+        }
+      }
+    }
+  }
+
+  QVector<Item*> item_children_;
 
 };
 

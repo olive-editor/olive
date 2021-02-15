@@ -60,7 +60,7 @@ void FootageViewerPanel::SetFootage(Footage *f)
 
   if (f) {
     // SetSubtitle() will call Retranslate(), so we don't need to call it here
-    SetSubtitle(f->name());
+    SetSubtitle(f->GetLabel());
 
     // Pop this panel up so the user doesn't think nothing's happening if it's behind another tab
     this->show();

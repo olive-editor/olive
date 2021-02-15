@@ -156,7 +156,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (TimelinePanel* panel, timeline_panels_) {
     if (panel->GetConnectedViewer()) {
-      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()->parent()),
+      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()),
                          panel->SaveSplitterState()});
     }
   }
@@ -170,7 +170,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
 {
   // See if this sequence is already open, and switch to it if so
   foreach (TimelinePanel* tl, timeline_panels_) {
-    if (tl->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tl->GetConnectedViewer() == sequence) {
       tl->raise();
       return tl;
     }
@@ -186,10 +186,10 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     enable_focus = false;
   }
 
-  panel->ConnectViewerNode(sequence->viewer_output());
+  panel->ConnectViewerNode(sequence);
 
   if (enable_focus) {
-    TimelineFocused(sequence->viewer_output());
+    TimelineFocused(sequence);
   }
 
   return panel;
@@ -202,7 +202,7 @@ void MainWindow::CloseSequence(Sequence *sequence)
   QList<TimelinePanel*> copy = timeline_panels_;
 
   foreach (TimelinePanel* tp, copy) {
-    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tp->GetConnectedViewer() == sequence) {
       RemoveTimelinePanel(tp);
     }
   }
@@ -211,7 +211,7 @@ void MainWindow::CloseSequence(Sequence *sequence)
 bool MainWindow::IsSequenceOpen(Sequence *sequence) const
 {
   foreach (TimelinePanel* tp, timeline_panels_) {
-    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+    if (tp->GetConnectedViewer() == sequence) {
       return true;
     }
   }
@@ -219,7 +219,7 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
   return false;
 }
 
-void MainWindow::FolderOpen(Project* p, Item *i, bool floating)
+void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
 {
   ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
 
@@ -329,29 +329,23 @@ void MainWindow::ProjectOpen(Project *p)
 void MainWindow::ProjectClose(Project *p)
 {
   // Close any open sequences from project
-  QVector<Item*> open_sequences = p->get_items_of_type(Item::kSequence);
+  QVector<Sequence*> open_sequences = p->root()->ListOutputsOfType<Sequence>();
 
-  foreach (Item* item, open_sequences) {
-    Sequence* seq = static_cast<Sequence*>(item);
-
+  foreach (Sequence* seq, open_sequences) {
     if (IsSequenceOpen(seq)) {
       CloseSequence(seq);
     }
   }
 
   // Close any open footage in footage viewer
-  QVector<Item*> footage = p->get_items_of_type(Item::kFootage);
+  QVector<Footage*> footage_in_project = p->root()->ListOutputsOfType<Footage>();
   QVector<Footage*> footage_in_viewer = footage_viewer_panel_->GetSelectedFootage();
 
   if (!footage_in_viewer.isEmpty()) {
-    // FootageViewer only has the one footage item
-    Footage* f = footage_in_viewer.first();
-
-    foreach (Item* i, footage) {
-      if (f == i) {
-        footage_viewer_panel_->SetFootage(nullptr);
-        break;
-      }
+    // FootageViewer only has the one footage item, check if it's in the project in which case
+    // we'll close it
+    if (footage_in_project.contains(footage_in_viewer.first())) {
+      footage_viewer_panel_->SetFootage(nullptr);
     }
   }
 
@@ -547,19 +541,12 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
   }
 }
 
-void MainWindow::TimelineFocused(ViewerOutput* viewer)
+void MainWindow::TimelineFocused(Sequence* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
-
-  Sequence* seq = nullptr;
-
-  if (viewer) {
-    seq = static_cast<Sequence*>(viewer->parent());
-  }
-
-  node_panel_->SetGraph(seq);
+  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)

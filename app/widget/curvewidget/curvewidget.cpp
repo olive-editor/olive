@@ -185,7 +185,7 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
   view_->SetTimeTarget(target);
 }
 
-void CurveWidget::ConnectedNodeChanged(ViewerOutput *n)
+void CurveWidget::ConnectedNodeChanged(Sequence *n)
 {
   SetTimeTarget(n);
 }

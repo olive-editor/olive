@@ -138,7 +138,7 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+void Track::LoadInternal(QXmlStreamReader *reader, XMLNodeData &, uint , const QAtomicInt* )
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("height")) {
@@ -567,13 +567,13 @@ bool Track::IsLocked() const
   return locked_;
 }
 
-void Track::Hash(QCryptographicHash &hash, const rational &time) const
+void Track::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
   Block* b = BlockAtTime(time);
 
   // Defer to block at this time, don't add any of our own information to the hash
   if (b) {
-    b->Hash(hash, TransformTimeForBlock(b, time));
+    b->Hash(output, hash, TransformTimeForBlock(b, time));
   }
 }
 

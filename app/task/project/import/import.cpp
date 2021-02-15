@@ -26,6 +26,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "project/item/footage/footage.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -97,12 +98,11 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
         f->moveToThread(folder->thread());
 
-        f->set_name(file_info.fileName());
+        f->SetLabel(file_info.fileName());
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new ProjectViewModel::AddItemCommand(model_,
-                                                                       folder,
-                                                                       f));
+        parent_command->add_child(new NodeAddCommand(folder->parent(), f));
+        parent_command->add_child(new NodeEdgeAddCommand(folder, NodeInput(f, Item::kParentInput)));
 
         // Recursively follow this path
         Import(f, entry_list, counter, parent_command);
@@ -110,10 +110,11 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
     } else {
 
-      Footage* footage = Decoder::Probe(model_->project(), file_info.absoluteFilePath(),
-                                        &IsCancelled());
+      Footage* footage = new Footage(file_info.absoluteFilePath());
 
-      if (footage) {
+      footage->SetLabel(file_info.fileName());
+
+      if (footage->IsValid()) {
         // Move footage to main thread
         footage->moveToThread(folder->thread());
 
@@ -121,12 +122,13 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
         ValidateImageSequence(footage, import, i);
 
         // Create undoable command that adds the items to the model
-        parent_command->add_child(new ProjectViewModel::AddItemCommand(model_,
-                                                                       folder,
-                                                                       footage));
+        parent_command->add_child(new NodeAddCommand(folder->parent(), footage));
+        parent_command->add_child(new NodeEdgeAddCommand(folder, NodeInput(footage, Item::kParentInput)));
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());
+
+        delete footage;
       }
 
       counter++;
@@ -140,13 +142,13 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& info_list, int index)
 {
   // Heuristically determine whether this file is part of an image sequence or not
-  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
-
+  //
   // By this point we've established that video contains a single still image stream. Now we'll
   // see if it ends with numbers.
   if (Decoder::GetImageSequenceDigitCount(footage->filename()) > 0
       && !image_sequence_ignore_files_.contains(footage->filename())) {
-    QSize dim(video_stream->width(), video_stream->height());
+    Stream video_stream = footage->GetStreamAt(Stream::kVideo, 0);
+    QSize dim(video_stream.width(), video_stream.height());
 
     int64_t ind = Decoder::GetImageSequenceIndex(footage->filename());
 
@@ -156,12 +158,13 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 
     // See if the same decoder can retrieve surrounding files
     DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
-    Footage* previous_file = decoder->Probe(previous_img_fn, nullptr);
-    Footage* next_file = decoder->Probe(next_img_fn, nullptr);
+
+    Footage* previous_file = new Footage(previous_img_fn);
+    Footage* next_file = new Footage(next_img_fn);
 
     // Finally see if these files have the same dimensions
-    if ((previous_file && CompareStillImageSize(previous_file, dim))
-        || (next_file && CompareStillImageSize(next_file, dim))) {
+    if ((previous_file->IsValid() && CompareStillImageSize(previous_file, dim))
+        || (next_file->IsValid() && CompareStillImageSize(next_file, dim))) {
       // By this point, we've established this file is a still image with a number at the end of
       // the filename surrounded by adjacent numbers. It could be a still image! But let's ask the
       // user just in case...
@@ -202,34 +205,37 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 
       if (is_sequence) {
         // User has confirmed it is a still image, let's set it accordingly.
-        video_stream->set_video_type(VideoStream::kVideoTypeImageSequence);
+        video_stream.set_video_type(Stream::kVideoTypeImageSequence);
 
-        rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
-        video_stream->set_timebase(default_timebase);
-        video_stream->set_frame_rate(default_timebase.flipped());
+        rational default_timebase = Config::Current()[QStringLiteral("DefaultSequenceFrameRate")].value<rational>();
+        video_stream.set_timebase(default_timebase);
+        video_stream.set_frame_rate(default_timebase.flipped());
 
-        video_stream->set_start_time(start_index);
-        video_stream->set_duration(end_index - start_index + 1);
+        video_stream.set_start_time(start_index);
+        video_stream.set_duration(end_index - start_index + 1);
+
+        footage->SetStreamAt(Stream::kVideo, 0, video_stream);
       }
     }
+
+    delete previous_file;
+    delete next_file;
   }
 }
 
 bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)
 {
-  if (footage->stream_count() != 1) {
+  if (footage->GetStreamCount() != 1) {
     // Footage with more than one stream (usually video+audio) most likely isn't an image sequence
     return false;
   }
 
-  if (footage->streams().first()->type() != Stream::kVideo) {
+  if (footage->GetStreamAt(0).type() != Stream::kVideo) {
     // Footage with no video stream definitely isn't an image sequence
     return false;
   }
 
-  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
-
-  if (video_stream->video_type() != VideoStream::kVideoTypeStill) {
+  if (footage->GetStreamAt(0).video_type() != Stream::kVideoTypeStill) {
     // If video type is not a still, this definitely isn't a video stream
     return false;
   }
@@ -243,9 +249,9 @@ bool ProjectImportTask::CompareStillImageSize(Footage* footage, const QSize &sz)
     return false;
   }
 
-  VideoStream* video_stream = static_cast<VideoStream*>(footage->streams().first());
+  Stream stream = footage->GetStreamAt(Stream::kVideo, 0);
 
-  return video_stream->width() == sz.width() && video_stream->height() == sz.height();
+  return stream.width() == sz.width() && stream.height() == sz.height();
 }
 
 int64_t ProjectImportTask::GetImageSequenceLimit(const QString& start_fn, int64_t start, bool up)

@@ -20,6 +20,8 @@
 
 #include "factory.h"
 
+#include <QCoreApplication>
+
 #include "audio/pan/pan.h"
 #include "audio/volume/volume.h"
 #include "block/clip/clip.h"
@@ -35,13 +37,15 @@
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
-#include "input/media/media.h"
 #include "input/time/timeinput.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
+#include "project/item/folder/folder.h"
+#include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
@@ -192,8 +196,6 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MatrixGenerator();
   case kTransformDistort:
     return new TransformDistortNode();
-  case kFootageInput:
-    return new MediaInput();
   case kTrackOutput:
     return new Track();
   case kViewerOutput:
@@ -226,6 +228,12 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MosaicFilterNode();
   case kCropDistort:
     return new CropDistortNode();
+  case kProjectFootage:
+    return new Footage();
+  case kProjectFolder:
+    return new Folder();
+  case kProjectSequence:
+    return new Sequence();
 
   case kInternalNodeCount:
     break;

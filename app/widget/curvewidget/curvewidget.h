@@ -67,7 +67,7 @@ protected:
 
   virtual void TimeTargetChangedEvent(Node* target) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+  virtual void ConnectedNodeChanged(Sequence* n) override;
 
 private:
   void SetKeyframeButtonEnabled(bool enable);

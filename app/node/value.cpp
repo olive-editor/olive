@@ -27,6 +27,7 @@
 #include <QVector4D>
 
 #include "common/tohex.h"
+#include "project/item/footage/stream.h"
 #include "render/color.h"
 
 namespace olive {
@@ -64,8 +65,6 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
                                              QString::number(c.alpha()));
   } else if (data_type == kRational) {
     return value.value<rational>().toString();
-  } else if (data_type == kFootage) {
-    return QString::number(value.value<quintptr>());
   } else if (data_type == kTexture
              || data_type == kSamples) {
     // These data types need no XML representation
@@ -116,9 +115,14 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
   case kVec4: return ValueToBytesInternal<QVector4D>(value);
   case kCombo: return ValueToBytesInternal<int>(value);
 
+  case kVideoStreamProperties:
+  case kAudioStreamProperties:
+    return value.value<Stream>().toBytes();
+
+
   // These types have no persistent input
   case kNone:
-  case kFootage:
+  case kFootageJob:
   case kTexture:
   case kSamples:
   case kShaderJob:
@@ -177,6 +181,10 @@ QVector<QVariant> NodeValue::split_normal_value_into_track_values(Type type, con
 
 QVariant NodeValue::combine_track_values_into_normal_value(Type type, const QVector<QVariant> &split)
 {
+  if (split.isEmpty()) {
+    return QVariant();
+  }
+
   switch (type) {
   case kVec2:
   {
@@ -293,15 +301,18 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Texture");
   case kSamples:
     return QCoreApplication::translate("NodeValue", "Samples");
-  case kFootage:
-    return QCoreApplication::translate("NodeValue", "Footage");
   case kVec2:
     return QCoreApplication::translate("NodeValue", "Vector 2D");
   case kVec3:
     return QCoreApplication::translate("NodeValue", "Vector 3D");
   case kVec4:
     return QCoreApplication::translate("NodeValue", "Vector 4D");
+  case kVideoStreamProperties:
+    return QCoreApplication::translate("NodeValue", "Video Stream Properties");
+  case kAudioStreamProperties:
+    return QCoreApplication::translate("NodeValue", "Audio Stream Properties");
 
+  case kFootageJob:
   case kShaderJob:
   case kSampleJob:
   case kGenerateJob:

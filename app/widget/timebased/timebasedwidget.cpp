@@ -68,12 +68,12 @@ const int64_t &TimeBasedWidget::GetTimestamp() const
   return ruler_->GetTime();
 }
 
-ViewerOutput *TimeBasedWidget::GetConnectedNode() const
+Sequence *TimeBasedWidget::GetConnectedNode() const
 {
   return viewer_node_;
 }
 
-void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
+void TimeBasedWidget::ConnectViewerNode(Sequence *node)
 {
   if (viewer_node_ == node) {
     return;
@@ -244,12 +244,12 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
 
 TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
 {
-  return static_cast<Sequence*>(viewer_node_->parent());
+  return viewer_node_->timeline_points();
 }
 
 Project *TimeBasedWidget::GetTimelinePointsProject()
 {
-  return static_cast<Sequence*>(viewer_node_->parent())->project();
+  return viewer_node_->project();
 }
 
 TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
@@ -323,7 +323,10 @@ void TimeBasedWidget::ZoomOut()
 
 void TimeBasedWidget::GoToPrevCut()
 {
-  if (!GetConnectedNode()) {
+  // Cuts are only possible in sequences
+  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
+
+  if (!sequence) {
     return;
   }
 
@@ -333,7 +336,7 @@ void TimeBasedWidget::GoToPrevCut()
 
   int64_t closest_cut = 0;
 
-  foreach (Track* track, viewer_node_->GetTracks()) {
+  foreach (Track* track, sequence->GetTracks()) {
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
@@ -354,13 +357,16 @@ void TimeBasedWidget::GoToPrevCut()
 
 void TimeBasedWidget::GoToNextCut()
 {
-  if (!GetConnectedNode()) {
+  // Cuts are only possible in sequences
+  Sequence* sequence = dynamic_cast<Sequence*>(viewer_node_);
+
+  if (!sequence) {
     return;
   }
 
   int64_t closest_cut = INT64_MAX;
 
-  foreach (Track* track, GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, sequence->GetTracks()) {
     int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= GetTimestamp()) {
@@ -573,7 +579,7 @@ void TimeBasedWidget::SetMarker()
   }
 
   if (ok) {
-    Core::instance()->undo_stack()->push(new MarkerAddCommand(static_cast<Sequence*>(GetConnectedNode()->parent())->project(),
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(GetConnectedNode()->project(),
                                                               points_->markers(), TimeRange(GetTime(), GetTime()), marker_name));
   }
 }

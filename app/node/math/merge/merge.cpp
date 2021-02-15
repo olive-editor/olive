@@ -100,7 +100,7 @@ NodeValueTable MergeNode::Value(const QString &output, NodeValueDatabase &value)
   return table;
 }
 
-void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
+void MergeNode::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
   // We do some hash optimization here. If only one of the inputs is connected, this node
   // functions as a passthrough so there's no alteration to the hash. The same is true if the
@@ -113,7 +113,7 @@ void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
   bool blend_changed_hash = false;
 
   if (IsInputConnected(kBaseIn)) {
-    GetConnectedNode(kBaseIn)->Hash(hash, time);
+    GetConnectedNode(kBaseIn)->Hash(output, hash, time);
 
     QByteArray post_base_hash = hash.result();
     base_changed_hash = (post_base_hash != current_result);
@@ -121,7 +121,7 @@ void MergeNode::Hash(QCryptographicHash &hash, const rational &time) const
   }
 
   if(IsInputConnected(kBlendIn)) {
-    GetConnectedNode(kBlendIn)->Hash(hash, time);
+    GetConnectedNode(kBlendIn)->Hash(output, hash, time);
 
     blend_changed_hash = (hash.result() != current_result);
   }

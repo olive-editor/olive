@@ -30,7 +30,6 @@
 
 #include "common/define.h"
 #include "core.h"
-#include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "projectexplorerundo.h"
 #include "task/precache/precachetask.h"
@@ -149,7 +148,7 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
   // Set navbar text to folder's name
   if (index.isValid()) {
     Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
-    nav_bar_->set_text(f->name());
+    nav_bar_->set_text(f->GetLabel());
   } else {
     // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
     nav_bar_->set_text(QString());
@@ -202,8 +201,7 @@ void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
   Item* i = static_cast<Item*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
-  if (i->CanHaveChildren()
-      && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
+  if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
 
     BrowseToFolder(index);
 
@@ -273,18 +271,16 @@ void ProjectExplorer::ShowContextMenu()
     if (context_menu_items_.size() == 1) {
       Item* context_menu_item = context_menu_items_.first();
 
-      switch (context_menu_item->type()) {
-      case Item::kFolder:
-      {
+      if (dynamic_cast<Folder*>(context_menu_item)) {
+
         QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
         connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
 
         QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
         connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
-        break;
-      }
-      case Item::kFootage:
-      {
+
+      } else if (dynamic_cast<Footage*>(context_menu_item)) {
+
         QString reveal_text;
 
 #if defined(Q_OS_WINDOWS)
@@ -297,10 +293,7 @@ void ProjectExplorer::ShowContextMenu()
 
         QAction* reveal_action = menu.addAction(reveal_text);
         connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
-        break;
-      }
-      case Item::kSequence:
-        break;
+
       }
 
       menu.addSeparator();
@@ -311,15 +304,18 @@ void ProjectExplorer::ShowContextMenu()
     bool all_items_are_footage_or_sequence = true;
 
     foreach (Item* i, context_menu_items_) {
-      if (i->type() == Item::kFootage && !static_cast<Footage*>(i)->HasEnabledStreamsOfType(Stream::kVideo)) {
+      Footage* footage_cast_test = dynamic_cast<Footage*>(i);
+      Sequence* sequence_cast_test = dynamic_cast<Sequence*>(i);
+
+      if (footage_cast_test && !footage_cast_test->HasEnabledStreamsOfType(Stream::kVideo)) {
         all_items_have_video_streams = false;
       }
 
-      if (i->type() != Item::kFootage) {
+      if (!footage_cast_test) {
         all_items_are_footage = false;
       }
 
-      if (i->type() != Item::kFootage && i->type() != Item::kSequence) {
+      if (!footage_cast_test && !sequence_cast_test) {
         all_items_are_footage_or_sequence = false;
       }
     }
@@ -328,14 +324,14 @@ void ProjectExplorer::ShowContextMenu()
       Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
       menu.addMenu(proxy_menu);
 
-      QVector<Item*> sequences = project()->get_items_of_type(Item::kSequence);
+      QVector<Sequence*> sequences = project()->root()->ListOutputsOfType<Sequence>();
 
       if (sequences.isEmpty()) {
         QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
         a->setEnabled(false);
       } else {
-        foreach (Item* i, sequences) {
-          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->name()));
+        foreach (Sequence* i, sequences) {
+          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->GetLabel()));
           a->setData(Node::PtrToValue(i));
         }
 
@@ -360,26 +356,20 @@ void ProjectExplorer::ShowItemPropertiesDialog()
 {
   Item* sel = context_menu_items_.first();
 
-  switch (sel->type()) {
-  case Item::kFootage:
-  {
-    // FIXME: Support for multiple items
-    FootagePropertiesDialog fpd(this, static_cast<Footage*>(sel));
-    fpd.exec();
-    break;
-  }
-  case Item::kFolder:
-  {
-    // FIXME: Rename dialog probably
-    break;
-  }
-  case Item::kSequence:
-  {
-    // FIXME: Support for multiple items
+  // FIXME: Support for multiple items
+  if (dynamic_cast<Footage*>(sel)) {
+
+    Core::instance()->LabelNodes({static_cast<Footage*>(sel)});
+
+  } else if (dynamic_cast<Folder*>(sel)) {
+
+    Core::instance()->LabelNodes({static_cast<Folder*>(sel)});
+
+  } else if (dynamic_cast<Sequence*>(sel)) {
+
     SequenceDialog sd(static_cast<Sequence*>(sel), SequenceDialog::kExisting, this);
     sd.exec();
-    break;
-  }
+
   }
 }
 
@@ -410,34 +400,29 @@ void ProjectExplorer::RevealSelectedFootage()
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), false);
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), false);
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
-  Core::instance()->main_window()->FolderOpen(project(), context_menu_items_.first(), true);
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), true);
 }
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  QVector<VideoStream*> video_streams;
+  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
   foreach (Item* i, context_menu_items_) {
     Footage* f = static_cast<Footage*>(i);
-    VideoStream* s = static_cast<VideoStream*>(f->get_first_enabled_stream_of_type(Stream::kVideo));
 
-    if (s) {
-      video_streams.append(s);
+    QVector<int> video_streams = f->GetStreamIndexesOfType(Stream::kVideo);
+
+    foreach (int stream, video_streams) {
+      // Start a background task for proxying
+      PreCacheTask* proxy_task = new PreCacheTask(f, stream, sequence);
+      TaskManager::instance()->AddTask(proxy_task);
     }
-  }
-
-  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
-
-  // Start a background task for proxying
-  foreach (VideoStream* video_stream, video_streams) {
-    PreCacheTask* proxy_task = new PreCacheTask(video_stream, sequence);
-    TaskManager::instance()->AddTask(proxy_task);
   }
 }
 
@@ -456,7 +441,7 @@ QModelIndex ProjectExplorer::get_root_index() const
   return tree_view_->rootIndex();
 }
 
-void ProjectExplorer::set_root(Item *item)
+void ProjectExplorer::set_root(Folder *item)
 {
   QModelIndex index = sort_model_.mapFromSource(model_.CreateIndexFromItem(item));
 
@@ -505,10 +490,8 @@ Folder *ProjectExplorer::GetSelectedFolder() const
     Item* sel_item = selected_items.at(i);
 
     // If this item is not a folder, presumably it's parent is
-    if (!sel_item->CanHaveChildren()) {
+    if (!dynamic_cast<Folder*>(sel_item)) {
       sel_item = sel_item->item_parent();
-
-      Q_ASSERT(sel_item->CanHaveChildren());
     }
 
     if (folder == nullptr) {
@@ -545,28 +528,6 @@ void ProjectExplorer::DeselectAll()
   CurrentView()->selectionModel()->clearSelection();
 }
 
-QVector<MediaInput *> ProjectExplorer::GetMediaNodesUsingFootage(Footage *item)
-{
-  QVector<MediaInput *> list;
-
-  // Get all sequences.
-  QVector<Item*> sequences = model_.project()->get_items_of_type(Item::kSequence);
-
-  // Footage can contain multiple streams, all of which need to be dealt with
-  foreach (Item* s, sequences) {
-    const QVector<Node*>& nodes = static_cast<Sequence*>(s)->nodes();
-    foreach (Node* n, nodes) {
-      MediaInput* media_node = dynamic_cast<MediaInput*>(n);
-
-      if (media_node && media_node->stream()->footage() == item) {
-        list.append(media_node);
-      }
-    }
-  }
-
-  return list;
-}
-
 void ProjectExplorer::DeleteSelected()
 {
   QVector<Item*> selected = SelectedItems();
@@ -577,110 +538,78 @@ void ProjectExplorer::DeleteSelected()
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
+  bool dont_confirm_footage_in_use = false;
+
   foreach (Item* item, selected) {
     // Verify whether this item is in use anywhere
-    switch (item->type()) {
-    case Item::kSequence:
-    {
-      // If this is a sequence, check if it's open and close it if necessary
-      Sequence* s = static_cast<Sequence*>(item);
+    Footage* footage_cast_test = dynamic_cast<Footage*>(item);
+    Sequence* sequence_cast_test = dynamic_cast<Sequence*>(item);
 
-      if (Core::instance()->main_window()->IsSequenceOpen(s)) {
-        Core::instance()->main_window()->CloseSequence(s);
+    bool cleared_to_delete = true;
+
+    if (sequence_cast_test) {
+      if (Core::instance()->main_window()->IsSequenceOpen(sequence_cast_test)) {
+        Core::instance()->main_window()->CloseSequence(sequence_cast_test);
       }
-      break;
-    }
-    case Item::kFootage:
-    {
-      // If this is footage, check if it's used anywhere in any sequence
-      Footage* footage = static_cast<Footage*>(item);
+    } else if (footage_cast_test) {
+      if (!footage_cast_test->output_connections().empty() && !dont_confirm_footage_in_use) {
+        // Footage outputs to other nodes, warn the user
+        QMessageBox msgbox(this);
+        msgbox.setWindowTitle(tr("Confirm Footage Deletion"));
+        msgbox.setIcon(QMessageBox::Warning);
 
-      QVector<MediaInput*> footage_nodes = GetMediaNodesUsingFootage(footage);
+        QStringList connected_nodes;
+        foreach (const Node::OutputConnection& c, footage_cast_test->output_connections()) {
+          Node* connected = c.second.node();
 
-      if (!footage_nodes.isEmpty()) {
-        // Footage is in use, show messagebox asking what to do about it
-        QList<Sequence*> used_in_sequences;
-
-        // Compile list of sequences to assist the user in making this decision
-        foreach (MediaInput* i, footage_nodes) {
-          Sequence* media_parent = static_cast<Sequence*>(i->parent());
-
-          if (!used_in_sequences.contains(media_parent)) {
-            used_in_sequences.append(media_parent);
+          if (connected->GetLabel().isEmpty()) {
+            connected_nodes.append(connected->Name());
+          } else {
+            connected_nodes.append(QStringLiteral("%1 (%2)").arg(connected->GetLabel(), connected->Name()));
           }
         }
 
-        QString sequence_list_str;
-        foreach (Sequence* s, used_in_sequences) {
-          sequence_list_str.append(QStringLiteral("%1\n").arg(s->name()));
-        }
+        msgbox.setText(tr("The footage \"%1\" is currently connected to the following nodes:\n\n"
+                          "%2\n\n"
+                          "Are you sure you wish to delete this footage?")
+                       .arg(footage_cast_test->filename(), connected_nodes.join('\n')));
 
-        QMessageBox msgbox(this);
-        msgbox.setWindowTitle(tr("Confirm Footage Deletion"));
-        msgbox.setText(tr("The footage \"%1\" is currently used in the following sequence(s):\n\n"
-                          "%2\nWhat would you like to do with these clips?")
-                       .arg(footage->filename(), sequence_list_str));
-        msgbox.setIcon(QMessageBox::Warning);
 
         // Set up buttons
-        QPushButton* offline_btn = msgbox.addButton(tr("Offline Footage"), QMessageBox::YesRole);
-        QPushButton* delete_clip_btn = msgbox.addButton(tr("Delete Clips"), QMessageBox::NoRole);
+        msgbox.addButton(QMessageBox::Yes);
+        msgbox.addButton(QMessageBox::YesToAll);
+        msgbox.addButton(QMessageBox::No);
         msgbox.addButton(QMessageBox::Cancel);
 
         // Run messagebox
-        msgbox.exec();
+        int r = msgbox.exec();
 
-        if (msgbox.clickedButton() == offline_btn || msgbox.clickedButton() == delete_clip_btn) {
-
-          // For safety, even if we're deleting clips, we'll offline the footage nodes too
-          command->add_child(new OfflineFootageCommand(footage_nodes));
-
-        }
-
-        if (msgbox.clickedButton() == delete_clip_btn) {
-
-          // Delete any blocks that use this footage
-          QVector<Block*> blocks_to_remove;
-
-          foreach (Sequence* s, used_in_sequences) {
-            foreach (Track* track, s->viewer_output()->GetTracks()) {
-              foreach (Block* b, track->Blocks()) {
-                QVector<Node*> deps = b->GetDependencies();
-
-                foreach (MediaInput* i, footage_nodes) {
-                  if (deps.contains(i)) {
-                    blocks_to_remove.append(b);
-                    break;
-                  }
-                }
-              }
-            }
-          }
-
-          TimelineWidget::ReplaceBlocksWithGaps(blocks_to_remove, true, command);
-
-        } else if (msgbox.clickedButton() != offline_btn) {
-
-          // Must have cancelled
+        switch (r) {
+        case QMessageBox::Cancel:
+          // Stop this entire function
           delete command;
           return;
-
+        case QMessageBox::No:
+          cleared_to_delete = false;
+          break;
+        case QMessageBox::YesToAll:
+          dont_confirm_footage_in_use = true;
+          break;
         }
       }
 
-      // Close footage if currently open in footage panel
-      FootageViewerPanel* footage_panel = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>().first();
-      if (footage_panel->GetSelectedFootage().contains(footage)) {
-        footage_panel->SetFootage(nullptr);
+      if (cleared_to_delete) {
+        // Close footage if currently open in footage panel
+        FootageViewerPanel* footage_panel = PanelManager::instance()->GetPanelsOfType<FootageViewerPanel>().first();
+        if (footage_panel->GetSelectedFootage().contains(footage_cast_test)) {
+          footage_panel->SetFootage(nullptr);
+        }
       }
-      break;
-    }
-    case Item::kFolder:
-      // Do nothing
-      break;
     }
 
-    command->add_child(new ProjectViewModel::RemoveItemCommand(&model_, item));
+    if (cleared_to_delete) {
+      command->add_child(new NodeRemoveAndDisconnectCommand(reinterpret_cast<Node*>(item)));
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

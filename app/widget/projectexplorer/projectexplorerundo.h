@@ -21,50 +21,9 @@
 #ifndef PROJECTEXPLORERUNDO_H
 #define PROJECTEXPLORERUNDO_H
 
-#include "node/input/media/media.h"
 #include "undo/undocommand.h"
 
 namespace olive {
-
-/**
- * @brief An undo command for offlining footage when it is deleted from the project explorer
- */
-class OfflineFootageCommand : public UndoCommand {
-public:
-  OfflineFootageCommand(const QVector<MediaInput*>& media)
-  {
-    foreach (MediaInput* i, media) {
-      stream_data_.insert(i, i->stream());
-    }
-
-    project_ = media.first()->parent()->project();
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return project_;
-  }
-
-  virtual void redo() override
-  {
-    for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
-      it.key()->SetStream(nullptr);
-    }
-  }
-
-  virtual void undo() override
-  {
-    for (auto it=stream_data_.cbegin(); it!=stream_data_.cend(); it++) {
-      it.key()->SetStream(it.value());
-    }
-  }
-
-private:
-  QMap<MediaInput*, Stream*> stream_data_;
-
-  Project* project_;
-
-};
 
 }
 

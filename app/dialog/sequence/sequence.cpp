@@ -78,11 +78,11 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
     setWindowTitle(tr("New Sequence"));
     break;
   case kExisting:
-    setWindowTitle(tr("Editing \"%1\"").arg(sequence_->name()));
+    setWindowTitle(tr("Editing \"%1\"").arg(sequence_->GetLabel()));
     break;
   }
 
-  name_field_->setText(sequence_->name());
+  name_field_->setText(sequence_->GetLabel());
 }
 
 void SequenceDialog::SetUndoable(bool u)
@@ -130,7 +130,7 @@ void SequenceDialog::accept()
     // Set sequence values directly with no undo command
     sequence_->set_video_params(video_params);
     sequence_->set_audio_params(audio_params);
-    sequence_->set_name(name_field_->text());
+    sequence_->SetLabel(name_field_->text());
   }
 
   QDialog::accept();
@@ -146,7 +146,7 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
   new_name_(name),
   old_video_params_(s->video_params()),
   old_audio_params_(s->audio_params()),
-  old_name_(s->name())
+  old_name_(s->GetLabel())
 {
 }
 
@@ -159,14 +159,14 @@ void SequenceDialog::SequenceParamCommand::redo()
 {
   sequence_->set_video_params(new_video_params_);
   sequence_->set_audio_params(new_audio_params_);
-  sequence_->set_name(new_name_);
+  sequence_->SetLabel(new_name_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
 {
   sequence_->set_video_params(old_video_params_);
   sequence_->set_audio_params(old_audio_params_);
-  sequence_->set_name(old_name_);
+  sequence_->SetLabel(old_name_);
 }
 
 }

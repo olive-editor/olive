@@ -63,7 +63,7 @@ public:
 
   bool IsPlaying() const;
 
-  void ConnectViewerNode(ViewerOutput* node, ColorManager *color_manager = nullptr);
+  void ConnectViewerNode(Sequence *node, ColorManager *color_manager = nullptr);
 
   /**
    * @brief Enable or disable the color management menu
@@ -153,9 +153,9 @@ protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectNodeInternal(ViewerOutput *) override;
-  virtual void DisconnectNodeInternal(ViewerOutput *) override;
-  virtual void ConnectedNodeChanged(ViewerOutput*n) override;
+  virtual void ConnectNodeInternal(Sequence *) override;
+  virtual void DisconnectNodeInternal(Sequence *) override;
+  virtual void ConnectedNodeChanged(Sequence*n) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 

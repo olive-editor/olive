@@ -23,6 +23,7 @@
 
 #include "node/graph.h"
 #include "node/node.h"
+#include "project/project.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -104,11 +105,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    if (graph_) {
-      return graph_->project();
-    } else {
-      return node_->parent()->project();
-    }
+    return dynamic_cast<Project*>(graph_);
   }
 
   virtual void redo() override
@@ -165,7 +162,7 @@ public:
     if (command_) {
       return static_cast<const NodeRemoveAndDisconnectCommand*>(command_->child(0))->GetRelevantProject();
     } else {
-      return node_->parent()->project();
+      return node_->project();
     }
   }
 
@@ -236,7 +233,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return a_->parent()->project();
+    return a_->project();
   }
 
   virtual void redo() override
@@ -276,7 +273,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return node_->parent()->project();
+    return node_->project();
   }
 
   virtual void redo() override
@@ -320,11 +317,32 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return nodes_.first()->parent()->project();
+    return nodes_.first()->project();
   }
 
 private:
   QVector<Node*> nodes_;
+
+};
+
+class NodeRenameCommand : public UndoCommand
+{
+public:
+  NodeRenameCommand() = default;
+
+  void AddNode(Node* node, const QString& new_name);
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+  virtual Project * GetRelevantProject() const override;
+
+private:
+  QVector<Node*> nodes_;
+
+  QStringList new_labels_;
+  QStringList old_labels_;
 
 };
 

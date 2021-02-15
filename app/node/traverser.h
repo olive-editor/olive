@@ -26,7 +26,6 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
-#include "project/item/footage/stream.h"
 #include "value.h"
 
 namespace olive {
@@ -49,9 +48,9 @@ protected:
 
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual QVariant ProcessVideoFootage(VideoStream* stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(const Footage::StreamReference &stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(AudioStream* stream, const TimeRange &input_time);
+  virtual QVariant ProcessAudioFootage(const Footage::StreamReference &stream, const TimeRange &input_time);
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
 

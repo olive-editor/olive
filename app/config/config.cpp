@@ -106,6 +106,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("CatColor8"), NodeValue::kInt, 8);
   SetEntryInternal(QStringLiteral("CatColor9"), NodeValue::kInt, 9);
   SetEntryInternal(QStringLiteral("CatColor10"), NodeValue::kInt, 10);
+  SetEntryInternal(QStringLiteral("CatColor11"), NodeValue::kInt, 11);
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());

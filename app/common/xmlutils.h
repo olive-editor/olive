@@ -24,7 +24,6 @@
 #include <QXmlStreamReader>
 
 #include "node/param.h"
-#include "project/item/footage/stream.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -58,6 +57,15 @@ struct XMLNodeData {
 
 void XMLConnectNodes(const XMLNodeData& xml_node_data, MultiUndoCommand *command = nullptr);
 
+/**
+ * @brief Workaround for QXmlStreamReader::readNextStartElement not detecting the end of a document
+ *
+ * Since Qt's default function doesn't exit at the end of the document, it ends up consistently
+ * throwing a "premature end of document" error. We have our own function here that does essentially
+ * the same thing but fixes that issue.
+ *
+ * See also: https://stackoverflow.com/questions/46346450/qt-qxmlstreamreader-always-returns-premature-end-of-document-error
+ */
 bool XMLReadNextStartElement(QXmlStreamReader* reader);
 
 void XMLLinkBlocks(const XMLNodeData& xml_node_data);

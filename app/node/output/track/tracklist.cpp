@@ -27,7 +27,7 @@
 
 namespace olive {
 
-TrackList::TrackList(ViewerOutput *parent, const Track::Type &type, const QString &track_input) :
+TrackList::TrackList(Sequence *parent, const Track::Type &type, const QString &track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
@@ -136,7 +136,7 @@ void TrackList::UpdateTrackIndexesFrom(int index)
 
 NodeGraph *TrackList::GetParentGraph() const
 {
-  return static_cast<NodeGraph*>(parent()->parent());
+  return parent()->parent();
 }
 
 const QString& TrackList::track_input() const
@@ -149,9 +149,9 @@ NodeInput TrackList::track_input(int element) const
   return NodeInput(parent(), track_input(), element);
 }
 
-ViewerOutput *TrackList::parent() const
+Sequence *TrackList::parent() const
 {
-  return static_cast<ViewerOutput*>(QObject::parent());
+  return static_cast<Sequence*>(QObject::parent());
 }
 
 int TrackList::ArraySize() const

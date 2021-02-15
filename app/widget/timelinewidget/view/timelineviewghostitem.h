@@ -23,6 +23,7 @@
 
 #include <QVariant>
 
+#include "node/output/track/track.h"
 #include "project/item/footage/footage.h"
 #include "timeline/timelinecommon.h"
 
@@ -40,6 +41,11 @@ public:
     kGhostIsSliding,
     kTrimIsARollEdit,
     kTrimShouldBeIgnored
+  };
+
+  struct AttachedFootage {
+    Footage* footage;
+    QString output;
   };
 
   TimelineViewGhostItem() :
@@ -266,5 +272,7 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(olive::TimelineViewGhostItem::AttachedFootage)
 
 #endif // TIMELINEVIEWGHOSTITEM_H

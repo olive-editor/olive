@@ -66,9 +66,9 @@ NodeValueTable TimeInput::Value(const QString &output, NodeValueDatabase &value)
   return table;
 }
 
-void TimeInput::Hash(QCryptographicHash &hash, const rational &time) const
+void TimeInput::Hash(const QString &output, QCryptographicHash &hash, const rational &time) const
 {
-  Node::Hash(hash, time);
+  Node::Hash(output, hash, time);
 
   // Make sure time is hashed
   hash.addData(NodeValue::ValueToBytes(NodeValue::kRational, QVariant::fromValue(time)));

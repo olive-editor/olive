@@ -21,6 +21,7 @@
 #ifndef RENDERCONTEXT_H
 #define RENDERCONTEXT_H
 
+#include <QMutex>
 #include <QObject>
 #include <QVariant>
 

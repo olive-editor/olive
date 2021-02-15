@@ -367,6 +367,10 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     if (item) {
       create_edge_ = new NodeViewEdge();
       create_edge_src_ = item;
+
+      create_edge_->SetCurved(scene_.GetEdgesAreCurved());
+      create_edge_->SetFlowDirection(scene_.GetFlowDirection());
+
       scene_.addItem(create_edge_);
       return;
     }

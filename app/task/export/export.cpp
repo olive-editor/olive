@@ -25,7 +25,7 @@
 
 namespace olive {
 
-ExportTask::ExportTask(ViewerOutput* viewer_node,
+ExportTask::ExportTask(Sequence *viewer_node,
                        ColorManager* color_manager,
                        const ExportParams& params) :
   RenderTask(viewer_node, params.video_params(), params.audio_params()),

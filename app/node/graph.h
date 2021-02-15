@@ -32,7 +32,7 @@ namespace olive {
  * This doesn't technically need to be a derivative of Item, but since both Item and NodeGraph need
  * to be QObject derivatives, this simplifies Sequence.
  */
-class NodeGraph : public Item
+class NodeGraph : public QObject
 {
   Q_OBJECT
 public:

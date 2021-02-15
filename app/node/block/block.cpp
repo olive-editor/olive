@@ -209,7 +209,7 @@ void Block::Retranslate()
   SetInputName(kSpeedInput, tr("Speed"));
 }
 
-void Block::Hash(QCryptographicHash &, const rational &) const
+void Block::Hash(const QString &, QCryptographicHash &, const rational &) const
 {
   // A block does nothing by default, so we hash nothing
 }

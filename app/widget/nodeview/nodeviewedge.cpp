@@ -154,7 +154,9 @@ void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
 
-  Adjust();
+  if (from_item_ && to_item_) {
+    Adjust();
+  }
 }
 
 void NodeViewEdge::SetCurved(bool e)

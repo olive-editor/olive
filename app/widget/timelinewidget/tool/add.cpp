@@ -102,7 +102,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       command->add_child(new NodeAddCommand(graph,
                                             clip));
 
-      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
+      command->add_child(new TrackPlaceBlockCommand(static_cast<Sequence*>(parent()->GetConnectedNode())->track_list(track.type()),
                                                     track.index(),
                                                     clip,
                                                     ghost_->GetAdjustedIn()));

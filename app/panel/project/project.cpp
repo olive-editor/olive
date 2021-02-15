@@ -108,7 +108,7 @@ QModelIndex ProjectPanel::get_root_index() const
   return explorer_->get_root_index();
 }
 
-void ProjectPanel::set_root(Item *item)
+void ProjectPanel::set_root(Folder *item)
 {
   explorer_->set_root(item);
 
@@ -184,10 +184,10 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
     Core::instance()->DialogImportShow();
-  } else if (item->type() == Item::kFootage) {
+  } else if (dynamic_cast<Footage*>(item)) {
     // Open this footage in a FootageViewer
     PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
-  } else if (item->type() == Item::kSequence) {
+  } else if (dynamic_cast<Sequence*>(item)) {
     // Open this sequence in the Timeline
     Core::instance()->main_window()->OpenSequence(static_cast<Sequence*>(item));
   }
@@ -210,10 +210,10 @@ void ProjectPanel::UpdateSubtitle()
     if (explorer_->get_root_index().isValid()) {
       QString folder_path;
 
-      Item* item = static_cast<Item*>(explorer_->get_root_index().internalPointer());
+      Folder* item = static_cast<Folder*>(explorer_->get_root_index().internalPointer());
 
       do {
-        folder_path.prepend(QStringLiteral("/%1").arg(item->name()));
+        folder_path.prepend(QStringLiteral("/%1").arg(item->GetLabel()));
 
         item = item->item_parent();
       } while (item != project()->root());
@@ -238,7 +238,7 @@ QVector<Footage *> ProjectPanel::GetSelectedFootage() const
   QVector<Footage*> footage;
 
   foreach (Item* i, items) {
-    if (i->type() == Item::kFootage) {
+    if (dynamic_cast<Footage*>(i)) {
       footage.append(static_cast<Footage*>(i));
     }
   }

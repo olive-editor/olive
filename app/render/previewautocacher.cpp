@@ -59,7 +59,7 @@ void PreviewAutoCacher::SetPaused(bool paused)
   }
 }
 
-void PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
+void PreviewAutoCacher::GenerateHashes(Sequence *viewer, FrameHashCache* cache, const QVector<rational> &times, qint64 job_time)
 {
   std::vector<QByteArray> existing_hashes;
 
@@ -289,6 +289,9 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Copy node
   Node* copy = node->copy();
 
+  // Add to project
+  copy->setParent(&copied_project_);
+
   // Insert into map
   copy_map_.insert(node, copy);
 
@@ -339,8 +342,8 @@ void PreviewAutoCacher::UpdateAudioParams()
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
-  cache_range_ = TimeRange(playhead - Config::Current()["DiskCacheBehind"].value<rational>(),
-      playhead + Config::Current()["DiskCacheAhead"].value<rational>());
+  cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
+      playhead + Config::Current()[QStringLiteral("DiskCacheAhead")].value<rational>());
 
   has_changed_ = true;
   use_custom_range_ = false;
@@ -588,7 +591,7 @@ void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
+void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
 {
   if (viewer_node_ == viewer_node) {
     return;

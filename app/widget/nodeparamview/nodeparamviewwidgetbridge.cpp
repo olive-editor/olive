@@ -34,7 +34,7 @@
 #include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
 #include "widget/colorbutton/colorbutton.h"
-#include "widget/footagecombobox/footagecombobox.h"
+#include "widget/filefield/filefield.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 
@@ -77,9 +77,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kMatrix:
     case NodeValue::kRational:
     case NodeValue::kSamples:
+    case NodeValue::kFootageJob:
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
+    case NodeValue::kVideoStreamProperties:
+    case NodeValue::kAudioStreamProperties:
       break;
     case NodeValue::kInt:
     {
@@ -120,12 +123,16 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       break;
     }
     case NodeValue::kFile:
-      // FIXME: File selector
+    {
+      FileField* file_field = new FileField();
+      widgets_.append(file_field);
+      connect(file_field, &FileField::FilenameChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
+    }
     case NodeValue::kColor:
     {
       // NOTE: Very convoluted way to get back to the project's color manager
-      ColorButton* color_button = new ColorButton(input_.node()->parent()->project()->color_manager());
+      ColorButton* color_button = new ColorButton(input_.node()->project()->color_manager());
       widgets_.append(color_button);
       connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -149,17 +156,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       QFontComboBox* font_combobox = new QFontComboBox();
       widgets_.append(font_combobox);
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kFootage:
-    {
-      FootageComboBox* footage_combobox = new FootageComboBox();
-      footage_combobox->SetRoot(input_.node()->parent()->project()->root());
-
-      connect(footage_combobox, &FootageComboBox::FootageChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-
-      widgets_.append(footage_combobox);
-
       break;
     }
     }
@@ -252,9 +248,12 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
   case NodeValue::kRational:
+  case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoStreamProperties:
+  case NodeValue::kAudioStreamProperties:
     break;
   case NodeValue::kInt:
   {
@@ -307,8 +306,10 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     break;
   }
   case NodeValue::kFile:
-    // FIXME: File selector
+  {
+    SetInputValue(static_cast<FileField*>(sender())->GetFilename(), 0);
     break;
+  }
   case NodeValue::kColor:
   {
     // Sender is a ColorButton
@@ -348,12 +349,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   {
     // Widget is a QFontComboBox
     SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont().family(), 0);
-    break;
-  }
-  case NodeValue::kFootage:
-  {
-    // Widget is a FootageComboBox
-    SetInputValue(Node::PtrToValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()), 0);
     break;
   }
   case NodeValue::kCombo:
@@ -403,9 +398,12 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kMatrix:
   case NodeValue::kRational:
   case NodeValue::kSamples:
+  case NodeValue::kFootageJob:
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoStreamProperties:
+  case NodeValue::kAudioStreamProperties:
     break;
   case NodeValue::kInt:
   {
@@ -452,8 +450,13 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     break;
   }
   case NodeValue::kFile:
-    // FIXME: File selector
+  {
+    FileField* ff = static_cast<FileField*>(widgets_.first());
+    ff->blockSignals(true);
+    ff->SetFilename(input_.GetValueAtTime(node_time).toString());
+    ff->blockSignals(false);
     break;
+  }
   case NodeValue::kColor:
   {
     ManagedColor mc = input_.GetValueAtTime(node_time).value<Color>();
@@ -494,9 +497,6 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     cb->blockSignals(false);
     break;
   }
-  case NodeValue::kFootage:
-    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(Node::ValueToPtr<Stream>(input_.GetValueAtTime(node_time)));
-    break;
   }
 }
 
@@ -620,7 +620,7 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
   }
 
   // ComboBox strings changing
-  if (data_type & NodeValue::kCombo) {
+  if (data_type == NodeValue::kCombo) {
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
 
     int old_index = cb->currentIndex();

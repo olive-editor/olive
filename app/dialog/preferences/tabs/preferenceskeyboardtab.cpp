@@ -71,8 +71,10 @@ PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
   setup_kbd_shortcuts(menubar);
 }
 
-void PreferencesKeyboardTab::Accept()
+void PreferencesKeyboardTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   // Save keyboard shortcuts
   for (int i=0;i<key_shortcut_fields_.size();i++) {
     key_shortcut_fields_.at(i)->set_action_shortcut();

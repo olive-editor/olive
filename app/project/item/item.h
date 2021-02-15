@@ -30,10 +30,11 @@
 
 #include "common/threadedobject.h"
 #include "common/xmlutils.h"
-#include "project/item/footage/stream.h"
+#include "node/node.h"
 
 namespace olive {
 
+class Folder;
 class Project;
 
 /**
@@ -42,90 +43,29 @@ class Project;
  * Project objects implement a parent-child hierarchy of Items that can be used throughout the Project. The Item class
  * itself is abstract and will need to be subclassed to be used in a Project.
  */
-class Item : public QObject
+class Item : public Node
 {
   Q_OBJECT
 public:
-  enum Type {
-    kFolder,
-    kFootage,
-    kSequence
-  };
-
   /**
    * @brief Item constructor
    */
-  Item();
-
-  /**
-   * @brief Required virtual Item destructor
-   */
-  virtual ~Item() override;
-
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) = 0;
-
-  virtual void Save(QXmlStreamWriter* writer) const = 0;
-
-  virtual Type type() const = 0;
-
-  int item_child_count() const
-  {
-    return item_children_.size();
-  }
-
-  Item* item_child(int i) const
-  {
-    return item_children_.at(i);
-  }
-
-  const QVector<Item*>& children() const
-  {
-    return item_children_;
-  }
-
-  const QString& name() const;
-  void set_name(const QString& n);
+  Item(bool create_folder_input = true, bool create_default_output = true);
 
   const QString& tooltip() const;
   void set_tooltip(const QString& t);
-
-  virtual QIcon icon() = 0;
 
   virtual QString duration();
 
   virtual QString rate();
 
-  Item *item_parent() const
-  {
-    return item_parent_;
-  }
+  Folder *item_parent() const;
 
-  Project* project() const;
+  static const QString kParentInput;
 
-  void set_project(Project* project);
-
-  QVector<Item*> get_children_of_type(Type type, bool recursive) const;
-
-  virtual bool CanHaveChildren() const;
-
-  bool ChildExistsWithName(const QString& name);
-
-protected:
-  virtual void NameChangedEvent(const QString& name);
-
-  virtual void childEvent(QChildEvent *event) override;
+  virtual void Retranslate() override;
 
 private:
-  static bool ChildExistsWithNameInternal(const QString& name, Item* folder);
-
-  QVector<Item*> item_children_;
-
-  Item* item_parent_;
-
-  Project* project_;
-
-  QString name_;
-
   QString tooltip_;
 
 };

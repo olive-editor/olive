@@ -25,19 +25,19 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "preferencestab.h"
+#include "dialog/configbase/configdialogbase.h"
 #include "ui/style/style.h"
 #include "widget/colorlabelmenu/colorcodingcombobox.h"
 
 namespace olive {
 
-class PreferencesAppearanceTab : public PreferencesTab
+class PreferencesAppearanceTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
   PreferencesAppearanceTab();
 
-  virtual void Accept() override;
+  virtual void Accept(MultiUndoCommand* command) override;
 
 private:
   /**

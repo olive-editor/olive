@@ -46,9 +46,9 @@ public:
 
   void ZoomOut();
 
-  ViewerOutput* GetConnectedNode() const;
+  Sequence* GetConnectedNode() const;
 
-  void ConnectViewerNode(ViewerOutput *node);
+  void ConnectViewerNode(Sequence *node);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
@@ -105,11 +105,11 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput*){}
+  virtual void ConnectedNodeChanged(Sequence*){}
 
-  virtual void ConnectNodeInternal(ViewerOutput*){}
+  virtual void ConnectNodeInternal(Sequence*){}
 
-  virtual void DisconnectNodeInternal(ViewerOutput*){}
+  virtual void DisconnectNodeInternal(Sequence*){}
 
   void SetAutoMaxScrollBar(bool e);
 
@@ -189,7 +189,7 @@ private:
 
   bool UserIsDraggingPlayhead() const;
 
-  ViewerOutput* viewer_node_;
+  Sequence* viewer_node_;
 
   TimeRuler* ruler_;
 

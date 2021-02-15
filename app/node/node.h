@@ -79,6 +79,7 @@ public:
     kCategoryChannels,
     kCategoryTransition,
     kCategoryDistort,
+    kCategoryProject,
 
     kCategoryCount
   };
@@ -100,10 +101,12 @@ public:
    */
   NodeGraph* parent() const;
 
+  Project* project() const;
+
   /**
    * @brief Clear current node variables and replace them with
    */
-  void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled);
+  void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled);
 
   /**
    * @brief Save this node into a text/XML format
@@ -156,6 +159,8 @@ public:
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
    */
   virtual void Retranslate();
+
+  virtual QIcon icon() const;
 
   const QVector<QString>& inputs() const
   {
@@ -685,7 +690,7 @@ public:
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
 
-  virtual void Hash(QCryptographicHash& hash, const rational &time) const;
+  virtual void Hash(const QString& output, QCryptographicHash& hash, const rational &time) const;
 
   void InvalidateAll(const QString& input, int element = -1);
 
@@ -768,7 +773,7 @@ protected:
 
   void IgnoreHashingFrom(const QString& input_id);
 
-  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
@@ -797,6 +802,10 @@ protected:
   virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput& output);
 
   virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput& output);
+
+  virtual void OutputConnectedEvent(const QString& output, const NodeInput& input);
+
+  virtual void OutputDisconnectedEvent(const QString& output, const NodeInput& input);
 
   virtual void childEvent(QChildEvent *event) override;
 

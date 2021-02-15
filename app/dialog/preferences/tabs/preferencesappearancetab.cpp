@@ -86,13 +86,15 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
   layout->addStretch();
 }
 
-void PreferencesAppearanceTab::Accept()
+void PreferencesAppearanceTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   QString style_path = style_combobox_->currentData().toString();
 
   if (style_path != StyleManager::GetStyle()) {
     StyleManager::SetStyle(style_path);
-    Config::Current()["Style"] = style_path;
+    Config::Current()[QStringLiteral("Style")] = style_path;
   }
 
   for (int i=0; i<color_btns_.size(); i++) {

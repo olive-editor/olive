@@ -20,167 +20,112 @@
 
 #include "stream.h"
 
-#include "footage.h"
-#include "ui/icons/icons.h"
+#include "common/xmlutils.h"
 
 namespace olive {
 
-Stream::Stream() :
-  type_(kUnknown),
-  enabled_(true)
+void Stream::Load(QXmlStreamReader *reader)
 {
-
-}
-
-Stream::~Stream()
-{
-}
-
-Stream *Stream::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
-{
-  Stream* stream = nullptr;
-
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == QStringLiteral("type")) {
-      Stream::Type type = static_cast<Stream::Type>(attr.value().toInt());
-      switch (type) {
-      case Stream::kVideo:
-        stream = new VideoStream();
-        break;
-      case Stream::kAudio:
-        stream = new AudioStream();
-        break;
-      default:
-        stream = new Stream();
-        stream->set_type(type);
-        break;
-      }
-
-      // This is the only attribute we need
+      *this = Stream(static_cast<Type>(attr.value().toInt()));
       break;
     }
   }
 
-  if (!stream) {
-    return nullptr;
-  }
-
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("ptr")) {
-      //xml_node_data.footage_ptrs.insert(reader->readElementText().toULongLong(), stream);
-    } else if (reader->name() == QStringLiteral("index")) {
-      stream->set_index(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("timebase")) {
-      stream->set_timebase(rational::fromString(reader->readElementText()));
-    } else if (reader->name() == QStringLiteral("duration")) {
-      stream->set_duration(reader->readElementText().toLongLong());
-    } else if (reader->name() == QStringLiteral("enabled")) {
-      stream->set_enabled(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("custom")) {
-      stream->LoadCustomParameters(reader);
+    if (reader->name() == QStringLiteral("global")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("timebase")) {
+          timebase_ = rational::fromString(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("duration")) {
+          duration_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("channelcount")) {
+          channel_count_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("enabled")) {
+          enabled_ = reader->readElementText().toInt();
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("video")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("width")) {
+          width_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("height")) {
+          height_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("pixelaspectratio")) {
+          pixel_aspect_ratio_ = rational::fromString(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("videotype")) {
+          video_type_ = static_cast<VideoType>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("interlacing")) {
+          interlacing_ = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("pixelformat")) {
+          pixel_format_ = static_cast<VideoParams::Format>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("framerate")) {
+          frame_rate_ = rational::fromString(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("starttime")) {
+          start_time_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("premultipliedalpha")) {
+          premultiplied_alpha_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("colorspace")) {
+          colorspace_ = reader->readElementText();
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("audio")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("samplerate")) {
+          sample_rate_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("channellayout")) {
+          channel_layout_ = reader->readElementText().toULongLong();
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
     } else {
+
       reader->skipCurrentElement();
+
     }
   }
-
-  return stream;
 }
 
 void Stream::Save(QXmlStreamWriter *writer) const
 {
   writer->writeAttribute(QStringLiteral("type"), QString::number(type_));
 
-  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+  writer->writeStartElement(QStringLiteral("global"));
+    writer->writeTextElement(QStringLiteral("timebase"), timebase_.toString());
+    writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
+    writer->writeTextElement(QStringLiteral("channelcount"), QString::number(channel_count_));
+    writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+  writer->writeEndElement(); // global
 
-  writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
+  writer->writeStartElement(QStringLiteral("video"));
+    writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
+    writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
+    writer->writeTextElement(QStringLiteral("pixelaspectratio"), pixel_aspect_ratio_.toString());
+    writer->writeTextElement(QStringLiteral("videotype"), QString::number(video_type_));
+    writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
+    writer->writeTextElement(QStringLiteral("pixelformat"), QString::number(pixel_format_));
+    writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+    writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
+    writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
+    writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeEndElement(); // video
 
-  writer->writeTextElement(QStringLiteral("timebase"), timebase_.toString());
-
-  writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
-
-  writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
-
-  writer->writeStartElement(QStringLiteral("custom"));
-
-  SaveCustomParameters(writer);
-
-  writer->writeEndElement();
-}
-
-QString Stream::description() const
-{
-  return QCoreApplication::translate("Stream", "%1: Unknown").arg(index());
-}
-
-const Stream::Type &Stream::type() const
-{
-  return type_;
-}
-
-void Stream::set_type(const Stream::Type &type)
-{
-  type_ = type;
-}
-
-Footage *Stream::footage() const
-{
-  return dynamic_cast<Footage*>(parent());
-}
-
-const rational &Stream::timebase() const
-{
-  return timebase_;
-}
-
-void Stream::set_timebase(const rational &timebase)
-{
-  timebase_ = timebase;
-}
-
-const int &Stream::index() const
-{
-  return index_;
-}
-
-void Stream::set_index(const int &index)
-{
-  index_ = index;
-}
-
-const int64_t &Stream::duration() const
-{
-  return duration_;
-}
-
-void Stream::set_duration(const int64_t &duration)
-{
-  duration_ = duration;
-
-  emit ParametersChanged();
-}
-
-bool Stream::enabled() const
-{
-  return enabled_;
-}
-
-void Stream::set_enabled(bool e)
-{
-  enabled_ = e;
-}
-
-QIcon Stream::icon() const
-{
-  return QIcon();
-}
-
-void Stream::LoadCustomParameters(QXmlStreamReader* reader)
-{
-  reader->skipCurrentElement();
-}
-
-void Stream::SaveCustomParameters(QXmlStreamWriter*) const
-{
+  writer->writeStartElement(QStringLiteral("audio"));
+    writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
+    writer->writeTextElement(QStringLiteral("channellayout"), QString::number(channel_layout_));
+  writer->writeEndElement(); // audio
 }
 
 }

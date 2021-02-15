@@ -122,13 +122,6 @@ public:
     kSamples,
 
     /**
-     * Footage stream identifier type
-     *
-     * Resolves to `StreamPtr`.
-     */
-    kFootage,
-
-    /**
      * Two-dimensional vector (XY) type
      *
      * Resolves to `QVector2D`.
@@ -155,6 +148,29 @@ public:
      * Resolves to `int` - the index currently selected
      */
     kCombo,
+
+    /**
+     * Properties pertaining to the video stream of a footage file
+     *
+     * Resolves to a `Stream` object.
+     */
+    kVideoStreamProperties,
+
+    /**
+     * Properties pertaining to the audio stream of a footage file
+     *
+     * Resolves to a `Stream` object.
+     */
+    kAudioStreamProperties,
+
+    /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that a footage job needs to
+     * run. This value will usually be taken from a table and a kTexture or kSamples value will be
+     * pushed to take its place.
+     */
+    kFootageJob,
 
     /**
      * Job type

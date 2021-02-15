@@ -437,10 +437,12 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kRational:
     case NodeValue::kFont:
     case NodeValue::kFile:
+    case NodeValue::kVideoStreamProperties:
+    case NodeValue::kAudioStreamProperties:
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
-    case NodeValue::kFootage:
+    case NodeValue::kFootageJob:
     case NodeValue::kNone:
       break;
     }

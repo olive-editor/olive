@@ -644,7 +644,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       }
 
       const Track::Reference& track_ref = p.ghost->GetAdjustedTrack();
-      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track_ref.type()),
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track_ref.type()),
                                                     track_ref.index(),
                                                     block,
                                                     p.ghost->GetAdjustedIn()));

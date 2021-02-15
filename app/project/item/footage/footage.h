@@ -25,9 +25,9 @@
 #include <QDateTime>
 
 #include "common/rational.h"
+#include "node/node.h"
 #include "project/item/item.h"
-#include "project/item/footage/audiostream.h"
-#include "project/item/footage/videostream.h"
+#include "stream.h"
 #include "timeline/timelinepoints.h"
 
 namespace olive {
@@ -46,24 +46,34 @@ public:
   /**
    * @brief Footage Constructor
    */
-  Footage();
+  Footage(const QString& filename = QString());
 
-  /**
-   * @brief Footage Destructor
-   *
-   * Makes sure Stream objects are cleared properly
-   */
-  virtual ~Footage() override;
+  virtual Node* copy() const override
+  {
+    return new Footage();
+  }
 
-  /**
-   * @brief Load function
-   */
-  virtual void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
+  virtual QString Name() const override
+  {
+    return tr("Footage");
+  }
 
-  /**
-   * @brief Save function
-   */
-  virtual void Save(QXmlStreamWriter *writer) const override;
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.footage");
+  }
+
+  virtual QVector<CategoryID> Category() const override
+  {
+    return {kCategoryProject};
+  }
+
+  virtual QString Description() const override
+  {
+    return tr("Import video, audio, or still image files into the composition.");
+  }
+
+  virtual void Retranslate() override;
 
   /**
    * @brief Reset Footage state ready for running through Probe() again
@@ -90,7 +100,7 @@ public:
   /**
    * @brief Return the current filename of this Footage object
    */
-  const QString& filename() const;
+  QString filename() const;
 
   /**
    * @brief Set the filename
@@ -123,54 +133,189 @@ public:
    */
   void set_timestamp(const qint64 &t);
 
-  /**
-   * @brief Add a stream metadata object to this footage
-   *
-   * Usually done during a Decoder::Probe() function for retrieving metadata about the video/audio/other streams
-   * inside a container. Streams can have non-video/audio types so that they can be equivalent to the file's actual
-   * stream list, though the only streams officially supported are video and audio streams.
-   *
-   * @param s
-   *
-   * A pointer to a stream object. The Footage takes ownership of this object and will free it when it's deleted.
-   */
-  void add_stream(Stream *s);
-
-  void add_streams(const QVector<Stream*>& streams);
-
-  /**
-   * @brief Retrieve a stream at the given index.
-   *
-   * @param index
-   *
-   * The index will be equivalent to the stream's index in the file (or in FFmpeg
-   * terms AVStream->file_index). Must be < stream_count().
-   *
-   * @return
-   *
-   * The stream at the index provided
-   */
-  Stream *stream(int index) const;
-
-  /**
-   * @brief Returns a list of the streams in this Footage
-   */
-  const QVector<Stream*>& streams() const
+  void SetCancelPointer(const QAtomicInt* c)
   {
-    return streams_;
+    cancelled_ = c;
   }
 
-  /**
-   * @brief Retrieve total number of streams in this Footage file
-   */
-  int stream_count() const;
+  class StreamReference
+  {
+  public:
+    StreamReference()
+    {
+      footage_ = nullptr;
+      type_ = Stream::kUnknown;
+      index_ = -1;
+    }
 
-  /**
-   * @brief Item::Type() override
-   *
-   * @return kFootage
-   */
-  virtual Type type() const override;
+    StreamReference(const Footage* footage, Stream::Type type, int index)
+    {
+      footage_ = footage;
+      type_ = type;
+      index_ = index;
+    }
+
+    bool operator==(const StreamReference& rhs) const
+    {
+      return footage_ == rhs.footage_ && type_ == rhs.type_ && index_ == rhs.index_;
+    }
+
+    bool IsValid() const
+    {
+      return footage_ && index_ >= 0;
+    }
+
+    void Reset()
+    {
+      *this = StreamReference();
+    }
+
+    const Footage* footage() const
+    {
+      return footage_;
+    }
+
+    Stream::Type type() const
+    {
+      return type_;
+    }
+
+    int index() const
+    {
+      return index_;
+    }
+
+    Stream GetStream() const
+    {
+      if (IsValid()) {
+        return footage_->GetStreamAt(*this);
+      } else {
+        return Stream();
+      }
+    }
+
+    int64_t GetTimeInTimebaseUnits(const rational& timecode) const
+    {
+      if (IsValid()) {
+        return footage_->GetTimeInTimebaseUnits(type_, index_, timecode);
+      } else {
+        return -1;
+      }
+    }
+
+    int GetRealStreamIndex() const
+    {
+      if (IsValid()) {
+        return footage_->GetRealStreamIndex(*this);
+      } else {
+        return -1;
+      }
+    }
+
+    QString filename() const
+    {
+      if (footage_) {
+        return footage_->filename();
+      } else {
+        return QString();
+      }
+    }
+
+    VideoParams video_params() const
+    {
+      return GetStream().video_params();
+    }
+
+    AudioParams audio_params() const
+    {
+      return GetStream().audio_params();
+    }
+
+    int64_t duration() const
+    {
+      return GetStream().duration();
+    }
+
+    QString video_colorspace(bool default_if_empty = true) const;
+
+  private:
+    const Footage* footage_;
+    Stream::Type type_;
+    int index_;
+
+  };
+
+  Stream GetStreamAt(int index) const
+  {
+    return GetStandardValue(GetInputIDOfIndex(index)).value<Stream>();
+  }
+
+  Stream GetStreamAt(Stream::Type type, int index_within_type) const
+  {
+    return GetStreamAt(GetRealStreamIndex(type, index_within_type));
+  }
+
+  Stream GetStreamAt(const StreamReference& ref) const
+  {
+    return GetStreamAt(ref.type(), ref.index());
+  }
+
+  void SetStreamAt(int index, const Stream& stream)
+  {
+    SetStandardValue(GetInputIDOfIndex(index), QVariant::fromValue(stream));
+  }
+
+  void SetStreamAt(Stream::Type type, int index_within_type, const Stream& stream)
+  {
+    SetStreamAt(GetRealStreamIndex(type, index_within_type), stream);
+  }
+
+  void SetStreamAt(const StreamReference& ref, const Stream& stream)
+  {
+    SetStreamAt(ref.type(), ref.index(), stream);
+  }
+
+  int64_t GetTimeInTimebaseUnits(int index, const rational& time) const;
+  int64_t GetTimeInTimebaseUnits(Stream::Type type, int index_within_type, const rational& time) const
+  {
+    return GetTimeInTimebaseUnits(GetRealStreamIndex(type, index_within_type), time);
+  }
+
+  int GetRealStreamIndex(Stream::Type type, int index_within_type) const;
+  int GetRealStreamIndex(const StreamReference& ref) const
+  {
+    return GetRealStreamIndex(ref.type(), ref.index());
+  }
+
+  static QString GetStringFromReference(Stream::Type type, int index);
+  static QString GetStringFromReference(const StreamReference& ref)
+  {
+    return GetStringFromReference(ref.type(), ref.index());
+  }
+
+  StreamReference GetReferenceFromRealIndex(int real_index) const;
+
+  Stream::Type GetTypeFromOutput(const QString& output) const;
+
+  StreamReference GetReferenceFromOutput(const QString& s) const;
+
+  int GetStreamCount() const
+  {
+    return stream_count_;
+  }
+
+  int GetStreamTypeCount(Stream::Type type) const;
+
+  bool IsStreamEnabled(int index) const
+  {
+    return GetStreamAt(index).enabled();
+  }
+
+  Stream GetFirstEnabledStreamOfType(Stream::Type type) const;
+
+  QVector<int> GetStreamIndexesOfType(Stream::Type type) const;
+
+  Stream::Type GetStreamType(int index);
 
   /**
    * @brief Get the Decoder ID set when this Footage was probed
@@ -186,7 +331,7 @@ public:
    */
   void set_decoder(const QString& id);
 
-  virtual QIcon icon() override;
+  virtual QIcon icon() const override;
 
   virtual QString duration() override;
 
@@ -203,16 +348,38 @@ public:
    */
   bool HasEnabledStreamsOfType(const Stream::Type& type) const;
 
-  Stream* get_first_enabled_stream_of_type(const Stream::Type& type) const;
-
   static bool CompareFootageToFile(Footage* footage, const QString& filename);
   static bool CompareFootageToItsFilename(Footage* footage);
 
-private:
+  virtual void Hash(const QString& output, QCryptographicHash &hash, const rational &time) const override;
+
+  virtual NodeValueTable Value(const QString &output, NodeValueDatabase& value) const override;
+
+  static QString GetStreamTypeName(Stream::Type type);
+
+  static const QString kFilenameInput;
+  static const QString kStreamPropertiesFormat;
+
+protected:
   /**
-   * @brief Internal function to delete all Stream children and empty the array
+   * @brief Load function
    */
-  void ClearStreams();
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
+
+  /**
+   * @brief Save function
+   */
+  virtual void SaveInternal(QXmlStreamWriter *writer) const override;
+
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
+
+private:
+  QString DescribeStream(int index) const;
+
+  struct MetadataCache {
+    QString decoder;
+    Streams streams;
+  };
 
   /**
    * @brief Update the icon based on the Footage status
@@ -230,10 +397,24 @@ private:
    */
   void UpdateTooltip();
 
+  MetadataCache LoadStreamCache(const QString& filename);
+
+  bool SaveStreamCache(const QString& filename, const MetadataCache& data);
+
+  static QString GetInputIDOfIndex(int index)
+  {
+    return kStreamPropertiesFormat.arg(index);
+  }
+
   /**
-   * @brief Internal filename string
+   * @brief List of dynamic inputs added for stream properties
    */
-  QString filename_;
+  QMap<int, QString> inputs_for_stream_properties_;
+
+  /**
+   * @brief List of dynamic outputs added for streams
+   */
+  QMap<int, QString> outputs_for_streams_;
 
   /**
    * @brief Internal timestamp object
@@ -241,19 +422,25 @@ private:
   qint64 timestamp_;
 
   /**
-   * @brief Internal streams array
-   */
-  QVector<Stream*> streams_;
-
-  /**
    * @brief Internal attached decoder ID
    */
   QString decoder_;
 
+  int stream_count_;
+
   bool valid_;
+
+  const QAtomicInt* cancelled_;
+
+private slots:
+  void CheckFootage();
 
 };
 
+uint qHash(const Footage::StreamReference& ref, uint seed = 0);
+
 }
+
+Q_DECLARE_METATYPE(olive::Footage::StreamReference)
 
 #endif // FOOTAGE_H

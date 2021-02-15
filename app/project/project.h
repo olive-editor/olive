@@ -41,7 +41,7 @@ namespace olive {
  * * Project Settings
  * * Window Layout
  */
-class Project : public QObject
+class Project : public NodeGraph
 {
   Q_OBJECT
 public:
@@ -60,8 +60,6 @@ public:
   void set_filename(const QString& s);
 
   ColorManager* color_manager();
-
-  QVector<Item*> get_items_of_type(Item::Type type) const;
 
   bool is_modified() const;
   void set_modified(bool e);

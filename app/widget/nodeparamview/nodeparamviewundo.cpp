@@ -34,7 +34,7 @@ NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(const NodeInput &in
 
 Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
 {
-  return input_.node()->parent()->project();
+  return input_.node()->project();
 }
 
 void NodeParamSetKeyframingCommand::redo()
@@ -64,7 +64,7 @@ NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe*
 
 Project *NodeParamSetKeyframeValueCommand::GetRelevantProject() const
 {
-  return key_->parent()->parent()->project();
+  return key_->parent()->project();
 }
 
 void NodeParamSetKeyframeValueCommand::redo()
@@ -87,7 +87,7 @@ NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(Node* node, NodeK
 
 Project *NodeParamInsertKeyframeCommand::GetRelevantProject() const
 {
-  return input_->parent()->project();
+  return input_->project();
 }
 
 void NodeParamInsertKeyframeCommand::redo()
@@ -108,7 +108,7 @@ NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeKeyframe* key
 
 Project *NodeParamRemoveKeyframeCommand::GetRelevantProject() const
 {
-  return input_->parent()->project();
+  return input_->project();
 }
 
 void NodeParamRemoveKeyframeCommand::redo()
@@ -138,7 +138,7 @@ NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframe* k
 
 Project *NodeParamSetKeyframeTimeCommand::GetRelevantProject() const
 {
-  return key_->parent()->parent()->project();
+  return key_->parent()->project();
 }
 
 void NodeParamSetKeyframeTimeCommand::redo()
@@ -167,7 +167,7 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKey
 
 Project *NodeParamSetStandardValueCommand::GetRelevantProject() const
 {
-  return ref_.input().node()->parent()->project();
+  return ref_.input().node()->project();
 }
 
 void NodeParamSetStandardValueCommand::redo()
@@ -182,7 +182,7 @@ void NodeParamSetStandardValueCommand::undo()
 
 Project *NodeParamArrayInsertCommand::GetRelevantProject() const
 {
-  return input_.node()->parent()->project();
+  return input_.node()->project();
 }
 
 }

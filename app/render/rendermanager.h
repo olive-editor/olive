@@ -80,10 +80,10 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(Sequence *viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               FrameHashCache* cache = nullptr, bool prioritize = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(Sequence* viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
@@ -101,8 +101,8 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, bool generate_waveforms, bool prioritize = false);
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(Sequence* viewer, const TimeRange& r, const AudioParams& params, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(Sequence *viewer, const TimeRange& r, bool generate_waveforms, bool prioritize = false);
 
   RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
 

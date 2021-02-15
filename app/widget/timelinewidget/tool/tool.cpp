@@ -39,6 +39,11 @@ TimelineWidget *TimelineTool::parent()
   return parent_;
 }
 
+Sequence *TimelineTool::sequence()
+{
+  return parent_->sequence();
+}
+
 Timeline::MovementMode TimelineTool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
 {
   if (trim_mode == Timeline::kTrimIn) {

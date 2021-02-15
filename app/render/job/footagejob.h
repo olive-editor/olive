@@ -18,25 +18,43 @@
 
 ***/
 
-#ifndef PREFERENCESTAB_H
-#define PREFERENCESTAB_H
+#ifndef FOOTAGEJOB_H
+#define FOOTAGEJOB_H
 
-#include <QWidget>
-
-#include "config/config.h"
+#include "project/item/footage/footage.h"
 
 namespace olive {
 
-class PreferencesTab : public QWidget
+class FootageJob
 {
 public:
-  PreferencesTab() = default;
+  FootageJob() = default;
 
-  virtual bool Validate();
+  FootageJob(const Footage::StreamReference& ref, const TimeRange& range) :
+    footage_(ref),
+    range_(range)
+  {
+  }
 
-  virtual void Accept() = 0;
+  const Footage::StreamReference& footage() const
+  {
+    return footage_;
+  }
+
+  const TimeRange& range() const
+  {
+    return range_;
+  }
+
+private:
+  Footage::StreamReference footage_;
+
+  TimeRange range_;
+
 };
 
 }
 
-#endif // PREFERENCESTAB_H
+Q_DECLARE_METATYPE(olive::FootageJob)
+
+#endif // FOOTAGEJOB_H

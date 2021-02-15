@@ -35,7 +35,7 @@ class RenderTask : public Task
 {
   Q_OBJECT
 public:
-  RenderTask(ViewerOutput* viewer, const VideoParams &vparams, const AudioParams &aparams);
+  RenderTask(Sequence* viewer, const VideoParams &vparams, const AudioParams &aparams);
 
   virtual ~RenderTask() override;
 
@@ -53,7 +53,7 @@ protected:
 
   virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples, qint64 job_time) = 0;
 
-  ViewerOutput* viewer() const
+  Sequence* viewer() const
   {
     return viewer_;
   }
@@ -85,7 +85,7 @@ private:
 
   void IncrementRunningTickets();
 
-  ViewerOutput* viewer_;
+  Sequence* viewer_;
 
   VideoParams video_params_;
 

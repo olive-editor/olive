@@ -113,7 +113,7 @@ TimeBasedWidget *TimeBasedPanel::GetTimeBasedWidget() const
   return widget_;
 }
 
-ViewerOutput *TimeBasedPanel::GetConnectedViewer() const
+Sequence *TimeBasedPanel::GetConnectedViewer() const
 {
   return widget_->GetConnectedNode();
 }
@@ -123,7 +123,7 @@ TimeRuler *TimeBasedPanel::ruler() const
   return widget_->ruler();
 }
 
-void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
+void TimeBasedPanel::ConnectViewerNode(Sequence *node)
 {
   if (widget_->GetConnectedNode() == node) {
     return;

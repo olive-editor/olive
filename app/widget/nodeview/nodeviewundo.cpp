@@ -61,7 +61,7 @@ void NodeEdgeAddCommand::undo()
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
 {
-  return output_.node()->parent()->project();
+  return output_.node()->project();
 }
 
 NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput &input) :
@@ -82,13 +82,17 @@ void NodeEdgeRemoveCommand::undo()
 
 Project *NodeEdgeRemoveCommand::GetRelevantProject() const
 {
-  return output_.node()->parent()->project();
+  return output_.node()->project();
 }
 
 NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
   graph_(graph),
   node_(node)
 {
+  if (memory_manager_.thread() != node->thread()) {
+    memory_manager_.moveToThread(node_->thread());
+  }
+
   // Ensures that when this command is destroyed, if redo() is never called again, the node will be destroyed too
   node_->setParent(&memory_manager_);
 }
@@ -105,7 +109,7 @@ void NodeAddCommand::undo()
 
 Project *NodeAddCommand::GetRelevantProject() const
 {
-  return graph_->project();
+  return dynamic_cast<Project*>(graph_);
 }
 
 NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections) :
@@ -137,6 +141,32 @@ void NodeRemoveAndDisconnectCommand::prep()
   for (const Node::OutputConnection& conn : node_->output_connections()) {
     command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
+}
+
+void NodeRenameCommand::AddNode(Node *node, const QString &new_name)
+{
+  nodes_.append(node);
+  new_labels_.append(new_name);
+  old_labels_.append(node->GetLabel());
+}
+
+void NodeRenameCommand::redo()
+{
+  for (int i=0; i<nodes_.size(); i++) {
+    nodes_.at(i)->SetLabel(new_labels_.at(i));
+  }
+}
+
+void NodeRenameCommand::undo()
+{
+  for (int i=0; i<nodes_.size(); i++) {
+    nodes_.at(i)->SetLabel(old_labels_.at(i));
+  }
+}
+
+Project *NodeRenameCommand::GetRelevantProject() const
+{
+  return nodes_.isEmpty() ? nullptr : nodes_.first()->project();
 }
 
 }

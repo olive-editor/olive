@@ -51,14 +51,16 @@ QString OIIODecoder::id()
   return QStringLiteral("oiio");
 }
 
-Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled) const
+Streams OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
 {
   Q_UNUSED(cancelled)
+
+  Streams streams;
 
   // Filter out any file extensions that aren't expected to work - sometimes OIIO will crash trying
   // to open a file that it can't if it's given one
   if (!FileTypeIsSupported(filename)) {
-    return nullptr;
+    return streams;
   }
 
   std::string std_filename = filename.toStdString();
@@ -66,82 +68,46 @@ Footage *OIIODecoder::Probe(const QString& filename, const QAtomicInt* cancelled
   auto in = OIIO::ImageInput::open(std_filename);
 
   if (!in) {
-    return nullptr;
+    return streams;
   }
 
   // Filter out OIIO detecting an "FFmpeg movie", we have a native FFmpeg decoder that can handle
   // it better
   if (!strcmp(in->format_name(), "FFmpeg movie")) {
-    return nullptr;
+    return streams;
   }
 
-  Footage* footage = new Footage();
+  Stream stream(Stream::kVideo);
 
-  VideoStream* image_stream = new VideoStream();
-
-  image_stream->set_width(in->spec().width);
-  image_stream->set_height(in->spec().height);
-  image_stream->set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
-  image_stream->set_channel_count(in->spec().nchannels);
-  image_stream->set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
-  image_stream->set_video_type(VideoStream::kVideoTypeStill);
-
-  // Images will always have just one stream
-  image_stream->set_index(0);
+  stream.set_width(in->spec().width);
+  stream.set_height(in->spec().height);
+  stream.set_pixel_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
+  stream.set_channel_count(in->spec().nchannels);
+  stream.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
+  stream.set_video_type(Stream::kVideoTypeStill);
 
   // OIIO automatically premultiplies alpha
   // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
   //        likely reduces the fidelity?
-  image_stream->set_premultiplied_alpha(true);
+  stream.set_premultiplied_alpha(true);
 
-  // Get stats for this image and dump them into the Footage file
-  footage->add_stream(image_stream);
+  streams.append(stream);
 
   // If we're here, we have a successful image open
   in->close();
 
-  return footage;
+  return streams;
 }
 
 bool OIIODecoder::OpenInternal()
 {
-  // If we can open the filename provided, assume everything is working (even if this is an image
-  // sequence with potentially missing frame)
-  if (OpenImageHandler(stream()->footage()->filename())) {
-    VideoStream* video_stream = static_cast<VideoStream*>(stream());
-
-    if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
-      last_sequence_index_ = 0;
-    } else {
-      last_sequence_index_ = GetImageSequenceIndex(stream()->footage()->filename());
-    }
-
-    return true;
-  }
-  return false;
+  // If we can open the filename provided, assume everything is working
+  return OpenImageHandler(stream().filename());
 }
 
 FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const int& divider)
 {
-  VideoStream* video_stream = static_cast<VideoStream*>(stream());
-
-  int64_t sequence_index;
-
-  if (video_stream->video_type() == VideoStream::kVideoTypeStill) {
-    sequence_index = 0;
-  } else {
-    sequence_index = video_stream->get_time_in_timebase_units(timecode);
-  }
-
-  if (last_sequence_index_ != sequence_index) {
-    CloseImageHandle();
-
-    if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), sequence_index))) {
-      return nullptr;
-    }
-
-    last_sequence_index_ = sequence_index;
-  }
+  Q_UNUSED(timecode)
 
   FramePtr frame = Frame::Create();
 

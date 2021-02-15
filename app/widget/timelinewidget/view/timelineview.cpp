@@ -31,7 +31,6 @@
 #include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
-#include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 #include "ui/colorcoding.h"
 

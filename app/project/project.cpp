@@ -26,6 +26,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
+#include "node/factory.h"
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -36,7 +37,6 @@ Project::Project() :
   autorecovery_saved_(true)
 {
   root_.setParent(this);
-  root_.set_project(this);
 
   connect(&color_manager_, &ColorManager::ConfigChanged,
           this, &Project::ColorConfigChanged);
@@ -79,6 +79,38 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
       *layout = MainWindowLayoutInfo::fromXml(reader, xml_node_data);
 
+    } else if (reader->name() == QStringLiteral("nodes")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          QString id;
+
+          {
+            XMLAttributeLoop(reader, attr) {
+              if (attr.name() == QStringLiteral("id")) {
+                id = attr.value().toString();
+                break;
+              }
+            }
+          }
+
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+          } else {
+            Node* node = NodeFactory::CreateFromID(id);
+
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+            } else {
+              node->Load(reader, xml_node_data, version, cancelled);
+              node->setParent(this);
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
     } else {
 
       // Skip this
@@ -86,6 +118,12 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
     }
   }
+
+  // Make connections
+  XMLConnectNodes(xml_node_data);
+
+  // Link blocks
+  XMLLinkBlocks(xml_node_data);
 }
 
 void Project::Save(QXmlStreamWriter *writer) const
@@ -156,11 +194,6 @@ ColorManager *Project::color_manager()
   return &color_manager_;
 }
 
-QVector<Item *> Project::get_items_of_type(Item::Type type) const
-{
-  return root_.get_children_of_type(type, true);
-}
-
 bool Project::is_modified() const
 {
   return is_modified_;
@@ -199,27 +232,21 @@ const QString &Project::cache_path(bool default_if_empty) const
 
 void Project::ColorConfigChanged()
 {
-  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
+  QVector<Footage*> footage = root()->ListOutputsOfType<Footage>();
 
-  foreach (Item* item, footage) {
-    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-      if (s->type() == Stream::kVideo) {
-        static_cast<VideoStream*>(s)->ColorConfigChanged();
-      }
-    }
+  foreach (Footage* item, footage) {
+    item->InvalidateAll(QString());
+    //static_cast<VideoStream*>(s)->ColorConfigChanged();
   }
 }
 
 void Project::DefaultColorSpaceChanged()
 {
-  QVector<Item*> footage = this->get_items_of_type(Item::kFootage);
+  QVector<Footage*> footage = root_.ListOutputsOfType<Footage>();
 
-  foreach (Item* item, footage) {
-    foreach (Stream* s, static_cast<Footage*>(item)->streams()) {
-      if (s->type() == Stream::kVideo) {
-        static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
-      }
-    }
+  foreach (Footage* item, footage) {
+    item->InvalidateAll(QString());
+    //static_cast<VideoStream*>(s)->DefaultColorSpaceChanged();
   }
 }
 

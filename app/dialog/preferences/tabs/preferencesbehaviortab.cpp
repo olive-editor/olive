@@ -106,8 +106,10 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           node_group);
 }
 
-void PreferencesBehaviorTab::Accept()
+void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   QMap<QTreeWidgetItem*, QString>::const_iterator iterator;
 
   for (iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {

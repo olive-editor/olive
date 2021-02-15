@@ -42,7 +42,7 @@ public:
 
   QModelIndex get_root_index() const;
 
-  void set_root(Item* item);
+  void set_root(Folder* item);
 
   QVector<Item *> SelectedItems() const;
 

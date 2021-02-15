@@ -96,7 +96,7 @@ protected:
   virtual void TimebaseChangedEvent(const rational&) override;
   virtual void TimeChangedEvent(const int64_t &) override;
 
-  virtual void ConnectedNodeChanged(ViewerOutput* n) override;
+  virtual void ConnectedNodeChanged(Sequence* n) override;
 
 private:
   void UpdateItemTime(const int64_t &timestamp);

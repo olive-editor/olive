@@ -58,7 +58,7 @@ void RippleTool::InitiateDrag(Block *clicked_item,
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (Track* track, parent()->GetConnectedNode()->GetTracks()) {
+  foreach (Track* track, sequence()->GetTracks()) {
     if (track->IsLocked()) {
       continue;
     }
@@ -144,7 +144,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
 
     for (int i=0;i<info_list.size();i++) {
       if (!info_list.at(i).isEmpty()) {
-        command->add_child(new TrackListRippleToolCommand(parent()->GetConnectedNode()->track_list(static_cast<Track::Type>(i)),
+        command->add_child(new TrackListRippleToolCommand(sequence()->track_list(static_cast<Track::Type>(i)),
                                                           info_list.at(i),
                                                           movement,
                                                           drag_movement_mode()));

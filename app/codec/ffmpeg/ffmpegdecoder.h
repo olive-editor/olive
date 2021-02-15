@@ -35,7 +35,6 @@ extern "C" {
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
 #include "ffmpegframepool.h"
-#include "project/item/footage/videostream.h"
 
 namespace olive {
 
@@ -57,7 +56,7 @@ public:
   virtual bool SupportsVideo() override{return true;}
   virtual bool SupportsAudio() override{return true;}
 
-  virtual Footage* Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  virtual Streams Probe(const QString &filename, const QAtomicInt *cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
@@ -122,7 +121,7 @@ private:
   void InitScaler(int divider);
   void FreeScaler();
 
-  FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
+  //FramePtr RetrieveStillImage(const rational& timecode, const int& divider);
 
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
@@ -135,7 +134,7 @@ private:
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, int divider);
+  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, int divider);
 
   void RemoveFirstFrame();
 

@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(streamproperties)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/footageproperties/footageproperties.h
-  dialog/footageproperties/footageproperties.cpp
+  widget/filefield/filefield.cpp
+  widget/filefield/filefield.h
   PARENT_SCOPE
 )

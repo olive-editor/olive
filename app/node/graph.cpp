@@ -20,7 +20,11 @@
 
 #include "graph.h"
 
+#include <QChildEvent>
+
 namespace olive {
+
+#define super QObject
 
 NodeGraph::NodeGraph()
 {
@@ -35,7 +39,7 @@ void NodeGraph::Clear()
 
 void NodeGraph::childEvent(QChildEvent *event)
 {
-  Item::childEvent(event);
+  super::childEvent(event);
 
   Node* node = dynamic_cast<Node*>(event->child());
 

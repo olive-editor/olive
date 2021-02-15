@@ -26,7 +26,6 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include "node/input/media/media.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
@@ -58,7 +57,7 @@ public:
 
   QModelIndex get_root_index() const;
 
-  void set_root(Item* item);
+  void set_root(Folder *item);
 
   QVector<Item *> SelectedItems() const;
 
@@ -103,11 +102,6 @@ signals:
   void DoubleClickedItem(Item* item);
 
 private:
-  /**
-   * @brief Check if an item is in use anywhere and return any relevant input nodes
-   */
-  QVector<MediaInput*> GetMediaNodesUsingFootage(Footage* item);
-
   /**
    * @brief Get all the blocks that solely rely on an input node
    *

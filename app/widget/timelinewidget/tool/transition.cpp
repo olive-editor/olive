@@ -126,7 +126,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
                                             transition));
 
-      command->add_child(new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
+      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
                                                     transition,
                                                     ghost_->GetAdjustedIn()));

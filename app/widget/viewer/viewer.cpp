@@ -168,7 +168,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   last_time_ = i;
 }
 
-void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
+void ViewerWidget::ConnectNodeInternal(Sequence *n)
 {
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SetViewerResolution);
   connect(n, &ViewerOutput::PixelAspectChanged, this, &ViewerWidget::SetViewerPixelAspect);
@@ -193,7 +193,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   if (override_color_manager_) {
     using_manager = override_color_manager_;
   } else if (n->parent()) {
-    using_manager = static_cast<Sequence*>(n->parent())->project()->color_manager();
+    using_manager = n->project()->color_manager();
   } else {
     qWarning() << "Failed to find a suitable color manager for the connected viewer node";
     using_manager = nullptr;
@@ -220,7 +220,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   ForceUpdate();
 }
 
-void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
+void ViewerWidget::DisconnectNodeInternal(Sequence *n)
 {
   PauseInternal();
 
@@ -252,7 +252,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   QMetaObject::invokeMethod(this, "UpdateStack", Qt::QueuedConnection);
 }
 
-void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
+void ViewerWidget::ConnectedNodeChanged(Sequence *n)
 {
   auto_cacher_.SetViewerNode(n);
 }
@@ -285,7 +285,7 @@ bool ViewerWidget::IsPlaying() const
   return playback_speed_ != 0;
 }
 
-void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
+void ViewerWidget::ConnectViewerNode(Sequence *node, ColorManager* color_manager)
 {
   override_color_manager_ = color_manager;
 

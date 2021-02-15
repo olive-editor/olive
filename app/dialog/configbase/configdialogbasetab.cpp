@@ -18,13 +18,13 @@
 
 ***/
 
-#include "streamproperties.h"
+#include "configdialogbasetab.h"
 
 namespace olive {
 
-StreamProperties::StreamProperties(QWidget *parent) :
-  QWidget(parent)
+bool ConfigDialogBaseTab::Validate()
 {
+  return true;
 }
 
 }
