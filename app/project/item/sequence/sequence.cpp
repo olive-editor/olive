@@ -37,6 +37,8 @@
 
 namespace olive {
 
+const QString Sequence::kVideoParamsInput = QStringLiteral("video_param_in");
+const QString Sequence::kAudioParamsInput = QStringLiteral("audio_param_in");
 const QString Sequence::kTextureInput = QStringLiteral("tex_in");
 const QString Sequence::kSamplesInput = QStringLiteral("samples_in");
 const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
@@ -49,8 +51,10 @@ Sequence::Sequence(bool viewer_only_mode) :
   audio_playback_cache_(this),
   operation_stack_(0)
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
   AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
 
   if (!viewer_only_mode) {
@@ -129,66 +133,42 @@ void Sequence::set_default_parameters()
 
 void Sequence::set_parameters_from_footage(const QVector<Footage *> footage)
 {
-  bool found_video_params = false;
-  bool found_audio_params = false;
 
   foreach (Footage* f, footage) {
-    for (int i=0; i<f->GetStreamCount(); i++) {
-      if (!f->IsStreamEnabled(i)) {
-        continue;
+    QVector<VideoParams> video_streams = f->GetEnabledVideoStreams();
+    QVector<AudioParams> audio_streams = f->GetEnabledAudioStreams();
+
+    foreach (const VideoParams& s, video_streams) {
+      bool found_video_params = false;
+      rational using_timebase;
+
+      if (s.video_type() == VideoParams::kVideoTypeStill) {
+        // If this is a still image, we'll use it's resolution but won't set
+        // `found_video_params` in case something with a frame rate comes along which we'll
+        // prioritize
+        using_timebase = video_params().time_base();
+      } else {
+        using_timebase = s.frame_rate().flipped();
+        found_video_params = true;
       }
 
-      Stream s = f->GetStreamAt(i);
+      set_video_params(VideoParams(s.width(),
+                                   s.height(),
+                                   using_timebase,
+                                   static_cast<VideoParams::Format>(Config::Current()[QStringLiteral("OfflinePixelFormat")].toInt()),
+                                   VideoParams::kInternalChannelCount,
+                                   s.pixel_aspect_ratio(),
+                                   s.interlacing(),
+                                   VideoParams::generate_auto_divider(s.width(), s.height())));
 
-      if (!s.IsValid()) {
-        continue;
-      }
-
-      switch (s.type()) {
-      case Stream::kVideo:
-      {
-        // If this is a video stream, use these parameters
-        if (!found_video_params) {
-          rational using_timebase;
-
-          if (s.video_type() == Stream::kVideoTypeStill) {
-            // If this is a still image, we'll use it's resolution but won't set
-            // `found_video_params` in case something with a frame rate comes along which we'll
-            // prioritize
-            using_timebase = video_params().time_base();
-          } else {
-            using_timebase = s.frame_rate().flipped();
-            found_video_params = true;
-          }
-
-          set_video_params(VideoParams(s.width(),
-                                       s.height(),
-                                       using_timebase,
-                                       static_cast<VideoParams::Format>(Config::Current()[QStringLiteral("OfflinePixelFormat")].toInt()),
-                                       VideoParams::kInternalChannelCount,
-                                       s.pixel_aspect_ratio(),
-                                       s.interlacing(),
-                                       VideoParams::generate_auto_divider(s.width(), s.height())));
-        }
+      if (found_video_params) {
         break;
       }
-      case Stream::kAudio:
-        if (!found_audio_params) {
-          set_audio_params(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
-          found_audio_params = true;
-        }
-        break;
-      case Stream::kUnknown:
-      case Stream::kData:
-      case Stream::kSubtitle:
-      case Stream::kAttachment:
-        // Ignore these types
-        break;
-      }
+    }
 
-      if (found_video_params && found_audio_params) {
-        return;
-      }
+    if (!audio_streams.isEmpty()) {
+      const AudioParams& s = audio_streams.first();
+      set_audio_params(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
     }
   }
 }
@@ -211,8 +191,10 @@ void Sequence::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName(kTextureInput, tr("Texture"));
+  SetInputName(kVideoParamsInput, tr("Video Parameters"));
+  SetInputName(kAudioParamsInput, tr("Audio Parameters"));
 
+  SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kSamplesInput, tr("Samples"));
 
   for (int i=0;i<Track::kCount;i++) {
@@ -352,47 +334,6 @@ void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int 
   super::InvalidateCache(range, from);
 }
 
-void Sequence::set_video_params(const VideoParams &video)
-{
-  bool size_changed = video_params_.width() != video.width() || video_params_.height() != video.height();
-  bool timebase_changed = video_params_.time_base() != video.time_base();
-  bool pixel_aspect_changed = video_params_.pixel_aspect_ratio() != video.pixel_aspect_ratio();
-  bool interlacing_changed = video_params_.interlacing() != video.interlacing();
-
-  video_params_ = video;
-
-  if (size_changed) {
-    emit SizeChanged(video_params_.width(), video_params_.height());
-  }
-
-  if (pixel_aspect_changed) {
-    emit PixelAspectChanged(video_params_.pixel_aspect_ratio());
-  }
-
-  if (interlacing_changed) {
-    emit InterlacingChanged(video_params_.interlacing());
-  }
-
-  if (timebase_changed) {
-    video_frame_cache_.SetTimebase(video_params_.time_base());
-    emit TimebaseChanged(video_params_.time_base());
-  }
-
-  emit VideoParamsChanged();
-
-  video_frame_cache_.InvalidateAll();
-}
-
-void Sequence::set_audio_params(const AudioParams &audio)
-{
-  audio_params_ = audio;
-
-  emit AudioParamsChanged();
-
-  // This will automatically InvalidateAll
-  audio_playback_cache_.SetParameters(audio_params());
-}
-
 rational Sequence::GetLength()
 {
   return last_length_;
@@ -477,6 +418,50 @@ void Sequence::SaveInternal(QXmlStreamWriter *writer) const
   writer->writeStartElement(QStringLiteral("points"));
   timeline_points_.Save(writer);
   writer->writeEndElement(); // points
+}
+
+void Sequence::InputValueChangedEvent(const QString &input, int element)
+{
+  if (input == kVideoParamsInput) {
+
+    VideoParams new_video_params = video_params();
+
+    bool size_changed = cached_video_params_.width() != new_video_params.width() || cached_video_params_.height() != new_video_params.height();
+    bool timebase_changed = cached_video_params_.time_base() != new_video_params.time_base();
+    bool pixel_aspect_changed = cached_video_params_.pixel_aspect_ratio() != new_video_params.pixel_aspect_ratio();
+    bool interlacing_changed = cached_video_params_.interlacing() != new_video_params.interlacing();
+
+    if (size_changed) {
+      emit SizeChanged(new_video_params.width(), new_video_params.height());
+    }
+
+    if (pixel_aspect_changed) {
+      emit PixelAspectChanged(new_video_params.pixel_aspect_ratio());
+    }
+
+    if (interlacing_changed) {
+      emit InterlacingChanged(new_video_params.interlacing());
+    }
+
+    if (timebase_changed) {
+      video_frame_cache_.SetTimebase(new_video_params.time_base());
+      emit TimebaseChanged(new_video_params.time_base());
+    }
+
+    emit VideoParamsChanged();
+
+    video_frame_cache_.InvalidateAll();
+
+    cached_video_params_ = video_params();
+
+  } else if (input == kAudioParamsInput) {
+
+    emit AudioParamsChanged();
+
+    // This will automatically InvalidateAll
+    audio_playback_cache_.SetParameters(audio_params());
+
+  }
 }
 
 void Sequence::ShiftVideoEvent(const rational &from, const rational &to)

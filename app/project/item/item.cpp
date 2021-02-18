@@ -34,6 +34,8 @@ Item::Item(bool create_folder_input, bool create_default_output) :
   if (create_folder_input) {
     // Hierarchy input for items
     AddInput(kParentInput, NodeValue::kNone);
+    IgnoreHashingFrom(kParentInput);
+    IgnoreInvalidationsFrom(kParentInput);
   }
 }
 

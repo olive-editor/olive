@@ -81,8 +81,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
-    case NodeValue::kVideoStreamProperties:
-    case NodeValue::kAudioStreamProperties:
+    case NodeValue::kVideoParams:
+    case NodeValue::kAudioParams:
       break;
     case NodeValue::kInt:
     {
@@ -252,8 +252,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
-  case NodeValue::kVideoStreamProperties:
-  case NodeValue::kAudioStreamProperties:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -402,8 +402,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
-  case NodeValue::kVideoStreamProperties:
-  case NodeValue::kAudioStreamProperties:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {

@@ -23,6 +23,8 @@
 
 #include <QAudioFormat>
 #include <QtMath>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include "common/rational.h"
 
@@ -63,6 +65,7 @@ public:
     channel_layout_(0),
     format_(kFormatInvalid)
   {
+    set_default_footage_parameters();
   }
 
   AudioParams(const int& sample_rate, const uint64_t& channel_layout, const Format& format) :
@@ -70,26 +73,81 @@ public:
     channel_layout_(channel_layout),
     format_(format)
   {
+    set_default_footage_parameters();
   }
 
-  const int& sample_rate() const
+  int sample_rate() const
   {
     return sample_rate_;
   }
 
-  const uint64_t& channel_layout() const
+  void set_sample_rate(int sample_rate)
+  {
+    sample_rate_ = sample_rate;
+  }
+
+  uint64_t channel_layout() const
   {
     return channel_layout_;
   }
 
-  rational time_base() const
+  void set_channel_layout(uint64_t channel_layout)
   {
-    return rational(1, sample_rate());
+    channel_layout_ = channel_layout;
   }
 
-  const Format &format() const
+  rational time_base() const
+  {
+    if (timebase_.isNull()) {
+      return rational(1, sample_rate());
+    } else {
+      return timebase_;
+    }
+  }
+
+  void set_time_base(const rational& timebase)
+  {
+    timebase_ = timebase;
+  }
+
+  Format format() const
   {
     return format_;
+  }
+
+  void set_format(Format format)
+  {
+    format_ = format;
+  }
+
+  bool enabled() const
+  {
+    return enabled_;
+  }
+
+  void set_enabled(bool e)
+  {
+    enabled_ = e;
+  }
+
+  int stream_index() const
+  {
+    return stream_index_;
+  }
+
+  void set_stream_index(int s)
+  {
+    stream_index_ = s;
+  }
+
+  int64_t duration() const
+  {
+    return duration_;
+  }
+
+  void set_duration(int64_t duration)
+  {
+    duration_ = duration;
   }
 
   qint64 time_to_bytes(const double& time) const;
@@ -104,6 +162,12 @@ public:
   int bytes_per_sample_per_channel() const;
   int bits_per_sample() const;
   bool is_valid() const;
+
+  QByteArray toBytes() const;
+
+  void Load(QXmlStreamReader* reader);
+
+  void Save(QXmlStreamWriter* writer) const;
 
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
@@ -124,11 +188,24 @@ public:
   static QString ChannelLayoutToString(const uint64_t &layout);
 
 private:
+  void set_default_footage_parameters()
+  {
+    enabled_ = true;
+    stream_index_ = 0;
+    duration_ = 0;
+  }
+
   int sample_rate_;
 
   uint64_t channel_layout_;
 
   Format format_;
+
+  // Footage-specific
+  bool enabled_;
+  int stream_index_;
+  int64_t duration_;
+  rational timebase_;
 
 };
 

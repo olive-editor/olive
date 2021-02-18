@@ -1456,7 +1456,8 @@ void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool tra
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
     Node* connected_node = it->second.node();
 
-    if (connected_node->outputs().size() == 1 || !exclusive_only) {
+    if (!exclusive_only
+        || (connected_node->outputs().size() == 1 && !dynamic_cast<Item*>(connected_node))) {
       if (!list.contains(connected_node)) {
         list.append(connected_node);
 
@@ -1764,11 +1765,22 @@ void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int ele
         }
 
         if (reader->name() == QStringLiteral("track")) {
-          QString value_text = reader->readElementText();
           QVariant value_on_track;
 
-          if (!value_text.isEmpty()) {
-            value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+          if (data_type == NodeValue::kVideoParams) {
+            VideoParams vp;
+            vp.Load(reader);
+            value_on_track = QVariant::fromValue(vp);
+          } else if (data_type == NodeValue::kAudioParams) {
+            AudioParams ap;
+            ap.Load(reader);
+            value_on_track = QVariant::fromValue(ap);
+          } else {
+            QString value_text = reader->readElementText();
+
+            if (!value_text.isEmpty()) {
+              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+            }
           }
 
           SetSplitStandardValueOnTrack(input, val_index, value_on_track, element);
@@ -1865,7 +1877,17 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
   writer->writeStartElement(QStringLiteral("standard"));
 
   foreach (const QVariant& v, GetSplitStandardValue(input, element)) {
-    writer->writeTextElement(QStringLiteral("track"), NodeValue::ValueToString(data_type, v, true));
+    writer->writeStartElement(QStringLiteral("track"));
+
+    if (data_type == NodeValue::kVideoParams) {
+      v.value<VideoParams>().Save(writer);
+    } else if (data_type == NodeValue::kAudioParams) {
+      v.value<AudioParams>().Save(writer);
+    } else {
+      writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
+    }
+
+    writer->writeEndElement(); // track
   }
 
   writer->writeEndElement(); // standard

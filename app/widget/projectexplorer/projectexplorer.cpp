@@ -67,6 +67,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
   tree_view_->setSortingEnabled(true);
+  tree_view_->sortByColumn(0, Qt::AscendingOrder);
   tree_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(tree_view_);
 
@@ -307,7 +308,7 @@ void ProjectExplorer::ShowContextMenu()
       Footage* footage_cast_test = dynamic_cast<Footage*>(i);
       Sequence* sequence_cast_test = dynamic_cast<Sequence*>(i);
 
-      if (footage_cast_test && !footage_cast_test->HasEnabledStreamsOfType(Stream::kVideo)) {
+      if (footage_cast_test && !footage_cast_test->HasEnabledVideoStreams()) {
         all_items_have_video_streams = false;
       }
 
@@ -416,11 +417,11 @@ void ProjectExplorer::ContextMenuStartProxy(QAction *a)
   foreach (Item* i, context_menu_items_) {
     Footage* f = static_cast<Footage*>(i);
 
-    QVector<int> video_streams = f->GetStreamIndexesOfType(Stream::kVideo);
+    QVector<VideoParams> enabled_streams = f->GetEnabledVideoStreams();
 
-    foreach (int stream, video_streams) {
+    foreach (const VideoParams& stream, enabled_streams) {
       // Start a background task for proxying
-      PreCacheTask* proxy_task = new PreCacheTask(f, stream, sequence);
+      PreCacheTask* proxy_task = new PreCacheTask(f, stream.stream_index(), sequence);
       TaskManager::instance()->AddTask(proxy_task);
     }
   }

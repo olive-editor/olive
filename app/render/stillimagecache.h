@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QWaitCondition>
 
+#include "codec/decoder.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 #include "render/texture.h"
@@ -14,7 +15,7 @@ class StillImageCache
 {
 public:
   struct Entry {
-    Entry(TexturePtr t, const Footage::StreamReference& s, const QString& cs, bool a, int d, const rational& i, bool w)
+    Entry(TexturePtr t, const Decoder::CodecStream& s, const QString& cs, bool a, int d, const rational& i, bool w)
     {
       texture = t;
       stream = s;
@@ -26,7 +27,7 @@ public:
     }
 
     TexturePtr texture;
-    Footage::StreamReference stream;
+    Decoder::CodecStream stream;
     QString colorspace;
     bool alpha_is_associated;
     int divider;

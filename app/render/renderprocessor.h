@@ -43,9 +43,9 @@ public:
 protected:
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
-  virtual QVariant ProcessVideoFootage(const Footage::StreamReference &stream, const rational &input_time) override;
+  virtual QVariant ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
 
-  virtual QVariant ProcessAudioFootage(const Footage::StreamReference &stream, const TimeRange &input_time) override;
+  virtual QVariant ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
 
   virtual QVariant ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
 

@@ -83,13 +83,15 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
+          bool is_root = false;
           QString id;
 
           {
             XMLAttributeLoop(reader, attr) {
               if (attr.name() == QStringLiteral("id")) {
                 id = attr.value().toString();
-                break;
+              } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
+                is_root = true;
               }
             }
           }
@@ -97,7 +99,13 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
           if (id.isEmpty()) {
             qWarning() << "Failed to load node with empty ID";
           } else {
-            Node* node = NodeFactory::CreateFromID(id);
+            Node* node;
+
+            if (is_root) {
+              node = &root_;
+            } else {
+              node = NodeFactory::CreateFromID(id);
+            }
 
             if (!node) {
               qWarning() << "Failed to find node with ID" << id;

@@ -28,28 +28,75 @@ namespace olive {
 class FootageJob
 {
 public:
-  FootageJob() = default;
-
-  FootageJob(const Footage::StreamReference& ref, const TimeRange& range) :
-    footage_(ref),
-    range_(range)
+  FootageJob() :
+    type_(Stream::kUnknown)
   {
   }
 
-  const Footage::StreamReference& footage() const
+  FootageJob(const QString& decoder, const QString& filename, Stream::Type type) :
+    decoder_(decoder),
+    filename_(filename),
+    type_(type)
   {
-    return footage_;
   }
 
-  const TimeRange& range() const
+  const QString& decoder() const
   {
-    return range_;
+    return decoder_;
+  }
+
+  const QString& filename() const
+  {
+    return filename_;
+  }
+
+  Stream::Type type() const
+  {
+    return type_;
+  }
+
+  const VideoParams& video_params() const
+  {
+    return video_params_;
+  }
+
+  void set_video_params(const VideoParams& p)
+  {
+    video_params_ = p;
+  }
+
+  const AudioParams& audio_params() const
+  {
+    return audio_params_;
+  }
+
+  void set_audio_params(const AudioParams& p)
+  {
+    audio_params_ = p;
+  }
+
+  const QString& cache_path() const
+  {
+    return cache_path_;
+  }
+
+  void set_cache_path(const QString& p)
+  {
+    cache_path_ = p;
   }
 
 private:
-  Footage::StreamReference footage_;
+  QString decoder_;
 
-  TimeRange range_;
+  QString filename_;
+
+  Stream::Type type_;
+
+  VideoParams video_params_;
+
+  AudioParams audio_params_;
+
+  QString cache_path_;
 
 };
 

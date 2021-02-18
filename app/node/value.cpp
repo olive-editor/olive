@@ -28,6 +28,8 @@
 
 #include "common/tohex.h"
 #include "project/item/footage/stream.h"
+#include "render/audioparams.h"
+#include "render/videoparams.h"
 #include "render/color.h"
 
 namespace olive {
@@ -115,10 +117,10 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
   case kVec4: return ValueToBytesInternal<QVector4D>(value);
   case kCombo: return ValueToBytesInternal<int>(value);
 
-  case kVideoStreamProperties:
-  case kAudioStreamProperties:
-    return value.value<Stream>().toBytes();
-
+  case kVideoParams:
+    return value.value<VideoParams>().toBytes();
+  case kAudioParams:
+    return value.value<AudioParams>().toBytes();
 
   // These types have no persistent input
   case kNone:
@@ -307,10 +309,10 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Vector 3D");
   case kVec4:
     return QCoreApplication::translate("NodeValue", "Vector 4D");
-  case kVideoStreamProperties:
-    return QCoreApplication::translate("NodeValue", "Video Stream Properties");
-  case kAudioStreamProperties:
-    return QCoreApplication::translate("NodeValue", "Audio Stream Properties");
+  case kVideoParams:
+    return QCoreApplication::translate("NodeValue", "Video Parameters");
+  case kAudioParams:
+    return QCoreApplication::translate("NodeValue", "Audio Parameters");
 
   case kFootageJob:
   case kShaderJob:

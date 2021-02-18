@@ -46,21 +46,21 @@ OIIODecoder::~OIIODecoder()
   CloseInternal();
 }
 
-QString OIIODecoder::id()
+QString OIIODecoder::id() const
 {
   return QStringLiteral("oiio");
 }
 
-Streams OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
+FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
 {
   Q_UNUSED(cancelled)
 
-  Streams streams;
+  FootageDescription desc(id());
 
   // Filter out any file extensions that aren't expected to work - sometimes OIIO will crash trying
   // to open a file that it can't if it's given one
   if (!FileTypeIsSupported(filename)) {
-    return streams;
+    return desc;
   }
 
   std::string std_filename = filename.toStdString();
@@ -68,35 +68,36 @@ Streams OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled)
   auto in = OIIO::ImageInput::open(std_filename);
 
   if (!in) {
-    return streams;
+    return desc;
   }
 
   // Filter out OIIO detecting an "FFmpeg movie", we have a native FFmpeg decoder that can handle
   // it better
   if (!strcmp(in->format_name(), "FFmpeg movie")) {
-    return streams;
+    return desc;
   }
 
-  Stream stream(Stream::kVideo);
+  VideoParams video_params;
 
-  stream.set_width(in->spec().width);
-  stream.set_height(in->spec().height);
-  stream.set_pixel_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
-  stream.set_channel_count(in->spec().nchannels);
-  stream.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
-  stream.set_video_type(Stream::kVideoTypeStill);
+  video_params.set_stream_index(0);
+  video_params.set_width(in->spec().width);
+  video_params.set_height(in->spec().height);
+  video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
+  video_params.set_channel_count(in->spec().nchannels);
+  video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
+  video_params.set_video_type(VideoParams::kVideoTypeStill);
 
   // OIIO automatically premultiplies alpha
   // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
   //        likely reduces the fidelity?
-  stream.set_premultiplied_alpha(true);
+  video_params.set_premultiplied_alpha(true);
 
-  streams.append(stream);
+  desc.AddVideoStream(video_params);
 
   // If we're here, we have a successful image open
   in->close();
 
-  return streams;
+  return desc;
 }
 
 bool OIIODecoder::OpenInternal()

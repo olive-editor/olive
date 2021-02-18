@@ -116,18 +116,25 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1) override;
 
-  const VideoParams& video_params() const
+  VideoParams video_params() const
   {
-    return video_params_;
+    return GetStandardValue(kVideoParamsInput).value<VideoParams>();
   }
 
-  const AudioParams& audio_params() const
+  AudioParams audio_params() const
   {
-    return audio_params_;
+    return GetStandardValue(kAudioParamsInput).value<AudioParams>();
   }
 
-  void set_video_params(const VideoParams &video);
-  void set_audio_params(const AudioParams &audio);
+  void set_video_params(const VideoParams &video)
+  {
+    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video));
+  }
+
+  void set_audio_params(const AudioParams &audio)
+  {
+    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio));
+  }
 
   rational GetLength();
 
@@ -146,6 +153,9 @@ public:
   virtual void BeginOperation() override;
 
   virtual void EndOperation() override;
+
+  static const QString kVideoParamsInput;
+  static const QString kAudioParamsInput;
 
   static const QString kTextureInput;
   static const QString kSamplesInput;
@@ -198,6 +208,8 @@ protected:
 
   virtual void SaveInternal(QXmlStreamWriter *writer) const override;
 
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
 private:
   QVector<TrackList*> track_lists_;
 
@@ -213,8 +225,7 @@ private:
 
   int operation_stack_;
 
-  VideoParams video_params_;
-  AudioParams audio_params_;
+  VideoParams cached_video_params_;
 
   TimelinePoints timeline_points_;
 

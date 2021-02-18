@@ -262,7 +262,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
   }
 }
 
-QVariant RenderProcessor::ProcessVideoFootage(const Footage::StreamReference &stream, const rational &input_time)
+QVariant RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
   TexturePtr value = nullptr;
 
@@ -270,27 +270,34 @@ QVariant RenderProcessor::ProcessVideoFootage(const Footage::StreamReference &st
   // and color managing them for every frame is a waste of time, so we implement a small cache here
   // to optimize such a situation
   const VideoParams& render_params = ticket_->property("vparam").value<VideoParams>();
-  VideoParams stream_params = stream.video_params();
+  VideoParams stream_data = stream.video_params();
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
   // See if we can make this divider larger (i.e. if the fooage is smaller)
   int footage_divider = render_params.divider();
   while (footage_divider > 1
-         && VideoParams::GetScaledDimension(stream_params.width(), footage_divider-1) < render_params.effective_width()
-         && VideoParams::GetScaledDimension(stream_params.height(), footage_divider-1) < render_params.effective_height()) {
+         && VideoParams::GetScaledDimension(stream_data.width(), footage_divider-1) < render_params.effective_width()
+         && VideoParams::GetScaledDimension(stream_data.height(), footage_divider-1) < render_params.effective_height()) {
     footage_divider--;
   }
 
-  Stream stream_data = stream.GetStream();
+  QString using_colorspace = stream_data.colorspace();
+
+  if (using_colorspace.isEmpty()) {
+    // FIXME:
+    qWarning() << "HAVEN'T GOTTEN DEFAULT INPUT COLORSPACE";
+  }
+
+  Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index());
 
   StillImageCache::EntryPtr want_entry = std::make_shared<StillImageCache::Entry>(
         nullptr,
-        stream,
-        ColorProcessor::GenerateID(color_manager, stream.video_colorspace(), color_manager->GetReferenceColorSpace()),
+        default_codec_stream,
+        ColorProcessor::GenerateID(color_manager, using_colorspace, color_manager->GetReferenceColorSpace()),
         stream_data.premultiplied_alpha(),
         footage_divider,
-        (stream_data.video_type() == Stream::kVideoTypeStill) ? 0 : input_time,
+        (stream_data.video_type() == VideoParams::kVideoTypeStill) ? 0 : input_time,
         true);
 
   bool found_existing = false;
@@ -327,31 +334,31 @@ QVariant RenderProcessor::ProcessVideoFootage(const Footage::StreamReference &st
 
     still_image_cache_->mutex()->unlock();
 
-    QString decoder_id = stream.footage()->decoder();
+    QString decoder_id = stream.decoder();
 
     DecoderPtr decoder = nullptr;
 
-    if (stream_data.video_type() == Stream::kVideoTypeVideo) {
-      decoder = ResolveDecoderFromInput(decoder_id, Decoder::GetCodecStreamFromStreamReference(stream));
+    if (stream_data.video_type() == VideoParams::kVideoTypeVideo) {
+      decoder = ResolveDecoderFromInput(decoder_id, default_codec_stream);
     } else {
       // Since image sequences involve multiple files, we don't engage the decoder cache
       decoder = Decoder::CreateFromID(decoder_id);
 
       QString frame_filename;
 
-      if (stream_data.video_type() == Stream::kVideoTypeImageSequence) {
-        int64_t frame_number = stream.GetTimeInTimebaseUnits(input_time);
+      if (stream_data.video_type() == VideoParams::kVideoTypeImageSequence) {
+        int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
         frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
       } else {
         frame_filename = stream.filename();
       }
 
       // Decoder will close automatically since it's a stream_ptr
-      decoder->Open(Decoder::CodecStream(frame_filename, stream.index()));
+      decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
     }
 
     if (decoder) {
-      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == Stream::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, footage_divider);
+      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, footage_divider);
 
       if (frame) {
         // Return a texture from the derived class
@@ -368,7 +375,7 @@ QVariant RenderProcessor::ProcessVideoFootage(const Footage::StreamReference &st
         value = render_ctx_->CreateTexture(managed_params);
 
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
-                                                             stream.video_colorspace(),
+                                                             using_colorspace,
                                                              color_manager->GetReferenceColorSpace());
 
         render_ctx_->BlitColorManaged(processor, unmanaged_texture,
@@ -391,17 +398,17 @@ QVariant RenderProcessor::ProcessVideoFootage(const Footage::StreamReference &st
   return QVariant::fromValue(value);
 }
 
-QVariant RenderProcessor::ProcessAudioFootage(const Footage::StreamReference &stream, const TimeRange &input_time)
+QVariant RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
 {
   QVariant value;
 
-  DecoderPtr decoder = ResolveDecoderFromInput(stream.footage()->decoder(), Decoder::GetCodecStreamFromStreamReference(stream));
+  DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
 
   if (decoder) {
     const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
     SampleBufferPtr frame = decoder->RetrieveAudio(input_time, audio_params,
-                                                   stream.footage()->project()->cache_path(),
+                                                   stream.cache_path(),
                                                    &IsCancelled());
 
     if (frame) {

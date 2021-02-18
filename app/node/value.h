@@ -150,18 +150,18 @@ public:
     kCombo,
 
     /**
-     * Properties pertaining to the video stream of a footage file
+     * Video Parameters type
      *
-     * Resolves to a `Stream` object.
+     * Resolves to `VideoParams`
      */
-    kVideoStreamProperties,
+    kVideoParams,
 
     /**
-     * Properties pertaining to the audio stream of a footage file
+     * Audio Parameters type
      *
-     * Resolves to a `Stream` object.
+     * Resolves to `AudioParams`
      */
-    kAudioStreamProperties,
+    kAudioParams,
 
     /**
      * Job type

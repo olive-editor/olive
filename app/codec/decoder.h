@@ -36,6 +36,7 @@ extern "C" {
 #include "codec/waveoutput.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
+#include "project/item/footage/footagedescription.h"
 #include "project/item/footage/stream.h"
 
 namespace olive {
@@ -74,7 +75,7 @@ public:
   /**
    * @brief Unique decoder ID
    */
-  virtual QString id() = 0;
+  virtual QString id() const = 0;
 
   virtual bool SupportsVideo(){return false;}
   virtual bool SupportsAudio(){return false;}
@@ -176,7 +177,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual Streams Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory
@@ -201,8 +202,6 @@ public:
   static int64_t GetImageSequenceIndex(const QString& filename);
 
   static QVector<DecoderPtr> ReceiveListOfAllDecoders();
-
-  static CodecStream GetCodecStreamFromStreamReference(const Footage::StreamReference& ref);
 
 protected:
   /**

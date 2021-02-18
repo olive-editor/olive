@@ -67,8 +67,10 @@ VideoParams::VideoParams() :
   depth_(0),
   format_(kFormatInvalid),
   channel_count_(0),
-  interlacing_(Interlacing::kInterlaceNone)
+  interlacing_(Interlacing::kInterlaceNone),
+  divider_(1)
 {
+  set_defaults_for_footage();
 }
 
 VideoParams::VideoParams(int width, int height, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
@@ -83,6 +85,7 @@ VideoParams::VideoParams(int width, int height, Format format, int nb_channels, 
 {
   calculate_effective_size();
   validate_pixel_aspect_ratio();
+  set_defaults_for_footage();
 }
 
 VideoParams::VideoParams(int width, int height, int depth, Format format, int nb_channels, const rational &pixel_aspect_ratio, VideoParams::Interlacing interlacing, int divider) :
@@ -97,6 +100,7 @@ VideoParams::VideoParams(int width, int height, int depth, Format format, int nb
 {
   calculate_effective_size();
   validate_pixel_aspect_ratio();
+  set_defaults_for_footage();
 }
 
 VideoParams::VideoParams(int width, int height, const rational &time_base, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
@@ -112,6 +116,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 {
   calculate_effective_size();
   validate_pixel_aspect_ratio();
+  set_defaults_for_footage();
 }
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
@@ -237,6 +242,16 @@ void VideoParams::validate_pixel_aspect_ratio()
   }
 }
 
+void VideoParams::set_defaults_for_footage()
+{
+  enabled_ = true;
+  stream_index_ = 0;
+  video_type_ = kVideoTypeVideo;
+  start_time_ = 0;
+  duration_ = 0;
+  premultiplied_alpha_ = false;
+}
+
 bool VideoParams::is_valid() const
 {
   return (width() > 0
@@ -278,6 +293,104 @@ QString VideoParams::FormatPixelAspectRatioString(const QString &format, const r
 int VideoParams::GetScaledDimension(int dim, int divider)
 {
   return dim / divider;
+}
+
+QByteArray VideoParams::toBytes() const
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  hasher.addData(reinterpret_cast<const char*>(&width_), sizeof(width_));
+  hasher.addData(reinterpret_cast<const char*>(&height_), sizeof(height_));
+  hasher.addData(reinterpret_cast<const char*>(&depth_), sizeof(depth_));
+  hasher.addData(reinterpret_cast<const char*>(&time_base_), sizeof(time_base_));
+  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
+  hasher.addData(reinterpret_cast<const char*>(&channel_count_), sizeof(channel_count_));
+  hasher.addData(reinterpret_cast<const char*>(&pixel_aspect_ratio_), sizeof(pixel_aspect_ratio_));
+  hasher.addData(reinterpret_cast<const char*>(&interlacing_), sizeof(interlacing_));
+  hasher.addData(reinterpret_cast<const char*>(&divider_), sizeof(divider_));
+  hasher.addData(reinterpret_cast<const char*>(&enabled_), sizeof(enabled_));
+  hasher.addData(reinterpret_cast<const char*>(&stream_index_), sizeof(stream_index_));
+  hasher.addData(reinterpret_cast<const char*>(&video_type_), sizeof(video_type_));
+  hasher.addData(reinterpret_cast<const char*>(&frame_rate_), sizeof(frame_rate_));
+  hasher.addData(reinterpret_cast<const char*>(&start_time_), sizeof(start_time_));
+  hasher.addData(reinterpret_cast<const char*>(&duration_), sizeof(duration_));
+  hasher.addData(reinterpret_cast<const char*>(&premultiplied_alpha_), sizeof(premultiplied_alpha_));
+  hasher.addData(colorspace_.toUtf8());
+
+  return hasher.result();
+}
+
+int64_t VideoParams::get_time_in_timebase_units(const rational &time) const
+{
+  if (time_base_.isNull()) {
+    return AV_NOPTS_VALUE;
+  }
+
+  return Timecode::time_to_timestamp(time, time_base_) + start_time_;
+}
+
+void VideoParams::Load(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("width")) {
+      set_width(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("height")) {
+      set_height(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("depth")) {
+      set_depth(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("timebase")) {
+      set_time_base(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("format")) {
+      set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("channelcount")) {
+      set_channel_count(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("pixelaspectratio")) {
+      set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("interlacing")) {
+      set_interlacing(static_cast<VideoParams::Interlacing>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("divider")) {
+      set_divider(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("enabled")) {
+      set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("streamindex")) {
+      set_stream_index(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("videotype")) {
+      set_video_type(static_cast<VideoParams::Type>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("framerate")) {
+      set_frame_rate(rational::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("starttime")) {
+      set_start_time(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("duration")) {
+      set_duration(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("premultipliedalpha")) {
+      set_premultiplied_alpha(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("colorspace")) {
+      set_colorspace(reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void VideoParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
+  writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
+  writer->writeTextElement(QStringLiteral("depth"), QString::number(depth_));
+  writer->writeTextElement(QStringLiteral("timebase"), time_base_.toString());
+  writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+  writer->writeTextElement(QStringLiteral("channelcount"), QString::number(channel_count_));
+  writer->writeTextElement(QStringLiteral("pixelaspectratio"), pixel_aspect_ratio_.toString());
+  writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
+  writer->writeTextElement(QStringLiteral("divider"), QString::number(divider_));
+  writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+  writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
+  writer->writeTextElement(QStringLiteral("videotype"), QString::number(video_type_));
+  writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+  writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
+  writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
+  writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
+  writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
 }
 
 }

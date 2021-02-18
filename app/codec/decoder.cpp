@@ -235,11 +235,6 @@ int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &ti
   return Timecode::time_to_timestamp(time, timebase) + start_time;
 }
 
-Decoder::CodecStream Decoder::GetCodecStreamFromStreamReference(const Footage::StreamReference &ref)
-{
-  return CodecStream(ref.footage()->filename(), ref.footage()->GetRealStreamIndex(ref));
-}
-
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)
 {
   if (duration != AV_NOPTS_VALUE && duration != 0) {

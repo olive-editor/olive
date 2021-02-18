@@ -65,7 +65,7 @@ void PreviewAutoCacher::GenerateHashes(Sequence *viewer, FrameHashCache* cache, 
 
   foreach (const rational& time, times) {
     // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(ViewerOutput::kTextureInput), viewer->video_params(), time);
+    QByteArray hash = RenderManager::Hash(viewer->GetConnectedNode(Sequence::kTextureInput), viewer->video_params(), time);
 
     // Check memory list since disk checking is slow
     bool hash_exists = (std::find(existing_hashes.begin(), existing_hashes.end(), hash) != existing_hashes.end());
@@ -264,12 +264,6 @@ void PreviewAutoCacher::ProcessUpdateQueue()
     case QueuedJob::kValueChanged:
       CopyValue(job.input);
       break;
-    case QueuedJob::kVideoParamsChanged:
-      UpdateVideoParams();
-      break;
-    case QueuedJob::kAudioParamsChanged:
-      UpdateAudioParams();
-      break;
     }
   }
   graph_update_queue_.clear();
@@ -328,16 +322,6 @@ void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
   Node* our_input = copy_map_.value(input.node());
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
-}
-
-void PreviewAutoCacher::UpdateVideoParams()
-{
-  copied_viewer_node_->set_video_params(viewer_node_->video_params());
-}
-
-void PreviewAutoCacher::UpdateAudioParams()
-{
-  copied_viewer_node_->set_audio_params(viewer_node_->audio_params());
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -447,23 +431,6 @@ void PreviewAutoCacher::EdgeRemoved(const NodeOutput &output, const NodeInput &i
 void PreviewAutoCacher::ValueChanged(const NodeInput &input)
 {
   graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, NodeOutput()});
-}
-
-void PreviewAutoCacher::VideoParamsChanged()
-{
-  // In case the user is pressing the mouse at this exact moment
-  IgnoreNextMouseButton();
-
-  graph_update_queue_.append({QueuedJob::kVideoParamsChanged, nullptr, NodeInput(), NodeOutput()});
-  ClearVideoQueue();
-  TryRender();
-}
-
-void PreviewAutoCacher::AudioParamsChanged()
-{
-  graph_update_queue_.append({QueuedJob::kAudioParamsChanged, nullptr, NodeInput(), NodeOutput()});
-  ClearAudioQueue();
-  TryRender();
 }
 
 void PreviewAutoCacher::TryRender()
@@ -639,16 +606,6 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     disconnect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
 
     // Disconnect signal (will be a no-op if the signal was never connected)
-    disconnect(viewer_node_,
-               &ViewerOutput::VideoParamsChanged,
-               this,
-               &PreviewAutoCacher::VideoParamsChanged);
-
-    disconnect(viewer_node_,
-               &ViewerOutput::AudioParamsChanged,
-               this,
-               &PreviewAutoCacher::AudioParamsChanged);
-
     disconnect(viewer_node_->video_frame_cache(),
                &PlaybackCache::Invalidated,
                this,
@@ -672,7 +629,7 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     }
 
     // Find copied viewer node
-    copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
+    copied_viewer_node_ = static_cast<Sequence*>(copy_map_.value(viewer_node_));
 
     // Copy parameters
     copied_viewer_node_->set_video_params(viewer_node_->video_params());
@@ -697,20 +654,6 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     // Copy invalidated ranges - used to determine which frames need hashing
     invalidated_video_ = viewer_node_->video_frame_cache()->GetInvalidatedRanges();
     invalidated_audio_ = viewer_node_->audio_playback_cache()->GetInvalidatedRanges();
-
-    // We begin an operation and never end it which prevents the copy from unnecessarily
-    // invalidating its own cache
-    copied_viewer_node_->BeginOperation();
-
-    connect(viewer_node_,
-            &ViewerOutput::VideoParamsChanged,
-            this,
-            &PreviewAutoCacher::VideoParamsChanged);
-
-    connect(viewer_node_,
-            &ViewerOutput::AudioParamsChanged,
-            this,
-            &PreviewAutoCacher::AudioParamsChanged);
 
     connect(viewer_node_->video_frame_cache(),
             &PlaybackCache::Invalidated,

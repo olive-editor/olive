@@ -128,7 +128,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   return table;
 }
 
-QVariant NodeTraverser::ProcessVideoFootage(const Footage::StreamReference& stream, const rational &input_time)
+QVariant NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
 {
   Q_UNUSED(stream)
   Q_UNUSED(input_time)
@@ -136,7 +136,7 @@ QVariant NodeTraverser::ProcessVideoFootage(const Footage::StreamReference& stre
   return QVariant();
 }
 
-QVariant NodeTraverser::ProcessAudioFootage(const Footage::StreamReference& stream, const TimeRange &input_time)
+QVariant NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
 {
   Q_UNUSED(stream)
   Q_UNUSED(input_time)
@@ -232,9 +232,9 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
     // Retrieve video frames
     foreach (const NodeValue& v, footage_jobs_to_run) {
       // Assume this is a VideoStream, we did a type check earlier in the function
-      Footage::StreamReference job = v.data().value<Footage::StreamReference>();
+      FootageJob job = v.data().value<FootageJob>();
 
-      if (job.IsValid() && job.type() == Stream::kVideo && job.footage()->IsValid()) {
+      if (job.type() == Stream::kVideo) {
         QVariant value = ProcessVideoFootage(job, range.in());
 
         if (!value.isNull()) {
@@ -265,9 +265,9 @@ void NodeTraverser::PostProcessTable(const Node *node, const TimeRange &range, N
   // Retrieve audio samples
   foreach (const NodeValue& v, footage_jobs_to_run) {
     // Assume this is an AudioStream, we did a type check earlier in the function
-    Footage::StreamReference job = v.data().value<Footage::StreamReference>();
+    FootageJob job = v.data().value<FootageJob>();
 
-    if (job.IsValid() && job.type() == Stream::kAudio && job.footage()->IsValid()) {
+    if (job.type() == Stream::kAudio) {
       QVariant value = ProcessAudioFootage(job, range);
 
       if (!value.isNull()) {

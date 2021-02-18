@@ -147,7 +147,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
   // see if it ends with numbers.
   if (Decoder::GetImageSequenceDigitCount(footage->filename()) > 0
       && !image_sequence_ignore_files_.contains(footage->filename())) {
-    Stream video_stream = footage->GetStreamAt(Stream::kVideo, 0);
+    VideoParams video_stream = footage->GetVideoParams(0);
     QSize dim(video_stream.width(), video_stream.height());
 
     int64_t ind = Decoder::GetImageSequenceIndex(footage->filename());
@@ -205,16 +205,16 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 
       if (is_sequence) {
         // User has confirmed it is a still image, let's set it accordingly.
-        video_stream.set_video_type(Stream::kVideoTypeImageSequence);
+        video_stream.set_video_type(VideoParams::kVideoTypeImageSequence);
 
         rational default_timebase = Config::Current()[QStringLiteral("DefaultSequenceFrameRate")].value<rational>();
-        video_stream.set_timebase(default_timebase);
+        video_stream.set_time_base(default_timebase);
         video_stream.set_frame_rate(default_timebase.flipped());
 
         video_stream.set_start_time(start_index);
         video_stream.set_duration(end_index - start_index + 1);
 
-        footage->SetStreamAt(Stream::kVideo, 0, video_stream);
+        footage->SetVideoParams(0, video_stream);
       }
     }
 
@@ -225,22 +225,15 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 
 bool ProjectImportTask::ItemIsStillImageFootageOnly(Footage* footage)
 {
-  if (footage->GetStreamCount() != 1) {
+  if (footage->GetTotalStreamCount() != 1) {
     // Footage with more than one stream (usually video+audio) most likely isn't an image sequence
     return false;
   }
 
-  if (footage->GetStreamAt(0).type() != Stream::kVideo) {
-    // Footage with no video stream definitely isn't an image sequence
-    return false;
-  }
+  VideoParams vp = footage->GetVideoParams(0);
 
-  if (footage->GetStreamAt(0).video_type() != Stream::kVideoTypeStill) {
-    // If video type is not a still, this definitely isn't a video stream
-    return false;
-  }
-
-  return true;
+  // Footage must be valid and video stream must be a still image to be an image sequence
+  return vp.is_valid() && vp.video_type() == VideoParams::kVideoTypeStill;
 }
 
 bool ProjectImportTask::CompareStillImageSize(Footage* footage, const QSize &sz)
@@ -249,7 +242,7 @@ bool ProjectImportTask::CompareStillImageSize(Footage* footage, const QSize &sz)
     return false;
   }
 
-  Stream stream = footage->GetStreamAt(Stream::kVideo, 0);
+  VideoParams stream = footage->GetVideoParams(0);
 
   return stream.width() == sz.width() && stream.height() == sz.height();
 }

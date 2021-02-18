@@ -25,8 +25,11 @@
 #include <QDateTime>
 
 #include "common/rational.h"
+#include "footagedescription.h"
 #include "node/node.h"
 #include "project/item/item.h"
+#include "render/audioparams.h"
+#include "render/videoparams.h"
 #include "stream.h"
 #include "timeline/timelinepoints.h"
 
@@ -143,36 +146,38 @@ public:
   public:
     StreamReference()
     {
-      footage_ = nullptr;
       type_ = Stream::kUnknown;
       index_ = -1;
     }
 
-    StreamReference(const Footage* footage, Stream::Type type, int index)
+    StreamReference(Stream::Type type, int index)
     {
-      footage_ = footage;
       type_ = type;
       index_ = index;
     }
 
     bool operator==(const StreamReference& rhs) const
     {
-      return footage_ == rhs.footage_ && type_ == rhs.type_ && index_ == rhs.index_;
+      return type_ == rhs.type_ && index_ == rhs.index_;
+    }
+
+    bool operator<(const StreamReference& rhs) const
+    {
+      if (type_ != rhs.type_) {
+        return type_ < rhs.type_;
+      }
+
+      return index_ < rhs.index_;
     }
 
     bool IsValid() const
     {
-      return footage_ && index_ >= 0;
+      return type_ != Stream::kUnknown && index_ >= 0;
     }
 
     void Reset()
     {
       *this = StreamReference();
-    }
-
-    const Footage* footage() const
-    {
-      return footage_;
     }
 
     Stream::Type type() const
@@ -185,107 +190,11 @@ public:
       return index_;
     }
 
-    Stream GetStream() const
-    {
-      if (IsValid()) {
-        return footage_->GetStreamAt(*this);
-      } else {
-        return Stream();
-      }
-    }
-
-    int64_t GetTimeInTimebaseUnits(const rational& timecode) const
-    {
-      if (IsValid()) {
-        return footage_->GetTimeInTimebaseUnits(type_, index_, timecode);
-      } else {
-        return -1;
-      }
-    }
-
-    int GetRealStreamIndex() const
-    {
-      if (IsValid()) {
-        return footage_->GetRealStreamIndex(*this);
-      } else {
-        return -1;
-      }
-    }
-
-    QString filename() const
-    {
-      if (footage_) {
-        return footage_->filename();
-      } else {
-        return QString();
-      }
-    }
-
-    VideoParams video_params() const
-    {
-      return GetStream().video_params();
-    }
-
-    AudioParams audio_params() const
-    {
-      return GetStream().audio_params();
-    }
-
-    int64_t duration() const
-    {
-      return GetStream().duration();
-    }
-
-    QString video_colorspace(bool default_if_empty = true) const;
-
   private:
-    const Footage* footage_;
     Stream::Type type_;
     int index_;
 
   };
-
-  Stream GetStreamAt(int index) const
-  {
-    return GetStandardValue(GetInputIDOfIndex(index)).value<Stream>();
-  }
-
-  Stream GetStreamAt(Stream::Type type, int index_within_type) const
-  {
-    return GetStreamAt(GetRealStreamIndex(type, index_within_type));
-  }
-
-  Stream GetStreamAt(const StreamReference& ref) const
-  {
-    return GetStreamAt(ref.type(), ref.index());
-  }
-
-  void SetStreamAt(int index, const Stream& stream)
-  {
-    SetStandardValue(GetInputIDOfIndex(index), QVariant::fromValue(stream));
-  }
-
-  void SetStreamAt(Stream::Type type, int index_within_type, const Stream& stream)
-  {
-    SetStreamAt(GetRealStreamIndex(type, index_within_type), stream);
-  }
-
-  void SetStreamAt(const StreamReference& ref, const Stream& stream)
-  {
-    SetStreamAt(ref.type(), ref.index(), stream);
-  }
-
-  int64_t GetTimeInTimebaseUnits(int index, const rational& time) const;
-  int64_t GetTimeInTimebaseUnits(Stream::Type type, int index_within_type, const rational& time) const
-  {
-    return GetTimeInTimebaseUnits(GetRealStreamIndex(type, index_within_type), time);
-  }
-
-  int GetRealStreamIndex(Stream::Type type, int index_within_type) const;
-  int GetRealStreamIndex(const StreamReference& ref) const
-  {
-    return GetRealStreamIndex(ref.type(), ref.index());
-  }
 
   static QString GetStringFromReference(Stream::Type type, int index);
   static QString GetStringFromReference(const StreamReference& ref)
@@ -293,29 +202,55 @@ public:
     return GetStringFromReference(ref.type(), ref.index());
   }
 
+  int GetStreamIndex(Stream::Type type, int index) const;
+  int GetStreamIndex(const StreamReference& ref) const
+  {
+    return GetStreamIndex(ref.type(), ref.index());
+  }
+
+  int GetTotalStreamCount() const
+  {
+    return inputs_for_stream_properties_.size();
+  }
+
   StreamReference GetReferenceFromRealIndex(int real_index) const;
 
-  Stream::Type GetTypeFromOutput(const QString& output) const;
+  static Stream::Type GetTypeFromOutput(const QString& output);
 
   StreamReference GetReferenceFromOutput(const QString& s) const;
+  static bool GetReferenceFromOutput(const QString& s, Stream::Type* type, int* index);
 
-  int GetStreamCount() const
+  VideoParams GetVideoParams(int index) const
   {
-    return stream_count_;
+    return GetStandardValue(inputs_for_stream_properties_.value(StreamReference(Stream::kVideo, index))).value<VideoParams>();
   }
 
-  int GetStreamTypeCount(Stream::Type type) const;
-
-  bool IsStreamEnabled(int index) const
+  void SetVideoParams(int index, const VideoParams& p)
   {
-    return GetStreamAt(index).enabled();
+    SetStandardValue(inputs_for_stream_properties_.value(StreamReference(Stream::kVideo, index)), QVariant::fromValue(p));
   }
 
-  Stream GetFirstEnabledStreamOfType(Stream::Type type) const;
+  VideoParams GetFirstEnabledVideoStream() const;
 
-  QVector<int> GetStreamIndexesOfType(Stream::Type type) const;
+  AudioParams GetAudioParams(int index) const
+  {
+    return GetStandardValue(inputs_for_stream_properties_.value(StreamReference(Stream::kAudio, index))).value<AudioParams>();
+  }
+
+  void SetAudioParams(int index, const AudioParams& p)
+  {
+    SetStandardValue(inputs_for_stream_properties_.value(StreamReference(Stream::kAudio, index)), QVariant::fromValue(p));
+  }
+
+  AudioParams GetFirstEnabledAudioStream() const;
+
+  QVector<VideoParams> GetEnabledVideoStreams() const;
+
+  QVector<AudioParams> GetEnabledAudioStreams() const;
 
   Stream::Type GetStreamType(int index);
+
+  QVector<StreamReference> GetEnabledStreamsAsReferences() const;
 
   /**
    * @brief Get the Decoder ID set when this Footage was probed
@@ -326,27 +261,17 @@ public:
    */
   const QString& decoder() const;
 
-  /**
-   * @brief Used by decoders when they Probe to attach itself to this Footage
-   */
-  void set_decoder(const QString& id);
-
   virtual QIcon icon() const override;
 
   virtual QString duration() override;
 
   virtual QString rate() override;
 
-  quint64 get_enabled_stream_flags() const;
+  bool HasEnabledVideoStreams() const;
+  bool HasEnabledAudioStreams() const;
 
-  /**
-   * @brief Check if this footage has streams of a certain type
-   *
-   * @param type
-   *
-   * The stream type to check for
-   */
-  bool HasEnabledStreamsOfType(const Stream::Type& type) const;
+  static QString DescribeVideoStream(const VideoParams& params);
+  static QString DescribeAudioStream(const AudioParams& params);
 
   static bool CompareFootageToFile(Footage* footage, const QString& filename);
   static bool CompareFootageToItsFilename(Footage* footage);
@@ -374,13 +299,6 @@ protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
-  QString DescribeStream(int index) const;
-
-  struct MetadataCache {
-    QString decoder;
-    Streams streams;
-  };
-
   /**
    * @brief Update the icon based on the Footage status
    *
@@ -397,24 +315,22 @@ private:
    */
   void UpdateTooltip();
 
-  MetadataCache LoadStreamCache(const QString& filename);
+  void AddStreamAsInput(Stream::Type type, int index, QVariant value);
 
-  bool SaveStreamCache(const QString& filename, const MetadataCache& data);
-
-  static QString GetInputIDOfIndex(int index)
+  static QString GetInputIDOfIndex(Stream::Type type, int index)
   {
-    return kStreamPropertiesFormat.arg(index);
+    return kStreamPropertiesFormat.arg(GetStringFromReference(type, index));
   }
 
   /**
    * @brief List of dynamic inputs added for stream properties
    */
-  QMap<int, QString> inputs_for_stream_properties_;
+  QMap<StreamReference, QString> inputs_for_stream_properties_;
 
   /**
    * @brief List of dynamic outputs added for streams
    */
-  QMap<int, QString> outputs_for_streams_;
+  QMap<StreamReference, QString> outputs_for_streams_;
 
   /**
    * @brief Internal timestamp object
@@ -426,8 +342,6 @@ private:
    */
   QString decoder_;
 
-  int stream_count_;
-
   bool valid_;
 
   const QAtomicInt* cancelled_;
@@ -438,6 +352,10 @@ private slots:
 };
 
 uint qHash(const Footage::StreamReference& ref, uint seed = 0);
+
+QDataStream &operator<<(QDataStream &out, const Footage::StreamReference &ref);
+
+QDataStream &operator>>(QDataStream &in, Footage::StreamReference &ref);
 
 }
 

@@ -36,11 +36,11 @@ public:
 
   virtual ~OIIODecoder() override;
 
-  virtual QString id() override;
+  virtual QString id() const override;
 
   virtual bool SupportsVideo() override{return true;}
 
-  virtual Streams Probe(const QString& filename, const QAtomicInt* cancelled) const override;
+  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;

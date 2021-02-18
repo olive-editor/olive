@@ -202,15 +202,15 @@ void FFmpegDecoder::CloseInternal()
   FreeScaler();
 }
 
-QString FFmpegDecoder::id()
+QString FFmpegDecoder::id() const
 {
   return QStringLiteral("ffmpeg");
 }
 
-Streams FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelled) const
+FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelled) const
 {
   // Return value
-  Streams streams;
+  FootageDescription desc(id());
 
   // Variable for receiving errors from FFmpeg
   int error_code;
@@ -235,9 +235,6 @@ Streams FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelle
 
       // FFmpeg AVStream
       AVStream* avstream = fmt_ctx->streams[i];
-
-      // Our native stream class
-      Stream stream;
 
       // Find decoder for this stream, if it exists we can proceed
       AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
@@ -320,19 +317,24 @@ Streams FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelle
 
           AVPixelFormat compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
 
-          stream = Stream(Stream::kVideo);
+          VideoParams stream;
+          stream.set_stream_index(i);
           stream.set_width(avstream->codecpar->width);
           stream.set_height(avstream->codecpar->height);
-          stream.set_video_type((image_is_still) ? Stream::kVideoTypeStill : Stream::kVideoTypeVideo);
-          stream.set_pixel_format(GetNativePixelFormat(compatible_pix_fmt));
+          stream.set_video_type((image_is_still) ? VideoParams::kVideoTypeStill : VideoParams::kVideoTypeVideo);
+          stream.set_format(GetNativePixelFormat(compatible_pix_fmt));
           stream.set_channel_count(GetNativeChannelCount(compatible_pix_fmt));
           stream.set_interlacing(interlacing);
           stream.set_pixel_aspect_ratio(pixel_aspect_ratio);
           stream.set_frame_rate(frame_rate);
           stream.set_start_time(avstream->start_time);
+          stream.set_time_base(avstream->time_base);
+          stream.set_duration(avstream->duration);
 
           // Defaults to false, requires user intervention if incorrect
           stream.set_premultiplied_alpha(false);
+
+          desc.AddVideoStream(stream);
 
         } else {
 
@@ -370,44 +372,18 @@ Streams FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelle
             }
           }
 
-          stream = Stream(Stream::kAudio);
+          AudioParams stream;
+          stream.set_stream_index(i);
           stream.set_channel_layout(channel_layout);
-          stream.set_channel_count(avstream->codecpar->channels);
           stream.set_sample_rate(avstream->codecpar->sample_rate);
+          stream.set_format(AudioParams::kInternalFormat);
+          stream.set_time_base(avstream->time_base);
+          stream.set_duration(avstream->duration);
+          desc.AddAudioStream(stream);
 
         }
-
-      } else {
-
-        // This is data we can't utilize at the moment, but we make a Stream object anyway to keep parity with the file
-        Stream::Type type;
-
-        // Set the correct codec type based on FFmpeg's result
-        switch (avstream->codecpar->codec_type) {
-        case AVMEDIA_TYPE_DATA:
-          type = Stream::kData;
-          break;
-        case AVMEDIA_TYPE_SUBTITLE:
-          type = Stream::kSubtitle;
-          break;
-        case AVMEDIA_TYPE_ATTACHMENT:
-          type = Stream::kAttachment;
-          break;
-        case AVMEDIA_TYPE_UNKNOWN:
-        default:
-          // Fallback to an unknown stream
-          type = Stream::kUnknown;
-          break;
-        }
-
-        stream = Stream(type);
 
       }
-
-      stream.set_timebase(avstream->time_base);
-      stream.set_duration(avstream->duration);
-
-      streams.append(stream);
 
     }
 
@@ -416,7 +392,7 @@ Streams FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelle
   // Free all memory
   avformat_close_input(&fmt_ctx);
 
-  return streams;
+  return desc;
 }
 
 QString FFmpegDecoder::FFmpegError(int error_code)

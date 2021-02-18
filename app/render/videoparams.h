@@ -21,6 +21,9 @@
 #ifndef VIDEOPARAMS_H
 #define VIDEOPARAMS_H
 
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+
 #include "common/rational.h"
 #include "rendermodes.h"
 
@@ -55,6 +58,12 @@ public:
     kInterlaceNone,
     kInterlacedTopFirst,
     kInterlacedBottomFirst
+  };
+
+  enum Type {
+    kVideoTypeVideo,
+    kVideoTypeStill,
+    kVideoTypeImageSequence
   };
 
   VideoParams();
@@ -239,10 +248,100 @@ public:
 
   static int GetScaledDimension(int dim, int divider);
 
+  QByteArray toBytes() const;
+
+  bool enabled() const
+  {
+    return enabled_;
+  }
+
+  void set_enabled(bool e)
+  {
+    enabled_ = e;
+  }
+
+  int stream_index() const
+  {
+    return stream_index_;
+  }
+
+  void set_stream_index(int s)
+  {
+    stream_index_ = s;
+  }
+
+  Type video_type() const
+  {
+    return video_type_;
+  }
+
+  void set_video_type(Type t)
+  {
+    video_type_ = t;
+  }
+
+  const rational& frame_rate() const
+  {
+    return frame_rate_;
+  }
+
+  void set_frame_rate(const rational& frame_rate)
+  {
+    frame_rate_ = frame_rate;
+  }
+
+  int64_t start_time() const
+  {
+    return start_time_;
+  }
+
+  void set_start_time(int64_t start_time)
+  {
+    start_time_ = start_time;
+  }
+
+  int64_t duration() const
+  {
+    return duration_;
+  }
+
+  void set_duration(int64_t duration)
+  {
+    duration_ = duration;
+  }
+
+  bool premultiplied_alpha() const
+  {
+    return premultiplied_alpha_;
+  }
+
+  void set_premultiplied_alpha(bool premultiplied_alpha)
+  {
+    premultiplied_alpha_ = premultiplied_alpha;
+  }
+
+  const QString& colorspace() const
+  {
+    return colorspace_;
+  }
+
+  void set_colorspace(const QString& c)
+  {
+    colorspace_ = c;
+  }
+
+  int64_t get_time_in_timebase_units(const rational& time) const;
+
+  void Load(QXmlStreamReader* reader);
+
+  void Save(QXmlStreamWriter* writer) const;
+
 private:
   void calculate_effective_size();
 
   void validate_pixel_aspect_ratio();
+
+  void set_defaults_for_footage();
 
   int width_;
   int height_;
@@ -258,9 +357,21 @@ private:
   Interlacing interlacing_;
 
   int divider_;
+
+  // Cached values
   int effective_width_;
   int effective_height_;
   int effective_depth_;
+
+  bool enabled_;
+  int stream_index_;
+  Type video_type_;
+  rational frame_rate_;
+  int64_t start_time_;
+  int64_t duration_;
+  bool premultiplied_alpha_;
+  QString colorspace_;
+
 };
 
 }

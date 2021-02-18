@@ -31,9 +31,9 @@ public:
   NodeTableTraverser() = default;
 
 protected:
-  virtual QVariant ProcessVideoFootage(const Footage::StreamReference&video_stream, const rational &input_time);
+  virtual QVariant ProcessVideoFootage(const FootageJob &video_stream, const rational &input_time);
 
-  virtual QVariant ProcessAudioFootage(const Footage::StreamReference& audio_stream, const TimeRange &input_time);
+  virtual QVariant ProcessAudioFootage(const FootageJob &audio_stream, const TimeRange &input_time);
 
 };
 

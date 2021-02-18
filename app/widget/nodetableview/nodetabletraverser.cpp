@@ -22,12 +22,12 @@
 
 namespace olive {
 
-QVariant NodeTableTraverser::ProcessVideoFootage(const Footage::StreamReference &video_stream, const rational &input_time)
+QVariant NodeTableTraverser::ProcessVideoFootage(const FootageJob &video_stream, const rational &input_time)
 {
   return QVariant::fromValue(video_stream.video_params());
 }
 
-QVariant NodeTableTraverser::ProcessAudioFootage(const Footage::StreamReference &audio_stream, const TimeRange &input_time)
+QVariant NodeTableTraverser::ProcessAudioFootage(const FootageJob &audio_stream, const TimeRange &input_time)
 {
   return QVariant::fromValue(audio_stream.audio_params());
 }

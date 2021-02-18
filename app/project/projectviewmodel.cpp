@@ -196,13 +196,17 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
   if (index.isValid() && columns_.at(index.column()) == kName && role == Qt::EditRole) {
     Item* item = GetItemObjectFromIndex(index);
 
-    NodeRenameCommand* nrc = new NodeRenameCommand();
+    QString new_name = value.toString();
 
-    nrc->AddNode(item, value.toString());
+    if (!new_name.isEmpty()) {
+      NodeRenameCommand* nrc = new NodeRenameCommand();
 
-    Core::instance()->undo_stack()->push(nrc);
+      nrc->AddNode(item, value.toString());
 
-    return true;
+      Core::instance()->undo_stack()->push(nrc);
+
+      return true;
+    }
   }
 
   return false;
@@ -238,7 +242,7 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 QStringList ProjectViewModel::mimeTypes() const
 {
   // Allow data from this model and a file list from external sources
-  return {"application/x-oliveprojectitemdata", "text/uri-list"};
+  return {QStringLiteral("application/x-oliveprojectitemdata"), QStringLiteral("text/uri-list")};
 }
 
 QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
@@ -264,22 +268,21 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        quint64 stream_flags;
+        Footage* footage = dynamic_cast<Footage*>(static_cast<Item*>(index.internalPointer()));
 
-        if (dynamic_cast<Folder*>(static_cast<Item*>(index.internalPointer()))) {
-          stream_flags = static_cast<Footage*>(index.internalPointer())->get_enabled_stream_flags();
-        } else {
-          stream_flags = UINT64_MAX;
+        if (footage) {
+          QVector<Footage::StreamReference> streams = footage->GetEnabledStreamsAsReferences();
+
+          stream << streams << reinterpret_cast<quintptr>(footage);
+
+          dragged_items.append(footage);
         }
-
-        stream << stream_flags << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
-        dragged_items.append(index.internalPointer());
       }
     }
   }
 
   // Set byte array as the mime data and return the mime data
-  data->setData("application/x-oliveprojectitemdata", encoded_data);
+  data->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
 
   return data;
 }
@@ -298,9 +301,9 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   // Probe mime data for its format
   QStringList mime_formats = data->formats();
 
-  if (mime_formats.contains("application/x-oliveprojectitemdata")) {
+  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
     // Data is drag/drop data from this model
-    QByteArray model_data = data->data("application/x-oliveprojectitemdata");
+    QByteArray model_data = data->data(QStringLiteral("application/x-oliveprojectitemdata"));
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
@@ -315,8 +318,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
     // Variables to deserialize into
     quintptr item_ptr;
-    int r;
-    quint64 enabled_streams;
+    QList<Footage::StreamReference> streams;
 
     // Loop through all data
     MultiUndoCommand* move_command = new MultiUndoCommand();
@@ -324,7 +326,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     move_command->set_name(tr("Move Items"));
 
     while (!stream.atEnd()) {
-      stream >> enabled_streams >> r >> item_ptr;
+      stream >> streams >> item_ptr;
 
       Item* item = reinterpret_cast<Item*>(item_ptr);
 
@@ -343,9 +345,9 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
     return true;
 
-  } else if (mime_formats.contains("text/uri-list")) {
+  } else if (mime_formats.contains(QStringLiteral("text/uri-list"))) {
     // We received a list of files
-    QByteArray file_data = data->data("text/uri-list");
+    QByteArray file_data = data->data(QStringLiteral("text/uri-list"));
 
     // Use text stream to parse (just an easy way of sifting through line breaks
     QTextStream stream(&file_data);

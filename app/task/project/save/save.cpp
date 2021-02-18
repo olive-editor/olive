@@ -46,11 +46,13 @@ bool ProjectSaveTask::Run()
     QXmlStreamWriter writer(&project_file);
     writer.setAutoFormatting(true);
 
-    // Version is stored in YYMMDD from whenever the project format was last changed
-    // Allows easy integer math for checking project versions.
-    writer.writeStartDocument(QString::number(Core::kProjectVersion));
+    writer.writeStartDocument();
 
     writer.writeStartElement("olive");
+
+    // Version is stored in YYMMDD from whenever the project format was last changed
+    // Allows easy integer math for checking project versions.
+    writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
     writer.writeTextElement("url", project_->filename());
 

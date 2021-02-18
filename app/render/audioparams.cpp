@@ -25,6 +25,9 @@ extern "C" {
 }
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
+
+#include "common/xmlutils.h"
 
 namespace olive {
 
@@ -170,6 +173,52 @@ bool AudioParams::is_valid() const
           && channel_layout() > 0
           && format_ > kFormatInvalid
           && format_ < kFormatCount);
+}
+
+QByteArray AudioParams::toBytes() const
+{
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+  hasher.addData(reinterpret_cast<const char*>(&sample_rate_), sizeof(sample_rate_));
+  hasher.addData(reinterpret_cast<const char*>(&channel_layout_), sizeof(channel_layout_));
+  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
+  hasher.addData(reinterpret_cast<const char*>(&timebase_), sizeof(timebase_));
+
+  return hasher.result();
+}
+
+void AudioParams::Load(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("samplerate")) {
+      set_sample_rate(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("channellayout")) {
+      set_channel_layout(reader->readElementText().toULongLong());
+    } else if (reader->name() == QStringLiteral("format")) {
+      set_format(static_cast<AudioParams::Format>(reader->readElementText().toInt()));
+    } else if (reader->name() == QStringLiteral("enabled")) {
+      set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("streamindex")) {
+      set_stream_index(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("duration")) {
+      set_duration(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("timebase")) {
+      set_time_base(rational::fromString(reader->readElementText()));
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void AudioParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
+  writer->writeTextElement(QStringLiteral("channellayout"), QString::number(channel_layout_));
+  writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+  writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+  writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
+  writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
+  writer->writeTextElement(QStringLiteral("timebase"), timebase_.toString());
 }
 
 QString AudioParams::SampleRateToString(const int &sample_rate)

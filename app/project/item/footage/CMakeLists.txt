@@ -19,7 +19,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   project/item/footage/footage.cpp
   project/item/footage/footage.h
-  project/item/footage/stream.cpp
+  project/item/footage/footagedescription.cpp
+  project/item/footage/footagedescription.h
   project/item/footage/stream.h
   PARENT_SCOPE
 )

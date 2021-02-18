@@ -111,8 +111,6 @@ private:
   void AddEdge(const NodeOutput& output, const NodeInput& input);
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
   void CopyValue(const NodeInput& input);
-  void UpdateVideoParams();
-  void UpdateAudioParams();
 
   class QueuedJob {
   public:
@@ -121,9 +119,7 @@ private:
       kNodeRemoved,
       kEdgeAdded,
       kEdgeRemoved,
-      kValueChanged,
-      kVideoParamsChanged,
-      kAudioParamsChanged
+      kValueChanged
     };
 
     Type type;
@@ -209,10 +205,6 @@ private slots:
   void EdgeRemoved(const NodeOutput& output, const NodeInput& input);
 
   void ValueChanged(const NodeInput& input);
-
-  void VideoParamsChanged();
-
-  void AudioParamsChanged();
 
   void SingleFrameFinished();
 

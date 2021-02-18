@@ -99,55 +99,73 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   QByteArray encoded_data;
   QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
 
-  quint64 enabled_stream_flags = GetFootage()->get_enabled_stream_flags();
+  QVector<Footage::StreamReference> streams = GetFootage()->GetEnabledStreamsAsReferences();
 
   // Disable streams that have been disabled
   if (!enable_video || !enable_audio) {
-    quint64 stream_disabler = 0x1;
+    for (int i=0; i<streams.size(); i++) {
+      const Footage::StreamReference& ref = streams.at(i);
 
-    for (int i=0; i<GetFootage()->GetStreamCount(); i++) {
-      Stream stream = GetFootage()->GetStreamAt(i);
-
-      if ((stream.type() == Stream::kVideo && !enable_video)
-          || (stream.type() == Stream::kAudio && !enable_audio)) {
-        enabled_stream_flags &= ~stream_disabler;
+      if ((ref.type() == Stream::kVideo && !enable_video)
+          || (ref.type() == Stream::kAudio && !enable_audio)) {
+        streams.removeAt(i);
+        i--;
       }
-
-      stream_disabler <<= 1;
     }
   }
 
-  data_stream << enabled_stream_flags << -1 << reinterpret_cast<quintptr>(GetFootage());
+  if (!streams.isEmpty()) {
+    data_stream << streams << reinterpret_cast<quintptr>(GetFootage());
 
-  mimedata->setData("application/x-oliveprojectitemdata", encoded_data);
-  drag->setMimeData(mimedata);
+    mimedata->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
+    drag->setMimeData(mimedata);
 
-  drag->exec();
+    drag->exec();
+  }
 }
 
 void FootageViewerWidget::TryConnectingType(Footage *footage, Stream::Type type)
 {
+  int index = -1;
+
   for (int i=0; ; i++) {
-    Stream stream = footage_->GetStreamAt(type, i);
+    if (type == Stream::kVideo) {
+      VideoParams vp = footage->GetVideoParams(i);
 
-    // Found end of stream list
-    if (!stream.IsValid()) {
-      break;
-    }
-
-    if (stream.enabled()) {
-      QString s = Footage::GetStringFromReference(type, i);
-
-      QString input_param;
-
-      if (type == Stream::kVideo) {
-        input_param = ViewerOutput::kTextureInput;
-      } else {
-        input_param = ViewerOutput::kSamplesInput;
+      if (!vp.is_valid()) {
+        break;
       }
 
-      Node::ConnectEdge(NodeOutput(footage, s), NodeInput(&sequence_, input_param));
+      if (vp.enabled()) {
+        index = i;
+        break;
+      }
+    } else if (type == Stream::kAudio) {
+      AudioParams vp = footage->GetAudioParams(i);
+
+      if (!vp.is_valid()) {
+        break;
+      }
+
+      if (vp.enabled()) {
+        index = i;
+        break;
+      }
     }
+  }
+
+  if (index != -1) {
+    QString s = Footage::GetStringFromReference(type, index);
+
+    QString input_param;
+
+    if (type == Stream::kVideo) {
+      input_param = ViewerOutput::kTextureInput;
+    } else {
+      input_param = ViewerOutput::kSamplesInput;
+    }
+
+    Node::ConnectEdge(NodeOutput(footage, s), NodeInput(&sequence_, input_param));
   }
 }
 

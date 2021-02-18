@@ -22,11 +22,11 @@
 
 namespace olive {
 
-QVariant GizmoTraverser::ProcessVideoFootage(const Footage::StreamReference &ref, const rational &input_time)
+QVariant GizmoTraverser::ProcessVideoFootage(const FootageJob &ref, const rational &input_time)
 {
   Q_UNUSED(input_time)
 
-  Stream stream = ref.GetStream();
+  VideoParams stream = ref.video_params();
 
   return QVector2D(stream.width() * stream.pixel_aspect_ratio().toDouble(),
                    stream.height());
