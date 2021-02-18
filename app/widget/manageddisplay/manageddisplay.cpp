@@ -86,13 +86,13 @@ void ManagedDisplayWidget::ConnectColorManager(ColorManager *color_manager)
   }
 
   if (color_manager_ != nullptr) {
-    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
+    disconnect(color_manager_, &ColorManager::ValueChanged, this, &ManagedDisplayWidget::ColorManagerValueChanged);
   }
 
   color_manager_ = color_manager;
 
   if (color_manager_ != nullptr) {
-    connect(color_manager_, &ColorManager::ConfigChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
+    connect(color_manager_, &ColorManager::ValueChanged, this, &ManagedDisplayWidget::ColorManagerValueChanged);
   }
 
   ColorConfigChanged();
@@ -348,6 +348,15 @@ void ManagedDisplayWidget::SetupColorProcessor()
   }
 
   emit ColorProcessorChanged(color_service_);
+}
+
+void ManagedDisplayWidget::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
+{
+  Q_UNUSED(range)
+
+  if (input.input() == ColorManager::kConfigFilenameIn || input.input() == ColorManager::kReferenceSpaceIn) {
+    ColorConfigChanged();
+  }
 }
 
 }

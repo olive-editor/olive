@@ -195,8 +195,10 @@ void ProjectPropertiesDialog::accept()
   }
 
   // This should ripple changes throughout the program that the color config has changed, therefore must be done last
-  working_project_->color_manager()->SetConfigAndDefaultInput(ocio_filename_->text(),
-                                                              default_input_colorspace_->currentText());
+  ColorManager* color_manager = working_project_->color_manager();
+
+  color_manager->SetConfigFilename(ocio_filename_->text());
+  color_manager->SetDefaultInputColorSpace(default_input_colorspace_->currentText());
 
   QDialog::accept();
 }

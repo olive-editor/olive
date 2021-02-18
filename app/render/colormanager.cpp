@@ -31,18 +31,27 @@
 
 namespace olive {
 
+const QString ColorManager::kConfigFilenameIn = QStringLiteral("config");
+const QString ColorManager::kDefaultColorspaceIn = QStringLiteral("default_input");
+const QString ColorManager::kReferenceSpaceIn = QStringLiteral("reference_space");
+
 OCIO::ConstConfigRcPtr ColorManager::default_config_;
 
-ColorManager::ColorManager()
+ColorManager::ColorManager() :
+  config_(nullptr)
 {
-  // Set config to our built-in default
-  config_ = GetDefaultConfig();
+  // Filename input
+  AddInput(kConfigFilenameIn, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  // Default input space
-  default_input_color_space_ = QStringLiteral("sRGB OETF");
+  // Colorspace input
+  AddInput(kDefaultColorspaceIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Default reference space is scene linear
-  reference_space_ = OCIO::ROLE_SCENE_LINEAR;
+  AddInput(kReferenceSpaceIn, NodeValue::kText, OCIO::ROLE_SCENE_LINEAR, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  // Set config to our built-in default
+  SetConfig(GetDefaultConfig());
+  SetDefaultInputColorSpace(QStringLiteral("sRGB OETF"));
 }
 
 OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
@@ -57,9 +66,9 @@ OCIO::ConstConfigRcPtr ColorManager::CreateConfigFromFile(const QString &filenam
   return OCIO::Config::CreateFromFile(filename.toUtf8());
 }
 
-const QString &ColorManager::GetConfigFilename() const
+QString ColorManager::GetConfigFilename() const
 {
-  return config_filename_;
+  return GetStandardValue(kConfigFilenameIn).toString();
 }
 
 OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
@@ -96,57 +105,9 @@ void ColorManager::SetUpDefaultConfig()
   }
 }
 
-void ColorManager::SetConfig(const QString &filename)
+void ColorManager::SetConfigFilename(const QString &filename)
 {
-  if (filename != config_filename_) {
-    SetConfigInternal(filename);
-
-    emit ConfigChanged();
-  }
-}
-
-void ColorManager::SetConfigInternal(const QString &filename)
-{
-  config_filename_ = filename;
-
-  OCIO::ConstConfigRcPtr cfg;
-
-  if (config_filename_.isEmpty()) {
-    cfg = OCIO::GetCurrentConfig();
-  } else {
-    cfg = OCIO::Config::CreateFromFile(filename.toUtf8());
-  }
-
-  config_ = cfg;
-}
-
-void ColorManager::SetDefaultInputColorSpaceInternal(const QString &s)
-{
-  default_input_color_space_ = s;
-}
-
-void ColorManager::SetConfigAndDefaultInput(const QString &filename, const QString &s)
-{
-  bool config_changed = false;
-  bool default_input_changed = false;
-
-  if (filename != config_filename_) {
-    SetConfigInternal(filename);
-    config_changed = true;
-  }
-
-  if (default_input_color_space_ != s) {
-    SetDefaultInputColorSpaceInternal(s);
-    default_input_changed = true;
-  }
-
-  if (config_changed) {
-    emit ConfigChanged();
-  }
-
-  if (default_input_changed) {
-    emit DefaultInputColorSpaceChanged();
-  }
+  SetStandardValue(kConfigFilenameIn, filename);
 }
 
 QStringList ColorManager::ListAvailableDisplays()
@@ -198,35 +159,29 @@ QStringList ColorManager::ListAvailableLooks()
   return looks;
 }
 
-QStringList ColorManager::ListAvailableColorspaces()
+QStringList ColorManager::ListAvailableColorspaces() const
 {
   return ListAvailableColorspaces(config_);
 }
 
-const QString &ColorManager::GetDefaultInputColorSpace() const
+QString ColorManager::GetDefaultInputColorSpace() const
 {
-  return default_input_color_space_;
+  return ListAvailableColorspaces().at(GetStandardValue(kDefaultColorspaceIn).toInt());
 }
 
 void ColorManager::SetDefaultInputColorSpace(const QString &s)
 {
-  if (default_input_color_space_ != s) {
-    SetDefaultInputColorSpaceInternal(s);
-
-    emit DefaultInputColorSpaceChanged();
-  }
+  SetStandardValue(kDefaultColorspaceIn, ListAvailableColorspaces().indexOf(s));
 }
 
-const QString &ColorManager::GetReferenceColorSpace() const
+QString ColorManager::GetReferenceColorSpace() const
 {
-  return reference_space_;
+  return GetStandardValue(kReferenceSpaceIn).toString();
 }
 
 void ColorManager::SetReferenceColorSpace(const QString &s)
 {
-  reference_space_ = s;
-
-  emit ConfigChanged();
+  SetStandardValue(kReferenceSpaceIn, s);
 }
 
 QString ColorManager::GetCompliantColorSpace(const QString &s)
@@ -307,6 +262,26 @@ Color ColorManager::GetDefaultLumaCoefs() const
   return c;
 }
 
+void ColorManager::Retranslate()
+{
+  SetInputName(kConfigFilenameIn, tr("Configuration"));
+  SetInputName(kDefaultColorspaceIn, tr("Default Input"));
+  SetInputName(kReferenceSpaceIn, tr("Reference Space"));
+}
+
+void ColorManager::InputValueChangedEvent(const QString &input, int element)
+{
+  Q_UNUSED(element)
+
+  if (input == kConfigFilenameIn) {
+
+    try {
+      SetConfig(OCIO::Config::CreateFromFile(GetConfigFilename().toUtf8()));
+    } catch (OCIO::Exception& e) {}
+
+  }
+}
+
 ColorManager::SetLocale::SetLocale(const char* new_locale)
 {
   old_locale_ = setlocale(LC_NUMERIC, nullptr);
@@ -316,6 +291,13 @@ ColorManager::SetLocale::SetLocale(const char* new_locale)
 ColorManager::SetLocale::~SetLocale()
 {
   setlocale(LC_NUMERIC, old_locale_.toUtf8());
+}
+
+void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
+{
+  config_ = config;
+
+  SetComboBoxStrings(kDefaultColorspaceIn, ListAvailableColorspaces());
 }
 
 }

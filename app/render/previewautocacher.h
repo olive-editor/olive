@@ -112,6 +112,8 @@ private:
   void RemoveEdge(const NodeOutput& output, const NodeInput& input);
   void CopyValue(const NodeInput& input);
 
+  void InsertIntoCopyMap(Node* node, Node* copy);
+
   class QueuedJob {
   public:
     enum Type {
@@ -135,6 +137,7 @@ private:
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   Sequence* copied_viewer_node_;
+  QVector<Node*> created_nodes_;
 
   bool paused_;
 

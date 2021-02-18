@@ -246,6 +246,8 @@ private slots:
    */
   void ColorConfigChanged();
 
+  void ColorManagerValueChanged(const NodeInput &input, const TimeRange &range);
+
   /**
    * @brief The default context menu shown
    */

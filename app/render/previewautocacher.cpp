@@ -287,10 +287,10 @@ void PreviewAutoCacher::AddNode(Node *node)
   copy->setParent(&copied_project_);
 
   // Insert into map
-  copy_map_.insert(node, copy);
+  InsertIntoCopyMap(node, copy);
 
-  // Copy parameters
-  Node::CopyInputs(node, copy, false);
+  // Keep track of our nodes
+  created_nodes_.append(copy);
 }
 
 void PreviewAutoCacher::RemoveNode(Node *node)
@@ -322,6 +322,15 @@ void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
   Node* our_input = copy_map_.value(input.node());
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
+}
+
+void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
+{
+  // Insert into map
+  copy_map_.insert(node, copy);
+
+  // Copy parameters
+  Node::CopyInputs(node, copy, false);
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -589,9 +598,8 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     }
 
     // Delete all of our copied nodes
-    foreach (Node* c, copy_map_) {
-      delete c;
-    }
+    qDeleteAll(created_nodes_);
+    created_nodes_.clear();
     copy_map_.clear();
     copied_viewer_node_ = nullptr;
     graph_update_queue_.clear();
@@ -624,8 +632,11 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
     NodeGraph* graph = viewer_node_->parent();
 
     // Add all nodes
-    foreach (Node* node, graph->nodes()) {
-      AddNode(node);
+    for (int i=0; i<copied_project_.nodes().size(); i++) {
+      InsertIntoCopyMap(graph->nodes().at(i), copied_project_.nodes().at(i));
+    }
+    for (int i=copied_project_.nodes().size(); i<graph->nodes().size(); i++) {
+      AddNode(graph->nodes().at(i));
     }
 
     // Find copied viewer node

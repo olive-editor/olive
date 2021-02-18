@@ -299,6 +299,8 @@ protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
+  QString GetColorspaceToUse(const VideoParams& params) const;
+
   /**
    * @brief Update the icon based on the Footage status
    *

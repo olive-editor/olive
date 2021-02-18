@@ -74,6 +74,8 @@ public:
   void set_cache_path(const QString& cache_path)
   {
     cache_path_ = cache_path;
+
+    emit CachePathChanged(cache_path_);
   }
 
 signals:
@@ -81,12 +83,14 @@ signals:
 
   void ModifiedChanged(bool e);
 
+  void CachePathChanged(const QString& s);
+
 private:
-  Folder root_;
+  Folder* root_;
 
   QString filename_;
 
-  ColorManager color_manager_;
+  ColorManager* color_manager_;
 
   bool is_modified_;
 
@@ -95,9 +99,7 @@ private:
   QString cache_path_;
 
 private slots:
-  void ColorConfigChanged();
-
-  void DefaultColorSpaceChanged();
+  void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);
 
 };
 

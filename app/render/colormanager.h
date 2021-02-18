@@ -26,30 +26,54 @@
 
 #include "codec/frame.h"
 #include "colorprocessor.h"
+#include "node/node.h"
 
 #define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
 
 namespace olive {
 
-class ColorManager : public QObject
+class ColorManager : public Node
 {
   Q_OBJECT
 public:
   ColorManager();
 
+  virtual QString Name() const override
+  {
+    return tr("Color Manager");
+  }
+
+  virtual QString id() const override
+  {
+    return QStringLiteral("org.olivevideoeditor.Olive.colormanager");
+  }
+
+  virtual QVector<CategoryID> Category() const override
+  {
+    return {kCategoryColor};
+  }
+
+  virtual QString Description() const override
+  {
+    return tr("Color management configuration for project.");
+  }
+
+  virtual Node* copy() const override
+  {
+    return new ColorManager();
+  }
+
   OCIO::ConstConfigRcPtr GetConfig() const;
 
   static OCIO::ConstConfigRcPtr CreateConfigFromFile(const QString& filename);
 
-  const QString& GetConfigFilename() const;
+  QString GetConfigFilename() const;
 
   static OCIO::ConstConfigRcPtr GetDefaultConfig();
 
   static void SetUpDefaultConfig();
 
-  void SetConfig(const QString& filename);
-
-  void SetConfigAndDefaultInput(const QString& filename, const QString& s);
+  void SetConfigFilename(const QString& filename);
 
   QStringList ListAvailableDisplays();
 
@@ -61,13 +85,13 @@ public:
 
   QStringList ListAvailableLooks();
 
-  QStringList ListAvailableColorspaces();
+  QStringList ListAvailableColorspaces() const;
 
-  const QString& GetDefaultInputColorSpace() const;
+  QString GetDefaultInputColorSpace() const;
 
   void SetDefaultInputColorSpace(const QString& s);
 
-  const QString& GetReferenceColorSpace() const;
+  QString GetReferenceColorSpace() const;
 
   void SetReferenceColorSpace(const QString& s);
 
@@ -97,23 +121,19 @@ public:
     return &mutex_;
   }
 
-signals:
-  void ConfigChanged();
+  static const QString kConfigFilenameIn;
+  static const QString kDefaultColorspaceIn;
+  static const QString kReferenceSpaceIn;
 
-  void DefaultInputColorSpaceChanged();
+  virtual void Retranslate() override;
+
+protected:
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
-  void SetConfigInternal(const QString& filename);
-
-  void SetDefaultInputColorSpaceInternal(const QString& s);
+  void SetConfig(OCIO::ConstConfigRcPtr config);
 
   OCIO::ConstConfigRcPtr config_;
-
-  QString config_filename_;
-
-  QString default_input_color_space_;
-
-  QString reference_space_;
 
   QMutex mutex_;
 

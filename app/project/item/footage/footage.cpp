@@ -156,6 +156,15 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
+QString Footage::GetColorspaceToUse(const VideoParams &params) const
+{
+  if (params.colorspace().isEmpty()) {
+    return project()->color_manager()->GetDefaultInputColorSpace();
+  } else {
+    return params.colorspace();
+  }
+}
+
 Footage::StreamReference Footage::GetReferenceFromOutput(const QString &s) const
 {
   Stream::Type type;
@@ -525,7 +534,7 @@ void Footage::Hash(const QString& output, QCryptographicHash &hash, const ration
       if (ref.type() == Stream::kVideo) {
         // Current color config and space
         hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
-        hash.addData(params.colorspace().toUtf8());
+        hash.addData(GetColorspaceToUse(params).toUtf8());
 
         // Alpha associated setting
         hash.addData(QString::number(params.premultiplied_alpha()).toUtf8());
@@ -565,9 +574,8 @@ NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) c
     if (ref.type() == Stream::kVideo) {
       VideoParams vp = GetVideoParams(ref.index());
 
-      if (vp.colorspace().isEmpty()) {
-        vp.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
-      }
+      // Ensure the colorspace is valid and not empty
+      vp.set_colorspace(GetColorspaceToUse(vp));
 
       job.set_video_params(vp);
     } else {
