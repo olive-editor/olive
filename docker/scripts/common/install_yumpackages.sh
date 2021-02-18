@@ -38,6 +38,14 @@ yum install --setopt=tsflags=nodocs -y \
     pulseaudio-libs \
     pulseaudio-libs-devel \
     python3-tkinter \
+    xcb-util-image \
+    xcb-util-image-devel \
+    xcb-util-keysyms \
+    xcb-util-keysyms-devel \
+    xcb-util-renderutil \
+    xcb-util-renderutil-devel \
+    xcb-util-wm \
+    xcb-util-wm-devel \
     zlib-devel
 
 # This is needed for Xvfb to function properly.
