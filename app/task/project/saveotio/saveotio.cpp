@@ -27,7 +27,6 @@
 #include <opentimelineio/transition.h>
 
 #include "node/block/transition/transition.h"
-#include "node/input/media/media.h"
 
 namespace olive {
 
@@ -39,7 +38,7 @@ SaveOTIOTask::SaveOTIOTask(Project *project) :
 
 bool SaveOTIOTask::Run()
 {
-  QVector<Item*> sequences = project_->get_items_of_type(Item::kSequence);
+  QVector<Sequence*> sequences = project_->root()->ListOutputsOfType<Sequence>();
 
   if (sequences.isEmpty()) {
     SetError(tr("Project contains no sequences to export."));
@@ -63,7 +62,7 @@ bool SaveOTIOTask::Run()
       }
 
       // Error out of function
-      SetError(tr("Failed to serialize sequence \"%1\"").arg(seq->name()));
+      SetError(tr("Failed to serialize sequence \"%1\"").arg(seq->GetLabel()));
 
       return false;
     }
@@ -93,10 +92,10 @@ bool SaveOTIOTask::Run()
 
 opentimelineio::v1_0::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
 {
-  auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->name().toStdString());
+  auto otio_timeline = new opentimelineio::v1_0::Timeline(sequence->GetLabel().toStdString());
 
-  if (!SerializeTrackList(sequence->viewer_output()->track_list(Track::kVideo), otio_timeline)
-      || !SerializeTrackList(sequence->viewer_output()->track_list(Track::kAudio), otio_timeline)) {
+  if (!SerializeTrackList(sequence->track_list(Track::kVideo), otio_timeline)
+      || !SerializeTrackList(sequence->track_list(Track::kAudio), otio_timeline)) {
     otio_timeline->possibly_delete();
     return nullptr;
   }
@@ -133,9 +132,9 @@ opentimelineio::v1_0::Track *SaveOTIOTask::SerializeTrack(Track *track)
       otio_clip->set_source_range(opentimelineio::v1_0::TimeRange(block->in().toRationalTime(),
                                                                   block->length().toRationalTime()));
 
-      QVector<MediaInput*> media_nodes = block->FindInputNodes<MediaInput>();
+      QVector<Footage*> media_nodes = block->FindInputNodes<Footage>();
       if (!media_nodes.isEmpty()) {
-        auto media_ref = new opentimelineio::v1_0::ExternalReference(media_nodes.first()->stream()->footage()->filename().toStdString());
+        auto media_ref = new opentimelineio::v1_0::ExternalReference(media_nodes.first()->filename().toStdString());
         otio_clip->set_media_reference(media_ref);
       }
 

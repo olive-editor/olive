@@ -29,8 +29,8 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
-#include "node/input/media/media.h"
 #include "project/item/folder/folder.h"
+#include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/timelinewidget/timelineundo.h"
 
@@ -81,10 +81,8 @@ bool LoadOTIOTask::Run()
 
   foreach (auto timeline, timelines) {
     Sequence* sequence = new Sequence();
-    sequence->set_name(QString::fromStdString(timeline->name()));
+    sequence->SetLabel(QString::fromStdString(timeline->name()));
     sequence->setParent(project_->root());
-
-    ViewerOutput* seq_viewer = sequence->viewer_output();
 
     // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
     sequence->set_default_parameters();
@@ -105,7 +103,7 @@ bool LoadOTIOTask::Run()
           type = Track::kAudio;
         }
 
-        TimelineAddTrackCommand t(seq_viewer->track_list(type));
+        TimelineAddTrackCommand t(sequence->track_list(type));
         t.redo();
         track = t.track();
       } else {
@@ -164,24 +162,22 @@ bool LoadOTIOTask::Run()
             if (imported_footage.contains(footage_url)) {
               probed_item = imported_footage.value(footage_url);
             } else {
-              probed_item = Decoder::Probe(project_, footage_url, &IsCancelled());
+              probed_item = new Footage(footage_url);
               imported_footage.insert(footage_url, probed_item);
               probed_item->setParent(project_->root());
             }
 
-            if (probed_item && probed_item->type() == Item::kFootage) {
-              MediaInput* media = new MediaInput();
-              if (track->type() == Track::kVideo) {
-                media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kVideo));
-              } else {
-                media->SetStream(probed_item->get_first_enabled_stream_of_type(Stream::kAudio));
-              }
-              media->setParent(sequence);
+            Footage::StreamReference reference;
 
-              Node::ConnectEdge(media, static_cast<ClipBlock*>(block)->texture_input());
+            if (track->type() == Track::kVideo) {
+              reference = Footage::StreamReference(Stream::kVideo, 0);
             } else {
-              // FIXME: Add to some kind of list that we couldn't find it
+              reference = Footage::StreamReference(Stream::kAudio, 0);
             }
+
+            QString output_id = probed_item->GetStringFromReference(reference);
+
+            Node::ConnectEdge(NodeOutput(probed_item, output_id), NodeInput(block, ClipBlock::kBufferIn));
           }
         }
 
