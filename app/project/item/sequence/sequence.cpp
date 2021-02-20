@@ -34,6 +34,7 @@
 #include "panel/timeline/timeline.h"
 #include "panel/sequenceviewer/sequenceviewer.h"
 #include "ui/icons/icons.h"
+#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -42,6 +43,8 @@ const QString Sequence::kAudioParamsInput = QStringLiteral("audio_param_in");
 const QString Sequence::kTextureInput = QStringLiteral("tex_in");
 const QString Sequence::kSamplesInput = QStringLiteral("samples_in");
 const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
+
+const uint64_t Sequence::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
 #define super Item
 
@@ -52,6 +55,8 @@ Sequence::Sequence(bool viewer_only_mode) :
   operation_stack_(0)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
+
   AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));

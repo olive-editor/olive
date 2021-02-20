@@ -31,6 +31,7 @@
 #include "core.h"
 #include "render/job/footagejob.h"
 #include "ui/icons/icons.h"
+#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -645,9 +646,43 @@ void Footage::AddStreamAsInput(Stream::Type type, int index, QVariant value)
   StreamReference ref(type, index);
 
   // Create input for parameters
-  AddInput(input_id, type == Stream::kVideo ? NodeValue::kVideoParams : NodeValue::kAudioParams,
+  NodeValue::Type value_type;
+  uint64_t param_mask = 0;
+
+  if (type == Stream::kVideo) {
+    VideoParams vp = value.value<VideoParams>();
+    value_type = NodeValue::kVideoParams;
+
+    // Universal parameters for video/image footage
+    param_mask |= VideoParamEdit::kEnabled;
+    param_mask |= VideoParamEdit::kColorspace;
+    param_mask |= VideoParamEdit::kPixelAspect;
+    param_mask |= VideoParamEdit::kInterlacing;
+
+    if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
+      // If this has an alpha channel, add a premultiplied optino
+      param_mask |= VideoParamEdit::kPremultipliedAlpha;
+    }
+
+    if (vp.video_type() != VideoParams::kVideoTypeVideo) {
+      // This is either a still image or an image sequence, add properties for those
+      param_mask |= VideoParamEdit::kIsImageSequence;
+      param_mask |= VideoParamEdit::kStartTime;
+      param_mask |= VideoParamEdit::kEndTime;
+      param_mask |= VideoParamEdit::kFrameRate;
+    } else {
+      // Ensure timebase isn't overwritten by the frame rate field
+      param_mask |= VideoParamEdit::kFrameRateIsNotTimebase;
+    }
+  } else {
+    value_type = NodeValue::kAudioParams;
+    param_mask = 0;
+  }
+
+  AddInput(input_id, value_type,
            InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetStandardValue(input_id, value);
+  SetInputProperty(input_id, QStringLiteral("mask"), QVariant::fromValue(param_mask));
   inputs_for_stream_properties_.insert(ref, input_id);
 
   // Create output for stream

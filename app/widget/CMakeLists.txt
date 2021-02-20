@@ -50,6 +50,7 @@ add_subdirectory(timelinewidget)
 add_subdirectory(timeruler)
 add_subdirectory(timetarget)
 add_subdirectory(toolbar)
+add_subdirectory(videoparamedit)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES

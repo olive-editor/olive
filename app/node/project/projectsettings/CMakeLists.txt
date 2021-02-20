@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/projectproperties/projectproperties.h
-  dialog/projectproperties/projectproperties.cpp
+  node/project/projectsettings/projectsettings.cpp
+  node/project/projectsettings/projectsettings.h
   PARENT_SCOPE
 )

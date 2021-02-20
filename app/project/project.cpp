@@ -39,6 +39,12 @@ Project::Project() :
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
+  AddDefaultNode(color_manager_);
+
+  // Same with project settings
+  settings_ = new ProjectSettingsNode();
+  settings_->setParent(this);
+  AddDefaultNode(settings_);
 
   // Folder root for project
   root_ = new Folder();
@@ -58,10 +64,6 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
       root_->Load(reader, xml_node_data, version, cancelled);
 
-    } else if (reader->name() == QStringLiteral("cachepath")) {
-
-      set_cache_path(reader->readElementText());
-
     } else if (reader->name() == QStringLiteral("layout")) {
 
       // Since the main window's functions have to occur in the GUI thread (and we're likely
@@ -76,6 +78,8 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
           bool is_root = false;
+          bool is_cm = false;
+          bool is_settings = false;
           QString id;
 
           {
@@ -84,6 +88,10 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
                 id = attr.value().toString();
               } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
                 is_root = true;
+              } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
+                is_cm = true;
+              } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
+                is_settings = true;
               }
             }
           }
@@ -95,6 +103,10 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
             if (is_root) {
               node = root_;
+            } else if (is_cm) {
+              node = color_manager_;
+            } else if (is_settings) {
+              node = settings_;
             } else {
               node = NodeFactory::CreateFromID(id);
             }
@@ -128,8 +140,6 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
 
 void Project::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("cachepath"), cache_path(false));
-
   writer->writeStartElement(QStringLiteral("nodes"));
 
   foreach (Node* node, nodes()) {
@@ -137,6 +147,10 @@ void Project::Save(QXmlStreamWriter *writer) const
 
     if (node == root_) {
       writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
+    } else if (node == color_manager_) {
+      writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
+    } else if (node == settings_) {
+      writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
     }
 
     writer->writeAttribute(QStringLiteral("id"), node->id());
@@ -228,12 +242,32 @@ bool Project::is_new() const
   return !is_modified_ && filename_.isEmpty();
 }
 
-const QString &Project::cache_path(bool default_if_empty) const
+QString Project::cache_path() const
 {
-  if (cache_path_.isEmpty() && default_if_empty) {
-    return DiskManager::instance()->GetDefaultCachePath();
+  ProjectSettingsNode::CacheSetting setting = settings_->GetCacheSetting();
+
+  switch (setting) {
+  case ProjectSettingsNode::kCacheUseDefaultLocation:
+    break;
+  case ProjectSettingsNode::kCacheCustomPath:
+  {
+    QString cache_path = settings_->GetCustomCachePath();
+
+    if (cache_path.isEmpty()) {
+      return cache_path;
+    }
+    break;
   }
-  return cache_path_;
+  case ProjectSettingsNode::kCacheStoreAlongsideProject:
+  {
+    if (!filename_.isEmpty()) {
+      return QFileInfo(filename_).path();
+    }
+    break;
+  }
+  }
+
+  return DiskManager::instance()->GetDefaultCachePath();
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

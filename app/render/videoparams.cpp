@@ -76,7 +76,7 @@ VideoParams::VideoParams() :
 VideoParams::VideoParams(int width, int height, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
-  depth_(0),
+  depth_(1),
   format_(format),
   channel_count_(nb_channels),
   pixel_aspect_ratio_(pixel_aspect_ratio),
@@ -106,7 +106,7 @@ VideoParams::VideoParams(int width, int height, int depth, Format format, int nb
 VideoParams::VideoParams(int width, int height, const rational &time_base, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
-  depth_(0),
+  depth_(1),
   time_base_(time_base),
   format_(format),
   channel_count_(nb_channels),

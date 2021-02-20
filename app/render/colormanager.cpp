@@ -47,7 +47,7 @@ ColorManager::ColorManager() :
   AddInput(kDefaultColorspaceIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Default reference space is scene linear
-  AddInput(kReferenceSpaceIn, NodeValue::kText, OCIO::ROLE_SCENE_LINEAR, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kReferenceSpaceIn, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Set config to our built-in default
   SetConfig(GetDefaultConfig());
@@ -176,12 +176,13 @@ void ColorManager::SetDefaultInputColorSpace(const QString &s)
 
 QString ColorManager::GetReferenceColorSpace() const
 {
-  return GetStandardValue(kReferenceSpaceIn).toString();
-}
+  ReferenceSpace ref_space = static_cast<ReferenceSpace>(GetStandardValue(kReferenceSpaceIn).toInt());
 
-void ColorManager::SetReferenceColorSpace(const QString &s)
-{
-  SetStandardValue(kReferenceSpaceIn, s);
+  if (ref_space == kCompositingLog) {
+    return OCIO::ROLE_COMPOSITING_LOG;
+  } else {
+    return OCIO::ROLE_SCENE_LINEAR;
+  }
 }
 
 QString ColorManager::GetCompliantColorSpace(const QString &s)
@@ -267,6 +268,9 @@ void ColorManager::Retranslate()
   SetInputName(kConfigFilenameIn, tr("Configuration"));
   SetInputName(kDefaultColorspaceIn, tr("Default Input"));
   SetInputName(kReferenceSpaceIn, tr("Reference Space"));
+
+  SetComboBoxStrings(kReferenceSpaceIn, {tr("Scene Linear"), tr("Compositing Log")});
+  SetInputProperty(kConfigFilenameIn, QStringLiteral("placeholder"), tr("(built-in)"));
 }
 
 void ColorManager::InputValueChangedEvent(const QString &input, int element)

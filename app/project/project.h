@@ -24,6 +24,7 @@
 #include <QObject>
 #include <memory>
 
+#include "node/project/projectsettings/projectsettings.h"
 #include "render/colormanager.h"
 #include "project/item/folder/folder.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
@@ -69,21 +70,12 @@ public:
 
   bool is_new() const;
 
-  const QString& cache_path(bool default_if_empty = true) const;
-
-  void set_cache_path(const QString& cache_path)
-  {
-    cache_path_ = cache_path;
-
-    emit CachePathChanged(cache_path_);
-  }
+  QString cache_path() const;
 
 signals:
   void NameChanged();
 
   void ModifiedChanged(bool e);
-
-  void CachePathChanged(const QString& s);
 
 private:
   Folder* root_;
@@ -92,11 +84,11 @@ private:
 
   ColorManager* color_manager_;
 
+  ProjectSettingsNode* settings_;
+
   bool is_modified_;
 
   bool autorecovery_saved_;
-
-  QString cache_path_;
 
 private slots:
   void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);

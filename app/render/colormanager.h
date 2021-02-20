@@ -93,8 +93,6 @@ public:
 
   QString GetReferenceColorSpace() const;
 
-  void SetReferenceColorSpace(const QString& s);
-
   QString GetCompliantColorSpace(const QString& s);
 
   ColorTransform GetCompliantColorSpace(const ColorTransform& transform, bool force_display = false);
@@ -131,6 +129,11 @@ protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
+  enum ReferenceSpace {
+    kSceneLinear,
+    kCompositingLog
+  };
+
   void SetConfig(OCIO::ConstConfigRcPtr config);
 
   OCIO::ConstConfigRcPtr config_;

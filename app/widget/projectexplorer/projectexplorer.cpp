@@ -260,12 +260,6 @@ void ProjectExplorer::ShowContextMenu()
     // "Import" action
     QAction* import_action = menu.addAction(tr("&Import..."));
     connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
-
-    menu.addSeparator();
-
-    // Project properties action
-    QAction* project_properties = menu.addAction(tr("&Project Properties..."));
-    connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
 
     // Actions to add when only one item is selected

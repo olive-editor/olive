@@ -22,6 +22,7 @@ add_subdirectory(generator)
 add_subdirectory(input)
 add_subdirectory(math)
 add_subdirectory(output)
+add_subdirectory(project)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

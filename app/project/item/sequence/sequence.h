@@ -161,6 +161,8 @@ public:
   static const QString kSamplesInput;
   static const QString kTrackInputFormat;
 
+  static const uint64_t kVideoParamEditMask;
+
   TimelinePoints* timeline_points()
   {
     return &timeline_points_;

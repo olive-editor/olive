@@ -44,7 +44,6 @@
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
-#include "dialog/projectproperties/projectproperties.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
@@ -332,21 +331,6 @@ void Core::DialogPreferencesShow()
 {
   PreferencesDialog pd(main_window_, main_window_->menuBar());
   pd.exec();
-}
-
-void Core::DialogProjectPropertiesShow()
-{
-  Project* proj = GetActiveProject();
-
-  if (proj) {
-    ProjectPropertiesDialog ppd(proj, main_window_);
-    ppd.exec();
-  } else {
-    QMessageBox::critical(main_window_,
-                          tr("No Active Project"),
-                          tr("No project is currently open to set the properties for"),
-                          QMessageBox::Ok);
-  }
 }
 
 void Core::DialogExportShow()

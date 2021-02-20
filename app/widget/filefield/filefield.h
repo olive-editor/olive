@@ -42,6 +42,16 @@ public:
     line_edit_->setText(s);
   }
 
+  void SetPlaceholder(const QString& s)
+  {
+    line_edit_->setPlaceholderText(s);
+  }
+
+  void SetDirectoryMode(bool e)
+  {
+    directory_mode_ = e;
+  }
+
 signals:
   void FilenameChanged(const QString& filename);
 
@@ -49,6 +59,8 @@ private:
   QLineEdit* line_edit_;
 
   QPushButton* browse_btn_;
+
+  bool directory_mode_;
 
 private slots:
   void BrowseBtnClicked();

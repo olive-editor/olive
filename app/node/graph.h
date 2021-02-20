@@ -54,6 +54,11 @@ public:
     return node_children_;
   }
 
+  const QVector<Node*>& default_nodes() const
+  {
+    return default_nodes_;
+  }
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
@@ -72,10 +77,17 @@ signals:
   void ValueChanged(const NodeInput& input);
 
 protected:
+  void AddDefaultNode(Node* n)
+  {
+    default_nodes_.append(n);
+  }
+
   virtual void childEvent(QChildEvent* event) override;
 
 private:
   QVector<Node*> node_children_;
+
+  QVector<Node*> default_nodes_;
 
 };
 

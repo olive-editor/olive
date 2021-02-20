@@ -14,22 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(about)
-add_subdirectory(actionsearch)
-add_subdirectory(color)
-add_subdirectory(configbase)
-add_subdirectory(diskcache)
-add_subdirectory(export)
-add_subdirectory(footagerelink)
-add_subdirectory(keyframeproperties)
-add_subdirectory(preferences)
-add_subdirectory(progress)
-add_subdirectory(rendercancel)
-add_subdirectory(richtext)
-add_subdirectory(sequence)
-add_subdirectory(task)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/videoparamedit/videoparamedit.cpp
+  widget/videoparamedit/videoparamedit.h
   PARENT_SCOPE
 )

@@ -364,11 +364,6 @@ public slots:
   void DialogPreferencesShow();
 
   /**
-   * @brief Show Project Properties dialog
-   */
-  void DialogProjectPropertiesShow();
-
-  /**
    * @brief Show Export dialog
    */
   void DialogExportShow();

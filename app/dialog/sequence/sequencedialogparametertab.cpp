@@ -19,32 +19,11 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   // Set up video section
   QGroupBox* video_group = new QGroupBox();
   video_group->setTitle(tr("Video"));
-  QGridLayout* video_layout = new QGridLayout(video_group);
-  video_layout->addWidget(new QLabel(tr("Width:")), row, 0);
-  video_width_field_ = new IntegerSlider();
-  video_width_field_->SetMinimum(1);
-  video_width_field_->SetMaximum(99999);
-  connect(video_width_field_, &IntegerSlider::ValueChanged, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
-  video_layout->addWidget(video_width_field_, row, 1);
-  row++;
-  video_layout->addWidget(new QLabel(tr("Height:")), row, 0);
-  video_height_field_ = new IntegerSlider();
-  video_height_field_->SetMinimum(1);
-  video_height_field_->SetMaximum(99999);
-  connect(video_height_field_, &IntegerSlider::ValueChanged, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
-  video_layout->addWidget(video_height_field_, row, 1);
-  row++;
-  video_layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
-  video_frame_rate_field_ = new FrameRateComboBox();
-  video_layout->addWidget(video_frame_rate_field_, row, 1);
-  row++;
-  video_layout->addWidget(new QLabel(tr("Pixel Aspect Ratio:")), row, 0);
-  video_pixel_aspect_field_ = new PixelAspectRatioComboBox();
-  video_layout->addWidget(video_pixel_aspect_field_, row, 1);
-  row++;
-  video_layout->addWidget(new QLabel(tr("Interlacing:")));
-  video_interlaced_field_ = new InterlacedComboBox();
-  video_layout->addWidget(video_interlaced_field_, row, 1);
+  QHBoxLayout* video_layout = new QHBoxLayout(video_group);
+  video_section_ = new VideoParamEdit();
+  video_section_->SetParameterMask(Sequence::kVideoParamEditMask);
+  connect(video_section_, &VideoParamEdit::Changed, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
+  video_layout->addWidget(video_section_);
   layout->addWidget(video_group);
 
   row = 0;
@@ -80,11 +59,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   layout->addWidget(preview_group);
 
   // Set values based on input sequence
-  video_width_field_->SetValue(sequence->video_params().width());
-  video_height_field_->SetValue(sequence->video_params().height());
-  video_frame_rate_field_->SetFrameRate(sequence->video_params().time_base().flipped());
-  video_pixel_aspect_field_->SetPixelAspectRatio(sequence->video_params().pixel_aspect_ratio());
-  video_interlaced_field_->SetInterlaceMode(sequence->video_params().interlacing());
+  video_section_->SetVideoParams(sequence->video_params());
   preview_resolution_field_->SetDivider(sequence->video_params().divider());
   preview_format_field_->SetPixelFormat(sequence->video_params().format());
   audio_sample_rate_field_->SetSampleRate(sequence->audio_params().sample_rate());
@@ -104,11 +79,11 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
 
 void SequenceDialogParameterTab::PresetChanged(const SequencePreset &preset)
 {
-  video_width_field_->SetValue(preset.width());
-  video_height_field_->SetValue(preset.height());
-  video_frame_rate_field_->SetFrameRate(preset.frame_rate());
-  video_pixel_aspect_field_->SetPixelAspectRatio(preset.pixel_aspect());
-  video_interlaced_field_->SetInterlaceMode(preset.interlacing());
+  video_section_->SetWidth(preset.width());
+  video_section_->SetHeight(preset.height());
+  video_section_->SetFrameRate(preset.frame_rate());
+  video_section_->SetPixelAspectRatio(preset.pixel_aspect());
+  video_section_->SetInterlaceMode(preset.interlacing());
   audio_sample_rate_field_->SetSampleRate(preset.sample_rate());
   audio_channels_field_->SetChannelLayout(preset.channel_layout());
   preview_resolution_field_->SetDivider(preset.preview_divider());
@@ -131,8 +106,8 @@ void SequenceDialogParameterTab::SavePresetClicked()
 
 void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
 {
-  VideoParams test_param(video_width_field_->GetValue(),
-                         video_height_field_->GetValue(),
+  VideoParams test_param(video_section_->GetWidth(),
+                         video_section_->GetHeight(),
                          VideoParams::kFormatInvalid,
                          VideoParams::kInternalChannelCount,
                          rational(1),
