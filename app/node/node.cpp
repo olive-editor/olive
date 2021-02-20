@@ -1437,7 +1437,7 @@ void Node::CopyValuesOfElement(Node *src, Node *dst, const QString &input, int s
 
   // If this is the root of an array, copy the array size
   if (src_element == -1 && dst_element == -1) {
-    dst->InputArrayResize(input, dst->InputArraySize(input));
+    dst->ArrayResizeInternal(input, src->InputArraySize(input));
   }
 }
 

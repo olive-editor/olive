@@ -954,7 +954,7 @@ private:
 
     virtual void redo() override
     {
-      old_size_ = node_->GetInternalInputArraySize(input_);
+      old_size_ = node_->InputArraySize(input_);
 
       if (old_size_ > size_) {
         // Decreasing in size, disconnect any extraneous edges
