@@ -281,7 +281,7 @@ void ColorManager::InputValueChangedEvent(const QString &input, int element)
 
     try {
       SetConfig(OCIO::Config::CreateFromFile(GetConfigFilename().toUtf8()));
-    } catch (OCIO::Exception& e) {}
+    } catch (OCIO::Exception&) {}
 
   }
 }

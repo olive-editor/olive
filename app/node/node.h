@@ -1183,17 +1183,15 @@ T* Node::ValueToPtr(const QVariant &ptr)
 template<class T>
 void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list)
 {
-  foreach (const std::vector<NodeInput>& outputs, n->output_connections_) {
-    foreach (const NodeInput& output, outputs) {
-      Node* connected = output.node();
-      T* cast_test = dynamic_cast<T*>(connected);
+  foreach (const OutputConnection& output, n->output_connections_) {
+    Node* connected = output.second.node();
+    T* cast_test = dynamic_cast<T*>(connected);
 
-      if (cast_test) {
-        list.append(cast_test);
-      }
-
-      FindOutputNodeInternal<T>(connected);
+    if (cast_test) {
+      list.append(cast_test);
     }
+
+    FindOutputNodeInternal<T>(connected);
   }
 }
 

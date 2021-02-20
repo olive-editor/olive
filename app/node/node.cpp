@@ -1809,7 +1809,7 @@ void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int ele
             if (reader->name() == QStringLiteral("key")) {
               QString key_input;
               rational key_time;
-              NodeKeyframe::Type key_type;
+              NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
               QVariant key_value;
               QPointF key_in_handle;
               QPointF key_out_handle;
