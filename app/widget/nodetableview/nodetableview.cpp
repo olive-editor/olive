@@ -140,6 +140,14 @@ void NodeTableView::SetTime(const rational &time)
         sub_item->setText(1, source_name);
 
         switch (value.type()) {
+        case NodeValue::kVideoParams:
+        case NodeValue::kAudioParams:
+        case NodeValue::kFootageJob:
+        case NodeValue::kShaderJob:
+        case NodeValue::kSampleJob:
+        case NodeValue::kGenerateJob:
+          // These types have no string representation
+          break;
         case NodeValue::kTexture:
         {
           // NodeTableTraverser puts video params in here

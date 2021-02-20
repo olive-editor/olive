@@ -220,7 +220,9 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 void CurveWidget::ConnectNode(Node *node, bool connect)
 {
   foreach (const QString& input, node->inputs()) {
-    ConnectInput(node, input, connect);
+    if (node->IsInputKeyframable(input)) {
+      ConnectInput(node, input, connect);
+    }
   }
 
   // Connect add/remove signals

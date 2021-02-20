@@ -68,7 +68,8 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
   } else if (data_type == kRational) {
     return value.value<rational>().toString();
   } else if (data_type == kTexture
-             || data_type == kSamples) {
+             || data_type == kSamples
+             || data_type == kNone) {
     // These data types need no XML representation
     return QString();
   } else if (data_type == kInt) {
