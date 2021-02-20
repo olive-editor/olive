@@ -1405,7 +1405,7 @@ public:
         const NodeInput& i = ic.second;
 
         // Ignore the track input, but funnel everything else through our merge
-        if (i.node() != timeline_->parent() && i.input() != timeline_->track_input()) {
+        if (i.node() != timeline_->parent() || i.input() != timeline_->track_input()) {
           Node::DisconnectEdge(last_track, i);
           Node::ConnectEdge(merge_, i);
         }
