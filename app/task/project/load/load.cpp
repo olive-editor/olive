@@ -41,7 +41,7 @@ bool ProjectLoadTask::Run()
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
-    uint project_version;
+    uint project_version = 0;
 
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("olive")) {
@@ -52,7 +52,7 @@ bool ProjectLoadTask::Run()
             project_version = reader.readElementText().toUInt(&ok);
 
             if (!ok) {
-              SetError(tr("Failed to determine project's version identifier."));
+              SetError(tr("Failed to parse project version."));
               return false;
             } else if (project_version > Core::kProjectVersion) {
               // Project is newer than we support
@@ -66,6 +66,12 @@ bool ProjectLoadTask::Run()
           } else if (reader.name() == QStringLiteral("url")) {
             project_saved_url_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("project")) {
+            if (project_version == 0) {
+              // Failed to find project version, throw error before we create project
+              SetError(tr("Failed to find project version."));
+              return false;
+            }
+
             project_ = new Project();
 
             project_->set_filename(GetFilename());
