@@ -24,6 +24,8 @@ class PreviewAutoCacher : public QObject
 public:
   PreviewAutoCacher();
 
+  virtual ~PreviewAutoCacher() override;
+
   RenderTicketPtr GetSingleFrame(const rational& t);
 
   /**

@@ -28,6 +28,12 @@ PreviewAutoCacher::PreviewAutoCacher() :
   connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
 }
 
+PreviewAutoCacher::~PreviewAutoCacher()
+{
+  // Ensure everything is cleaned up appropriately
+  SetViewerNode(nullptr);
+}
+
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
 {
   if (single_frame_render_) {
