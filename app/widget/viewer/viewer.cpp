@@ -974,7 +974,10 @@ void ViewerWidget::Pause()
 {
   PauseInternal();
 
-  auto_cacher_.SetPlayhead(GetTime());
+  if (pause_autocache_during_playback_) {
+    // Auto-cache was paused, restart it now
+    auto_cacher_.SetPlayhead(GetTime());
+  }
 }
 
 void ViewerWidget::ShuttleLeft()
