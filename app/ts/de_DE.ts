@@ -4676,6 +4676,7 @@ Soll es wirklich gelöscht werden?</translation>
         <location line="86" filename="../widget/taskview/taskviewitem.cpp"/>
         <source>Error: %1</source>
         <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>olive::TextGenerator</name>
