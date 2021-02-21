@@ -116,6 +116,8 @@ private:
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
+  void UpdateLastSyncedValue();
+
   class QueuedJob {
   public:
     enum Type {

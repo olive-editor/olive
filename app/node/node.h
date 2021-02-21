@@ -597,7 +597,13 @@ public:
    * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
    * call this function with transformed time and relay the signal that way.
    */
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1);
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time);
+
+  void InvalidateCache(const TimeRange& range, const QString& from, int element = -1)
+  {
+    InvalidateCache(range, from, element, last_change_time_);
+  }
+
   void InvalidateCache(const TimeRange& range, const NodeInput& from)
   {
     InvalidateCache(range, from.input(), from.element());
@@ -760,7 +766,7 @@ protected:
     SetInputProperty(id, QStringLiteral("combo_str"), strings);
   }
 
-  void SendInvalidateCache(const TimeRange &range);
+  void SendInvalidateCache(const TimeRange &range, qint64 job_time);
 
   /**
    * @brief Don't send cache invalidation signals if `input` is connected or disconnected
@@ -1067,6 +1073,8 @@ private:
 
   void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
 
+  void UpdateLastChangedTime();
+
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe
    */
@@ -1120,6 +1128,8 @@ private:
   InputConnections input_connections_;
 
   OutputConnections output_connections_;
+
+  qint64 last_change_time_;
 
 private slots:
   /**

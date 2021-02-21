@@ -21,7 +21,6 @@
 #include "rendermanager.h"
 
 #include <QApplication>
-#include <QDateTime>
 #include <QMatrix4x4>
 #include <QThread>
 

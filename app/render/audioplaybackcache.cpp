@@ -52,9 +52,6 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   // Restart empty file so there's always "something" to play
   ClearPlaylist();
 
-  // Our current audio cache is unusable, so we truncate it automatically
-  InvalidateAll();
-
   emit ParametersChanged();
 }
 

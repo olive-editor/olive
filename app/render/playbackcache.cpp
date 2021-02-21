@@ -20,8 +20,6 @@
 
 #include "playbackcache.h"
 
-#include <QDateTime>
-
 #include "node/output/viewer/viewer.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
@@ -29,7 +27,7 @@
 
 namespace olive {
 
-void PlaybackCache::Invalidate(const TimeRange &r)
+void PlaybackCache::Invalidate(const TimeRange &r, qint64 job_time)
 {
   if (r.in() == r.out()) {
     qWarning() << "Tried to invalidate zero-length range";
@@ -39,7 +37,6 @@ void PlaybackCache::Invalidate(const TimeRange &r)
   invalidated_.insert(r);
 
   RemoveRangeFromJobs(r);
-  qint64 job_time = QDateTime::currentMSecsSinceEpoch();
   jobs_.append({r, job_time});
 
   InvalidateEvent(r);
@@ -53,7 +50,7 @@ void PlaybackCache::InvalidateAll()
     return;
   }
 
-  Invalidate(TimeRange(0, length_));
+  Invalidate(TimeRange(0, length_), 0);
 }
 
 void PlaybackCache::SetLength(const rational &r)
@@ -73,7 +70,7 @@ void PlaybackCache::SetLength(const rational &r)
   } else if (r > length_) {
     // If new length is greater, simply extend the invalidated range for now
     invalidated_.insert(range_diff);
-    jobs_.append({range_diff, QDateTime::currentMSecsSinceEpoch()});
+    jobs_.append({range_diff, 0});
   } else {
     // If new length is smaller, removed hashes
     invalidated_.remove(range_diff);
@@ -108,16 +105,16 @@ void PlaybackCache::Shift(const rational &from, const rational &to)
   // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
-    Invalidate(r + diff);
+    Invalidate(r + diff, 0);
   }
 
   ShiftEvent(from, to);
 
   length_ += diff;
 
-  if (diff > rational()) {
+  if (diff > 0) {
     // If shifting forward, add this section to the invalidated region
-    Invalidate(TimeRange(from, to));
+    Invalidate(TimeRange(from, to), 0);
   }
 
   // Emit signals

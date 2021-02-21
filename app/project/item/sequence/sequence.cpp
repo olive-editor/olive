@@ -315,7 +315,7 @@ void Sequence::ShiftCache(const rational &from, const rational &to)
   ShiftAudioCache(from, to);
 }
 
-void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int element)
+void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time)
 {
   Q_UNUSED(element)
 
@@ -326,9 +326,9 @@ void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int 
 
       if (invalidated_range.in() != invalidated_range.out()) {
         if (from == kTextureInput) {
-          video_frame_cache_.Invalidate(invalidated_range);
+          video_frame_cache_.Invalidate(invalidated_range, job_time);
         } else {
-          audio_playback_cache_.Invalidate(invalidated_range);
+          audio_playback_cache_.Invalidate(invalidated_range, job_time);
         }
       }
     }
@@ -336,7 +336,7 @@ void Sequence::InvalidateCache(const TimeRange& range, const QString& from, int 
     VerifyLength();
   }
 
-  super::InvalidateCache(range, from);
+  super::InvalidateCache(range, from, element, job_time);
 }
 
 rational Sequence::GetLength()
@@ -454,8 +454,6 @@ void Sequence::InputValueChangedEvent(const QString &input, int element)
     }
 
     emit VideoParamsChanged();
-
-    video_frame_cache_.InvalidateAll();
 
     cached_video_params_ = video_params();
 

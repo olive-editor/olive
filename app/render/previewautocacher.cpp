@@ -274,7 +274,7 @@ void PreviewAutoCacher::ProcessUpdateQueue()
   }
   graph_update_queue_.clear();
 
-  last_update_time_ = QDateTime::currentMSecsSinceEpoch();
+  UpdateLastSyncedValue();
 }
 
 bool PreviewAutoCacher::HasActiveJobs() const
@@ -340,6 +340,11 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
 
   // Copy parameters
   Node::CopyInputs(node, copy, false);
+}
+
+void PreviewAutoCacher::UpdateLastSyncedValue()
+{
+  last_update_time_ = QDateTime::currentMSecsSinceEpoch();
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -662,7 +667,7 @@ void PreviewAutoCacher::SetViewerNode(Sequence *viewer_node)
       }
     }
 
-    last_update_time_ = QDateTime::currentMSecsSinceEpoch();
+    UpdateLastSyncedValue();
 
     // Connect signals for future node additions/deletions
     connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);

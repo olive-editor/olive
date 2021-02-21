@@ -234,7 +234,7 @@ public:
       invalidate_range = block_->range();
     }
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -294,7 +294,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
 private:
@@ -884,7 +884,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX));
+    track_->Node::InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX), Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -916,7 +916,7 @@ public:
     // End operations and invalidate
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX));
+    track_->Node::InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX), Track::kBlockInput);
   }
 
 private:
@@ -1318,7 +1318,7 @@ private:
 
       if (!all_tracks_unlocked_) {
         // If we're not shifting, the whole track must get invalidated
-        track->InvalidateCache(TimeRange(earliest_point_of_change, RATIONAL_MAX));
+        track->Node::InvalidateCache(TimeRange(earliest_point_of_change, RATIONAL_MAX), Track::kBlockInput);
       }
     }
 
@@ -1709,7 +1709,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -1766,7 +1766,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
   }
 
 private:
@@ -2051,7 +2051,7 @@ public:
     invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                                qMax(invalidate_range.out(), blocks_.last()->out()));
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -2091,7 +2091,7 @@ public:
     invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                                qMax(invalidate_range.out(), blocks_.last()->out()));
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
 private:
@@ -2195,7 +2195,7 @@ public:
 
     if (!all_tracks_unlocked_) {
       foreach (Track* track, working_tracks_) {
-        track->InvalidateCache(TimeRange(point_, RATIONAL_MAX));
+        track->Node::InvalidateCache(TimeRange(point_, RATIONAL_MAX), Track::kBlockInput);
       }
     }
   }
@@ -2237,7 +2237,7 @@ public:
 
     if (!all_tracks_unlocked_) {
       foreach (Track* track, working_tracks_) {
-        track->InvalidateCache(TimeRange(point_, RATIONAL_MAX));
+        track->Node::InvalidateCache(TimeRange(point_, RATIONAL_MAX), Track::kBlockInput);
       }
     }
   }
@@ -2361,7 +2361,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(invalidate_range, Track::kBlockInput);
+    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
   }
 
   virtual void undo() override
@@ -2395,7 +2395,7 @@ public:
 
     track_->EndOperation();
 
-    track_->InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
   }
 
 private:

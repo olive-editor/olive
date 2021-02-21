@@ -21,7 +21,6 @@
 #include "diskmanager.h"
 
 #include <QDataStream>
-#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>

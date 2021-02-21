@@ -42,7 +42,7 @@ public:
   virtual QString id() const override;
   virtual QString Description() const override;
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1) override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, qint64 job_time) override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 

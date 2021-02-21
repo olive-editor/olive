@@ -104,6 +104,7 @@ QList<rational> FrameHashCache::GetFramesWithHash(const QByteArray &hash)
 
 QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
 {
+  TimeRangeList range_to_invalidate;
   QList<rational> times;
 
   auto iterator = time_hash_map_.begin();
@@ -111,6 +112,7 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
   while (iterator != time_hash_map_.end()) {
     if (iterator.value() == hash) {
       times.append(iterator.key());
+      range_to_invalidate.insert(TimeRange(iterator.key(), iterator.key() + timebase_));
 
       iterator = time_hash_map_.erase(iterator);
     } else {
@@ -118,8 +120,10 @@ QList<rational> FrameHashCache::TakeFramesWithHash(const QByteArray &hash)
     }
   }
 
-  foreach (const rational& r, times) {
-    Invalidate(TimeRange(r, r + timebase_));
+  foreach (const TimeRange& r, range_to_invalidate) {
+    // We apply a 0 job time because the graph hasn't changed to get here, so any renderer should
+    // be up to date already
+    Invalidate(r, 0);
   }
 
   return times;
@@ -351,7 +355,9 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   foreach (const TimeRange& range, ranges_to_invalidate) {
-    Invalidate(range);
+    // We set job time to 0 because the nodes haven't changed and any render job should be up
+    // to date
+    Invalidate(range, 0);
   }
 }
 
