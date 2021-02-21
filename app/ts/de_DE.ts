@@ -52,7 +52,7 @@
     </message>
     <message>
         <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf diesen Speicherort.</translation>
+        <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
     </message>
 </context>
 <context>
@@ -368,7 +368,7 @@ Länge: %4</translation>
     </message>
     <message>
         <source>NTSC Standard (%1)</source>
-        <translation>NTSC Normal (%1)</translation>
+        <translation>NTSC Standard (%1)</translation>
     </message>
     <message>
         <source>NTSC Widescreen (%1)</source>
@@ -376,7 +376,7 @@ Länge: %4</translation>
     </message>
     <message>
         <source>PAL Standard (%1)</source>
-        <translation>PAL Normal (%1)</translation>
+        <translation>PAL Standard (%1)</translation>
     </message>
     <message>
         <source>PAL Widescreen (%1)</source>
@@ -577,11 +577,11 @@ Länge: %4</translation>
     <message>
         <source>Cyan</source>
         <translatorcomment>alternativ: Hellblau/Blaugrün</translatorcomment>
-        <translation>Cyan</translation>
+        <translation>Hellblau</translation>
     </message>
     <message>
         <source>Teal</source>
-        <translation>Smaragdgrün</translation>
+        <translation>Blaugrün</translation>
     </message>
     <message>
         <source>Blue</source>
@@ -1609,7 +1609,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation>Two-Pass</translation>
+        <translation>Zwei Durchgänge</translation>
     </message>
 </context>
 <context>
@@ -1620,7 +1620,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation>Two-Pass</translation>
+        <translation>Zwei Durchgänge</translation>
     </message>
 </context>
 <context>
@@ -1653,15 +1653,15 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <name>olive::InterlacedComboBox</name>
     <message>
         <source>None (Progressive)</source>
-        <translation>Deaktiviert (progressiv)</translation>
+        <translation>deaktiviert (progressiv)</translation>
     </message>
     <message>
         <source>Top-Field First</source>
-        <translation>Top-Field Zuerst</translation>
+        <translation>Oberstes Feld zuerst</translation>
     </message>
     <message>
         <source>Bottom-Field First</source>
-        <translation>Bottom-Field Zuerst</translation>
+        <translation>Unterstes Feld zuerst</translation>
     </message>
 </context>
 <context>
