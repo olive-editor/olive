@@ -546,7 +546,6 @@ void MainWindow::TimelineFocused(Sequence* viewer)
   sequence_viewer_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
-  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -562,6 +561,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
   if (project) {
     UpdateTitle();
+    node_panel_->SetGraph(project->project());
     return;
   }
 }
