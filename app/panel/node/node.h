@@ -35,6 +35,11 @@ class NodePanel : public PanelWidget
 public:
   NodePanel(QWidget* parent);
 
+  NodeGraph* GetGraph() const
+  {
+    return node_view_->GetGraph();
+  }
+
   void SetGraph(NodeGraph *graph)
   {
     node_view_->SetGraph(graph);

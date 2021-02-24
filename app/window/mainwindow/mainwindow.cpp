@@ -362,6 +362,11 @@ void MainWindow::ProjectClose(Project *p)
       RemoveProjectPanel(panel);
     }
   }
+
+  // Close project from NodeView
+  if (node_panel_->GetGraph() == p) {
+    node_panel_->SetGraph(nullptr);
+  }
 }
 
 void MainWindow::SetApplicationProgressStatus(ProgressStatus status)

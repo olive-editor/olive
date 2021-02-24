@@ -46,6 +46,11 @@ public:
 
   virtual ~NodeView() override;
 
+  NodeGraph* GetGraph() const
+  {
+    return graph_;
+  }
+
   /**
    * @brief Sets the graph to view
    */
