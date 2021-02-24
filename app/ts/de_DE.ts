@@ -65,10 +65,6 @@
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
         <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
     </message>
-    <message>
-        <source>Failed to save application settings. The application may lack write permissions to this location.</source>
-        <translation type="vanished">Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
-    </message>
 </context>
 <context>
     <name>Footage</name>
@@ -83,12 +79,12 @@
         <translation>%1 Hz</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="616"/>
+        <location filename="../project/item/footage/footage.cpp" line="623"/>
         <source>Filename: %1</source>
         <translation>Dateiname: %1</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="638"/>
+        <location filename="../project/item/footage/footage.cpp" line="645"/>
         <source>This footage is not valid for use</source>
         <translation>Dieses Material ist nicht verwendbar</translation>
     </message>
@@ -119,13 +115,6 @@
         <location filename="../widget/timelinewidget/tool/import.cpp" line="338"/>
         <source>Set Parameters Manually</source>
         <translation>Parameter manuell einstellen</translation>
-    </message>
-</context>
-<context>
-    <name>MoveItemCommand</name>
-    <message>
-        <source>Move Item</source>
-        <translation type="vanished">Element verschieben</translation>
     </message>
 </context>
 <context>
@@ -237,14 +226,6 @@
         <translation>Audio-Parameter</translation>
     </message>
     <message>
-        <source>Video Stream Properties</source>
-        <translation type="vanished">Videostream-Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Audio Stream Properties</source>
-        <translation type="vanished">Audiostream-Eigenschaften</translation>
-    </message>
-    <message>
         <location filename="../node/value.cpp" line="325"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
@@ -296,7 +277,7 @@
     <message>
         <location filename="../common/ratiodialog.cpp" line="39"/>
         <source>Enter custom ratio (e.g. &quot;4:3&quot;, &quot;16/9&quot;, etc.):</source>
-        <translation>Individuelles Seitenverhältnis (z. B. &quot;4:3&quot;, &quot;16:9&quot;, ...):</translation>
+        <translation>Individuelles Seitenverhältnis  (z. B. &quot;4:3&quot;, &quot;16:9&quot;, ...):</translation>
     </message>
     <message>
         <location filename="../common/ratiodialog.cpp" line="84"/>
@@ -307,58 +288,6 @@
         <location filename="../common/ratiodialog.cpp" line="85"/>
         <source>Failed to parse &quot;%1&quot; into an aspect ratio. Please format a rational fraction with a &apos;:&apos; or a &apos;/&apos; separator.</source>
         <translation>&quot;%1&quot; konnte nicht als Seitenverhältnis interpretiert werden. Bitte einen rationalen Bruch mit &apos;:&apos; oder &apos;/&apos; als Trennzeichen angeben.</translation>
-    </message>
-</context>
-<context>
-    <name>RenameItemCommand</name>
-    <message>
-        <source>Rename Item</source>
-        <translation type="vanished">Element umbenennen</translation>
-    </message>
-</context>
-<context>
-    <name>Sequence</name>
-    <message>
-        <source>%1 FPS</source>
-        <translation type="vanished">%1 FPS</translation>
-    </message>
-</context>
-<context>
-    <name>Stream</name>
-    <message>
-        <source>%1: Audio - %2 Channels, %3Hz</source>
-        <translation type="vanished">%1: Audio - %2 Kanäle, %3Hz</translation>
-    </message>
-    <message>
-        <source>%1: Unknown</source>
-        <translation type="vanished">%1: Unbekannt</translation>
-    </message>
-    <message>
-        <source>%1: Image - %2x%3</source>
-        <translation type="vanished">%1: Bild - %2x%3</translation>
-    </message>
-    <message>
-        <source>%1: Video - %2x%3</source>
-        <translation type="vanished">%1: Video - %2x%3</translation>
-    </message>
-    <message>
-        <source>%1: Audio - %2 Channel(s), %3Hz</source>
-        <translation type="vanished">%1: Audio - %2 Kanäle, %3Hz</translation>
-    </message>
-</context>
-<context>
-    <name>TimelineViewBlockItem</name>
-    <message>
-        <source>%1
-
-In: %2
-Out: %3
-Length: %4</source>
-        <translation type="vanished">%1
-
-Startpunkt: %2
-Endpunkt: %3
-Länge: %4</translation>
     </message>
 </context>
 <context>
@@ -532,22 +461,6 @@ Länge: %4</translation>
         <location filename="../dialog/actionsearch/actionsearch.cpp" line="58"/>
         <source>Search for action...</source>
         <translation>Aktion suchen...</translation>
-    </message>
-</context>
-<context>
-    <name>olive::AudioInput</name>
-    <message>
-        <source>Audio Input</source>
-        <translation type="vanished">Audio-Eingang</translation>
-    </message>
-    <message>
-        <source>Audio</source>
-        <translation type="vanished">Audio</translation>
-    </message>
-    <message>
-        <source>Import an audio footage stream.</source>
-        <translatorcomment>Ist ein (Web-)Stream oder lokales Audiomaterial gemeint? Ich habe es jetzt als lokales Audiomaterial interpretiert...</translatorcomment>
-        <translation type="vanished">Audiomaterial importieren.</translation>
     </message>
 </context>
 <context>
@@ -816,8 +729,7 @@ Länge: %4</translation>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="74"/>
         <source>Display:</source>
-        <translatorcomment>ist Monitor/Bildschirm oder Anzeige gemeint?</translatorcomment>
-        <translation>Display:</translation>
+        <translation>Monitor:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="93"/>
@@ -829,7 +741,7 @@ Länge: %4</translation>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="106"/>
         <source>Look:</source>
         <translatorcomment>?</translatorcomment>
-        <translation>Wirkung:</translation>
+        <translation>Aussehen:</translation>
     </message>
     <message>
         <location filename="../widget/colorwheel/colorspacechooser.cpp" line="113"/>
@@ -922,14 +834,6 @@ Länge: %4</translation>
         <translation>Es konnte kein aktives Projekt-Panel gefunden werden</translation>
     </message>
     <message>
-        <source>No Active Project</source>
-        <translation type="vanished">Kein aktives Projekt</translation>
-    </message>
-    <message>
-        <source>No project is currently open to set the properties for</source>
-        <translation type="vanished">Aktuell ist kein Projekt geöffnet, für das Einstellungen vorgenommen werden könnten</translation>
-    </message>
-    <message>
         <location filename="../core.cpp" line="355"/>
         <source>Failed to create new folder</source>
         <translation>Es konnte kein neuer Ordner erstellt werden</translation>
@@ -969,34 +873,6 @@ Länge: %4</translation>
         <location filename="../core.cpp" line="523"/>
         <source>Specified project does not exist</source>
         <translation>Das angegebene Projekt gibt es nicht</translation>
-    </message>
-    <message>
-        <source>Project contains no sequences, nothing to export</source>
-        <translation type="vanished">In dem Projekt gibt es keine Sequenz, also kann auch nichts exportiert werden</translation>
-    </message>
-    <message>
-        <source>This project has multiple sequences. Which do you wish to export?</source>
-        <translation type="vanished">Das Projekt enthält mehrere Sequenzen. Welche davon soll exportiert werden?</translation>
-    </message>
-    <message>
-        <source>Enter number (or %1 to cancel): </source>
-        <translation type="vanished">Zahl eingeben (oder %1 zum Abbrechen): </translation>
-    </message>
-    <message>
-        <source>Invalid sequence number</source>
-        <translation type="vanished">Unzulässige Sequenz-Nummer</translation>
-    </message>
-    <message>
-        <source>Export succeeded</source>
-        <translation type="vanished">Export erfolgreich</translation>
-    </message>
-    <message>
-        <source>Export failed: %1</source>
-        <translation type="vanished">Export fehlgeschlagen: %1</translation>
-    </message>
-    <message>
-        <source>Project failed to load: %1</source>
-        <translation type="vanished">Projekt konnte nicht geladen werden: %1</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="609"/>
@@ -1782,7 +1658,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="106"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation>Pixel-Seitenverhältnis:</translation>
+        <translation>Seitenverhältnis:</translation>
     </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="113"/>
@@ -1873,43 +1749,39 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <translation>%1: Video - %2x%3</translation>
     </message>
     <message>
-        <source>%1: Unknown</source>
-        <translation type="vanished">%1: Unbekannt</translation>
-    </message>
-    <message>
         <location filename="../project/item/footage/footage.cpp" line="470"/>
         <source>%1: Audio - %2 Channel(s), %3Hz</source>
         <translation>%1: Audio - %2 Kanäle, %3Hz</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="597"/>
+        <location filename="../project/item/footage/footage.cpp" line="604"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="599"/>
+        <location filename="../project/item/footage/footage.cpp" line="606"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="601"/>
+        <location filename="../project/item/footage/footage.cpp" line="608"/>
         <source>Subtitle</source>
         <translation>Untertitel</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="603"/>
+        <location filename="../project/item/footage/footage.cpp" line="610"/>
         <source>Data</source>
         <translatorcomment>?</translatorcomment>
         <translation>Daten</translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="605"/>
+        <location filename="../project/item/footage/footage.cpp" line="612"/>
         <source>Attachment</source>
         <translatorcomment>?</translatorcomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../project/item/footage/footage.cpp" line="610"/>
+        <location filename="../project/item/footage/footage.cpp" line="617"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
@@ -1922,21 +1794,6 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <location filename="../project/item/footage/footage.h" line="76"/>
         <source>Import video, audio, or still image files into the composition.</source>
         <translation>Video-, Audio- oder Bildmaterial importieren und arrangieren.</translation>
-    </message>
-</context>
-<context>
-    <name>olive::FootagePropertiesDialog</name>
-    <message>
-        <source>&quot;%1&quot; Properties</source>
-        <translation type="vanished">Eigenschaften von &quot;%1&quot;;</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">Name:</translation>
-    </message>
-    <message>
-        <source>Tracks:</source>
-        <translation type="vanished">Spuren:</translation>
     </message>
 </context>
 <context>
@@ -2251,11 +2108,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="609"/>
         <source>&amp;Media...</source>
-        <translation>&amp;Medien...</translation>
-    </message>
-    <message>
-        <source>&amp;Project Properties...</source>
-        <translation type="vanished">Projekt-&amp;Einstellungen...</translation>
+        <translation>als &amp;Video...</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="610"/>
@@ -2527,7 +2380,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="679"/>
         <source>Zoom Tool</source>
-        <translation>Vergrößerungs-Werkzeug</translation>
+        <translation>Zoom-Werkzeug</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="680"/>
@@ -2578,20 +2431,16 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <source>Running %1 background task(s)</source>
         <translation>%1 Aufträge laufen im Hintergrund</translation>
     </message>
-    <message>
-        <source>Running %1 background tasks</source>
-        <translation type="vanished">%1 Aufträge laufen im Hintergrund</translation>
-    </message>
 </context>
 <context>
     <name>olive::MainWindow</name>
     <message>
-        <location filename="../window/mainwindow/mainwindow.cpp" line="446"/>
+        <location filename="../window/mainwindow/mainwindow.cpp" line="451"/>
         <source>Driver Warning</source>
         <translation>Treiber-Warnung</translation>
     </message>
     <message>
-        <location filename="../window/mainwindow/mainwindow.cpp" line="447"/>
+        <location filename="../window/mainwindow/mainwindow.cpp" line="452"/>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
@@ -2722,7 +2571,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="79"/>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation>Anhand von Position, Drehung und Skalierung eine orthographische Matrix erstellen.</translation>
+        <translation>Anhand von Position, Rotation und Skalierung eine orthographische Matrix erstellen.</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="84"/>
@@ -2732,7 +2581,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="85"/>
         <source>Rotation</source>
-        <translation>Drehung</translation>
+        <translation>Rotation</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="86"/>
@@ -2742,19 +2591,12 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="87"/>
         <source>Uniform Scale</source>
-        <translation>Einheitliche Skalierung</translation>
+        <translation>Seitenverhältnis beibehalten</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="88"/>
         <source>Anchor Point</source>
         <translation>Ankerpunkt</translation>
-    </message>
-</context>
-<context>
-    <name>olive::MediaInput</name>
-    <message>
-        <source>Footage</source>
-        <translation type="vanished">Material</translation>
     </message>
 </context>
 <context>
@@ -2792,7 +2634,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/menu/menushared.cpp" line="304"/>
         <source>Paste Insert</source>
-        <translation>Verschiebendes Einfügen</translation>
+        <translation>Verbindendes Einfügen</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="305"/>
@@ -2817,7 +2659,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/menu/menushared.cpp" line="311"/>
         <source>Set In Point</source>
-        <translation>Anfangspunkt setzen</translation>
+        <translation>Anfangspunkt festlegen</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="312"/>
@@ -3009,104 +2851,11 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     </message>
 </context>
 <context>
-    <name>olive::NodeInput</name>
-    <message>
-        <source>Input</source>
-        <translatorcomment>alternativ: Eingang</translatorcomment>
-        <translation type="vanished">Eingabe</translation>
-    </message>
-</context>
-<context>
-    <name>olive::NodeOutput</name>
-    <message>
-        <source>Output</source>
-        <translatorcomment>alternativ: Ausgang</translatorcomment>
-        <translation type="vanished">Ausgabe</translation>
-    </message>
-</context>
-<context>
     <name>olive::NodePanel</name>
     <message>
-        <location filename="../panel/node/node.h" line="116"/>
+        <location filename="../panel/node/node.h" line="121"/>
         <source>Node Editor</source>
         <translation>Node-Graph</translation>
-    </message>
-</context>
-<context>
-    <name>olive::NodeParam</name>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">Wert</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">Nichts</translation>
-    </message>
-    <message>
-        <source>Integer</source>
-        <translation type="vanished">Ganzzahl</translation>
-    </message>
-    <message>
-        <source>Float</source>
-        <translation type="vanished">Fließkommazahl</translation>
-    </message>
-    <message>
-        <source>Rational</source>
-        <translation type="vanished">Bruch</translation>
-    </message>
-    <message>
-        <source>Boolean</source>
-        <translatorcomment>Boolean ginge auch, klingt vielleicht sogar besser...</translatorcomment>
-        <translation type="vanished">Wahrheitswert</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">Farbe</translation>
-    </message>
-    <message>
-        <source>Matrix</source>
-        <translation type="vanished">Matrix</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="vanished">Text</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="vanished">Schriftart</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">Datei</translation>
-    </message>
-    <message>
-        <source>Texture</source>
-        <translation type="vanished">Textur</translation>
-    </message>
-    <message>
-        <source>Samples</source>
-        <translatorcomment>?</translatorcomment>
-        <translation type="vanished">Samples</translation>
-    </message>
-    <message>
-        <source>Footage</source>
-        <translation type="vanished">Bild-/Videomaterial</translation>
-    </message>
-    <message>
-        <source>Vector 2D</source>
-        <translation type="vanished">2D-Vektor</translation>
-    </message>
-    <message>
-        <source>Vector 3D</source>
-        <translation type="vanished">3D-Vektor</translation>
-    </message>
-    <message>
-        <source>Vector 4D</source>
-        <translation type="vanished">4D-Vektor</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Unbekannt</translation>
     </message>
 </context>
 <context>
@@ -3124,14 +2873,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 </context>
 <context>
     <name>olive::NodeParamViewArrayWidget</name>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
-    </message>
-    <message>
-        <source>%1 elements</source>
-        <translation type="vanished">%1 Elemente</translation>
-    </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="55"/>
         <source>%1 element(s)</source>
@@ -3400,7 +3141,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/standardcombos/pixelaspectratiocombobox.h" line="92"/>
         <source>Set Custom Pixel Aspect Ratio</source>
-        <translation>Individuelles Pixel-Seitenverhältnis festlegen</translation>
+        <translation>Individuelles Seitenverhältnis festlegen</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/pixelaspectratiocombobox.h" line="108"/>
@@ -3908,13 +3649,13 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 <context>
     <name>olive::Project</name>
     <message>
-        <location filename="../project/project.cpp" line="52"/>
+        <location filename="../project/project.cpp" line="57"/>
         <source>Root</source>
         <translation>Ursprung</translation>
     </message>
     <message>
-        <location filename="../project/project.cpp" line="178"/>
-        <location filename="../project/project.cpp" line="194"/>
+        <location filename="../project/project.cpp" line="183"/>
+        <location filename="../project/project.cpp" line="199"/>
         <source>(untitled)</source>
         <translation>(Unbenannt)</translation>
     </message>
@@ -3930,10 +3671,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="261"/>
         <source>&amp;Import...</source>
         <translation>&amp;Importieren...</translation>
-    </message>
-    <message>
-        <source>&amp;Project Properties...</source>
-        <translation type="vanished">Projekt-&amp;Einstellungen...</translation>
     </message>
     <message>
         <location filename="../widget/projectexplorer/projectexplorer.cpp" line="271"/>
@@ -4041,10 +3778,6 @@ Soll es wirklich gelöscht werden?</translation>
 <context>
     <name>olive::ProjectLoadTask</name>
     <message>
-        <source>Failed to determine project&apos;s version identifier.</source>
-        <translation type="vanished">Die Versions-Identifikation konnte nicht gefunden werden.</translation>
-    </message>
-    <message>
         <location filename="../task/project/load/load.cpp" line="55"/>
         <source>Failed to parse project version.</source>
         <translation>Die Projekt-Version konnte nicht ausgelesen werden.</translation>
@@ -4087,78 +3820,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../panel/project/project.cpp" line="226"/>
         <source>(none)</source>
         <translation>(leer)</translation>
-    </message>
-</context>
-<context>
-    <name>olive::ProjectPropertiesDialog</name>
-    <message>
-        <source>Project Properties for &apos;%1&apos;</source>
-        <translation type="vanished">Projekt-Einstellungen von &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>OpenColorIO Configuration:</source>
-        <translation type="vanished">Einstellungen für OpenColorIO:</translation>
-    </message>
-    <message>
-        <source>(default)</source>
-        <translation type="vanished">(Standards)</translation>
-    </message>
-    <message>
-        <source>Default Input Color Space:</source>
-        <translation type="vanished">Standard-Farbraum für Eingaben:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Auswählen</translation>
-    </message>
-    <message>
-        <source>Color Management</source>
-        <translation type="vanished">Farbmanagement</translation>
-    </message>
-    <message>
-        <source>Use Default Location</source>
-        <translation type="vanished">Standard-Verzeichnis verwenden</translation>
-    </message>
-    <message>
-        <source>Store Alongside Project</source>
-        <translation type="vanished">Im Pfad des Projekts ablegen</translation>
-    </message>
-    <message>
-        <source>Use Custom Location:</source>
-        <translation type="vanished">Individuelles Verzeichnis verwenden:</translation>
-    </message>
-    <message>
-        <source>Disk Cache Settings</source>
-        <translation type="vanished">Puffer-Einstellungen</translation>
-    </message>
-    <message>
-        <source>&quot;Store alignside project&quot; functionality not implemented yet</source>
-        <translation type="vanished">Das Puffern im Pfad des Projekts wurde noch nicht implementiert</translation>
-    </message>
-    <message>
-        <source>Disk Cache</source>
-        <translation type="vanished">Festplatten-Puffer</translation>
-    </message>
-    <message>
-        <source>OpenColorIO Config Error</source>
-        <translation type="vanished">Problem mit den OpenColorIO-Einstellungen</translation>
-    </message>
-    <message>
-        <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="vanished">Die OpenColorIO-Einstellungen konnten nicht zugewiesen werden: %1</translation>
-    </message>
-    <message>
-        <source>Invalid path</source>
-        <translatorcomment>Unzulässig? Really?</translatorcomment>
-        <translation type="vanished">Unzulässiger Pfad</translation>
-    </message>
-    <message>
-        <source>The cache path is invalid. Please check it and try again.</source>
-        <translation type="vanished">Der Puffer-Dateipfad ist unzulässig. Bitte überprüfen und nochmal versuchen.</translation>
-    </message>
-    <message>
-        <source>Browse for OpenColorIO configuration</source>
-        <translation type="vanished">OpenColorIO-Einstellungen auswählen</translation>
     </message>
 </context>
 <context>
@@ -4258,10 +3919,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="116"/>
         <source>Icon View</source>
         <translation>Symbol-Ansicht</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation type="vanished">Wiederherstellen</translation>
     </message>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="112"/>
@@ -4413,7 +4070,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../task/project/saveotio/saveotio.cpp" line="65"/>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
-        <translation>Die Sequnez &quot;%1&quot; konnte nicht serialisiert werden</translation>
+        <translation>Die Sequenez &quot;%1&quot; konnte nicht serialisiert werden</translation>
     </message>
 </context>
 <context>
@@ -4480,7 +4137,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../project/item/sequence/sequence.h" line="64"/>
         <source>Sequence</source>
-        <translation>Sequnezen</translation>
+        <translation>Sequenz</translation>
     </message>
     <message>
         <location filename="../project/item/sequence/sequence.h" line="79"/>
@@ -4522,26 +4179,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="21"/>
         <source>Video</source>
         <translation>Video</translation>
-    </message>
-    <message>
-        <source>Width:</source>
-        <translation type="vanished">Breite:</translation>
-    </message>
-    <message>
-        <source>Height:</source>
-        <translation type="vanished">Höhe:</translation>
-    </message>
-    <message>
-        <source>Frame Rate:</source>
-        <translation type="vanished">Bildfrequenz:</translation>
-    </message>
-    <message>
-        <source>Pixel Aspect Ratio:</source>
-        <translation type="vanished">Pixel-Seitenverhältnis:</translation>
-    </message>
-    <message>
-        <source>Interlacing:</source>
-        <translation type="vanished">Interlacing:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="33"/>
@@ -4688,7 +4325,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="42"/>
         <source>Solid</source>
-        <translation>Fest</translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <location filename="../node/generator/solid/solid.cpp" line="57"/>
@@ -4953,7 +4590,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="104"/>
         <source>Zoom Tool</source>
-        <translation>Vergrößerungs-Werkzeug</translation>
+        <translation>Zoom-Werkzeug</translation>
     </message>
     <message>
         <location filename="../widget/toolbar/toolbar.cpp" line="105"/>
@@ -5039,7 +4676,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="46"/>
         <source>Auto-Scale</source>
-        <translation>Automatische Skalierung</translation>
+        <translation>Auto-Skalierung</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="47"/>
@@ -5210,13 +4847,6 @@ Soll es wirklich gelöscht werden?</translation>
     </message>
 </context>
 <context>
-    <name>olive::VideoInput</name>
-    <message>
-        <source>Video</source>
-        <translation type="vanished">Video</translation>
-    </message>
-</context>
-<context>
     <name>olive::VideoParamEdit</name>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="39"/>
@@ -5251,7 +4881,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="103"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation>Pixel-Seitenverhältnis:</translation>
+        <translation>Seitenverhältnis:</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="113"/>
@@ -5298,8 +4928,8 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="159"/>
         <source>Still</source>
-        <translatorcomment>statisch</translatorcomment>
-        <translation>unbewegt</translation>
+        <translatorcomment>stehend/unbewegt/statisch</translatorcomment>
+        <translation>Standbild</translation>
     </message>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="160"/>
@@ -5330,13 +4960,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="344"/>
         <source>Default (%1)</source>
         <translation>Standard (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>olive::VideoStreamProperties</name>
-    <message>
-        <source>Interlacing:</source>
-        <translation type="vanished">Interlacing:</translation>
     </message>
 </context>
 <context>
