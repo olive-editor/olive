@@ -572,17 +572,24 @@ NodeValueTable Footage::Value(const QString &output, NodeValueDatabase &value) c
   if (QFileInfo(file).exists()) {
     FootageJob job(decoder_, filename(), ref.type());
 
+    rational length;
+
     if (ref.type() == Stream::kVideo) {
       VideoParams vp = GetVideoParams(ref.index());
 
       // Ensure the colorspace is valid and not empty
       vp.set_colorspace(GetColorspaceToUse(vp));
+      length = Timecode::timestamp_to_time(vp.duration(), vp.time_base());
 
       job.set_video_params(vp);
     } else {
-      job.set_audio_params(GetAudioParams(ref.index()));
+      AudioParams ap = GetAudioParams(ref.index());
+      job.set_audio_params(ap);
       job.set_cache_path(project()->cache_path());
+      length = Timecode::timestamp_to_time(ap.duration(), ap.time_base());
     }
+
+    table.Push(NodeValue::kRational, QVariant::fromValue(length), this, false, QStringLiteral("length"));
 
     table.Push(NodeValue::kFootageJob, QVariant::fromValue(job), this);
   }

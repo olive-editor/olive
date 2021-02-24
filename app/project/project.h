@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "node/project/projectsettings/projectsettings.h"
+#include "node/output/viewer/viewer.h"
 #include "render/colormanager.h"
 #include "project/item/folder/folder.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
@@ -72,6 +73,11 @@ public:
 
   QString cache_path() const;
 
+  ViewerOutput* footage_viewer()
+  {
+    return footage_viewer_;
+  }
+
 signals:
   void NameChanged();
 
@@ -85,6 +91,8 @@ private:
   ColorManager* color_manager_;
 
   ProjectSettingsNode* settings_;
+
+  ViewerOutput* footage_viewer_;
 
   bool is_modified_;
 

@@ -46,30 +46,44 @@ Footage *FootageViewerWidget::GetFootage() const
 
 void FootageViewerWidget::SetFootage(Footage *footage)
 {
+  if (footage && !footage->project()) {
+    qCritical() << "Failed to set footage in footage viewer - footage had no project";
+    return;
+  }
+
   if (footage_) {
     cached_timestamps_.insert(footage_, GetTimestamp());
 
+    ViewerOutput* old_viewer = footage_->project()->footage_viewer();
+
     ConnectViewerNode(nullptr);
 
-    Node::DisconnectEdge(sequence_.GetConnectedOutput(ViewerOutput::kTextureInput), NodeInput(&sequence_, ViewerOutput::kTextureInput));
-    Node::DisconnectEdge(sequence_.GetConnectedOutput(ViewerOutput::kSamplesInput), NodeInput(&sequence_, ViewerOutput::kSamplesInput));
+    if (old_viewer->IsInputConnected(ViewerOutput::kTextureInput)) {
+      Node::DisconnectEdge(old_viewer->GetConnectedOutput(ViewerOutput::kTextureInput), NodeInput(old_viewer, ViewerOutput::kTextureInput));
+    }
+
+    if (old_viewer->IsInputConnected(ViewerOutput::kSamplesInput)) {
+      Node::DisconnectEdge(old_viewer->GetConnectedOutput(ViewerOutput::kSamplesInput), NodeInput(old_viewer, ViewerOutput::kSamplesInput));
+    }
   }
 
   footage_ = footage;
 
   if (footage_) {
+    ViewerOutput* new_viewer = footage_->project()->footage_viewer();
+
     // Update sequence media name
-    sequence_.SetLabel(footage_->GetLabel());
+    new_viewer->SetLabel(footage_->GetLabel());
 
     // Reset parameters and then attempt to set from footage
-    sequence_.set_default_parameters();
-    sequence_.set_parameters_from_footage({footage_});
+    new_viewer->set_default_parameters();
+    new_viewer->set_parameters_from_footage({footage_});
 
     // Try to connect video stream
-    TryConnectingType(footage, Stream::kVideo);
-    TryConnectingType(footage, Stream::kAudio);
+    TryConnectingType(new_viewer, footage, Stream::kVideo);
+    TryConnectingType(new_viewer, footage, Stream::kAudio);
 
-    ConnectViewerNode(&sequence_, footage_->project()->color_manager());
+    ConnectViewerNode(new_viewer);
 
     SetTimestamp(cached_timestamps_.value(footage_, 0));
   } else {
@@ -124,7 +138,7 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   }
 }
 
-void FootageViewerWidget::TryConnectingType(Footage *footage, Stream::Type type)
+void FootageViewerWidget::TryConnectingType(ViewerOutput* viewer, Footage *footage, Stream::Type type)
 {
   int index = -1;
 
@@ -165,7 +179,7 @@ void FootageViewerWidget::TryConnectingType(Footage *footage, Stream::Type type)
       input_param = ViewerOutput::kSamplesInput;
     }
 
-    Node::ConnectEdge(NodeOutput(footage, s), NodeInput(&sequence_, input_param));
+    Node::ConnectEdge(NodeOutput(footage, s), NodeInput(viewer, input_param));
   }
 }
 

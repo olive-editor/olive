@@ -43,11 +43,9 @@ protected:
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
-  void TryConnectingType(Footage* footage, Stream::Type type);
+  void TryConnectingType(ViewerOutput *viewer, Footage* footage, Stream::Type type);
 
   Footage* footage_;
-
-  Sequence sequence_;
 
   QHash<Footage*, int64_t> cached_timestamps_;
 

@@ -46,6 +46,11 @@ Project::Project() :
   settings_->setParent(this);
   AddDefaultNode(settings_);
 
+  // Viewer node for connecting with the footage viewer
+  footage_viewer_ = new ViewerOutput();
+  footage_viewer_->setParent(this);
+  AddDefaultNode(footage_viewer_);
+
   // Folder root for project
   root_ = new Folder();
   root_->setParent(this);
