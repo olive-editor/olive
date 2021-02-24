@@ -518,12 +518,12 @@ Länge: %4</translation>
     <message>
         <location filename="../dialog/about/about.cpp" line="51"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation>Olive ist ein nicht-linearer Videoeditor. Dieses Programm ist Freie Software und wird von der GNU GPL-Lizenz geschützt.</translation>
+        <translation>Olive ist ein nicht-linearer Videoeditor. Das Programm ist Freie Software und wird von der GNU GPL-Lizenz beschützt.</translation>
     </message>
     <message>
         <location filename="../dialog/about/about.cpp" line="53"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation>Der Quellcode von Olive kann über die Internet-Seite des Projekts heruntergeladen werden.</translation>
+        <translation>Der Quellcode von Olive steht auf der Webseite des Projekts zur Verfügung.</translation>
     </message>
 </context>
 <context>
@@ -2511,6 +2511,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="676"/>
         <source>Slip Tool</source>
+        <translatorcomment>od. Verschiebe-Werkzeug ...</translatorcomment>
         <translation>Rutsch-Werkzeug</translation>
     </message>
     <message>
@@ -2867,7 +2868,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/menu/menushared.cpp" line="325"/>
         <source>Drop Frame</source>
-        <translation>Einzelne Bilder überspringen</translation>
+        <translation>Überspringen von Einzelbildern zulassen</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="326"/>
@@ -3774,7 +3775,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="72"/>
         <source>Auto-Scroll Method:</source>
-        <translation>Auto-Scroll:</translation>
+        <translation>Auto-Scrollen:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="76"/>
@@ -3909,7 +3910,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../project/project.cpp" line="52"/>
         <source>Root</source>
-        <translation>Ausgangspunkt</translation>
+        <translation>Ursprung</translation>
     </message>
     <message>
         <location filename="../project/project.cpp" line="178"/>
@@ -4903,7 +4904,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../panel/tool/tool.cpp" line="52"/>
         <source>Tools</source>
-        <translatorcomment>alternativ Werkzeuge, das ist aber zu lang für das Panel...</translatorcomment>
+        <translatorcomment>`Werkzeuge` wäre besser, ist aber zu lang für das Panel</translatorcomment>
         <translation>Tools</translation>
     </message>
 </context>
@@ -5255,6 +5256,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/videoparamedit/videoparamedit.cpp" line="113"/>
         <source>Interlacing:</source>
+        <translatorcomment>alternativ `Zeilensprungverfahren`</translatorcomment>
         <translation>Interlacing:</translation>
     </message>
     <message>
