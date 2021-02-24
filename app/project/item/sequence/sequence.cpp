@@ -228,16 +228,18 @@ void Sequence::Retranslate()
 
 rational Sequence::GetCustomLength(Track::Type type) const
 {
-  switch (type) {
-  case Track::kVideo:
-    return track_lists_.at(Track::kVideo)->GetTotalLength();
-  case Track::kAudio:
-    return track_lists_.at(Track::kAudio)->GetTotalLength();
-  case Track::kSubtitle:
-    return track_lists_.at(Track::kSubtitle)->GetTotalLength();
-  case Track::kNone:
-  case Track::kCount:
-    break;
+  if (!track_lists_.isEmpty()) {
+    switch (type) {
+    case Track::kVideo:
+      return track_lists_.at(Track::kVideo)->GetTotalLength();
+    case Track::kAudio:
+      return track_lists_.at(Track::kAudio)->GetTotalLength();
+    case Track::kSubtitle:
+      return track_lists_.at(Track::kSubtitle)->GetTotalLength();
+    case Track::kNone:
+    case Track::kCount:
+      break;
+    }
   }
 
   return rational();
