@@ -2383,32 +2383,32 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../widget/menu/menushared.cpp" line="292"/>
         <source>Set In Point</source>
-        <translation type="unfinished">设置时间的起始标记</translation>
+        <translation type="unfinished">设置入点</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="293"/>
         <source>Set Out Point</source>
-        <translation type="unfinished">设置时间的结束标记</translation>
+        <translation type="unfinished">设置出点</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="294"/>
         <source>Reset In Point</source>
-        <translation type="unfinished">重置时间的起始标记</translation>
+        <translation type="unfinished">重置入点</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="295"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished">重置时间的结束标记</translation>
+        <translation type="unfinished">重置出点</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="296"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">清除时间标记</translation>
+        <translation type="unfinished">清除入点/出点</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="299"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished">添加默认的转场效果</translation>
+        <translation type="unfinished">添加默认转场效果</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="300"/>
