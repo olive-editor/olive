@@ -488,6 +488,7 @@ class BlockSplitCommand : public UndoCommand {
 public:
   BlockSplitCommand(Block* block, rational point) :
     block_(block),
+    new_block_(nullptr),
     point_(point),
     reconnect_tree_command_(nullptr)
   {
@@ -508,7 +509,7 @@ public:
    */
   Block* new_block()
   {
-    return static_cast<Block*>(added_nodes_.first());
+    return new_block_;
   }
 
   virtual void redo() override
@@ -517,47 +518,9 @@ public:
 
     Q_ASSERT(point_ > block_->in() && point_ < block_->out());
 
-    // Determine if we're copying the dependencies as part of this command
-    bool copy_dependencies_too = Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool();
-
-    // Copy nodes if we haven't already done it
-    if (added_nodes_.isEmpty()) {
-      if (copy_dependencies_too) {
-        src_nodes_.append(block_);
-        src_nodes_.append(block_->GetDependencies());
-
-        added_nodes_.resize(src_nodes_.size());
-        for (int i=0; i<added_nodes_.size(); i++) {
-
-          // Copy dependency
-          Node* copy = src_nodes_[i]->copy();
-
-          // Copy inputs
-          Node::CopyInputs(src_nodes_[i], copy, false);
-
-          // Keep in array
-          added_nodes_[i] = copy;
-
-        }
-      } else {
-        // Just copy the block itself
-        added_nodes_.append(block_->copy());
-      }
-    }
-
-    // Add all new nodes to the graph
-    foreach (Node* n, added_nodes_) {
-      n->setParent(block_->parent());
-    }
-
     if (!reconnect_tree_command_) {
-      if (copy_dependencies_too) {
-        // Create equivalent connections among our copied dependency tree
-        reconnect_tree_command_ = new MultiUndoCommand();
-        Node::CopyDependencyGraph(src_nodes_, added_nodes_, static_cast<MultiUndoCommand*>(reconnect_tree_command_));
-      } else {
-        reconnect_tree_command_ = new NodeCopyInputsCommand(block_, new_block(), true);
-      }
+      reconnect_tree_command_ = new MultiUndoCommand();
+      new_block_ = static_cast<Block*>(Node::CopyNodeInGraph(block_, reconnect_tree_command_));
     }
 
     reconnect_tree_command_->redo();
@@ -612,28 +575,19 @@ public:
     // If we ran a reconnect command, disconnect now
     reconnect_tree_command_->undo();
 
-    foreach (Node* n, added_nodes_) {
-      // Remove nodes
-      n->setParent(&memory_manager_);
-    }
-
     track->EndOperation();
   }
 
 private:
   Block* block_;
+  Block* new_block_;
 
   rational old_length_;
   rational point_;
 
-  QObject memory_manager_;
-
-  UndoCommand* reconnect_tree_command_;
+  MultiUndoCommand* reconnect_tree_command_;
 
   NodeInput moved_transition_;
-
-  QVector<Node*> src_nodes_;
-  QVector<Node*> added_nodes_;
 
 };
 

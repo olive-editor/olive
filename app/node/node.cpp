@@ -1105,6 +1105,71 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
   }
 }
 
+Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command)
+{
+  // Make a new node of the same type
+  Node* copy = node->copy();
+
+  // Add to map
+  created.insert(node, copy);
+
+  // Copy values to the clone
+  CopyInputs(node, copy, false);
+
+  // Add it to the same graph
+  command->add_child(new NodeAddCommand(node->parent(), copy));
+
+  // Go through input connections and copy if non-item and connect if item
+  for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
+    NodeInput input = it->first;
+    NodeOutput output = it->second;
+    Node* connected = output.node();
+    Node* connected_copy;
+
+    if (dynamic_cast<Item*>(connected)) {
+      // This is an item and we avoid copying those and just connect to them directly
+      connected_copy = connected;
+    } else {
+      // Non-item, we want to clone this too
+      connected_copy = created.value(connected, nullptr);
+
+      if (!connected_copy) {
+        connected_copy = CopyNodeAndDependencyGraphMinusItemsInternal(created, connected, command);
+      }
+    }
+
+    command->add_child(new NodeEdgeAddCommand(NodeOutput(connected_copy, output.output()),
+                                              NodeInput(copy, input.input(), input.element())));
+  }
+
+  return copy;
+}
+
+Node *Node::CopyNodeAndDependencyGraphMinusItems(const Node *node, MultiUndoCommand *command)
+{
+  QMap<const Node*, Node*> created;
+
+  return CopyNodeAndDependencyGraphMinusItemsInternal(created, node, command);
+}
+
+Node *Node::CopyNodeInGraph(const Node *node, MultiUndoCommand *command)
+{
+  Node* copy;
+
+  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+    copy = Node::CopyNodeAndDependencyGraphMinusItems(node, command);
+  } else {
+    copy = node->copy();
+
+    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()),
+                                          copy));
+
+    command->add_child(new NodeCopyInputsCommand(node, copy, true));
+  }
+
+  return copy;
+}
+
 void Node::SendInvalidateCache(const TimeRange &range, qint64 job_time)
 {
   for (const OutputConnection& conn : output_connections_) {
@@ -1376,7 +1441,7 @@ void Node::Hash(const QString &output, QCryptographicHash &hash, const rational&
   }
 }
 
-void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
+void Node::CopyInputs(const Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
@@ -1388,7 +1453,7 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
   destination->SetLabel(source->GetLabel());
 }
 
-void Node::CopyInput(Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
+void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
 {
   Q_ASSERT(src->id() == dst->id());
 
@@ -1419,7 +1484,7 @@ void Node::CopyInput(Node *src, Node *dst, const QString &input, bool include_co
   }
 }
 
-void Node::CopyValuesOfElement(Node *src, Node *dst, const QString &input, int src_element, int dst_element)
+void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element)
 {
   if (dst_element >= dst->GetInternalInputArraySize(input)) {
     qDebug() << "Ignored destination element that was out of array bounds";

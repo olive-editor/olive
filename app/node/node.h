@@ -640,12 +640,12 @@ public:
    *
    * Nodes must be of the same types (i.e. have the same ID)
    */
-  static void CopyInputs(Node* source, Node* destination, bool include_connections = true);
+  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true);
 
-  static void CopyInput(Node* src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays);
+  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays);
 
-  static void CopyValuesOfElement(Node* src, Node* dst, const QString& input, int src_element, int dst_element);
-  static void CopyValuesOfElement(Node* src, Node* dst, const QString& input, int element)
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element);
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element)
   {
     return CopyValuesOfElement(src, dst, input, element, element);
   }
@@ -655,6 +655,10 @@ public:
    */
   static QVector<Node*> CopyDependencyGraph(const QVector<Node*>& nodes, MultiUndoCommand *command);
   static void CopyDependencyGraph(const QVector<Node*>& src, const QVector<Node*>& dst, MultiUndoCommand *command);
+
+  static Node* CopyNodeAndDependencyGraphMinusItems(const Node* node, MultiUndoCommand* command);
+
+  static Node* CopyNodeInGraph(const Node* node, MultiUndoCommand* command);
 
   /**
    * @brief Return whether this Node can be deleted or not
@@ -1047,6 +1051,8 @@ private:
   void ReportInvalidInput(const char* attempted_action, const QString &id) const;
 
   void ArrayResizeInternal(const QString& id, int size);
+
+  static Node *CopyNodeAndDependencyGraphMinusItemsInternal(QMap<const Node*, Node*>& created, const Node *node, MultiUndoCommand *command);
 
   /**
    * @brief Immediates aren't deleted, so the actual array size may be larger than ArraySize()

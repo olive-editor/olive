@@ -112,7 +112,7 @@ Project *NodeAddCommand::GetRelevantProject() const
   return dynamic_cast<Project*>(graph_);
 }
 
-NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections) :
+NodeCopyInputsCommand::NodeCopyInputsCommand(const Node *src, Node *dest, bool include_connections) :
   src_(src),
   dest_(dest),
   include_connections_(include_connections)

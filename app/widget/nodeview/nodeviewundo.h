@@ -203,7 +203,7 @@ private:
 
 class NodeCopyInputsCommand : public UndoCommand {
 public:
-  NodeCopyInputsCommand(Node* src,
+  NodeCopyInputsCommand(const Node* src,
                         Node* dest,
                         bool include_connections);
 
@@ -214,7 +214,7 @@ public:
   virtual Project* GetRelevantProject() const override {return nullptr;}
 
 private:
-  Node* src_;
+  const Node* src_;
 
   Node* dest_;
 
