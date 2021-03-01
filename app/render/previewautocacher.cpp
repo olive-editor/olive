@@ -305,7 +305,7 @@ void PreviewAutoCacher::RemoveNode(Node *node)
   Node* copy = copy_map_.take(node);
 
   // Remove from created list
-  created_nodes_.removeOne(node);
+  created_nodes_.removeOne(copy);
 
   // Delete it
   delete copy;
