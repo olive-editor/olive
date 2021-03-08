@@ -1,0 +1,10 @@
+*
+!docs/requirements.txt
+
+#.appveyor/
+#.travis/
+#.vscode/
+#build*/
+#CMakeFiles/
+#debug/
+#release/
