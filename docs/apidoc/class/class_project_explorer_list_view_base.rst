@@ -1,0 +1,4 @@
+Class ProjectExplorerListViewBase
+=================================
+
+.. doxygenclass:: ProjectExplorerListViewBase

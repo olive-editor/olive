@@ -1,0 +1,4 @@
+Class Timecode
+==============
+
+.. doxygenclass:: Timecode

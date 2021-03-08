@@ -1,0 +1,4 @@
+Class NodeParamViewItemTitleBar
+===============================
+
+.. doxygenclass:: NodeParamViewItemTitleBar

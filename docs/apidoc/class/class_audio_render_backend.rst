@@ -1,0 +1,4 @@
+Class AudioRenderBackend
+========================
+
+.. doxygenclass:: AudioRenderBackend

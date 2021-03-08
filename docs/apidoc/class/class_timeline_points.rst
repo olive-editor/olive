@@ -1,0 +1,4 @@
+Class TimelinePoints
+====================
+
+.. doxygenclass:: TimelinePoints

@@ -1,0 +1,4 @@
+Class UndoStack
+===============
+
+.. doxygenclass:: UndoStack

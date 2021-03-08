@@ -1,0 +1,4 @@
+Class BlockSplitPreservingLinksCommand
+======================================
+
+.. doxygenclass:: BlockSplitPreservingLinksCommand

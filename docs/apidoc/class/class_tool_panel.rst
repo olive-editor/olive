@@ -1,0 +1,4 @@
+Class ToolPanel
+===============
+
+.. doxygenclass:: ToolPanel

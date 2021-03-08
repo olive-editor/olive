@@ -1,0 +1,4 @@
+Class FunctionTimer
+===================
+
+.. doxygenclass:: FunctionTimer

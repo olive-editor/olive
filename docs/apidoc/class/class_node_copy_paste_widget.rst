@@ -1,0 +1,4 @@
+Class NodeCopyPasteWidget
+=========================
+
+.. doxygenclass:: NodeCopyPasteWidget

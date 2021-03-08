@@ -1,0 +1,4 @@
+Class NodeCopyInputsCommand
+===========================
+
+.. doxygenclass:: NodeCopyInputsCommand

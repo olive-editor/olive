@@ -1,0 +1,4 @@
+Class ColorSwatchWidget
+=======================
+
+.. doxygenclass:: ColorSwatchWidget

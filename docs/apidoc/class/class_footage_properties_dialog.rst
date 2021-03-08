@@ -1,0 +1,4 @@
+Class FootagePropertiesDialog
+=============================
+
+.. doxygenclass:: FootagePropertiesDialog

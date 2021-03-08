@@ -1,0 +1,4 @@
+Class StyleDescriptor
+=====================
+
+.. doxygenclass:: StyleDescriptor

@@ -1,0 +1,4 @@
+Class ColorProcessor
+====================
+
+.. doxygenclass:: ColorProcessor

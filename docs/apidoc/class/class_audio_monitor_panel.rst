@@ -1,0 +1,4 @@
+Class AudioMonitorPanel
+=======================
+
+.. doxygenclass:: AudioMonitorPanel

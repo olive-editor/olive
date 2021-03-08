@@ -1,0 +1,4 @@
+Class KeySequenceEditor
+=======================
+
+.. doxygenclass:: KeySequenceEditor

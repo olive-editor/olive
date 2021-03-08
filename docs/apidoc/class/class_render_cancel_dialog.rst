@@ -1,0 +1,4 @@
+Class RenderCancelDialog
+========================
+
+.. doxygenclass:: RenderCancelDialog

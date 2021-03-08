@@ -1,0 +1,4 @@
+Class OpenGLColorProcessor
+==========================
+
+.. doxygenclass:: OpenGLColorProcessor

@@ -1,0 +1,4 @@
+Class NodeParamSetKeyframingCommand
+===================================
+
+.. doxygenclass:: NodeParamSetKeyframingCommand

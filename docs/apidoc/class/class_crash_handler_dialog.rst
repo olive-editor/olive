@@ -1,0 +1,4 @@
+Class CrashHandlerDialog
+========================
+
+.. doxygenclass:: CrashHandlerDialog

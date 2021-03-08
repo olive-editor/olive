@@ -1,0 +1,4 @@
+Class ClipBlock
+===============
+
+.. doxygenclass:: ClipBlock

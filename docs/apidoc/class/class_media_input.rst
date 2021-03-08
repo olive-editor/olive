@@ -1,0 +1,4 @@
+Class MediaInput
+================
+
+.. doxygenclass:: MediaInput

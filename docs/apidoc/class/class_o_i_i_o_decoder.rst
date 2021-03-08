@@ -1,0 +1,4 @@
+Class OIIODecoder
+=================
+
+.. doxygenclass:: OIIODecoder

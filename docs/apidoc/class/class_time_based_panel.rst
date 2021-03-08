@@ -1,0 +1,4 @@
+Class TimeBasedPanel
+====================
+
+.. doxygenclass:: TimeBasedPanel

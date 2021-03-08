@@ -1,0 +1,4 @@
+Class OpenGLRenderFunctions
+===========================
+
+.. doxygenclass:: OpenGLRenderFunctions

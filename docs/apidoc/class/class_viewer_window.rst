@@ -1,0 +1,4 @@
+Class ViewerWindow
+==================
+
+.. doxygenclass:: ViewerWindow

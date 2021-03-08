@@ -1,0 +1,4 @@
+Class FootageViewerPanel
+========================
+
+.. doxygenclass:: FootageViewerPanel

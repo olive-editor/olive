@@ -1,0 +1,4 @@
+Class PlaybackControls
+======================
+
+.. doxygenclass:: PlaybackControls

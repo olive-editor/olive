@@ -1,0 +1,4 @@
+Class NodeParamViewWidgetBridge
+===============================
+
+.. doxygenclass:: NodeParamViewWidgetBridge

@@ -1,0 +1,4 @@
+Class ViewerSizer
+=================
+
+.. doxygenclass:: ViewerSizer

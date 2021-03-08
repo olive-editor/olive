@@ -1,0 +1,4 @@
+Class Bezier
+============
+
+.. doxygenclass:: Bezier

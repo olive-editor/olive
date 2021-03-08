@@ -1,0 +1,4 @@
+Class ProjectPanel
+==================
+
+.. doxygenclass:: ProjectPanel

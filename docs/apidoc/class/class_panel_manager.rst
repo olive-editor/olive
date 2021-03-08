@@ -1,0 +1,4 @@
+Class PanelManager
+==================
+
+.. doxygenclass:: PanelManager

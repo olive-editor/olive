@@ -1,0 +1,4 @@
+Class Config
+============
+
+.. doxygenclass:: Config

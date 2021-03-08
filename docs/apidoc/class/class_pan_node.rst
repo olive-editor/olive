@@ -1,0 +1,4 @@
+Class PanNode
+=============
+
+.. doxygenclass:: PanNode

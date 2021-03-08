@@ -1,0 +1,4 @@
+Class ExportAdvancedVideoDialog
+===============================
+
+.. doxygenclass:: ExportAdvancedVideoDialog

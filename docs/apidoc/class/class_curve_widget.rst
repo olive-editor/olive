@@ -1,0 +1,4 @@
+Class CurveWidget
+=================
+
+.. doxygenclass:: CurveWidget

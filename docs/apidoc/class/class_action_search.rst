@@ -1,0 +1,4 @@
+Class ActionSearch
+==================
+
+.. doxygenclass:: ActionSearch

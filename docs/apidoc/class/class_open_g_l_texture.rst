@@ -1,0 +1,4 @@
+Class OpenGLTexture
+===================
+
+.. doxygenclass:: OpenGLTexture

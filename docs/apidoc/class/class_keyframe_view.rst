@@ -1,0 +1,4 @@
+Class KeyframeView
+==================
+
+.. doxygenclass:: KeyframeView

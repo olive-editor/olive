@@ -1,0 +1,4 @@
+Class VideoInput
+================
+
+.. doxygenclass:: VideoInput

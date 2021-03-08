@@ -1,0 +1,4 @@
+Class PixelSamplerWidget
+========================
+
+.. doxygenclass:: PixelSamplerWidget

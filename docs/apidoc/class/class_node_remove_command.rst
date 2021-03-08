@@ -1,0 +1,4 @@
+Class NodeRemoveCommand
+=======================
+
+.. doxygenclass:: NodeRemoveCommand

@@ -1,0 +1,4 @@
+Class SpeedDurationDialog
+=========================
+
+.. doxygenclass:: SpeedDurationDialog

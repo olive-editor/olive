@@ -1,0 +1,4 @@
+Class ProjectExplorerNavigation
+===============================
+
+.. doxygenclass:: ProjectExplorerNavigation

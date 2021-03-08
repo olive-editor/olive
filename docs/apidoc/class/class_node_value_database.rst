@@ -1,0 +1,4 @@
+Class NodeValueDatabase
+=======================
+
+.. doxygenclass:: NodeValueDatabase

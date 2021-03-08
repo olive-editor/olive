@@ -1,0 +1,4 @@
+Class ToolbarButton
+===================
+
+.. doxygenclass:: ToolbarButton

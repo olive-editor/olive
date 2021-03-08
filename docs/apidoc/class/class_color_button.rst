@@ -1,0 +1,4 @@
+Class ColorButton
+=================
+
+.. doxygenclass:: ColorButton

@@ -1,0 +1,4 @@
+Class PixelSamplerPanel
+=======================
+
+.. doxygenclass:: PixelSamplerPanel

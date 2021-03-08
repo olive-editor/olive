@@ -1,0 +1,4 @@
+Class ColorValuesWidget
+=======================
+
+.. doxygenclass:: ColorValuesWidget

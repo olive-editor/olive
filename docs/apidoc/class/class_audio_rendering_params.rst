@@ -1,0 +1,4 @@
+Class AudioRenderingParams
+==========================
+
+.. doxygenclass:: AudioRenderingParams

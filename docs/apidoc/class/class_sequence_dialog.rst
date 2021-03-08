@@ -1,0 +1,4 @@
+Class SequenceDialog
+====================
+
+.. doxygenclass:: SequenceDialog

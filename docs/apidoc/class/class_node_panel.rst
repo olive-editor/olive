@@ -1,0 +1,4 @@
+Class NodePanel
+===============
+
+.. doxygenclass:: NodePanel

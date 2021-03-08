@@ -1,0 +1,4 @@
+Class Decoder
+=============
+
+.. doxygenclass:: Decoder

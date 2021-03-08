@@ -1,0 +1,4 @@
+Class IntegerSlider
+===================
+
+.. doxygenclass:: IntegerSlider

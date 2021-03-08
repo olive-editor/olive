@@ -1,0 +1,4 @@
+Class TimeBasedWidget
+=====================
+
+.. doxygenclass:: TimeBasedWidget

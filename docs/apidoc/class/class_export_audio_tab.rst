@@ -1,0 +1,4 @@
+Class ExportAudioTab
+====================
+
+.. doxygenclass:: ExportAudioTab

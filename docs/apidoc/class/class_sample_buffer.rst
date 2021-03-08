@@ -1,0 +1,4 @@
+Class SampleBuffer
+==================
+
+.. doxygenclass:: SampleBuffer

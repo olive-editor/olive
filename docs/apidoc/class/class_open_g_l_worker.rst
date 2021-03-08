@@ -1,0 +1,4 @@
+Class OpenGLWorker
+==================
+
+.. doxygenclass:: OpenGLWorker

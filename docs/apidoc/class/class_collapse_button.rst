@@ -1,0 +1,4 @@
+Class CollapseButton
+====================
+
+.. doxygenclass:: CollapseButton

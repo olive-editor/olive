@@ -1,0 +1,4 @@
+Class ProjectLoadManager
+========================
+
+.. doxygenclass:: ProjectLoadManager

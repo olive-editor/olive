@@ -1,0 +1,4 @@
+Class ManagedColor
+==================
+
+.. doxygenclass:: ManagedColor

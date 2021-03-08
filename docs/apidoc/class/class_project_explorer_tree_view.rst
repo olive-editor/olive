@@ -1,0 +1,4 @@
+Class ProjectExplorerTreeView
+=============================
+
+.. doxygenclass:: ProjectExplorerTreeView

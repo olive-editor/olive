@@ -1,0 +1,4 @@
+Class TimelineRippleDeleteGapsAtRegionsCommand
+==============================================
+
+.. doxygenclass:: TimelineRippleDeleteGapsAtRegionsCommand

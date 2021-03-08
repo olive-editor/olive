@@ -1,0 +1,4 @@
+Class PreferencesKeyboardTab
+============================
+
+.. doxygenclass:: PreferencesKeyboardTab

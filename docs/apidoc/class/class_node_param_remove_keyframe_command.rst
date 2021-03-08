@@ -1,0 +1,4 @@
+Class NodeParamRemoveKeyframeCommand
+====================================
+
+.. doxygenclass:: NodeParamRemoveKeyframeCommand

@@ -1,0 +1,4 @@
+Class DragButton
+================
+
+.. doxygenclass:: DragButton

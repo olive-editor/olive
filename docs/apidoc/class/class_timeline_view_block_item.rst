@@ -1,0 +1,4 @@
+Class TimelineViewBlockItem
+===========================
+
+.. doxygenclass:: TimelineViewBlockItem

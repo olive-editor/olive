@@ -1,0 +1,4 @@
+Class AudioRenderWorker
+=======================
+
+.. doxygenclass:: AudioRenderWorker

@@ -1,0 +1,4 @@
+Class OpenGLProxy
+=================
+
+.. doxygenclass:: OpenGLProxy

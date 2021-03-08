@@ -1,0 +1,4 @@
+Class WorkareaSetEnabledCommand
+===============================
+
+.. doxygenclass:: WorkareaSetEnabledCommand

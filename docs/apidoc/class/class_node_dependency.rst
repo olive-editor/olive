@@ -1,0 +1,4 @@
+Class NodeDependency
+====================
+
+.. doxygenclass:: NodeDependency

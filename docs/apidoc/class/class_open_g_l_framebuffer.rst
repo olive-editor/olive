@@ -1,0 +1,4 @@
+Class OpenGLFramebuffer
+=======================
+
+.. doxygenclass:: OpenGLFramebuffer

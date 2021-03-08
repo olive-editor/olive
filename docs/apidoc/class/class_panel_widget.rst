@@ -1,0 +1,4 @@
+Class PanelWidget
+=================
+
+.. doxygenclass:: PanelWidget

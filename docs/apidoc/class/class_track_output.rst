@@ -1,0 +1,4 @@
+Class TrackOutput
+=================
+
+.. doxygenclass:: TrackOutput

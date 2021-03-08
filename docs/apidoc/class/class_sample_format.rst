@@ -1,0 +1,4 @@
+Class SampleFormat
+==================
+
+.. doxygenclass:: SampleFormat

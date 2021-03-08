@@ -1,0 +1,4 @@
+Class ThreadedObject
+====================
+
+.. doxygenclass:: ThreadedObject

@@ -1,0 +1,4 @@
+Class TimeRuler
+===============
+
+.. doxygenclass:: TimeRuler

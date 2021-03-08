@@ -1,0 +1,4 @@
+Class AudioInput
+================
+
+.. doxygenclass:: AudioInput

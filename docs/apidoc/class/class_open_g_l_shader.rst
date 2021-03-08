@@ -1,0 +1,4 @@
+Class OpenGLShader
+==================
+
+.. doxygenclass:: OpenGLShader

@@ -1,0 +1,4 @@
+Class TaskView
+==============
+
+.. doxygenclass:: TaskView

@@ -1,0 +1,4 @@
+Class SliderBase
+================
+
+.. doxygenclass:: SliderBase

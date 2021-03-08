@@ -1,0 +1,4 @@
+Class ClickableLabel
+====================
+
+.. doxygenclass:: ClickableLabel

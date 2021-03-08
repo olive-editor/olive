@@ -1,0 +1,4 @@
+Class TrackView
+===============
+
+.. doxygenclass:: TrackView

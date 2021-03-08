@@ -1,0 +1,4 @@
+Class BlockLinkCommand
+======================
+
+.. doxygenclass:: BlockLinkCommand

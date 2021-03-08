@@ -1,0 +1,4 @@
+Class PreferencesAudioTab
+=========================
+
+.. doxygenclass:: PreferencesAudioTab

@@ -1,0 +1,4 @@
+Class FFmpegFramePool
+=====================
+
+.. doxygenclass:: FFmpegFramePool

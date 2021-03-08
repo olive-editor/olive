@@ -1,0 +1,4 @@
+Class Tool
+==========
+
+.. doxygenclass:: Tool

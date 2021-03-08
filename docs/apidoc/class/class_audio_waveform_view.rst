@@ -1,0 +1,4 @@
+Class AudioWaveformView
+=======================
+
+.. doxygenclass:: AudioWaveformView

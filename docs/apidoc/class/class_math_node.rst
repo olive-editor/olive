@@ -1,0 +1,4 @@
+Class MathNode
+==============
+
+.. doxygenclass:: MathNode

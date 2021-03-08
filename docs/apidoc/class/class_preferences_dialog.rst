@@ -1,0 +1,4 @@
+Class PreferencesDialog
+=======================
+
+.. doxygenclass:: PreferencesDialog

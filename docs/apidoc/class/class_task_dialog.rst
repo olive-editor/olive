@@ -1,0 +1,4 @@
+Class TaskDialog
+================
+
+.. doxygenclass:: TaskDialog

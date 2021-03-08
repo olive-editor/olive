@@ -1,0 +1,4 @@
+Class NodeOutput
+================
+
+.. doxygenclass:: NodeOutput

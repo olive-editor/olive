@@ -1,0 +1,4 @@
+Class TimeInput
+===============
+
+.. doxygenclass:: TimeInput

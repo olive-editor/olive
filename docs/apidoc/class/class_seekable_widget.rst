@@ -1,0 +1,4 @@
+Class SeekableWidget
+====================
+
+.. doxygenclass:: SeekableWidget

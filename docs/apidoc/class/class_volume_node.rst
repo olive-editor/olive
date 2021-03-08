@@ -1,0 +1,4 @@
+Class VolumeNode
+================
+
+.. doxygenclass:: VolumeNode

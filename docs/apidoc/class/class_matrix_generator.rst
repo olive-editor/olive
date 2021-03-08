@@ -1,0 +1,4 @@
+Class MatrixGenerator
+=====================
+
+.. doxygenclass:: MatrixGenerator

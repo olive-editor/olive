@@ -1,0 +1,4 @@
+Class CurveView
+===============
+
+.. doxygenclass:: CurveView

@@ -1,0 +1,4 @@
+Class NodeViewScene
+===================
+
+.. doxygenclass:: NodeViewScene

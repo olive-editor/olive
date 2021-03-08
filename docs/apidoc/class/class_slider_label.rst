@@ -1,0 +1,4 @@
+Class SliderLabel
+=================
+
+.. doxygenclass:: SliderLabel

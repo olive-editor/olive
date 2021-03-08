@@ -1,0 +1,4 @@
+Class BlockEnableDisableCommand
+===============================
+
+.. doxygenclass:: BlockEnableDisableCommand

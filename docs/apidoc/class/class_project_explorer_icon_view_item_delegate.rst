@@ -1,0 +1,4 @@
+Class ProjectExplorerIconViewItemDelegate
+=========================================
+
+.. doxygenclass:: ProjectExplorerIconViewItemDelegate

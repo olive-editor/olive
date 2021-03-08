@@ -1,0 +1,4 @@
+Class WaveformScope
+===================
+
+.. doxygenclass:: WaveformScope

@@ -1,0 +1,4 @@
+Class ColorValuesTab
+====================
+
+.. doxygenclass:: ColorValuesTab

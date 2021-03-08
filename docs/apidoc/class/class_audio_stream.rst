@@ -1,0 +1,4 @@
+Class AudioStream
+=================
+
+.. doxygenclass:: AudioStream

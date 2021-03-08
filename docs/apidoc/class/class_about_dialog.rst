@@ -1,0 +1,4 @@
+Class AboutDialog
+=================
+
+.. doxygenclass:: AboutDialog

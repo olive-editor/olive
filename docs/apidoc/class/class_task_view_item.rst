@@ -1,0 +1,4 @@
+Class TaskViewItem
+==================
+
+.. doxygenclass:: TaskViewItem

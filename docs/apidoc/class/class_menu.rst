@@ -1,0 +1,4 @@
+Class Menu
+==========
+
+.. doxygenclass:: Menu

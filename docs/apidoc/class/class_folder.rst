@@ -1,0 +1,4 @@
+Class Folder
+============
+
+.. doxygenclass:: Folder

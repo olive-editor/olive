@@ -1,0 +1,4 @@
+Class WaveInput
+===============
+
+.. doxygenclass:: WaveInput

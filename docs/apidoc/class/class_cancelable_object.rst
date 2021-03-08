@@ -1,0 +1,4 @@
+Class CancelableObject
+======================
+
+.. doxygenclass:: CancelableObject

@@ -1,0 +1,4 @@
+Class PreferencesQualityGroup
+=============================
+
+.. doxygenclass:: PreferencesQualityGroup

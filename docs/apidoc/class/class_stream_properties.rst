@@ -1,0 +1,4 @@
+Class StreamProperties
+======================
+
+.. doxygenclass:: StreamProperties

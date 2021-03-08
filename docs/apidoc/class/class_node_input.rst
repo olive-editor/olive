@@ -1,0 +1,4 @@
+Class NodeInput
+===============
+
+.. doxygenclass:: NodeInput

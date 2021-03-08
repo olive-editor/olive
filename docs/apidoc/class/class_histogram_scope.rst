@@ -1,0 +1,4 @@
+Class HistogramScope
+====================
+
+.. doxygenclass:: HistogramScope

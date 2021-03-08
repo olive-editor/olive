@@ -1,0 +1,4 @@
+Class FileFunctions
+===================
+
+.. doxygenclass:: FileFunctions

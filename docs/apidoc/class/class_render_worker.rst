@@ -1,0 +1,4 @@
+Class RenderWorker
+==================
+
+.. doxygenclass:: RenderWorker

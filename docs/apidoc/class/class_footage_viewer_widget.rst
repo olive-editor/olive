@@ -1,0 +1,4 @@
+Class FootageViewerWidget
+=========================
+
+.. doxygenclass:: FootageViewerWidget

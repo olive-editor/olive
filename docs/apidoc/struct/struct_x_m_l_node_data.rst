@@ -1,0 +1,4 @@
+Struct XMLNodeData
+==================
+
+.. doxygenstruct:: XMLNodeData

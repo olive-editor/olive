@@ -1,0 +1,4 @@
+Class NodeParamSetKeyframeValueCommand
+======================================
+
+.. doxygenclass:: NodeParamSetKeyframeValueCommand

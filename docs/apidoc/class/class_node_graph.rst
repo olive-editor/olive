@@ -1,0 +1,4 @@
+Class NodeGraph
+===============
+
+.. doxygenclass:: NodeGraph

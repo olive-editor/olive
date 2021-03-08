@@ -1,0 +1,4 @@
+Class AudioParams
+=================
+
+.. doxygenclass:: AudioParams

@@ -1,0 +1,4 @@
+Class ManagedDisplayWidget
+==========================
+
+.. doxygenclass:: ManagedDisplayWidget

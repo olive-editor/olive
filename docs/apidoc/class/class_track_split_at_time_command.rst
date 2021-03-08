@@ -1,0 +1,4 @@
+Class TrackSplitAtTimeCommand
+=============================
+
+.. doxygenclass:: TrackSplitAtTimeCommand

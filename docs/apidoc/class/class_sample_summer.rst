@@ -1,0 +1,4 @@
+Class SampleSummer
+==================
+
+.. doxygenclass:: SampleSummer

@@ -1,0 +1,4 @@
+Class HistogramScopeWorker
+==========================
+
+.. doxygenclass:: HistogramScopeWorker

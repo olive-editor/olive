@@ -1,0 +1,4 @@
+Class BlockSplitCommand
+=======================
+
+.. doxygenclass:: BlockSplitCommand

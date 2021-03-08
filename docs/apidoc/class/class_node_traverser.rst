@@ -1,0 +1,4 @@
+Class NodeTraverser
+===================
+
+.. doxygenclass:: NodeTraverser

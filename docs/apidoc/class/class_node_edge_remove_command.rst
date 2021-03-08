@@ -1,0 +1,4 @@
+Class NodeEdgeRemoveCommand
+===========================
+
+.. doxygenclass:: NodeEdgeRemoveCommand

@@ -1,0 +1,4 @@
+Class NodeView
+==============
+
+.. doxygenclass:: NodeView

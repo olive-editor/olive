@@ -1,0 +1,4 @@
+Class CodecSection
+==================
+
+.. doxygenclass:: CodecSection

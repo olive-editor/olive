@@ -1,0 +1,4 @@
+Class MainMenu
+==============
+
+.. doxygenclass:: MainMenu

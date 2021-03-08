@@ -1,0 +1,4 @@
+Class VideoStream
+=================
+
+.. doxygenclass:: VideoStream

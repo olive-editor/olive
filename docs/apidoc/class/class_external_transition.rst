@@ -1,0 +1,4 @@
+Class ExternalTransition
+========================
+
+.. doxygenclass:: ExternalTransition

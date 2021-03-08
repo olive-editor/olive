@@ -1,0 +1,4 @@
+Class CurvePanel
+================
+
+.. doxygenclass:: CurvePanel

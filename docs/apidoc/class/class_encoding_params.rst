@@ -1,0 +1,4 @@
+Class EncodingParams
+====================
+
+.. doxygenclass:: EncodingParams

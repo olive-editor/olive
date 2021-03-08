@@ -1,0 +1,4 @@
+Class ColumnedGridLayout
+========================
+
+.. doxygenclass:: ColumnedGridLayout

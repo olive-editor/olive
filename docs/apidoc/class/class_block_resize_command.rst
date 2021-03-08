@@ -1,0 +1,4 @@
+Class BlockResizeCommand
+========================
+
+.. doxygenclass:: BlockResizeCommand

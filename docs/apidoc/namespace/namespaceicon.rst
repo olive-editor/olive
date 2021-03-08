@@ -1,0 +1,4 @@
+Namespace icon
+==============
+
+.. doxygennamespace:: icon

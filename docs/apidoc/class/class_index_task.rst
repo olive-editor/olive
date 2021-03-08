@@ -1,0 +1,4 @@
+Class IndexTask
+===============
+
+.. doxygenclass:: IndexTask

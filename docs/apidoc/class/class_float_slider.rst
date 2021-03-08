@@ -1,0 +1,4 @@
+Class FloatSlider
+=================
+
+.. doxygenclass:: FloatSlider

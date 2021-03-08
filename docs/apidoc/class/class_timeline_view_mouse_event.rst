@@ -1,0 +1,4 @@
+Class TimelineViewMouseEvent
+============================
+
+.. doxygenclass:: TimelineViewMouseEvent

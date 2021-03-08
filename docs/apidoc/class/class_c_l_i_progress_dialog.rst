@@ -1,0 +1,4 @@
+Class CLIProgressDialog
+=======================
+
+.. doxygenclass:: CLIProgressDialog

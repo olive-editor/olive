@@ -1,0 +1,4 @@
+Class FootageComboBox
+=====================
+
+.. doxygenclass:: FootageComboBox

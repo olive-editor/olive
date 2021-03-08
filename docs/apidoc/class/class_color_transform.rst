@@ -1,0 +1,4 @@
+Class ColorTransform
+====================
+
+.. doxygenclass:: ColorTransform

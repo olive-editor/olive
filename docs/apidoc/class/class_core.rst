@@ -1,0 +1,4 @@
+Class Core
+==========
+
+.. doxygenclass:: Core

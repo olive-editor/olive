@@ -1,0 +1,4 @@
+Class FFmpegDecoder
+===================
+
+.. doxygenclass:: FFmpegDecoder

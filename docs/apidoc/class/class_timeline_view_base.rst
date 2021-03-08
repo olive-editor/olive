@@ -1,0 +1,4 @@
+Class TimelineViewBase
+======================
+
+.. doxygenclass:: TimelineViewBase

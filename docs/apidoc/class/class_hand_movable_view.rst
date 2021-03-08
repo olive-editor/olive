@@ -1,0 +1,4 @@
+Class HandMovableView
+=====================
+
+.. doxygenclass:: HandMovableView

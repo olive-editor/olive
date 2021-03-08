@@ -1,0 +1,4 @@
+Class Task
+==========
+
+.. doxygenclass:: Task

@@ -1,0 +1,4 @@
+Class RenderMode
+================
+
+.. doxygenclass:: RenderMode

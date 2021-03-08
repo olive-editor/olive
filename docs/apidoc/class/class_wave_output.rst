@@ -1,0 +1,4 @@
+Class WaveOutput
+================
+
+.. doxygenclass:: WaveOutput

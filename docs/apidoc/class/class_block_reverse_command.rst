@@ -1,0 +1,4 @@
+Class BlockReverseCommand
+=========================
+
+.. doxygenclass:: BlockReverseCommand

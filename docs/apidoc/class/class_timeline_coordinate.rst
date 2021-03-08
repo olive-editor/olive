@@ -1,0 +1,4 @@
+Class TimelineCoordinate
+========================
+
+.. doxygenclass:: TimelineCoordinate

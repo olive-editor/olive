@@ -1,0 +1,4 @@
+Class CLITaskDialog
+===================
+
+.. doxygenclass:: CLITaskDialog

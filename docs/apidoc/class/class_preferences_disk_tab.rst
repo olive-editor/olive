@@ -1,0 +1,4 @@
+Class PreferencesDiskTab
+========================
+
+.. doxygenclass:: PreferencesDiskTab

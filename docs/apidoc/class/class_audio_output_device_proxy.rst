@@ -1,0 +1,4 @@
+Class AudioOutputDeviceProxy
+============================
+
+.. doxygenclass:: AudioOutputDeviceProxy

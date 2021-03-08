@@ -1,0 +1,4 @@
+Class UndoCommand
+=================
+
+.. doxygenclass:: UndoCommand

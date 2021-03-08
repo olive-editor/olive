@@ -1,0 +1,4 @@
+Class NodeInputArray
+====================
+
+.. doxygenclass:: NodeInputArray

@@ -1,0 +1,4 @@
+Class TrackCleanGapsCommand
+===========================
+
+.. doxygenclass:: TrackCleanGapsCommand

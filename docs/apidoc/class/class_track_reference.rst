@@ -1,0 +1,4 @@
+Class TrackReference
+====================
+
+.. doxygenclass:: TrackReference

@@ -1,0 +1,4 @@
+Class KeyframeSetBezierControlPoint
+===================================
+
+.. doxygenclass:: KeyframeSetBezierControlPoint

@@ -1,0 +1,4 @@
+Class VideoRenderBackend
+========================
+
+.. doxygenclass:: VideoRenderBackend

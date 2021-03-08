@@ -1,0 +1,4 @@
+Class ResizableScrollBar
+========================
+
+.. doxygenclass:: ResizableScrollBar

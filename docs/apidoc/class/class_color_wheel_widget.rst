@@ -1,0 +1,4 @@
+Class ColorWheelWidget
+======================
+
+.. doxygenclass:: ColorWheelWidget

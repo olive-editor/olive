@@ -1,0 +1,4 @@
+Class KeyframePropertiesDialog
+==============================
+
+.. doxygenclass:: KeyframePropertiesDialog

@@ -1,0 +1,4 @@
+Class rational
+==============
+
+.. doxygenclass:: rational

@@ -1,0 +1,4 @@
+Class NodeMetaReader
+====================
+
+.. doxygenclass:: NodeMetaReader

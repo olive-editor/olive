@@ -1,0 +1,4 @@
+Class TrigonometryNode
+======================
+
+.. doxygenclass:: TrigonometryNode

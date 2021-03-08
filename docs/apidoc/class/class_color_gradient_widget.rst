@@ -1,0 +1,4 @@
+Class ColorGradientWidget
+=========================
+
+.. doxygenclass:: ColorGradientWidget

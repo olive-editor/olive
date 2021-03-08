@@ -1,0 +1,4 @@
+Class TrackRippleRemoveBlockCommand
+===================================
+
+.. doxygenclass:: TrackRippleRemoveBlockCommand

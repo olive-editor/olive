@@ -1,0 +1,4 @@
+Class TimelineWidget
+====================
+
+.. doxygenclass:: TimelineWidget

@@ -1,0 +1,4 @@
+Class StyleManager
+==================
+
+.. doxygenclass:: StyleManager

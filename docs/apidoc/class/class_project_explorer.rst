@@ -1,0 +1,4 @@
+Class ProjectExplorer
+=====================
+
+.. doxygenclass:: ProjectExplorer

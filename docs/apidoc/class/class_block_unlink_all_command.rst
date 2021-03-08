@@ -1,0 +1,4 @@
+Class BlockUnlinkAllCommand
+===========================
+
+.. doxygenclass:: BlockUnlinkAllCommand

@@ -1,0 +1,4 @@
+Class AVFrameWrapper
+====================
+
+.. doxygenclass:: AVFrameWrapper

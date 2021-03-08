@@ -1,0 +1,4 @@
+Class KeyframeSetTypeCommand
+============================
+
+.. doxygenclass:: KeyframeSetTypeCommand

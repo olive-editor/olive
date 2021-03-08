@@ -1,0 +1,4 @@
+Class ProjectExplorerListView
+=============================
+
+.. doxygenclass:: ProjectExplorerListView

@@ -1,0 +1,4 @@
+Class TimelinePlayhead
+======================
+
+.. doxygenclass:: TimelinePlayhead

@@ -1,0 +1,4 @@
+Class PixelFormat
+=================
+
+.. doxygenclass:: PixelFormat

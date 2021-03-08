@@ -1,0 +1,4 @@
+Class MainStatusBar
+===================
+
+.. doxygenclass:: MainStatusBar

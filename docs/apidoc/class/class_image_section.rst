@@ -1,0 +1,4 @@
+Class ImageSection
+==================
+
+.. doxygenclass:: ImageSection

@@ -1,0 +1,4 @@
+Class NodeFactory
+=================
+
+.. doxygenclass:: NodeFactory

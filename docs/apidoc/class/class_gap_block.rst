@@ -1,0 +1,4 @@
+Class GapBlock
+==============
+
+.. doxygenclass:: GapBlock

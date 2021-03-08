@@ -1,0 +1,4 @@
+Class TempoProcessor
+====================
+
+.. doxygenclass:: TempoProcessor

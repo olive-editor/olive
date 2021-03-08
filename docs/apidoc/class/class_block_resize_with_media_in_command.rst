@@ -1,0 +1,4 @@
+Class BlockResizeWithMediaInCommand
+===================================
+
+.. doxygenclass:: BlockResizeWithMediaInCommand

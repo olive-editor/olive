@@ -1,0 +1,4 @@
+Class ProjectSaveManager
+========================
+
+.. doxygenclass:: ProjectSaveManager

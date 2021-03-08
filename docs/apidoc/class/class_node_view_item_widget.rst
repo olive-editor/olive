@@ -1,0 +1,4 @@
+Class NodeViewItemWidget
+========================
+
+.. doxygenclass:: NodeViewItemWidget

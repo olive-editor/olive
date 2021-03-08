@@ -1,0 +1,4 @@
+Class VideoRenderWorker
+=======================
+
+.. doxygenclass:: VideoRenderWorker

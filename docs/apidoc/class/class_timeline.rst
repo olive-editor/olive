@@ -1,0 +1,4 @@
+Class Timeline
+==============
+
+.. doxygenclass:: Timeline

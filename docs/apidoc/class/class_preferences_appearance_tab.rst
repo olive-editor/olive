@@ -1,0 +1,4 @@
+Class PreferencesAppearanceTab
+==============================
+
+.. doxygenclass:: PreferencesAppearanceTab

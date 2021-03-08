@@ -1,0 +1,4 @@
+Class ColorManager
+==================
+
+.. doxygenclass:: ColorManager

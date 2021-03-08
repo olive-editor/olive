@@ -1,0 +1,4 @@
+Class ManagedPixelSamplerWidget
+===============================
+
+.. doxygenclass:: ManagedPixelSamplerWidget

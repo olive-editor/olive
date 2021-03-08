@@ -1,0 +1,4 @@
+Class Sequence
+==============
+
+.. doxygenclass:: Sequence

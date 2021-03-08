@@ -1,0 +1,4 @@
+Class BlockLinkManyCommand
+==========================
+
+.. doxygenclass:: BlockLinkManyCommand

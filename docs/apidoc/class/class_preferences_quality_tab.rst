@@ -1,0 +1,4 @@
+Class PreferencesQualityTab
+===========================
+
+.. doxygenclass:: PreferencesQualityTab

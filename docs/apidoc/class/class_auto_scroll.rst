@@ -1,0 +1,4 @@
+Class AutoScroll
+================
+
+.. doxygenclass:: AutoScroll

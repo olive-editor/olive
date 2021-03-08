@@ -1,0 +1,4 @@
+Class Exporter
+==============
+
+.. doxygenclass:: Exporter

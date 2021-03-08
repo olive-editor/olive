@@ -1,0 +1,4 @@
+Class FocusableLineEdit
+=======================
+
+.. doxygenclass:: FocusableLineEdit

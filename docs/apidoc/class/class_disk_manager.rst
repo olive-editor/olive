@@ -1,0 +1,4 @@
+Class DiskManager
+=================
+
+.. doxygenclass:: DiskManager

@@ -1,0 +1,4 @@
+Class NodeParamViewKeyframeControl
+==================================
+
+.. doxygenclass:: NodeParamViewKeyframeControl

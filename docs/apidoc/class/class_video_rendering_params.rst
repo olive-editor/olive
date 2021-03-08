@@ -1,0 +1,4 @@
+Class VideoRenderingParams
+==========================
+
+.. doxygenclass:: VideoRenderingParams

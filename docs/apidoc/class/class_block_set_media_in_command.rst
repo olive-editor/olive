@@ -1,0 +1,4 @@
+Class BlockSetMediaInCommand
+============================
+
+.. doxygenclass:: BlockSetMediaInCommand

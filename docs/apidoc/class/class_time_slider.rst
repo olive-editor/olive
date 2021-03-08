@@ -1,0 +1,4 @@
+Class TimeSlider
+================
+
+.. doxygenclass:: TimeSlider

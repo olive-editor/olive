@@ -1,0 +1,4 @@
+Class VideoRenderFrameCache
+===========================
+
+.. doxygenclass:: VideoRenderFrameCache

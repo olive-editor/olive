@@ -1,0 +1,4 @@
+Class ViewerWidget
+==================
+
+.. doxygenclass:: ViewerWidget

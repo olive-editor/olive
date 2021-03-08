@@ -1,0 +1,4 @@
+Class ExternalNode
+==================
+
+.. doxygenclass:: ExternalNode

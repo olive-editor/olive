@@ -1,0 +1,4 @@
+Class SequenceViewerPanel
+=========================
+
+.. doxygenclass:: SequenceViewerPanel

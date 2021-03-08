@@ -1,0 +1,4 @@
+Class TrackReplaceBlockCommand
+==============================
+
+.. doxygenclass:: TrackReplaceBlockCommand

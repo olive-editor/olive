@@ -1,0 +1,4 @@
+Class ProjectImportManager
+==========================
+
+.. doxygenclass:: ProjectImportManager

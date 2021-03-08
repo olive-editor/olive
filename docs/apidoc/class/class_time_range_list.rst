@@ -1,0 +1,4 @@
+Class TimeRangeList
+===================
+
+.. doxygenclass:: TimeRangeList

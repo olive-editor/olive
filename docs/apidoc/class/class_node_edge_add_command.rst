@@ -1,0 +1,4 @@
+Class NodeEdgeAddCommand
+========================
+
+.. doxygenclass:: NodeEdgeAddCommand

@@ -1,0 +1,4 @@
+Class VideoStreamProperties
+===========================
+
+.. doxygenclass:: VideoStreamProperties

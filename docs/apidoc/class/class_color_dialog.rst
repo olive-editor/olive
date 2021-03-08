@@ -1,0 +1,4 @@
+Class ColorDialog
+=================
+
+.. doxygenclass:: ColorDialog

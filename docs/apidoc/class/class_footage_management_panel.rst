@@ -1,0 +1,4 @@
+Class FootageManagementPanel
+============================
+
+.. doxygenclass:: FootageManagementPanel

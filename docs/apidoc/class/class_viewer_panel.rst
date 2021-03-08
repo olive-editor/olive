@@ -1,0 +1,4 @@
+Class ViewerPanel
+=================
+
+.. doxygenclass:: ViewerPanel

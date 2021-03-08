@@ -1,0 +1,4 @@
+Class KeyframeViewItem
+======================
+
+.. doxygenclass:: KeyframeViewItem

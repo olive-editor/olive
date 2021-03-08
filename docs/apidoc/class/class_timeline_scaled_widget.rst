@@ -1,0 +1,4 @@
+Class TimelineScaledWidget
+==========================
+
+.. doxygenclass:: TimelineScaledWidget

@@ -1,0 +1,4 @@
+Class Footage
+=============
+
+.. doxygenclass:: Footage

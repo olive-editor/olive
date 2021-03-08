@@ -1,0 +1,4 @@
+Class TimelineAndTrackView
+==========================
+
+.. doxygenclass:: TimelineAndTrackView

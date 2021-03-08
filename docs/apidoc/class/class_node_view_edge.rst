@@ -1,0 +1,4 @@
+Class NodeViewEdge
+==================
+
+.. doxygenclass:: NodeViewEdge

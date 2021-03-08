@@ -1,0 +1,4 @@
+Class ConformTask
+=================
+
+.. doxygenclass:: ConformTask

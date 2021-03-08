@@ -1,0 +1,4 @@
+Class TimeTargetObject
+======================
+
+.. doxygenclass:: TimeTargetObject

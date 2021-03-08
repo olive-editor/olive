@@ -1,0 +1,4 @@
+Class TrackViewSplitterHandle
+=============================
+
+.. doxygenclass:: TrackViewSplitterHandle

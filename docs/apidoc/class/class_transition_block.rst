@@ -1,0 +1,4 @@
+Class TransitionBlock
+=====================
+
+.. doxygenclass:: TransitionBlock

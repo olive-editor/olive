@@ -1,0 +1,4 @@
+Class TimelinePanel
+===================
+
+.. doxygenclass:: TimelinePanel

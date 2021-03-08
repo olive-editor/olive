@@ -1,0 +1,4 @@
+Class AudioManager
+==================
+
+.. doxygenclass:: AudioManager

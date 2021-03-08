@@ -1,0 +1,4 @@
+Class Node
+==========
+
+.. doxygenclass:: Node

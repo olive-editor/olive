@@ -1,0 +1,4 @@
+Class TimelineWorkArea
+======================
+
+.. doxygenclass:: TimelineWorkArea

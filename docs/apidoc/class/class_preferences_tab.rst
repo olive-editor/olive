@@ -1,0 +1,4 @@
+Class PreferencesTab
+====================
+
+.. doxygenclass:: PreferencesTab

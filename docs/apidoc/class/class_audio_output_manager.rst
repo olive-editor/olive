@@ -1,0 +1,4 @@
+Class AudioOutputManager
+========================
+
+.. doxygenclass:: AudioOutputManager

@@ -1,0 +1,4 @@
+Class TrackPlaceBlockCommand
+============================
+
+.. doxygenclass:: TrackPlaceBlockCommand

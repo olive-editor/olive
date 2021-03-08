@@ -1,0 +1,4 @@
+Class TimelineScaledObject
+==========================
+
+.. doxygenclass:: TimelineScaledObject

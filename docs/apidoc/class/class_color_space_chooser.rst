@@ -1,0 +1,4 @@
+Class ColorSpaceChooser
+=======================
+
+.. doxygenclass:: ColorSpaceChooser

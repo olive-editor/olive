@@ -1,0 +1,4 @@
+Class ProjectViewModel
+======================
+
+.. doxygenclass:: ProjectViewModel

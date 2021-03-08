@@ -1,0 +1,4 @@
+Class ProgressDialog
+====================
+
+.. doxygenclass:: ProgressDialog

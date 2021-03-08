@@ -1,0 +1,4 @@
+Class WorkareaSetRangeCommand
+=============================
+
+.. doxygenclass:: WorkareaSetRangeCommand

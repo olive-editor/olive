@@ -1,0 +1,4 @@
+Class Frame
+===========
+
+.. doxygenclass:: Frame

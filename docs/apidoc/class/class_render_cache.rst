@@ -1,0 +1,4 @@
+Class RenderCache
+=================
+
+.. doxygenclass:: RenderCache

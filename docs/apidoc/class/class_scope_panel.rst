@@ -1,0 +1,4 @@
+Class ScopePanel
+================
+
+.. doxygenclass:: ScopePanel

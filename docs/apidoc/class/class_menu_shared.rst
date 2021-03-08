@@ -1,0 +1,4 @@
+Class MenuShared
+================
+
+.. doxygenclass:: MenuShared

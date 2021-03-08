@@ -1,0 +1,4 @@
+Class TimelineViewRect
+======================
+
+.. doxygenclass:: TimelineViewRect

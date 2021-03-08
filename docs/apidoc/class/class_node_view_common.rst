@@ -1,0 +1,4 @@
+Class NodeViewCommon
+====================
+
+.. doxygenclass:: NodeViewCommon

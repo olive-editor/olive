@@ -1,0 +1,4 @@
+Class TrackRippleRemoveAreaCommand
+==================================
+
+.. doxygenclass:: TrackRippleRemoveAreaCommand

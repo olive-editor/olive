@@ -1,0 +1,4 @@
+Class IndexManager
+==================
+
+.. doxygenclass:: IndexManager

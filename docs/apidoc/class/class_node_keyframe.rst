@@ -1,0 +1,4 @@
+Class NodeKeyframe
+==================
+
+.. doxygenclass:: NodeKeyframe

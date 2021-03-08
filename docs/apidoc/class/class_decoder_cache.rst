@@ -1,0 +1,4 @@
+Class DecoderCache
+==================
+
+.. doxygenclass:: DecoderCache

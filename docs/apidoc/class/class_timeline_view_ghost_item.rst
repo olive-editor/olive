@@ -1,0 +1,4 @@
+Class TimelineViewGhostItem
+===========================
+
+.. doxygenclass:: TimelineViewGhostItem

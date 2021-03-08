@@ -1,0 +1,4 @@
+Class NodeParamSetKeyframeTimeCommand
+=====================================
+
+.. doxygenclass:: NodeParamSetKeyframeTimeCommand

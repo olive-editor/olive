@@ -1,0 +1,4 @@
+Class PreferencesBehaviorTab
+============================
+
+.. doxygenclass:: PreferencesBehaviorTab

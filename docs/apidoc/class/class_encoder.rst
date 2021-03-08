@@ -1,0 +1,4 @@
+Class Encoder
+=============
+
+.. doxygenclass:: Encoder

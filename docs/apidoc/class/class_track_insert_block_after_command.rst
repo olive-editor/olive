@@ -1,0 +1,4 @@
+Class TrackInsertBlockAfterCommand
+==================================
+
+.. doxygenclass:: TrackInsertBlockAfterCommand

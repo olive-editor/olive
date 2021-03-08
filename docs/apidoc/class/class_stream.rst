@@ -1,0 +1,4 @@
+Class Stream
+============
+
+.. doxygenclass:: Stream

@@ -1,0 +1,4 @@
+Class ExportDialog
+==================
+
+.. doxygenclass:: ExportDialog
