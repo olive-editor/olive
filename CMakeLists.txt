@@ -98,3 +98,4 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(app)
+add_subdirectory(docs)

@@ -44,13 +44,21 @@ extensions = [
     #'sphinx.ext.todo',
     #'sphinx.ext.githubpages',
     'breathe',
-    'sphinx.ext.autosectionlabel' # headline IDs for anchor linking
+    'sphinx.ext.autosectionlabel', # headline IDs for anchor linking
+    'sphinx_tabs.tabs',
+    'rst2pdf.pdfbuilder'
     # Blender:
     #'youtube',
     #'vimeo',
     #'sphinx.ext.mathjax',
     #'sphinx.ext.intersphinx',
     #'404'
+]
+
+sphinx_tabs_valid_builders = ['linkcheck']
+
+pdf_documents = [
+    ('index', 'olive-docs', 'Olive Docs', 'Simran'),
 ]
 
 # Blender:
@@ -211,10 +219,18 @@ html_theme_options = {
     # Toc options
 #   'collapse_navigation': True,
     'sticky_navigation': True,
-#   'navigation_depth': 4,
+    'navigation_depth': 3,
     'includehidden': True,
     'titles_only': False
 }
+
+# No "View page source" link and don't create _sources/**.rst.txt files
+# TODO: Add "Edit on GitHub" link instead?
+html_copy_source = False
+html_show_sourcelink = False
+
+#html_show_sphinx = False
+#html_show_copyright = False
 
 # WARNING: Delete _build folder manually to avoid caching issues (even with make html -a -E)
 
@@ -264,3 +280,4 @@ class PatchedHTMLTranslator(HTMLTranslator):
 
 def setup(app):
     app.set_translator('html', PatchedHTMLTranslator)
+    app.set_translator('dirhtml', PatchedHTMLTranslator)

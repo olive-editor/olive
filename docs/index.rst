@@ -1,29 +1,45 @@
-.. Olive documentation master file, created by
-   sphinx-quickstart on Fri May  1 18:08:44 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-..
-   Commented out
-
-   =============
-   What is this?
-   =============
-
-   ------------
-   A Subtitle?!
-   ------------
-
 Welcome to Olive's documentation!
 =================================
 
-External link: https://google.com
+Olive is a cross-platform non-linear video editor (NLE).
+It is free and open source, licensed under `GPLv3`_.
 
-With label: `Google.com <https://google.com>`_
+It features precise **color management**, powerful **node based compositing**
+and potent **interchange** options.
 
-Indirect: `Google Homepage`_
+HDR workflow, linear reference space, radiometrically correct blending of light energy, ACES.
 
-.. _Google Homepage: https://google.com
+Olive is a Qt 5 application with an OpenGL renderer. It depends on the
+following libraries:
+
+* OpenColorIO
+* OpenImageIO
+* OpenTimelineIO
+* libltc
+* FFMPEG
+
+.. _GPLv3: https://www.gnu.org/licenses/gpl-3.0
+
+Frequently Asked Questions
+--------------------------
+
+Target audience: independent filmmakers
+
+::
+
+   Disabled for rst2pdf...
+
+   What is a :term:`Clip`?
+
+   :abbr:`TIL`
+
+   :abbr:`FWIW (for what it's worth)`
+
+.. toctree::
+   :titlesonly:
+
+   faq
+   glossary
 
 .. toctree::
    :maxdepth: 2
@@ -32,12 +48,49 @@ Indirect: `Google Homepage`_
 
    sub/sample
    sub/other
+   get-started/display-languages
+   get-started/index
+   get-started/key-bindings
+   get-started/preferences
+   get-started/themes
+   get-started/tips-and-tricks
+   get-started/user-interface
+   get-started/video-tutorials
+   guides/basic-editing
+   guides/cache
+   guides/command-line
+   guides/curve-editor
+   guides/export
+   guides/footage-viewer
+   guides/import
+   guides/index
+   guides/node-viewer
+   guides/projects
+   guides/sequence-viewer
+   guides/timeline
+   setup/index
+   community/channels
+   community/code-of-conduct
+   community/contribute
+   community/resources
 
 .. toctree::
    :maxdepth: 2
    :caption: Developers
    :hidden:
 
+   development/architecture
+   development/build-system
+   development/code-guidelines
+   development/compile-on-linux
+   development/compile-on-macos
+   development/compile-on-windows
+   development/compile-with-docker
+   development/debug
+   development/documentation
+   development/file-formats
+   development/shaders
+   development/source-code
    code
 
 .. toctree::
@@ -51,16 +104,14 @@ Indirect: `Google Homepage`_
    Donate (PayPal) <https://olivevideoeditor.org/donate.php>
    Patreon <https://www.patreon.com/olivevideoeditor>
 
-.. _index-another-headline:
-
 Another headline
 ----------------
 
-Cross-ref: :ref:`sub/sample:Another sub heading`
+Thanks to ``sphinx.ext.autosectionlabel``, this section can be referenced with
+``index-another-headline``.
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
